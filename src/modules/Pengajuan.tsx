@@ -8,20 +8,19 @@ import { MASTER_TAHAP_PENGAJUAN } from '../lib/master';
 import { formatRupiah, formatTanggal, hariIniIso } from '../lib/format';
 import { bolehAksi } from '../lib/permissions';
 import {
+  Baris,
   JudulBagian,
   Kartu,
   Label,
   PesanKosong,
   StatusBadge,
+  Tabel,
+  Td,
+  Th,
   TombolSekunder,
   TombolUtama,
   inputClass,
 } from '../components/ui';
-
-const th = 'px-3 py-2 text-left text-xs font-semibold text-[#0d2569]/70';
-const td = 'px-3 py-2 align-top text-sm text-[#0d2569]';
-const barisKlik =
-  'cursor-pointer border-t border-[#2573e2]/10 hover:bg-[#2573e2]/5';
 
 /**
  * Tahap berikutnya yang sah (Bab 9). 'Dikonversi' hanya lewat konversi
@@ -112,39 +111,39 @@ export default function Pengajuan(props: ModulProps) {
       {pengajuanTersaring.length === 0 ? (
         <PesanKosong teks="Belum ada pengajuan yang cocok." />
       ) : (
-        <Kartu className="overflow-x-auto p-0">
-          <table className="w-full border-collapse">
+        <Kartu>
+          <Tabel>
             <thead>
-              <tr className="bg-[#2573e2]/5">
-                <th className={th}>ID</th>
-                <th className={th}>Jenis</th>
-                <th className={th}>Pemohon</th>
-                <th className={th}>Tanggal Masuk</th>
-                <th className={th}>Kebutuhan</th>
-                <th className={th}>Tahap</th>
-                <th className={th}>Penanggung Jawab</th>
+              <tr>
+                <Th>ID</Th>
+                <Th>Jenis</Th>
+                <Th>Pemohon</Th>
+                <Th>Tanggal Masuk</Th>
+                <Th>Kebutuhan</Th>
+                <Th>Tahap</Th>
+                <Th>Penanggung Jawab</Th>
               </tr>
             </thead>
             <tbody>
               {pengajuanTersaring.map((p) => (
-                <tr
+                <Baris
                   key={p.id}
-                  className={barisKlik}
                   onClick={() => setPengajuanIdTerpilih(p.id)}
+                  className="border-t border-[#2573e2]/10"
                 >
-                  <td className={`${td} font-semibold`}>{p.id}</td>
-                  <td className={td}>{p.jenis}</td>
-                  <td className={td}>{p.pemohon}</td>
-                  <td className={td}>{formatTanggal(p.tanggalMasuk)}</td>
-                  <td className={td}>{p.kebutuhan}</td>
-                  <td className={td}>
+                  <Td tebal>{p.id}</Td>
+                  <Td>{p.jenis}</Td>
+                  <Td>{p.pemohon}</Td>
+                  <Td>{formatTanggal(p.tanggalMasuk)}</Td>
+                  <Td>{p.kebutuhan}</Td>
+                  <Td>
                     <StatusBadge status={p.tahap} />
-                  </td>
-                  <td className={td}>{p.penanggungJawab}</td>
-                </tr>
+                  </Td>
+                  <Td>{p.penanggungJawab}</Td>
+                </Baris>
               ))}
             </tbody>
-          </table>
+          </Tabel>
         </Kartu>
       )}
     </div>

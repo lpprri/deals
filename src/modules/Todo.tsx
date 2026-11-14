@@ -10,6 +10,8 @@ import { DUMMY_USERS } from '../lib/dummyUsers';
 import { formatTanggal, hariIniIso } from '../lib/format';
 import { bolehAksi } from '../lib/permissions';
 import {
+  Baris,
+  ItemDaftar,
   JudulBagian,
   Kartu,
   Label,
@@ -17,13 +19,13 @@ import {
   PesanKosong,
   StatusBadge,
   TabBar,
+  Tabel,
+  Td,
+  Th,
   TombolSekunder,
   TombolUtama,
   inputClass,
 } from '../components/ui';
-
-const th = 'px-3 py-2 text-left text-xs font-semibold text-[#0d2569]/70';
-const td = 'px-3 py-2 align-top text-sm text-[#0d2569]';
 
 /**
  * Status berikutnya yang sah: Belum Dikerjakan -> Berjalan -> Selesai.
@@ -176,19 +178,19 @@ function DaftarTugas({
       {tugas.length === 0 ? (
         <PesanKosong teks="Belum ada tugas yang cocok." />
       ) : (
-        <Kartu className="overflow-x-auto p-0">
-          <table className="w-full border-collapse">
+        <Kartu>
+          <Tabel>
             <thead>
-              <tr className="bg-[#2573e2]/5">
-                <th className={th}>ID</th>
-                <th className={th}>Judul</th>
-                <th className={th}>Pemilik</th>
-                <th className={th}>Tenggat</th>
-                <th className={th}>Status</th>
-                <th className={th}>Instruksi Disposisi</th>
-                <th className={th}>Pemberi Disposisi</th>
-                <th className={th}>Tautan Terkait</th>
-                <th className={th}>Aksi</th>
+              <tr>
+                <Th>ID</Th>
+                <Th>Judul</Th>
+                <Th>Pemilik</Th>
+                <Th>Tenggat</Th>
+                <Th>Status</Th>
+                <Th>Instruksi Disposisi</Th>
+                <Th>Pemberi Disposisi</Th>
+                <Th>Tautan Terkait</Th>
+                <Th>Aksi</Th>
               </tr>
             </thead>
             <tbody>
@@ -199,25 +201,25 @@ function DaftarTugas({
                   (t.pemilik === user.nama ||
                     user.peran === 'admin_sistem');
                 return (
-                  <tr key={t.id} className="border-t border-[#2573e2]/10">
-                    <td className={`${td} font-semibold`}>{t.id}</td>
-                    <td className={td}>{t.judul}</td>
-                    <td className={td}>{t.pemilik}</td>
-                    <td className={td}>
+                  <Baris key={t.id}>
+                    <Td tebal>{t.id}</Td>
+                    <Td>{t.judul}</Td>
+                    <Td>{t.pemilik}</Td>
+                    <Td>
                       {formatTanggal(t.tenggat)}
                       {lewatTenggat(t) && (
                         <span className="block text-xs font-semibold">
                           Lewat tenggat
                         </span>
                       )}
-                    </td>
-                    <td className={td}>
+                    </Td>
+                    <Td>
                       <StatusBadge status={t.status} />
-                    </td>
-                    <td className={td}>{t.instruksi ?? '-'}</td>
-                    <td className={td}>{t.pemberiDisposisi ?? '-'}</td>
-                    <td className={td}>{t.terkaitLabel ?? '-'}</td>
-                    <td className={td}>
+                    </Td>
+                    <Td>{t.instruksi ?? '-'}</Td>
+                    <Td>{t.pemberiDisposisi ?? '-'}</Td>
+                    <Td>{t.terkaitLabel ?? '-'}</Td>
+                    <Td>
                       {bolehUbahStatus && berikut !== null ? (
                         <TombolSekunder
                           onClick={() => ubahStatus(t, berikut)}
@@ -227,12 +229,12 @@ function DaftarTugas({
                       ) : (
                         '-'
                       )}
-                    </td>
-                  </tr>
+                    </Td>
+                  </Baris>
                 );
               })}
             </tbody>
-          </table>
+          </Tabel>
         </Kartu>
       )}
 
@@ -436,75 +438,77 @@ function DaftarDisposisi({
       {disposisi.length === 0 ? (
         <PesanKosong teks="Belum ada disposisi yang cocok." />
       ) : (
-        <div className="space-y-4">
-          {disposisi.map((t) => {
-            const bolehTutup =
-              t.status === 'Selesai' &&
-              (t.pemberiDisposisi === user.nama ||
-                bolehAksi(user.peran, 'tutupDisposisi'));
-            return (
-              <Kartu key={t.id}>
-                <div className="flex flex-wrap items-start justify-between gap-2">
-                  <div>
-                    <p className="text-sm font-bold text-[#0d2569]">
-                      {t.id} — {t.judul}
-                    </p>
-                    <p className="mt-1 text-sm text-[#0d2569]/70">
-                      Penerima: {t.pemilik} · Tenggat:{' '}
-                      {formatTanggal(t.tenggat)}
-                      {lewatTenggat(t) ? ' (lewat tenggat)' : ''}
-                      {t.terkaitLabel ? ` · Terkait: ${t.terkaitLabel}` : ''}
-                    </p>
+        <Kartu>
+          <ul>
+            {disposisi.map((t) => {
+              const bolehTutup =
+                t.status === 'Selesai' &&
+                (t.pemberiDisposisi === user.nama ||
+                  bolehAksi(user.peran, 'tutupDisposisi'));
+              return (
+                <ItemDaftar key={t.id}>
+                  <div className="flex flex-wrap items-start justify-between gap-2">
+                    <div>
+                      <p className="text-sm font-bold text-[#0d2569]">
+                        {t.id} — {t.judul}
+                      </p>
+                      <p className="mt-1 text-sm text-[#0d2569]/70">
+                        Penerima: {t.pemilik} · Tenggat:{' '}
+                        {formatTanggal(t.tenggat)}
+                        {lewatTenggat(t) ? ' (lewat tenggat)' : ''}
+                        {t.terkaitLabel ? ` · Terkait: ${t.terkaitLabel}` : ''}
+                      </p>
+                    </div>
+                    <StatusBadge status={t.status} />
                   </div>
-                  <StatusBadge status={t.status} />
-                </div>
 
-                {t.instruksi && (
-                  <p className="mt-3 text-sm text-[#0d2569]">
-                    <span className="font-semibold">Instruksi: </span>
-                    {t.instruksi}
-                  </p>
-                )}
+                  {t.instruksi && (
+                    <p className="mt-3 text-sm text-[#0d2569]">
+                      <span className="font-semibold">Instruksi: </span>
+                      {t.instruksi}
+                    </p>
+                  )}
 
-                <div className="mt-3">
-                  <p className="text-xs font-semibold text-[#0d2569]/70">
-                    Riwayat alur disposisi
-                  </p>
-                  <ol className="mt-1 list-inside list-decimal space-y-1 text-sm text-[#0d2569]">
-                    <li>
-                      ✓ Dibuat oleh {t.pemberiDisposisi}
-                      {t.disposisiDari ? ` (${t.disposisiDari})` : ''}
-                    </li>
-                    <li>
-                      {t.status === 'Belum Dikerjakan'
-                        ? '• Menunggu dikerjakan oleh '
-                        : '✓ Dikerjakan oleh '}
-                      {t.pemilik}
-                    </li>
-                    <li>
-                      {t.status === 'Selesai' || t.status === 'Ditutup'
-                        ? '✓ Selesai'
-                        : '• Belum selesai'}
-                    </li>
-                    <li>
-                      {t.status === 'Ditutup'
-                        ? '✓ Ditutup oleh pemberi disposisi'
-                        : '• Belum ditutup'}
-                    </li>
-                  </ol>
-                </div>
-
-                {bolehTutup && (
                   <div className="mt-3">
-                    <TombolUtama onClick={() => tutup(t)}>
-                      Tutup Disposisi
-                    </TombolUtama>
+                    <p className="text-xs font-semibold text-[#0d2569]/70">
+                      Riwayat alur disposisi
+                    </p>
+                    <ol className="mt-1 list-inside list-decimal space-y-1 text-sm text-[#0d2569]">
+                      <li>
+                        ✓ Dibuat oleh {t.pemberiDisposisi}
+                        {t.disposisiDari ? ` (${t.disposisiDari})` : ''}
+                      </li>
+                      <li>
+                        {t.status === 'Belum Dikerjakan'
+                          ? '• Menunggu dikerjakan oleh '
+                          : '✓ Dikerjakan oleh '}
+                        {t.pemilik}
+                      </li>
+                      <li>
+                        {t.status === 'Selesai' || t.status === 'Ditutup'
+                          ? '✓ Selesai'
+                          : '• Belum selesai'}
+                      </li>
+                      <li>
+                        {t.status === 'Ditutup'
+                          ? '✓ Ditutup oleh pemberi disposisi'
+                          : '• Belum ditutup'}
+                      </li>
+                    </ol>
                   </div>
-                )}
-              </Kartu>
-            );
-          })}
-        </div>
+
+                  {bolehTutup && (
+                    <div className="mt-3">
+                      <TombolUtama onClick={() => tutup(t)}>
+                        Tutup Disposisi
+                      </TombolUtama>
+                    </div>
+                  )}
+                </ItemDaftar>
+              );
+            })}
+          </ul>
+        </Kartu>
       )}
 
       {pesan !== '' && (

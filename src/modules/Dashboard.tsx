@@ -36,11 +36,16 @@ import {
 import { uraianKodeAkun } from '../lib/master';
 import { formatWaktuAudit } from '../lib/audit';
 import {
+  Baris,
+  ItemDaftar,
   JudulBagian,
   Kartu,
   PesanKosong,
   StatCard,
   StatusBadge,
+  Tabel,
+  Td,
+  Th,
 } from '../components/ui';
 
 /** Tanggal ISO (yyyy-mm-dd) untuk hari tertentu di bulan berikutnya. */
@@ -73,10 +78,12 @@ function GrafikTren({
   penyetoran: TitikBulanan[];
 }) {
   const [seri, setSeri] = useState<'kontrak' | 'penyetoran'>('kontrak');
-  const periode = [...new Set([...kontrak, ...penyetoran].map((t) => t.periode))].sort();
+  // Sumbu memakai bulan seri yang aktif saja — sebelumnya memakai gabungan
+  // kedua seri sehingga muncul titik nol palsu (kontrak Jul 2025 = Rp0,
+  // penyetoran Okt 2026 = Rp0) yang terbaca seperti anjlok.
   const aktif = seri === 'kontrak' ? kontrak : penyetoran;
-  const nilaiPerPeriode = new Map(aktif.map((t) => [t.periode, t.nilai]));
-  const nilai = periode.map((p) => nilaiPerPeriode.get(p) ?? 0);
+  const periode = aktif.map((t) => t.periode);
+  const nilai = aktif.map((t) => t.nilai);
   const total = nilai.reduce((a, b) => a + b, 0);
   const maks = Math.max(...nilai, 1);
   const idxTertinggi = nilai.indexOf(Math.max(...nilai));
@@ -380,10 +387,7 @@ export default function Dashboard({ data }: ModulProps) {
         ) : (
           <ul className="mt-3 space-y-3">
             {perhatian.map((item, i) => (
-              <li
-                key={`${item.kategori}-${i}`}
-                className="rounded-md border border-[#2573e2]/20 px-4 py-3"
-              >
+              <ItemDaftar key={`${item.kategori}-${i}`}>
                 <div className="flex flex-wrap items-center gap-2">
                   <StatusBadge status={item.kategori} />
                 </div>
@@ -391,7 +395,7 @@ export default function Dashboard({ data }: ModulProps) {
                   {item.teks}
                 </p>
                 <p className="mt-1 text-xs text-[#0d2569]/70">{item.detail}</p>
-              </li>
+              </ItemDaftar>
             ))}
           </ul>
         )}
@@ -405,43 +409,30 @@ export default function Dashboard({ data }: ModulProps) {
             <PesanKosong teks="Belum ada tagihan atau penerimaan acuan." />
           </div>
         ) : (
-          <div className="mt-3 overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="border-b border-[#2573e2]/20 text-left text-xs text-[#0d2569]/60">
-                  <th className="py-2 pr-3 font-semibold">Kode Akun</th>
-                  <th className="py-2 pr-3 font-semibold">Uraian</th>
-                  <th className="py-2 pr-3 text-right font-semibold">Tagihan</th>
-                  <th className="py-2 pr-3 text-right font-semibold">Pembayaran</th>
-                  <th className="py-2 pr-3 text-right font-semibold">Acuan Keuangan</th>
-                  <th className="py-2 text-right font-semibold">Selisih</th>
-                </tr>
-              </thead>
-              <tbody>
-                {perKodeAkun.map((r) => (
-                  <tr
-                    key={r.kodeAkun}
-                    className="border-b border-[#2573e2]/10 text-[#0d2569]"
-                  >
-                    <td className="py-2 pr-3 font-semibold">{r.kodeAkun}</td>
-                    <td className="py-2 pr-3">{uraianKodeAkun(r.kodeAkun)}</td>
-                    <td className="py-2 pr-3 text-right">
-                      {formatRupiah(r.tagihan)}
-                    </td>
-                    <td className="py-2 pr-3 text-right">
-                      {formatRupiah(r.pembayaran)}
-                    </td>
-                    <td className="py-2 pr-3 text-right">
-                      {formatRupiah(r.acuan)}
-                    </td>
-                    <td className="py-2 text-right font-semibold">
-                      {formatRupiah(r.selisih)}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+          <Tabel>
+            <thead>
+              <tr>
+                <Th>Kode Akun</Th>
+                <Th>Uraian</Th>
+                <Th kanan>Tagihan</Th>
+                <Th kanan>Pembayaran</Th>
+                <Th kanan>Acuan Keuangan</Th>
+                <Th kanan>Selisih</Th>
+              </tr>
+            </thead>
+            <tbody>
+              {perKodeAkun.map((r) => (
+                <Baris key={r.kodeAkun}>
+                  <Td tebal>{r.kodeAkun}</Td>
+                  <Td>{uraianKodeAkun(r.kodeAkun)}</Td>
+                  <Td kanan>{formatRupiah(r.tagihan)}</Td>
+                  <Td kanan>{formatRupiah(r.pembayaran)}</Td>
+                  <Td kanan>{formatRupiah(r.acuan)}</Td>
+                  <Td kanan tebal>{formatRupiah(r.selisih)}</Td>
+                </Baris>
+              ))}
+            </tbody>
+          </Tabel>
         )}
       </Kartu>
 
@@ -455,16 +446,13 @@ export default function Dashboard({ data }: ModulProps) {
         ) : (
           <ul className="mt-3 space-y-3">
             {aktivitasTerakhir.map((a) => (
-              <li
-                key={a.id}
-                className="border-b border-[#2573e2]/10 pb-3 text-sm last:border-0 last:pb-0"
-              >
+              <ItemDaftar key={a.id} className="text-sm">
                 <p className="font-semibold text-[#0d2569]">{a.aksi}</p>
                 <p className="mt-0.5 text-xs text-[#0d2569]/70">
                   {formatWaktuAudit(a.waktu)} · {a.pengguna} · {a.entitas}{' '}
                   {a.entitasId}
                 </p>
-              </li>
+              </ItemDaftar>
             ))}
           </ul>
         )}
