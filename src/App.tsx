@@ -588,10 +588,17 @@ export default function App() {
       {/* Sidebar gelap — Navy RRI #0D2569 */}
       <aside className="flex w-60 shrink-0 flex-col bg-[#0d2569] text-white">
         <div className="px-5 pb-4 pt-5">
-          <p className="text-lg font-bold leading-tight">Partnership</p>
-          <p className="text-lg font-bold leading-tight">LPP RRI</p>
-          <p className="mt-1 text-xs text-white/70">Radio Republik Indonesia</p>
-          <p className="mt-2 text-xs text-white/70">Satker: PALEMBANG (Pilot)</p>
+          <div className="flex items-center gap-3">
+            <span className="flex h-10 shrink-0 items-center rounded-md bg-white px-2 py-1">
+              <img src="/logo-rri.svg" alt="Logo RRI" className="h-7 w-auto" />
+            </span>
+            <span>
+              <p className="text-lg font-bold leading-tight">Partnership</p>
+              <p className="text-lg font-bold leading-tight">LPP RRI</p>
+            </span>
+          </div>
+          <p className="mt-2 text-xs text-white/70">Radio Republik Indonesia</p>
+          <p className="mt-1 text-xs text-white/70">Satker: PALEMBANG (Pilot)</p>
         </div>
         <nav className="flex-1 space-y-1 overflow-auto px-3">
           {navUtama.map((m) => {

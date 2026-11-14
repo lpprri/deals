@@ -18,7 +18,12 @@ export default function Login({
     <div className="flex min-h-screen flex-col items-center justify-center bg-white px-4 py-10">
       <div className="w-full max-w-2xl">
         <div className="text-center">
-          <h1 className="text-3xl font-bold text-[#0d2569]">
+          <img
+            src="/logo-rri.svg"
+            alt="Logo RRI"
+            className="mx-auto h-16 w-auto"
+          />
+          <h1 className="mt-4 text-3xl font-bold text-[#0d2569]">
             Partnership LPP RRI
           </h1>
           <p className="mt-1 text-sm text-[#0d2569]/70">
