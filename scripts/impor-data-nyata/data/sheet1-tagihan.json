@@ -1,0 +1,632 @@
+[
+  {
+    "id": "TGH-001-RRI-PLB-PKS-F-01-2026",
+    "nomor": "001/RRI.PLB/PKS.F/01/2026",
+    "kontrakId": "0603/PKS/RRI.PLB/01/2026",
+    "uraian": "Tagihan Siaran Iklan (Spot) — 0603/PKS/RRI.PLB/01/2026",
+    "nilai": 270000,
+    "tanggalTerbit": "2026-01-19",
+    "tanggalJatuhTempo": "2026-02-24",
+    "kodeAkun": "425531",
+    "satker": {
+      "kode": "41",
+      "nama": "PALEMBANG"
+    },
+    "status": "Lunas"
+  },
+  {
+    "id": "TGH-001-PKS-DIR-LPU-01-2026",
+    "nomor": "001/PKS/DIR.LPU/01/2026",
+    "kontrakId": "001/PKS/DIR.LPU/01/2026",
+    "uraian": "Tagihan Ad-Lib / Jingle — 001/PKS/DIR.LPU/01/2026",
+    "nilai": 1550000,
+    "tanggalTerbit": "2026-01-19",
+    "tanggalJatuhTempo": "2026-03-18",
+    "kodeAkun": "425131",
+    "satker": {
+      "kode": "41",
+      "nama": "PALEMBANG"
+    },
+    "status": "Lunas"
+  },
+  {
+    "id": "TGH-002-RRI-PLB-PKS-U-01-2026",
+    "nomor": "002/RRI.PLB/PKS.U/01/2026",
+    "kontrakId": "1051/PKS/RRI.PLB/02/2026",
+    "uraian": "Tagihan Sewa Lahan / BMN — 1051/PKS/RRI.PLB/02/2026",
+    "nilai": 6455000,
+    "tanggalTerbit": "2026-01-30",
+    "tanggalJatuhTempo": "2026-01-31",
+    "kodeAkun": "425131",
+    "satker": {
+      "kode": "41",
+      "nama": "PALEMBANG"
+    },
+    "status": "Lunas"
+  },
+  {
+    "id": "TGH-003-RRI-PLB-PKS-U-01-2026",
+    "nomor": "003/RRI.PLB/PKS.U/01/2026",
+    "kontrakId": "1052/PKS/RRI.PLB/02/2026",
+    "uraian": "Tagihan Sewa Lahan / BMN — 1052/PKS/RRI.PLB/02/2026",
+    "nilai": 6455000,
+    "tanggalTerbit": "2026-01-30",
+    "tanggalJatuhTempo": "2026-01-31",
+    "kodeAkun": "425131",
+    "satker": {
+      "kode": "41",
+      "nama": "PALEMBANG"
+    },
+    "status": "Lunas"
+  },
+  {
+    "id": "TGH-004-RRI-PLB-PKS-U-01-2026",
+    "nomor": "004/RRI.PLB/PKS.U/01/2026",
+    "kontrakId": "1053/PKS/RRI.PLB/02/2026",
+    "uraian": "Tagihan Sewa Lahan / BMN — 1053/PKS/RRI.PLB/02/2026",
+    "nilai": 5648000,
+    "tanggalTerbit": "2026-01-30",
+    "tanggalJatuhTempo": "2026-01-31",
+    "kodeAkun": "425131",
+    "satker": {
+      "kode": "41",
+      "nama": "PALEMBANG"
+    },
+    "status": "Lunas"
+  },
+  {
+    "id": "TGH-005-RRI-PLB-PKS-U-02-2026",
+    "nomor": "005/RRI.PLB/PKS.U/02/2026",
+    "kontrakId": "1494/PKS/RRI.PLB/02/2026",
+    "uraian": "Tagihan Sewa Lahan / BMN — 1494/PKS/RRI.PLB/02/2026",
+    "nilai": 9199380,
+    "tanggalTerbit": "2026-02-11",
+    "tanggalJatuhTempo": "2026-01-31",
+    "kodeAkun": "425131",
+    "satker": {
+      "kode": "41",
+      "nama": "PALEMBANG"
+    },
+    "status": "Lunas"
+  },
+  {
+    "id": "TGH-006-RRI-PLB-PKS-U-02-2026",
+    "nomor": "006/RRI.PLB/PKS.U/02/2026",
+    "kontrakId": "1497/PKS/RRI.PLB/02/2026",
+    "uraian": "Tagihan Sewa Lahan / BMN — 1497/PKS/RRI.PLB/02/2026",
+    "nilai": 6536000,
+    "tanggalTerbit": "2026-02-11",
+    "tanggalJatuhTempo": "2026-03-09",
+    "kodeAkun": "425131",
+    "satker": {
+      "kode": "41",
+      "nama": "PALEMBANG"
+    },
+    "status": "Lunas"
+  },
+  {
+    "id": "TGH-007-RRI-PLB-PKS-F-02-2026",
+    "nomor": "007/RRI.PLB/PKS.F/02/2026",
+    "kontrakId": "1744/PKS/RRI.PLB/03/2026",
+    "uraian": "Tagihan Greeting / Tanda Waktu (Time Signal) — 1744/PKS/RRI.PLB/03/2026",
+    "nilai": 15900000,
+    "tanggalTerbit": "2026-02-18",
+    "tanggalJatuhTempo": "2026-04-22",
+    "kodeAkun": "425531",
+    "satker": {
+      "kode": "41",
+      "nama": "PALEMBANG"
+    },
+    "status": "Lunas Sebagian"
+  },
+  {
+    "id": "TGH-008-RRI-PLB-PKS-F-02-2026",
+    "nomor": "008/RRI.PLB/PKS.F/02/2026",
+    "kontrakId": "1745/PKS/RRI.PLB/03/2026",
+    "uraian": "Tagihan Greeting / Tanda Waktu (Time Signal) — 1745/PKS/RRI.PLB/03/2026",
+    "nilai": 5300000,
+    "tanggalTerbit": "2026-02-18",
+    "tanggalJatuhTempo": "2026-04-22",
+    "kodeAkun": "425531",
+    "satker": {
+      "kode": "41",
+      "nama": "PALEMBANG"
+    },
+    "status": "Lunas"
+  },
+  {
+    "id": "TGH-009-RRI-PLB-PKS-F-02-2026",
+    "nomor": "009/RRI.PLB/PKS.F/02/2026",
+    "kontrakId": "1746/PKS/RRI.PLB/03/2026",
+    "uraian": "Tagihan Greeting / Tanda Waktu (Time Signal) — 1746/PKS/RRI.PLB/03/2026",
+    "nilai": 3000000,
+    "tanggalTerbit": "2026-02-18",
+    "tanggalJatuhTempo": "2026-04-22",
+    "kodeAkun": "425531",
+    "satker": {
+      "kode": "41",
+      "nama": "PALEMBANG"
+    },
+    "status": "Lunas"
+  },
+  {
+    "id": "TGH-010-RRI-PLB-PKS-F-02-2026",
+    "nomor": "010/RRI.PLB/PKS.F/02/2026",
+    "kontrakId": "2036/PKS/RRI.PLB/03/2026#010",
+    "uraian": "Tagihan Greeting / Tanda Waktu (Time Signal) — 2036/PKS/RRI.PLB/03/2026",
+    "nilai": 7800000,
+    "tanggalTerbit": "2026-02-18",
+    "tanggalJatuhTempo": "2026-04-22",
+    "kodeAkun": "425531",
+    "satker": {
+      "kode": "41",
+      "nama": "PALEMBANG"
+    },
+    "status": "Lunas"
+  },
+  {
+    "id": "TGH-011-RRI-PLB-PKS-F-02-2026",
+    "nomor": "011/RRI.PLB/PKS.F/02/2026",
+    "kontrakId": "2036/PKS/RRI.PLB/03/2026#011",
+    "uraian": "Tagihan Greeting / Tanda Waktu (Time Signal) — 2036/PKS/RRI.PLB/03/2026",
+    "nilai": 6324000,
+    "tanggalTerbit": "2026-02-24",
+    "tanggalJatuhTempo": "2026-04-22",
+    "kodeAkun": "425531",
+    "satker": {
+      "kode": "41",
+      "nama": "PALEMBANG"
+    },
+    "status": "Lunas"
+  },
+  {
+    "id": "TGH-012-RRI-PLB-PKS-F-03-2026",
+    "nomor": "012/RRI.PLB/PKS.F/03/2026",
+    "kontrakId": "2605/PKS/RRI.PLB/04/2026",
+    "uraian": "Tagihan Siaran Iklan (Spot) — 2605/PKS/RRI.PLB/04/2026",
+    "nilai": 4050000,
+    "tanggalTerbit": "2026-03-10",
+    "tanggalJatuhTempo": "2026-05-08",
+    "kodeAkun": "425531",
+    "satker": {
+      "kode": "41",
+      "nama": "PALEMBANG"
+    },
+    "status": "Lunas"
+  },
+  {
+    "id": "TGH-013-RRI-PLB-PKS-F-03-2026",
+    "nomor": "013/RRI.PLB/PKS.F/03/2026",
+    "kontrakId": "2919/PKS/RRI.PLB/04/2026",
+    "uraian": "Tagihan Greeting / Tanda Waktu (Time Signal) — 2919/PKS/RRI.PLB/04/2026",
+    "nilai": 1530000,
+    "tanggalTerbit": "2026-03-19",
+    "tanggalJatuhTempo": "2026-04-22",
+    "kodeAkun": "425531",
+    "satker": {
+      "kode": "41",
+      "nama": "PALEMBANG"
+    },
+    "status": "Lunas Sebagian"
+  },
+  {
+    "id": "TGH-014-RRI-PLB-PKS-F-03-2026",
+    "nomor": "014/RRI.PLB/PKS.F/03/2026",
+    "kontrakId": "2920/PKS/RRI.PLB/04/2026",
+    "uraian": "Tagihan Greeting / Tanda Waktu (Time Signal) — 2920/PKS/RRI.PLB/04/2026",
+    "nilai": 1020000,
+    "tanggalTerbit": "2026-03-19",
+    "tanggalJatuhTempo": "2026-04-22",
+    "kodeAkun": "425531",
+    "satker": {
+      "kode": "41",
+      "nama": "PALEMBANG"
+    },
+    "status": "Lunas Sebagian"
+  },
+  {
+    "id": "TGH-015-RRI-PLB-PKS-F-04-2026",
+    "nomor": "015/RRI.PLB/PKS.F/04/2026",
+    "kontrakId": "3669/PKS/RRI.PLB/04/2026",
+    "uraian": "Tagihan Dialog Interaktif Dalam Studio — 3669/PKS/RRI.PLB/04/2026",
+    "nilai": 2000000,
+    "tanggalTerbit": "2026-04-17",
+    "tanggalJatuhTempo": "2026-05-21",
+    "kodeAkun": "425531",
+    "satker": {
+      "kode": "41",
+      "nama": "PALEMBANG"
+    },
+    "status": "Lunas"
+  },
+  {
+    "id": "TGH-016-RRI-PLB-PKS-F-04-2026",
+    "nomor": "016/RRI.PLB/PKS.F/04/2026",
+    "kontrakId": "3981/PKS/RRI.PLB/05/2026",
+    "uraian": "Tagihan Siaran Iklan (Spot) — 3981/PKS/RRI.PLB/05/2026",
+    "nilai": 270000,
+    "tanggalTerbit": "2026-04-27",
+    "tanggalJatuhTempo": "2026-06-05",
+    "kodeAkun": "425531",
+    "satker": {
+      "kode": "41",
+      "nama": "PALEMBANG"
+    },
+    "status": "Lunas"
+  },
+  {
+    "id": "TGH-017-RRI-PLB-PKS-F-05-2026",
+    "nomor": "017/RRI.PLB/PKS.F/05/2026",
+    "kontrakId": "4720/PKS/RRI.PLB/06/2026",
+    "uraian": "Tagihan Sewa Lahan / BMN — 4720/PKS/RRI.PLB/06/2026",
+    "nilai": 5320000,
+    "tanggalTerbit": "2026-05-21",
+    "tanggalJatuhTempo": "2026-05-24",
+    "kodeAkun": "425131",
+    "satker": {
+      "kode": "41",
+      "nama": "PALEMBANG"
+    },
+    "status": "Lunas"
+  },
+  {
+    "id": "TGH-018-RRI-PLB-PKS-F-05-2026",
+    "nomor": "018/RRI.PLB/PKS.F/05/2026",
+    "kontrakId": "4747/PKS/RRI.PLB/06/2026",
+    "uraian": "Tagihan Instagram Reels — 4747/PKS/RRI.PLB/06/2026",
+    "nilai": 200000,
+    "tanggalTerbit": "2026-05-22",
+    "tanggalJatuhTempo": "2026-06-24",
+    "kodeAkun": "425531",
+    "satker": {
+      "kode": "41",
+      "nama": "PALEMBANG"
+    },
+    "status": "Lunas"
+  },
+  {
+    "id": "TGH-019-RRI-PLB-PKS-F-05-2026",
+    "nomor": "019/RRI.PLB/PKS.F/05/2026",
+    "kontrakId": "4842/PKS/RRI.PLB/06/2026",
+    "uraian": "Tagihan Siaran Iklan (Spot) — 4842/PKS/RRI.PLB/06/2026",
+    "nilai": 4050000,
+    "tanggalTerbit": "2026-05-26",
+    "tanggalJatuhTempo": "2026-07-22",
+    "kodeAkun": "425531",
+    "satker": {
+      "kode": "41",
+      "nama": "PALEMBANG"
+    },
+    "status": "Lunas"
+  },
+  {
+    "id": "TGH-020-RRI-PLB-PKS-F-05-2026",
+    "nomor": "020/RRI.PLB/PKS.F/05/2026",
+    "kontrakId": "4873/PKS/RRI.PLB/06/2026",
+    "uraian": "Tagihan Siaran Iklan (Spot) — 4873/PKS/RRI.PLB/06/2026",
+    "nilai": 990000,
+    "tanggalTerbit": "2026-05-29",
+    "tanggalJatuhTempo": "2026-07-28",
+    "kodeAkun": "425531",
+    "satker": {
+      "kode": "41",
+      "nama": "PALEMBANG"
+    },
+    "status": "Lunas"
+  },
+  {
+    "id": "TGH-021-RRI-PLB-PKS-U-06-2026",
+    "nomor": "021/RRI.PLB/PKS.U/06/2026",
+    "kontrakId": "5350/PKS/RRI.PLB/06/2026",
+    "uraian": "Tagihan Sewa Aula — 5350/PKS/RRI.PLB/06/2026",
+    "nilai": 3056000,
+    "tanggalTerbit": "2026-06-12",
+    "tanggalJatuhTempo": "2026-06-14",
+    "kodeAkun": "425131",
+    "satker": {
+      "kode": "41",
+      "nama": "PALEMBANG"
+    },
+    "status": "Lunas"
+  },
+  {
+    "id": "TGH-022-RRI-PLB-PKS-F-06-2026",
+    "nomor": "022/RRI.PLB/PKS.F/06/2026",
+    "kontrakId": "5390/PKS/RRI.PLB/06/2026",
+    "uraian": "Tagihan Greeting / Tanda Waktu (Time Signal) — 5390/PKS/RRI.PLB/06/2026",
+    "nilai": 3500000,
+    "tanggalTerbit": "2026-06-15",
+    "tanggalJatuhTempo": "2026-07-15",
+    "kodeAkun": "425531",
+    "satker": {
+      "kode": "41",
+      "nama": "PALEMBANG"
+    },
+    "status": "Lunas"
+  },
+  {
+    "id": "TGH-023-RRI-PLB-PKS-F-06-2026",
+    "nomor": "023/RRI.PLB/PKS.F/06/2026",
+    "kontrakId": "5391/PKS/RRI.PLB/06/2026",
+    "uraian": "Tagihan Ad-Lib / Jingle — 5391/PKS/RRI.PLB/06/2026",
+    "nilai": 3500000,
+    "tanggalTerbit": "2026-06-15",
+    "tanggalJatuhTempo": "2026-07-16",
+    "kodeAkun": "425531",
+    "satker": {
+      "kode": "41",
+      "nama": "PALEMBANG"
+    },
+    "status": "Lunas"
+  },
+  {
+    "id": "TGH-024-RRI-PLB-PKS-F-06-2026",
+    "nomor": "024/RRI.PLB/PKS.F/06/2026",
+    "kontrakId": "5483/PKS/RRI.PLB/06/2026",
+    "uraian": "Tagihan Siaran Iklan (Spot) — 5483/PKS/RRI.PLB/06/2026",
+    "nilai": 4050000,
+    "tanggalTerbit": "2026-06-18",
+    "tanggalJatuhTempo": "2026-08-14",
+    "kodeAkun": "425531",
+    "satker": {
+      "kode": "41",
+      "nama": "PALEMBANG"
+    },
+    "status": "Lunas"
+  },
+  {
+    "id": "TGH-025-RRI-PLB-PKS-F-06-2026",
+    "nomor": "025/RRI.PLB/PKS.F/06/2026",
+    "kontrakId": "5484/PKS/RRI.PLB/06/2026",
+    "uraian": "Tagihan Dialog Interaktif Dalam Studio — 5484/PKS/RRI.PLB/06/2026",
+    "nilai": 2000000,
+    "tanggalTerbit": "2026-06-18",
+    "tanggalJatuhTempo": "2026-07-17",
+    "kodeAkun": "425531",
+    "satker": {
+      "kode": "41",
+      "nama": "PALEMBANG"
+    },
+    "status": "Lunas"
+  },
+  {
+    "id": "TGH-026-RRI-PLB-PKS-F-06-2026",
+    "nomor": "026/RRI.PLB/PKS.F/06/2026",
+    "kontrakId": "5592/PKS/RRI.PLB/06/2026",
+    "uraian": "Tagihan Ad-Lib / Jingle — 5592/PKS/RRI.PLB/06/2026",
+    "nilai": 1000000,
+    "tanggalTerbit": "2026-06-19",
+    "tanggalJatuhTempo": "2026-07-24",
+    "kodeAkun": "425131",
+    "satker": {
+      "kode": "41",
+      "nama": "PALEMBANG"
+    },
+    "status": "Lunas"
+  },
+  {
+    "id": "TGH-027-RRI-PLB-PKS-F-07-2026",
+    "nomor": "027/RRI.PLB/PKS.F/07/2026",
+    "kontrakId": "6593/PKS/RRI.PLB/07/2026",
+    "uraian": "Tagihan Dialog Interaktif Dalam Studio — 6593/PKS/RRI.PLB/07/2026",
+    "nilai": 2040000,
+    "tanggalTerbit": "2026-07-17",
+    "tanggalJatuhTempo": "2026-08-14",
+    "kodeAkun": "425531",
+    "satker": {
+      "kode": "41",
+      "nama": "PALEMBANG"
+    },
+    "status": "Lunas Sebagian"
+  },
+  {
+    "id": "TGH-028-RRI-PLB-PKS-U-07-2026",
+    "nomor": "028/RRI.PLB/PKS.U/07/2026",
+    "kontrakId": "7051/PKS/RRI.PLB/07/2026",
+    "uraian": "Tagihan Sewa Lahan / BMN — 7051/PKS/RRI.PLB/07/2026",
+    "nilai": 6536000,
+    "tanggalTerbit": "2026-07-31",
+    "tanggalJatuhTempo": "2026-07-31",
+    "kodeAkun": "425131",
+    "satker": {
+      "kode": "41",
+      "nama": "PALEMBANG"
+    },
+    "status": "Lunas"
+  },
+  {
+    "id": "TGH-029-RRI-PLB-PKS-U-07-2026",
+    "nomor": "029/RRI.PLB/PKS.U/07/2026",
+    "kontrakId": "7052/PKS/RRI.PLB/07/2026",
+    "uraian": "Tagihan Sewa Lahan / BMN — 7052/PKS/RRI.PLB/07/2026",
+    "nilai": 7440000,
+    "tanggalTerbit": "2026-07-31",
+    "tanggalJatuhTempo": "2026-01-31",
+    "kodeAkun": "425131",
+    "satker": {
+      "kode": "41",
+      "nama": "PALEMBANG"
+    },
+    "status": "Lunas Sebagian"
+  },
+  {
+    "id": "TGH-030-RRI-PLB-PKS-U-07-2026",
+    "nomor": "030/RRI.PLB/PKS.U/07/2026",
+    "kontrakId": "7053/PKS/RRI.PLB/07/2026",
+    "uraian": "Tagihan Sewa Lahan / BMN — 7053/PKS/RRI.PLB/07/2026",
+    "nilai": 12000000,
+    "tanggalTerbit": "2026-07-31",
+    "tanggalJatuhTempo": "2026-07-31",
+    "kodeAkun": "425131",
+    "satker": {
+      "kode": "41",
+      "nama": "PALEMBANG"
+    },
+    "status": "Lunas"
+  },
+  {
+    "id": "TGH-031-RRI-PLB-PKS-U-07-2026",
+    "nomor": "031/RRI.PLB/PKS.U/07/2026",
+    "kontrakId": "7054/PKS/RRI.PLB/07/2026",
+    "uraian": "Tagihan Sewa Lahan / BMN — 7054/PKS/RRI.PLB/07/2026",
+    "nilai": 9801321,
+    "tanggalTerbit": "2026-07-31",
+    "tanggalJatuhTempo": "2026-01-31",
+    "kodeAkun": "425131",
+    "satker": {
+      "kode": "41",
+      "nama": "PALEMBANG"
+    },
+    "status": "Lunas Sebagian"
+  },
+  {
+    "id": "TGH-032-RRI-PLB-PKS-U-07-2026",
+    "nomor": "032/RRI.PLB/PKS.U/07/2026",
+    "kontrakId": "7055/PKS/RRI.PLB/07/2026",
+    "uraian": "Tagihan Sewa Lahan / BMN — 7055/PKS/RRI.PLB/07/2026",
+    "nilai": 15808583,
+    "tanggalTerbit": "2026-07-31",
+    "tanggalJatuhTempo": "2026-07-31",
+    "kodeAkun": "425131",
+    "satker": {
+      "kode": "41",
+      "nama": "PALEMBANG"
+    },
+    "status": "Lunas"
+  },
+  {
+    "id": "TGH-033-RRI-PLB-PKS-U-07-2026",
+    "nomor": "033/RRI.PLB/PKS.U/07/2026",
+    "kontrakId": "7060/PKS/RRI.PLB/07/2026",
+    "uraian": "Tagihan Sewa Lahan / BMN — 7060/PKS/RRI.PLB/07/2026",
+    "nilai": 5103840,
+    "tanggalTerbit": "2026-07-31",
+    "tanggalJatuhTempo": "2026-01-31",
+    "kodeAkun": "425131",
+    "satker": {
+      "kode": "41",
+      "nama": "PALEMBANG"
+    },
+    "status": "Lunas Sebagian"
+  },
+  {
+    "id": "TGH-034-RRI-PLB-PKS-U-07-2026",
+    "nomor": "034/RRI.PLB/PKS.U/07/2026",
+    "kontrakId": "7061/PKS/RRI.PLB/07/2026",
+    "uraian": "Tagihan Sewa Lahan / BMN — 7061/PKS/RRI.PLB/07/2026",
+    "nilai": 8232000,
+    "tanggalTerbit": "2026-07-31",
+    "tanggalJatuhTempo": "2026-07-31",
+    "kodeAkun": "425131",
+    "satker": {
+      "kode": "41",
+      "nama": "PALEMBANG"
+    },
+    "status": "Lunas"
+  },
+  {
+    "id": "TGH-018-PKS-DIR-LPU-08-2026",
+    "nomor": "018/PKS/DIR.LPU/08/2026",
+    "kontrakId": "018/PKS/DIR.LPU/08/2026",
+    "uraian": "Tagihan Siaran Iklan (Spot) — 018/PKS/DIR.LPU/08/2026",
+    "nilai": 4110000,
+    "tanggalTerbit": "2026-08-13",
+    "tanggalJatuhTempo": "2026-12-31",
+    "kodeAkun": "425531",
+    "satker": {
+      "kode": "41",
+      "nama": "PALEMBANG"
+    },
+    "status": "Belum Jatuh Tempo"
+  },
+  {
+    "id": "TGH-035-RRI-PLB-PKS-F-09-2026",
+    "nomor": "035/RRI.PLB/PKS.F/09/2026",
+    "kontrakId": "1158/PKS/RRI.PLB/10/2026",
+    "uraian": "Tagihan Siaran Iklan (Spot) — 1158/PKS/RRI.PLB/10/2026",
+    "nilai": 180000,
+    "tanggalTerbit": "2026-09-21",
+    "tanggalJatuhTempo": "2026-10-23",
+    "kodeAkun": "425531",
+    "satker": {
+      "kode": "41",
+      "nama": "PALEMBANG"
+    },
+    "status": "Lewat Jatuh Tempo"
+  },
+  {
+    "id": "TGH-036-RRI-PLB-PKS-F-10-2026",
+    "nomor": "036/RRI.PLB/PKS.F/10/2026",
+    "kontrakId": "10227/PKS/RRI.PLB/10/2026",
+    "uraian": "Tagihan Siaran Iklan (Spot) — 10227/PKS/RRI.PLB/10/2026",
+    "nilai": 2700000,
+    "tanggalTerbit": "2026-10-12",
+    "tanggalJatuhTempo": "2026-11-17",
+    "kodeAkun": "425531",
+    "satker": {
+      "kode": "41",
+      "nama": "PALEMBANG"
+    },
+    "status": "Belum Jatuh Tempo"
+  },
+  {
+    "id": "TGH-037-RRI-PLB-PKS-U-10-2026",
+    "nomor": "037/RRI.PLB/PKS.U/10/2026",
+    "kontrakId": "10828/PKS/RRI.PLB/10/2026",
+    "uraian": "Tagihan Sewa Lahan / BMN — 10828/PKS/RRI.PLB/10/2026",
+    "nilai": 135358080,
+    "tanggalTerbit": "2026-10-16",
+    "tanggalJatuhTempo": "2026-09-16",
+    "kodeAkun": "425131",
+    "satker": {
+      "kode": "41",
+      "nama": "PALEMBANG"
+    },
+    "status": "Lewat Jatuh Tempo"
+  },
+  {
+    "id": "TGH-038-RRI-PLB-PKS-F-10-2026",
+    "nomor": "038/RRI.PLB/PKS.F/10/2026",
+    "kontrakId": "11290/PKS/RRI.PLB/10/2026",
+    "uraian": "Tagihan Dialog Interaktif Dalam Studio — 11290/PKS/RRI.PLB/10/2026",
+    "nilai": 2000000,
+    "tanggalTerbit": "2026-10-29",
+    "tanggalJatuhTempo": "2026-10-30",
+    "kodeAkun": "425531",
+    "satker": {
+      "kode": "41",
+      "nama": "PALEMBANG"
+    },
+    "status": "Lewat Jatuh Tempo"
+  },
+  {
+    "id": "TGH-027-RRI-PLB-PKS-U-06-2025",
+    "nomor": "027/RRI.PLB/PKS.U/06/2025",
+    "kontrakId": "027/RRI.PLB/PKS.U/06/2025",
+    "uraian": "Tagihan Sewa Lahan / BMN — 027/RRI.PLB/PKS.U/06/2025",
+    "nilai": 22492500,
+    "tanggalTerbit": "2025-06-20",
+    "tanggalJatuhTempo": "2025-06-30",
+    "kodeAkun": "425131",
+    "satker": {
+      "kode": "41",
+      "nama": "PALEMBANG"
+    },
+    "status": "Lunas"
+  },
+  {
+    "id": "TGH-016-PKS-DIR-LPU-06-2025",
+    "nomor": "016/PKS/DIR.LPU/06/2025",
+    "kontrakId": "016/PKS/DIR.LPU/06/2025",
+    "uraian": "Tagihan Sewa Lahan / BMN — 016/PKS/DIR.LPU/06/2025",
+    "nilai": 34292500,
+    "tanggalTerbit": "2025-06-26",
+    "tanggalJatuhTempo": "2025-08-19",
+    "kodeAkun": "425131",
+    "satker": {
+      "kode": "41",
+      "nama": "PALEMBANG"
+    },
+    "status": "Lunas"
+  }
+]

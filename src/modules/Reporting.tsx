@@ -256,12 +256,17 @@ export default function Reporting(props: ModulProps) {
 
   // ---------- Laporan Kantor Pusat ----------
   const satkerList = [...new Map(data.kontrak.map((k) => [k.satker.kode, k.satker])).values()];
+  // QTY & Nilai Kontrak HQ memakai basis yang sama dengan Laporan Bulanan:
+  // PKS yang tagihannya terbit pada periode ini (bulan PKS diterbitkan),
+  // bukan tanggalMulai layanan — keduanya berbeda untuk kontrak sewa dan
+  // Samdini (temuan rekonsiliasi impor data nyata 14/11/2026).
+  const idKontrakPeriode = new Set(tagihanPeriode.map((t) => t.kontrakId));
   const barisSatker: BarisSatker[] = satkerList.map((satker) => {
     const kontrakSatker = data.kontrak.filter(
       (k) => k.satker.kode === satker.kode,
     );
-    const qty = kontrakSatker.filter(
-      (k) => periodeDariTanggal(k.tanggalMulai) === periode,
+    const qty = kontrakSatker.filter((k) =>
+      idKontrakPeriode.has(k.id),
     ).length;
     const tagihanSatker = tagihanPeriode.filter(
       (t) => t.satker.kode === satker.kode,
@@ -304,7 +309,7 @@ export default function Reporting(props: ModulProps) {
     )
     .reduce((s, p) => s + p.jumlah, 0);
   const nilaiKontrakHq = data.kontrak
-    .filter((k) => periodeDariTanggal(k.tanggalMulai) === periode)
+    .filter((k) => idKontrakPeriode.has(k.id))
     .reduce((s, k) => s + k.nilaiKontrak, 0);
 
   const eksporCsv = () => {
@@ -846,10 +851,10 @@ export default function Reporting(props: ModulProps) {
             </table>
           </div>
           <p className="mt-3 text-xs text-[#0d2569]/60">
-            QTY = jumlah PKS yang mulai pada bulan ini (bukan jumlah siaran).
-            PNBP Fungsional/Umum = nilai tagihan kode 425531/425131 yang terbit
-            pada periode ini. Sisa Piutang = sisa tagihan yang terbit pada periode
-            ini.
+            QTY = jumlah PKS yang diterbitkan pada bulan ini (tanggal terbit
+            tagihan; bukan jumlah siaran). PNBP Fungsional/Umum = nilai
+            tagihan kode 425531/425131 yang terbit pada periode ini. Sisa
+            Piutang = sisa tagihan yang terbit pada periode ini.
           </p>
         </Kartu>
       )}

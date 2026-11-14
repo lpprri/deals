@@ -1,0 +1,814 @@
+{
+  "spreadsheet": {
+    "judul": "Kerja Sama PNBP 2026",
+    "id": "1xmDYvYwMPMglufd6RTZiIpaJaJVkzF70wvK2kAmMH-8",
+    "url": "https://docs.google.com/spreadsheets/d/1xmDYvYwMPMglufd6RTZiIpaJaJVkzF70wvK2kAmMH-8/edit"
+  },
+  "tanggalEkstraksi": "2026-11-14",
+  "periode": "Kontrak 2026: Januari–Oktober 2026 (37 kontrak Jan–Sep + 3 kontrak Oktober: BNN 12 Okt, Samdini 16 Okt, DJP 29 Okt) + 2 kontrak sisa 2025 (Darojad, PT VGreen). Semua satker PALEMBANG.",
+  "perTab": [
+    {
+      "tab": "Summary",
+      "barisData": 66,
+      "diimpor": "42 kontrak (40 thn 2026 + 2 sisa 2025) + 6 baris lanjutan layanan + 5 baris lanjutan pembayaran + 11 baris pengajuan sewa",
+      "dilewati": [
+        {
+          "tab": "Summary",
+          "baris": 55,
+          "alasan": "Baris kosong/lanjutan tanpa data."
+        },
+        {
+          "tab": "Summary",
+          "baris": 56,
+          "alasan": "Baris kosong/lanjutan tanpa data."
+        },
+        {
+          "tab": "Summary",
+          "baris": 57,
+          "alasan": "Baris kosong/lanjutan tanpa data."
+        },
+        {
+          "tab": "Summary",
+          "baris": 60,
+          "alasan": "Baris kosong/lanjutan tanpa data."
+        },
+        {
+          "tab": "Summary",
+          "baris": 70,
+          "alasan": "Baris kosong/lanjutan tanpa data."
+        },
+        {
+          "tab": "Summary",
+          "baris": 71,
+          "alasan": "Baris kosong/lanjutan tanpa data."
+        },
+        {
+          "tab": "Summary",
+          "baris": 72,
+          "alasan": "Baris kosong/lanjutan tanpa data."
+        },
+        {
+          "tab": "Summary",
+          "baris": 73,
+          "alasan": "Baris kosong/lanjutan tanpa data."
+        },
+        {
+          "tab": "Summary",
+          "baris": 75,
+          "alasan": "Baris kosong/lanjutan tanpa data."
+        },
+        {
+          "tab": "Summary",
+          "baris": 76,
+          "alasan": "Baris kosong/lanjutan tanpa data."
+        },
+        {
+          "tab": "Summary",
+          "baris": 77,
+          "alasan": "Baris kosong/lanjutan tanpa data."
+        },
+        {
+          "tab": "Summary",
+          "baris": 78,
+          "alasan": "Baris kosong/lanjutan tanpa data."
+        },
+        {
+          "tab": "Summary",
+          "baris": 79,
+          "alasan": "Baris header/judul bagian Sisa Kontrak Tahun Sebelumnya, bukan data."
+        },
+        {
+          "tab": "Summary",
+          "baris": 80,
+          "alasan": "Baris header/judul bagian Sisa Kontrak Tahun Sebelumnya, bukan data."
+        },
+        {
+          "tab": "Summary",
+          "baris": 81,
+          "alasan": "Baris header/judul bagian Sisa Kontrak Tahun Sebelumnya, bukan data."
+        },
+        {
+          "tab": "Summary",
+          "baris": 82,
+          "alasan": "Baris header/judul bagian Sisa Kontrak Tahun Sebelumnya, bukan data."
+        },
+        {
+          "tab": "Summary",
+          "baris": 83,
+          "alasan": "Baris header/judul bagian Sisa Kontrak Tahun Sebelumnya, bukan data."
+        },
+        {
+          "tab": "Summary",
+          "baris": 86,
+          "alasan": "Baris lanjutan hanya berisi Jatuh Tempo tahun berikut (30 Juni 2027) tanpa pembayaran; dicatat sebagai info, bukan entitas."
+        },
+        {
+          "tab": "Summary",
+          "baris": 89,
+          "alasan": "Baris lanjutan hanya berisi Jatuh Tempo tahun berikut (19 Agustus 2027) tanpa pembayaran; dicatat sebagai info, bukan entitas."
+        },
+        {
+          "tab": "Dokumen Kerjasama",
+          "baris": 44,
+          "alasan": "Baris tanpa nomor kontrak (nomor urut 36 duplikat) — dilewati."
+        },
+        {
+          "tab": "Dokumen Kerjasama",
+          "baris": 45,
+          "alasan": "Baris tanpa nomor kontrak (nomor urut 36 duplikat) — dilewati."
+        },
+        {
+          "tab": "Dokumen Kerjasama",
+          "baris": 55,
+          "alasan": "Baris tanpa nomor kontrak (nomor urut 36 duplikat) — dilewati."
+        },
+        {
+          "tab": "Dokumen Kerjasama",
+          "baris": 57,
+          "alasan": "Baris tanpa nomor kontrak (nomor urut 36 duplikat) — dilewati."
+        },
+        {
+          "tab": "Dokumen Kerjasama",
+          "baris": 65,
+          "alasan": "Baris tanpa nomor kontrak (nomor urut 36 duplikat) — dilewati."
+        }
+      ]
+    },
+    {
+      "tab": "Piutang & Penyetoran",
+      "barisData": 46,
+      "diimpor": "0 entitas baru — dipakai validasi silang Summary (37 kontrak 2026 + 2 sisa 2025; 3+2 baris lanjutan pembayaran cocok)",
+      "dilewati": [
+        {
+          "tab": "Piutang & Penyetoran",
+          "baris": 47,
+          "alasan": "Baris kosong/lanjutan tanpa data."
+        },
+        {
+          "tab": "Piutang & Penyetoran",
+          "baris": 49,
+          "alasan": "Baris Total (dipakai perbandingan, bukan data)."
+        },
+        {
+          "tab": "Piutang & Penyetoran",
+          "baris": 58,
+          "alasan": "Baris lanjutan hanya Jatuh Tempo 2027, tanpa pembayaran."
+        },
+        {
+          "tab": "Piutang & Penyetoran",
+          "baris": 61,
+          "alasan": "Baris lanjutan hanya Jatuh Tempo 2027, tanpa pembayaran."
+        }
+      ]
+    },
+    {
+      "tab": "PNBP Fungsional",
+      "barisData": 29,
+      "diimpor": "0 entitas baru — dipakai validasi silang layanan & total bulanan (23 kontrak + 6 baris lanjutan layanan)",
+      "dilewati": [
+        {
+          "tab": "PNBP Fungsional",
+          "baris": 41,
+          "alasan": "Baris Total."
+        }
+      ]
+    },
+    {
+      "tab": "PNBP Umum",
+      "barisData": 17,
+      "diimpor": "0 entitas baru — dipakai validasi silang sewa & total bulanan (15 kontrak 2026 + 2 sisa 2025)",
+      "dilewati": [
+        {
+          "tab": "PNBP Umum",
+          "baris": 25,
+          "alasan": "Baris Total."
+        },
+        {
+          "tab": "PNBP Umum",
+          "baris": 34,
+          "alasan": "Baris Total (sisa kontrak 2025)."
+        }
+      ]
+    },
+    {
+      "tab": "Denda",
+      "barisData": 17,
+      "diimpor": "0 entitas baru — dipakai sebagai dasar/rincian 13 entitas Denda (12 bernomor + 5 baris Belum Jatuh Tempo tanpa denda)",
+      "dilewati": [
+        {
+          "tab": "Denda",
+          "baris": 29,
+          "alasan": "Baris Total."
+        }
+      ]
+    },
+    {
+      "tab": "Dokumen Kerjasama",
+      "barisData": 42,
+      "diimpor": "102 DokumenItem dari 39 baris kontrak (36 bernomor + 3 stub) + 1 baris lanjutan Billing Denda",
+      "dilewati": [
+        {
+          "tab": "Dokumen Kerjasama",
+          "baris": 44,
+          "alasan": "Baris tanpa nomor kontrak (nomor urut 36 duplikat) — dilewati."
+        },
+        {
+          "tab": "Dokumen Kerjasama",
+          "baris": 45,
+          "alasan": "Baris tanpa nomor kontrak (nomor urut 36 duplikat) — dilewati."
+        },
+        {
+          "tab": "Dokumen Kerjasama",
+          "baris": 55,
+          "alasan": "Baris tanpa nomor kontrak (nomor urut 36 duplikat) — dilewati."
+        },
+        {
+          "tab": "Dokumen Kerjasama",
+          "baris": 57,
+          "alasan": "Baris tanpa nomor kontrak (nomor urut 36 duplikat) — dilewati."
+        },
+        {
+          "tab": "Dokumen Kerjasama",
+          "baris": 65,
+          "alasan": "Baris tanpa nomor kontrak (nomor urut 36 duplikat) — dilewati."
+        }
+      ]
+    },
+    {
+      "tab": "Rekapitulasi",
+      "barisData": 13,
+      "diimpor": "0 entitas baru — dipakai perbandingan total bulanan & triwulan (1 baris Sisa 2025 + 12 baris bulan)",
+      "dilewati": [
+        {
+          "tab": "Rekapitulasi",
+          "baris": 18,
+          "alasan": "Baris Total (dipakai perbandingan)."
+        },
+        {
+          "tab": "Rekapitulasi",
+          "baris": 21,
+          "alasan": "Catatan Sisa Piutang 2026 (dipakai perbandingan)."
+        },
+        {
+          "tab": "Rekapitulasi",
+          "baris": 22,
+          "alasan": "Catatan Sisa Kontrak 2027 (dipakai perbandingan)."
+        },
+        {
+          "tab": "Rekapitulasi",
+          "baris": 23,
+          "alasan": "Catatan Total Sisa (dipakai perbandingan)."
+        },
+        {
+          "tab": "Rekapitulasi",
+          "baris": 25,
+          "alasan": "Catatan Total Kerja Sama 2026 (dipakai perbandingan)."
+        },
+        {
+          "tab": "Rekapitulasi",
+          "baris": 26,
+          "alasan": "Catatan Realisasi Penyetoran (dipakai perbandingan)."
+        },
+        {
+          "tab": "Rekapitulasi",
+          "baris": 27,
+          "alasan": "Catatan Selisih (dipakai perbandingan)."
+        }
+      ]
+    },
+    {
+      "tab": "Sewa",
+      "barisData": 14,
+      "diimpor": "14 baris pengajuan sewa — digabung dengan 11 baris pengajuan Summary menjadi 16 Pengajuan (5 hanya di tab Sewa)",
+      "dilewati": []
+    },
+    {
+      "tab": "Master",
+      "barisData": 0,
+      "diimpor": "0 entitas — tab referensi dropdown (jenis layanan, jenis klien, detail BMN, nama petugas); dipakai pemetaan saja",
+      "dilewati": []
+    }
+  ],
+  "ringkasanEntitas": {
+    "klien": 33,
+    "kontrak": 42,
+    "layananKontrak": 48,
+    "tagihan": 42,
+    "pembayaran": 42,
+    "denda": 13,
+    "dokumen": 102,
+    "pengajuan": 16,
+    "totalNilaiKontrak2026": 356685875,
+    "totalNilaiKontrakSisa2025": 85177500,
+    "totalTagihan": 379068204,
+    "totalPembayaran": 229405255,
+    "totalPembayaran2026": 201012755,
+    "totalPembayaran2025_angsuranKontrak2025": 28392500,
+    "totalDenda": 8873330,
+    "sisaPiutangTerhitung": 149662949,
+    "sisaPiutangTerhitung_rincian": {
+      "belumBayarSamaSekali": 144348080,
+      "lunasSebagian_sisa": 5314869,
+      "catatan": "Belum bayar = Kemkomdigi 4.110.000 + PLN Sep 180.000 + BNN 2.700.000 + Samdini 135.358.080 + DJP Okt 2.000.000. Lunas sebagian = denda belum dibayar Kota 900.000 + OKUS 30.000 + BSI 20.000 + PIM 40.000 + Fisol 1.440.000 + Mila 1.897.029 + Herman 987.840. Bandingkan: tab Piutang & Penyetoran Sisa Piutang Rp9.604.869 hanya mencakup 37 kontrak Jan–Sep (5.314.869 + Kemkomdigi 4.110.000 + PLN Sep 180.000); angka ini menambah 3 kontrak Oktober (BNN 2.700.000 + Samdini 135.358.080 + DJP Okt 2.000.000 = 140.058.080)."
+    }
+  },
+  "verifikasiTautan": {
+    "tagihanTanpaKontrak": 0,
+    "pembayaranTanpaTagihan": 0,
+    "kontrakTanpaKlien": 0,
+    "kontrakNilaiNeqSumLayanan": [],
+    "tagihanNilaiNeqPembayaranPlusSisa": []
+  },
+  "masalahKualitas": [
+    "Kontrak 5391/PKS/RRI.PLB/06/2026 (baris 34): layanan campuran Fungsional/Umum (Fungsional Rp3,000,000, Umum Rp500,000); jenisPnBP kontrak diset 'Fungsional' (dominan nilai). Per-layanan tetap sesuai master.",
+    "Kontrak 018/PKS/DIR.LPU/08/2026 (baris 48): Nama Penandatangan kosong di sumber — penanggungJawab diisi 'Belum Ditentukan'.",
+    "Nomor PKS ganda: '2036/PKS/RRI.PLB/03/2026' dipakai 2 kontrak (referensi 010/RRI.PLB/PKS.F/02/2026, 011/RRI.PLB/PKS.F/02/2026). ID diturunkan menjadi 2036/PKS/RRI.PLB/03/2026#010 (nomorPks asli dipertahankan).",
+    "Nomor PKS ganda: '2036/PKS/RRI.PLB/03/2026' dipakai 2 kontrak (referensi 010/RRI.PLB/PKS.F/02/2026, 011/RRI.PLB/PKS.F/02/2026). ID diturunkan menjadi 2036/PKS/RRI.PLB/03/2026#011 (nomorPks asli dipertahankan).",
+    "Kontrak 10227/PKS/RRI.PLB/10/2026 (baris 52): Jatuh Tempo kosong — dipakai tanggal berakhir 2026-11-17 sebagai pendekatan.",
+    "Kontrak 11290/PKS/RRI.PLB/10/2026 (baris 54): Jatuh Tempo kosong — dipakai tanggal berakhir 2026-10-30 sebagai pendekatan.",
+    "Tagihan TGH-037-RRI-PLB-PKS-U-10-2026: sumber menulis Status 'Lunas' tetapi Σ pembayaran Rp0 < nilai tagihan Rp135,358,080 (sisa Rp135,358,080). Status dihitung 'Lewat Jatuh Tempo'. KONTRADIKSI SUMBER — perlu konfirmasi.",
+    "Kontrak 3669/PKS/RRI.PLB/04/2026 (baris 24): kolom Denda kosong (bukan Rp0) — dianggap Rp0, perlu konfirmasi.",
+    "Kontrak 5390/PKS/RRI.PLB/06/2026 (baris 31): kolom Denda kosong (bukan Rp0) — dianggap Rp0, perlu konfirmasi.",
+    "Kontrak 5391/PKS/RRI.PLB/06/2026 (baris 34): kolom Denda kosong (bukan Rp0) — dianggap Rp0, perlu konfirmasi.",
+    "Kontrak 11290/PKS/RRI.PLB/10/2026 (baris 54): kolom Denda kosong (bukan Rp0) — dianggap Rp0, perlu konfirmasi.",
+    "Kontrak 11290/PKS/RRI.PLB/10/2026: tidak ada baris di tab Dokumen Kerjasama — hanya item PKS (Belum Ada) yang dibuat.",
+    "Kontrak 027/RRI.PLB/PKS.U/06/2025: tidak ada baris di tab Dokumen Kerjasama — hanya item PKS (Belum Ada) yang dibuat.",
+    "Kontrak 016/PKS/DIR.LPU/06/2025: tidak ada baris di tab Dokumen Kerjasama — hanya item PKS (Belum Ada) yang dibuat.",
+    "Pengajuan 'PT Bumi Ampera Rajasa' (Summary baris 58): tidak ada tanggal apa pun di sumber (kolom tanggal berisi 'Menunggu Pembayaran Biaya Sewa'); tanggalMasuk diisi tanggal ekstraksi 2026-11-14 sebagai placeholder — WAJIB dikoreksi.",
+    "Pengajuan 'Genda Ananta Rahmat' (Summary baris 59): tidak ada tanggal apa pun di sumber (kolom tanggal berisi 'Menunggu Pembayaran Biaya Sewa'); tanggalMasuk diisi tanggal ekstraksi 2026-11-14 sebagai placeholder — WAJIB dikoreksi.",
+    "Pengajuan 'Ahmad Sobirin' (tab Sewa baris 11): nama ini juga muncul sebagai Narahubung klien 'Arip' (kontrak 4720) — tidak digabung karena peran berbeda; perlu konfirmasi apakah orang yang sama.",
+    "Pengajuan tab Sewa baris 12: nama pemohon hanya 'Kasir' (kemungkinan bukan nama orang) — diimpor apa adanya, perlu konfirmasi.",
+    "Jenis Klien sumber salah untuk PT Taspen (Persero): tertulis 'Badan Usaha Milik Daerah', padahal Taspen adalah BUMN (Persero). Dipetakan ke 'BUMN/BUMD' apa adanya mengikuti sumber; perlu koreksi sumber.",
+    "Jenis Klien sumber salah untuk PT Medco E&P Indonesia: tertulis 'Instansi Pemerintahan', padahal perusahaan swasta. Dipetakan ke 'Pemerintah' apa adanya mengikuti sumber; perlu koreksi sumber.",
+    "Kontrak sewa Arip (4720/PKS/RRI.PLB/06/2026, PNBP Umum) memakai Nomor Referensi 017/RRI.PLB/PKS.F/05/2026 — infix '.F' (Fungsional) pada kontrak Umum. Kemungkinan salah ketik referensi; nomor dipertahankan apa adanya.",
+    "Tab Sewa kolom G ('Sisa') berisi artefak rumus bernilai negatif ('-327 Days', '-12 Days', dst.) — diabaikan; bukan data."
+  ],
+  "pengecualianKodeAkun": [
+    {
+      "kontrak": "001/PKS/DIR.LPU/01/2026",
+      "barisSummary": 7,
+      "layanan": "Adlibs",
+      "sumber": "Tipe PNBP = PNBP Fungsional",
+      "diterapkanMaster": "kodeAkun 425131, jenisPnBP Umum (Ad-Lib / Jingle)",
+      "alasan": "Master Kode Akun / MASTER_KATEGORI_LAYANAN: Ad-Lib / Jingle = 425131 = Umum (pelajaran Bab 13)."
+    },
+    {
+      "kontrak": "5391/PKS/RRI.PLB/06/2026",
+      "barisSummary": 34,
+      "layanan": "Adlibs",
+      "sumber": "Tipe PNBP = PNBP Fungsional",
+      "diterapkanMaster": "kodeAkun 425131, jenisPnBP Umum (Ad-Lib / Jingle)",
+      "alasan": "Master Kode Akun / MASTER_KATEGORI_LAYANAN: Ad-Lib / Jingle = 425131 = Umum (pelajaran Bab 13)."
+    },
+    {
+      "kontrak": "5592/PKS/RRI.PLB/06/2026",
+      "barisSummary": 39,
+      "layanan": "Adlibs",
+      "sumber": "Tipe PNBP = PNBP Fungsional",
+      "diterapkanMaster": "kodeAkun 425131, jenisPnBP Umum (Ad-Lib / Jingle)",
+      "alasan": "Master Kode Akun / MASTER_KATEGORI_LAYANAN: Ad-Lib / Jingle = 425131 = Umum (pelajaran Bab 13)."
+    }
+  ],
+  "totalBulanan": {
+    "nilaiKontrakPerBulanPembuatan_perMaster": {
+      "Januari": {
+        "Fungsional": 270000,
+        "Umum": 57224000,
+        "Total": 57494000,
+        "jumlahKontrak": 5
+      },
+      "Februari": {
+        "Fungsional": 36700000,
+        "Umum": 15555000,
+        "Total": 52255000,
+        "jumlahKontrak": 7
+      },
+      "Maret": {
+        "Fungsional": 6550000,
+        "Umum": 0,
+        "Total": 6550000,
+        "jumlahKontrak": 3
+      },
+      "April": {
+        "Fungsional": 2270000,
+        "Umum": 0,
+        "Total": 2270000,
+        "jumlahKontrak": 2
+      },
+      "Mei": {
+        "Fungsional": 5240000,
+        "Umum": 5320000,
+        "Total": 10560000,
+        "jumlahKontrak": 4
+      },
+      "Juni": {
+        "Fungsional": 13050000,
+        "Umum": 4056000,
+        "Total": 17106000,
+        "jumlahKontrak": 6
+      },
+      "Juli": {
+        "Fungsional": 2000000,
+        "Umum": 60596875,
+        "Total": 62596875,
+        "jumlahKontrak": 8
+      },
+      "Agustus": {
+        "Fungsional": 7975000,
+        "Umum": 0,
+        "Total": 7975000,
+        "jumlahKontrak": 1
+      },
+      "September": {
+        "Fungsional": 180000,
+        "Umum": 0,
+        "Total": 180000,
+        "jumlahKontrak": 1
+      },
+      "Oktober": {
+        "Fungsional": 6995000,
+        "Umum": 132704000,
+        "Total": 139699000,
+        "jumlahKontrak": 3
+      }
+    },
+    "nilaiKontrakPerBulanPembuatan_perSumber": {
+      "Januari": {
+        "Fungsional": 1820000,
+        "Umum": 55674000,
+        "Total": 57494000,
+        "jumlahKontrak": 5
+      },
+      "Februari": {
+        "Fungsional": 36700000,
+        "Umum": 15555000,
+        "Total": 52255000,
+        "jumlahKontrak": 7
+      },
+      "Maret": {
+        "Fungsional": 6550000,
+        "Umum": 0,
+        "Total": 6550000,
+        "jumlahKontrak": 3
+      },
+      "April": {
+        "Fungsional": 2270000,
+        "Umum": 0,
+        "Total": 2270000,
+        "jumlahKontrak": 2
+      },
+      "Mei": {
+        "Fungsional": 5240000,
+        "Umum": 5320000,
+        "Total": 10560000,
+        "jumlahKontrak": 4
+      },
+      "Juni": {
+        "Fungsional": 14050000,
+        "Umum": 3056000,
+        "Total": 17106000,
+        "jumlahKontrak": 6
+      },
+      "Juli": {
+        "Fungsional": 2000000,
+        "Umum": 60596875,
+        "Total": 62596875,
+        "jumlahKontrak": 8
+      },
+      "Agustus": {
+        "Fungsional": 7975000,
+        "Umum": 0,
+        "Total": 7975000,
+        "jumlahKontrak": 1
+      },
+      "September": {
+        "Fungsional": 180000,
+        "Umum": 0,
+        "Total": 180000,
+        "jumlahKontrak": 1
+      },
+      "Oktober": {
+        "Fungsional": 6995000,
+        "Umum": 132704000,
+        "Total": 139699000,
+        "jumlahKontrak": 3
+      }
+    },
+    "dendaPerBulanPembuatanKontrak": {
+      "Januari": 0,
+      "Februari": 1804380,
+      "Maret": 50000,
+      "Juli": 4364870,
+      "Oktober": 2654080
+    },
+    "realisasiPenyetoranPerBulanBayar_perMaster": {
+      "Februari": {
+        "Fungsional": 270000,
+        "Umum": 15555000,
+        "Denda": 180380,
+        "Total": 16005380
+      },
+      "Maret": {
+        "Fungsional": 0,
+        "Umum": 1550000,
+        "Denda": 0,
+        "Total": 1550000
+      },
+      "Januari": {
+        "Fungsional": 0,
+        "Umum": 18558000,
+        "Denda": 0,
+        "Total": 18558000
+      },
+      "Juni": {
+        "Fungsional": 31550000,
+        "Umum": 14302250,
+        "Denda": 0,
+        "Total": 45852250
+      },
+      "Juli": {
+        "Fungsional": 14040000,
+        "Umum": 61596875,
+        "Denda": 600000,
+        "Total": 76236875
+      },
+      "April": {
+        "Fungsional": 9550000,
+        "Umum": 0,
+        "Denda": 0,
+        "Total": 9550000
+      },
+      "Mei": {
+        "Fungsional": 8670000,
+        "Umum": 5320000,
+        "Denda": 124000,
+        "Total": 14114000
+      },
+      "September": {
+        "Fungsional": 2000000,
+        "Umum": 0,
+        "Denda": 0,
+        "Total": 2000000
+      },
+      "Agustus": {
+        "Fungsional": 0,
+        "Umum": 17146250,
+        "Denda": 0,
+        "Total": 17146250
+      }
+    },
+    "realisasiPenyetoranPerBulanBayar_perSumber": {
+      "Februari": {
+        "Fungsional": 270000,
+        "Umum": 15555000,
+        "Denda": 180380,
+        "Total": 16005380
+      },
+      "Maret": {
+        "Fungsional": 1550000,
+        "Umum": 0,
+        "Denda": 0,
+        "Total": 1550000
+      },
+      "Januari": {
+        "Fungsional": 0,
+        "Umum": 18558000,
+        "Denda": 0,
+        "Total": 18558000
+      },
+      "Juni": {
+        "Fungsional": 31550000,
+        "Umum": 14302250,
+        "Denda": 0,
+        "Total": 45852250
+      },
+      "Juli": {
+        "Fungsional": 15040000,
+        "Umum": 60596875,
+        "Denda": 600000,
+        "Total": 76236875
+      },
+      "April": {
+        "Fungsional": 9550000,
+        "Umum": 0,
+        "Denda": 0,
+        "Total": 9550000
+      },
+      "Mei": {
+        "Fungsional": 8670000,
+        "Umum": 5320000,
+        "Denda": 124000,
+        "Total": 14114000
+      },
+      "September": {
+        "Fungsional": 2000000,
+        "Umum": 0,
+        "Denda": 0,
+        "Total": 2000000
+      },
+      "Agustus": {
+        "Fungsional": 0,
+        "Umum": 17146250,
+        "Denda": 0,
+        "Total": 17146250
+      }
+    },
+    "perbandinganDenganRekapTab": {
+      "rekapNilaiKontrak": {
+        "Januari": {
+          "Fungsional": 1820000,
+          "Umum": 55674000,
+          "Denda": 0
+        },
+        "Februari": {
+          "Fungsional": 36700000,
+          "Umum": 15555000,
+          "Denda": 1624000
+        },
+        "Maret": {
+          "Fungsional": 6550000,
+          "Umum": 0,
+          "Denda": 50000
+        },
+        "April": {
+          "Fungsional": 2270000,
+          "Umum": 0,
+          "Denda": 0
+        },
+        "Mei": {
+          "Fungsional": 5240000,
+          "Umum": 5320000,
+          "Denda": 0
+        },
+        "Juni": {
+          "Fungsional": 14050000,
+          "Umum": 3056000,
+          "Denda": 0
+        },
+        "Juli": {
+          "Fungsional": 2000000,
+          "Umum": 60596875,
+          "Denda": 4364870
+        },
+        "Agustus": {
+          "Fungsional": 4275000,
+          "Umum": 0,
+          "Denda": 0
+        },
+        "September": {
+          "Fungsional": 180000,
+          "Umum": 0,
+          "Denda": 0
+        }
+      },
+      "selisihDitemukan": [
+        "Total Fungsional baris Total Rekap (Rp71.265.000) != Σ bulanan Rekap (Rp73.085.000); selisih Rp1.820.000 = Januari — total Rekap melewatkan Januari.",
+        "Rekap Agustus Fungsional Rp4.275.000 hanya menghitung layanan pertama Kemkomdigi; nilai kontrak penuh Rp7.975.000 (selisih Rp3.700.000 = Sandiwara Rp3.000.000 + Feature Rp700.000). Sama di tab PNBP Fungsional (subtotal bulanan Agustus Rp4.275.000).",
+        "Rekap Februari Denda Rp1.624.000 vs Σ denda kontrak Februari Rp1.804.380; selisih Rp180.380 = denda Abdul Rozak Rusdy (sudah dibayar bersama pokok). Total Denda Rekap Rp6.038.870 vs Σ denda Rp8.873.330 (selisih Rp2.834.460 = Abdul 180.380 + Samdini 2.654.080 yang belum masuk total? — total Denda tab Rp8.692.950 juga tidak sama dengan Σ L Rp8.873.330, selisih Rp180.380 = Abdul).",
+        "Rekap Juli G (Nilai + Denda) Rp66.961.744 vs D+F Rp66.961.745 — selisih Rp1 (pembulatan).",
+        "Rekap Agustus realisasi: Rp17.146.250 (pembayaran PT VGreen, PNBP Umum) tercatat di kolom PNBP Fungsional (M), kolom Umum (N) = Rp0 — salah kolom.",
+        "Rekap baris Selisih -Rp32.272.880 tidak dapat direproduksi dari angka yang terlihat (Realisasi 201.012.755 − Total Kerja Sama 219.325.744 = −18.312.989).",
+        "Kolom Status (S) Rekap berisi \"Error\" untuk Jan–Sep (rumus rusak); Okt–Des \"Clear\".",
+        "Total baris Summary (AR Rp200.599.875) hanya mencakup kontrak no. 1–34; tidak mencakup no. 35–40 (Rp156.086.000: Herman 7061, Kemkomdigi, PLN Sep, BNN, Samdini, DJP Okt). Σ nilai 40 kontrak 2026 = Rp356.685.875.",
+        "Total Fungsional tab PNBP Fungsional Rp76.785.000 vs Σ subtotal bulanan (kolom AE) Rp73.085.000 — selisih Rp3.700.000 = layanan ke-2/3 Kemkomdigi (lihat atas).",
+        "Total Piutang tab (F Rp216.986.875) = Σ nilai 37 kontrak Jan–Sep — cocok dengan hitung ulang. Sisa Piutang tab Rp9.604.869 = Σ sisa piutang 37 kontrak Jan–Sep (5.314.869 denda belum dibayar + Kemkomdigi 4.110.000 + PLN Sep 180.000; BNN/Samdini/DJP Okt tidak ada di tab Piutang).",
+        "Total berkas PKS di tab Dokumen Kerjasama tertulis 37 (baris 70), tetapi hitung ulang sel K terisi pada baris kontrak 7–48 hanya 36 (baris 19 adalah lanjutan Billing Denda, bukan kontrak) — selisih 1, kemungkinan rumus hitung tab."
+      ]
+    }
+  },
+  "keputusanPemetaan": [
+    "Kode akun tidak tertulis eksplisit di sumber mana pun; diturunkan dari Master Kode Akun via kategori/detail layanan (425531 Fungsional untuk Jasa Penyiaran/Digitalisasi; 425131 Umum untuk Sewa/BMN & Ad-Lib/Jingle; 425839 untuk Denda).",
+    "Adlibs diklasifikasikan Umum (425131) mengikuti master — sumber menulis \"PNBP Fungsional\" untuk 3 kontrak (Taspen, Medco baris Adlibs, BI Adlibs); dicatat di pengecualianKodeAkun. Akibatnya total bulanan per-master berbeda dari Rekap sumber (Jan F 270.000 vs 1.820.000; Jun F 13.050.000 vs 14.050.000; Jun U 4.056.000 vs 3.056.000). Total keseluruhan sama.",
+    "Kontrak campuran (Medco): jenisPnBP kontrak = dominan nilai (Fungsional); per-layanan tetap sesuai master.",
+    "Tagihan: 1 per kontrak, nilai = Piutang (AU) sumber — untuk sewa multi-tahun hanya angsuran tahun berjalan, bukan nilai kontrak penuh.",
+    "Pembayaran: metode tidak tercatat di sumber; diasumsikan \"Transfer Bank\" karena ada NTB/NTPN. statusVerifikasi = \"Menunggu Verifikasi\" untuk semua (tidak ada bukti verifikasi eksplisit di sumber).",
+    "Status tagihan dihitung dari pembayaran vs nilai + jatuh tempo per 2026-11-14; \"Lunas Sebagian\" didahulukan atas \"Lewat Jatuh Tempo\" bila sudah ada pembayaran sebagian.",
+    "Status kontrak dari tanggal berakhir (Selesai bila AK < 2026-11-14, else Aktif); status bayar sumber (Lunas/Kurang Bayar/Belum Bayar) tidak dipakai sebagai status kontrak.",
+    "Dokumen: sel kosong tidak dibuatkan item (dianggap Tidak Berlaku/tidak tercatat); hanya sel terisi yang menjadi DokumenItem. PKS (asli) dibuat Belum Ada untuk 4 kontrak dengan baris dokumen stub/hilang (PLN Sep, BNN, Samdini, DJP Okt).",
+    "Pengajuan: tanggalMasuk memakai Jatuh Tempo Surat Permohonan (tab Sewa) sebagai pendekatan karena tanggal masuk tidak tercatat; 2 pengajuan (PT Bumi Ampera Rajasa, Genda Ananta Rahmat) memakai placeholder tanggal ekstraksi — keduanya ditandai WAJIB dikoreksi.",
+    "Kontrak sisa 2025 (Darojad, PT VGreen) diimpor sebagai kontrak Aktif dengan catatan; angsuran 2025 & 2026 masing-masing menjadi pembayaran pada satu tagihan (nilai = piutang sisa 2 tahun).",
+    "Sewa (entitas Sewa/BMN) TIDAK diekstrak di sheet 1 — kontrak sewa sudah tercakup sebagai Kontrak; tab Sewa dipakai sebagai sumber Pengajuan."
+  ],
+  "barisDilewati": [
+    {
+      "tab": "Summary",
+      "baris": 55,
+      "alasan": "Baris kosong/lanjutan tanpa data."
+    },
+    {
+      "tab": "Summary",
+      "baris": 56,
+      "alasan": "Baris kosong/lanjutan tanpa data."
+    },
+    {
+      "tab": "Summary",
+      "baris": 57,
+      "alasan": "Baris kosong/lanjutan tanpa data."
+    },
+    {
+      "tab": "Summary",
+      "baris": 60,
+      "alasan": "Baris kosong/lanjutan tanpa data."
+    },
+    {
+      "tab": "Summary",
+      "baris": 70,
+      "alasan": "Baris kosong/lanjutan tanpa data."
+    },
+    {
+      "tab": "Summary",
+      "baris": 71,
+      "alasan": "Baris kosong/lanjutan tanpa data."
+    },
+    {
+      "tab": "Summary",
+      "baris": 72,
+      "alasan": "Baris kosong/lanjutan tanpa data."
+    },
+    {
+      "tab": "Summary",
+      "baris": 73,
+      "alasan": "Baris kosong/lanjutan tanpa data."
+    },
+    {
+      "tab": "Summary",
+      "baris": 75,
+      "alasan": "Baris kosong/lanjutan tanpa data."
+    },
+    {
+      "tab": "Summary",
+      "baris": 76,
+      "alasan": "Baris kosong/lanjutan tanpa data."
+    },
+    {
+      "tab": "Summary",
+      "baris": 77,
+      "alasan": "Baris kosong/lanjutan tanpa data."
+    },
+    {
+      "tab": "Summary",
+      "baris": 78,
+      "alasan": "Baris kosong/lanjutan tanpa data."
+    },
+    {
+      "tab": "Summary",
+      "baris": 79,
+      "alasan": "Baris header/judul bagian Sisa Kontrak Tahun Sebelumnya, bukan data."
+    },
+    {
+      "tab": "Summary",
+      "baris": 80,
+      "alasan": "Baris header/judul bagian Sisa Kontrak Tahun Sebelumnya, bukan data."
+    },
+    {
+      "tab": "Summary",
+      "baris": 81,
+      "alasan": "Baris header/judul bagian Sisa Kontrak Tahun Sebelumnya, bukan data."
+    },
+    {
+      "tab": "Summary",
+      "baris": 82,
+      "alasan": "Baris header/judul bagian Sisa Kontrak Tahun Sebelumnya, bukan data."
+    },
+    {
+      "tab": "Summary",
+      "baris": 83,
+      "alasan": "Baris header/judul bagian Sisa Kontrak Tahun Sebelumnya, bukan data."
+    },
+    {
+      "tab": "Summary",
+      "baris": 86,
+      "alasan": "Baris lanjutan hanya berisi Jatuh Tempo tahun berikut (30 Juni 2027) tanpa pembayaran; dicatat sebagai info, bukan entitas."
+    },
+    {
+      "tab": "Summary",
+      "baris": 89,
+      "alasan": "Baris lanjutan hanya berisi Jatuh Tempo tahun berikut (19 Agustus 2027) tanpa pembayaran; dicatat sebagai info, bukan entitas."
+    },
+    {
+      "tab": "Dokumen Kerjasama",
+      "baris": 44,
+      "alasan": "Baris tanpa nomor kontrak (nomor urut 36 duplikat) — dilewati."
+    },
+    {
+      "tab": "Dokumen Kerjasama",
+      "baris": 45,
+      "alasan": "Baris tanpa nomor kontrak (nomor urut 36 duplikat) — dilewati."
+    },
+    {
+      "tab": "Dokumen Kerjasama",
+      "baris": 55,
+      "alasan": "Baris tanpa nomor kontrak (nomor urut 36 duplikat) — dilewati."
+    },
+    {
+      "tab": "Dokumen Kerjasama",
+      "baris": 57,
+      "alasan": "Baris tanpa nomor kontrak (nomor urut 36 duplikat) — dilewati."
+    },
+    {
+      "tab": "Dokumen Kerjasama",
+      "baris": 65,
+      "alasan": "Baris tanpa nomor kontrak (nomor urut 36 duplikat) — dilewati."
+    }
+  ]
+}

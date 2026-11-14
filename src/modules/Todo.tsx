@@ -329,7 +329,7 @@ function FormTask({
             onChange={(e) =>
               setForm((f) => ({ ...f, terkaitId: e.target.value }))
             }
-            placeholder="Contoh: PRS-01, PJ-002, EVT-01"
+            placeholder="Contoh: PRS-01, PGJ-01, EVT-01"
           />
         </div>
         <div>

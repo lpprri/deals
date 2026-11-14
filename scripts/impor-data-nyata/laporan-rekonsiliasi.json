@@ -1,0 +1,640 @@
+{
+  "tanggalVerifikasi": "2026-11-14",
+  "basis": "Kontrak per bulan dikelompokkan menurut bulan terbit tagihan (bulan PKS diterbitkan) — basis Laporan Bulanan aplikasi. Lihat komentar di verifikasi.mjs butir (a)–(d).",
+  "kontrakPerBulanVsLaporanBulanan": [
+    {
+      "bulan": "januari",
+      "aplikasi": {
+        "fungsional": 270000,
+        "umum": 57224000,
+        "total": 57494000,
+        "qtyPks": 5
+      },
+      "laporanBulanan": {
+        "fungsional": 1820000,
+        "umum": 55674000,
+        "total": 57494000,
+        "qtyPks": 5
+      },
+      "selisih": {
+        "fungsional": -1550000,
+        "umum": 1550000,
+        "total": 0,
+        "qtyPks": 0
+      },
+      "penjelasan": "Total & QTY cocok; pergeseran Fungsional↔Umum akibat reklasifikasi Adlibs ke 425131/Umum (Master Kode Akun; lihat pengecualian kode akun di laporan-impor.json)."
+    },
+    {
+      "bulan": "februari",
+      "aplikasi": {
+        "fungsional": 36700000,
+        "umum": 15555000,
+        "total": 52255000,
+        "qtyPks": 7
+      },
+      "laporanBulanan": {
+        "fungsional": 36700000,
+        "umum": 15555000,
+        "total": 52255000,
+        "qtyPks": 7
+      },
+      "selisih": {
+        "fungsional": 0,
+        "umum": 0,
+        "total": 0,
+        "qtyPks": 0
+      },
+      "penjelasan": "Cocok."
+    },
+    {
+      "bulan": "maret",
+      "aplikasi": {
+        "fungsional": 6550000,
+        "umum": 0,
+        "total": 6550000,
+        "qtyPks": 3
+      },
+      "laporanBulanan": {
+        "fungsional": 6550000,
+        "umum": 0,
+        "total": 6550000,
+        "qtyPks": 3
+      },
+      "selisih": {
+        "fungsional": 0,
+        "umum": 0,
+        "total": 0,
+        "qtyPks": 0
+      },
+      "penjelasan": "Cocok."
+    },
+    {
+      "bulan": "april",
+      "aplikasi": {
+        "fungsional": 2270000,
+        "umum": 0,
+        "total": 2270000,
+        "qtyPks": 2
+      },
+      "laporanBulanan": {
+        "fungsional": 2270000,
+        "umum": 0,
+        "total": 2270000,
+        "qtyPks": 2
+      },
+      "selisih": {
+        "fungsional": 0,
+        "umum": 0,
+        "total": 0,
+        "qtyPks": 0
+      },
+      "penjelasan": "Cocok."
+    },
+    {
+      "bulan": "mei",
+      "aplikasi": {
+        "fungsional": 5240000,
+        "umum": 5320000,
+        "total": 10560000,
+        "qtyPks": 4
+      },
+      "laporanBulanan": {
+        "fungsional": 5240000,
+        "umum": 5320000,
+        "total": 10560000,
+        "qtyPks": 4
+      },
+      "selisih": {
+        "fungsional": 0,
+        "umum": 0,
+        "total": 0,
+        "qtyPks": 0
+      },
+      "penjelasan": "Cocok."
+    },
+    {
+      "bulan": "juni",
+      "aplikasi": {
+        "fungsional": 13050000,
+        "umum": 4056000,
+        "total": 17106000,
+        "qtyPks": 6
+      },
+      "laporanBulanan": {
+        "fungsional": 14050000,
+        "umum": 3056000,
+        "total": 17106000,
+        "qtyPks": 6
+      },
+      "selisih": {
+        "fungsional": -1000000,
+        "umum": 1000000,
+        "total": 0,
+        "qtyPks": 0
+      },
+      "penjelasan": "Total & QTY cocok; pergeseran Fungsional↔Umum akibat reklasifikasi Adlibs ke 425131/Umum (Master Kode Akun; lihat pengecualian kode akun di laporan-impor.json)."
+    },
+    {
+      "bulan": "juli",
+      "aplikasi": {
+        "fungsional": 2000000,
+        "umum": 60596875,
+        "total": 62596875,
+        "qtyPks": 8
+      },
+      "laporanBulanan": {
+        "fungsional": 2000000,
+        "umum": 60596875,
+        "total": 62596875,
+        "qtyPks": 8
+      },
+      "selisih": {
+        "fungsional": 0,
+        "umum": 0,
+        "total": 0,
+        "qtyPks": 0
+      },
+      "penjelasan": "Cocok."
+    },
+    {
+      "bulan": "agustus",
+      "aplikasi": {
+        "fungsional": 7975000,
+        "umum": 0,
+        "total": 7975000,
+        "qtyPks": 1
+      },
+      "laporanBulanan": {
+        "fungsional": 7975000,
+        "umum": 0,
+        "total": 7975000,
+        "qtyPks": 1
+      },
+      "selisih": {
+        "fungsional": 0,
+        "umum": 0,
+        "total": 0,
+        "qtyPks": 0
+      },
+      "penjelasan": "Cocok."
+    },
+    {
+      "bulan": "september",
+      "aplikasi": {
+        "fungsional": 180000,
+        "umum": 0,
+        "total": 180000,
+        "qtyPks": 1
+      },
+      "laporanBulanan": {
+        "fungsional": 180000,
+        "umum": 0,
+        "total": 180000,
+        "qtyPks": 1
+      },
+      "selisih": {
+        "fungsional": 0,
+        "umum": 0,
+        "total": 0,
+        "qtyPks": 0
+      },
+      "penjelasan": "Cocok."
+    }
+  ],
+  "pembandingTanggalMulai": [
+    {
+      "bulan": "januari",
+      "totalTanggalMulai": 1820000,
+      "qtyTanggalMulai": 2,
+      "totalBasisLaporan": 57494000,
+      "catatan": "Berbeda dari basis laporan — bulan terbit PKS ≠ bulan mulai layanan untuk kontrak di bulan ini."
+    },
+    {
+      "bulan": "februari",
+      "totalTanggalMulai": 125949292,
+      "qtyTanggalMulai": 13,
+      "totalBasisLaporan": 52255000,
+      "catatan": "Berbeda dari basis laporan — bulan terbit PKS ≠ bulan mulai layanan untuk kontrak di bulan ini."
+    },
+    {
+      "bulan": "maret",
+      "totalTanggalMulai": 6550000,
+      "qtyTanggalMulai": 3,
+      "totalBasisLaporan": 6550000,
+      "catatan": "Sama dengan basis laporan."
+    },
+    {
+      "bulan": "april",
+      "totalTanggalMulai": 2270000,
+      "qtyTanggalMulai": 2,
+      "totalBasisLaporan": 2270000,
+      "catatan": "Sama dengan basis laporan."
+    },
+    {
+      "bulan": "mei",
+      "totalTanggalMulai": 9570000,
+      "qtyTanggalMulai": 3,
+      "totalBasisLaporan": 10560000,
+      "catatan": "Berbeda dari basis laporan — bulan terbit PKS ≠ bulan mulai layanan untuk kontrak di bulan ini."
+    },
+    {
+      "bulan": "juni",
+      "totalTanggalMulai": 18096000,
+      "qtyTanggalMulai": 7,
+      "totalBasisLaporan": 17106000,
+      "catatan": "Berbeda dari basis laporan — bulan terbit PKS ≠ bulan mulai layanan untuk kontrak di bulan ini."
+    },
+    {
+      "bulan": "juli",
+      "totalTanggalMulai": 2000000,
+      "qtyTanggalMulai": 1,
+      "totalBasisLaporan": 62596875,
+      "catatan": "Berbeda dari basis laporan — bulan terbit PKS ≠ bulan mulai layanan untuk kontrak di bulan ini."
+    },
+    {
+      "bulan": "agustus",
+      "totalTanggalMulai": 50551583,
+      "qtyTanggalMulai": 5,
+      "totalBasisLaporan": 7975000,
+      "catatan": "Berbeda dari basis laporan — bulan terbit PKS ≠ bulan mulai layanan untuk kontrak di bulan ini."
+    },
+    {
+      "bulan": "september",
+      "totalTanggalMulai": 132884000,
+      "qtyTanggalMulai": 2,
+      "totalBasisLaporan": 180000,
+      "catatan": "Berbeda dari basis laporan — bulan terbit PKS ≠ bulan mulai layanan untuk kontrak di bulan ini."
+    }
+  ],
+  "penyetoranPerBulanVsLaporanPiutang": [
+    {
+      "bulan": "januari",
+      "aplikasi": 18558000,
+      "laporanPiutang": 18558000,
+      "selisih": 0,
+      "penjelasan": "Cocok."
+    },
+    {
+      "bulan": "februari",
+      "aplikasi": 16005380,
+      "laporanPiutang": 16005380,
+      "selisih": 0,
+      "penjelasan": "Cocok."
+    },
+    {
+      "bulan": "maret",
+      "aplikasi": 1550000,
+      "laporanPiutang": 1550000,
+      "selisih": 0,
+      "penjelasan": "Cocok."
+    },
+    {
+      "bulan": "april",
+      "aplikasi": 9550000,
+      "laporanPiutang": 9550000,
+      "selisih": 0,
+      "penjelasan": "Cocok."
+    },
+    {
+      "bulan": "mei",
+      "aplikasi": 14114000,
+      "laporanPiutang": 14114000,
+      "selisih": 0,
+      "penjelasan": "Cocok."
+    },
+    {
+      "bulan": "juni",
+      "aplikasi": 45852250,
+      "laporanPiutang": 45852250,
+      "selisih": 0,
+      "penjelasan": "Cocok."
+    },
+    {
+      "bulan": "juli",
+      "aplikasi": 76236875,
+      "laporanPiutang": 76236875,
+      "selisih": 0,
+      "penjelasan": "Cocok."
+    },
+    {
+      "bulan": "agustus",
+      "aplikasi": 17146250,
+      "laporanPiutang": 35166542,
+      "selisih": -18020292,
+      "penjelasan": "Selisih Rp-18.020.292 DIJELASKAN: tab AGUSTUS Sheet 5 mencatat juga pembayaran Juli (30–31 Jul 2026) untuk tagihan Fisol/Mila/Herman (Rp18.020.292) — tab itu mencatat setoran per kontrak yang tercantum, bukan arus kas bulanan (K-07/K-12). Jembatan: Rp17.146.250 + Rp18.020.292 = Rp35.166.542 == laporan — cocok."
+    },
+    {
+      "bulan": "september",
+      "aplikasi": 2000000,
+      "laporanPiutang": 2000000,
+      "selisih": 0,
+      "penjelasan": "Cocok."
+    }
+  ],
+  "posisiAkhirSeptember": {
+    "aplikasi": {
+      "totalSisaTagihan": 9604869,
+      "jumlahTagihanBersisa": 9,
+      "rincianTagihan": [
+        {
+          "tagihanId": "TGH-007-RRI-PLB-PKS-F-02-2026",
+          "kontrakId": "1744/PKS/RRI.PLB/03/2026",
+          "nilai": 15900000,
+          "dibayar": 15000000,
+          "sisa": 900000
+        },
+        {
+          "tagihanId": "TGH-013-RRI-PLB-PKS-F-03-2026",
+          "kontrakId": "2919/PKS/RRI.PLB/04/2026",
+          "nilai": 1530000,
+          "dibayar": 1500000,
+          "sisa": 30000
+        },
+        {
+          "tagihanId": "TGH-014-RRI-PLB-PKS-F-03-2026",
+          "kontrakId": "2920/PKS/RRI.PLB/04/2026",
+          "nilai": 1020000,
+          "dibayar": 1000000,
+          "sisa": 20000
+        },
+        {
+          "tagihanId": "TGH-027-RRI-PLB-PKS-F-07-2026",
+          "kontrakId": "6593/PKS/RRI.PLB/07/2026",
+          "nilai": 2040000,
+          "dibayar": 2000000,
+          "sisa": 40000
+        },
+        {
+          "tagihanId": "TGH-029-RRI-PLB-PKS-U-07-2026",
+          "kontrakId": "7052/PKS/RRI.PLB/07/2026",
+          "nilai": 7440000,
+          "dibayar": 6000000,
+          "sisa": 1440000
+        },
+        {
+          "tagihanId": "TGH-031-RRI-PLB-PKS-U-07-2026",
+          "kontrakId": "7054/PKS/RRI.PLB/07/2026",
+          "nilai": 9801321,
+          "dibayar": 7904292,
+          "sisa": 1897029
+        },
+        {
+          "tagihanId": "TGH-033-RRI-PLB-PKS-U-07-2026",
+          "kontrakId": "7060/PKS/RRI.PLB/07/2026",
+          "nilai": 5103840,
+          "dibayar": 4116000,
+          "sisa": 987840
+        },
+        {
+          "tagihanId": "TGH-018-PKS-DIR-LPU-08-2026",
+          "kontrakId": "018/PKS/DIR.LPU/08/2026",
+          "nilai": 4110000,
+          "dibayar": 0,
+          "sisa": 4110000
+        },
+        {
+          "tagihanId": "TGH-035-RRI-PLB-PKS-F-09-2026",
+          "kontrakId": "1158/PKS/RRI.PLB/10/2026",
+          "nilai": 180000,
+          "dibayar": 0,
+          "sisa": 180000
+        }
+      ],
+      "totalDendaBelumDibayar": 5314870,
+      "rincianDenda": [
+        {
+          "dendaId": "DND-003",
+          "tagihanId": "TGH-007-RRI-PLB-PKS-F-02-2026",
+          "jumlah": 900000,
+          "status": "Ditagihkan"
+        },
+        {
+          "dendaId": "DND-007",
+          "tagihanId": "TGH-013-RRI-PLB-PKS-F-03-2026",
+          "jumlah": 30000,
+          "status": "Ditagihkan"
+        },
+        {
+          "dendaId": "DND-008",
+          "tagihanId": "TGH-014-RRI-PLB-PKS-F-03-2026",
+          "jumlah": 20000,
+          "status": "Ditagihkan"
+        },
+        {
+          "dendaId": "DND-009",
+          "tagihanId": "TGH-027-RRI-PLB-PKS-F-07-2026",
+          "jumlah": 40000,
+          "status": "Ditagihkan"
+        },
+        {
+          "dendaId": "DND-010",
+          "tagihanId": "TGH-029-RRI-PLB-PKS-U-07-2026",
+          "jumlah": 1440000,
+          "status": "Ditagihkan"
+        },
+        {
+          "dendaId": "DND-011",
+          "tagihanId": "TGH-031-RRI-PLB-PKS-U-07-2026",
+          "jumlah": 1897030,
+          "status": "Ditagihkan"
+        },
+        {
+          "dendaId": "DND-012",
+          "tagihanId": "TGH-033-RRI-PLB-PKS-U-07-2026",
+          "jumlah": 987840,
+          "status": "Ditagihkan"
+        }
+      ]
+    },
+    "laporanPiutangSeptember": {
+      "totalPiutang": 11604869,
+      "totalPenyetoran": 2000000,
+      "sisaPiutang": 9604869
+    },
+    "selisihSisaTagihanVsLaporan": 0,
+    "penjelasan": "Sisa tagihan aplikasi (Rp9.604.869, 9 tagihan) SAMA PERSIS dengan sisa Laporan Piutang September. Denda Rp5.314.870 TIDAK ditambahkan: nilai tagihan sudah mencakup denda yang tertanam (mis. Fisol: tagihan Rp7.440.000 = kontrak Rp6.000.000 + denda Rp1.440.000); entitas Denda mencatat jumlah yang sama secara terpisah — menambahkannya akan menghitung ganda. Pengecualian Rp1: denda Mila tercatat Rp1.897.030 sementara sisa tagihannya Rp1.897.029 (ketidakkonsistenan Rp1 di sumber, sudah dicatat di audit Sheet 1)."
+  },
+  "hqVsLaporanBulanan": [
+    {
+      "bulan": "januari",
+      "laporanBulanan": {
+        "fungsional": 1820000,
+        "umum": 55674000,
+        "total": 57494000,
+        "qtyPks": 5
+      },
+      "hq": {
+        "fungsional": 1820000,
+        "umum": 55674000,
+        "total": 57494000,
+        "qtyPks": 5
+      },
+      "selisihTotal": 0,
+      "selisihQty": 0,
+      "penjelasan": "Cocok."
+    },
+    {
+      "bulan": "februari",
+      "laporanBulanan": {
+        "fungsional": 36700000,
+        "umum": 15555000,
+        "total": 52255000,
+        "qtyPks": 7
+      },
+      "hq": {
+        "fungsional": 36700000,
+        "umum": 15555000,
+        "total": 52255000,
+        "qtyPks": 7
+      },
+      "selisihTotal": 0,
+      "selisihQty": 0,
+      "penjelasan": "Cocok."
+    },
+    {
+      "bulan": "maret",
+      "laporanBulanan": {
+        "fungsional": 6550000,
+        "umum": 0,
+        "total": 6550000,
+        "qtyPks": 3
+      },
+      "hq": {
+        "fungsional": 6550000,
+        "umum": 0,
+        "total": 6550000,
+        "qtyPks": 3
+      },
+      "selisihTotal": 0,
+      "selisihQty": 0,
+      "penjelasan": "Cocok."
+    },
+    {
+      "bulan": "april",
+      "laporanBulanan": {
+        "fungsional": 2270000,
+        "umum": 0,
+        "total": 2270000,
+        "qtyPks": 2
+      },
+      "hq": {
+        "fungsional": 2270000,
+        "umum": 0,
+        "total": 2270000,
+        "qtyPks": 2
+      },
+      "selisihTotal": 0,
+      "selisihQty": 0,
+      "penjelasan": "Cocok."
+    },
+    {
+      "bulan": "mei",
+      "laporanBulanan": {
+        "fungsional": 5240000,
+        "umum": 5320000,
+        "total": 10560000,
+        "qtyPks": 4
+      },
+      "hq": {
+        "fungsional": 5240000,
+        "umum": 5320000,
+        "total": 10560000,
+        "qtyPks": 4
+      },
+      "selisihTotal": 0,
+      "selisihQty": 0,
+      "penjelasan": "Cocok."
+    },
+    {
+      "bulan": "juni",
+      "laporanBulanan": {
+        "fungsional": 14050000,
+        "umum": 3056000,
+        "total": 17106000,
+        "qtyPks": 6
+      },
+      "hq": {
+        "fungsional": 14050000,
+        "umum": 3056000,
+        "total": 17106000,
+        "qtyPks": 10
+      },
+      "selisihTotal": 0,
+      "selisihQty": 4,
+      "penjelasan": "QTY Sheet 6 dihitung per jenis layanan (PANDUAN), bukan PKS distinct — tidak sebanding langsung (K-03)."
+    },
+    {
+      "bulan": "juli",
+      "laporanBulanan": {
+        "fungsional": 2000000,
+        "umum": 60596875,
+        "total": 62596875,
+        "qtyPks": 8
+      },
+      "hq": {
+        "fungsional": 0,
+        "umum": 0,
+        "total": 0,
+        "qtyPks": 0
+      },
+      "selisihTotal": -62596875,
+      "selisihQty": -8,
+      "penjelasan": "Sheet 6 (HQ) PALEMBANG = 0 — bulan belum diisi di format kantor pusat, bukan ketiadaan kerja sama (K-01/K-02). Aplikasi menghitung dari data nyata."
+    },
+    {
+      "bulan": "agustus",
+      "laporanBulanan": {
+        "fungsional": 7975000,
+        "umum": 0,
+        "total": 7975000,
+        "qtyPks": 1
+      },
+      "hq": {
+        "fungsional": 7975000,
+        "umum": 0,
+        "total": 7975000,
+        "qtyPks": 3
+      },
+      "selisihTotal": 0,
+      "selisihQty": 2,
+      "penjelasan": "QTY Sheet 6 dihitung per jenis layanan (PANDUAN), bukan PKS distinct — tidak sebanding langsung (K-03)."
+    },
+    {
+      "bulan": "september",
+      "laporanBulanan": {
+        "fungsional": 180000,
+        "umum": 0,
+        "total": 180000,
+        "qtyPks": 1
+      },
+      "hq": {
+        "fungsional": 0,
+        "umum": 0,
+        "total": 0,
+        "qtyPks": 0
+      },
+      "selisihTotal": -180000,
+      "selisihQty": -1,
+      "penjelasan": "Sheet 6 (HQ) PALEMBANG = 0 — bulan belum diisi di format kantor pusat, bukan ketiadaan kerja sama (K-01/K-02). Aplikasi menghitung dari data nyata."
+    }
+  ],
+  "totalKontrol": {
+    "jumlahPks": 15,
+    "nilaiKontrak": 441863375,
+    "totalTagihan": 379068204,
+    "totalPembayaran": 229405255,
+    "totalPembayaranTerverifikasi": 229405255,
+    "sisaPiutang": 149662949,
+    "totalDenda": 8873330,
+    "totalPenerimaanAcuan": 0,
+    "selisihRekonsiliasi": -229405255
+  },
+  "kesimpulan": [
+    "Nilai kontrak per bulan Jan–Sep: total & QTY cocok 9/9 bulan vs Laporan Bulanan; selisih hanya pergeseran Fungsional↔Umum (Adlibs → 425131/Umum), total tidak berubah.",
+    "Penyetoran per bulan Jan–Sep: cocok 9/9 bulan vs Laporan Piutang (Agustus dijelaskan lewat jembatan — tab sumber bukan arus kas murni).",
+    "Posisi piutang 30 Sep: sisa tagihan aplikasi SAMA PERSIS dengan sisa Laporan Piutang September (Rp9.604.869).",
+    "Sheet 6 (HQ) Juli & September PALEMBANG = 0 karena belum diisi; aplikasi menghitung dari data nyata (Juli Rp62.596.875, September Rp180.000).",
+    "Basis bulan laporan = bulan terbit tagihan (bulan PKS diterbitkan), bukan tanggalMulai layanan — lihat pembandingTanggalMulai.",
+    "Tidak ada selisih total baru di luar yang sudah dijelaskan."
+  ]
+}

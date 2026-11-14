@@ -1,0 +1,158 @@
+[
+  {
+    "id": "DND-001",
+    "tagihanId": "TGH-001-PKS-DIR-LPU-01-2026",
+    "dasar": "Terlambat 9 hari dari jatuh tempo; denda Rp0 — Tidak Dikenakan Denda (per sumber).",
+    "jumlah": 0,
+    "status": "Dihapus",
+    "kodeAkun": "425839",
+    "satker": {
+      "kode": "41",
+      "nama": "PALEMBANG"
+    }
+  },
+  {
+    "id": "DND-002",
+    "tagihanId": "TGH-005-RRI-PLB-PKS-U-02-2026",
+    "dasar": "Terlambat 10 hari (jatuh tempo 2026-01-31, dibayar 2026-02-10); Terlambang Melakukan Pembayaran | SPn-1",
+    "jumlah": 180380,
+    "status": "Dibayar",
+    "kodeAkun": "425839",
+    "satker": {
+      "kode": "41",
+      "nama": "PALEMBANG"
+    }
+  },
+  {
+    "id": "DND-003",
+    "tagihanId": "TGH-007-RRI-PLB-PKS-F-02-2026",
+    "dasar": "Terlambat 65 hari (jatuh tempo 2026-04-22, dibayar 2026-06-26); Terlambang Melakukan Pembayaran | SPn-3",
+    "jumlah": 900000,
+    "status": "Ditagihkan",
+    "kodeAkun": "425839",
+    "satker": {
+      "kode": "41",
+      "nama": "PALEMBANG"
+    }
+  },
+  {
+    "id": "DND-004",
+    "tagihanId": "TGH-008-RRI-PLB-PKS-F-02-2026",
+    "dasar": "Terlambat 68 hari (jatuh tempo 2026-04-22, dibayar 2026-06-29); Terlambang Melakukan Pembayaran | SPn-3",
+    "jumlah": 300000,
+    "status": "Dibayar",
+    "kodeAkun": "425839",
+    "satker": {
+      "kode": "41",
+      "nama": "PALEMBANG"
+    }
+  },
+  {
+    "id": "DND-005",
+    "tagihanId": "TGH-010-RRI-PLB-PKS-F-02-2026",
+    "dasar": "Terlambat 61 hari (jatuh tempo 2026-04-22, dibayar 2026-06-22); Terlambang Melakukan Pembayaran | SPn-2",
+    "jumlah": 300000,
+    "status": "Dibayar",
+    "kodeAkun": "425839",
+    "satker": {
+      "kode": "41",
+      "nama": "PALEMBANG"
+    }
+  },
+  {
+    "id": "DND-006",
+    "tagihanId": "TGH-011-RRI-PLB-PKS-F-02-2026",
+    "dasar": "Terlambat 21 hari (jatuh tempo 2026-04-22, dibayar 2026-05-13); Terlambang Melakukan Pembayaran | SPn-1",
+    "jumlah": 124000,
+    "status": "Dibayar",
+    "kodeAkun": "425839",
+    "satker": {
+      "kode": "41",
+      "nama": "PALEMBANG"
+    }
+  },
+  {
+    "id": "DND-007",
+    "tagihanId": "TGH-013-RRI-PLB-PKS-F-03-2026",
+    "dasar": "Terlambat 1 hari (jatuh tempo 2026-04-22, dibayar 2026-04-23); Terlambang Melakukan Pembayaran | SPn-1",
+    "jumlah": 30000,
+    "status": "Ditagihkan",
+    "kodeAkun": "425839",
+    "satker": {
+      "kode": "41",
+      "nama": "PALEMBANG"
+    }
+  },
+  {
+    "id": "DND-008",
+    "tagihanId": "TGH-014-RRI-PLB-PKS-F-03-2026",
+    "dasar": "Terlambat 1 hari (jatuh tempo 2026-04-22, dibayar 2026-04-23); Terlambang Melakukan Pembayaran | SPn-1",
+    "jumlah": 20000,
+    "status": "Ditagihkan",
+    "kodeAkun": "425839",
+    "satker": {
+      "kode": "41",
+      "nama": "PALEMBANG"
+    }
+  },
+  {
+    "id": "DND-009",
+    "tagihanId": "TGH-027-RRI-PLB-PKS-F-07-2026",
+    "dasar": "Terlambat 31 hari (jatuh tempo 2026-08-14, dibayar 2026-09-14); Keterlambatan Pembayaran | SPn-1",
+    "jumlah": 40000,
+    "status": "Ditagihkan",
+    "kodeAkun": "425839",
+    "satker": {
+      "kode": "41",
+      "nama": "PALEMBANG"
+    }
+  },
+  {
+    "id": "DND-010",
+    "tagihanId": "TGH-029-RRI-PLB-PKS-U-07-2026",
+    "dasar": "Terlambat 180 hari (jatuh tempo 2026-01-31, dibayar 2026-07-30); Keterlambatan Pembayaran | SPn-6",
+    "jumlah": 1440000,
+    "status": "Ditagihkan",
+    "kodeAkun": "425839",
+    "satker": {
+      "kode": "41",
+      "nama": "PALEMBANG"
+    }
+  },
+  {
+    "id": "DND-011",
+    "tagihanId": "TGH-031-RRI-PLB-PKS-U-07-2026",
+    "dasar": "Terlambat 180 hari (jatuh tempo 2026-01-31, dibayar 2026-07-30); Keterlambatan Pembayaran | SPn-6",
+    "jumlah": 1897030,
+    "status": "Ditagihkan",
+    "kodeAkun": "425839",
+    "satker": {
+      "kode": "41",
+      "nama": "PALEMBANG"
+    }
+  },
+  {
+    "id": "DND-012",
+    "tagihanId": "TGH-033-RRI-PLB-PKS-U-07-2026",
+    "dasar": "Terlambat 181 hari (jatuh tempo 2026-01-31, dibayar 2026-07-31); Keterlambatan Pembayaran | SPn-6",
+    "jumlah": 987840,
+    "status": "Ditagihkan",
+    "kodeAkun": "425839",
+    "satker": {
+      "kode": "41",
+      "nama": "PALEMBANG"
+    }
+  },
+  {
+    "id": "DND-013",
+    "tagihanId": "TGH-037-RRI-PLB-PKS-U-10-2026",
+    "dasar": "Terlambat -46281 hari (jatuh tempo 2026-09-16, dibayar belum dibayar); Keterlambatan Pembayaran Karena Alasan Administratif",
+    "jumlah": 2654080,
+    "status": "Ditagihkan",
+    "kodeAkun": "425839",
+    "satker": {
+      "kode": "41",
+      "nama": "PALEMBANG"
+    }
+  }
+]

@@ -1,0 +1,81 @@
+{
+  "januari": {
+    "fungsional": 1820000,
+    "umum": 55674000,
+    "qtyPks": 5,
+    "total": 57494000,
+    "sumber": "Laporan Bulanan PNBP 2026",
+    "catatan": "Fungsional 2 PKS (PLN 270000, Taspen 1550000); Umum 3 PKS (Aminul Khair 19365000, Meily Oktarina 19365000, Dierga Salomon Riezki 16944000). Sama dengan tab Rekapitulasi."
+  },
+  "februari": {
+    "fungsional": 36700000,
+    "umum": 15555000,
+    "qtyPks": 7,
+    "total": 52255000,
+    "sumber": "Laporan Bulanan PNBP 2026",
+    "catatan": "Fungsional 5 PKS (Diskominfo Kota 15000000, Diskominfo Banyuasin 5000000, Diskominfo Muba 3000000, Bank Sumsel Babel 7500000, BI Sumsel 6200000); Umum 2 PKS (Abdul Rozak Rusdy 9019000, Assef Hidayat 6536000). Sama dengan Rekapitulasi."
+  },
+  "maret": {
+    "fungsional": 6550000,
+    "umum": 0,
+    "qtyPks": 3,
+    "total": 6550000,
+    "sumber": "Laporan Bulanan PNBP 2026",
+    "catatan": "Fungsional 3 PKS (Bea Cukai 4050000, Diskominfo OKU Selatan 1500000, BSI KCP Kenten 2 1000000); Umum 0 PKS — tab berisi baris '-' dan Total tertulis Rp0. Sama dengan Rekapitulasi."
+  },
+  "april": {
+    "fungsional": 2270000,
+    "umum": 0,
+    "qtyPks": 2,
+    "total": 2270000,
+    "sumber": "Laporan Bulanan PNBP 2026",
+    "catatan": "Fungsional 2 PKS (Kanwil DJP Sumsel Babel 2000000, PLN 270000); Umum 0 PKS — tab berisi baris '-' dan Total tertulis Rp0. Sama dengan Rekapitulasi."
+  },
+  "mei": {
+    "fungsional": 5240000,
+    "umum": 5320000,
+    "qtyPks": 4,
+    "total": 10560000,
+    "sumber": "Laporan Bulanan PNBP 2026",
+    "catatan": "Fungsional 3 PKS (Savano Entertainment 200000, Al-Ittifaqiah 4050000, Alfaria 990000); Umum 1 PKS (Arip 5320000). Sama dengan Rekapitulasi. Anomali: nomor referensi Arip tertulis 017/RRI.PLB/PKS.F/05/2026 (kode F pada tab Umum)."
+  },
+  "juni": {
+    "fungsional": 14050000,
+    "umum": 3056000,
+    "qtyPks": 6,
+    "total": 17106000,
+    "sumber": "Laporan Bulanan PNBP 2026",
+    "catatan": "Fungsional 5 PKS (DPRD Kota Palembang 3500000, Medco 3500000, Bea Cukai 4050000, BI dialog 2000000, BI adlibs 1000000); Umum 1 PKS (Dr. Jalaluddin, aula, 3056000). Total baris = jumlah kolom TOTAL termasuk sub-baris layanan (DPRD 500000+2000000+1000000; Medco 500000+2000000+1000000). Ada kolom tambahan tanpa header (kolom AC-AF) berisi layanan dan angka yang tidak masuk total — maknanya tidak dapat dipastikan. Sama dengan Rekapitulasi."
+  },
+  "juli": {
+    "fungsional": 2000000,
+    "umum": 60596875,
+    "qtyPks": 8,
+    "total": 62596875,
+    "sumber": "Laporan Bulanan PNBP 2026",
+    "catatan": "Fungsional 1 PKS (Perempuan Indonesia Maju 2000000); Umum 7 PKS (Faridah Hanum 6536000, Fisol Jailani 6000000 + 12000000, Mila Agustina 7904292 + 15808583, Herman Sawiran 4116000 + 8232000). Anomali: penomoran Fungsional dimulai dari 5 (baris 1-4 tidak ada). Fisol/Mila/Herman masing-masing muncul 2x: kontrak tunggakan 6 bulan Feb-Jul 2026 (SPn-6) dan kontrak baru 1 tahun Agu 2026-Jul 2027. Sama dengan Rekapitulasi."
+  },
+  "agustus": {
+    "fungsional": 7975000,
+    "umum": 0,
+    "qtyPks": 1,
+    "total": 7975000,
+    "sumber": "Laporan Bulanan PNBP 2026",
+    "catatan": "Fungsional 1 PKS (Kementerian Komunikasi dan Digital, nilai kontrak 7975000); Umum 0 PKS (baris '-' dan Total Rp0). INKONSISTENSI INTERNAL: kolom TOTAL baris data hanya 4275000 (95 x 45000 Siaran Iklan), sedangkan baris Total menulis 7975000; komponen Sandiwara 3000000 + Feature 700000 hanya muncul di format kantor pusat (sheet 6), tidak ada di rincian tab ini. Nomor kontrak kosong. Sama dengan Rekapitulasi (Rekapitulasi mengikuti baris Total 7975000)."
+  },
+  "september": {
+    "fungsional": 180000,
+    "umum": 0,
+    "qtyPks": 1,
+    "total": 180000,
+    "sumber": "Laporan Bulanan PNBP 2026",
+    "catatan": "Fungsional 1 PKS (PLN 180000, 4 x 45000); Umum 0 PKS (baris '-' dan Total Rp0). Anomali: nomor referensi 016/RRI.PLB/PKS.F/09/2026 memakai ulang nomor urut 016 yang sudah dipakai April (016/.../04/2026); nomor kontrak tertulis '/PKS/RRI.PLB/10/2026' tanpa nomor urut (di Laporan Piutang tertulis 1158/PKS/RRI.PLB/10/2026). Sama dengan Rekapitulasi."
+  },
+  "_totalJanSep": {
+    "fungsional": 76785000,
+    "umum": 140201875,
+    "qtyPks": 37,
+    "total": 216986875,
+    "catatan": "Jumlah bulan Jan-Sep dari tab Rekapitulasi; sama dengan jumlah tab bulanan. Oktober-Desember kosong di Rekapitulasi (Fungsional/Umum kosong, Total tertulis Rp0)."
+  }
+}

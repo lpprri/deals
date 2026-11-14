@@ -1,0 +1,232 @@
+[
+  {
+    "id": "PGJ-01",
+    "jenis": "Sewa Baru",
+    "pemohon": "PT Bumi Ampera Rajasa",
+    "tanggalMasuk": "2026-11-14",
+    "kebutuhan": "Sewa Menyewa Lahan di Lokasi Pemancar LPP RRI Palembang — BMN Lahan, Pemancar RRI Palembang di Indralaya",
+    "tahap": "Disetujui",
+    "penanggungJawab": "Belum Ditentukan",
+    "satker": {
+      "kode": "41",
+      "nama": "PALEMBANG"
+    },
+    "catatan": "Sumber: Summary baris 58 ('Menunggu Pembayaran Biaya Sewa'). Tanggal masuk tidak tercatat; placeholder tanggal ekstraksi — WAJIB dikoreksi. Tidak ada baris di tab Sewa."
+  },
+  {
+    "id": "PGJ-02",
+    "jenis": "Sewa Baru",
+    "pemohon": "Genda Ananta Rahmat",
+    "tanggalMasuk": "2026-11-14",
+    "kebutuhan": "Sewa Menyewa Lahan di Lokasi Pemancar LPP RRI Palembang — BMN Lahan, Pemancar RRI Palembang di Indralaya",
+    "tahap": "Disetujui",
+    "penanggungJawab": "Belum Ditentukan",
+    "satker": {
+      "kode": "41",
+      "nama": "PALEMBANG"
+    },
+    "catatan": "Sumber: Summary baris 59 ('Menunggu Pembayaran Biaya Sewa'). Tanggal masuk tidak tercatat; placeholder tanggal ekstraksi — WAJIB dikoreksi. Tidak ada baris di tab Sewa."
+  },
+  {
+    "id": "PGJ-03",
+    "jenis": "Sewa Baru",
+    "pemohon": "Nanik Wahyunita",
+    "tanggalMasuk": "2026-08-18",
+    "kebutuhan": "Sewa Menyewa Lahan di Lokasi Pemancar LPP RRI Palembang",
+    "tahap": "Ditelaah",
+    "penanggungJawab": "Belum Ditentukan",
+    "satker": {
+      "kode": "41",
+      "nama": "PALEMBANG"
+    },
+    "catatan": "Sumber: Summary baris 61 ('') + tab Sewa baris 6 ('Dokumen Diproses oleh Bagian Umum'). Tanggal masuk tidak tercatat di sumber; dipakai Jatuh Tempo Surat Permohonan 18 Agustus 2026 sebagai pendekatan — perlu konfirmasi. Jatuh tempo kerja sama (rencana): 2026-11-16. Kelengkapan dokumen (tab Sewa): belum ada (semua FALSE)."
+  },
+  {
+    "id": "PGJ-04",
+    "jenis": "Sewa Baru",
+    "pemohon": "Subhan",
+    "tanggalMasuk": "2026-11-02",
+    "kebutuhan": "Sewa Menyewa Lahan di Lokasi Pemancar LPP RRI Palembang",
+    "tahap": "Menunggu Dokumen",
+    "penanggungJawab": "Belum Ditentukan",
+    "satker": {
+      "kode": "41",
+      "nama": "PALEMBANG"
+    },
+    "catatan": "Sumber: Summary baris 62 ('') + tab Sewa baris 14 ('Menunggu Surat Pernyataan'). Tanggal masuk tidak tercatat di sumber; dipakai Jatuh Tempo Surat Permohonan 2 November 2026 sebagai pendekatan — perlu konfirmasi. Jatuh tempo kerja sama (rencana): 2027-01-31. Kelengkapan dokumen (tab Sewa): belum ada (semua FALSE)."
+  },
+  {
+    "id": "PGJ-05",
+    "jenis": "Sewa Baru",
+    "pemohon": "Meily Oktarina",
+    "tanggalMasuk": "2026-11-02",
+    "kebutuhan": "Sewa Menyewa Lahan di Lokasi Pemancar LPP RRI Palembang",
+    "tahap": "Menunggu Dokumen",
+    "penanggungJawab": "Belum Ditentukan",
+    "satker": {
+      "kode": "41",
+      "nama": "PALEMBANG"
+    },
+    "catatan": "Sumber: Summary baris 63 ('') + tab Sewa baris 16 ('Menunggu Surat Pernyataan'). Tanggal masuk tidak tercatat di sumber; dipakai Jatuh Tempo Surat Permohonan 2 November 2026 sebagai pendekatan — perlu konfirmasi. Jatuh tempo kerja sama (rencana): 2027-01-31. Kelengkapan dokumen (tab Sewa): 8/9 lengkap."
+  },
+  {
+    "id": "PGJ-06",
+    "jenis": "Sewa Baru",
+    "pemohon": "Ihsan",
+    "tanggalMasuk": "2026-11-02",
+    "kebutuhan": "Sewa Menyewa Lahan di Lokasi Pemancar LPP RRI Palembang",
+    "tahap": "Menunggu Dokumen",
+    "penanggungJawab": "Belum Ditentukan",
+    "satker": {
+      "kode": "41",
+      "nama": "PALEMBANG"
+    },
+    "catatan": "Sumber: Summary baris 64 ('') + tab Sewa baris 17 ('Menunggu Surat Pernyataan'). Tanggal masuk tidak tercatat di sumber; dipakai Jatuh Tempo Surat Permohonan 2 November 2026 sebagai pendekatan — perlu konfirmasi. Jatuh tempo kerja sama (rencana): 2027-01-31. Kelengkapan dokumen (tab Sewa): 8/9 lengkap."
+  },
+  {
+    "id": "PGJ-07",
+    "jenis": "Sewa Baru",
+    "pemohon": "Sahara Al Fatiara Rozak",
+    "tanggalMasuk": "2025-12-22",
+    "kebutuhan": "Sewa Menyewa Lahan di Lokasi Pemancar LPP RRI Palembang — BMN Lahan, Pemancar RRI Palembang di Indralaya, tujuan: Toko Variasi & Salon Mobil, Toko Oleh-oleh, & Warung Sembako, luas 300m2",
+    "tahap": "Disetujui",
+    "penanggungJawab": "Belum Ditentukan",
+    "satker": {
+      "kode": "41",
+      "nama": "PALEMBANG"
+    },
+    "catatan": "Sumber: Summary baris 65 ('Menunggu Proses Pembayaran') + tab Sewa baris 4 ('Menunggu Permohonan'). Tanggal masuk tidak tercatat di sumber; dipakai Jatuh Tempo Surat Permohonan 22 Desember 2025 sebagai pendekatan — perlu konfirmasi. Jatuh tempo kerja sama (rencana): 2026-03-22. Kelengkapan dokumen (tab Sewa): belum ada (semua FALSE).",
+    "nilaiPerkiraan": 7549583
+  },
+  {
+    "id": "PGJ-08",
+    "jenis": "Sewa Baru",
+    "pemohon": "Muhammad Theodosius El Abqo",
+    "tanggalMasuk": "2025-12-26",
+    "kebutuhan": "Sewa Menyewa Lahan di Lokasi Pemancar LPP RRI Palembang — BMN Lahan, Pemancar RRI Palembang di Indralaya, tujuan: Prasarana Latihan Olahraga Panahan, luas 10010m2",
+    "tahap": "Disetujui",
+    "penanggungJawab": "Belum Ditentukan",
+    "satker": {
+      "kode": "41",
+      "nama": "PALEMBANG"
+    },
+    "catatan": "Sumber: Summary baris 66 ('Menunggu Proses Pembayaran') + tab Sewa baris 5 ('Menunggu Permohonan'). Tanggal masuk tidak tercatat di sumber; dipakai Jatuh Tempo Surat Permohonan 26 Desember 2025 sebagai pendekatan — perlu konfirmasi. Jatuh tempo kerja sama (rencana): 2026-03-26. Kelengkapan dokumen (tab Sewa): belum ada (semua FALSE).",
+    "nilaiPerkiraan": 1647500
+  },
+  {
+    "id": "PGJ-09",
+    "jenis": "Sewa Baru",
+    "pemohon": "SR. Sihotang",
+    "tanggalMasuk": "2026-09-03",
+    "kebutuhan": "Sewa Menyewa Lahan di Lokasi Pemancar LPP RRI Palembang",
+    "tahap": "Ditelaah",
+    "penanggungJawab": "Belum Ditentukan",
+    "satker": {
+      "kode": "41",
+      "nama": "PALEMBANG"
+    },
+    "catatan": "Sumber: Summary baris 67 ('') + tab Sewa baris 8 ('Sudah Dihubungi (Tidak Ada Respon)'). Tanggal masuk tidak tercatat di sumber; dipakai Jatuh Tempo Surat Permohonan 3 September 2026 sebagai pendekatan — perlu konfirmasi. Jatuh tempo kerja sama (rencana): 2026-12-02. Kelengkapan dokumen (tab Sewa): belum ada (semua FALSE).",
+    "alasanTolak": "Sudah dihubungi, tidak ada respon"
+  },
+  {
+    "id": "PGJ-10",
+    "jenis": "Sewa Baru",
+    "pemohon": "Nehwa Atmojo",
+    "tanggalMasuk": "2026-09-29",
+    "kebutuhan": "Sewa Menyewa Lahan di Lokasi Pemancar LPP RRI Palembang",
+    "tahap": "Masuk",
+    "penanggungJawab": "Belum Ditentukan",
+    "satker": {
+      "kode": "41",
+      "nama": "PALEMBANG"
+    },
+    "catatan": "Sumber: Summary baris 68 ('') + tab Sewa baris 10 ('Menunggu Permohonan'). Tanggal masuk tidak tercatat di sumber; dipakai Jatuh Tempo Surat Permohonan 29 September 2026 sebagai pendekatan — perlu konfirmasi. Jatuh tempo kerja sama (rencana): 2026-12-28. Kelengkapan dokumen (tab Sewa): belum ada (semua FALSE)."
+  },
+  {
+    "id": "PGJ-11",
+    "jenis": "Sewa Baru",
+    "pemohon": "Efran Valuphy",
+    "tanggalMasuk": "2026-09-25",
+    "kebutuhan": "Sewa Menyewa Lahan di Lokasi Pemancar LPP RRI Palembang",
+    "tahap": "Masuk",
+    "penanggungJawab": "Belum Ditentukan",
+    "satker": {
+      "kode": "41",
+      "nama": "PALEMBANG"
+    },
+    "catatan": "Sumber: Summary baris 69 ('') + tab Sewa baris 9 (''). Tanggal masuk tidak tercatat di sumber; dipakai Jatuh Tempo Surat Permohonan 25 September 2026 sebagai pendekatan — perlu konfirmasi. Jatuh tempo kerja sama (rencana): 2026-12-24. Kelengkapan dokumen (tab Sewa): belum ada (semua FALSE).",
+    "alasanTolak": "Keterangan kosong di sumber"
+  },
+  {
+    "id": "PGJ-12",
+    "jenis": "Sewa Baru",
+    "pemohon": "Binsar Sinambela",
+    "tanggalMasuk": "2026-09-03",
+    "kebutuhan": "Pengajuan sewa BMN LPP RRI Palembang (detail objek belum tercatat di sumber)",
+    "tahap": "Ditolak",
+    "penanggungJawab": "Belum Ditentukan",
+    "satker": {
+      "kode": "41",
+      "nama": "PALEMBANG"
+    },
+    "catatan": "Sumber: tab Sewa baris 7 ('Akan Dihentikan'). Tanggal masuk tidak tercatat di sumber; dipakai Jatuh Tempo Surat Permohonan 3 September 2026 sebagai pendekatan — perlu konfirmasi. Jatuh tempo kerja sama (rencana): 2026-12-02. Kelengkapan dokumen (tab Sewa): belum ada (semua FALSE).",
+    "alasanTolak": "Akan Dihentikan (per tab Sewa)"
+  },
+  {
+    "id": "PGJ-13",
+    "jenis": "Sewa Baru",
+    "pemohon": "Ahmad Sobirin",
+    "tanggalMasuk": "2026-11-02",
+    "kebutuhan": "Pengajuan sewa BMN LPP RRI Palembang (detail objek belum tercatat di sumber)",
+    "tahap": "Masuk",
+    "penanggungJawab": "Belum Ditentukan",
+    "satker": {
+      "kode": "41",
+      "nama": "PALEMBANG"
+    },
+    "catatan": "Sumber: tab Sewa baris 11 (''). Tanggal masuk tidak tercatat di sumber; dipakai Jatuh Tempo Surat Permohonan 2 November 2026 sebagai pendekatan — perlu konfirmasi. Jatuh tempo kerja sama (rencana): 2027-01-31. Kelengkapan dokumen (tab Sewa): belum ada (semua FALSE).",
+    "alasanTolak": "Keterangan kosong di sumber"
+  },
+  {
+    "id": "PGJ-14",
+    "jenis": "Sewa Baru",
+    "pemohon": "Kasir",
+    "tanggalMasuk": "2026-11-02",
+    "kebutuhan": "Pengajuan sewa BMN LPP RRI Palembang (detail objek belum tercatat di sumber)",
+    "tahap": "Masuk",
+    "penanggungJawab": "Belum Ditentukan",
+    "satker": {
+      "kode": "41",
+      "nama": "PALEMBANG"
+    },
+    "catatan": "Sumber: tab Sewa baris 12 ('Menunggu Permohonan'). Tanggal masuk tidak tercatat di sumber; dipakai Jatuh Tempo Surat Permohonan 2 November 2026 sebagai pendekatan — perlu konfirmasi. Jatuh tempo kerja sama (rencana): 2027-01-31. Kelengkapan dokumen (tab Sewa): belum ada (semua FALSE)."
+  },
+  {
+    "id": "PGJ-15",
+    "jenis": "Sewa Baru",
+    "pemohon": "Ricardo Nopriansa",
+    "tanggalMasuk": "2026-11-02",
+    "kebutuhan": "Pengajuan sewa BMN LPP RRI Palembang (detail objek belum tercatat di sumber)",
+    "tahap": "Masuk",
+    "penanggungJawab": "Belum Ditentukan",
+    "satker": {
+      "kode": "41",
+      "nama": "PALEMBANG"
+    },
+    "catatan": "Sumber: tab Sewa baris 13 ('Menunggu Permohonan'). Tanggal masuk tidak tercatat di sumber; dipakai Jatuh Tempo Surat Permohonan 2 November 2026 sebagai pendekatan — perlu konfirmasi. Jatuh tempo kerja sama (rencana): 2027-01-31. Kelengkapan dokumen (tab Sewa): belum ada (semua FALSE)."
+  },
+  {
+    "id": "PGJ-16",
+    "jenis": "Sewa Baru",
+    "pemohon": "Abdul Rozak Rusdy",
+    "tanggalMasuk": "2026-11-02",
+    "kebutuhan": "Pengajuan sewa BMN LPP RRI Palembang (detail objek belum tercatat di sumber)",
+    "tahap": "Masuk",
+    "penanggungJawab": "Belum Ditentukan",
+    "satker": {
+      "kode": "41",
+      "nama": "PALEMBANG"
+    },
+    "catatan": "Sumber: tab Sewa baris 15 ('Menunggu Permohonan'). Tanggal masuk tidak tercatat di sumber; dipakai Jatuh Tempo Surat Permohonan 2 November 2026 sebagai pendekatan — perlu konfirmasi. Jatuh tempo kerja sama (rencana): 2027-01-31. Kelengkapan dokumen (tab Sewa): belum ada (semua FALSE). Catatan: pemohon sudah memiliki kontrak sewa aktif 2026 — kemungkinan pengajuan perpanjangan."
+  }
+]

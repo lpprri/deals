@@ -1,0 +1,660 @@
+[
+  {
+    "id": "DOK-1-K",
+    "kontrakId": "0603/PKS/RRI.PLB/01/2026",
+    "jenisDokumen": "PKS (asli)",
+    "status": "Ada"
+  },
+  {
+    "id": "DOK-1-M",
+    "kontrakId": "0603/PKS/RRI.PLB/01/2026",
+    "jenisDokumen": "Billing Pembayaran",
+    "status": "Ada"
+  },
+  {
+    "id": "DOK-1-N",
+    "kontrakId": "0603/PKS/RRI.PLB/01/2026",
+    "jenisDokumen": "Kwitansi Pembayaran",
+    "status": "Ada"
+  },
+  {
+    "id": "DOK-1-O",
+    "kontrakId": "0603/PKS/RRI.PLB/01/2026",
+    "jenisDokumen": "Surat Penagihan",
+    "status": "Belum Ada",
+    "catatan": "No Document"
+  },
+  {
+    "id": "DOK-2-K",
+    "kontrakId": "001/PKS/DIR.LPU/01/2026",
+    "jenisDokumen": "PKS (asli)",
+    "status": "Ada"
+  },
+  {
+    "id": "DOK-2-M",
+    "kontrakId": "001/PKS/DIR.LPU/01/2026",
+    "jenisDokumen": "Billing Pembayaran",
+    "status": "Ada"
+  },
+  {
+    "id": "DOK-2-N",
+    "kontrakId": "001/PKS/DIR.LPU/01/2026",
+    "jenisDokumen": "Kwitansi Pembayaran",
+    "status": "Belum Ada",
+    "catatan": "Konfirmasi ke Imam"
+  },
+  {
+    "id": "DOK-2-O",
+    "kontrakId": "001/PKS/DIR.LPU/01/2026",
+    "jenisDokumen": "Surat Penagihan",
+    "status": "Belum Ada",
+    "catatan": "No Document"
+  },
+  {
+    "id": "DOK-3-K",
+    "kontrakId": "1051/PKS/RRI.PLB/02/2026",
+    "jenisDokumen": "PKS (asli)",
+    "status": "Ada"
+  },
+  {
+    "id": "DOK-3-M",
+    "kontrakId": "1051/PKS/RRI.PLB/02/2026",
+    "jenisDokumen": "Billing Pembayaran",
+    "status": "Ada"
+  },
+  {
+    "id": "DOK-3-N",
+    "kontrakId": "1051/PKS/RRI.PLB/02/2026",
+    "jenisDokumen": "Kwitansi Pembayaran",
+    "status": "Ada"
+  },
+  {
+    "id": "DOK-3-O",
+    "kontrakId": "1051/PKS/RRI.PLB/02/2026",
+    "jenisDokumen": "Surat Penagihan",
+    "status": "Belum Ada",
+    "catatan": "No Document"
+  },
+  {
+    "id": "DOK-3-S",
+    "kontrakId": "1051/PKS/RRI.PLB/02/2026",
+    "jenisDokumen": "Permohonan Sewa",
+    "status": "Ada"
+  },
+  {
+    "id": "DOK-4-K",
+    "kontrakId": "1052/PKS/RRI.PLB/02/2026",
+    "jenisDokumen": "PKS (asli)",
+    "status": "Ada"
+  },
+  {
+    "id": "DOK-4-M",
+    "kontrakId": "1052/PKS/RRI.PLB/02/2026",
+    "jenisDokumen": "Billing Pembayaran",
+    "status": "Ada"
+  },
+  {
+    "id": "DOK-4-N",
+    "kontrakId": "1052/PKS/RRI.PLB/02/2026",
+    "jenisDokumen": "Kwitansi Pembayaran",
+    "status": "Ada"
+  },
+  {
+    "id": "DOK-4-O",
+    "kontrakId": "1052/PKS/RRI.PLB/02/2026",
+    "jenisDokumen": "Surat Penagihan",
+    "status": "Belum Ada",
+    "catatan": "No Document"
+  },
+  {
+    "id": "DOK-4-S",
+    "kontrakId": "1052/PKS/RRI.PLB/02/2026",
+    "jenisDokumen": "Permohonan Sewa",
+    "status": "Ada"
+  },
+  {
+    "id": "DOK-5-K",
+    "kontrakId": "1053/PKS/RRI.PLB/02/2026",
+    "jenisDokumen": "PKS (asli)",
+    "status": "Ada"
+  },
+  {
+    "id": "DOK-5-M",
+    "kontrakId": "1053/PKS/RRI.PLB/02/2026",
+    "jenisDokumen": "Billing Pembayaran",
+    "status": "Ada"
+  },
+  {
+    "id": "DOK-5-N",
+    "kontrakId": "1053/PKS/RRI.PLB/02/2026",
+    "jenisDokumen": "Kwitansi Pembayaran",
+    "status": "Ada"
+  },
+  {
+    "id": "DOK-5-O",
+    "kontrakId": "1053/PKS/RRI.PLB/02/2026",
+    "jenisDokumen": "Surat Penagihan",
+    "status": "Belum Ada",
+    "catatan": "No Document"
+  },
+  {
+    "id": "DOK-5-S",
+    "kontrakId": "1053/PKS/RRI.PLB/02/2026",
+    "jenisDokumen": "Permohonan Sewa",
+    "status": "Ada"
+  },
+  {
+    "id": "DOK-6-K",
+    "kontrakId": "1494/PKS/RRI.PLB/02/2026",
+    "jenisDokumen": "PKS (asli)",
+    "status": "Ada",
+    "catatan": "Anotasi sumber (kolom A): Invoice 005 Abdul Rozak Rusdy"
+  },
+  {
+    "id": "DOK-6-M",
+    "kontrakId": "1494/PKS/RRI.PLB/02/2026",
+    "jenisDokumen": "Billing Pembayaran",
+    "status": "Ada"
+  },
+  {
+    "id": "DOK-6-N",
+    "kontrakId": "1494/PKS/RRI.PLB/02/2026",
+    "jenisDokumen": "Kwitansi Pembayaran",
+    "status": "Belum Ada",
+    "catatan": "Konfirmasi ke Imam"
+  },
+  {
+    "id": "DOK-6-O",
+    "kontrakId": "1494/PKS/RRI.PLB/02/2026",
+    "jenisDokumen": "Surat Penagihan",
+    "status": "Ada",
+    "catatan": "Dokumen Surat Penagihan"
+  },
+  {
+    "id": "DOK-6-S",
+    "kontrakId": "1494/PKS/RRI.PLB/02/2026",
+    "jenisDokumen": "Permohonan Sewa",
+    "status": "Ada"
+  },
+  {
+    "id": "DOK-7-K",
+    "kontrakId": "1497/PKS/RRI.PLB/02/2026",
+    "jenisDokumen": "PKS (asli)",
+    "status": "Ada"
+  },
+  {
+    "id": "DOK-7-M",
+    "kontrakId": "1497/PKS/RRI.PLB/02/2026",
+    "jenisDokumen": "Billing Pembayaran",
+    "status": "Ada"
+  },
+  {
+    "id": "DOK-7-N",
+    "kontrakId": "1497/PKS/RRI.PLB/02/2026",
+    "jenisDokumen": "Kwitansi Pembayaran",
+    "status": "Belum Ada",
+    "catatan": "Konfirmasi ke Imam"
+  },
+  {
+    "id": "DOK-7-O",
+    "kontrakId": "1497/PKS/RRI.PLB/02/2026",
+    "jenisDokumen": "Surat Penagihan",
+    "status": "Belum Ada",
+    "catatan": "No Document"
+  },
+  {
+    "id": "DOK-7-S",
+    "kontrakId": "1497/PKS/RRI.PLB/02/2026",
+    "jenisDokumen": "Permohonan Sewa",
+    "status": "Ada"
+  },
+  {
+    "id": "DOK-8-K",
+    "kontrakId": "1744/PKS/RRI.PLB/03/2026",
+    "jenisDokumen": "PKS (asli)",
+    "status": "Ada",
+    "catatan": "Anotasi sumber (kolom A): PKS 007 Dinas Komunikasi dan Informatika Kota Palembang"
+  },
+  {
+    "id": "DOK-8-M",
+    "kontrakId": "1744/PKS/RRI.PLB/03/2026",
+    "jenisDokumen": "Billing Pembayaran",
+    "status": "Belum Ada",
+    "catatan": "Belum Bayar"
+  },
+  {
+    "id": "DOK-8-N",
+    "kontrakId": "1744/PKS/RRI.PLB/03/2026",
+    "jenisDokumen": "Kwitansi Pembayaran",
+    "status": "Belum Ada",
+    "catatan": "Belum Bayar"
+  },
+  {
+    "id": "DOK-8-O",
+    "kontrakId": "1744/PKS/RRI.PLB/03/2026",
+    "jenisDokumen": "Surat Penagihan",
+    "status": "Belum Ada",
+    "catatan": "Belum Jatuh Tempo"
+  },
+  {
+    "id": "DOK-9-K",
+    "kontrakId": "1745/PKS/RRI.PLB/03/2026",
+    "jenisDokumen": "PKS (asli)",
+    "status": "Ada"
+  },
+  {
+    "id": "DOK-9-M",
+    "kontrakId": "1745/PKS/RRI.PLB/03/2026",
+    "jenisDokumen": "Billing Pembayaran",
+    "status": "Belum Ada",
+    "catatan": "Belum Bayar"
+  },
+  {
+    "id": "DOK-9-N",
+    "kontrakId": "1745/PKS/RRI.PLB/03/2026",
+    "jenisDokumen": "Kwitansi Pembayaran",
+    "status": "Belum Ada",
+    "catatan": "Belum Bayar"
+  },
+  {
+    "id": "DOK-9-O",
+    "kontrakId": "1745/PKS/RRI.PLB/03/2026",
+    "jenisDokumen": "Surat Penagihan",
+    "status": "Belum Ada",
+    "catatan": "Belum Jatuh Tempo"
+  },
+  {
+    "id": "DOK-10-K",
+    "kontrakId": "1746/PKS/RRI.PLB/03/2026",
+    "jenisDokumen": "PKS (asli)",
+    "status": "Ada"
+  },
+  {
+    "id": "DOK-10-M",
+    "kontrakId": "1746/PKS/RRI.PLB/03/2026",
+    "jenisDokumen": "Billing Pembayaran",
+    "status": "Ada"
+  },
+  {
+    "id": "DOK-10-N",
+    "kontrakId": "1746/PKS/RRI.PLB/03/2026",
+    "jenisDokumen": "Kwitansi Pembayaran",
+    "status": "Belum Ada",
+    "catatan": "Belum Bayar"
+  },
+  {
+    "id": "DOK-10-O",
+    "kontrakId": "1746/PKS/RRI.PLB/03/2026",
+    "jenisDokumen": "Surat Penagihan",
+    "status": "Belum Ada",
+    "catatan": "Belum Jatuh Tempo"
+  },
+  {
+    "id": "DOK-11-K",
+    "kontrakId": "2036/PKS/RRI.PLB/03/2026#010",
+    "jenisDokumen": "PKS (asli)",
+    "status": "Ada",
+    "catatan": "Anotasi sumber (kolom A): PKS 010 Bank Sumsel Babel (Signature)"
+  },
+  {
+    "id": "DOK-11-M",
+    "kontrakId": "2036/PKS/RRI.PLB/03/2026#010",
+    "jenisDokumen": "Billing Pembayaran",
+    "status": "Belum Ada",
+    "catatan": "Belum Bayar"
+  },
+  {
+    "id": "DOK-11-N",
+    "kontrakId": "2036/PKS/RRI.PLB/03/2026#010",
+    "jenisDokumen": "Kwitansi Pembayaran",
+    "status": "Belum Ada",
+    "catatan": "Belum Bayar"
+  },
+  {
+    "id": "DOK-11-O",
+    "kontrakId": "2036/PKS/RRI.PLB/03/2026#010",
+    "jenisDokumen": "Surat Penagihan",
+    "status": "Belum Ada",
+    "catatan": "Belum Jatuh Tempo"
+  },
+  {
+    "id": "DOK-12-K",
+    "kontrakId": "2036/PKS/RRI.PLB/03/2026#011",
+    "jenisDokumen": "PKS (asli)",
+    "status": "Ada",
+    "catatan": "Anotasi sumber (kolom A): PKS 011 Kantor Perwakilan Bank Indonesia Provinsi Sumatera Selatan (Signature)"
+  },
+  {
+    "id": "DOK-12-M",
+    "kontrakId": "2036/PKS/RRI.PLB/03/2026#011",
+    "jenisDokumen": "Billing Pembayaran",
+    "status": "Ada"
+  },
+  {
+    "id": "DOK-12-N",
+    "kontrakId": "2036/PKS/RRI.PLB/03/2026#011",
+    "jenisDokumen": "Kwitansi Pembayaran",
+    "status": "Belum Ada",
+    "catatan": "Belum Bayar"
+  },
+  {
+    "id": "DOK-12-O",
+    "kontrakId": "2036/PKS/RRI.PLB/03/2026#011",
+    "jenisDokumen": "Surat Penagihan",
+    "status": "Belum Ada",
+    "catatan": "Belum Jatuh Tempo"
+  },
+  {
+    "id": "DOK-12-M2",
+    "kontrakId": "2036/PKS/RRI.PLB/03/2026#011",
+    "jenisDokumen": "Billing Pembayaran",
+    "status": "Ada",
+    "catatan": "Billing Denda (baris lanjutan Dokumen Kerjasama baris 19)."
+  },
+  {
+    "id": "DOK-13-K",
+    "kontrakId": "2605/PKS/RRI.PLB/04/2026",
+    "jenisDokumen": "PKS (asli)",
+    "status": "Ada"
+  },
+  {
+    "id": "DOK-13-M",
+    "kontrakId": "2605/PKS/RRI.PLB/04/2026",
+    "jenisDokumen": "Billing Pembayaran",
+    "status": "Ada"
+  },
+  {
+    "id": "DOK-14-K",
+    "kontrakId": "2919/PKS/RRI.PLB/04/2026",
+    "jenisDokumen": "PKS (asli)",
+    "status": "Ada"
+  },
+  {
+    "id": "DOK-14-M",
+    "kontrakId": "2919/PKS/RRI.PLB/04/2026",
+    "jenisDokumen": "Billing Pembayaran",
+    "status": "Ada"
+  },
+  {
+    "id": "DOK-15-K",
+    "kontrakId": "2920/PKS/RRI.PLB/04/2026",
+    "jenisDokumen": "PKS (asli)",
+    "status": "Ada",
+    "catatan": "Anotasi sumber (kolom A): PKS 014 Bank Syariah Indonesia KCP Kenten 2 Palembang (Signature)"
+  },
+  {
+    "id": "DOK-15-M",
+    "kontrakId": "2920/PKS/RRI.PLB/04/2026",
+    "jenisDokumen": "Billing Pembayaran",
+    "status": "Ada"
+  },
+  {
+    "id": "DOK-16-K",
+    "kontrakId": "3669/PKS/RRI.PLB/04/2026",
+    "jenisDokumen": "PKS (asli)",
+    "status": "Ada"
+  },
+  {
+    "id": "DOK-16-M",
+    "kontrakId": "3669/PKS/RRI.PLB/04/2026",
+    "jenisDokumen": "Billing Pembayaran",
+    "status": "Ada"
+  },
+  {
+    "id": "DOK-17-K",
+    "kontrakId": "3981/PKS/RRI.PLB/05/2026",
+    "jenisDokumen": "PKS (asli)",
+    "status": "Ada"
+  },
+  {
+    "id": "DOK-17-M",
+    "kontrakId": "3981/PKS/RRI.PLB/05/2026",
+    "jenisDokumen": "Billing Pembayaran",
+    "status": "Ada"
+  },
+  {
+    "id": "DOK-18-K",
+    "kontrakId": "4720/PKS/RRI.PLB/06/2026",
+    "jenisDokumen": "PKS (asli)",
+    "status": "Ada"
+  },
+  {
+    "id": "DOK-18-M",
+    "kontrakId": "4720/PKS/RRI.PLB/06/2026",
+    "jenisDokumen": "Billing Pembayaran",
+    "status": "Ada"
+  },
+  {
+    "id": "DOK-18-S",
+    "kontrakId": "4720/PKS/RRI.PLB/06/2026",
+    "jenisDokumen": "Permohonan Sewa",
+    "status": "Ada"
+  },
+  {
+    "id": "DOK-19-K",
+    "kontrakId": "4747/PKS/RRI.PLB/06/2026",
+    "jenisDokumen": "PKS (asli)",
+    "status": "Ada"
+  },
+  {
+    "id": "DOK-19-M",
+    "kontrakId": "4747/PKS/RRI.PLB/06/2026",
+    "jenisDokumen": "Billing Pembayaran",
+    "status": "Belum Ada",
+    "catatan": "Minta ke Imam"
+  },
+  {
+    "id": "DOK-20-K",
+    "kontrakId": "4842/PKS/RRI.PLB/06/2026",
+    "jenisDokumen": "PKS (asli)",
+    "status": "Ada"
+  },
+  {
+    "id": "DOK-20-M",
+    "kontrakId": "4842/PKS/RRI.PLB/06/2026",
+    "jenisDokumen": "Billing Pembayaran",
+    "status": "Belum Ada",
+    "catatan": "Belum Bayar"
+  },
+  {
+    "id": "DOK-21-K",
+    "kontrakId": "4873/PKS/RRI.PLB/06/2026",
+    "jenisDokumen": "PKS (asli)",
+    "status": "Ada",
+    "catatan": "Anotasi sumber (kolom A): PKS 020 PT Sumber Alfaria Trijaya Tbk. Branch Palembang (Signature)"
+  },
+  {
+    "id": "DOK-21-M",
+    "kontrakId": "4873/PKS/RRI.PLB/06/2026",
+    "jenisDokumen": "Billing Pembayaran",
+    "status": "Belum Ada",
+    "catatan": "Belum Bayar"
+  },
+  {
+    "id": "DOK-22-K",
+    "kontrakId": "5350/PKS/RRI.PLB/06/2026",
+    "jenisDokumen": "PKS (asli)",
+    "status": "Ada"
+  },
+  {
+    "id": "DOK-23-K",
+    "kontrakId": "5390/PKS/RRI.PLB/06/2026",
+    "jenisDokumen": "PKS (asli)",
+    "status": "Ada"
+  },
+  {
+    "id": "DOK-24-K",
+    "kontrakId": "5391/PKS/RRI.PLB/06/2026",
+    "jenisDokumen": "PKS (asli)",
+    "status": "Ada"
+  },
+  {
+    "id": "DOK-25-K",
+    "kontrakId": "5483/PKS/RRI.PLB/06/2026",
+    "jenisDokumen": "PKS (asli)",
+    "status": "Ada",
+    "catatan": "Anotasi sumber (kolom A): PKS 024 Kantor Pengawasan dan Pelayanan Bea dan Cukai TMP B Palembang (Signature)"
+  },
+  {
+    "id": "DOK-26-K",
+    "kontrakId": "5484/PKS/RRI.PLB/06/2026",
+    "jenisDokumen": "PKS (asli)",
+    "status": "Ada"
+  },
+  {
+    "id": "DOK-27-K",
+    "kontrakId": "5592/PKS/RRI.PLB/06/2026",
+    "jenisDokumen": "PKS (asli)",
+    "status": "Ada"
+  },
+  {
+    "id": "DOK-28-K",
+    "kontrakId": "6593/PKS/RRI.PLB/07/2026",
+    "jenisDokumen": "PKS (asli)",
+    "status": "Ada",
+    "catatan": "Anotasi sumber (kolom A): PKS 027 Perempuan Indonesia Maju (PIM) (Signature)"
+  },
+  {
+    "id": "DOK-29-K",
+    "kontrakId": "7051/PKS/RRI.PLB/07/2026",
+    "jenisDokumen": "PKS (asli)",
+    "status": "Ada",
+    "catatan": "Anotasi sumber (kolom A): PKS 028 Faridah Hanum"
+  },
+  {
+    "id": "DOK-29-S",
+    "kontrakId": "7051/PKS/RRI.PLB/07/2026",
+    "jenisDokumen": "Permohonan Sewa",
+    "status": "Ada"
+  },
+  {
+    "id": "DOK-30-K",
+    "kontrakId": "7052/PKS/RRI.PLB/07/2026",
+    "jenisDokumen": "PKS (asli)",
+    "status": "Ada",
+    "catatan": "Anotasi sumber (kolom A): Permohonan Sewa 029 Fisol Jailani"
+  },
+  {
+    "id": "DOK-30-S",
+    "kontrakId": "7052/PKS/RRI.PLB/07/2026",
+    "jenisDokumen": "Permohonan Sewa",
+    "status": "Ada"
+  },
+  {
+    "id": "DOK-31-K",
+    "kontrakId": "7053/PKS/RRI.PLB/07/2026",
+    "jenisDokumen": "PKS (asli)",
+    "status": "Ada"
+  },
+  {
+    "id": "DOK-31-S",
+    "kontrakId": "7053/PKS/RRI.PLB/07/2026",
+    "jenisDokumen": "Permohonan Sewa",
+    "status": "Ada"
+  },
+  {
+    "id": "DOK-32-K",
+    "kontrakId": "7054/PKS/RRI.PLB/07/2026",
+    "jenisDokumen": "PKS (asli)",
+    "status": "Ada",
+    "catatan": "Anotasi sumber (kolom A): Permohonan Sewa 031 Mila Agustina"
+  },
+  {
+    "id": "DOK-32-S",
+    "kontrakId": "7054/PKS/RRI.PLB/07/2026",
+    "jenisDokumen": "Permohonan Sewa",
+    "status": "Ada"
+  },
+  {
+    "id": "DOK-33-K",
+    "kontrakId": "7055/PKS/RRI.PLB/07/2026",
+    "jenisDokumen": "PKS (asli)",
+    "status": "Ada"
+  },
+  {
+    "id": "DOK-33-S",
+    "kontrakId": "7055/PKS/RRI.PLB/07/2026",
+    "jenisDokumen": "Permohonan Sewa",
+    "status": "Ada"
+  },
+  {
+    "id": "DOK-34-K",
+    "kontrakId": "7060/PKS/RRI.PLB/07/2026",
+    "jenisDokumen": "PKS (asli)",
+    "status": "Ada",
+    "catatan": "Anotasi sumber (kolom A): Permohonan Sewa 033 Herman Sawiran"
+  },
+  {
+    "id": "DOK-34-S",
+    "kontrakId": "7060/PKS/RRI.PLB/07/2026",
+    "jenisDokumen": "Permohonan Sewa",
+    "status": "Ada"
+  },
+  {
+    "id": "DOK-35-K",
+    "kontrakId": "7061/PKS/RRI.PLB/07/2026",
+    "jenisDokumen": "PKS (asli)",
+    "status": "Ada"
+  },
+  {
+    "id": "DOK-35-S",
+    "kontrakId": "7061/PKS/RRI.PLB/07/2026",
+    "jenisDokumen": "Permohonan Sewa",
+    "status": "Ada"
+  },
+  {
+    "id": "DOK-36-K",
+    "kontrakId": "018/PKS/DIR.LPU/08/2026",
+    "jenisDokumen": "PKS (asli)",
+    "status": "Ada",
+    "catatan": "Dokumen Masih Proses Penandatangan di Kantor Pusat Direktorat LPU"
+  },
+  {
+    "id": "DOK-37-K",
+    "kontrakId": "1158/PKS/RRI.PLB/10/2026",
+    "jenisDokumen": "PKS (asli)",
+    "status": "Belum Ada",
+    "catatan": "Baris dokumen di sumber hanya berisi nomor kontrak (stub); status PKS tidak tercatat."
+  },
+  {
+    "id": "DOK-38-K",
+    "kontrakId": "10227/PKS/RRI.PLB/10/2026",
+    "jenisDokumen": "PKS (asli)",
+    "status": "Belum Ada",
+    "catatan": "Baris dokumen di sumber hanya berisi nomor kontrak (stub); status PKS tidak tercatat."
+  },
+  {
+    "id": "DOK-39-S",
+    "kontrakId": "10828/PKS/RRI.PLB/10/2026",
+    "jenisDokumen": "Permohonan Sewa",
+    "status": "Ada"
+  },
+  {
+    "id": "DOK-39-K",
+    "kontrakId": "10828/PKS/RRI.PLB/10/2026",
+    "jenisDokumen": "PKS (asli)",
+    "status": "Belum Ada",
+    "catatan": "Baris dokumen di sumber hanya berisi nomor kontrak (stub); status PKS tidak tercatat."
+  },
+  {
+    "id": "DOK-40-K",
+    "kontrakId": "11290/PKS/RRI.PLB/10/2026",
+    "jenisDokumen": "PKS (asli)",
+    "status": "Belum Ada",
+    "catatan": "Tidak ada baris di tab Dokumen Kerjasama."
+  },
+  {
+    "id": "DOK-2025-40-K",
+    "kontrakId": "027/RRI.PLB/PKS.U/06/2025",
+    "jenisDokumen": "PKS (asli)",
+    "status": "Belum Ada",
+    "catatan": "Tidak ada baris di tab Dokumen Kerjasama."
+  },
+  {
+    "id": "DOK-2025-41-K",
+    "kontrakId": "016/PKS/DIR.LPU/06/2025",
+    "jenisDokumen": "PKS (asli)",
+    "status": "Belum Ada",
+    "catatan": "Tidak ada baris di tab Dokumen Kerjasama."
+  }
+]

@@ -99,7 +99,10 @@ export default function Dashboard({ data }: ModulProps) {
       });
     });
 
-  if (total.selisihRekonsiliasi !== 0) {
+  // Selisih rekonsiliasi hanya bermakna bila data acuan Keuangan ada.
+  // Bila penerimaanAcuan kosong (Sheet 3 belum diimpor), selisih = 0 −
+  // pembayaran terverifikasi dan BUKAN selisih yang sebenarnya.
+  if (data.penerimaanAcuan.length > 0 && total.selisihRekonsiliasi !== 0) {
     perhatian.push({
       kategori: 'Selisih rekonsiliasi',
       teks: `Selisih ${formatRupiah(total.selisihRekonsiliasi)} antara penerimaan acuan Keuangan dan pembayaran terverifikasi`,
@@ -114,8 +117,9 @@ export default function Dashboard({ data }: ModulProps) {
   return (
     <div className="space-y-6">
       <p className="text-sm text-[#0d2569]/70">
-        Ringkasan periode — Satker pilot PALEMBANG (Contoh). Semua angka
-        dihitung dari data contoh yang sama dengan modul lain.
+        Ringkasan periode — Satker pilot PALEMBANG. Semua angka dihitung
+        dari data nyata hasil impor spreadsheet (14/11/2026) yang sama dengan
+        modul lain; data contoh Fase B tetap berlabel &quot;(Contoh)&quot;.
       </p>
 
       {/* (a) Kartu statistik */}

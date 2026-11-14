@@ -1,0 +1,572 @@
+{
+  "spreadsheet2": {
+    "id": "1anXvQ1PkQUYWYQyiM_BVlZBaK2mKyQ3q0Y_WTQbgMMk",
+    "judul": "Daftar Sewa Lahan/BMN",
+    "rentangTahunSumber": "2022-2026",
+    "rentangKontrakEntitas": "2024-12-21 s.d. 2029-01-31",
+    "perTab": {
+      "ON GOING": {
+        "namaTab": "ON GOING",
+        "jumlahBarisData": 27,
+        "jumlahDiimporBaru": 27,
+        "jumlahDigabungDuplikat": 0,
+        "jumlahDilewati": 0,
+        "dilewati": [],
+        "catatan": "Tab kanonik (per 14 Nov 2026). Nomor urut 3 hilang; nomor 4 (PT VGreen) tertulis di luar urutan (baris 29)."
+      },
+      "2026": {
+        "namaTab": "2026",
+        "jumlahBarisData": 14,
+        "jumlahDiimporBaru": 4,
+        "jumlahDigabungDuplikat": 10,
+        "jumlahDilewati": 0,
+        "dilewati": []
+      },
+      "2026-bagian-Menunggu-Pembayaran/On-Process": {
+        "namaTab": "2026 (bagian Menunggu Pembayaran & On-Process, baris 24-39)",
+        "jumlahBarisData": 0,
+        "jumlahDiimporBaru": 0,
+        "jumlahDigabungDuplikat": 0,
+        "jumlahDilewati": 0,
+        "dilewati": [],
+        "catatan": "Hanya header kolom, tidak ada baris data pengajuan/sewa."
+      },
+      "2025": {
+        "namaTab": "2025",
+        "jumlahBarisData": 28,
+        "jumlahDiimporBaru": 8,
+        "jumlahDigabungDuplikat": 17,
+        "jumlahDilewati": 3,
+        "dilewati": [
+          {
+            "baris": 16,
+            "penyewa": "Binsar Sinambela",
+            "nomor": "024/RRI.PLB/PKS.U/06/2025",
+            "alasan": "Berakhir 2025-12-02 (sebelum 2026) — tidak relevan"
+          },
+          {
+            "baris": 23,
+            "penyewa": "Dr. Jalaluddin, MPSA",
+            "nomor": "039/RRI.PLB/PKS.U/09/2025",
+            "alasan": "Berakhir 2025-09-21 (sebelum 2026) — tidak relevan"
+          },
+          {
+            "baris": 28,
+            "penyewa": "PT Medco E&P Indonesia",
+            "nomor": "049/RRI.PLB/PKS.U/11/2025",
+            "alasan": "Berakhir 2025-11-04 (sebelum 2026) — tidak relevan"
+          }
+        ]
+      },
+      "2024": {
+        "namaTab": "2024",
+        "jumlahBarisData": 18,
+        "jumlahDiimporBaru": 0,
+        "jumlahDigabungDuplikat": 0,
+        "jumlahDilewati": 18,
+        "dilewati": [
+          {
+            "baris": 7,
+            "penyewa": "Binsar Sinambela",
+            "nomor": "002/RRI.PLB/PKS.U/01/2024",
+            "alasan": "Berakhir 2024-12-02 (sebelum 2026) — tidak relevan"
+          },
+          {
+            "baris": 8,
+            "penyewa": "Wahidin Baskara",
+            "nomor": "003/RRI.PLB/PKS.U/01/2024",
+            "alasan": "Berakhir 2025-01-31 (sebelum 2026) — tidak relevan"
+          },
+          {
+            "baris": 9,
+            "penyewa": "Herman Sawiran",
+            "nomor": "006/RRI.PLB/PKS.U/02/2024",
+            "alasan": "Berakhir 2025-02-28 (sebelum 2026) — tidak relevan"
+          },
+          {
+            "baris": 10,
+            "penyewa": "Bank BTPN Palembang",
+            "nomor": "007/RRI.PLB/PKS.U/03/2024",
+            "alasan": "Berakhir 2025-02-28 (sebelum 2026) — tidak relevan"
+          },
+          {
+            "baris": 11,
+            "penyewa": "Meily Oktarina",
+            "nomor": "013/RRI.PLB/PKS.U/04/2024",
+            "alasan": "Berakhir 2025-04-04 (sebelum 2026) — tidak relevan"
+          },
+          {
+            "baris": 12,
+            "penyewa": "Nirmalan",
+            "nomor": "016/RRI.PLB/PKS.U/04/2024",
+            "alasan": "Berakhir 2025-04-25 (sebelum 2026) — tidak relevan"
+          },
+          {
+            "baris": 13,
+            "penyewa": "Ahmad Sobirin",
+            "nomor": "022/RRI.PLB/PKS.U/06/2024",
+            "alasan": "Berakhir 2025-06-26 (sebelum 2026) — tidak relevan"
+          },
+          {
+            "baris": 14,
+            "penyewa": "Nirmalan",
+            "nomor": "026/RRI.PLB/PKS.U/08/2024",
+            "alasan": "Berakhir 2025-08-13 (sebelum 2026) — tidak relevan"
+          },
+          {
+            "baris": 15,
+            "penyewa": "Mila Agustina",
+            "nomor": "031/RRI.PLB/PKS.U/09/2024",
+            "alasan": "Berakhir 2025-08-31 (sebelum 2026) — tidak relevan"
+          },
+          {
+            "baris": 16,
+            "penyewa": "Abdul Rozak Rusdy",
+            "nomor": "032/RRI.PLB/PKS.U/09/2024",
+            "alasan": "Berakhir 2025-08-31 (sebelum 2026) — tidak relevan"
+          },
+          {
+            "baris": 17,
+            "penyewa": "Ricardo Nopriansa",
+            "nomor": "033/RRI.PLB/PKS.U/09/2024",
+            "alasan": "Berakhir 2025-09-16 (sebelum 2026) — tidak relevan"
+          },
+          {
+            "baris": 18,
+            "penyewa": "Kasir",
+            "nomor": "034/RRI.PLB/PKS.U/09/2024",
+            "alasan": "Berakhir 2025-09-16 (sebelum 2026) — tidak relevan"
+          },
+          {
+            "baris": 19,
+            "penyewa": "Samdini",
+            "nomor": "035/RRI.PLB/PKS.U/09/2024",
+            "alasan": "Berakhir 2025-09-16 (sebelum 2026) — tidak relevan"
+          },
+          {
+            "baris": 20,
+            "penyewa": "Fisol Jailani",
+            "nomor": "037/RRI.PLB/PKS.U/10/2024",
+            "alasan": "Berakhir 2025-09-30 (sebelum 2026) — tidak relevan"
+          },
+          {
+            "baris": 21,
+            "penyewa": "Esmianah",
+            "nomor": "055/RRI.PLB/PKS.U/12/2024",
+            "alasan": "Berakhir 2025-12-04 (sebelum 2026) — tidak relevan"
+          },
+          {
+            "baris": 22,
+            "penyewa": "SR. Sihotang",
+            "nomor": "056/RRI.PLB/PKS.U/12/2024",
+            "alasan": "Berakhir 2025-12-02 (sebelum 2026) — tidak relevan"
+          },
+          {
+            "baris": 23,
+            "penyewa": "Subhan",
+            "nomor": "059/RRI.PLB/PKS.U/12/2024",
+            "alasan": "Berakhir 2025-12-10 (sebelum 2026) — tidak relevan"
+          },
+          {
+            "baris": 24,
+            "penyewa": "Dahlia",
+            "nomor": "060/RRI.PLB/PKS.U/12/2024",
+            "alasan": "Berakhir 2025-11-20 (sebelum 2026) — tidak relevan"
+          }
+        ]
+      },
+      "2023": {
+        "namaTab": "2023",
+        "jumlahBarisData": 12,
+        "jumlahDiimporBaru": 0,
+        "jumlahDigabungDuplikat": 0,
+        "jumlahDilewati": 12,
+        "dilewati": [
+          {
+            "baris": 7,
+            "penyewa": "Wahidin Baskara",
+            "nomor": "002/RRI.PLB/PKS.U/01/2023",
+            "alasan": "Berakhir 2024-01-31 (sebelum 2026) — tidak relevan"
+          },
+          {
+            "baris": 8,
+            "penyewa": "Binsar Sinambela",
+            "nomor": "004/RRI.PLB/PKS.U/02/2023",
+            "alasan": "Berakhir 2023-12-02 (sebelum 2026) — tidak relevan"
+          },
+          {
+            "baris": 9,
+            "penyewa": "Bank BTPN Palembang",
+            "nomor": "007/RRI.PLB/PKS.U/03/2023",
+            "alasan": "Berakhir 2024-02-28 (sebelum 2026) — tidak relevan"
+          },
+          {
+            "baris": 10,
+            "penyewa": "Assef Hidayat",
+            "nomor": "009/RRI.PLB/PKS.U/03/2023",
+            "alasan": "Berakhir 2024-03-07 (sebelum 2026) — tidak relevan"
+          },
+          {
+            "baris": 11,
+            "penyewa": "Dedi Ismail",
+            "nomor": "011/RRI.PLB/PKS.U/03/2023",
+            "alasan": "Berakhir 2023-12-02 (sebelum 2026) — tidak relevan"
+          },
+          {
+            "baris": 12,
+            "penyewa": "Meily Oktarina",
+            "nomor": "019/RRI.PLB/PKS.U/04/2023",
+            "alasan": "Berakhir 2024-04-04 (sebelum 2026) — tidak relevan"
+          },
+          {
+            "baris": 13,
+            "penyewa": "Ahmad Sobirin",
+            "nomor": "028/RRI.PLB/PKS.U/06/2023",
+            "alasan": "Berakhir 2024-06-26 (sebelum 2026) — tidak relevan"
+          },
+          {
+            "baris": 14,
+            "penyewa": "Ricardo Nopriansa",
+            "nomor": "037/RRI.PLB/PKS.U/09/2023",
+            "alasan": "Berakhir 2024-08-31 (sebelum 2026) — tidak relevan"
+          },
+          {
+            "baris": 15,
+            "penyewa": "Kasir",
+            "nomor": "038/RRI.PLB/PKS.U/09/2023",
+            "alasan": "Berakhir 2024-08-31 (sebelum 2026) — tidak relevan"
+          },
+          {
+            "baris": 16,
+            "penyewa": "Yayan Apriansyah",
+            "nomor": "039/RRI.PLB/PKS.U/09/2023",
+            "alasan": "Berakhir 2024-08-31 (sebelum 2026) — tidak relevan"
+          },
+          {
+            "baris": 17,
+            "penyewa": "Dahlia",
+            "nomor": "053/RRI.PLB/PKS.U/11/2023",
+            "alasan": "Berakhir 2024-11-20 (sebelum 2026) — tidak relevan"
+          },
+          {
+            "baris": 18,
+            "penyewa": "SR. Sihotang",
+            "nomor": "054/RRI.PLB/PKS.U/12/2023",
+            "alasan": "Berakhir 2024-12-02 (sebelum 2026) — tidak relevan"
+          }
+        ]
+      },
+      "2022": {
+        "namaTab": "2022",
+        "jumlahBarisData": 5,
+        "jumlahDiimporBaru": 0,
+        "jumlahDigabungDuplikat": 0,
+        "jumlahDilewati": 5,
+        "dilewati": [
+          {
+            "baris": 7,
+            "penyewa": "Ricardo Nopriansyah",
+            "nomor": "028/RRI.PLB/PKS.U/09/2022",
+            "alasan": "Berakhir 2023-08-31 (sebelum 2026) — tidak relevan"
+          },
+          {
+            "baris": 8,
+            "penyewa": "Kasir",
+            "nomor": "029/RRI.PLB/PKS.U/09/2022",
+            "alasan": "Berakhir 2023-08-31 (sebelum 2026) — tidak relevan"
+          },
+          {
+            "baris": 9,
+            "penyewa": "Yayan Apriansyah",
+            "nomor": "030/RRI.PLB/PKS.U/09/2022",
+            "alasan": "Berakhir 2023-08-31 (sebelum 2026) — tidak relevan"
+          },
+          {
+            "baris": 10,
+            "penyewa": "Erni",
+            "nomor": "039/RRI.PLB/PKS.U/10/2022",
+            "alasan": "Berakhir 2023-09-30 (sebelum 2026) — tidak relevan"
+          },
+          {
+            "baris": 11,
+            "penyewa": "SR. Sihotang",
+            "nomor": "057/RRI.PLB/PKS.U/12/2022",
+            "alasan": "Berakhir 2023-12-02 (sebelum 2026) — tidak relevan"
+          }
+        ]
+      },
+      "Sheet9": {
+        "namaTab": "Sheet9",
+        "jumlahBarisData": 3,
+        "jumlahDiimporBaru": 0,
+        "jumlahDigabungDuplikat": 3,
+        "jumlahDilewati": 0,
+        "dilewati": [
+          {
+            "baris": 2,
+            "penyewa": "Binsar Sinambela",
+            "nomor": "004/RRI.PLB/PKS.U/02/2023",
+            "alasan": "Duplikat nomor kontrak yang sama di tab 2023/2024/2025 (lembar kerja, bukan daftar baru)"
+          },
+          {
+            "baris": 3,
+            "penyewa": "Binsar Sinambela",
+            "nomor": "002/RRI.PLB/PKS.U/01/2024",
+            "alasan": "Duplikat nomor kontrak yang sama di tab 2023/2024/2025 (lembar kerja, bukan daftar baru)"
+          },
+          {
+            "baris": 4,
+            "penyewa": "Binsar Sinambela",
+            "nomor": "024/RRI.PLB/PKS.U/06/2025",
+            "alasan": "Duplikat nomor kontrak yang sama di tab 2023/2024/2025 (lembar kerja, bukan daftar baru)"
+          }
+        ],
+        "catatan": "Seluruh baris duplikat; tidak menambah entitas."
+      },
+      "Kenaikan Harga": {
+        "namaTab": "Kenaikan Harga",
+        "jumlahBarisData": 26,
+        "jumlahDiimporBaru": 0,
+        "jumlahDigabungDuplikat": 0,
+        "jumlahDilewati": 0,
+        "dilewati": [],
+        "catatan": "Dipakai sebagai sumber nilai Revisi 2026 untuk RiwayatHarga; riwayat utama dibangun dari kontrak per penyewa di tab tahunan (nilai per tahun milik penyewa itu sendiri — kolom Previous di tab ini adalah penghuni lama bidang yang sama, nilainya TIDAK dipakai untuk penyewa baru). 1 baris (Bank BTPN Palembang) tidak tertaut ke entitas Sewa karena kontraknya berakhir 28 Feb 2025."
+      },
+      "PENDAPATAN DITERIMA DI MUKA": {
+        "namaTab": "PENDAPATAN DITERIMA DI MUKA",
+        "jumlahBarisData": 21,
+        "jumlahDiimporBaru": 0,
+        "jumlahDigabungDuplikat": 0,
+        "jumlahDilewati": 5,
+        "dilewati": [
+          {
+            "baris": 12,
+            "penyewa": "(tidak dapat dipulihkan)",
+            "nomor": "",
+            "alasan": "Sel KLIEN/NILAI = #REF! — identitas sewa tidak dapat dipulihkan"
+          },
+          {
+            "baris": 13,
+            "penyewa": "(tidak dapat dipulihkan)",
+            "nomor": "",
+            "alasan": "Sel KLIEN/NILAI = #REF! — identitas sewa tidak dapat dipulihkan"
+          },
+          {
+            "baris": 14,
+            "penyewa": "(tidak dapat dipulihkan)",
+            "nomor": "",
+            "alasan": "Sel KLIEN/NILAI = #REF! — identitas sewa tidak dapat dipulihkan"
+          },
+          {
+            "baris": 15,
+            "penyewa": "(tidak dapat dipulihkan)",
+            "nomor": "",
+            "alasan": "Sel KLIEN/NILAI = #REF! — identitas sewa tidak dapat dipulihkan"
+          },
+          {
+            "baris": 16,
+            "penyewa": "(tidak dapat dipulihkan)",
+            "nomor": "",
+            "alasan": "Sel KLIEN/NILAI = #REF! — identitas sewa tidak dapat dipulihkan"
+          }
+        ],
+        "catatan": "Snapshot per 31 Jan 2026; dipakai untuk diterimaDiMuka & masihHarusDiterima. 16 baris bernama tertaut ke sewa; 5 baris #REF! tidak dapat dipulihkan."
+      },
+      "PENDAPATAN MASIH HARUS DITERIMA": {
+        "namaTab": "PENDAPATAN MASIH HARUS DITERIMA",
+        "jumlahBarisData": 5,
+        "jumlahDiimporBaru": 0,
+        "jumlahDigabungDuplikat": 0,
+        "jumlahDilewati": 2,
+        "dilewati": [
+          {
+            "baris": 8,
+            "penyewa": "(tidak dapat dipulihkan)",
+            "nomor": "",
+            "alasan": "Sel = #REF! — identitas sewa tidak dapat dipulihkan"
+          },
+          {
+            "baris": 9,
+            "penyewa": "(tidak dapat dipulihkan)",
+            "nomor": "",
+            "alasan": "Sel = #REF! — identitas sewa tidak dapat dipulihkan"
+          }
+        ],
+        "catatan": "Dipakai sebagai cross-check masihHarusDiterima (Efran Valuphy, Nehwa Atmojo, Ahmad Sobirin — cocok dengan tab Diterima di Muka)."
+      },
+      "Pengajuan Baru": {
+        "namaTab": "Pengajuan Baru",
+        "jumlahBarisData": null,
+        "jumlahDiimporBaru": 0,
+        "jumlahDigabungDuplikat": 0,
+        "jumlahDilewati": 0,
+        "dilewati": [],
+        "catatan": "BELUM DIBACA — permintaan values get gagal karena connector_rate_limited (terminal_for_attempt=true). Temuan lapangan & pengajuan baru dari tab ini belum diekstrak."
+      },
+      "Indralaya": {
+        "namaTab": "Indralaya",
+        "jumlahBarisData": null,
+        "jumlahDiimporBaru": 0,
+        "jumlahDigabungDuplikat": 0,
+        "jumlahDilewati": 0,
+        "dilewati": [],
+        "catatan": "BELUM DIBACA — permintaan values get gagal karena connector_rate_limited (terminal_for_attempt=true). Temuan lapangan & pengajuan baru dari tab ini belum diekstrak."
+      },
+      "Temuan": {
+        "namaTab": "Temuan",
+        "jumlahBarisData": null,
+        "jumlahDiimporBaru": 0,
+        "jumlahDigabungDuplikat": 0,
+        "jumlahDilewati": 0,
+        "dilewati": [],
+        "catatan": "BELUM DIBACA — permintaan values get gagal karena connector_rate_limited (terminal_for_attempt=true). Temuan lapangan & pengajuan baru dari tab ini belum diekstrak."
+      }
+    },
+    "ringkasan": {
+      "totalEntitasSewa": 39,
+      "perStatus": {
+        "ON GOING": 21,
+        "Berakhir": 14,
+        "Bermasalah": 4
+      },
+      "totalNilaiSewa": 1116734375,
+      "totalDiterimaDiMuka_snapshot31Jan2026": 428993167,
+      "totalMasihHarusDiterima_snapshot31Jan2026": 40750666,
+      "pengajuanSewaBaru": 0,
+      "catatanPengajuan": "Tab 'Pengajuan Baru' BELUM DIBACA (rate limit) — jumlah pengajuan sebenarnya belum diketahui; file sheet2-pengajuan.json = [] bersifat sementara."
+    },
+    "masalahKualitas": [
+      "Kenaikan Harga baris 32: ada nilai tanpa nama penyewa (['Rp6.960.000']) — tidak dapat ditautkan ke sewa.",
+      "Total sheet 2024 Rp339,268,400 TIDAK cocok dengan jumlah ulang Rp346,493,400 (selisih Rp7,225,000).",
+      "Total sheet 2024 selisih Rp7.225.000 sama dengan nilai Binsar Sinambela baris 7 (Rp7.225.000) — kemungkinan rumus total melewatkan baris 7; jumlah ulang yang dipakai.",
+      "Kenaikan Harga Fisol Jailani: nilai 2026 Rp47,154,000 (36 bln) != 2026-Revisi Rp12,000,000 (12 bln) — dipakai Revisi/kontrak aktual; nilai 2026 (36 bln) tidak dimasukkan ke riwayat.",
+      "Kenaikan Harga Herman Sawiran: nilai 2026 Rp33,612,000 (36 bln) != 2026-Revisi Rp8,232,000 (12 bln) — dipakai Revisi/kontrak aktual; nilai 2026 (36 bln) tidak dimasukkan ke riwayat.",
+      "Kenaikan Harga Mila Agustina: nilai 2026 Rp87,312,000 (36 bln) != 2026-Revisi Rp15,808,583 (12 bln) — dipakai Revisi/kontrak aktual; nilai 2026 (36 bln) tidak dimasukkan ke riwayat.",
+      "RiwayatHarga Sahara Al Fatiara Rozak: nilai Revisi 2026 Rp18,119,000 dari tab Kenaikan Harga tidak cocok dengan kontrak mana pun — dimasukkan sebagai entri 2026-01-01 dengan catatan ini (perlu konfirmasi; luas Revisi 300 m2).",
+      "RiwayatHarga Muhammad Theodosius El Abqo: nilai Revisi 2026 Rp3,954,000 dari tab Kenaikan Harga tidak cocok dengan kontrak mana pun — dimasukkan sebagai entri 2026-01-01 dengan catatan ini (perlu konfirmasi; luas Revisi 10.040 m2).",
+      "Sewa Ahmad Sobirin (030/RRI.PLB/PKS.U/06/2025): diterimaDiMuka sumber negatif Rp-7,019,228 (artefak rumus: bulan realisasi negatif -2,67 bln) — disimpan 0; masihHarusDiterima Rp33,341,333 dipakai (terkonfirmasi tab Masih Harus Diterima).",
+      "Sewa Mila Agustina (7055/PKS/RRI.PLB/07/2026): diterimaDiMuka sumber '#NUM!' tidak dapat diparse (#NUM!/#REF!) — diisi 0.",
+      "Tab PENDAPATAN DITERIMA DI MUKA (snapshot 31 Jan 2026) tidak memuat baris untuk: Abdul Rozak Rusdy, Aminul Khair, Arip, Assef Hidayat, Darojad, Dierga Salomon Riezki, S.STP, Dr. Jalaluddin, MPSA, Faridah Hanum, Fisol Jailani, Herman Sawiran, Kasir, Meily Oktarina, Mila Agustina, Ricardo Nopriansa, Samdini, Subhan — diterimaDiMuka & masihHarusDiterima diisi 0 (tidak diketahui, bukan terkonfirmasi nol). Sebagian kontrak baru mulai setelah 31 Jan 2026 sehingga wajar tidak ada di snapshot; untuk penyewa multi-kontrak (Aminul Khair, Abdul Rozak Rusdy, Mila Agustina) baris snapshot ditautkan ke kontrak yang NILAI-nya cocok (3152, 3580, 7055) — kontrak lamanya tidak ikut mendapat angka snapshot tersebut.",
+      "Nama penyewa dieja berbeda antar tab: 'Ricardo Nopriansyah' (2022) vs 'Ricardo Nopriansa' (2023-2026) — dianggap satu penyewa; 'Kasir' hanya nama depan; 'SR. Sihotang' — dieja sesuai sumber.",
+      "Nomor kontrak 2026 memakai format baru (mis. 3152/PKS/RRI.PLB/02/2026) dengan NOMOR REFERENSI format lama; nomor referensi disimpan di _nomorReferensiKontrak (bukan field interface) agar tautan ke kontrak sheet 1 dapat dicocokkan.",
+      "Dua nomor kontrak memakai infix PKS.F (PT Indosat Tbk 001/RRI.PLB/PKS.F/02/2025; Arip 017/RRI.PLB/PKS.F/05/2026) sementara sewa lain PKS.U — TIDAK ada kode akun eksplisit di spreadsheet 2, jadi tidak ada pengecualian kode akun yang diterapkan; master menetapkan Sewa Lahan/BMN = 425131 Umum. Perlu konfirmasi apakah infix .F. berarti klasifikasi berbeda.",
+      "Tab PENDAPATAN MASIH HARUS DITERIMA menulis JENIS JASA 'Jasa Penggunaan Sarana dan Prasarana Siaran' dengan periode '1 Juli 2025 s.d. 30 Juni 2028' untuk Efran/Nehwa/Ahmad — tidak cocok dengan kontrak sewa masing-masing (kemungkinan salah salin template); jumlah Rp-nya cocok dengan tab Diterima di Muka sehingga jumlah dipakai, teks jasa/periode diabaikan.",
+      "2025 tab: baris Ricardo (Rp1.591.030) dan Kasir (Rp919.879) punya nilai ekstra di kolom tanpa header (kolom AA) — arti tidak diketahui, tidak dipakai.",
+      "2026 tab: baris Assef Hidayat punya nilai ekstra Rp19.608.000 di kolom tanpa header — arti tidak diketahui, tidak dipakai.",
+      "2025 tab: kolom PENGAJUAN NILAI vs NILAI KERJASAMA — selisih negatif pada Binsar 052 (pengajuan Rp10.639.000 > nilai Rp8.566.000, -19,48%) dan Dr. Jalaluddin (pengajuan Rp115.757.000 vs nilai Rp3.056.000, -97,36%, kemungkinan salah salin) — dicatat, tidak dipakai untuk nilaiSewa.",
+      "Tab Temuan belum dibaca (rate limit) — field temuan semua [] untuk sementara; temuan lapangan dari tab Temuan belum masuk.",
+      "Tautan ke Kontrak/Klien: sumber sheet 2 tidak memuat id kontrak/klien aplikasi — kontrakId & penyewaId dikosongkan; nomor referensi dicatat agar dapat ditautkan setelah migrasi sheet 1.",
+      "Tab Kenaikan Harga: kolom Previous adalah penghuni lama bidang yang sama (mis. Esmianah -> Assef Hidayat, Wahidin Baskara -> Muhammad Theodosius El Abqo, Yayan Apriansyah -> Samdini, Dahlia -> Nanik Wahyunita, Nirmalan -> Darojad, Deddy Ismail -> Fisol Jailani) — nilai tahun lama di baris itu milik Previous, bukan Existing, sehingga riwayat dibangun dari kontrak penyewa itu sendiri di tab tahunan.",
+      "Nilai sewa multi-tahun dicatat apa adanya sebagai NILAI KERJASAMA penuh (mis. Aminul Khair Rp19.365.000 untuk 3 tahun, dibayar per tahun; PT Indosat Rp524.700.000 untuk 3 tahun) — bukan nilai per tahun."
+    ],
+    "pengecualianKodeAkun": [],
+    "catatanKodeAkun": "Spreadsheet 2 tidak memuat kolom kode akun sama sekali. Seluruh sewa diklasifikasikan Umum (425131) mengikuti Master Kode Akun (Sewa Lahan/BMN = 425131). Tidak ada baris yang diubah klasifikasinya dan tidak ada pengecualian. Dua nomor kontrak ber-infix PKS.F (Indosat, Arip) dicatat di masalahKualitas untuk konfirmasi.",
+    "pemetaanStatusSewa": {
+      "ON GOING (tab) + tanggalSelesai >= 2026-11-14 + tanpa SPn/terlambat": "ON GOING",
+      "tanggalSelesai < 2026-11-14 (berakhir 2026, mis. Sahara/Theodosius Mar 2026, Samdini Sep 2026)": "Berakhir",
+      "masih dalam masa sewa tetapi KETERANGAN memuat 'Terlambat'/'Keterlambatan'/'SPn' (peringatan)": "Bermasalah",
+      "berakhir + ada riwayat keterlambatan/SPn (Fisol 7052, Mila 7054, Herman 7060 — sudah diganti kontrak baru)": "Berakhir (riwayat SPn dicatat di audit, bukan status)",
+      "Pengajuan": "(tidak ada — tab Pengajuan Baru belum dibaca)"
+    }
+  },
+  "spreadsheet3": {
+    "id": "13UlqmLSEhkVtPMNvIxzw3diksvYnEAFfX0l69ZUIUUo",
+    "judul": "DATA PNBP 2026 (Penyetor PNBP)",
+    "status": "BELUM DIBACA — seluruh 10 tab (Rekap Penerimaan, Jan, Feb, Mar, April, Mei, Juni, Juli, Agustus, September) gagal ditarik karena connector_rate_limited (terminal_for_attempt=true) setelah kuota baca sheet 2 habis. File sheet3-penerimaan-acuan.json = [] bersifat sementara; total penerimaan per bulan TIDAK tersedia.",
+    "perTab": {
+      "Rekap Penerimaan": {
+        "namaTab": "Rekap Penerimaan",
+        "jumlahBarisData": null,
+        "jumlahDiimporBaru": 0,
+        "jumlahDigabungDuplikat": 0,
+        "jumlahDilewati": 0,
+        "dilewati": [],
+        "catatan": "BELUM DIBACA (rate limit connector)."
+      },
+      "Jan": {
+        "namaTab": "Jan",
+        "jumlahBarisData": null,
+        "jumlahDiimporBaru": 0,
+        "jumlahDigabungDuplikat": 0,
+        "jumlahDilewati": 0,
+        "dilewati": [],
+        "catatan": "BELUM DIBACA (rate limit connector)."
+      },
+      "Feb": {
+        "namaTab": "Feb",
+        "jumlahBarisData": null,
+        "jumlahDiimporBaru": 0,
+        "jumlahDigabungDuplikat": 0,
+        "jumlahDilewati": 0,
+        "dilewati": [],
+        "catatan": "BELUM DIBACA (rate limit connector)."
+      },
+      "Mar": {
+        "namaTab": "Mar",
+        "jumlahBarisData": null,
+        "jumlahDiimporBaru": 0,
+        "jumlahDigabungDuplikat": 0,
+        "jumlahDilewati": 0,
+        "dilewati": [],
+        "catatan": "BELUM DIBACA (rate limit connector)."
+      },
+      "April": {
+        "namaTab": "April",
+        "jumlahBarisData": null,
+        "jumlahDiimporBaru": 0,
+        "jumlahDigabungDuplikat": 0,
+        "jumlahDilewati": 0,
+        "dilewati": [],
+        "catatan": "BELUM DIBACA (rate limit connector)."
+      },
+      "Mei": {
+        "namaTab": "Mei",
+        "jumlahBarisData": null,
+        "jumlahDiimporBaru": 0,
+        "jumlahDigabungDuplikat": 0,
+        "jumlahDilewati": 0,
+        "dilewati": [],
+        "catatan": "BELUM DIBACA (rate limit connector)."
+      },
+      "Juni": {
+        "namaTab": "Juni",
+        "jumlahBarisData": null,
+        "jumlahDiimporBaru": 0,
+        "jumlahDigabungDuplikat": 0,
+        "jumlahDilewati": 0,
+        "dilewati": [],
+        "catatan": "BELUM DIBACA (rate limit connector)."
+      },
+      "Juli": {
+        "namaTab": "Juli",
+        "jumlahBarisData": null,
+        "jumlahDiimporBaru": 0,
+        "jumlahDigabungDuplikat": 0,
+        "jumlahDilewati": 0,
+        "dilewati": [],
+        "catatan": "BELUM DIBACA (rate limit connector)."
+      },
+      "Agustus": {
+        "namaTab": "Agustus",
+        "jumlahBarisData": null,
+        "jumlahDiimporBaru": 0,
+        "jumlahDigabungDuplikat": 0,
+        "jumlahDilewati": 0,
+        "dilewati": [],
+        "catatan": "BELUM DIBACA (rate limit connector)."
+      },
+      "September": {
+        "namaTab": "September",
+        "jumlahBarisData": null,
+        "jumlahDiimporBaru": 0,
+        "jumlahDigabungDuplikat": 0,
+        "jumlahDilewati": 0,
+        "dilewati": [],
+        "catatan": "BELUM DIBACA (rate limit connector)."
+      }
+    },
+    "masalahKualitas": [],
+    "pengecualianKodeAkun": [],
+    "totalPenerimaanPerBulanJanSep2026PerKodeAkun": null
+  }
+}

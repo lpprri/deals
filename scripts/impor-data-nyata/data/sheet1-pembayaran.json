@@ -1,0 +1,590 @@
+[
+  {
+    "id": "BYR-001",
+    "tagihanId": "TGH-001-RRI-PLB-PKS-F-01-2026",
+    "tanggalBayar": "2026-02-05",
+    "jumlah": 270000,
+    "metode": "Transfer Bank",
+    "buktiSetor": "NTB 820260205527034 / NTPN 812AE3CIG6I7VVVQ",
+    "penyetor": "PT PLN (Persero) UPT Palembang",
+    "statusVerifikasi": "Menunggu Verifikasi",
+    "satker": {
+      "kode": "41",
+      "nama": "PALEMBANG"
+    }
+  },
+  {
+    "id": "BYR-002",
+    "tagihanId": "TGH-001-PKS-DIR-LPU-01-2026",
+    "tanggalBayar": "2026-03-27",
+    "jumlah": 1550000,
+    "metode": "Transfer Bank",
+    "buktiSetor": "NTB 820260325230579 / NTPN 0C5B68N3F644J1VJ",
+    "penyetor": "PT Taspen (Persero)",
+    "statusVerifikasi": "Menunggu Verifikasi",
+    "satker": {
+      "kode": "41",
+      "nama": "PALEMBANG"
+    }
+  },
+  {
+    "id": "BYR-003",
+    "tagihanId": "TGH-002-RRI-PLB-PKS-U-01-2026",
+    "tanggalBayar": "2026-01-30",
+    "jumlah": 6455000,
+    "metode": "Transfer Bank",
+    "buktiSetor": "NTB 820260129497246 / NTPN CB6262G50BTJ2O4U",
+    "penyetor": "Aminul Khair",
+    "statusVerifikasi": "Menunggu Verifikasi",
+    "satker": {
+      "kode": "41",
+      "nama": "PALEMBANG"
+    }
+  },
+  {
+    "id": "BYR-004",
+    "tagihanId": "TGH-003-RRI-PLB-PKS-U-01-2026",
+    "tanggalBayar": "2026-01-30",
+    "jumlah": 6455000,
+    "metode": "Transfer Bank",
+    "buktiSetor": "NTB 820260129495687 / NTPN 89BD96U8FGPH3MK7",
+    "penyetor": "Meily Oktarina",
+    "statusVerifikasi": "Menunggu Verifikasi",
+    "satker": {
+      "kode": "41",
+      "nama": "PALEMBANG"
+    }
+  },
+  {
+    "id": "BYR-005",
+    "tagihanId": "TGH-004-RRI-PLB-PKS-U-01-2026",
+    "tanggalBayar": "2026-01-30",
+    "jumlah": 5648000,
+    "metode": "Transfer Bank",
+    "buktiSetor": "NTB 820260129496383 / NTPN 6118C3CIG6FVFN9V",
+    "penyetor": "Dierga Salomon Riezki, S.STP",
+    "statusVerifikasi": "Menunggu Verifikasi",
+    "satker": {
+      "kode": "41",
+      "nama": "PALEMBANG"
+    }
+  },
+  {
+    "id": "BYR-006",
+    "tagihanId": "TGH-005-RRI-PLB-PKS-U-02-2026",
+    "tanggalBayar": "2026-02-10",
+    "jumlah": 9199380,
+    "metode": "Transfer Bank",
+    "buktiSetor": "NTB 820260203188072 / NTPN 122D11JNGHDCUJR8",
+    "penyetor": "Abdul Rozak Rusdy",
+    "statusVerifikasi": "Menunggu Verifikasi",
+    "satker": {
+      "kode": "41",
+      "nama": "PALEMBANG"
+    }
+  },
+  {
+    "id": "BYR-007",
+    "tagihanId": "TGH-006-RRI-PLB-PKS-U-02-2026",
+    "tanggalBayar": "2026-02-10",
+    "jumlah": 6536000,
+    "metode": "Transfer Bank",
+    "buktiSetor": "NTB 820260210141875 / NTPN 1E33B61QVM9HJQLJ",
+    "penyetor": "Assef Hidayat",
+    "statusVerifikasi": "Menunggu Verifikasi",
+    "satker": {
+      "kode": "41",
+      "nama": "PALEMBANG"
+    }
+  },
+  {
+    "id": "BYR-008",
+    "tagihanId": "TGH-007-RRI-PLB-PKS-F-02-2026",
+    "tanggalBayar": "2026-06-26",
+    "jumlah": 15000000,
+    "metode": "Transfer Bank",
+    "buktiSetor": "NTB 820260625423701 / NTPN BF4407QLVBQMF7AL",
+    "penyetor": "Dinas Komunikasi dan Informatika Kota Palembang",
+    "statusVerifikasi": "Menunggu Verifikasi",
+    "satker": {
+      "kode": "41",
+      "nama": "PALEMBANG"
+    }
+  },
+  {
+    "id": "BYR-009",
+    "tagihanId": "TGH-008-RRI-PLB-PKS-F-02-2026",
+    "tanggalBayar": "2026-06-29",
+    "jumlah": 5000000,
+    "metode": "Transfer Bank",
+    "buktiSetor": "NTB 820260624221021 / NTPN FFEFB3CIG6UN9GQT",
+    "penyetor": "Dinas Komunikasi dan Informatika Kabupaten Banyuasin",
+    "statusVerifikasi": "Menunggu Verifikasi",
+    "satker": {
+      "kode": "41",
+      "nama": "PALEMBANG"
+    }
+  },
+  {
+    "id": "BYR-010",
+    "tagihanId": "TGH-008-RRI-PLB-PKS-F-02-2026",
+    "tanggalBayar": "2026-07-14",
+    "jumlah": 300000,
+    "metode": "Transfer Bank",
+    "buktiSetor": "NTB 820260714279343 / NTPN 3310555DFS65VSDF",
+    "penyetor": "Dinas Komunikasi dan Informatika Kabupaten Banyuasin",
+    "statusVerifikasi": "Menunggu Verifikasi",
+    "satker": {
+      "kode": "41",
+      "nama": "PALEMBANG"
+    }
+  },
+  {
+    "id": "BYR-011",
+    "tagihanId": "TGH-009-RRI-PLB-PKS-F-02-2026",
+    "tanggalBayar": "2026-04-22",
+    "jumlah": 3000000,
+    "metode": "Transfer Bank",
+    "buktiSetor": "NTB 820260422176512 / NTPN A58D86U8FH287JO0",
+    "penyetor": "Dinas Komunikasi dan Informatika Kabupaten Musi Banyuasin",
+    "statusVerifikasi": "Menunggu Verifikasi",
+    "satker": {
+      "kode": "41",
+      "nama": "PALEMBANG"
+    }
+  },
+  {
+    "id": "BYR-012",
+    "tagihanId": "TGH-010-RRI-PLB-PKS-F-02-2026",
+    "tanggalBayar": "2026-06-22",
+    "jumlah": 7500000,
+    "metode": "Transfer Bank",
+    "buktiSetor": "NTB 820260615730539 / NTPN B5E091JNGHPMCDBB",
+    "penyetor": "Bank Sumsel Babel",
+    "statusVerifikasi": "Menunggu Verifikasi",
+    "satker": {
+      "kode": "41",
+      "nama": "PALEMBANG"
+    }
+  },
+  {
+    "id": "BYR-013",
+    "tagihanId": "TGH-010-RRI-PLB-PKS-F-02-2026",
+    "tanggalBayar": "2026-07-14",
+    "jumlah": 300000,
+    "metode": "Transfer Bank",
+    "buktiSetor": "NTB 820260714279389 / NTPN 295C92G50CF0OSET",
+    "penyetor": "Bank Sumsel Babel",
+    "statusVerifikasi": "Menunggu Verifikasi",
+    "satker": {
+      "kode": "41",
+      "nama": "PALEMBANG"
+    }
+  },
+  {
+    "id": "BYR-014",
+    "tagihanId": "TGH-011-RRI-PLB-PKS-F-02-2026",
+    "tanggalBayar": "2026-05-13",
+    "jumlah": 6200000,
+    "metode": "Transfer Bank",
+    "buktiSetor": "NTB 820260513249583 / NTPN 0E7FA3CIG6RDEU9F",
+    "penyetor": "Kantor Perwakilan Bank Indonesia Provinsi Sumatera Selatan",
+    "statusVerifikasi": "Menunggu Verifikasi",
+    "satker": {
+      "kode": "41",
+      "nama": "PALEMBANG"
+    }
+  },
+  {
+    "id": "BYR-015",
+    "tagihanId": "TGH-011-RRI-PLB-PKS-F-02-2026",
+    "tanggalBayar": "2026-05-18",
+    "jumlah": 124000,
+    "metode": "Transfer Bank",
+    "buktiSetor": "NTB 820260513281865 / NTPN 40D6555DFS069TQ9",
+    "penyetor": "Kantor Perwakilan Bank Indonesia Provinsi Sumatera Selatan",
+    "statusVerifikasi": "Menunggu Verifikasi",
+    "satker": {
+      "kode": "41",
+      "nama": "PALEMBANG"
+    }
+  },
+  {
+    "id": "BYR-016",
+    "tagihanId": "TGH-012-RRI-PLB-PKS-F-03-2026",
+    "tanggalBayar": "2026-04-14",
+    "jumlah": 4050000,
+    "metode": "Transfer Bank",
+    "buktiSetor": "NTB 820260414967708 / NTPN 03EE67QLVBKDOJSS",
+    "penyetor": "Kantor Pengawasan dan Pelayanan Bea dan Cukai TMP B Palembang",
+    "statusVerifikasi": "Menunggu Verifikasi",
+    "satker": {
+      "kode": "41",
+      "nama": "PALEMBANG"
+    }
+  },
+  {
+    "id": "BYR-017",
+    "tagihanId": "TGH-013-RRI-PLB-PKS-F-03-2026",
+    "tanggalBayar": "2026-04-23",
+    "jumlah": 1500000,
+    "metode": "Transfer Bank",
+    "buktiSetor": "NTB 820260422245816 / NTPN BEEF23CIG6OMLNDO",
+    "penyetor": "Dinas Komunikasi dan Informatika Kabupaten Ogan Komering Ulu Selatan",
+    "statusVerifikasi": "Menunggu Verifikasi",
+    "satker": {
+      "kode": "41",
+      "nama": "PALEMBANG"
+    }
+  },
+  {
+    "id": "BYR-018",
+    "tagihanId": "TGH-014-RRI-PLB-PKS-F-03-2026",
+    "tanggalBayar": "2026-04-23",
+    "jumlah": 1000000,
+    "metode": "Transfer Bank",
+    "buktiSetor": "NTB 820260421045934 / NTPN F1A450NA0N1GA3LE",
+    "penyetor": "Bank Syariah Indonesia KCP Kenten 2 Palembang",
+    "statusVerifikasi": "Menunggu Verifikasi",
+    "satker": {
+      "kode": "41",
+      "nama": "PALEMBANG"
+    }
+  },
+  {
+    "id": "BYR-019",
+    "tagihanId": "TGH-015-RRI-PLB-PKS-F-04-2026",
+    "tanggalBayar": "2026-05-12",
+    "jumlah": 2000000,
+    "metode": "Transfer Bank",
+    "buktiSetor": "NTB 820260511902046 / NTPN 49A9C61QVMIHCQAU",
+    "penyetor": "Kanwil DJP Sumatera Selatan dan Kepulauan Bangka Belitung",
+    "statusVerifikasi": "Menunggu Verifikasi",
+    "satker": {
+      "kode": "41",
+      "nama": "PALEMBANG"
+    }
+  },
+  {
+    "id": "BYR-020",
+    "tagihanId": "TGH-016-RRI-PLB-PKS-F-04-2026",
+    "tanggalBayar": "2026-05-20",
+    "jumlah": 270000,
+    "metode": "Transfer Bank",
+    "buktiSetor": "NTB 820260520213970 / NTPN 699683CIG6RK3FEI",
+    "penyetor": "PT PLN (Persero) UPT Palembang",
+    "statusVerifikasi": "Menunggu Verifikasi",
+    "satker": {
+      "kode": "41",
+      "nama": "PALEMBANG"
+    }
+  },
+  {
+    "id": "BYR-021",
+    "tagihanId": "TGH-017-RRI-PLB-PKS-F-05-2026",
+    "tanggalBayar": "2026-05-20",
+    "jumlah": 5320000,
+    "metode": "Transfer Bank",
+    "buktiSetor": "NTB 820260520202181 / NTPN 130C50NA0N4ES3U5",
+    "penyetor": "Arip",
+    "statusVerifikasi": "Menunggu Verifikasi",
+    "satker": {
+      "kode": "41",
+      "nama": "PALEMBANG"
+    }
+  },
+  {
+    "id": "BYR-022",
+    "tagihanId": "TGH-018-RRI-PLB-PKS-F-05-2026",
+    "tanggalBayar": "2026-05-26",
+    "jumlah": 200000,
+    "metode": "Transfer Bank",
+    "buktiSetor": "NTB 820260526984443 / NTPN 8F2571JNGHN1O37R",
+    "penyetor": "Savano Entertainment",
+    "statusVerifikasi": "Menunggu Verifikasi",
+    "satker": {
+      "kode": "41",
+      "nama": "PALEMBANG"
+    }
+  },
+  {
+    "id": "BYR-023",
+    "tagihanId": "TGH-019-RRI-PLB-PKS-F-05-2026",
+    "tanggalBayar": "2026-06-14",
+    "jumlah": 4050000,
+    "metode": "Transfer Bank",
+    "buktiSetor": "NTB 820260611283732 / NTPN 138122G50CBUHMOK",
+    "penyetor": "Yayasan Islam Al-Ittifaqiah",
+    "statusVerifikasi": "Menunggu Verifikasi",
+    "satker": {
+      "kode": "41",
+      "nama": "PALEMBANG"
+    }
+  },
+  {
+    "id": "BYR-024",
+    "tagihanId": "TGH-020-RRI-PLB-PKS-F-05-2026",
+    "tanggalBayar": "2026-07-28",
+    "jumlah": 990000,
+    "metode": "Transfer Bank",
+    "buktiSetor": "NTB 820260728396050 / NTPN 4AA9049001K71M8I",
+    "penyetor": "PT Sumber Alfaria Trijaya Tbk. Branch Palembang",
+    "statusVerifikasi": "Menunggu Verifikasi",
+    "satker": {
+      "kode": "41",
+      "nama": "PALEMBANG"
+    }
+  },
+  {
+    "id": "BYR-025",
+    "tagihanId": "TGH-021-RRI-PLB-PKS-U-06-2026",
+    "tanggalBayar": "2026-06-12",
+    "jumlah": 3056000,
+    "metode": "Transfer Bank",
+    "buktiSetor": "NTB 820260611306342 / NTPN 7435B49001GNCCR6",
+    "penyetor": "Dr. Jalaluddin, MPSA",
+    "statusVerifikasi": "Menunggu Verifikasi",
+    "satker": {
+      "kode": "41",
+      "nama": "PALEMBANG"
+    }
+  },
+  {
+    "id": "BYR-026",
+    "tagihanId": "TGH-022-RRI-PLB-PKS-F-06-2026",
+    "tanggalBayar": "2026-07-07",
+    "jumlah": 3500000,
+    "metode": "Transfer Bank",
+    "buktiSetor": "NTB 820260707096830 / NTPN 56E4F7QLVBT4BM7U",
+    "penyetor": "DPRD Kota Palembang",
+    "statusVerifikasi": "Menunggu Verifikasi",
+    "satker": {
+      "kode": "41",
+      "nama": "PALEMBANG"
+    }
+  },
+  {
+    "id": "BYR-027",
+    "tagihanId": "TGH-023-RRI-PLB-PKS-F-06-2026",
+    "tanggalBayar": "2026-07-14",
+    "jumlah": 3500000,
+    "metode": "Transfer Bank",
+    "buktiSetor": "NTB 820260714274512 / NTPN A18170NA0NA7UNMG",
+    "penyetor": "PT Medco E&P Indonesia",
+    "statusVerifikasi": "Menunggu Verifikasi",
+    "satker": {
+      "kode": "41",
+      "nama": "PALEMBANG"
+    }
+  },
+  {
+    "id": "BYR-028",
+    "tagihanId": "TGH-024-RRI-PLB-PKS-F-06-2026",
+    "tanggalBayar": "2026-07-27",
+    "jumlah": 4050000,
+    "metode": "Transfer Bank",
+    "buktiSetor": "NTB 820260722488280 / NTPN 99C250NA0NAFPCUO",
+    "penyetor": "Kantor Pengawasan dan Pelayanan Bea dan Cukai TMP B Palembang",
+    "statusVerifikasi": "Menunggu Verifikasi",
+    "satker": {
+      "kode": "41",
+      "nama": "PALEMBANG"
+    }
+  },
+  {
+    "id": "BYR-029",
+    "tagihanId": "TGH-025-RRI-PLB-PKS-F-06-2026",
+    "tanggalBayar": "2026-07-16",
+    "jumlah": 2000000,
+    "metode": "Transfer Bank",
+    "buktiSetor": "NTB 820260716693693 / NTPN 987CB3CIG71FFI5T",
+    "penyetor": "Kantor Perwakilan Bank Indonesia Provinsi Sumatera Selatan",
+    "statusVerifikasi": "Menunggu Verifikasi",
+    "satker": {
+      "kode": "41",
+      "nama": "PALEMBANG"
+    }
+  },
+  {
+    "id": "BYR-030",
+    "tagihanId": "TGH-026-RRI-PLB-PKS-F-06-2026",
+    "tanggalBayar": "2026-07-02",
+    "jumlah": 1000000,
+    "metode": "Transfer Bank",
+    "buktiSetor": "NTB 820260629925295 / NTPN 3A85755DFS3LHJDF",
+    "penyetor": "Kantor Perwakilan Bank Indonesia Provinsi Sumatera Selatan",
+    "statusVerifikasi": "Menunggu Verifikasi",
+    "satker": {
+      "kode": "41",
+      "nama": "PALEMBANG"
+    }
+  },
+  {
+    "id": "BYR-031",
+    "tagihanId": "TGH-027-RRI-PLB-PKS-F-07-2026",
+    "tanggalBayar": "2026-09-14",
+    "jumlah": 2000000,
+    "metode": "Transfer Bank",
+    "buktiSetor": "NTB 820260914784821 / NTPN 96D411JNGI2JIQHL",
+    "penyetor": "Perempuan Indonesia Maju (PIM)",
+    "statusVerifikasi": "Menunggu Verifikasi",
+    "satker": {
+      "kode": "41",
+      "nama": "PALEMBANG"
+    }
+  },
+  {
+    "id": "BYR-032",
+    "tagihanId": "TGH-028-RRI-PLB-PKS-U-07-2026",
+    "tanggalBayar": "2026-07-17",
+    "jumlah": 6536000,
+    "metode": "Transfer Bank",
+    "buktiSetor": "NTB 820260716674372 / NTPN DCA0D2G50CF31VA4",
+    "penyetor": "Faridah Hanum",
+    "statusVerifikasi": "Menunggu Verifikasi",
+    "satker": {
+      "kode": "41",
+      "nama": "PALEMBANG"
+    }
+  },
+  {
+    "id": "BYR-033",
+    "tagihanId": "TGH-029-RRI-PLB-PKS-U-07-2026",
+    "tanggalBayar": "2026-07-30",
+    "jumlah": 6000000,
+    "metode": "Transfer Bank",
+    "buktiSetor": "NTB 820260730797865 / NTPN 5379561QVMP24VP9",
+    "penyetor": "Fisol Jailani",
+    "statusVerifikasi": "Menunggu Verifikasi",
+    "satker": {
+      "kode": "41",
+      "nama": "PALEMBANG"
+    }
+  },
+  {
+    "id": "BYR-034",
+    "tagihanId": "TGH-030-RRI-PLB-PKS-U-07-2026",
+    "tanggalBayar": "2026-07-30",
+    "jumlah": 12000000,
+    "metode": "Transfer Bank",
+    "buktiSetor": "NTB 820260730797898 / NTPN 8EC633CIG71STVQA",
+    "penyetor": "Fisol Jailani",
+    "statusVerifikasi": "Menunggu Verifikasi",
+    "satker": {
+      "kode": "41",
+      "nama": "PALEMBANG"
+    }
+  },
+  {
+    "id": "BYR-035",
+    "tagihanId": "TGH-031-RRI-PLB-PKS-U-07-2026",
+    "tanggalBayar": "2026-07-30",
+    "jumlah": 7904292,
+    "metode": "Transfer Bank",
+    "buktiSetor": "NTB 820260730825245 / NTPN C4B4D49001K9BQGT",
+    "penyetor": "Mila Agustina",
+    "statusVerifikasi": "Menunggu Verifikasi",
+    "satker": {
+      "kode": "41",
+      "nama": "PALEMBANG"
+    }
+  },
+  {
+    "id": "BYR-036",
+    "tagihanId": "TGH-032-RRI-PLB-PKS-U-07-2026",
+    "tanggalBayar": "2026-07-30",
+    "jumlah": 15808583,
+    "metode": "Transfer Bank",
+    "buktiSetor": "NTB 820260730825192 / NTPN 8CDED2G50CFGHQF8",
+    "penyetor": "Mila Agustina",
+    "statusVerifikasi": "Menunggu Verifikasi",
+    "satker": {
+      "kode": "41",
+      "nama": "PALEMBANG"
+    }
+  },
+  {
+    "id": "BYR-037",
+    "tagihanId": "TGH-033-RRI-PLB-PKS-U-07-2026",
+    "tanggalBayar": "2026-07-31",
+    "jumlah": 4116000,
+    "metode": "Transfer Bank",
+    "buktiSetor": "NTB 820260731072349 / NTPN DA11E61QVMP2DBQT",
+    "penyetor": "Herman Sawiran",
+    "statusVerifikasi": "Menunggu Verifikasi",
+    "satker": {
+      "kode": "41",
+      "nama": "PALEMBANG"
+    }
+  },
+  {
+    "id": "BYR-038",
+    "tagihanId": "TGH-034-RRI-PLB-PKS-U-07-2026",
+    "tanggalBayar": "2026-07-31",
+    "jumlah": 8232000,
+    "metode": "Transfer Bank",
+    "buktiSetor": "NTB 820260731072240 / NTPN AE21E55DFS6M0BNG",
+    "penyetor": "Herman Sawiran",
+    "statusVerifikasi": "Menunggu Verifikasi",
+    "satker": {
+      "kode": "41",
+      "nama": "PALEMBANG"
+    }
+  },
+  {
+    "id": "BYR-039",
+    "tagihanId": "TGH-027-RRI-PLB-PKS-U-06-2025",
+    "tanggalBayar": "2025-06-18",
+    "jumlah": 11246250,
+    "metode": "Transfer Bank",
+    "buktiSetor": "NTB 121637827742 / NTPN 16BE648VVO6TD3E9",
+    "penyetor": "Darojad",
+    "statusVerifikasi": "Menunggu Verifikasi",
+    "satker": {
+      "kode": "41",
+      "nama": "PALEMBANG"
+    }
+  },
+  {
+    "id": "BYR-040",
+    "tagihanId": "TGH-027-RRI-PLB-PKS-U-06-2025",
+    "tanggalBayar": "2026-06-18",
+    "jumlah": 11246250,
+    "metode": "Transfer Bank",
+    "buktiSetor": "NTB 820260618264146 / NTPN 9E2A11JNGHPOPNII",
+    "penyetor": "Darojad",
+    "statusVerifikasi": "Menunggu Verifikasi",
+    "satker": {
+      "kode": "41",
+      "nama": "PALEMBANG"
+    }
+  },
+  {
+    "id": "BYR-041",
+    "tagihanId": "TGH-016-PKS-DIR-LPU-06-2025",
+    "tanggalBayar": "2025-07-01",
+    "jumlah": 17146250,
+    "metode": "Transfer Bank",
+    "buktiSetor": "NTB 271823198897 / NTPN 28611JNG8I74UDF",
+    "penyetor": "PT VGreen Global Charging Station Investment Indonesia",
+    "statusVerifikasi": "Menunggu Verifikasi",
+    "satker": {
+      "kode": "41",
+      "nama": "PALEMBANG"
+    }
+  },
+  {
+    "id": "BYR-042",
+    "tagihanId": "TGH-016-PKS-DIR-LPU-06-2025",
+    "tanggalBayar": "2026-08-13",
+    "jumlah": 17146250,
+    "metode": "Transfer Bank",
+    "buktiSetor": "NTB 820260812804390 / NTPN A49300NA0ND5TK96",
+    "penyetor": "PT VGreen Global Charging Station Investment Indonesia",
+    "statusVerifikasi": "Menunggu Verifikasi",
+    "satker": {
+      "kode": "41",
+      "nama": "PALEMBANG"
+    }
+  }
+]

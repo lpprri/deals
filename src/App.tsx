@@ -22,7 +22,7 @@ import {
   Wallet,
 } from 'lucide-react';
 import { isFirebaseConfigured } from './config/firebase';
-import { DATA_CONTOH } from './lib/sampleData';
+import { DATA_NYATA, TANGGAL_IMPOR } from './lib/seedNyata';
 import type { DummyUser } from './lib/dummyUsers';
 import {
   MASTER_KATEGORI_LAYANAN,
@@ -33,7 +33,7 @@ import {
 } from './lib/master';
 import { buatEntriAudit } from './lib/audit';
 import { bolehAksi, LABEL_PERAN } from './lib/permissions';
-import { formatRupiah, hariIniIso } from './lib/format';
+import { formatRupiah, formatTanggal, hariIniIso } from './lib/format';
 import type {
   Advertisement,
   AppData,
@@ -258,7 +258,7 @@ function buatChecklistDokumen(kontrakId: string, dokumenLama: DokumenItem[]): Do
 
 export default function App() {
   const [user, setUser] = useState<DummyUser | null>(null);
-  const [data, setData] = useState<AppData>(DATA_CONTOH);
+  const [data, setData] = useState<AppData>(DATA_NYATA);
   const [active, setActive] = useState<ModuleId>('dashboard');
   const [cari, setCari] = useState('');
 
@@ -1413,9 +1413,13 @@ export default function App() {
 
           {!isFirebaseConfigured && (
             <div className="mt-4 max-w-2xl rounded-md border border-[#2573e2]/40 bg-[#2573e2]/5 px-4 py-3 text-sm">
-              <strong>Mode contoh.</strong> Konfigurasi Firebase belum
-              dipasang (lihat <code>.env.example</code>). Aplikasi berjalan
-              dengan data contoh yang diberi label jelas — bukan data asli.
+              <strong>Data nyata Palembang — mode contoh.</strong> Data di
+              bawah ini adalah data nyata hasil impor dari spreadsheet kerja
+              pada {formatTanggal(TANGGAL_IMPOR)}. Konfigurasi Firebase belum
+              dipasang (lihat <code>.env.example</code>), jadi perubahan hanya
+              tersimpan di sesi ini dan belum tersimpan permanen. Data contoh
+              (prospek, quotation, order, event, tugas) tetap berlabel
+              &quot;(Contoh)&quot;.
             </div>
           )}
 

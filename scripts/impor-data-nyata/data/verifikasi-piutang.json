@@ -1,0 +1,66 @@
+{
+  "januari": {
+    "totalPiutang": 19368000,
+    "totalPenyetoran": 18558000,
+    "sisaPiutang": 810000,
+    "totalDenda": null,
+    "catatan": "Total baris tab JANUARI; hitung ulang cocok. Piutang: PLN 270000 + Taspen 540000 + Aminul 6455000 + Meily 6455000 + Dierga 5648000. Setoran: 3 kontrak Umum 18558000. Sisa: PLN 270000 + Taspen 540000. Tidak ada kolom denda; tidak ada denda teridentifikasi. Taspen piutang bulan ini hanya 540000 dari nilai kontrak 1550000 (parsial, tanpa penjelasan). Jatuh tempo Aminul/Meily/Dierga tertulis 31 Januari 2026 (di tab Feb+ tertulis 31 Januari 2027 — diduga salah ketik tahun)."
+  },
+  "februari": {
+    "totalPiutang": 25395380,
+    "totalPenyetoran": 16005380,
+    "sisaPiutang": 9390000,
+    "totalDenda": null,
+    "catatan": "Total baris tab FEBRUARI; hitung ulang cocok. Denda tidak punya kolom; teridentifikasi tertanam dalam piutang: Abdul Rozak Rusdy 180380 (piutang 9199380 vs nilai kontrak 9019000 = 2%) dan sudah dibayar (setoran 9199380). Piutang 5 PKS Fungsional baru masih parsial (Diskominfo Kota 3000000 dari 15000000, Banyuasin 1000000 dari 5000000, Muba 1000000 dari 3000000, Sumsel Babel 2040000 dari 7500000, BI 800000 dari 6200000) — porsi progres siaran, tanpa penjelasan di laporan."
+  },
+  "maret": {
+    "totalPiutang": 43585000,
+    "totalPenyetoran": 1550000,
+    "sisaPiutang": 42035000,
+    "totalDenda": 0,
+    "catatan": "Total baris tab MARET; hitung ulang cocok. Setoran hanya Taspen 1550000 (27 Maret 2026) dengan keterangan 'Tidak Dikenakan Denda'. Piutang Bea Cukai 2835000 = 70% dari nilai kontrak 4050000 (parsial, tanpa penjelasan). Nomor kontrak Bea Cukai/OKU Selatan/BSI tertulis '/PKS/RRI.PLB/2026' (tidak lengkap; di tab April tertulis 5160/5163/5164)."
+  },
+  "april": {
+    "totalPiutang": 46244000,
+    "totalPenyetoran": 9550000,
+    "sisaPiutang": 36694000,
+    "totalDenda": null,
+    "catatan": "Total baris tab APRIL; hitung ulang cocok (identitas piutang-setoran=sisa terpenuhi). Denda tidak punya kolom; teridentifikasi tertanam dalam piutang: Diskominfo Kota 300000, Banyuasin 100000, Sumsel Babel 150000, BI 124000, OKU Selatan 30000, BSI 20000 (masing-masing 2% dari nilai kontrak) = 724000; denda yang dibayar bulan ini 0 (OKU/BSI hanya membayar pokok). Kolom NO sebagian besar kosong (hanya nomor 2,3,4,5,6 terisi). Muba lunas 3000000 (22 April), Bea Cukai lunas 4050000 (14 April)."
+  },
+  "mei": {
+    "totalPiutang": 43484000,
+    "totalPenyetoran": 14114000,
+    "sisaPiutang": 28910000,
+    "totalDenda": null,
+    "catatan": "Total baris tab MEI; hitung ulang cocok, TETAPI identitas piutang-setoran=sisa TIDAK terpenuhi: 43484000-14114000=29370000, bukan 28910000 (selisih 460000). Per baris: Diskominfo Kota piutang 15600000 vs sisa 15300000 (selisih 300000), Banyuasin 5200000 vs 5100000 (100000), Sumsel Babel 7800000 vs 7650000 (150000), PLN piutang 180000 vs setoran 270000 (selisih -90000). Denda tertanam dalam piutang: Kota 600000, Banyuasin 200000, Sumsel Babel 300000, BI 124000, OKU Selatan 30000, BSI 20000 = 1274000; denda dibayar bulan ini 124000 (BI, NTPN terpisah 40D6555DFS069TQ9, 18 Mei 2026). Muba dan Bea Cukai hilang dari daftar (lunas April); Taspen hilang (lunas Maret)."
+  },
+  "juni": {
+    "totalPiutang": 53692250,
+    "totalPenyetoran": 45852250,
+    "sisaPiutang": 7840000,
+    "totalDenda": null,
+    "catatan": "Total baris tab JUNI; hitung ulang cocok (identitas piutang-setoran=sisa terpenuhi). DOUBLE COUNT: Al-Ittifaqiah (ref 019, kontrak 7299) muncul 2x — baris 12 piutang 810000 belum bayar dan baris 14 piutang 4050000 lunas 14 Juni 2026; Alfaria (ref 020, kontrak 7302) muncul 2x identik (baris 13 dan 15, piutang 990000). Total baris menjumlah keduanya sehingga nilai kontrak tercatat membengkak 5040000 (4050000+990000). Denda tertanam dalam piutang: Kota 900000, Banyuasin 300000, Sumsel Babel 300000, OKU Selatan 30000, BSI 20000 = 1550000; denda dibayar bulan ini 0 (Kota/Banyuasin/Sumsel membayar pokok saja). Darojad membayar angsuran tahunan 11246250 (18 Juni 2026)."
+  },
+  "juli": {
+    "totalPiutang": 83511744,
+    "totalPenyetoran": 76236875,
+    "sisaPiutang": 7274869,
+    "totalDenda": null,
+    "catatan": "Total baris tab JULI; hitung ulang cocok. Nomor urut 11 hilang (Al-Ittifaqiah tidak muncul lagi setelah lunas Juni). Denda tertanam dalam piutang: Kota 900000, Banyuasin 300000, Sumsel Babel 300000, OKU Selatan 30000, BSI 20000, Fisol Jailani 1440000, Mila Agustina 1897029, Herman Sawiran 987840 = 5874869; denda dibayar bulan ini 600000 (Banyuasin 300000 + Sumsel Babel 300000). Denda kontrak Umum tunggakan 6 bulan = 24% dari nilai kontrak (Fisol 1440000/6000000, Mila 1897029/7904292, Herman 987840/4116000). Sisa piutang 7274869 = PIM 2000000 + sisa denda 5274869."
+  },
+  "agustus": {
+    "totalPiutang": 27305161,
+    "totalPenyetoran": 35166542,
+    "sisaPiutang": 9284869,
+    "totalDenda": null,
+    "catatan": "Total baris tab AGUSTUS; hitung ulang cocok, TETAPI identitas piutang-setoran=sisa TIDAK terpenuhi: 27305161-35166542=-7861381, bukan 9284869 (selisih -17146250). Penyebab: VGreen setor angsuran tahunan 17146250 dengan PIUTANG BULAN INI 0. Denda tertanam dalam piutang: Kota 900000, OKU Selatan 30000, BSI 20000, Fisol 1440000, Mila 1897029, Herman 987840 = 5274869; denda dibayar bulan ini 0. Penomoran berantakan (nomor 7,8,11-17,19,21,23 hilang; dua baris bernomor 24). Komdigi: nomor kontrak kosong, piutang 2010000 dari nilai kontrak 7975000."
+  },
+  "september": {
+    "totalPiutang": 11604869,
+    "totalPenyetoran": 2000000,
+    "sisaPiutang": 9604869,
+    "totalDenda": null,
+    "catatan": "Total baris tab SEPTEMBER; hitung ulang cocok (identitas piutang-setoran=sisa terpenuhi). Denda tertanam dalam piutang: Kota 900000, OKU Selatan 30000, BSI 20000, PIM 40000 (2% dari 2000000), Fisol 1440000, Mila 1897029, Herman 987840 = 5314869; denda dibayar bulan ini 0. Setoran hanya PIM 2000000. Sisa piutang 9604869 = denda 5314869 + Komdigi 4110000 + PLN 180000. Komdigi: nomor kontrak 018/PKS/DIR.LPU/08/2026, piutang 4110000 dari nilai kontrak 7975000."
+  },
+  "_catatanUmum": "PIUTANG BULAN INI adalah posisi piutang per kontrak pada tanggal laporan (outstanding), BUKAN arus piutang baru bulan itu — penjumlahan antar bulan akan menghitung ganda (contoh: Diskominfo Kota tercatat Feb 3000000, Mar 15000000, Apr 15300000, Mei 15600000,... dst). Tidak ada kolom denda di workbook ini; totalDenda diisi null kecuali Maret (0 — tertulis 'Tidak Dikenakan Denda'); denda hanya dapat diidentifikasi sebagai selisih piutang terhadap nilai kontrak/pokok dan dirinci di catatan tiap bulan. Tarif denda yang teramati bervariasi (2%, 4%, 6%, 24%) tanpa rumus tertulis di laporan. Semua total baris sudah dihitung ulang dari baris data dan cocok, kecuali identitas piutang-setoran=sisa pada Mei (selisih 460000) dan Agustus (selisih -17146250, VGreen)."
+}

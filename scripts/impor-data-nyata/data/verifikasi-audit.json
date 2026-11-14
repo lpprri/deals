@@ -1,0 +1,169 @@
+{
+  "tugas": "Verifikasi angka pembanding (bukan impor) untuk migrasi aplikasi Partnership LPP RRI — spreadsheet 4, 5, 6, khusus PALEMBANG, Jan-Sep 2026. Dibaca 2026-11-14 via Google Sheets CLI (hanya baca).",
+  "spreadsheet4": {
+    "id": "18eDipD31oZzE2dTpch7OoUm53X_mKv2lVatJjyXnObA",
+    "judul": "Laporan Bulanan PNBP 2026",
+    "tab": [
+      "1 Fungsional",
+      "1 Umum",
+      "2 Fungsional",
+      "2 Umum",
+      "3 Fungsional",
+      "3 Umum",
+      "4 Fungsional",
+      "4 Umum",
+      "5 Fungsional",
+      "5 Umum",
+      "6 Fungsional",
+      "6 Umum",
+      "7 Fungsional",
+      "7 Umum",
+      "8 Fungsional",
+      "8 Umum",
+      "9 Fungsional",
+      "9 Umum",
+      "Rekapitulasi"
+    ],
+    "tabDibaca": "Semua 19 tab (18 tab bulanan + Rekapitulasi).",
+    "catatan": "Setiap tab bulanan berisi rincian PKS RRI Palembang. Total tiap tab cocok dengan Rekapitulasi; Rekapitulasi Jan-Sep: Fungsional 76785000, Umum 140201875, Total 216986875."
+  },
+  "spreadsheet5": {
+    "id": "1ZddhJhhMgWKsHhOB6mZAof1RmK2SVjY-ymU6uIP3FB4",
+    "judul": "Laporan Piutang & Penyetoran 2026",
+    "tab": [
+      "JANUARI",
+      "FEBRUARI",
+      "MARET",
+      "APRIL",
+      "MEI",
+      "JUNI",
+      "JULI",
+      "AGUSTUS",
+      "SEPTEMBER"
+    ],
+    "tabDibaca": "Semua 9 tab.",
+    "catatan": "Tiap tab adalah daftar kumulatif seluruh kontrak aktif (bukan hanya PKS baru bulan itu). Total baris tiap tab sudah dihitung ulang dari baris data dan cocok. Tidak ada kolom denda."
+  },
+  "spreadsheet6": {
+    "id": "19a-cfbQZGBVzvNurqGh8NXZsKW7rh-oBYKokQCgEXpg",
+    "judul": "LAPORAN PNBP 2026",
+    "tab": [
+      "PANDUAN",
+      "JANUARI",
+      "FEBRUARI",
+      "MARET",
+      "APRIL",
+      "MEI",
+      "JUNI",
+      "JULI",
+      "AGUSTUS",
+      "SEPTEMBER",
+      "OKTOBER",
+      "NOVEMBER",
+      "DESEMBER",
+      "TRIWULAN 1",
+      "TRIWULAN 2",
+      "TRIWULAN 3",
+      "TRIWULAN 4",
+      "REALISASI/TRIWULAN",
+      "REALISASI/JASA",
+      "QQ"
+    ],
+    "tabDibaca": "PANDUAN, JANUARI-SEPTEMBER, OKTOBER, NOVEMBER, DESEMBER, TRIWULAN 1, TRIWULAN 2, TRIWULAN 3, REALISASI/TRIWULAN, REALISASI/JASA, QQ (16 baris nilai). TRIWULAN 4 tidak dibaca (di luar cakupan Jan-Sep; Triwulan 4 = Okt-Des yang kosong di semua sumber). Yang diekstrak hanya baris PALEMBANG no. 41; total nasional tidak dipakai sebagai pembanding.",
+    "catatan": "Format kantor pusat: satu baris per satker per bulan (69 satker bernomor + 35 SP = 104 entri). Total nasional Juli: Fungsional 1117642978, Umum 535202000, Total 1652844978 (hanya konteks, bukan pembanding Palembang)."
+  },
+  "bulanKosongAtauBelumAda": {
+    "sheet4": "Tidak ada bulan kosong Jan-Sep (semua bulan ada PKS Fungsional; Umum 0 pada Mar, Apr, Agu, Sep — tertulis Rp0). Oktober-Desember kosong (Rekapitulasi: Fungsional/Umum kosong, Total tertulis Rp0).",
+    "sheet5": "Tidak ada bulan kosong Jan-Sep (semua tab ada). Tidak ada tab Oktober-Desember.",
+    "sheet6": "Juli dan September PALEMBANG 0/kosong (padahal sheet 4 ada datanya — ini kekosongan pengisian, bukan ketiadaan kerjasama). Oktober, November, Desember PALEMBANG 0/kosong (konsisten dengan sheet 4 yang juga kosong). Kolom PIUTANG, KERJASAMA BERJALAN, DUKUNGAN kosong pada Feb-Sep (hanya Januari terisi: PIUTANG 270000, BERJALAN 1350000, DUKUNGAN 0)."
+  },
+  "ketidakkonsistenanAntarLaporan": [
+    {
+      "id": "K-01",
+      "tingkat": "KRITIS",
+      "temuan": "Sheet 6 Juli PALEMBANG = 0, padahal sheet 4 Juli = Fungsional 2000000 + Umum 60596875 = 62596875 (8 PKS). Selisih -62596875.",
+      "dampak": "Rekonsiliasi Jan-Sep sheet 6 vs sheet 4 selisih -62776875 (termasuk K-02). Triwulan 3 dan REALISASI/JASA ikut mewarisi kekosongan ini."
+    },
+    {
+      "id": "K-02",
+      "tingkat": "KRITIS",
+      "temuan": "Sheet 6 September PALEMBANG = 0, padahal sheet 4 September = Fungsional 180000 (1 PKS PLN). Selisih -180000.",
+      "dampak": "Lihat K-01."
+    },
+    {
+      "id": "K-03",
+      "tingkat": "SEDANG",
+      "temuan": "Definisi QTY berbeda: sheet 4 menghitung PKS distinct per bulan (Juni 6, Agustus 1); sheet 6 menghitung PKS per jenis layanan mengikuti PANDUAN ('Jumlah PKS = dalam 1 bulan ada berapa kali kerja sama (PKS) setiap jenis PNBP Fungsional') sehingga Juni QTY 10 dan Agustus QTY 3. Catatan header tab bulanan sheet 6 sendiri berbunyi sebaliknya ('QTY = JUMLAH KERJASAMA (PKS) YANG TERJADI DALAM 1 BULAN, BUKAN JUMLAH SIARNYA').",
+      "dampak": "QTY kedua sumber tidak dapat dibandingkan langsung; migrasi harus memilih satu definisi dan mencatatnya."
+    },
+    {
+      "id": "K-04",
+      "tingkat": "SEDANG",
+      "temuan": "Sheet 4 Agustus Fungsional: baris Total 7975000 (= nilai kontrak) sedangkan jumlah kolom TOTAL baris data hanya 4275000 (Siaran Iklan 95x45000). Komponen Sandiwara 3000000 + Feature 700000 hanya ada di sheet 6 Agustus, tidak ada di rincian sheet 4.",
+      "dampak": "Rincian sheet 4 Agustus tidak lengkap; totalnya benar vs sheet 6 tetapi tidak dapat ditelusur dari baris datanya."
+    },
+    {
+      "id": "K-05",
+      "tingkat": "SEDANG",
+      "temuan": "Sheet 5 Juni double count: Al-Ittifaqiah (ref 019, kontrak 7299) muncul 2x (baris 12 piutang 810000 belum bayar; baris 14 piutang 4050000 lunas 14 Juni 2026) dan Alfaria (ref 020, kontrak 7302) muncul 2x identik (baris 13 dan 15). Total baris menjumlah keduanya.",
+      "dampak": "Nilai kontrak tercatat Juni membengkak 5040000; total piutang Juni juga mengandung ganda 810000+4050000 untuk kontrak yang sama (dan 990000+990000)."
+    },
+    {
+      "id": "K-06",
+      "tingkat": "SEDANG",
+      "temuan": "Sheet 5 Mei: piutang - setoran (43484000-14114000=29370000) != sisa piutang (28910000), selisih 460000. Per baris: Diskominfo Kota +300000, Banyuasin +100000, Sumsel Babel +150000 (denda dalam piutang tidak terbawa ke sisa), PLN -90000 (setoran 270000 > piutang 180000).",
+      "dampak": "Sisa piutang Mei tidak dapat direkonsiliasi dari piutang dan setoran bulan itu."
+    },
+    {
+      "id": "K-07",
+      "tingkat": "SEDANG",
+      "temuan": "Sheet 5 Agustus: piutang - setoran (27305161-35166542=-7861381) != sisa piutang (9284869), selisih -17146250. Penyebab: VGreen setor angsuran tahunan 17146250 dengan PIUTANG BULAN INI 0.",
+      "dampak": "Sisa piutang Agustus tidak dapat direkonsiliasi dari piutang dan setoran bulan itu; pola setoran angsuran Umum tidak konsisten (Darojad Juni: piutang 11246250 = setoran; VGreen Agustus: piutang 0, setoran 17146250)."
+    },
+    {
+      "id": "K-08",
+      "tingkat": "SEDANG",
+      "temuan": "Nomor kontrak tidak konsisten antara sheet 4 dan sheet 5 untuk PKS yang sama (nomor referensi sama): Jan Umum Aminul/Meily/Dierga sheet 4: 1051/1052/1053 vs sheet 5: 3152/3160/3161; Feb Umum Abdul Rozak sheet 4: 1494 vs sheet 5: 3580; Assef sheet 4: 1497 vs sheet 5: 3607. Nomor kontrak Maret Fungsional (Bea Cukai/OKU/BSI) di sheet 5 tertulis '/PKS/RRI.PLB/2026' (tanpa nomor urut) sedangkan sheet 4 menulis 2605/2919/2920; di sheet 5 April tertulis 5160/5163/5164. Nomor kontrak PLN September di sheet 4 '/PKS/RRI.PLB/10/2026' (tanpa nomor) vs sheet 5 '1158/PKS/RRI.PLB/10/2026'. Nomor kontrak Komdigi kosong di sheet 4 Agustus dan sheet 5 Agustus; sheet 5 September menulis 018/PKS/DIR.LPU/08/2026.",
+      "dampak": "Pencocokan PKS antar laporan tidak dapat mengandalkan nomor kontrak saja; harus pakai nomor referensi + nama klien."
+    },
+    {
+      "id": "K-09",
+      "tingkat": "RENDAH",
+      "temuan": "Sheet 5 tidak memiliki kolom denda. Denda hanya tertanam dalam PIUTANG BULAN INI (selisih terhadap nilai kontrak/pokok) dan kadang dalam setoran sebagai NTPN terpisah (contoh BI Mei 124000). Tarif teramati bervariasi: 2% (April: Kota/Banyuasin/Sumsel/BI/OKU/BSI; BI Mei; PIM Sep), 4% (Mei: Kota 600000/15000000, Banyuasin 200000/5000000, Sumsel 300000/7500000), 6% (Juni: Kota 900000/15000000, Banyuasin 300000/5000000; Sumsel Juni tetap 300000/7500000 = 4%), 24% (Juli: Fisol/Mila/Herman, tunggakan 6 bulan, SPn-6). Tidak ada rumus tertulis di laporan.",
+      "dampak": "Total denda per bulan tidak dapat dibaca langsung; angka denda di file verifikasi-piutang.json adalah hasil identifikasi dari selisih (tercatat di catatan tiap bulan), bukan nilai yang tertulis di laporan."
+    },
+    {
+      "id": "K-10",
+      "tingkat": "RENDAH",
+      "temuan": "Sheet 6 kolom PIUTANG dan KERJASAMA BERJALAN hanya terisi Januari (270000 dan 1350000); Feb-Sep kosong. Angka Januari tidak dapat direkonsiliasi dengan sheet 5 (Jan: total piutang 19368000, sisa 810000). Definisi kolom di PANDUAN ('isi nominal piutang jika masih ada kerja sama yang sudah selesai tetapi client belum melakukan pembayaran') tidak menjelaskan angka 270000/1350000.",
+      "dampak": "Kolom piutang sheet 6 tidak dapat dipakai sebagai pembanding piutang."
+    },
+    {
+      "id": "K-11",
+      "tingkat": "RENDAH",
+      "temuan": "Anomali administratif kecil: (a) sheet 4 Mei Umum: ref Arip tertulis 017/RRI.PLB/PKS.F/05/2026 (kode F di tab Umum); (b) sheet 4 Sep Fungsional: ref PLN 016/RRI.PLB/PKS.F/09/2026 memakai ulang nomor urut 016 yang sudah dipakai April (016/.../04/2026); (c) sheet 4 Juli Fungsional: penomoran dimulai dari 5 (baris 1-4 tidak ada); (d) sheet 5 April: kolom NO sebagian besar kosong (hanya 2,3,4,5,6 terisi); sheet 5 Juli: nomor 11 hilang; sheet 5 Agustus: nomor 7,8,11-17,19,21,23 hilang dan dua baris bernomor 24; (e) sheet 5 Januari: jatuh tempo Aminul/Meily/Dierga tertulis 31 Januari 2026, di tab Feb+ tertulis 31 Januari 2027; (f) sheet 4 tab Umum Mar/Agu/Sep: baris '-' mengandung nilai nyasar '15 Juni 2026' di kolom H+1 (Agu, Sep); (g) sheet 4 Juni Fungsional: kolom tambahan tanpa header (AC-AF) berisi layanan dan angka yang tidak masuk total; (h) sheet 6 Triwulan 3: header 'DUNGAN LAYANAN' (typo); REALISASI/JASA: header 'TOTAL PNBP TRIWULAN I TAHUN 2026' (salah label); REALISASI/TRIWULAN: target 179200000 dengan capaian tertulis 41,63% (=74605000/179200000, basis Fungsional saja).",
+      "dampak": "Tidak mengubah angka total; perlu dikonfirmasi ke penyusun laporan bila migrasi memakai nomor referensi/kontrak sebagai kunci."
+    },
+    {
+      "id": "K-12",
+      "tingkat": "INFO",
+      "temuan": "Sheet 5 'PIUTANG BULAN INI' adalah posisi piutang per kontrak pada tanggal laporan, bukan arus piutang baru bulan itu: kontrak yang sama muncul tiap bulan dengan nilai berubah mengikuti progres/denda (contoh Diskominfo Kota: Feb 3000000, Mar 15000000, Apr 15300000, Mei 15600000, Jun 15900000, Jul 900000). Menjumlahkan total piutang antar bulan akan menghitung ganda.",
+      "dampak": "Untuk rekonsiliasi migrasi, bandingkan posisi per kontrak per bulan, bukan jumlah total antar bulan. Piutang parsial tanpa penjelasan: Taspen Jan 540000 dari 1550000; 5 PKS Fungsional baru Feb parsial (20%-33% dari nilai kontrak) lalu penuh di Maret; Bea Cukai Mar 2835000 (70%); Al-Ittifaqiah Mei 810000 (20%); Komdigi Agu 2010000 lalu Sep 4110000 dari 7975000."
+    }
+  ],
+  "halTidakBisaDipastikan": [
+    "Rumus/formula denda yang resmi (tarif teramati 2%, 4%, 6%, 24% tanpa rumus tertulis; PRD Q-03 menanyakan hal yang sama dan belum terjawab).",
+    "Apakah baris Total sheet 4 Agustus Fungsional (7975000) atau jumlah kolom TOTAL baris data (4275000) yang benar sebagai nilai bulan itu — sheet 6 memakai 7975000 dengan rincian layanan yang tidak ada di sheet 4.",
+    "Apakah duplikasi Al-Ittifaqiah/Alfaria di sheet 5 Juni adalah dua pencatatan atas kontrak yang sama (salah satu harus dihapus) atau dua termin pembayaran yang memang harus dijumlah (tidak ada penjelasan di laporan).",
+    "Arti kolom tambahan tanpa header di sheet 4 Juni Fungsional (AC-AF) dan arti selisih 460000 (Mei) serta angsuran VGreen tanpa piutang (Agustus) di sheet 5.",
+    "Apakah angka 0 pada sheet 6 Juli/September berarti 'belum dilaporkan' (batas pengisian tanggal 10 bulan berikutnya menurut PANDUAN) atau 'tidak ada kerjasama' — sheet 4 membuktikan ada kerjasama pada kedua bulan itu.",
+    "Isi tab TRIWULAN 4 sheet 6 (tidak dibaca; Triwulan 4 = Okt-Des yang kosong di semua sumber) dan baris PALEMBANG pada tab QQ (tidak ditemukan dalam 16 baris nilai yang terambil; tab QQ adalah rekap per Korwil).",
+    "Target PNBP 179200000 di REALISASI/TRIWULAN (target tahunan? fungsional saja?) dan basis persentase capaian 41,63%."
+  ],
+  "validasiSilang": [
+    "Sheet 4: semua total tab bulanan cocok dengan Rekapitulasi (F 76785000 + U 140201875 = 216986875).",
+    "Sheet 5: semua total baris cocok dengan hitung ulang dari baris data; identitas piutang-setoran=sisa terpenuhi kecuali Mei (selisih 460000) dan Agustus (selisih -17146250).",
+    "Sheet 6: Triwulan 1 (116299000) dan Triwulan 2 (29936000) sama dengan sheet 4; Triwulan 3 (7975000) dan REALISASI/JASA (154210000) selisih -62776875 vs sheet 4 (Juli+September kosong).",
+    "Sheet 6 Jan-Jun: Fungsional/Umum/Total sama dengan sheet 4 setiap bulan; hanya QTY berbeda definisi (K-03)."
+  ]
+}
