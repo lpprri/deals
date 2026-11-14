@@ -6,18 +6,17 @@ import type { Sewa as SewaItem } from '../lib/types';
 import type { ModulProps } from '../lib/store';
 import { formatRupiah, formatTanggal, hariIniIso, selisihHari } from '../lib/format';
 import {
+  Baris,
   JudulBagian,
   Kartu,
   PesanKosong,
   StatusBadge,
   TabBar,
+  Tabel,
+  Td,
+  Th,
   TombolSekunder,
 } from '../components/ui';
-
-const th = 'px-3 py-2 text-left text-xs font-semibold text-[#0d2569]/70';
-const td = 'px-3 py-2 align-top text-sm text-[#0d2569]';
-const barisKlik =
-  'cursor-pointer border-t border-[#2573e2]/10 hover:bg-[#2573e2]/5';
 
 type FilterId =
   | 'semua'
@@ -104,42 +103,42 @@ export default function Sewa(props: ModulProps) {
       {sewaTersaring.length === 0 ? (
         <PesanKosong teks="Belum ada sewa yang cocok dengan filter ini." />
       ) : (
-        <Kartu className="overflow-x-auto p-0">
-          <table className="w-full border-collapse">
+        <Kartu>
+          <Tabel>
             <thead>
-              <tr className="bg-[#2573e2]/5">
-                <th className={th}>Aset</th>
-                <th className={th}>Lokasi</th>
-                <th className={th}>Penyewa</th>
-                <th className={th}>Nomor Perjanjian</th>
-                <th className={th}>Periode</th>
-                <th className={th}>Nilai Sewa</th>
-                <th className={th}>Status</th>
+              <tr>
+                <Th>Aset</Th>
+                <Th>Lokasi</Th>
+                <Th>Penyewa</Th>
+                <Th>Nomor Perjanjian</Th>
+                <Th>Periode</Th>
+                <Th kanan>Nilai Sewa</Th>
+                <Th>Status</Th>
               </tr>
             </thead>
             <tbody>
               {sewaTersaring.map((s) => (
-                <tr
+                <Baris
                   key={s.id}
-                  className={barisKlik}
                   onClick={() => setSewaIdTerpilih(s.id)}
+                  className="border-t border-[#2573e2]/10"
                 >
-                  <td className={`${td} font-semibold`}>{s.aset}</td>
-                  <td className={td}>{s.lokasi}</td>
-                  <td className={td}>{s.penyewaNama}</td>
-                  <td className={td}>{s.nomorPerjanjian}</td>
-                  <td className={td}>
+                  <Td tebal>{s.aset}</Td>
+                  <Td>{s.lokasi}</Td>
+                  <Td>{s.penyewaNama}</Td>
+                  <Td>{s.nomorPerjanjian}</Td>
+                  <Td>
                     {formatTanggal(s.tanggalMulai)} –{' '}
                     {formatTanggal(s.tanggalSelesai)}
-                  </td>
-                  <td className={td}>{formatRupiah(s.nilaiSewa)}</td>
-                  <td className={td}>
+                  </Td>
+                  <Td kanan>{formatRupiah(s.nilaiSewa)}</Td>
+                  <Td>
                     <StatusBadge status={s.status} />
-                  </td>
-                </tr>
+                  </Td>
+                </Baris>
               ))}
             </tbody>
-          </table>
+          </Tabel>
         </Kartu>
       )}
     </div>
@@ -241,25 +240,25 @@ function DetailSewa({
             Belum ada riwayat harga.
           </p>
         ) : (
-          <div className="mt-3 overflow-x-auto">
-            <table className="w-full border-collapse">
+          <div className="mt-3">
+            <Tabel>
               <thead>
-                <tr className="bg-[#2573e2]/5">
-                  <th className={th}>Tanggal Berlaku</th>
-                  <th className={th}>Nilai</th>
+                <tr>
+                  <Th>Tanggal Berlaku</Th>
+                  <Th kanan>Nilai</Th>
                 </tr>
               </thead>
               <tbody>
                 {[...sewa.riwayatHarga]
                   .sort((a, b) => (a.tanggalBerlaku < b.tanggalBerlaku ? -1 : 1))
                   .map((r, i) => (
-                    <tr key={i} className="border-t border-[#2573e2]/10">
-                      <td className={td}>{formatTanggal(r.tanggalBerlaku)}</td>
-                      <td className={td}>{formatRupiah(r.nilai)}</td>
-                    </tr>
+                    <Baris key={i}>
+                      <Td>{formatTanggal(r.tanggalBerlaku)}</Td>
+                      <Td kanan>{formatRupiah(r.nilai)}</Td>
+                    </Baris>
                   ))}
               </tbody>
-            </table>
+            </Tabel>
           </div>
         )}
       </Kartu>
@@ -271,29 +270,29 @@ function DetailSewa({
             Tidak ada temuan lapangan.
           </p>
         ) : (
-          <div className="mt-3 overflow-x-auto">
-            <table className="w-full border-collapse">
+          <div className="mt-3">
+            <Tabel>
               <thead>
-                <tr className="bg-[#2573e2]/5">
-                  <th className={th}>Tanggal</th>
-                  <th className={th}>Uraian</th>
-                  <th className={th}>Tindak Lanjut</th>
-                  <th className={th}>Status</th>
+                <tr>
+                  <Th>Tanggal</Th>
+                  <Th>Uraian</Th>
+                  <Th>Tindak Lanjut</Th>
+                  <Th>Status</Th>
                 </tr>
               </thead>
               <tbody>
                 {sewa.temuan.map((t, i) => (
-                  <tr key={i} className="border-t border-[#2573e2]/10">
-                    <td className={td}>{formatTanggal(t.tanggal)}</td>
-                    <td className={td}>{t.uraian}</td>
-                    <td className={td}>{t.tindakLanjut}</td>
-                    <td className={td}>
+                  <Baris key={i}>
+                    <Td>{formatTanggal(t.tanggal)}</Td>
+                    <Td>{t.uraian}</Td>
+                    <Td>{t.tindakLanjut}</Td>
+                    <Td>
                       <StatusBadge status={t.status} />
-                    </td>
-                  </tr>
+                    </Td>
+                  </Baris>
                 ))}
               </tbody>
-            </table>
+            </Tabel>
           </div>
         )}
       </Kartu>

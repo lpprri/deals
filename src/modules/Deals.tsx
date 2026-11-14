@@ -16,6 +16,8 @@ import { sisaTagihan, statusTagihan } from '../lib/derive';
 import { formatRupiah, formatTanggal, normalisasiNama } from '../lib/format';
 import { bolehAksi } from '../lib/permissions';
 import {
+  Baris,
+  ItemDaftar,
   JudulBagian,
   Kartu,
   Label,
@@ -23,15 +25,13 @@ import {
   PesanKosong,
   StatusBadge,
   TabBar,
+  Tabel,
+  Td,
+  Th,
   TombolSekunder,
   TombolUtama,
   inputClass,
 } from '../components/ui';
-
-const th = 'px-3 py-2 text-left text-xs font-semibold text-[#0d2569]/70';
-const td = 'px-3 py-2 align-top text-sm text-[#0d2569]';
-const barisKlik =
-  'cursor-pointer border-t border-[#2573e2]/10 hover:bg-[#2573e2]/5';
 
 function kategoriDariNama(nama: string) {
   return MASTER_KATEGORI_LAYANAN.find((k) => k.nama === nama);
@@ -218,38 +218,34 @@ function TabKlien({
       {klienTersaring.length === 0 ? (
         <PesanKosong teks="Belum ada klien yang cocok." />
       ) : (
-        <Kartu className="overflow-x-auto p-0">
-          <table className="w-full border-collapse">
+        <Kartu>
+          <Tabel>
             <thead>
-              <tr className="bg-[#2573e2]/5">
-                <th className={th}>Nama</th>
-                <th className={th}>Jenis</th>
-                <th className={th}>Kontak</th>
-                <th className={th}>Telepon</th>
-                <th className={th}>Status</th>
+              <tr>
+                <Th>Nama</Th>
+                <Th>Jenis</Th>
+                <Th>Kontak</Th>
+                <Th>Telepon</Th>
+                <Th>Status</Th>
               </tr>
             </thead>
             <tbody>
               {klienTersaring.map((k) => (
-                <tr
-                  key={k.id}
-                  className={barisKlik}
-                  onClick={() => onPilihKlien(k.id)}
-                >
-                  <td className={`${td} font-semibold`}>{k.nama}</td>
-                  <td className={td}>{k.jenis}</td>
-                  <td className={td}>
+                <Baris key={k.id} onClick={() => onPilihKlien(k.id)}>
+                  <Td tebal>{k.nama}</Td>
+                  <Td>{k.jenis}</Td>
+                  <Td>
                     {k.kontakNama}
                     {k.kontakJabatan ? ` — ${k.kontakJabatan}` : ''}
-                  </td>
-                  <td className={td}>{k.telepon}</td>
-                  <td className={td}>
+                  </Td>
+                  <Td>{k.telepon}</Td>
+                  <Td>
                     <StatusBadge status={k.status} />
-                  </td>
-                </tr>
+                  </Td>
+                </Baris>
               ))}
             </tbody>
-          </table>
+          </Tabel>
         </Kartu>
       )}
     </div>
@@ -350,11 +346,11 @@ function DetailKlien({
             Klien ini belum memiliki kontrak.
           </p>
         ) : (
-          <ul className="mt-3 space-y-2 text-sm">
+          <ul className="mt-3 text-sm">
             {kontrakKlien.map((k) => (
-              <li
+              <ItemDaftar
                 key={k.id}
-                className="flex flex-wrap items-center justify-between gap-2 rounded-md border border-[#2573e2]/20 px-3 py-2"
+                className="flex flex-wrap items-center justify-between gap-2"
               >
                 <span className="font-semibold text-[#0d2569]">{k.nomorPks}</span>
                 <span className="text-[#0d2569]/70">
@@ -362,7 +358,7 @@ function DetailKlien({
                 </span>
                 <span className="text-[#0d2569]">{formatRupiah(k.nilaiKontrak)}</span>
                 <StatusBadge status={k.status} />
-              </li>
+              </ItemDaftar>
             ))}
           </ul>
         )}
@@ -375,16 +371,16 @@ function DetailKlien({
             Belum ada dokumen terkait klien ini.
           </p>
         ) : (
-          <ul className="mt-3 space-y-2 text-sm">
+          <ul className="mt-3 text-sm">
             {dokumenTerkait.map((d) => (
-              <li
+              <ItemDaftar
                 key={d.id}
-                className="flex flex-wrap items-center justify-between gap-2 rounded-md border border-[#2573e2]/20 px-3 py-2"
+                className="flex flex-wrap items-center justify-between gap-2"
               >
                 <span className="text-[#0d2569]">{d.jenisDokumen}</span>
                 <span className="text-[#0d2569]/70">{d.kontrakId}</span>
                 <StatusBadge status={d.status} />
-              </li>
+              </ItemDaftar>
             ))}
           </ul>
         )}
@@ -663,41 +659,37 @@ function TabKontrak({
       {kontrakTersaring.length === 0 ? (
         <PesanKosong teks="Belum ada kontrak yang cocok." />
       ) : (
-        <Kartu className="overflow-x-auto p-0">
-          <table className="w-full border-collapse">
+        <Kartu>
+          <Tabel>
             <thead>
-              <tr className="bg-[#2573e2]/5">
-                <th className={th}>Nomor PKS</th>
-                <th className={th}>Klien</th>
-                <th className={th}>Jenis PNBP</th>
-                <th className={th}>Kategori Layanan</th>
-                <th className={th}>Kode Akun</th>
-                <th className={th}>Nilai</th>
-                <th className={th}>Tanggal Selesai</th>
-                <th className={th}>Status</th>
+              <tr>
+                <Th>Nomor PKS</Th>
+                <Th>Klien</Th>
+                <Th>Jenis PNBP</Th>
+                <Th>Kategori Layanan</Th>
+                <Th>Kode Akun</Th>
+                <Th kanan>Nilai</Th>
+                <Th>Tanggal Selesai</Th>
+                <Th>Status</Th>
               </tr>
             </thead>
             <tbody>
               {kontrakTersaring.map((k) => (
-                <tr
-                  key={k.id}
-                  className={barisKlik}
-                  onClick={() => onPilihKontrak(k.id)}
-                >
-                  <td className={`${td} font-semibold`}>{k.nomorPks}</td>
-                  <td className={td}>{namaKlien(data, k.klienId)}</td>
-                  <td className={td}>{k.jenisPnBP}</td>
-                  <td className={td}>{k.kategoriLayanan}</td>
-                  <td className={td}>{kodeAkunKontrak(k)}</td>
-                  <td className={td}>{formatRupiah(k.nilaiKontrak)}</td>
-                  <td className={td}>{formatTanggal(k.tanggalSelesai)}</td>
-                  <td className={td}>
+                <Baris key={k.id} onClick={() => onPilihKontrak(k.id)}>
+                  <Td tebal>{k.nomorPks}</Td>
+                  <Td>{namaKlien(data, k.klienId)}</Td>
+                  <Td>{k.jenisPnBP}</Td>
+                  <Td>{k.kategoriLayanan}</Td>
+                  <Td>{kodeAkunKontrak(k)}</Td>
+                  <Td kanan>{formatRupiah(k.nilaiKontrak)}</Td>
+                  <Td>{formatTanggal(k.tanggalSelesai)}</Td>
+                  <Td>
                     <StatusBadge status={k.status} />
-                  </td>
-                </tr>
+                  </Td>
+                </Baris>
               ))}
             </tbody>
-          </table>
+          </Tabel>
         </Kartu>
       )}
     </div>
@@ -799,37 +791,37 @@ function DetailKontrak({
 
       <Kartu>
         <JudulBagian>Layanan (snapshot kontrak)</JudulBagian>
-        <div className="mt-3 overflow-x-auto">
-          <table className="w-full border-collapse">
+        <div className="mt-3">
+          <Tabel>
             <thead>
-              <tr className="bg-[#2573e2]/5">
-                <th className={th}>Nama</th>
-                <th className={th}>Kode Akun</th>
-                <th className={th}>Satuan</th>
-                <th className={th}>Tarif</th>
-                <th className={th}>Jumlah</th>
-                <th className={th}>Subtotal</th>
+              <tr>
+                <Th>Nama</Th>
+                <Th>Kode Akun</Th>
+                <Th>Satuan</Th>
+                <Th kanan>Tarif</Th>
+                <Th kanan>Jumlah</Th>
+                <Th kanan>Subtotal</Th>
               </tr>
             </thead>
             <tbody>
               {kontrak.layanan.map((l) => (
-                <tr key={l.id} className="border-t border-[#2573e2]/10">
-                  <td className={td}>{l.namaLayanan}</td>
-                  <td className={td}>{l.kodeAkun}</td>
-                  <td className={td}>{l.satuan}</td>
-                  <td className={td}>{formatRupiah(l.tarif)}</td>
-                  <td className={td}>{l.jumlah}</td>
-                  <td className={td}>{formatRupiah(l.subtotal)}</td>
-                </tr>
+                <Baris key={l.id}>
+                  <Td>{l.namaLayanan}</Td>
+                  <Td>{l.kodeAkun}</Td>
+                  <Td>{l.satuan}</Td>
+                  <Td kanan>{formatRupiah(l.tarif)}</Td>
+                  <Td kanan>{l.jumlah}</Td>
+                  <Td kanan>{formatRupiah(l.subtotal)}</Td>
+                </Baris>
               ))}
-              <tr className="border-t border-[#2573e2]/20 font-semibold">
-                <td className={td} colSpan={5}>
+              <Baris className="bg-[#2573e2]/5 font-semibold">
+                <Td colSpan={5} tebal>
                   Total (= nilai kontrak)
-                </td>
-                <td className={td}>{formatRupiah(kontrak.nilaiKontrak)}</td>
-              </tr>
+                </Td>
+                <Td kanan tebal>{formatRupiah(kontrak.nilaiKontrak)}</Td>
+              </Baris>
             </tbody>
-          </table>
+          </Tabel>
         </div>
       </Kartu>
 
@@ -840,37 +832,37 @@ function DetailKontrak({
             Belum ada tagihan untuk kontrak ini.
           </p>
         ) : (
-          <div className="mt-3 overflow-x-auto">
-            <table className="w-full border-collapse">
+          <div className="mt-3">
+            <Tabel>
               <thead>
-                <tr className="bg-[#2573e2]/5">
-                  <th className={th}>Nomor</th>
-                  <th className={th}>Uraian</th>
-                  <th className={th}>Nilai</th>
-                  <th className={th}>Jatuh Tempo</th>
-                  <th className={th}>Status</th>
-                  <th className={th}>Sisa</th>
+                <tr>
+                  <Th>Nomor</Th>
+                  <Th>Uraian</Th>
+                  <Th kanan>Nilai</Th>
+                  <Th>Jatuh Tempo</Th>
+                  <Th>Status</Th>
+                  <Th kanan>Sisa</Th>
                 </tr>
               </thead>
               <tbody>
                 {tagihanKontrak.map((t) => (
-                  <tr key={t.id} className="border-t border-[#2573e2]/10">
-                    <td className={`${td} font-semibold`}>{t.nomor}</td>
-                    <td className={td}>{t.uraian}</td>
-                    <td className={td}>{formatRupiah(t.nilai)}</td>
-                    <td className={td}>{formatTanggal(t.tanggalJatuhTempo)}</td>
-                    <td className={td}>
+                  <Baris key={t.id}>
+                    <Td tebal>{t.nomor}</Td>
+                    <Td>{t.uraian}</Td>
+                    <Td kanan>{formatRupiah(t.nilai)}</Td>
+                    <Td>{formatTanggal(t.tanggalJatuhTempo)}</Td>
+                    <Td>
                       <StatusBadge
                         status={statusTagihan(t, data.pembayaran)}
                       />
-                    </td>
-                    <td className={td}>
+                    </Td>
+                    <Td kanan>
                       {formatRupiah(sisaTagihan(t, data.pembayaran))}
-                    </td>
-                  </tr>
+                    </Td>
+                  </Baris>
                 ))}
               </tbody>
-            </table>
+            </Tabel>
           </div>
         )}
       </Kartu>
@@ -1260,11 +1252,11 @@ function TabDokumen({
             yang berlaku)
           </p>
         </div>
-        <ul className="mt-4 space-y-2">
+        <ul className="mt-4">
           {statusPerJenis.map(({ jenis, baris, status }) => (
-            <li
+            <ItemDaftar
               key={jenis}
-              className="flex flex-wrap items-center justify-between gap-2 rounded-md border border-[#2573e2]/20 px-3 py-2"
+              className="flex flex-wrap items-center justify-between gap-2"
             >
               <div>
                 <p className="text-sm font-semibold text-[#0d2569]">{jenis}</p>
@@ -1301,7 +1293,7 @@ function TabDokumen({
                   </div>
                 )}
               </div>
-            </li>
+            </ItemDaftar>
           ))}
         </ul>
       </Kartu>

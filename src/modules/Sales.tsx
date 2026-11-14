@@ -29,6 +29,8 @@ import { hitungAnalitikSales } from '../lib/derive';
 import { formatRupiah, formatTanggal, hariIniIso } from '../lib/format';
 import { bolehAksi } from '../lib/permissions';
 import {
+  Baris,
+  ItemDaftar,
   JudulBagian,
   Kartu,
   Label,
@@ -37,15 +39,13 @@ import {
   StatCard,
   StatusBadge,
   TabBar,
+  Tabel,
+  Td,
+  Th,
   TombolSekunder,
   TombolUtama,
   inputClass,
 } from '../components/ui';
-
-const th = 'px-3 py-2 text-left text-xs font-semibold text-[#0d2569]/70';
-const td = 'px-3 py-2 align-top text-sm text-[#0d2569]';
-const barisKlik =
-  'cursor-pointer border-t border-[#2573e2]/10 hover:bg-[#2573e2]/5';
 
 const TABS = [
   { id: 'prospek', label: 'Prospek' },
@@ -164,47 +164,43 @@ function TabProspek({ data, user, actions, cari }: ModulProps) {
       {prospekTersaring.length === 0 ? (
         <PesanKosong teks="Belum ada prospek yang cocok." />
       ) : (
-        <Kartu className="overflow-x-auto p-0">
-          <table className="w-full border-collapse">
+        <Kartu>
+          <Tabel>
             <thead>
-              <tr className="bg-[#2573e2]/5">
-                <th className={th}>ID</th>
-                <th className={th}>Nama Instansi</th>
-                <th className={th}>Kontak</th>
-                <th className={th}>Sumber</th>
-                <th className={th}>Layanan Diminati</th>
-                <th className={th}>Tahap</th>
-                <th className={th}>Penanggung Jawab</th>
-                <th className={th}>Tgl Tindak Lanjut</th>
-                <th className={th}>Nilai Perkiraan</th>
+              <tr>
+                <Th>ID</Th>
+                <Th>Nama Instansi</Th>
+                <Th>Kontak</Th>
+                <Th>Sumber</Th>
+                <Th>Layanan Diminati</Th>
+                <Th>Tahap</Th>
+                <Th>Penanggung Jawab</Th>
+                <Th>Tgl Tindak Lanjut</Th>
+                <Th kanan>Nilai Perkiraan</Th>
               </tr>
             </thead>
             <tbody>
               {prospekTersaring.map((p) => (
-                <tr
-                  key={p.id}
-                  className={barisKlik}
-                  onClick={() => setProspekIdTerpilih(p.id)}
-                >
-                  <td className={`${td} font-semibold`}>{p.id}</td>
-                  <td className={td}>{p.namaInstansi}</td>
-                  <td className={td}>
+                <Baris key={p.id} onClick={() => setProspekIdTerpilih(p.id)}>
+                  <Td tebal>{p.id}</Td>
+                  <Td>{p.namaInstansi}</Td>
+                  <Td>
                     {p.kontakNama}
                     <br />
                     <span className="text-xs text-[#0d2569]/60">{p.telepon}</span>
-                  </td>
-                  <td className={td}>{p.sumber}</td>
-                  <td className={td}>{p.layananDiminati}</td>
-                  <td className={td}>
+                  </Td>
+                  <Td>{p.sumber}</Td>
+                  <Td>{p.layananDiminati}</Td>
+                  <Td>
                     <StatusBadge status={p.tahap} />
-                  </td>
-                  <td className={td}>{p.penanggungJawab}</td>
-                  <td className={td}>{formatTanggal(p.tanggalTindakLanjut)}</td>
-                  <td className={td}>{formatRupiah(p.nilaiPerkiraan)}</td>
-                </tr>
+                  </Td>
+                  <Td>{p.penanggungJawab}</Td>
+                  <Td>{formatTanggal(p.tanggalTindakLanjut)}</Td>
+                  <Td kanan>{formatRupiah(p.nilaiPerkiraan)}</Td>
+                </Baris>
               ))}
             </tbody>
-          </table>
+          </Tabel>
         </Kartu>
       )}
     </div>
@@ -379,17 +375,14 @@ function DetailProspek({
             Belum ada tindak lanjut yang dicatat.
           </p>
         ) : (
-          <ul className="mt-3 space-y-2">
+          <ul className="mt-3 text-sm">
             {prospect.riwayat.map((r, i) => (
-              <li
-                key={`${r.tanggal}-${i}`}
-                className="border-t border-[#2573e2]/10 pt-2 text-sm first:border-t-0 first:pt-0"
-              >
+              <ItemDaftar key={`${r.tanggal}-${i}`}>
                 <p className="font-semibold text-[#0d2569]">
                   {formatTanggal(r.tanggal)} — {r.oleh}
                 </p>
                 <p className="text-[#0d2569]/80">{r.catatan}</p>
-              </li>
+              </ItemDaftar>
             ))}
           </ul>
         )}
@@ -918,37 +911,33 @@ function TabQuotation({ data, user, actions, cari }: ModulProps) {
       {quotationTersaring.length === 0 ? (
         <PesanKosong teks="Belum ada quotation yang cocok." />
       ) : (
-        <Kartu className="overflow-x-auto p-0">
-          <table className="w-full border-collapse">
+        <Kartu>
+          <Tabel>
             <thead>
-              <tr className="bg-[#2573e2]/5">
-                <th className={th}>ID</th>
-                <th className={th}>Prospek</th>
-                <th className={th}>Tanggal Buat</th>
-                <th className={th}>Berlaku Sampai</th>
-                <th className={th}>Status</th>
-                <th className={th}>Nilai</th>
+              <tr>
+                <Th>ID</Th>
+                <Th>Prospek</Th>
+                <Th>Tanggal Buat</Th>
+                <Th>Berlaku Sampai</Th>
+                <Th>Status</Th>
+                <Th kanan>Nilai</Th>
               </tr>
             </thead>
             <tbody>
               {quotationTersaring.map((q) => (
-                <tr
-                  key={q.id}
-                  className={barisKlik}
-                  onClick={() => setQuotationIdTerpilih(q.id)}
-                >
-                  <td className={`${td} font-semibold`}>{q.id}</td>
-                  <td className={td}>{namaProspek(data, q.prospectId)}</td>
-                  <td className={td}>{formatTanggal(q.tanggalBuat)}</td>
-                  <td className={td}>{formatTanggal(q.berlakuSampai)}</td>
-                  <td className={td}>
+                <Baris key={q.id} onClick={() => setQuotationIdTerpilih(q.id)}>
+                  <Td tebal>{q.id}</Td>
+                  <Td>{namaProspek(data, q.prospectId)}</Td>
+                  <Td>{formatTanggal(q.tanggalBuat)}</Td>
+                  <Td>{formatTanggal(q.berlakuSampai)}</Td>
+                  <Td>
                     <StatusBadge status={q.status} />
-                  </td>
-                  <td className={td}>{formatRupiah(q.nilai)}</td>
-                </tr>
+                  </Td>
+                  <Td kanan>{formatRupiah(q.nilai)}</Td>
+                </Baris>
               ))}
             </tbody>
-          </table>
+          </Tabel>
         </Kartu>
       )}
     </div>
@@ -1043,35 +1032,35 @@ function DetailQuotation({
 
       <Kartu>
         <JudulBagian>Layanan (Snapshot Tarif)</JudulBagian>
-        <div className="mt-3 overflow-x-auto">
-          <table className="w-full border-collapse">
+        <div className="mt-3">
+          <Tabel>
             <thead>
-              <tr className="bg-[#2573e2]/5">
-                <th className={th}>Kategori</th>
-                <th className={th}>Kode Akun</th>
-                <th className={th}>Jenis PNBP</th>
-                <th className={th}>Satuan</th>
-                <th className={th}>Tarif</th>
-                <th className={th}>Jumlah</th>
-                <th className={th}>Subtotal</th>
-                <th className={th}>Programa</th>
+              <tr>
+                <Th>Kategori</Th>
+                <Th>Kode Akun</Th>
+                <Th>Jenis PNBP</Th>
+                <Th>Satuan</Th>
+                <Th kanan>Tarif</Th>
+                <Th kanan>Jumlah</Th>
+                <Th kanan>Subtotal</Th>
+                <Th>Programa</Th>
               </tr>
             </thead>
             <tbody>
               {quotation.layanan.map((l) => (
-                <tr key={l.id} className="border-t border-[#2573e2]/10">
-                  <td className={td}>{l.kategori}</td>
-                  <td className={td}>{l.kodeAkun}</td>
-                  <td className={td}>{l.jenisPnBP}</td>
-                  <td className={td}>{l.satuan}</td>
-                  <td className={td}>{formatRupiah(l.tarif)}</td>
-                  <td className={td}>{l.jumlah}</td>
-                  <td className={td}>{formatRupiah(l.subtotal)}</td>
-                  <td className={td}>{l.programa ?? '-'}</td>
-                </tr>
+                <Baris key={l.id}>
+                  <Td>{l.kategori}</Td>
+                  <Td>{l.kodeAkun}</Td>
+                  <Td>{l.jenisPnBP}</Td>
+                  <Td>{l.satuan}</Td>
+                  <Td kanan>{formatRupiah(l.tarif)}</Td>
+                  <Td kanan>{l.jumlah}</Td>
+                  <Td kanan>{formatRupiah(l.subtotal)}</Td>
+                  <Td>{l.programa ?? '-'}</Td>
+                </Baris>
               ))}
             </tbody>
-          </table>
+          </Tabel>
         </div>
         <p className="mt-3 text-sm text-[#0d2569]/70">
           Tarif di atas adalah snapshot saat quotation dibuat dan tidak berubah
@@ -1466,17 +1455,17 @@ function TabOrder({ data, user, actions, cari }: ModulProps) {
       {orderTersaring.length === 0 ? (
         <PesanKosong teks="Belum ada order yang cocok." />
       ) : (
-        <Kartu className="overflow-x-auto p-0">
-          <table className="w-full border-collapse">
+        <Kartu>
+          <Tabel>
             <thead>
-              <tr className="bg-[#2573e2]/5">
-                <th className={th}>ID</th>
-                <th className={th}>Quotation</th>
-                <th className={th}>Prospek</th>
-                <th className={th}>Tanggal Order</th>
-                <th className={th}>Status</th>
-                <th className={th}>Nilai</th>
-                <th className={th}>Kontrak</th>
+              <tr>
+                <Th>ID</Th>
+                <Th>Quotation</Th>
+                <Th>Prospek</Th>
+                <Th>Tanggal Order</Th>
+                <Th>Status</Th>
+                <Th kanan>Nilai</Th>
+                <Th>Kontrak</Th>
               </tr>
             </thead>
             <tbody>
@@ -1485,25 +1474,21 @@ function TabOrder({ data, user, actions, cari }: ModulProps) {
                   ? data.kontrak.find((k) => k.id === o.kontrakId)
                   : null;
                 return (
-                  <tr
-                    key={o.id}
-                    className={barisKlik}
-                    onClick={() => setOrderIdTerpilih(o.id)}
-                  >
-                    <td className={`${td} font-semibold`}>{o.id}</td>
-                    <td className={td}>{o.quotationId}</td>
-                    <td className={td}>{namaProspek(data, o.prospectId)}</td>
-                    <td className={td}>{formatTanggal(o.tanggalOrder)}</td>
-                    <td className={td}>
+                  <Baris key={o.id} onClick={() => setOrderIdTerpilih(o.id)}>
+                    <Td tebal>{o.id}</Td>
+                    <Td>{o.quotationId}</Td>
+                    <Td>{namaProspek(data, o.prospectId)}</Td>
+                    <Td>{formatTanggal(o.tanggalOrder)}</Td>
+                    <Td>
                       <StatusBadge status={o.status} />
-                    </td>
-                    <td className={td}>{formatRupiah(o.nilai)}</td>
-                    <td className={td}>{kontrak ? kontrak.nomorPks : '-'}</td>
-                  </tr>
+                    </Td>
+                    <Td kanan>{formatRupiah(o.nilai)}</Td>
+                    <Td>{kontrak ? kontrak.nomorPks : '-'}</Td>
+                  </Baris>
                 );
               })}
             </tbody>
-          </table>
+          </Tabel>
         </Kartu>
       )}
     </div>
@@ -1815,16 +1800,16 @@ function TabMeeting({ data, user, actions, cari }: ModulProps) {
       {meetingTersaring.length === 0 ? (
         <PesanKosong teks="Belum ada meeting yang cocok." />
       ) : (
-        <Kartu className="overflow-x-auto p-0">
-          <table className="w-full border-collapse">
+        <Kartu>
+          <Tabel>
             <thead>
-              <tr className="bg-[#2573e2]/5">
-                <th className={th}>Tanggal</th>
-                <th className={th}>Jam</th>
-                <th className={th}>Prospek / Klien</th>
-                <th className={th}>Peserta</th>
-                <th className={th}>Agenda</th>
-                <th className={th}>Hasil</th>
+              <tr>
+                <Th>Tanggal</Th>
+                <Th>Jam</Th>
+                <Th>Prospek / Klien</Th>
+                <Th>Peserta</Th>
+                <Th>Agenda</Th>
+                <Th>Hasil</Th>
               </tr>
             </thead>
             <tbody>
@@ -1839,18 +1824,18 @@ function TabMeeting({ data, user, actions, cari }: ModulProps) {
                   .filter(Boolean)
                   .join(' — ');
                 return (
-                  <tr key={m.id} className="border-t border-[#2573e2]/10">
-                    <td className={td}>{formatTanggal(m.tanggal)}</td>
-                    <td className={td}>{m.jam}</td>
-                    <td className={td}>{pihak === '' ? '-' : pihak}</td>
-                    <td className={td}>{m.peserta}</td>
-                    <td className={td}>{m.agenda}</td>
-                    <td className={td}>{m.hasil ?? '-'}</td>
-                  </tr>
+                  <Baris key={m.id}>
+                    <Td>{formatTanggal(m.tanggal)}</Td>
+                    <Td>{m.jam}</Td>
+                    <Td>{pihak === '' ? '-' : pihak}</Td>
+                    <Td>{m.peserta}</Td>
+                    <Td>{m.agenda}</Td>
+                    <Td>{m.hasil ?? '-'}</Td>
+                  </Baris>
                 );
               })}
             </tbody>
-          </table>
+          </Tabel>
         </Kartu>
       )}
     </div>
@@ -2062,32 +2047,30 @@ function TabAnalytics({ data }: { data: ModulProps['data'] }) {
 
       <Kartu>
         <JudulBagian>Prospek per Tahap (Aktif)</JudulBagian>
-        <div className="mt-3 overflow-x-auto">
-          <table className="w-full border-collapse">
+        <div className="mt-3">
+          <Tabel>
             <thead>
-              <tr className="bg-[#2573e2]/5">
-                <th className={th}>Tahap</th>
-                <th className={th}>Jumlah Prospek</th>
-                <th className={th}>Nilai</th>
+              <tr>
+                <Th>Tahap</Th>
+                <Th kanan>Jumlah Prospek</Th>
+                <Th kanan>Nilai</Th>
               </tr>
             </thead>
             <tbody>
               {a.prospectPerTahap.map((r) => (
-                <tr key={r.tahap} className="border-t border-[#2573e2]/10">
-                  <td className={td}>{r.tahap}</td>
-                  <td className={td}>{r.jumlah}</td>
-                  <td className={td}>{formatRupiah(r.nilai)}</td>
-                </tr>
+                <Baris key={r.tahap}>
+                  <Td>{r.tahap}</Td>
+                  <Td kanan>{r.jumlah}</Td>
+                  <Td kanan>{formatRupiah(r.nilai)}</Td>
+                </Baris>
               ))}
-              <tr className="border-t border-[#2573e2]/20 bg-[#2573e2]/5">
-                <td className={`${td} font-bold`}>Total (tahap aktif)</td>
-                <td className={`${td} font-bold`}>{totalProspekAktif}</td>
-                <td className={`${td} font-bold`}>
-                  {formatRupiah(a.nilaiPipeline)}
-                </td>
-              </tr>
+              <Baris className="bg-[#2573e2]/5 font-semibold">
+                <Td tebal>Total (tahap aktif)</Td>
+                <Td kanan tebal>{totalProspekAktif}</Td>
+                <Td kanan tebal>{formatRupiah(a.nilaiPipeline)}</Td>
+              </Baris>
             </tbody>
-          </table>
+          </Tabel>
         </div>
       </Kartu>
 

@@ -19,21 +19,20 @@ import { formatRupiah, formatPeriode, formatAngka, periodeDariTanggal } from '..
 import { jenisPnBPDariKodeAkun, uraianKodeAkun } from '../lib/master';
 import { bolehAksi } from '../lib/permissions';
 import {
+  Baris,
   Kartu,
   JudulBagian,
   StatCard,
   StatusBadge,
+  Tabel,
+  Td,
+  Th,
   TombolUtama,
   TabBar,
   Peringatan,
   Label,
   inputClass,
 } from '../components/ui';
-
-const th =
-  'border-b border-[#2573e2]/20 px-3 py-2 text-left text-xs font-semibold text-[#0d2569]/70';
-const td = 'border-b border-[#2573e2]/10 px-3 py-2 text-sm text-[#0d2569]';
-const tdKanan = `${td} text-right`;
 
 type JenisLaporan = 'bulanan' | 'piutang' | 'kantor-pusat';
 type StatusLaporan = 'Draft' | 'Diverifikasi' | 'Terkunci';
@@ -506,35 +505,33 @@ export default function Reporting(props: ModulProps) {
               <StatCard label="Total Pembayaran" nilai={formatRupiah(totalBulanan.pembayaran)} />
               <StatCard label="Sisa Piutang" nilai={formatRupiah(totalBulanan.sisa)} />
             </div>
-            <div className="mt-3 overflow-x-auto">
-              <table className="w-full border-collapse">
-                <thead>
-                  <tr>
-                    <th className={th}>Kode Akun</th>
-                    <th className={th}>Uraian</th>
-                    <th className={`${th} text-right`}>Tagihan</th>
-                    <th className={`${th} text-right`}>Pembayaran</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {perKodeAkunDariBaris(barisBulanan).map((r) => (
-                    <tr key={r.kodeAkun}>
-                      <td className={td}>{r.kodeAkun}</td>
-                      <td className={td}>{uraianKodeAkun(r.kodeAkun)}</td>
-                      <td className={tdKanan}>{formatRupiah(r.tagihan)}</td>
-                      <td className={tdKanan}>{formatRupiah(r.pembayaran)}</td>
-                    </tr>
-                  ))}
-                  {barisBulanan.length === 0 && (
-                    <tr>
-                      <td className={td} colSpan={4}>
-                        Tidak ada tagihan terbit pada periode ini — semua nilai 0.
-                      </td>
-                    </tr>
-                  )}
-                </tbody>
-              </table>
-            </div>
+            <Tabel>
+              <thead>
+                <tr>
+                  <Th>Kode Akun</Th>
+                  <Th>Uraian</Th>
+                  <Th kanan>Tagihan</Th>
+                  <Th kanan>Pembayaran</Th>
+                </tr>
+              </thead>
+              <tbody>
+                {perKodeAkunDariBaris(barisBulanan).map((r) => (
+                  <Baris key={r.kodeAkun}>
+                    <Td>{r.kodeAkun}</Td>
+                    <Td>{uraianKodeAkun(r.kodeAkun)}</Td>
+                    <Td kanan>{formatRupiah(r.tagihan)}</Td>
+                    <Td kanan>{formatRupiah(r.pembayaran)}</Td>
+                  </Baris>
+                ))}
+                {barisBulanan.length === 0 && (
+                  <Baris>
+                    <Td colSpan={4}>
+                      Tidak ada tagihan terbit pada periode ini — semua nilai 0.
+                    </Td>
+                  </Baris>
+                )}
+              </tbody>
+            </Tabel>
             {!rekapCocok && (
               <div className="mt-3">
                 <Peringatan teks="Selisih terdeteksi: total Rekapitulasi tidak sama dengan Fungsional + Umum. Periksa baris laporan di bawah." />
@@ -554,34 +551,32 @@ export default function Reporting(props: ModulProps) {
               <StatCard label="Total Pembayaran" nilai={formatRupiah(totalPiutang.dibayar)} />
               <StatCard label="Sisa Piutang" nilai={formatRupiah(totalPiutang.sisa)} />
             </div>
-            <div className="mt-3 overflow-x-auto">
-              <table className="w-full border-collapse">
-                <thead>
-                  <tr>
-                    <th className={th}>Kode Akun</th>
-                    <th className={th}>Uraian</th>
-                    <th className={`${th} text-right`}>Tagihan</th>
-                    <th className={`${th} text-right`}>Pembayaran</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {perKodeAkunDariBaris(
-                    barisPiutang.map((b) => ({
-                      kodeAkun: b.kodeAkun,
-                      nilaiTagihan: b.nilai,
-                      pembayaran: b.dibayar,
-                    })),
-                  ).map((r) => (
-                    <tr key={r.kodeAkun}>
-                      <td className={td}>{r.kodeAkun}</td>
-                      <td className={td}>{uraianKodeAkun(r.kodeAkun)}</td>
-                      <td className={tdKanan}>{formatRupiah(r.tagihan)}</td>
-                      <td className={tdKanan}>{formatRupiah(r.pembayaran)}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+            <Tabel>
+              <thead>
+                <tr>
+                  <Th>Kode Akun</Th>
+                  <Th>Uraian</Th>
+                  <Th kanan>Tagihan</Th>
+                  <Th kanan>Pembayaran</Th>
+                </tr>
+              </thead>
+              <tbody>
+                {perKodeAkunDariBaris(
+                  barisPiutang.map((b) => ({
+                    kodeAkun: b.kodeAkun,
+                    nilaiTagihan: b.nilai,
+                    pembayaran: b.dibayar,
+                  })),
+                ).map((r) => (
+                  <Baris key={r.kodeAkun}>
+                    <Td>{r.kodeAkun}</Td>
+                    <Td>{uraianKodeAkun(r.kodeAkun)}</Td>
+                    <Td kanan>{formatRupiah(r.tagihan)}</Td>
+                    <Td kanan>{formatRupiah(r.pembayaran)}</Td>
+                  </Baris>
+                ))}
+              </tbody>
+            </Tabel>
             <p className="mt-3 text-sm text-[#0d2569]">
               Sisa piutang laporan: {formatRupiah(totalPiutang.sisa)} — sisa piutang
               operasional: {formatRupiah(kontrol.sisaPiutang)} —{' '}
@@ -610,48 +605,46 @@ export default function Reporting(props: ModulProps) {
               <StatCard label="Total Pembayaran" nilai={formatRupiah(pembayaranPeriodeHq)} />
               <StatCard label="Sisa Piutang" nilai={formatRupiah(totalSatker.sisa)} />
             </div>
-            <div className="mt-3 overflow-x-auto">
-              <table className="w-full border-collapse">
-                <thead>
-                  <tr>
-                    <th className={th}>Kode Akun</th>
-                    <th className={th}>Uraian</th>
-                    <th className={`${th} text-right`}>Tagihan</th>
-                    <th className={`${th} text-right`}>Pembayaran</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {perKodeAkunDariBaris(
-                    tagihanPeriode.map((t) => ({
-                      kodeAkun: t.kodeAkun,
-                      nilaiTagihan: t.nilai,
-                      pembayaran: data.pembayaran
-                        .filter(
-                          (p) =>
-                            p.statusVerifikasi === 'Terverifikasi' &&
-                            p.tagihanId === t.id &&
-                            periodeDariTanggal(p.tanggalBayar) === periode,
-                        )
-                        .reduce((s, p) => s + p.jumlah, 0),
-                    })),
-                  ).map((r) => (
-                    <tr key={r.kodeAkun}>
-                      <td className={td}>{r.kodeAkun}</td>
-                      <td className={td}>{uraianKodeAkun(r.kodeAkun)}</td>
-                      <td className={tdKanan}>{formatRupiah(r.tagihan)}</td>
-                      <td className={tdKanan}>{formatRupiah(r.pembayaran)}</td>
-                    </tr>
-                  ))}
-                  {tagihanPeriode.length === 0 && (
-                    <tr>
-                      <td className={td} colSpan={4}>
-                        Tidak ada tagihan terbit pada periode ini — semua nilai 0.
-                      </td>
-                    </tr>
-                  )}
-                </tbody>
-              </table>
-            </div>
+            <Tabel>
+              <thead>
+                <tr>
+                  <Th>Kode Akun</Th>
+                  <Th>Uraian</Th>
+                  <Th kanan>Tagihan</Th>
+                  <Th kanan>Pembayaran</Th>
+                </tr>
+              </thead>
+              <tbody>
+                {perKodeAkunDariBaris(
+                  tagihanPeriode.map((t) => ({
+                    kodeAkun: t.kodeAkun,
+                    nilaiTagihan: t.nilai,
+                    pembayaran: data.pembayaran
+                      .filter(
+                        (p) =>
+                          p.statusVerifikasi === 'Terverifikasi' &&
+                          p.tagihanId === t.id &&
+                          periodeDariTanggal(p.tanggalBayar) === periode,
+                      )
+                      .reduce((s, p) => s + p.jumlah, 0),
+                  })),
+                ).map((r) => (
+                  <Baris key={r.kodeAkun}>
+                    <Td>{r.kodeAkun}</Td>
+                    <Td>{uraianKodeAkun(r.kodeAkun)}</Td>
+                    <Td kanan>{formatRupiah(r.tagihan)}</Td>
+                    <Td kanan>{formatRupiah(r.pembayaran)}</Td>
+                  </Baris>
+                ))}
+                {tagihanPeriode.length === 0 && (
+                  <Baris>
+                    <Td colSpan={4}>
+                      Tidak ada tagihan terbit pada periode ini — semua nilai 0.
+                    </Td>
+                  </Baris>
+                )}
+              </tbody>
+            </Tabel>
           </>
         )}
       </Kartu>
@@ -667,79 +660,77 @@ export default function Reporting(props: ModulProps) {
       {jenis === 'bulanan' && (
         <Kartu>
           <JudulBagian>{judulLaporan} — {formatPeriode(periode)}</JudulBagian>
-          <div className="mt-3 overflow-x-auto">
-            <table className="w-full border-collapse">
-              <thead>
-                <tr>
-                  <th className={th}>Nomor PKS</th>
-                  <th className={th}>Klien</th>
-                  <th className={th}>Jenis PNBP</th>
-                  <th className={th}>Kode Akun</th>
-                  <th className={`${th} text-right`}>Nilai Tagihan Periode</th>
-                  <th className={`${th} text-right`}>Pembayaran Periode</th>
-                  <th className={`${th} text-right`}>Sisa</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr className="bg-[#2573e2]/5">
-                  <td className={`${td} font-bold`} colSpan={7}>
-                    Fungsional
-                  </td>
-                </tr>
-                {barisFungsional.map((b) => (
-                  <tr key={b.kontrakId}>
-                    <td className={td}>{b.nomorPks}</td>
-                    <td className={td}>{b.klien}</td>
-                    <td className={td}>{b.jenisPnBP}</td>
-                    <td className={td}>{b.kodeAkun}</td>
-                    <td className={tdKanan}>{formatRupiah(b.nilaiTagihan)}</td>
-                    <td className={tdKanan}>{formatRupiah(b.pembayaran)}</td>
-                    <td className={tdKanan}>{formatRupiah(b.sisa)}</td>
-                  </tr>
-                ))}
-                {barisFungsional.length === 0 && (
-                  <tr>
-                    <td className={td} colSpan={7}>
-                      Tidak ada tagihan Fungsional pada periode ini — 0.
-                    </td>
-                  </tr>
-                )}
-                <tr className="bg-[#2573e2]/5">
-                  <td className={`${td} font-bold`} colSpan={7}>
-                    Umum
-                  </td>
-                </tr>
-                {barisUmum.map((b) => (
-                  <tr key={b.kontrakId}>
-                    <td className={td}>{b.nomorPks}</td>
-                    <td className={td}>{b.klien}</td>
-                    <td className={td}>{b.jenisPnBP}</td>
-                    <td className={td}>{b.kodeAkun}</td>
-                    <td className={tdKanan}>{formatRupiah(b.nilaiTagihan)}</td>
-                    <td className={tdKanan}>{formatRupiah(b.pembayaran)}</td>
-                    <td className={tdKanan}>{formatRupiah(b.sisa)}</td>
-                  </tr>
-                ))}
-                {barisUmum.length === 0 && (
-                  <tr>
-                    <td className={td} colSpan={7}>
-                      Tidak ada tagihan Umum pada periode ini — 0.
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-              <tfoot>
-                <tr className="bg-[#2573e2]/5 font-bold">
-                  <td className={td} colSpan={4}>
-                    Rekapitulasi
-                  </td>
-                  <td className={tdKanan}>{formatRupiah(rekapBulanan.nilaiTagihan)}</td>
-                  <td className={tdKanan}>{formatRupiah(rekapBulanan.pembayaran)}</td>
-                  <td className={tdKanan}>{formatRupiah(rekapBulanan.sisa)}</td>
-                </tr>
-              </tfoot>
-            </table>
-          </div>
+          <Tabel>
+            <thead>
+              <tr>
+                <Th>Nomor PKS</Th>
+                <Th>Klien</Th>
+                <Th>Jenis PNBP</Th>
+                <Th>Kode Akun</Th>
+                <Th kanan>Nilai Tagihan Periode</Th>
+                <Th kanan>Pembayaran Periode</Th>
+                <Th kanan>Sisa</Th>
+              </tr>
+            </thead>
+            <tbody>
+              <Baris className="bg-[#2573e2]/5">
+                <Td colSpan={7} tebal>
+                  Fungsional
+                </Td>
+              </Baris>
+              {barisFungsional.map((b) => (
+                <Baris key={b.kontrakId}>
+                  <Td>{b.nomorPks}</Td>
+                  <Td>{b.klien}</Td>
+                  <Td>{b.jenisPnBP}</Td>
+                  <Td>{b.kodeAkun}</Td>
+                  <Td kanan>{formatRupiah(b.nilaiTagihan)}</Td>
+                  <Td kanan>{formatRupiah(b.pembayaran)}</Td>
+                  <Td kanan>{formatRupiah(b.sisa)}</Td>
+                </Baris>
+              ))}
+              {barisFungsional.length === 0 && (
+                <Baris>
+                  <Td colSpan={7}>
+                    Tidak ada tagihan Fungsional pada periode ini — 0.
+                  </Td>
+                </Baris>
+              )}
+              <Baris className="bg-[#2573e2]/5">
+                <Td colSpan={7} tebal>
+                  Umum
+                </Td>
+              </Baris>
+              {barisUmum.map((b) => (
+                <Baris key={b.kontrakId}>
+                  <Td>{b.nomorPks}</Td>
+                  <Td>{b.klien}</Td>
+                  <Td>{b.jenisPnBP}</Td>
+                  <Td>{b.kodeAkun}</Td>
+                  <Td kanan>{formatRupiah(b.nilaiTagihan)}</Td>
+                  <Td kanan>{formatRupiah(b.pembayaran)}</Td>
+                  <Td kanan>{formatRupiah(b.sisa)}</Td>
+                </Baris>
+              ))}
+              {barisUmum.length === 0 && (
+                <Baris>
+                  <Td colSpan={7}>
+                    Tidak ada tagihan Umum pada periode ini — 0.
+                  </Td>
+                </Baris>
+              )}
+            </tbody>
+            <tfoot>
+              <Baris className="bg-[#2573e2]/5 font-semibold">
+                <Td colSpan={4}>
+                  Rekapitulasi
+                </Td>
+                <Td kanan tebal>{formatRupiah(rekapBulanan.nilaiTagihan)}</Td>
+                <Td kanan tebal>{formatRupiah(rekapBulanan.pembayaran)}</Td>
+                <Td kanan tebal>{formatRupiah(rekapBulanan.sisa)}</Td>
+              </Baris>
+            </tfoot>
+          </Tabel>
           <p className="mt-3 text-xs text-[#0d2569]/60">
             Rekapitulasi = Fungsional + Umum, dihitung dari baris-baris di atas.
             Pembayaran periode hanya menghitung pembayaran terverifikasi yang
@@ -751,49 +742,47 @@ export default function Reporting(props: ModulProps) {
       {jenis === 'piutang' && (
         <Kartu>
           <JudulBagian>{judulLaporan} — {formatPeriode(periode)}</JudulBagian>
-          <div className="mt-3 overflow-x-auto">
-            <table className="w-full border-collapse">
-              <thead>
-                <tr>
-                  <th className={th}>Nomor Tagihan</th>
-                  <th className={th}>Kontrak</th>
-                  <th className={th}>Uraian</th>
-                  <th className={`${th} text-right`}>Nilai</th>
-                  <th className={`${th} text-right`}>Dibayar (Terverifikasi)</th>
-                  <th className={`${th} text-right`}>Sisa</th>
-                  <th className={th}>Status</th>
-                  <th className={th}>Umur Piutang</th>
-                </tr>
-              </thead>
-              <tbody>
-                {barisPiutang.map((b) => (
-                  <tr key={b.nomor}>
-                    <td className={td}>{b.nomor}</td>
-                    <td className={td}>{b.kontrak}</td>
-                    <td className={td}>{b.uraian}</td>
-                    <td className={tdKanan}>{formatRupiah(b.nilai)}</td>
-                    <td className={tdKanan}>{formatRupiah(b.dibayar)}</td>
-                    <td className={tdKanan}>{formatRupiah(b.sisa)}</td>
-                    <td className={td}>
-                      <StatusBadge status={b.status} />
-                    </td>
-                    <td className={td}>{b.umur}</td>
-                  </tr>
-                ))}
-              </tbody>
-              <tfoot>
-                <tr className="bg-[#2573e2]/5 font-bold">
-                  <td className={td} colSpan={3}>
-                    Total
-                  </td>
-                  <td className={tdKanan}>{formatRupiah(totalPiutang.nilai)}</td>
-                  <td className={tdKanan}>{formatRupiah(totalPiutang.dibayar)}</td>
-                  <td className={tdKanan}>{formatRupiah(totalPiutang.sisa)}</td>
-                  <td className={td} colSpan={2} />
-                </tr>
-              </tfoot>
-            </table>
-          </div>
+          <Tabel>
+            <thead>
+              <tr>
+                <Th>Nomor Tagihan</Th>
+                <Th>Kontrak</Th>
+                <Th>Uraian</Th>
+                <Th kanan>Nilai</Th>
+                <Th kanan>Dibayar (Terverifikasi)</Th>
+                <Th kanan>Sisa</Th>
+                <Th>Status</Th>
+                <Th>Umur Piutang</Th>
+              </tr>
+            </thead>
+            <tbody>
+              {barisPiutang.map((b) => (
+                <Baris key={b.nomor}>
+                  <Td>{b.nomor}</Td>
+                  <Td>{b.kontrak}</Td>
+                  <Td>{b.uraian}</Td>
+                  <Td kanan>{formatRupiah(b.nilai)}</Td>
+                  <Td kanan>{formatRupiah(b.dibayar)}</Td>
+                  <Td kanan>{formatRupiah(b.sisa)}</Td>
+                  <Td>
+                    <StatusBadge status={b.status} />
+                  </Td>
+                  <Td>{b.umur}</Td>
+                </Baris>
+              ))}
+            </tbody>
+            <tfoot>
+              <Baris className="bg-[#2573e2]/5 font-semibold">
+                <Td colSpan={3}>
+                  Total
+                </Td>
+                <Td kanan tebal>{formatRupiah(totalPiutang.nilai)}</Td>
+                <Td kanan tebal>{formatRupiah(totalPiutang.dibayar)}</Td>
+                <Td kanan tebal>{formatRupiah(totalPiutang.sisa)}</Td>
+                <Td colSpan={2} />
+              </Baris>
+            </tfoot>
+          </Tabel>
           <p className="mt-3 text-xs text-[#0d2569]/60">
             Laporan ini menampilkan seluruh tagihan; total sisa piutang dihitung
             dengan fungsi derive yang sama dengan total operasional, sehingga
@@ -808,48 +797,46 @@ export default function Reporting(props: ModulProps) {
           <p className="mt-1 text-xs text-[#0d2569]/60">
             Format kantor pusat: satu baris per satker. Sel tanpa nilai diisi 0.
           </p>
-          <div className="mt-3 overflow-x-auto">
-            <table className="w-full border-collapse">
-              <thead>
-                <tr>
-                  <th className={th}>Satker</th>
-                  <th className={`${th} text-right`}>QTY</th>
-                  <th className={`${th} text-right`}>PNBP Fungsional</th>
-                  <th className={`${th} text-right`}>PNBP Umum</th>
-                  <th className={`${th} text-right`}>Sisa Piutang</th>
-                </tr>
-              </thead>
-              <tbody>
-                {barisSatker.map((b) => (
-                  <tr key={b.satkerKode}>
-                    <td className={td}>{b.satkerNama}</td>
-                    <td className={tdKanan}>{formatAngka(b.qty)}</td>
-                    <td className={tdKanan}>{formatAngka(b.fungsional)}</td>
-                    <td className={tdKanan}>{formatAngka(b.umum)}</td>
-                    <td className={tdKanan}>{formatAngka(b.sisa)}</td>
-                  </tr>
-                ))}
-                {barisSatker.length === 0 && (
-                  <tr>
-                    <td className={td}>—</td>
-                    <td className={tdKanan}>0</td>
-                    <td className={tdKanan}>0</td>
-                    <td className={tdKanan}>0</td>
-                    <td className={tdKanan}>0</td>
-                  </tr>
-                )}
-              </tbody>
-              <tfoot>
-                <tr className="bg-[#2573e2]/5 font-bold">
-                  <td className={td}>TOTAL</td>
-                  <td className={tdKanan}>{formatAngka(totalSatker.qty)}</td>
-                  <td className={tdKanan}>{formatAngka(totalSatker.fungsional)}</td>
-                  <td className={tdKanan}>{formatAngka(totalSatker.umum)}</td>
-                  <td className={tdKanan}>{formatAngka(totalSatker.sisa)}</td>
-                </tr>
-              </tfoot>
-            </table>
-          </div>
+          <Tabel>
+            <thead>
+              <tr>
+                <Th>Satker</Th>
+                <Th kanan>QTY</Th>
+                <Th kanan>PNBP Fungsional</Th>
+                <Th kanan>PNBP Umum</Th>
+                <Th kanan>Sisa Piutang</Th>
+              </tr>
+            </thead>
+            <tbody>
+              {barisSatker.map((b) => (
+                <Baris key={b.satkerKode}>
+                  <Td>{b.satkerNama}</Td>
+                  <Td kanan>{formatAngka(b.qty)}</Td>
+                  <Td kanan>{formatAngka(b.fungsional)}</Td>
+                  <Td kanan>{formatAngka(b.umum)}</Td>
+                  <Td kanan>{formatAngka(b.sisa)}</Td>
+                </Baris>
+              ))}
+              {barisSatker.length === 0 && (
+                <Baris>
+                  <Td>—</Td>
+                  <Td kanan>0</Td>
+                  <Td kanan>0</Td>
+                  <Td kanan>0</Td>
+                  <Td kanan>0</Td>
+                </Baris>
+              )}
+            </tbody>
+            <tfoot>
+              <Baris className="bg-[#2573e2]/5 font-semibold">
+                <Td tebal>TOTAL</Td>
+                <Td kanan tebal>{formatAngka(totalSatker.qty)}</Td>
+                <Td kanan tebal>{formatAngka(totalSatker.fungsional)}</Td>
+                <Td kanan tebal>{formatAngka(totalSatker.umum)}</Td>
+                <Td kanan tebal>{formatAngka(totalSatker.sisa)}</Td>
+              </Baris>
+            </tfoot>
+          </Tabel>
           <p className="mt-3 text-xs text-[#0d2569]/60">
             QTY = jumlah PKS yang diterbitkan pada bulan ini (tanggal terbit
             tagihan; bukan jumlah siaran). PNBP Fungsional/Umum = nilai

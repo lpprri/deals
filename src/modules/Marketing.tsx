@@ -6,19 +6,20 @@ import type { EventInput, AdvertisementInput, ModulProps } from '../lib/store';
 import { formatRupiah, formatTanggal } from '../lib/format';
 import { bolehAksi } from '../lib/permissions';
 import {
+  Baris,
   JudulBagian,
   Kartu,
   Label,
   PesanKosong,
   StatCard,
   TabBar,
+  Tabel,
+  Td,
+  Th,
   TombolSekunder,
   TombolUtama,
   inputClass,
 } from '../components/ui';
-
-const th = 'px-3 py-2 text-left text-xs font-semibold text-[#0d2569]/70';
-const td = 'px-3 py-2 align-top text-sm text-[#0d2569]';
 
 export default function Marketing(props: ModulProps) {
   const { data, user, actions, cari } = props;
@@ -110,17 +111,17 @@ function DaftarEvent({
       {events.length === 0 ? (
         <PesanKosong teks="Belum ada event yang cocok." />
       ) : (
-        <Kartu className="overflow-x-auto p-0">
-          <table className="w-full border-collapse">
+        <Kartu>
+          <Tabel>
             <thead>
-              <tr className="bg-[#2573e2]/5">
-                <th className={th}>ID</th>
-                <th className={th}>Nama Event</th>
-                <th className={th}>Tanggal</th>
-                <th className={th}>Penyelenggara</th>
-                <th className={th}>Biaya</th>
-                <th className={th}>Hasil</th>
-                <th className={th}>Prospek yang Dihasilkan</th>
+              <tr>
+                <Th>ID</Th>
+                <Th>Nama Event</Th>
+                <Th>Tanggal</Th>
+                <Th>Penyelenggara</Th>
+                <Th kanan>Biaya</Th>
+                <Th>Hasil</Th>
+                <Th>Prospek yang Dihasilkan</Th>
               </tr>
             </thead>
             <tbody>
@@ -129,24 +130,21 @@ function DaftarEvent({
                   ? data.prospect.find((p) => p.id === e.prospectId)
                   : undefined;
                 return (
-                  <tr
-                    key={e.id}
-                    className="border-t border-[#2573e2]/10"
-                  >
-                    <td className={`${td} font-semibold`}>{e.id}</td>
-                    <td className={td}>{e.nama}</td>
-                    <td className={td}>{formatTanggal(e.tanggal)}</td>
-                    <td className={td}>{e.penyelenggara}</td>
-                    <td className={td}>{formatRupiah(e.biaya)}</td>
-                    <td className={td}>{e.hasil ?? '-'}</td>
-                    <td className={td}>
+                  <Baris key={e.id}>
+                    <Td tebal>{e.id}</Td>
+                    <Td>{e.nama}</Td>
+                    <Td>{formatTanggal(e.tanggal)}</Td>
+                    <Td>{e.penyelenggara}</Td>
+                    <Td kanan>{formatRupiah(e.biaya)}</Td>
+                    <Td>{e.hasil ?? '-'}</Td>
+                    <Td>
                       {prospek ? prospek.namaInstansi : '-'}
-                    </td>
-                  </tr>
+                    </Td>
+                  </Baris>
                 );
               })}
             </tbody>
-          </table>
+          </Tabel>
         </Kartu>
       )}
     </div>
@@ -353,34 +351,34 @@ function DaftarAdvertisement({
       {iklan.length === 0 ? (
         <PesanKosong teks="Belum ada iklan yang cocok." />
       ) : (
-        <Kartu className="overflow-x-auto p-0">
-          <table className="w-full border-collapse">
+        <Kartu>
+          <Tabel>
             <thead>
-              <tr className="bg-[#2573e2]/5">
-                <th className={th}>ID</th>
-                <th className={th}>Nama Iklan</th>
-                <th className={th}>Media / Saluran</th>
-                <th className={th}>Periode</th>
-                <th className={th}>Biaya</th>
-                <th className={th}>Hasil</th>
+              <tr>
+                <Th>ID</Th>
+                <Th>Nama Iklan</Th>
+                <Th>Media / Saluran</Th>
+                <Th>Periode</Th>
+                <Th kanan>Biaya</Th>
+                <Th>Hasil</Th>
               </tr>
             </thead>
             <tbody>
               {iklan.map((a) => (
-                <tr key={a.id} className="border-t border-[#2573e2]/10">
-                  <td className={`${td} font-semibold`}>{a.id}</td>
-                  <td className={td}>{a.nama}</td>
-                  <td className={td}>{a.media}</td>
-                  <td className={td}>
+                <Baris key={a.id}>
+                  <Td tebal>{a.id}</Td>
+                  <Td>{a.nama}</Td>
+                  <Td>{a.media}</Td>
+                  <Td>
                     {formatTanggal(a.periodeMulai)} –{' '}
                     {formatTanggal(a.periodeSelesai)}
-                  </td>
-                  <td className={td}>{formatRupiah(a.biaya)}</td>
-                  <td className={td}>{a.hasil ?? '-'}</td>
-                </tr>
+                  </Td>
+                  <Td kanan>{formatRupiah(a.biaya)}</Td>
+                  <Td>{a.hasil ?? '-'}</Td>
+                </Baris>
               ))}
             </tbody>
-          </table>
+          </Tabel>
         </Kartu>
       )}
     </div>

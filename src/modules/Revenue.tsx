@@ -18,10 +18,14 @@ import { formatRupiah, formatTanggal, hariIniIso } from '../lib/format';
 import { MASTER_METODE_PEMBAYARAN, uraianKodeAkun } from '../lib/master';
 import { bolehAksi } from '../lib/permissions';
 import {
+  Baris,
   Kartu,
   JudulBagian,
   StatCard,
   StatusBadge,
+  Tabel,
+  Td,
+  Th,
   TombolUtama,
   TombolSekunder,
   TabBar,
@@ -30,11 +34,6 @@ import {
   Label,
   inputClass,
 } from '../components/ui';
-
-const th =
-  'border-b border-[#2573e2]/20 px-3 py-2 text-left text-xs font-semibold text-[#0d2569]/70';
-const td = 'border-b border-[#2573e2]/10 px-3 py-2 text-sm text-[#0d2569]';
-const tdKanan = `${td} text-right`;
 
 type TabRevenue = 'overview' | 'invoice' | 'payments' | 'billings' | 'rekonsiliasi';
 
@@ -247,32 +246,30 @@ export default function Revenue(props: ModulProps) {
           </div>
           <Kartu>
             <JudulBagian>Total per Kode Akun</JudulBagian>
-            <div className="mt-3 overflow-x-auto">
-              <table className="w-full border-collapse">
-                <thead>
-                  <tr>
-                    <th className={th}>Kode Akun</th>
-                    <th className={th}>Uraian</th>
-                    <th className={`${th} text-right`}>Tagihan</th>
-                    <th className={`${th} text-right`}>Pembayaran</th>
-                    <th className={`${th} text-right`}>Acuan Keuangan</th>
-                    <th className={`${th} text-right`}>Selisih</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {perKodeAkun.map((r) => (
-                    <tr key={r.kodeAkun}>
-                      <td className={td}>{r.kodeAkun}</td>
-                      <td className={td}>{uraianKodeAkun(r.kodeAkun)}</td>
-                      <td className={tdKanan}>{formatRupiah(r.tagihan)}</td>
-                      <td className={tdKanan}>{formatRupiah(r.pembayaran)}</td>
-                      <td className={tdKanan}>{formatRupiah(r.acuan)}</td>
-                      <td className={tdKanan}>{formatRupiah(r.selisih)}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+            <Tabel>
+              <thead>
+                <tr>
+                  <Th>Kode Akun</Th>
+                  <Th>Uraian</Th>
+                  <Th kanan>Tagihan</Th>
+                  <Th kanan>Pembayaran</Th>
+                  <Th kanan>Acuan Keuangan</Th>
+                  <Th kanan>Selisih</Th>
+                </tr>
+              </thead>
+              <tbody>
+                {perKodeAkun.map((r) => (
+                  <Baris key={r.kodeAkun}>
+                    <Td>{r.kodeAkun}</Td>
+                    <Td>{uraianKodeAkun(r.kodeAkun)}</Td>
+                    <Td kanan>{formatRupiah(r.tagihan)}</Td>
+                    <Td kanan>{formatRupiah(r.pembayaran)}</Td>
+                    <Td kanan>{formatRupiah(r.acuan)}</Td>
+                    <Td kanan>{formatRupiah(r.selisih)}</Td>
+                  </Baris>
+                ))}
+              </tbody>
+            </Tabel>
             <p className="mt-3 text-xs text-[#0d2569]/60">
               Data acuan Keuangan bersifat read-only — hanya ditampilkan untuk
               rekonsiliasi, tidak dapat diubah dari modul ini.
@@ -306,55 +303,51 @@ export default function Revenue(props: ModulProps) {
                   : 'Klik baris tagihan untuk melihat detail, pembayaran, dan denda.'}
               </p>
             </div>
-            <div className="mt-3 overflow-x-auto">
-              <table className="w-full border-collapse">
-                <thead>
-                  <tr>
-                    <th className={th}>Nomor</th>
-                    <th className={th}>Kontrak</th>
-                    <th className={th}>Uraian</th>
-                    <th className={`${th} text-right`}>Nilai</th>
-                    <th className={th}>Terbit</th>
-                    <th className={th}>Jatuh Tempo</th>
-                    <th className={th}>Kode Akun</th>
-                    <th className={th}>Status</th>
-                    <th className={`${th} text-right`}>Sisa</th>
-                    <th className={th}>Umur Piutang</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {tagihanTampil.map((t) => (
-                    <tr
-                      key={t.id}
-                      onClick={() => pilihTagihan(t.id)}
-                      className={`cursor-pointer hover:bg-[#2573e2]/5 ${
-                        t.id === tagihanTerpilihId ? 'bg-[#2573e2]/10' : ''
-                      }`}
-                    >
-                      <td className={td}>{t.nomor}</td>
-                      <td className={td}>{nomorKontrak(t.kontrakId)}</td>
-                      <td className={td}>{t.uraian}</td>
-                      <td className={tdKanan}>{formatRupiah(t.nilai)}</td>
-                      <td className={td}>{formatTanggal(t.tanggalTerbit)}</td>
-                      <td className={td}>{formatTanggal(t.tanggalJatuhTempo)}</td>
-                      <td className={td}>{t.kodeAkun}</td>
-                      <td className={td}>
-                        <StatusBadge status={statusTagihan(t, data.pembayaran)} />
-                      </td>
-                      <td className={tdKanan}>
-                        {formatRupiah(sisaTagihan(t, data.pembayaran))}
-                      </td>
-                      <td className={td}>{kelompokUmurPiutang(t)}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-              {tagihanTampil.length === 0 && (
-                <div className="mt-3">
-                  <PesanKosong teks="Tidak ada tagihan yang cocok dengan filter atau pencarian." />
-                </div>
-              )}
-            </div>
+            <Tabel>
+              <thead>
+                <tr>
+                  <Th>Nomor</Th>
+                  <Th>Kontrak</Th>
+                  <Th>Uraian</Th>
+                  <Th kanan>Nilai</Th>
+                  <Th>Terbit</Th>
+                  <Th>Jatuh Tempo</Th>
+                  <Th>Kode Akun</Th>
+                  <Th>Status</Th>
+                  <Th kanan>Sisa</Th>
+                  <Th>Umur Piutang</Th>
+                </tr>
+              </thead>
+              <tbody>
+                {tagihanTampil.map((t) => (
+                  <Baris
+                    key={t.id}
+                    onClick={() => pilihTagihan(t.id)}
+                    className={t.id === tagihanTerpilihId ? 'bg-[#2573e2]/10' : ''}
+                  >
+                    <Td>{t.nomor}</Td>
+                    <Td>{nomorKontrak(t.kontrakId)}</Td>
+                    <Td>{t.uraian}</Td>
+                    <Td kanan>{formatRupiah(t.nilai)}</Td>
+                    <Td>{formatTanggal(t.tanggalTerbit)}</Td>
+                    <Td>{formatTanggal(t.tanggalJatuhTempo)}</Td>
+                    <Td>{t.kodeAkun}</Td>
+                    <Td>
+                      <StatusBadge status={statusTagihan(t, data.pembayaran)} />
+                    </Td>
+                    <Td kanan>
+                      {formatRupiah(sisaTagihan(t, data.pembayaran))}
+                    </Td>
+                    <Td>{kelompokUmurPiutang(t)}</Td>
+                  </Baris>
+                ))}
+              </tbody>
+            </Tabel>
+            {tagihanTampil.length === 0 && (
+              <div className="mt-3">
+                <PesanKosong teks="Tidak ada tagihan yang cocok dengan filter atau pencarian." />
+              </div>
+            )}
           </Kartu>
 
           {tagihanTerpilih && (
@@ -416,34 +409,32 @@ export default function Revenue(props: ModulProps) {
                   <PesanKosong teks="Belum ada pembayaran untuk tagihan ini." />
                 </div>
               ) : (
-                <div className="mt-2 overflow-x-auto">
-                  <table className="w-full border-collapse">
-                    <thead>
-                      <tr>
-                        <th className={th}>Tanggal Bayar</th>
-                        <th className={`${th} text-right`}>Jumlah</th>
-                        <th className={th}>Metode</th>
-                        <th className={th}>Penyetor</th>
-                        <th className={th}>Status Verifikasi</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {data.pembayaran
-                        .filter((p) => p.tagihanId === tagihanTerpilih.id)
-                        .map((p) => (
-                          <tr key={p.id}>
-                            <td className={td}>{formatTanggal(p.tanggalBayar)}</td>
-                            <td className={tdKanan}>{formatRupiah(p.jumlah)}</td>
-                            <td className={td}>{p.metode}</td>
-                            <td className={td}>{p.penyetor}</td>
-                            <td className={td}>
-                              <StatusBadge status={p.statusVerifikasi} />
-                            </td>
-                          </tr>
-                        ))}
-                    </tbody>
-                  </table>
-                </div>
+                <Tabel>
+                  <thead>
+                    <tr>
+                      <Th>Tanggal Bayar</Th>
+                      <Th kanan>Jumlah</Th>
+                      <Th>Metode</Th>
+                      <Th>Penyetor</Th>
+                      <Th>Status Verifikasi</Th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {data.pembayaran
+                      .filter((p) => p.tagihanId === tagihanTerpilih.id)
+                      .map((p) => (
+                        <Baris key={p.id}>
+                          <Td>{formatTanggal(p.tanggalBayar)}</Td>
+                          <Td kanan>{formatRupiah(p.jumlah)}</Td>
+                          <Td>{p.metode}</Td>
+                          <Td>{p.penyetor}</Td>
+                          <Td>
+                            <StatusBadge status={p.statusVerifikasi} />
+                          </Td>
+                        </Baris>
+                      ))}
+                  </tbody>
+                </Tabel>
               )}
 
               <h3 className="mt-5 text-sm font-bold text-[#0d2569]">Denda</h3>
@@ -453,32 +444,30 @@ export default function Revenue(props: ModulProps) {
                   <PesanKosong teks="Belum ada denda untuk tagihan ini." />
                 </div>
               ) : (
-                <div className="mt-2 overflow-x-auto">
-                  <table className="w-full border-collapse">
-                    <thead>
-                      <tr>
-                        <th className={th}>ID</th>
-                        <th className={`${th} text-right`}>Jumlah</th>
-                        <th className={th}>Status</th>
-                        <th className={th}>Dasar</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {data.denda
-                        .filter((d) => d.tagihanId === tagihanTerpilih.id)
-                        .map((d) => (
-                          <tr key={d.id}>
-                            <td className={td}>{d.id}</td>
-                            <td className={tdKanan}>{formatRupiah(d.jumlah)}</td>
-                            <td className={td}>
-                              <StatusBadge status={d.status} />
-                            </td>
-                            <td className={td}>{d.dasar}</td>
-                          </tr>
-                        ))}
-                    </tbody>
-                  </table>
-                </div>
+                <Tabel>
+                  <thead>
+                    <tr>
+                      <Th>ID</Th>
+                      <Th kanan>Jumlah</Th>
+                      <Th>Status</Th>
+                      <Th>Dasar</Th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {data.denda
+                      .filter((d) => d.tagihanId === tagihanTerpilih.id)
+                      .map((d) => (
+                        <Baris key={d.id}>
+                          <Td>{d.id}</Td>
+                          <Td kanan>{formatRupiah(d.jumlah)}</Td>
+                          <Td>
+                            <StatusBadge status={d.status} />
+                          </Td>
+                          <Td>{d.dasar}</Td>
+                        </Baris>
+                      ))}
+                  </tbody>
+                </Tabel>
               )}
 
               {bolehAksi(user.peran, 'catatPembayaran') && (
@@ -617,107 +606,103 @@ export default function Revenue(props: ModulProps) {
       {tab === 'payments' && (
         <Kartu>
           <JudulBagian>Semua Pembayaran</JudulBagian>
-          <div className="mt-3 overflow-x-auto">
-            <table className="w-full border-collapse">
-              <thead>
-                <tr>
-                  <th className={th}>Tanggal Bayar</th>
-                  <th className={th}>Tagihan</th>
-                  <th className={th}>Penyetor</th>
-                  <th className={`${th} text-right`}>Jumlah</th>
-                  <th className={th}>Metode</th>
-                  <th className={th}>Status Verifikasi</th>
-                  <th className={th}>Aksi</th>
-                </tr>
-              </thead>
-              <tbody>
-                {pembayaranTerurut.map((p) => {
-                  const tagihan = data.tagihan.find((t) => t.id === p.tagihanId);
-                  const menunggu = p.statusVerifikasi === 'Menunggu Verifikasi';
-                  return (
-                    <tr key={p.id}>
-                      <td className={td}>{formatTanggal(p.tanggalBayar)}</td>
-                      <td className={td}>
-                        {tagihan ? `${tagihan.nomor} — ${tagihan.uraian}` : p.tagihanId}
-                      </td>
-                      <td className={td}>{p.penyetor}</td>
-                      <td className={tdKanan}>{formatRupiah(p.jumlah)}</td>
-                      <td className={td}>{p.metode}</td>
-                      <td className={td}>
-                        <StatusBadge status={p.statusVerifikasi} />
-                      </td>
-                      <td className={td}>
-                        {menunggu && bolehAksi(user.peran, 'verifikasiPembayaran') ? (
-                          <TombolSekunder
-                            onClick={() => actions.verifikasiPembayaran(p.id)}
-                          >
-                            Verifikasi
-                          </TombolSekunder>
-                        ) : menunggu ? (
-                          <span className="text-xs text-[#0d2569]/60">
-                            Hanya Keuangan yang dapat memverifikasi
-                          </span>
-                        ) : (
-                          <span className="text-xs text-[#0d2569]/60">—</span>
-                        )}
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-            {pembayaranTerurut.length === 0 && (
-              <div className="mt-3">
-                <PesanKosong teks="Belum ada pembayaran." />
-              </div>
-            )}
-          </div>
+          <Tabel>
+            <thead>
+              <tr>
+                <Th>Tanggal Bayar</Th>
+                <Th>Tagihan</Th>
+                <Th>Penyetor</Th>
+                <Th kanan>Jumlah</Th>
+                <Th>Metode</Th>
+                <Th>Status Verifikasi</Th>
+                <Th>Aksi</Th>
+              </tr>
+            </thead>
+            <tbody>
+              {pembayaranTerurut.map((p) => {
+                const tagihan = data.tagihan.find((t) => t.id === p.tagihanId);
+                const menunggu = p.statusVerifikasi === 'Menunggu Verifikasi';
+                return (
+                  <Baris key={p.id}>
+                    <Td>{formatTanggal(p.tanggalBayar)}</Td>
+                    <Td>
+                      {tagihan ? `${tagihan.nomor} — ${tagihan.uraian}` : p.tagihanId}
+                    </Td>
+                    <Td>{p.penyetor}</Td>
+                    <Td kanan>{formatRupiah(p.jumlah)}</Td>
+                    <Td>{p.metode}</Td>
+                    <Td>
+                      <StatusBadge status={p.statusVerifikasi} />
+                    </Td>
+                    <Td>
+                      {menunggu && bolehAksi(user.peran, 'verifikasiPembayaran') ? (
+                        <TombolSekunder
+                          onClick={() => actions.verifikasiPembayaran(p.id)}
+                        >
+                          Verifikasi
+                        </TombolSekunder>
+                      ) : menunggu ? (
+                        <span className="text-xs text-[#0d2569]/60">
+                          Hanya Keuangan yang dapat memverifikasi
+                        </span>
+                      ) : (
+                        <span className="text-xs text-[#0d2569]/60">—</span>
+                      )}
+                    </Td>
+                  </Baris>
+                );
+              })}
+            </tbody>
+          </Tabel>
+          {pembayaranTerurut.length === 0 && (
+            <div className="mt-3">
+              <PesanKosong teks="Belum ada pembayaran." />
+            </div>
+          )}
         </Kartu>
       )}
 
       {tab === 'billings' && (
         <Kartu>
           <JudulBagian>Ringkasan Penagihan per Kontrak</JudulBagian>
-          <div className="mt-3 overflow-x-auto">
-            <table className="w-full border-collapse">
-              <thead>
-                <tr>
-                  <th className={th}>Nomor PKS</th>
-                  <th className={th}>Klien</th>
-                  <th className={`${th} text-right`}>Nilai Kontrak</th>
-                  <th className={`${th} text-right`}>Total Tagihan</th>
-                  <th className={`${th} text-right`}>Total Dibayar (Terverifikasi)</th>
-                  <th className={`${th} text-right`}>Sisa Piutang</th>
-                  <th className={`${th} text-right`}>Jumlah Tagihan</th>
-                </tr>
-              </thead>
-              <tbody>
-                {barisBillings.map((b) => (
-                  <tr key={b.kontrak.id}>
-                    <td className={td}>{b.kontrak.nomorPks}</td>
-                    <td className={td}>{namaKlien(b.kontrak.klienId)}</td>
-                    <td className={tdKanan}>{formatRupiah(b.kontrak.nilaiKontrak)}</td>
-                    <td className={tdKanan}>{formatRupiah(b.totalTagihan)}</td>
-                    <td className={tdKanan}>{formatRupiah(b.totalDibayar)}</td>
-                    <td className={tdKanan}>{formatRupiah(b.sisa)}</td>
-                    <td className={tdKanan}>{b.jumlahTagihan}</td>
-                  </tr>
-                ))}
-              </tbody>
-              <tfoot>
-                <tr className="bg-[#2573e2]/5 font-bold">
-                  <td className={td} colSpan={2}>
-                    Total
-                  </td>
-                  <td className={tdKanan}>{formatRupiah(totalBillings.nilaiKontrak)}</td>
-                  <td className={tdKanan}>{formatRupiah(totalBillings.totalTagihan)}</td>
-                  <td className={tdKanan}>{formatRupiah(totalBillings.totalDibayar)}</td>
-                  <td className={tdKanan}>{formatRupiah(totalBillings.sisa)}</td>
-                  <td className={tdKanan}>{totalBillings.jumlahTagihan}</td>
-                </tr>
-              </tfoot>
-            </table>
-          </div>
+          <Tabel>
+            <thead>
+              <tr>
+                <Th>Nomor PKS</Th>
+                <Th>Klien</Th>
+                <Th kanan>Nilai Kontrak</Th>
+                <Th kanan>Total Tagihan</Th>
+                <Th kanan>Total Dibayar (Terverifikasi)</Th>
+                <Th kanan>Sisa Piutang</Th>
+                <Th kanan>Jumlah Tagihan</Th>
+              </tr>
+            </thead>
+            <tbody>
+              {barisBillings.map((b) => (
+                <Baris key={b.kontrak.id}>
+                  <Td>{b.kontrak.nomorPks}</Td>
+                  <Td>{namaKlien(b.kontrak.klienId)}</Td>
+                  <Td kanan>{formatRupiah(b.kontrak.nilaiKontrak)}</Td>
+                  <Td kanan>{formatRupiah(b.totalTagihan)}</Td>
+                  <Td kanan>{formatRupiah(b.totalDibayar)}</Td>
+                  <Td kanan>{formatRupiah(b.sisa)}</Td>
+                  <Td kanan>{b.jumlahTagihan}</Td>
+                </Baris>
+              ))}
+            </tbody>
+            <tfoot>
+              <Baris className="bg-[#2573e2]/5 font-semibold">
+                <Td colSpan={2}>
+                  Total
+                </Td>
+                <Td kanan tebal>{formatRupiah(totalBillings.nilaiKontrak)}</Td>
+                <Td kanan tebal>{formatRupiah(totalBillings.totalTagihan)}</Td>
+                <Td kanan tebal>{formatRupiah(totalBillings.totalDibayar)}</Td>
+                <Td kanan tebal>{formatRupiah(totalBillings.sisa)}</Td>
+                <Td kanan tebal>{totalBillings.jumlahTagihan}</Td>
+              </Baris>
+            </tfoot>
+          </Tabel>
           <p className="mt-3 text-xs text-[#0d2569]/60">
             Total baris bawah dihitung dari baris-baris di atas dan sama dengan total
             kontrol: total tagihan {formatRupiah(kontrol.totalTagihan)}, pembayaran
@@ -771,120 +756,114 @@ export default function Revenue(props: ModulProps) {
                 sampai data itu diimpor.
               </p>
             )}
-            <div className="mt-3 overflow-x-auto">
-              <table className="w-full border-collapse">
-                <thead>
-                  <tr>
-                    <th className={th}>ID</th>
-                    <th className={th}>Periode</th>
-                    <th className={th}>Kode Akun</th>
-                    <th className={th}>Uraian</th>
-                    <th className={th}>Penyetor</th>
-                    <th className={th}>Tanggal Setor</th>
-                    <th className={`${th} text-right`}>Jumlah</th>
-                    <th className={th}>Status Rekonsiliasi</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {data.penerimaanAcuan.map((a) => {
-                    const cocok = pembayaranTerverifikasi.some(
-                      (p) => p.jumlah === a.jumlah && p.penyetor === a.penyetor,
-                    );
-                    return (
-                      <tr key={a.id}>
-                        <td className={td}>{a.id}</td>
-                        <td className={td}>{a.periode}</td>
-                        <td className={td}>{a.kodeAkun}</td>
-                        <td className={td}>{a.uraian}</td>
-                        <td className={td}>{a.penyetor}</td>
-                        <td className={td}>{formatTanggal(a.tanggalSetor)}</td>
-                        <td className={tdKanan}>{formatRupiah(a.jumlah)}</td>
-                        <td className={td}>
-                          <StatusBadge
-                            status={
-                              cocok ? 'Sudah Cocok' : 'Penerimaan Tanpa Tagihan'
-                            }
-                          />
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
+            <Tabel>
+              <thead>
+                <tr>
+                  <Th>ID</Th>
+                  <Th>Periode</Th>
+                  <Th>Kode Akun</Th>
+                  <Th>Uraian</Th>
+                  <Th>Penyetor</Th>
+                  <Th>Tanggal Setor</Th>
+                  <Th kanan>Jumlah</Th>
+                  <Th>Status Rekonsiliasi</Th>
+                </tr>
+              </thead>
+              <tbody>
+                {data.penerimaanAcuan.map((a) => {
+                  const cocok = pembayaranTerverifikasi.some(
+                    (p) => p.jumlah === a.jumlah && p.penyetor === a.penyetor,
+                  );
+                  return (
+                    <Baris key={a.id}>
+                      <Td>{a.id}</Td>
+                      <Td>{a.periode}</Td>
+                      <Td>{a.kodeAkun}</Td>
+                      <Td>{a.uraian}</Td>
+                      <Td>{a.penyetor}</Td>
+                      <Td>{formatTanggal(a.tanggalSetor)}</Td>
+                      <Td kanan>{formatRupiah(a.jumlah)}</Td>
+                      <Td>
+                        <StatusBadge
+                          status={
+                            cocok ? 'Sudah Cocok' : 'Penerimaan Tanpa Tagihan'
+                          }
+                        />
+                      </Td>
+                    </Baris>
+                  );
+                })}
+              </tbody>
+            </Tabel>
           </Kartu>
 
           <Kartu>
             <JudulBagian>Rekonsiliasi per Tagihan</JudulBagian>
-            <div className="mt-3 overflow-x-auto">
-              <table className="w-full border-collapse">
-                <thead>
-                  <tr>
-                    <th className={th}>Nomor</th>
-                    <th className={th}>Uraian</th>
-                    <th className={`${th} text-right`}>Nilai Tagihan</th>
-                    <th className={`${th} text-right`}>Dibayar (Terverifikasi)</th>
-                    <th className={`${th} text-right`}>Sisa</th>
-                    <th className={th}>Status Rekonsiliasi</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {data.tagihan.map((t) => {
-                    const dibayar = dibayarTerverifikasi(t.id, data.pembayaran);
-                    const statusRekon =
-                      dibayar >= t.nilai
-                        ? 'Sudah Cocok'
-                        : dibayar > 0
-                          ? 'Cocok Sebagian'
-                          : 'Belum Ada Penerimaan';
-                    return (
-                      <tr key={t.id}>
-                        <td className={td}>{t.nomor}</td>
-                        <td className={td}>{t.uraian}</td>
-                        <td className={tdKanan}>{formatRupiah(t.nilai)}</td>
-                        <td className={tdKanan}>{formatRupiah(dibayar)}</td>
-                        <td className={tdKanan}>
-                          {formatRupiah(sisaTagihan(t, data.pembayaran))}
-                        </td>
-                        <td className={td}>
-                          <StatusBadge status={statusRekon} />
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
+            <Tabel>
+              <thead>
+                <tr>
+                  <Th>Nomor</Th>
+                  <Th>Uraian</Th>
+                  <Th kanan>Nilai Tagihan</Th>
+                  <Th kanan>Dibayar (Terverifikasi)</Th>
+                  <Th kanan>Sisa</Th>
+                  <Th>Status Rekonsiliasi</Th>
+                </tr>
+              </thead>
+              <tbody>
+                {data.tagihan.map((t) => {
+                  const dibayar = dibayarTerverifikasi(t.id, data.pembayaran);
+                  const statusRekon =
+                    dibayar >= t.nilai
+                      ? 'Sudah Cocok'
+                      : dibayar > 0
+                        ? 'Cocok Sebagian'
+                        : 'Belum Ada Penerimaan';
+                  return (
+                    <Baris key={t.id}>
+                      <Td>{t.nomor}</Td>
+                      <Td>{t.uraian}</Td>
+                      <Td kanan>{formatRupiah(t.nilai)}</Td>
+                      <Td kanan>{formatRupiah(dibayar)}</Td>
+                      <Td kanan>
+                        {formatRupiah(sisaTagihan(t, data.pembayaran))}
+                      </Td>
+                      <Td>
+                        <StatusBadge status={statusRekon} />
+                      </Td>
+                    </Baris>
+                  );
+                })}
+              </tbody>
+            </Tabel>
           </Kartu>
 
           <Kartu>
             <JudulBagian>Total Kontrol per Kode Akun</JudulBagian>
-            <div className="mt-3 overflow-x-auto">
-              <table className="w-full border-collapse">
-                <thead>
-                  <tr>
-                    <th className={th}>Kode Akun</th>
-                    <th className={th}>Uraian</th>
-                    <th className={`${th} text-right`}>Tagihan</th>
-                    <th className={`${th} text-right`}>Pembayaran</th>
-                    <th className={`${th} text-right`}>Acuan Keuangan</th>
-                    <th className={`${th} text-right`}>Selisih</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {perKodeAkun.map((r) => (
-                    <tr key={r.kodeAkun}>
-                      <td className={td}>{r.kodeAkun}</td>
-                      <td className={td}>{uraianKodeAkun(r.kodeAkun)}</td>
-                      <td className={tdKanan}>{formatRupiah(r.tagihan)}</td>
-                      <td className={tdKanan}>{formatRupiah(r.pembayaran)}</td>
-                      <td className={tdKanan}>{formatRupiah(r.acuan)}</td>
-                      <td className={tdKanan}>{formatRupiah(r.selisih)}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+            <Tabel>
+              <thead>
+                <tr>
+                  <Th>Kode Akun</Th>
+                  <Th>Uraian</Th>
+                  <Th kanan>Tagihan</Th>
+                  <Th kanan>Pembayaran</Th>
+                  <Th kanan>Acuan Keuangan</Th>
+                  <Th kanan>Selisih</Th>
+                </tr>
+              </thead>
+              <tbody>
+                {perKodeAkun.map((r) => (
+                  <Baris key={r.kodeAkun}>
+                    <Td>{r.kodeAkun}</Td>
+                    <Td>{uraianKodeAkun(r.kodeAkun)}</Td>
+                    <Td kanan>{formatRupiah(r.tagihan)}</Td>
+                    <Td kanan>{formatRupiah(r.pembayaran)}</Td>
+                    <Td kanan>{formatRupiah(r.acuan)}</Td>
+                    <Td kanan>{formatRupiah(r.selisih)}</Td>
+                  </Baris>
+                ))}
+              </tbody>
+            </Tabel>
           </Kartu>
         </div>
       )}

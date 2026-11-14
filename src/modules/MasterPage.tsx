@@ -24,7 +24,15 @@ import {
   JUMLAH_SATKER_BERNOMOR,
   JUMLAH_SP,
 } from '../lib/satker';
-import { JudulBagian, Kartu, Peringatan } from '../components/ui';
+import {
+  Baris,
+  JudulBagian,
+  Kartu,
+  Peringatan,
+  Tabel,
+  Td,
+  Th,
+} from '../components/ui';
 
 function DaftarNilai({ judul, nilai }: { judul: string; nilai: string[] }) {
   return (
@@ -58,56 +66,50 @@ export default function MasterPage(_props: ModulProps) {
       {/* Kode Akun */}
       <Kartu>
         <JudulBagian>Kode Akun</JudulBagian>
-        <div className="mt-3 overflow-x-auto">
-          <table className="w-full text-sm">
+        <div className="mt-3">
+          <Tabel>
             <thead>
-              <tr className="border-b border-[#2573e2]/20 text-left text-xs text-[#0d2569]/60">
-                <th className="py-2 pr-3 font-semibold">Kode</th>
-                <th className="py-2 pr-3 font-semibold">Uraian</th>
-                <th className="py-2 font-semibold">Jenis PNBP</th>
+              <tr>
+                <Th>Kode</Th>
+                <Th>Uraian</Th>
+                <Th>Jenis PNBP</Th>
               </tr>
             </thead>
             <tbody>
               {MASTER_KODE_AKUN.map((k) => (
-                <tr
-                  key={k.kode}
-                  className="border-b border-[#2573e2]/10 text-[#0d2569]"
-                >
-                  <td className="py-2 pr-3 font-semibold">{k.kode}</td>
-                  <td className="py-2 pr-3">{k.uraian}</td>
-                  <td className="py-2">{k.jenisPnBP}</td>
-                </tr>
+                <Baris key={k.kode}>
+                  <Td tebal>{k.kode}</Td>
+                  <Td>{k.uraian}</Td>
+                  <Td>{k.jenisPnBP}</Td>
+                </Baris>
               ))}
             </tbody>
-          </table>
+          </Tabel>
         </div>
       </Kartu>
 
       {/* Kategori Layanan */}
       <Kartu>
         <JudulBagian>Kategori Layanan</JudulBagian>
-        <div className="mt-3 overflow-x-auto">
-          <table className="w-full text-sm">
+        <div className="mt-3">
+          <Tabel>
             <thead>
-              <tr className="border-b border-[#2573e2]/20 text-left text-xs text-[#0d2569]/60">
-                <th className="py-2 pr-3 font-semibold">Nama</th>
-                <th className="py-2 pr-3 font-semibold">Kode Akun</th>
-                <th className="py-2 font-semibold">Jenis PNBP</th>
+              <tr>
+                <Th>Nama</Th>
+                <Th>Kode Akun</Th>
+                <Th>Jenis PNBP</Th>
               </tr>
             </thead>
             <tbody>
               {MASTER_KATEGORI_LAYANAN.map((k) => (
-                <tr
-                  key={k.nama}
-                  className="border-b border-[#2573e2]/10 text-[#0d2569]"
-                >
-                  <td className="py-2 pr-3">{k.nama}</td>
-                  <td className="py-2 pr-3 font-semibold">{k.kodeAkun}</td>
-                  <td className="py-2">{k.jenisPnBP}</td>
-                </tr>
+                <Baris key={k.nama}>
+                  <Td>{k.nama}</Td>
+                  <Td tebal>{k.kodeAkun}</Td>
+                  <Td>{k.jenisPnBP}</Td>
+                </Baris>
               ))}
             </tbody>
-          </table>
+          </Tabel>
         </div>
       </Kartu>
 
@@ -146,31 +148,28 @@ export default function MasterPage(_props: ModulProps) {
         <div className="mt-3 max-h-96 overflow-auto rounded-md border border-[#2573e2]/20">
           <table className="w-full text-sm">
             <thead>
-              <tr className="sticky top-0 border-b border-[#2573e2]/20 bg-white text-left text-xs text-[#0d2569]/60">
-                <th className="py-2 pl-3 pr-3 font-semibold">No</th>
-                <th className="py-2 pr-3 font-semibold">Nama Satker</th>
-                <th className="py-2 pr-3 font-semibold">Tipe</th>
-                <th className="py-2 pr-3 font-semibold">Satker Induk</th>
+              <tr>
+                <Th className="sticky top-0 bg-white pl-3">No</Th>
+                <Th className="sticky top-0 bg-white">Nama Satker</Th>
+                <Th className="sticky top-0 bg-white">Tipe</Th>
+                <Th className="sticky top-0 bg-white">Satker Induk</Th>
               </tr>
             </thead>
             <tbody>
               {DAFTAR_SATKER.map((s) => (
-                <tr
-                  key={`${s.nama}-${s.induk ?? ''}`}
-                  className="border-b border-[#2573e2]/10 text-[#0d2569]"
-                >
-                  <td className="py-2 pl-3 pr-3">{s.no ?? '—'}</td>
-                  <td className="py-2 pr-3 font-semibold">
+                <Baris key={`${s.nama}-${s.induk ?? ''}`}>
+                  <Td className="pl-3">{s.no ?? '—'}</Td>
+                  <Td tebal>
                     {s.nama}
                     {s.nama === SATKER_PILOT.nama && (
                       <span className="ml-2 rounded bg-[#2573e2]/10 px-2 py-0.5 text-xs font-semibold text-[#0d2569]">
                         Satker pilot
                       </span>
                     )}
-                  </td>
-                  <td className="py-2 pr-3">{s.tipe}</td>
-                  <td className="py-2 pr-3">{s.induk ?? '—'}</td>
-                </tr>
+                  </Td>
+                  <Td>{s.tipe}</Td>
+                  <Td>{s.induk ?? '—'}</Td>
+                </Baris>
               ))}
             </tbody>
           </table>

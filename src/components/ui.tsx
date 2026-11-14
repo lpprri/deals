@@ -170,3 +170,100 @@ export function Label({ children }: { children: ReactNode }) {
 
 export const inputClass =
   'w-full rounded-md border border-[#2573e2]/40 px-3 py-2 text-sm text-[#0d2569] outline-none focus:border-[#2573e2]';
+
+/**
+ * Pola tabel bersama — DashStack (referensi Figma 14/11/2026): kartu putih
+ * bersudut membulat bayangan halus; header kecil huruf tebal navy redup;
+ * baris hover tint Biru sangat tipis; pemisah tipis; angka rata kanan;
+ * status tetap memakai StatusBadge (teks + ikon). Palet tetap 3 warna RRI.
+ * Dipakai semua tabel di modul agar konsisten — jangan lagi menulis gaya
+ * tabel inline yang berbeda-beda di tiap modul.
+ */
+export function Tabel({ children }: { children: ReactNode }) {
+  return (
+    <div className="mt-3 overflow-x-auto">
+      <table className="w-full text-sm">{children}</table>
+    </div>
+  );
+}
+
+/** Sel header tabel: kecil, tebal, navy redup, garis bawah. */
+export function Th({
+  children,
+  kanan = false,
+  className = '',
+}: {
+  children: ReactNode;
+  kanan?: boolean;
+  className?: string;
+}) {
+  return (
+    <th
+      className={`border-b border-[#2573e2]/20 py-2.5 pr-3 text-xs font-semibold whitespace-nowrap text-[#0d2569]/60 last:pr-0 ${kanan ? 'text-right' : 'text-left'} ${className}`}
+    >
+      {children}
+    </th>
+  );
+}
+
+/** Sel isi tabel: navy, garis bawah tipis. `kanan` untuk angka. `colSpan` untuk sel gabungan (mis. baris total). `children` opsional untuk sel pengisi kosong. */
+export function Td({
+  children,
+  kanan = false,
+  tebal = false,
+  colSpan,
+  className = '',
+}: {
+  children?: ReactNode;
+  kanan?: boolean;
+  tebal?: boolean;
+  colSpan?: number;
+  className?: string;
+}) {
+  return (
+    <td
+      colSpan={colSpan}
+      className={`border-b border-[#2573e2]/10 py-2.5 pr-3 align-top text-[#0d2569] last:pr-0 ${kanan ? 'text-right whitespace-nowrap' : 'text-left'} ${tebal ? 'font-semibold' : ''} ${className}`}
+    >
+      {children}
+    </td>
+  );
+}
+
+/** Baris isi tabel: hover tint Biru sangat tipis. `onClick` untuk baris yang bisa diklik (ditambah `cursor-pointer`). */
+export function Baris({
+  children,
+  onClick,
+  className = '',
+}: {
+  children: ReactNode;
+  onClick?: () => void;
+  className?: string;
+}) {
+  return (
+    <tr
+      onClick={onClick}
+      className={`hover:bg-[#2573e2]/5 ${onClick ? 'cursor-pointer' : ''} ${className}`}
+    >
+      {children}
+    </tr>
+  );
+}
+
+/**
+ * Butir daftar di dalam Kartu (mis. Perlu perhatian, Aktivitas terakhir,
+ * disposisi/tugas): pemisah tipis antar butir, tanpa garis di butir terakhir.
+ */
+export function ItemDaftar({
+  children,
+  className = '',
+}: {
+  children: ReactNode;
+  className?: string;
+}) {
+  return (
+    <li className={`border-b border-[#2573e2]/10 pb-3 last:border-0 last:pb-0 ${className}`}>
+      {children}
+    </li>
+  );
+}
