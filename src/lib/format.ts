@@ -60,6 +60,44 @@ export function periodeDariTanggal(iso: string): string {
   return iso.slice(0, 7);
 }
 
+/** Nama bulan singkat Indonesia untuk label sumbu grafik. */
+export const BULAN_SINGKAT = [
+  'Jan',
+  'Feb',
+  'Mar',
+  'Apr',
+  'Mei',
+  'Jun',
+  'Jul',
+  'Agu',
+  'Sep',
+  'Okt',
+  'Nov',
+  'Des',
+];
+
+/** '2026-01' -> 'Jan'. Mengembalikan periode apa adanya bila tidak valid. */
+export function formatBulanSingkat(periode: string): string {
+  const [, m] = periode.split('-');
+  const idx = Number(m) - 1;
+  if (idx < 0 || idx > 11) return periode;
+  return BULAN_SINGKAT[idx];
+}
+
+/** Rupiah ringkas untuk label sumbu grafik, mis. 62.596.875 -> 'Rp63 jt'. */
+export function formatRupiahSingkat(nilai: number): string {
+  if (nilai >= 1_000_000_000) {
+    return `Rp${(nilai / 1_000_000_000).toLocaleString('id-ID', { maximumFractionDigits: 1 })} M`;
+  }
+  if (nilai >= 1_000_000) {
+    return `Rp${Math.round(nilai / 1_000_000).toLocaleString('id-ID')} jt`;
+  }
+  if (nilai >= 1_000) {
+    return `Rp${Math.round(nilai / 1_000).toLocaleString('id-ID')} rb`;
+  }
+  return `Rp${nilai.toLocaleString('id-ID')}`;
+}
+
 /** Normalisasi nama untuk peringatan duplikat (PRD Bab 6.2). */
 export function normalisasiNama(nama: string): string {
   return nama

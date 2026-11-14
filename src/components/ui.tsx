@@ -17,20 +17,42 @@ export function JudulBagian({ children }: { children: ReactNode }) {
   return <h2 className="text-base font-bold text-[#0d2569]">{children}</h2>;
 }
 
+/**
+ * Kartu statistik pola DashStack (referensi Figma 14/11/2026): label kecil,
+ * angka besar, ikon dalam chip tint Biru, dan baris konteks faktual di bawah
+ * (bukan tren persen — data hanya sampai Sep 2026, tren bulanan akan
+ * menyesatkan). Palet tetap 3 warna RRI; `ikon` opsional agar pemakaian
+ * lama (mis. Marketing) tetap jalan.
+ */
 export function StatCard({
   label,
   nilai,
   keterangan,
+  ikon,
 }: {
   label: string;
   nilai: string;
   keterangan?: string;
+  ikon?: ReactNode;
 }) {
   return (
-    <div className="rounded-md border border-[#2573e2]/20 bg-white p-4">
-      <p className="text-xs text-[#0d2569]/60">{label}</p>
-      <p className="mt-1 text-xl font-bold text-[#0d2569]">{nilai}</p>
-      {keterangan && <p className="mt-1 text-xs text-[#0d2569]/60">{keterangan}</p>}
+    <div className="rounded-lg border border-[#2573e2]/15 bg-white p-4 shadow-[0_1px_3px_rgba(13,37,105,0.08)]">
+      <div className="flex items-start justify-between gap-2">
+        <p className="text-xs font-medium text-[#0d2569]/60">{label}</p>
+        {ikon && (
+          <span className="inline-flex shrink-0 items-center justify-center rounded-md bg-[#2573e2]/10 p-2 text-[#2573e2]">
+            {ikon}
+          </span>
+        )}
+      </div>
+      <p className="mt-2 text-2xl font-bold leading-tight text-[#0d2569]">
+        {nilai}
+      </p>
+      {keterangan && (
+        <p className="mt-1 text-xs leading-relaxed text-[#0d2569]/60">
+          {keterangan}
+        </p>
+      )}
     </div>
   );
 }
