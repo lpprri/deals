@@ -9,6 +9,13 @@ import type { JenisPnBP, SatkerRef } from './types';
 /** Satker pilot Fase A: Palembang (no. 41 di daftar satker nasional). */
 export const SATKER_PILOT: SatkerRef = { kode: '41', nama: 'PALEMBANG' };
 
+/**
+ * Fase pengembangan yang sudah terbangun dan tayang — satu-satunya tempat
+ * label status fase ditulis. Dipakai label di UI (mis. halaman login) agar
+ * tidak kedaluwarsa saat fase berikutnya selesai: cukup ubah konstanta ini.
+ */
+export const FASE_TERBANGUN = 'Fase A dan Fase B';
+
 export interface KodeAkun {
   kode: string;
   uraian: string;

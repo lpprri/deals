@@ -6,6 +6,7 @@
 
 import type { DummyUser } from '../lib/dummyUsers';
 import { DUMMY_USERS } from '../lib/dummyUsers';
+import { FASE_TERBANGUN } from '../lib/master';
 import { LABEL_PERAN } from '../lib/permissions';
 import { Peringatan } from './ui';
 
@@ -58,7 +59,8 @@ export default function Login({
         </div>
 
         <p className="mt-6 text-center text-xs text-[#0d2569]/60">
-          Tanpa kata sandi — mode contoh hanya untuk pembangunan Fase A.
+          Tanpa kata sandi — mode contoh hanya untuk pembangunan{' '}
+          {FASE_TERBANGUN}.
         </p>
       </div>
     </div>
