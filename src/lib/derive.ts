@@ -8,6 +8,7 @@ import type {
   StatusTagihan,
   Tagihan,
 } from './types';
+import { TAHAP_PIPELINE_AKTIF } from './master';
 import { hariIniIso, selisihHari } from './format';
 
 /** Jumlah pembayaran (semua status) untuk satu tagihan. */
@@ -107,6 +108,70 @@ export function hitungTotalKontrol(data: AppData): TotalKontrol {
     // Selisih = penerimaan acuan Keuangan − pembayaran terverifikasi.
     // Selisih 0 = cocok; selisih ≠ 0 harus terlihat & dijelaskan (Bab 7.5).
     selisihRekonsiliasi: totalPenerimaanAcuan - totalPembayaranTerverifikasi,
+  };
+}
+
+// ---------------------------------------------------------------------------
+// Analitik Sales — Fase B (PRD Bab 7.3). Semua angka dihitung dari data yang
+// sama dengan Dashboard Fase A, supaya tidak ada angka yang berbeda antar
+// layar. Nilai pipeline = Σ nilai perkiraan prospek pada tahap aktif.
+
+export interface AnalitikSales {
+  jumlahProspect: number;
+  prospectPerTahap: { tahap: string; jumlah: number; nilai: number }[];
+  nilaiPipeline: number;
+  jumlahQuotation: number;
+  jumlahQuotationDisetujui: number;
+  jumlahOrder: number;
+  jumlahOrderSelesai: number;
+  jumlahKontrakDariProspect: number;
+  konversiProspectKeQuotation: number; // persen, 0–100
+  konversiQuotationKeOrder: number; // persen, 0–100
+  konversiOrderKeKontrak: number; // persen, 0–100
+  konversiProspectKeKontrak: number; // persen, 0–100
+}
+
+export function hitungAnalitikSales(data: AppData): AnalitikSales {
+  const prospect = data.prospect;
+  const prospectPerTahap = TAHAP_PIPELINE_AKTIF.map((tahap) => ({
+    tahap,
+    jumlah: prospect.filter((p) => p.tahap === tahap).length,
+    nilai: prospect
+      .filter((p) => p.tahap === tahap)
+      .reduce((s, p) => s + p.nilaiPerkiraan, 0),
+  }));
+  const nilaiPipeline = prospect
+    .filter((p) => TAHAP_PIPELINE_AKTIF.includes(p.tahap))
+    .reduce((s, p) => s + p.nilaiPerkiraan, 0);
+  const jumlahQuotation = data.quotation.length;
+  const jumlahQuotationDisetujui = data.quotation.filter(
+    (q) => q.status === 'Disetujui',
+  ).length;
+  const jumlahOrder = data.order.length;
+  const jumlahOrderSelesai = data.order.filter((o) => o.status === 'Selesai').length;
+  const jumlahKontrakDariProspect = data.kontrak.filter((k) =>
+    data.prospect.some((p) => p.kontrakId === k.id),
+  ).length;
+  const persen = (a: number, b: number) => (b === 0 ? 0 : Math.round((a / b) * 100));
+  return {
+    jumlahProspect: prospect.length,
+    prospectPerTahap,
+    nilaiPipeline,
+    jumlahQuotation,
+    jumlahQuotationDisetujui,
+    jumlahOrder,
+    jumlahOrderSelesai,
+    jumlahKontrakDariProspect,
+    konversiProspectKeQuotation: persen(
+      new Set(data.quotation.map((q) => q.prospectId)).size,
+      prospect.length,
+    ),
+    konversiQuotationKeOrder: persen(
+      new Set(data.order.map((o) => o.quotationId)).size,
+      jumlahQuotation,
+    ),
+    konversiOrderKeKontrak: persen(jumlahOrderSelesai, jumlahOrder),
+    konversiProspectKeKontrak: persen(jumlahKontrakDariProspect, prospect.length),
   };
 }
 
