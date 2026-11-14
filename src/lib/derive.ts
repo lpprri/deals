@@ -203,3 +203,48 @@ export function totalPerKodeAkun(data: AppData): {
     return { kodeAkun, tagihan, pembayaran, acuan, selisih: acuan - pembayaran };
   });
 }
+
+/** Satu titik deret bulanan untuk grafik tren (pola DashStack). */
+export interface TitikBulanan {
+  /** Periode 'yyyy-mm'. */
+  periode: string;
+  nilai: number;
+}
+
+/**
+ * Nilai kontrak per bulan, basis bulan terbit tagihan (bulan PKS
+ * diterbitkan) — basis yang sama dengan rekonsiliasi Laporan Bulanan
+ * (skrip verifikasi migrasi). Total deret ini = nilai kontrak total di
+ * kartu kontrol. Kontrak tanpa tagihan memakai bulan tanggalMulai sebagai
+ * cadangan agar total tetap cocok. Hanya bulan yang ada datanya, terurut.
+ */
+export function nilaiKontrakPerBulan(data: AppData): TitikBulanan[] {
+  const tagihanPerKontrak = new Map(
+    data.tagihan.map((t) => [t.kontrakId, t]),
+  );
+  const peta = new Map<string, number>();
+  data.kontrak.forEach((k) => {
+    const terbit = tagihanPerKontrak.get(k.id)?.tanggalTerbit ?? k.tanggalMulai;
+    const periode = terbit.slice(0, 7);
+    peta.set(periode, (peta.get(periode) ?? 0) + k.nilaiKontrak);
+  });
+  return [...peta.entries()]
+    .sort(([a], [b]) => (a < b ? -1 : 1))
+    .map(([periode, nilai]) => ({ periode, nilai }));
+}
+
+/**
+ * Penyetoran (arus kas) per bulan, basis tanggal bayar — sama dengan
+ * rekonsiliasi Laporan Piutang. Hanya bulan yang ada datanya, terurut.
+ */
+export function penyetoranPerBulan(data: AppData): TitikBulanan[] {
+  const peta = new Map<string, number>();
+  data.pembayaran.forEach((p) => {
+    const periode = p.tanggalBayar.slice(0, 7);
+    peta.set(periode, (peta.get(periode) ?? 0) + p.jumlah);
+  });
+  return [...peta.entries()]
+    .sort(([a], [b]) => (a < b ? -1 : 1))
+    .map(([periode, nilai]) => ({ periode, nilai }));
+}
+
