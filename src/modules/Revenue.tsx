@@ -740,22 +740,37 @@ export default function Revenue(props: ModulProps) {
             />
             <StatCard
               label="Selisih Terbuka"
-              nilai={formatRupiah(kontrol.selisihRekonsiliasi)}
+              nilai={
+                data.penerimaanAcuan.length === 0
+                  ? '—'
+                  : formatRupiah(kontrol.selisihRekonsiliasi)
+              }
               keterangan={
-                kontrol.selisihRekonsiliasi === 0
-                  ? 'Cocok — tidak ada selisih.'
-                  : 'Selisih harus ditindaklanjuti.'
+                data.penerimaanAcuan.length === 0
+                  ? 'Data acuan Keuangan belum diimpor.'
+                  : kontrol.selisihRekonsiliasi === 0
+                    ? 'Cocok — tidak ada selisih.'
+                    : 'Selisih harus ditindaklanjuti.'
               }
             />
           </div>
-          {kontrol.selisihRekonsiliasi !== 0 && (
-            <Peringatan
-              teks={`Selisih rekonsiliasi ${formatRupiah(kontrol.selisihRekonsiliasi)} belum dijelaskan. Tindak lanjut: ACU-006 — Penerimaan tanpa tagihan Rp1.500.000 dari PT Swara Media Nusantara, 15/06/2026. Perlu konfirmasi ke Keuangan: tagihan mana yang dipasangkan, atau catat sebagai penerimaan tanpa tagihan.`}
-            />
-          )}
+          {data.penerimaanAcuan.length > 0 &&
+            kontrol.selisihRekonsiliasi !== 0 && (
+              <Peringatan
+                teks={`Selisih rekonsiliasi ${formatRupiah(kontrol.selisihRekonsiliasi)} belum dijelaskan. Perlu konfirmasi ke Keuangan: penerimaan acuan mana yang belum terpasangkan dengan pembayaran terverifikasi, atau catat sebagai penerimaan tanpa tagihan.`}
+              />
+            )}
 
           <Kartu>
             <JudulBagian>Penerimaan Acuan Keuangan (Read-Only)</JudulBagian>
+            {data.penerimaanAcuan.length === 0 && (
+              <p className="mt-3 text-sm text-[#0d2569]/70">
+                Data acuan Keuangan belum diimpor — Sheet 3 (DATA PNBP 2026)
+                belum terbaca karena batas konektor saat impor 14/11/2026.
+                Rekonsiliasi terhadap acuan Keuangan belum dapat dilakukan
+                sampai data itu diimpor.
+              </p>
+            )}
             <div className="mt-3 overflow-x-auto">
               <table className="w-full border-collapse">
                 <thead>

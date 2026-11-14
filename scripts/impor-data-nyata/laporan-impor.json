@@ -1,0 +1,187 @@
+{
+  "tanggalImpor": "2026-11-14",
+  "sumber": {
+    "sheet1": "Kerja Sama PNBP 2026 (1xmDYvYwMPMglufd6RTZiIpaJaJVkzF70wvK2kAmMH-8)",
+    "sheet2": "Daftar Sewa Lahan/BMN (1anXvQ1PkQUYWYQyiM_BVlZBaK2mKyQ3q0Y_WTQbgMMk)",
+    "sheet3": "DATA PNBP 2026 (Penyetor PNBP) (13UlqmLSEhkVtPMNvIxzw3diksvYnEAFfX0l69ZUIUUo)"
+  },
+  "diimpor": {
+    "klien": 33,
+    "kontrak": 42,
+    "layananKontrak": 48,
+    "dokumen": 102,
+    "tagihan": 42,
+    "pembayaran": 42,
+    "pembayaranTerverifikasi": 42,
+    "denda": 13,
+    "sewa": 39,
+    "pengajuan": 16,
+    "penerimaanAcuan": 0
+  },
+  "dilewati": {
+    "catatan": "Tidak ada baris entitas yang dilewati oleh skrip ini — baris header/total/blanko dan 2 baris duplikat kosong sudah disaring saat ekstraksi (lihat sheet1-audit.json). Yang TIDAK diimpor: seluruh Sheet 3 + tab Pengajuan Baru/Indralaya/Temuan Sheet 2 (belum terbaca — rate limit).",
+    "baris": []
+  },
+  "keputusanPemetaan": [
+    "Pembayaran dengan NTB + NTPN → Terverifikasi (42/42). NTPN adalah bukti penerimaan negara; pola sama dengan data contoh Fase A.",
+    "Sewa tertaut ke kontrak lewat nomor referensi lama: 16/39 tertaut, 23 tanpa tautan (perjanjian 2025 ke bawah).",
+    "Field di luar types.ts dibuang: Tagihan.status (42 baris — status diturunkan derive.ts), Sewa._nomorReferensiKontrak (14 baris — nilai tetap ada di snapshot ./data/).",
+    "Tautan Fase B ke contoh Fase A dihapus: pengajuanId PJ-001 ×1, pengajuanId PJ-003 ×1, klienId KLN-01 ×1, kontrakId PKS-001/2026 ×2, terkaitId PJ-002 ×1.",
+    "PenerimaanAcuan = [] — Sheet 3 belum terbaca (rate limit).",
+    "Pengajuan PGJ-01 & PGJ-02 memakai tanggal placeholder 2026-11-14 — wajib dikoreksi pengguna.",
+    "Sheet 1 (kontrak/angsuran 2026) dan Sheet 2 (perjanjian sewa multi-tahun 2022–2026) adalah potongan berbeda — total nilainya tidak boleh dijumlahkan."
+  ],
+  "sewaTanpaTautan": [
+    {
+      "id": "SW-001-RRI-PLB-PKS-F-02-2025",
+      "penyewaNama": "PT Indosat Tbk",
+      "nomorPerjanjian": "001/RRI.PLB/PKS.F/02/2025"
+    },
+    {
+      "id": "SW-026-RRI-PLB-PKS-U-06-2025",
+      "penyewaNama": "Herman Sawiran",
+      "nomorPerjanjian": "026/RRI.PLB/PKS.U/06/2025"
+    },
+    {
+      "id": "SW-010-RRI-PLB-PKS-U-03-2025",
+      "penyewaNama": "Sahara Al Fatiara Rozak",
+      "nomorPerjanjian": "010/RRI.PLB/PKS.U/03/2025"
+    },
+    {
+      "id": "SW-015-RRI-PLB-PKS-U-03-2025",
+      "penyewaNama": "Muhammad Theodosius El Abqo",
+      "nomorPerjanjian": "015/RRI.PLB/PKS.U/03/2025"
+    },
+    {
+      "id": "SW-012-RRI-PLB-PKS-U-03-2025",
+      "penyewaNama": "Aminul Khair",
+      "nomorPerjanjian": "012/RRI.PLB/PKS.U/03/2025"
+    },
+    {
+      "id": "SW-013-RRI-PLB-PKS-U-03-2025",
+      "penyewaNama": "Dierga Salomon Riezki, S.STP",
+      "nomorPerjanjian": "013/RRI.PLB/PKS.U/03/2025"
+    },
+    {
+      "id": "SW-014-RRI-PLB-PKS-U-03-2025",
+      "penyewaNama": "Meily Oktarina",
+      "nomorPerjanjian": "014/RRI.PLB/PKS.U/03/2025"
+    },
+    {
+      "id": "SW-019-RRI-PLB-PKS-U-04-2025",
+      "penyewaNama": "Nirmalan",
+      "nomorPerjanjian": "019/RRI.PLB/PKS.U/04/2025"
+    },
+    {
+      "id": "SW-021-RRI-PLB-PKS-U-04-2025",
+      "penyewaNama": "Amir Syarifuddin",
+      "nomorPerjanjian": "021/RRI.PLB/PKS.U/04/2025"
+    },
+    {
+      "id": "SW-020-RRI-PLB-PKS-U-04-2025",
+      "penyewaNama": "Sudani",
+      "nomorPerjanjian": "020/RRI.PLB/PKS.U/04/2025"
+    },
+    {
+      "id": "SW-030-RRI-PLB-PKS-U-06-2025",
+      "penyewaNama": "Ahmad Sobirin",
+      "nomorPerjanjian": "030/RRI.PLB/PKS.U/06/2025"
+    },
+    {
+      "id": "SW-047-RRI-PLB-PKS-U-11-2025",
+      "penyewaNama": "Abdul Rozak Rusdy",
+      "nomorPerjanjian": "047/RRI.PLB/PKS.U/11/2025"
+    },
+    {
+      "id": "SW-048-RRI-PLB-PKS-U-11-2025",
+      "penyewaNama": "Mila Agustina",
+      "nomorPerjanjian": "048/RRI.PLB/PKS.U/11/2025"
+    },
+    {
+      "id": "SW-037-RRI-PLB-PKS-U-09-2025",
+      "penyewaNama": "Kasir",
+      "nomorPerjanjian": "037/RRI.PLB/PKS.U/09/2025"
+    },
+    {
+      "id": "SW-036-RRI-PLB-PKS-U-09-2025",
+      "penyewaNama": "Ricardo Nopriansa",
+      "nomorPerjanjian": "036/RRI.PLB/PKS.U/09/2025"
+    },
+    {
+      "id": "SW-040-RRI-PLB-PKS-U-09-2025",
+      "penyewaNama": "Samdini",
+      "nomorPerjanjian": "040/RRI.PLB/PKS.U/09/2025"
+    },
+    {
+      "id": "SW-041-RRI-PLB-PKS-U-09-2025",
+      "penyewaNama": "Fisol Jailani",
+      "nomorPerjanjian": "041/RRI.PLB/PKS.U/09/2025"
+    },
+    {
+      "id": "SW-050-RRI-PLB-PKS-U-11-2025",
+      "penyewaNama": "Nanik Wahyunita",
+      "nomorPerjanjian": "050/RRI.PLB/PKS.U/11/2025"
+    },
+    {
+      "id": "SW-052-RRI-PLB-PKS-U-12-2025",
+      "penyewaNama": "Binsar Sinambela",
+      "nomorPerjanjian": "052/RRI.PLB/PKS.U/12/2025"
+    },
+    {
+      "id": "SW-053-RRI-PLB-PKS-U-12-2025",
+      "penyewaNama": "SR. Sihotang",
+      "nomorPerjanjian": "053/RRI.PLB/PKS.U/12/2025"
+    },
+    {
+      "id": "SW-055-RRI-PLB-PKS-U-12-2025",
+      "penyewaNama": "Subhan",
+      "nomorPerjanjian": "055/RRI.PLB/PKS.U/12/2025"
+    },
+    {
+      "id": "SW-054-RRI-PLB-PKS-U-12-2025",
+      "penyewaNama": "Efran Valuphy",
+      "nomorPerjanjian": "054/RRI.PLB/PKS.U/12/2025"
+    },
+    {
+      "id": "SW-056-RRI-PLB-PKS-U-12-2025",
+      "penyewaNama": "Nehwa Atmojo",
+      "nomorPerjanjian": "056/RRI.PLB/PKS.U/12/2025"
+    }
+  ],
+  "pengecualianKodeAkun": [
+    {
+      "kontrak": "001/PKS/DIR.LPU/01/2026",
+      "barisSummary": 7,
+      "layanan": "Adlibs",
+      "sumber": "Tipe PNBP = PNBP Fungsional",
+      "diterapkanMaster": "kodeAkun 425131, jenisPnBP Umum (Ad-Lib / Jingle)",
+      "alasan": "Master Kode Akun / MASTER_KATEGORI_LAYANAN: Ad-Lib / Jingle = 425131 = Umum (pelajaran Bab 13)."
+    },
+    {
+      "kontrak": "5391/PKS/RRI.PLB/06/2026",
+      "barisSummary": 34,
+      "layanan": "Adlibs",
+      "sumber": "Tipe PNBP = PNBP Fungsional",
+      "diterapkanMaster": "kodeAkun 425131, jenisPnBP Umum (Ad-Lib / Jingle)",
+      "alasan": "Master Kode Akun / MASTER_KATEGORI_LAYANAN: Ad-Lib / Jingle = 425131 = Umum (pelajaran Bab 13)."
+    },
+    {
+      "kontrak": "5592/PKS/RRI.PLB/06/2026",
+      "barisSummary": 39,
+      "layanan": "Adlibs",
+      "sumber": "Tipe PNBP = PNBP Fungsional",
+      "diterapkanMaster": "kodeAkun 425131, jenisPnBP Umum (Ad-Lib / Jingle)",
+      "alasan": "Master Kode Akun / MASTER_KATEGORI_LAYANAN: Ad-Lib / Jingle = 425131 = Umum (pelajaran Bab 13)."
+    }
+  ],
+  "belumDiimpor": {
+    "sheet3": "Seluruh 10 tab DATA PNBP 2026 (Rekap Penerimaan, Jan–Sep) — rate limit saat ekstraksi.",
+    "sheet2": "Tab Pengajuan Baru, Indralaya, Temuan — rate limit saat ekstraksi.",
+    "catatan": "Butuh attempt berikutnya setelah kuota konektor pulih; jalankan ulang ekstraksi untuk tab tersebut lalu jalankan ulang skrip ini."
+  },
+  "masalahKualitasDiringkas": {
+    "sheet1": 22,
+    "sheet2": 22,
+    "catatan": "Rincian lengkap di data/sheet1-audit.json dan data/sheet2-3-audit.json. Yang paling penting: nomor PKS ganda 2036 (2 kontrak, id #010/#011), Samdini tertulis Lunas padahal tanpa NTB/NTPN, total Rekapitulasi stale, 2 pengajuan bertanggal placeholder."
+  }
+}

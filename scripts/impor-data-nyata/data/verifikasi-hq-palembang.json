@@ -1,0 +1,200 @@
+{
+  "januari": {
+    "fungsional": 1820000,
+    "umum": 55674000,
+    "qtyPks": 5,
+    "total": 57494000,
+    "catatan": "Baris PALEMBANG no. 41 tab JANUARI. Rincian: Siaran Iklan 270000 (QTY 1), Adlibs 1550000 (QTY 1), Sewa Lahan 55674000 (QTY 3). Kolom PIUTANG 270000, KERJASAMA BERJALAN 1350000, DUKUNGAN 0. Blok ringkasan kanan (41 PALEMBANG 1820000 / 55674000) sama. Sama dengan Laporan Bulanan (sheet 4)."
+  },
+  "februari": {
+    "fungsional": 36700000,
+    "umum": 15555000,
+    "qtyPks": 7,
+    "total": 52255000,
+    "catatan": "Baris PALEMBANG no. 41 tab FEBRUARI. Rincian: Greeting 36700000 (QTY 5), Sewa Lahan 15555000 (QTY 2, durasi 1 tahun). Kolom PIUTANG / KERJASAMA BERJALAN / DUKUNGAN kosong (bukan 0). Sama dengan Laporan Bulanan."
+  },
+  "maret": {
+    "fungsional": 6550000,
+    "umum": 0,
+    "qtyPks": 3,
+    "total": 6550000,
+    "catatan": "Baris PALEMBANG no. 41 tab MARET. Rincian: Siaran Iklan 4050000 (QTY 1), Greeting 2500000 (QTY 2). Umum tertulis 0. Kolom PIUTANG / KERJASAMA BERJALAN / DUKUNGAN kosong. Sama dengan Laporan Bulanan."
+  },
+  "april": {
+    "fungsional": 2270000,
+    "umum": 0,
+    "qtyPks": 2,
+    "total": 2270000,
+    "catatan": "Baris PALEMBANG no. 41 tab APRIL. Rincian: Siaran Iklan 270000 (QTY 1), Dialog Interaktif 2000000 (QTY 1). Umum tertulis 0. Kolom PIUTANG / KERJASAMA BERJALAN / DUKUNGAN kosong. Sama dengan Laporan Bulanan."
+  },
+  "mei": {
+    "fungsional": 5240000,
+    "umum": 5320000,
+    "qtyPks": 4,
+    "total": 10560000,
+    "catatan": "Baris PALEMBANG no. 41 tab MEI. Rincian: Siaran Iklan 5040000 (QTY 2), Jasa Digitalisasi 200000 (QTY 1), Sewa Lahan 5320000 (QTY 1). Kolom PIUTANG / KERJASAMA BERJALAN / DUKUNGAN kosong. Sama dengan Laporan Bulanan."
+  },
+  "juni": {
+    "fungsional": 14050000,
+    "umum": 3056000,
+    "qtyPks": 10,
+    "total": 17106000,
+    "catatan": "Baris PALEMBANG no. 41 tab JUNI. Total Fungsional/Umum/Total SAMA dengan Laporan Bulanan, tetapi QTY 10 BUKAN jumlah PKS: Siaran Iklan 4050000 (1), Adlibs 1500000 (2), Dialog Interaktif 6000000 (3), Greeting 500000 (1), Jasa Digitalisasi 2000000 (2), Sewa Auditorium 3056000 (1) — QTY menghitung baris layanan per PKS (DPRD dan Medco masing-masing terhitung 3x), padahal petunjuk header tab berbunyi 'QTY = JUMLAH KERJASAMA (PKS) YANG TERJADI DALAM 1 BULAN, BUKAN JUMLAH SIARNYA'. Jumlah PKS sebenarnya 6 (5 Fungsional + 1 Umum). Kolom PIUTANG / KERJASAMA BERJALAN / DUKUNGAN kosong. PENJELASAN DEFINISI: tab PANDUAN sheet 6 mendefinisikan 'Jumlah PKS = dalam 1 bulan ada berapa kali kerja sama (PKS) setiap jenis PNBP Fungsional' — jadi QTY dihitung per jenis layanan, sehingga satu PKS dengan 3 layanan terhitung 3x. Ini berbeda dengan hitungan PKS distinct di Laporan Bulanan (sheet 4) dan bertentangan dengan catatan header tab bulanan ('QTY = JUMLAH KERJASAMA (PKS) YANG TERJADI DALAM 1 BULAN, BUKAN JUMLAH SIARNYA'). Kedua sumber QTY tidak dapat dibandingkan langsung tanpa penyesuaian definisi."
+  },
+  "juli": {
+    "fungsional": 0,
+    "umum": 0,
+    "qtyPks": 0,
+    "total": 0,
+    "catatan": "Baris PALEMBANG no. 41 tab JULI seluruhnya 0/kosong (blok ringkasan kanan juga 0/0). SELISIH BESAR vs Laporan Bulanan: Fungsional -2000000, Umum -60596875, Total -62596875, QTY -8. Data Juli tidak/belum diisikan pada format kantor pusat."
+  },
+  "agustus": {
+    "fungsional": 7975000,
+    "umum": 0,
+    "qtyPks": 3,
+    "total": 7975000,
+    "catatan": "Baris PALEMBANG no. 41 tab AGUSTUS. Total SAMA dengan Laporan Bulanan, tetapi QTY 3 BUKAN jumlah PKS: Siaran Iklan 4275000 (1), Sandiwara Radio 3000000 (1), Feature 700000 (1) — satu PKS Komdigi terhitung 3x (3 baris layanan). Jumlah PKS sebenarnya 1. Rincian Sandiwara 3000000 dan Feature 700000 TIDAK ADA di rincian Laporan Bulanan Agustus (di sana hanya Siaran Iklan 4275000 dengan nilai kontrak 7975000). Kolom PIUTANG / KERJASAMA BERJALAN / DUKUNGAN kosong. PENJELASAN DEFINISI: lihat catatan Juni — tab PANDUAN mendefinisikan Jumlah PKS per jenis layanan, sehingga satu PKS Komdigi dengan 3 layanan terhitung QTY 3."
+  },
+  "september": {
+    "fungsional": 0,
+    "umum": 0,
+    "qtyPks": 0,
+    "total": 0,
+    "catatan": "Baris PALEMBANG no. 41 tab SEPTEMBER seluruhnya 0/kosong (blok ringkasan kanan juga 0/0). SELISIH vs Laporan Bulanan: Fungsional -180000, Total -180000, QTY -1. Data September tidak/belum diisikan pada format kantor pusat."
+  },
+  "selisihVsLaporanBulanan": {
+    "januari": {
+      "fungsional": 0,
+      "umum": 0,
+      "qtyPks": 0,
+      "total": 0
+    },
+    "februari": {
+      "fungsional": 0,
+      "umum": 0,
+      "qtyPks": 0,
+      "total": 0
+    },
+    "maret": {
+      "fungsional": 0,
+      "umum": 0,
+      "qtyPks": 0,
+      "total": 0
+    },
+    "april": {
+      "fungsional": 0,
+      "umum": 0,
+      "qtyPks": 0,
+      "total": 0
+    },
+    "mei": {
+      "fungsional": 0,
+      "umum": 0,
+      "qtyPks": 0,
+      "total": 0
+    },
+    "juni": {
+      "fungsional": 0,
+      "umum": 0,
+      "qtyPks": 4,
+      "total": 0,
+      "catatan": "Selisih QTY semata karena sheet 6 menghitung baris layanan, bukan PKS."
+    },
+    "juli": {
+      "fungsional": -2000000,
+      "umum": -60596875,
+      "qtyPks": -8,
+      "total": -62596875,
+      "catatan": "Baris PALEMBANG kosong/0 di sheet 6."
+    },
+    "agustus": {
+      "fungsional": 0,
+      "umum": 0,
+      "qtyPks": 2,
+      "total": 0,
+      "catatan": "Selisih QTY semata karena sheet 6 menghitung baris layanan, bukan PKS."
+    },
+    "september": {
+      "fungsional": -180000,
+      "umum": 0,
+      "qtyPks": -1,
+      "total": -180000,
+      "catatan": "Baris PALEMBANG kosong/0 di sheet 6."
+    },
+    "_totalJanSep": {
+      "fungsional": -2180000,
+      "umum": -60596875,
+      "qtyPks": -3,
+      "total": -62776875,
+      "catatan": "Total selisih Jan-Sep = Juli + September. Selisih QTY total -3 (Juni +4, Juli -8, Agustus +2, September -1)."
+    }
+  },
+  "_validasiSilang": {
+    "triwulan1": {
+      "sheet6Fungsional": 45070000,
+      "sheet6Umum": 71229000,
+      "sheet6Total": 116299000,
+      "laporanBulananJanMarTotal": 116299000,
+      "selisih": 0,
+      "catatan": "Tab TRIWULAN 1 sheet 6 sama dengan Laporan Bulanan Jan-Mar."
+    },
+    "triwulan2": {
+      "sheet6Fungsional": 21560000,
+      "sheet6Umum": 8376000,
+      "sheet6Total": 29936000,
+      "laporanBulananAprJunTotal": 29936000,
+      "selisih": 0,
+      "catatan": "Tab TRIWULAN 2 sheet 6 sama dengan Laporan Bulanan Apr-Jun."
+    },
+    "triwulan3": {
+      "sheet6Fungsional": 7975000,
+      "sheet6Umum": 0,
+      "sheet6Total": 7975000,
+      "laporanBulananJulSepTotal": 70751875,
+      "selisih": -62776875,
+      "catatan": "Tab TRIWULAN 3 sheet 6 hanya berisi Agustus; Juli dan September 0 (mewarisi kekosongan tab bulanan)."
+    },
+    "realisasiJasaJanSep": {
+      "sheet6Fungsional": 74605000,
+      "sheet6Umum": 79605000,
+      "sheet6Total": 154210000,
+      "laporanBulananJanSepTotal": 216986875,
+      "selisih": -62776875,
+      "catatan": "Tab REALISASI/JASA sheet 6 = jumlah tab bulanan sheet 6 Jan-Sep; selisih vs Laporan Bulanan sama dengan selisih Juli+September."
+    },
+    "piutangSheet6": "Kolom PIUTANG dan KERJASAMA YANG SEDANG BERJALAN hanya terisi pada Januari (270000 dan 1350000); Feb-Sep kosong. Angka Januari tidak dapat direkonsiliasi dengan Laporan Piutang (Jan: total piutang 19368000, sisa 810000) — definisi kolom tidak tertulis di PANDUAN/tab.",
+    "realisasiTriwulan": {
+      "sheet6Tw1Fungsional": 45070000,
+      "sheet6Tw2Fungsional": 21560000,
+      "sheet6Tw3Fungsional": 7975000,
+      "sheet6Tw4Fungsional": 0,
+      "sheet6TotalFungsional": 74605000,
+      "sheet6TotalUmum": 79605000,
+      "sheet6GrandTotal": 154210000,
+      "targetTercatat": 179200000,
+      "capaianTertulis": "41.63%",
+      "catatan": "Tab REALISASI/TRIWULAN: TW1 45070000 + TW2 21560000 + TW3 7975000 + TW4 0 = Fungsional 74605000; Umum 71229000+8376000+0+0=79605000; grand total 154210000 (sama dengan REALISASI/JASA). Target tercatat 179200000; capaian tertulis 41,63% = 74605000/179200000 (basis Fungsional saja, bukan grand total 154210000/179200000=86,06%) — basis persentase tidak dijelaskan di tab."
+    }
+  },
+  "oktober": {
+    "fungsional": 0,
+    "umum": 0,
+    "qtyPks": 0,
+    "total": 0,
+    "catatan": "Baris PALEMBANG no. 41 tab OKTOBER seluruhnya 0/kosong. Di luar cakupan Jan-Sep; dicatat karena Laporan Bulanan (Rekapitulasi) juga kosong untuk Oktober (Total tertulis Rp0)."
+  },
+  "november": {
+    "fungsional": 0,
+    "umum": 0,
+    "qtyPks": 0,
+    "total": 0,
+    "catatan": "Baris PALEMBANG no. 41 tab NOVEMBER seluruhnya 0/kosong. Di luar cakupan Jan-Sep; Laporan Bulanan juga kosong untuk November."
+  },
+  "desember": {
+    "fungsional": 0,
+    "umum": 0,
+    "qtyPks": 0,
+    "total": 0,
+    "catatan": "Baris PALEMBANG no. 41 tab DESEMBER seluruhnya 0/kosong. Di luar cakupan Jan-Sep; Laporan Bulanan juga kosong untuk Desember."
+  }
+}

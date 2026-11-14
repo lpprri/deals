@@ -1,0 +1,563 @@
+[
+  {
+    "id": "KLN-001",
+    "nama": "PT PLN (Persero) UPT Palembang",
+    "jenis": "BUMN/BUMD",
+    "alamat": "Palembang",
+    "kontakNama": "Ilham Juliando",
+    "kontakJabatan": "K3 dan Keamanan PLN UPT Palembang",
+    "telepon": "0896-8903-6481",
+    "email": "",
+    "status": "Aktif",
+    "satker": {
+      "kode": "41",
+      "nama": "PALEMBANG"
+    },
+    "dibuatOleh": "Migrasi Spreadsheet 1",
+    "dibuatPada": "2026-01-19"
+  },
+  {
+    "id": "KLN-002",
+    "nama": "PT Taspen (Persero)",
+    "jenis": "BUMN/BUMD",
+    "alamat": "Palembang",
+    "kontakNama": "",
+    "kontakJabatan": "Corporate Secretary",
+    "telepon": "",
+    "email": "",
+    "status": "Aktif",
+    "satker": {
+      "kode": "41",
+      "nama": "PALEMBANG"
+    },
+    "dibuatOleh": "Migrasi Spreadsheet 1",
+    "dibuatPada": "2026-01-19"
+  },
+  {
+    "id": "KLN-003",
+    "nama": "Aminul Khair",
+    "jenis": "Perorangan",
+    "alamat": "Ogan Ilir",
+    "kontakNama": "Aminul Khair",
+    "kontakJabatan": "",
+    "telepon": "0821-7800-4497",
+    "email": "",
+    "status": "Aktif",
+    "satker": {
+      "kode": "41",
+      "nama": "PALEMBANG"
+    },
+    "dibuatOleh": "Migrasi Spreadsheet 1",
+    "dibuatPada": "2026-01-30"
+  },
+  {
+    "id": "KLN-004",
+    "nama": "Meily Oktarina",
+    "jenis": "Perorangan",
+    "alamat": "Palembang",
+    "kontakNama": "Meily Oktarina",
+    "kontakJabatan": "",
+    "telepon": "0813-6761-5858",
+    "email": "",
+    "status": "Aktif",
+    "satker": {
+      "kode": "41",
+      "nama": "PALEMBANG"
+    },
+    "dibuatOleh": "Migrasi Spreadsheet 1",
+    "dibuatPada": "2026-01-30"
+  },
+  {
+    "id": "KLN-005",
+    "nama": "Dierga Salomon Riezki, S.STP",
+    "jenis": "Perorangan",
+    "alamat": "Palembang",
+    "kontakNama": "Dierga Salomon Riezki, S.STP",
+    "kontakJabatan": "",
+    "telepon": "0823-7525-9995",
+    "email": "",
+    "status": "Aktif",
+    "satker": {
+      "kode": "41",
+      "nama": "PALEMBANG"
+    },
+    "dibuatOleh": "Migrasi Spreadsheet 1",
+    "dibuatPada": "2026-01-30"
+  },
+  {
+    "id": "KLN-006",
+    "nama": "Abdul Rozak Rusdy",
+    "jenis": "Perorangan",
+    "alamat": "Ogan Ilir",
+    "kontakNama": "Abdul Rozak Rusdy",
+    "kontakJabatan": "",
+    "telepon": "0813 7777 7369",
+    "email": "",
+    "status": "Aktif",
+    "satker": {
+      "kode": "41",
+      "nama": "PALEMBANG"
+    },
+    "dibuatOleh": "Migrasi Spreadsheet 1",
+    "dibuatPada": "2026-02-11"
+  },
+  {
+    "id": "KLN-007",
+    "nama": "Assef Hidayat",
+    "jenis": "Perorangan",
+    "alamat": "Ogan Ilir",
+    "kontakNama": "Assef Hidayat",
+    "kontakJabatan": "",
+    "telepon": "0822-8286-6552",
+    "email": "",
+    "status": "Aktif",
+    "satker": {
+      "kode": "41",
+      "nama": "PALEMBANG"
+    },
+    "dibuatOleh": "Migrasi Spreadsheet 1",
+    "dibuatPada": "2026-02-11"
+  },
+  {
+    "id": "KLN-008",
+    "nama": "Dinas Komunikasi dan Informatika Kota Palembang",
+    "jenis": "Pemerintah",
+    "alamat": "Palembang",
+    "kontakNama": "Dody",
+    "kontakJabatan": "Kepala Bidang Pengelola Komunikasi Publik",
+    "telepon": "0812-7328-5000",
+    "email": "",
+    "status": "Aktif",
+    "satker": {
+      "kode": "41",
+      "nama": "PALEMBANG"
+    },
+    "dibuatOleh": "Migrasi Spreadsheet 1",
+    "dibuatPada": "2026-02-18"
+  },
+  {
+    "id": "KLN-009",
+    "nama": "Dinas Komunikasi dan Informatika Kabupaten Banyuasin",
+    "jenis": "Pemerintah",
+    "alamat": "Banyuasin",
+    "kontakNama": "Titin Yariyanti, S.Pd., M.Si",
+    "kontakJabatan": "Kepala Bidang Informasi Komunikasi Publik",
+    "telepon": "0813-6700-8599",
+    "email": "",
+    "status": "Aktif",
+    "satker": {
+      "kode": "41",
+      "nama": "PALEMBANG"
+    },
+    "dibuatOleh": "Migrasi Spreadsheet 1",
+    "dibuatPada": "2026-02-18"
+  },
+  {
+    "id": "KLN-010",
+    "nama": "Dinas Komunikasi dan Informatika Kabupaten Musi Banyuasin",
+    "jenis": "Pemerintah",
+    "alamat": "Musi Banyuasin",
+    "kontakNama": "Slamet Rianto",
+    "kontakJabatan": "Kepala Bidang Komunikasi Publik",
+    "telepon": "0821-6284-8445",
+    "email": "",
+    "status": "Aktif",
+    "satker": {
+      "kode": "41",
+      "nama": "PALEMBANG"
+    },
+    "dibuatOleh": "Migrasi Spreadsheet 1",
+    "dibuatPada": "2026-02-18"
+  },
+  {
+    "id": "KLN-011",
+    "nama": "Bank Sumsel Babel",
+    "jenis": "BUMN/BUMD",
+    "alamat": "Palembang",
+    "kontakNama": "Desy",
+    "kontakJabatan": "Pengelola Bisnis Dana Jasa & Tresury Komersial & Institusi Syariah",
+    "telepon": "0813-6607-6066",
+    "email": "",
+    "status": "Aktif",
+    "satker": {
+      "kode": "41",
+      "nama": "PALEMBANG"
+    },
+    "dibuatOleh": "Migrasi Spreadsheet 1",
+    "dibuatPada": "2026-02-18"
+  },
+  {
+    "id": "KLN-012",
+    "nama": "Kantor Perwakilan Bank Indonesia Provinsi Sumatera Selatan",
+    "jenis": "Lembaga/Organisasi",
+    "alamat": "Palembang",
+    "kontakNama": "Anggita",
+    "kontakJabatan": "Kepala Unit Kehumasan",
+    "telepon": "0852-1388-1024",
+    "email": "",
+    "status": "Aktif",
+    "satker": {
+      "kode": "41",
+      "nama": "PALEMBANG"
+    },
+    "dibuatOleh": "Migrasi Spreadsheet 1",
+    "dibuatPada": "2026-02-24"
+  },
+  {
+    "id": "KLN-013",
+    "nama": "Kantor Pengawasan dan Pelayanan Bea dan Cukai TMP B Palembang",
+    "jenis": "Pemerintah",
+    "alamat": "Palembang",
+    "kontakNama": "Humas Bea Cukai Palembang",
+    "kontakJabatan": "Pejabat Pembuat Komitmen",
+    "telepon": "0851-6289-0528",
+    "email": "",
+    "status": "Aktif",
+    "satker": {
+      "kode": "41",
+      "nama": "PALEMBANG"
+    },
+    "dibuatOleh": "Migrasi Spreadsheet 1",
+    "dibuatPada": "2026-03-10"
+  },
+  {
+    "id": "KLN-014",
+    "nama": "Dinas Komunikasi dan Informatika Kabupaten Ogan Komering Ulu Selatan",
+    "jenis": "Pemerintah",
+    "alamat": "Ogan Komering Ulu Selatan",
+    "kontakNama": "Rio",
+    "kontakJabatan": "Kepala Dinas",
+    "telepon": "0812-6663-3232",
+    "email": "",
+    "status": "Aktif",
+    "satker": {
+      "kode": "41",
+      "nama": "PALEMBANG"
+    },
+    "dibuatOleh": "Migrasi Spreadsheet 1",
+    "dibuatPada": "2026-03-19"
+  },
+  {
+    "id": "KLN-015",
+    "nama": "Bank Syariah Indonesia KCP Kenten 2 Palembang",
+    "jenis": "BUMN/BUMD",
+    "alamat": "Palembang",
+    "kontakNama": "Zalmon",
+    "kontakJabatan": "Branch Manager",
+    "telepon": "0821-8408-9414",
+    "email": "",
+    "status": "Aktif",
+    "satker": {
+      "kode": "41",
+      "nama": "PALEMBANG"
+    },
+    "dibuatOleh": "Migrasi Spreadsheet 1",
+    "dibuatPada": "2026-03-19"
+  },
+  {
+    "id": "KLN-016",
+    "nama": "Kanwil DJP Sumatera Selatan dan Kepulauan Bangka Belitung",
+    "jenis": "Pemerintah",
+    "alamat": "Palembang",
+    "kontakNama": "Fari Ardining",
+    "kontakJabatan": "Kepala Seksi Bimbingan Penyuluhan dan Pengelolaan Dokumen",
+    "telepon": "0857-8078-4191",
+    "email": "",
+    "status": "Aktif",
+    "satker": {
+      "kode": "41",
+      "nama": "PALEMBANG"
+    },
+    "dibuatOleh": "Migrasi Spreadsheet 1",
+    "dibuatPada": "2026-04-17"
+  },
+  {
+    "id": "KLN-017",
+    "nama": "Arip",
+    "jenis": "Perorangan",
+    "alamat": "Palembang",
+    "kontakNama": "Ahmad Sobirin",
+    "kontakJabatan": "",
+    "telepon": "0813-6775-2442",
+    "email": "",
+    "status": "Aktif",
+    "satker": {
+      "kode": "41",
+      "nama": "PALEMBANG"
+    },
+    "dibuatOleh": "Migrasi Spreadsheet 1",
+    "dibuatPada": "2026-05-21"
+  },
+  {
+    "id": "KLN-018",
+    "nama": "Savano Entertainment",
+    "jenis": "Swasta",
+    "alamat": "Palembang",
+    "kontakNama": "Yusheni",
+    "kontakJabatan": "Account Executive",
+    "telepon": "0819-685-810",
+    "email": "",
+    "status": "Aktif",
+    "satker": {
+      "kode": "41",
+      "nama": "PALEMBANG"
+    },
+    "dibuatOleh": "Migrasi Spreadsheet 1",
+    "dibuatPada": "2026-05-22"
+  },
+  {
+    "id": "KLN-019",
+    "nama": "Yayasan Islam Al-Ittifaqiah",
+    "jenis": "Lembaga/Organisasi",
+    "alamat": "Ogan Ilir",
+    "kontakNama": "M. Joni Rusli",
+    "kontakJabatan": "Ketua",
+    "telepon": "0811-7100-116",
+    "email": "",
+    "status": "Aktif",
+    "satker": {
+      "kode": "41",
+      "nama": "PALEMBANG"
+    },
+    "dibuatOleh": "Migrasi Spreadsheet 1",
+    "dibuatPada": "2026-05-26"
+  },
+  {
+    "id": "KLN-020",
+    "nama": "PT Sumber Alfaria Trijaya Tbk. Branch Palembang",
+    "jenis": "Swasta",
+    "alamat": "Palembang",
+    "kontakNama": "Medi",
+    "kontakJabatan": "Marketing Manager",
+    "telepon": "0812-9467-2900",
+    "email": "",
+    "status": "Aktif",
+    "satker": {
+      "kode": "41",
+      "nama": "PALEMBANG"
+    },
+    "dibuatOleh": "Migrasi Spreadsheet 1",
+    "dibuatPada": "2026-05-29"
+  },
+  {
+    "id": "KLN-021",
+    "nama": "Dr. Jalaluddin, MPSA",
+    "jenis": "Perorangan",
+    "alamat": "Palembang",
+    "kontakNama": "Dr. Jalaluddin, MPSA",
+    "kontakJabatan": "Direktur ASMA",
+    "telepon": "0823-7244-2843",
+    "email": "",
+    "status": "Aktif",
+    "satker": {
+      "kode": "41",
+      "nama": "PALEMBANG"
+    },
+    "dibuatOleh": "Migrasi Spreadsheet 1",
+    "dibuatPada": "2026-06-12"
+  },
+  {
+    "id": "KLN-022",
+    "nama": "DPRD Kota Palembang",
+    "jenis": "Pemerintah",
+    "alamat": "Palembang",
+    "kontakNama": "Lydia",
+    "kontakJabatan": "Ketua Tim Humas Protokol dan Publikasi",
+    "telepon": "0852-7336-0336",
+    "email": "",
+    "status": "Aktif",
+    "satker": {
+      "kode": "41",
+      "nama": "PALEMBANG"
+    },
+    "dibuatOleh": "Migrasi Spreadsheet 1",
+    "dibuatPada": "2026-06-15"
+  },
+  {
+    "id": "KLN-023",
+    "nama": "PT Medco E&P Indonesia",
+    "jenis": "Pemerintah",
+    "alamat": "Palembang",
+    "kontakNama": "Reni",
+    "kontakJabatan": "Lead Field Relations Support Medco E&P Indonesia",
+    "telepon": "0821-7900-7746",
+    "email": "",
+    "status": "Aktif",
+    "satker": {
+      "kode": "41",
+      "nama": "PALEMBANG"
+    },
+    "dibuatOleh": "Migrasi Spreadsheet 1",
+    "dibuatPada": "2026-06-15"
+  },
+  {
+    "id": "KLN-024",
+    "nama": "Perempuan Indonesia Maju (PIM)",
+    "jenis": "Lembaga/Organisasi",
+    "alamat": "Jakarta Selatan",
+    "kontakNama": "Andi Ina Sarinah",
+    "kontakJabatan": "TA Kabid Kowani dan PIM",
+    "telepon": "0811-8806-1040",
+    "email": "",
+    "status": "Aktif",
+    "satker": {
+      "kode": "41",
+      "nama": "PALEMBANG"
+    },
+    "dibuatOleh": "Migrasi Spreadsheet 1",
+    "dibuatPada": "2026-07-17"
+  },
+  {
+    "id": "KLN-025",
+    "nama": "Faridah Hanum",
+    "jenis": "Perorangan",
+    "alamat": "Ogan Ilir",
+    "kontakNama": "Faridah Hanum",
+    "kontakJabatan": "",
+    "telepon": "0895-2806-7380",
+    "email": "",
+    "status": "Aktif",
+    "satker": {
+      "kode": "41",
+      "nama": "PALEMBANG"
+    },
+    "dibuatOleh": "Migrasi Spreadsheet 1",
+    "dibuatPada": "2026-07-31"
+  },
+  {
+    "id": "KLN-026",
+    "nama": "Fisol Jailani",
+    "jenis": "Perorangan",
+    "alamat": "Ogan Ilir",
+    "kontakNama": "Fisol Jailani",
+    "kontakJabatan": "",
+    "telepon": "0821 7514 4455",
+    "email": "",
+    "status": "Aktif",
+    "satker": {
+      "kode": "41",
+      "nama": "PALEMBANG"
+    },
+    "dibuatOleh": "Migrasi Spreadsheet 1",
+    "dibuatPada": "2026-07-31"
+  },
+  {
+    "id": "KLN-027",
+    "nama": "Mila Agustina",
+    "jenis": "Perorangan",
+    "alamat": "Ogan Ilir",
+    "kontakNama": "Mila Agustina",
+    "kontakJabatan": "",
+    "telepon": "0823 7777 1974",
+    "email": "",
+    "status": "Aktif",
+    "satker": {
+      "kode": "41",
+      "nama": "PALEMBANG"
+    },
+    "dibuatOleh": "Migrasi Spreadsheet 1",
+    "dibuatPada": "2026-07-31"
+  },
+  {
+    "id": "KLN-028",
+    "nama": "Herman Sawiran",
+    "jenis": "Perorangan",
+    "alamat": "Ogan Ilir",
+    "kontakNama": "Herman Sawiran",
+    "kontakJabatan": "",
+    "telepon": "0821-7509-2939",
+    "email": "",
+    "status": "Aktif",
+    "satker": {
+      "kode": "41",
+      "nama": "PALEMBANG"
+    },
+    "dibuatOleh": "Migrasi Spreadsheet 1",
+    "dibuatPada": "2026-07-31"
+  },
+  {
+    "id": "KLN-029",
+    "nama": "Kementerian Komunikasi dan Digital",
+    "jenis": "Pemerintah",
+    "alamat": "Jakarta",
+    "kontakNama": "",
+    "kontakJabatan": "",
+    "telepon": "",
+    "email": "",
+    "status": "Aktif",
+    "satker": {
+      "kode": "41",
+      "nama": "PALEMBANG"
+    },
+    "dibuatOleh": "Migrasi Spreadsheet 1",
+    "dibuatPada": "2026-08-13"
+  },
+  {
+    "id": "KLN-030",
+    "nama": "Badan Narkotika Nasional Provinsi Sumatera Selatan",
+    "jenis": "Pemerintah",
+    "alamat": "Palembang",
+    "kontakNama": "Ratna",
+    "kontakJabatan": "Penyuluh Narkoba Ahli Madya",
+    "telepon": "0812-6929-2157",
+    "email": "",
+    "status": "Aktif",
+    "satker": {
+      "kode": "41",
+      "nama": "PALEMBANG"
+    },
+    "dibuatOleh": "Migrasi Spreadsheet 1",
+    "dibuatPada": "2026-10-12"
+  },
+  {
+    "id": "KLN-031",
+    "nama": "Samdini",
+    "jenis": "Perorangan",
+    "alamat": "Ogan Ilir",
+    "kontakNama": "Samdini",
+    "kontakJabatan": "",
+    "telepon": "0821-8484-5699",
+    "email": "",
+    "status": "Aktif",
+    "satker": {
+      "kode": "41",
+      "nama": "PALEMBANG"
+    },
+    "dibuatOleh": "Migrasi Spreadsheet 1",
+    "dibuatPada": "2026-10-16"
+  },
+  {
+    "id": "KLN-032",
+    "nama": "Darojad",
+    "jenis": "Perorangan",
+    "alamat": "Ogan Ilir",
+    "kontakNama": "Darojad",
+    "kontakJabatan": "",
+    "telepon": "0813-6812-4918",
+    "email": "",
+    "status": "Aktif",
+    "satker": {
+      "kode": "41",
+      "nama": "PALEMBANG"
+    },
+    "dibuatOleh": "Migrasi Spreadsheet 1",
+    "dibuatPada": "2025-06-20"
+  },
+  {
+    "id": "KLN-033",
+    "nama": "PT VGreen Global Charging Station Investment Indonesia",
+    "jenis": "Swasta",
+    "alamat": "Jakarta",
+    "kontakNama": "Selika",
+    "kontakJabatan": "Loura Hardjaloka",
+    "telepon": "0815-5039-358",
+    "email": "",
+    "status": "Aktif",
+    "satker": {
+      "kode": "41",
+      "nama": "PALEMBANG"
+    },
+    "dibuatOleh": "Migrasi Spreadsheet 1",
+    "dibuatPada": "2025-06-26"
+  }
+]
