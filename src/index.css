@@ -1,0 +1,19 @@
+@import "tailwindcss";
+
+@theme {
+  --color-rri-blue: #2573e2;
+  --color-rri-navy: #0d2569;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto,
+    "Helvetica Neue", Arial, sans-serif;
+  color: #0d2569;
+  background: #ffffff;
+}
