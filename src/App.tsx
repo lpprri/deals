@@ -1,10 +1,15 @@
 // Partnership LPP RRI — App Fase A + Fase B (PRD Bab 12.3–12.4).
 // Shell 8 modul (Bab 4) + palet 3 warna RRI (Bab 8.2): Biru #2573E2,
 // Navy #0D2569, Putih #FFFFFF. Modul Service (Fase C) tampil "segera hadir".
-// Login mode contoh memakai peran dummy (Q-01); di produksi diganti
-// Firebase Auth. Store ada di state App; setiap aksi menulis audit trail.
+// Login memakai Firebase Auth bila terkonfigurasi; bila belum, mode contoh
+// memakai 1 operator dummy (keputusan pengguna 14/11/2026: hanya 1 role —
+// Operator, staf Layanan & Pengembangan Usaha). Store ada di state App;
+// setiap aksi menulis audit trail. Bila Firestore sudah dimigrasi, aksi
+// tulis juga disimpan ke Firestore; bila belum, perubahan session-only.
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { onAuthStateChanged } from 'firebase/auth';
+import { doc, getDoc } from 'firebase/firestore';
 import {
   BarChart3,
   Briefcase,
@@ -21,7 +26,15 @@ import {
   ShieldCheck,
   Wallet,
 } from 'lucide-react';
-import { isFirebaseConfigured } from './config/firebase';
+import { auth, db, isFirebaseConfigured } from './lib/firebaseApp';
+import { keluar, masukDenganEmail } from './lib/auth';
+import { EMAIL_OPERATOR_USULAN, jalankanMigrasi } from './lib/migrasi';
+import {
+  cekSudahDimigrasi,
+  muatDariFirestore,
+  simpanDokumen,
+  tulisAudit,
+} from './lib/firestoreStore';
 import { DATA_NYATA, TANGGAL_IMPOR } from './lib/seedNyata';
 import type { DummyUser } from './lib/dummyUsers';
 import {
@@ -262,8 +275,107 @@ export default function App() {
   const [active, setActive] = useState<ModuleId>('dashboard');
   const [cari, setCari] = useState('');
 
+  /** Mode sumber data: contoh (belum terkonfigurasi / belum dimigrasi) atau Firestore. */
+  type ModeData = 'tidak-terkonfigurasi' | 'belum-dimigrasi' | 'firestore';
+  const [modeData, setModeData] = useState<ModeData>(
+    isFirebaseConfigured ? 'belum-dimigrasi' : 'tidak-terkonfigurasi',
+  );
+  /** Email akun Auth yang login (dipakai identitas operator saat migrasi). */
+  const [authEmail, setAuthEmail] = useState<string | null>(null);
+  const [sudahDimigrasi, setSudahDimigrasi] = useState(false);
+  const [tanggalMigrasi, setTanggalMigrasi] = useState<string | undefined>(undefined);
+  const [galatMuat, setGalatMuat] = useState<string | null>(null);
+  const [peringatanSimpan, setPeringatanSimpan] = useState<string | null>(null);
+
+  // Pulihkan sesi Auth yang sudah masuk (bila Firebase terkonfigurasi).
+  useEffect(() => {
+    if (!isFirebaseConfigured || !auth || !db) return;
+    const berhenti = onAuthStateChanged(auth, async (fbUser) => {
+      if (!fbUser || !db) return;
+      try {
+        const snap = await getDoc(doc(db, 'users', fbUser.uid));
+        if (snap.exists() && snap.data().peran === 'operator') {
+          const d = snap.data();
+          setUser({
+            nama: String(d.nama ?? ''),
+            jabatan: String(d.jabatan ?? ''),
+            peran: 'operator',
+          });
+          setAuthEmail(fbUser.email ?? null);
+        }
+      } catch {
+        // Abaikan — pengguna masuk manual lewat form login.
+      }
+    });
+    return berhenti;
+  }, []);
+
+  // Muat data dari Firestore setelah login, bila sudah dimigrasi.
+  useEffect(() => {
+    if (!user || !isFirebaseConfigured || !db) return;
+    let batal = false;
+    (async () => {
+      try {
+        const sudah = await cekSudahDimigrasi(db);
+        if (batal) return;
+        if (!sudah) {
+          setModeData('belum-dimigrasi');
+          return;
+        }
+        const dariFirestore = await muatDariFirestore(db, SATKER_PILOT.kode);
+        if (batal) return;
+        if (dariFirestore) {
+          setData(dariFirestore);
+          setModeData('firestore');
+          setSudahDimigrasi(true);
+        }
+      } catch (e) {
+        if (!batal) {
+          setGalatMuat(
+            e instanceof Error ? e.message : 'Gagal memuat data dari Firestore.',
+          );
+        }
+      }
+    })();
+    return () => {
+      batal = true;
+    };
+  }, [user]);
+
   if (!user) {
-    return <Login onLogin={setUser} />;
+    return (
+      <Login
+        onLoginAuth={async (email, kataSandi) => {
+          try {
+            const appUser = await masukDenganEmail(email, kataSandi);
+            setUser({
+              nama: appUser.nama,
+              jabatan: appUser.jabatan,
+              peran: 'operator',
+            });
+            setAuthEmail(appUser.email);
+            return null;
+          } catch (e) {
+            const kode = (e as { code?: string }).code;
+            if (
+              kode === 'auth/invalid-credential' ||
+              kode === 'auth/user-not-found' ||
+              kode === 'auth/wrong-password'
+            ) {
+              return 'Email atau kata sandi salah.';
+            }
+            if (kode === 'auth/too-many-requests') {
+              return 'Terlalu banyak percobaan masuk — coba lagi nanti.';
+            }
+            if (kode === 'auth/network-request-failed') {
+              return 'Tidak ada koneksi jaringan.';
+            }
+            return e instanceof Error ? e.message : 'Gagal masuk. Coba lagi.';
+          }
+        }}
+        onLoginDummy={setUser}
+      />
+    );
   }
 
   const penggunaAktif: DummyUser = user;
@@ -275,10 +387,37 @@ export default function App() {
     sebelum?: string,
     sesudah?: string,
   ) => {
+    // Entri dibuat sekali di sini supaya objek yang sama dipakai state
+    // lokal dan Firestore (id/waktu harus sama di keduanya).
+    const entri = buatEntriAudit(penggunaAktif, aksi, entitas, entitasId, sebelum, sesudah);
     setData((d) => ({
       ...d,
-      audit: [buatEntriAudit(penggunaAktif, aksi, entitas, entitasId, sebelum, sesudah), ...d.audit],
+      audit: [entri, ...d.audit],
     }));
+    if (modeData === 'firestore' && db) {
+      tulisAudit(db, entri).catch((e) => {
+        console.error('Gagal menulis audit ke Firestore:', e);
+        setPeringatanSimpan(
+          'Gagal menyimpan catatan audit ke Firestore — perubahan hanya ada di sesi ini.',
+        );
+      });
+    }
+  };
+
+  /**
+   * Simpan satu dokumen entitas ke Firestore bila mode Firestore aktif.
+   * Bila belum dimigrasi / tidak terkonfigurasi: no-op (session-only).
+   * Kegagalan tulis tidak menggagalkan aksi — state lokal tetap sumber
+   * kebenaran sesi itu, dan peringatan ditampilkan di layar.
+   */
+  const simpanKeFirestore = (koleksi: string, id: string, entitas: unknown) => {
+    if (modeData !== 'firestore' || !db) return;
+    simpanDokumen(db, koleksi, id, entitas).catch((e) => {
+      console.error('Gagal menyimpan ke Firestore:', e);
+      setPeringatanSimpan(
+        'Gagal menyimpan perubahan ke Firestore — perubahan hanya ada di sesi ini.',
+      );
+    });
   };
 
   const actions: StoreActions = {
@@ -303,6 +442,7 @@ export default function App() {
         dibuatPada: hariIniIso(),
       };
       setData((d) => ({ ...d, klien: [...d.klien, klien] }));
+      simpanKeFirestore('klien', id, klien);
       tambahAudit('Klien dicatat', 'Klien', id, '—', `${klien.nama} (${klien.jenis})`);
       return null;
     },
@@ -362,6 +502,8 @@ export default function App() {
         kontrak: [...d.kontrak, kontrak],
         dokumen: [...d.dokumen, ...checklist],
       }));
+      simpanKeFirestore('kontrak', kontrak.id, kontrak);
+      checklist.forEach((dok) => simpanKeFirestore('dokumen', dok.id, dok));
       tambahAudit(
         'Kontrak dicatat',
         'Kontrak',
@@ -404,6 +546,17 @@ export default function App() {
           },
         ],
       }));
+      simpanKeFirestore('pembayaran', id, {
+        id,
+        tagihanId: input.tagihanId,
+        tanggalBayar: input.tanggalBayar,
+        jumlah: input.jumlah,
+        metode: input.metode,
+        buktiSetor: input.buktiSetor || undefined,
+        penyetor: input.penyetor.trim(),
+        statusVerifikasi: 'Menunggu Verifikasi' as const,
+        satker: SATKER_PILOT,
+      });
       tambahAudit(
         'Pembayaran dicatat',
         'Pembayaran',
@@ -423,6 +576,7 @@ export default function App() {
           p.id === id ? { ...p, statusVerifikasi: 'Terverifikasi' as const } : p,
         ),
       }));
+      simpanKeFirestore('pembayaran', id, { ...bayar, statusVerifikasi: 'Terverifikasi' as const });
       tambahAudit(
         'Pembayaran diverifikasi',
         'Pembayaran',
@@ -453,6 +607,15 @@ export default function App() {
           },
         ],
       }));
+      simpanKeFirestore('denda', id, {
+        id,
+        tagihanId: input.tagihanId,
+        dasar: input.dasar.trim(),
+        jumlah: input.jumlah,
+        status: 'Terhitung' as const,
+        kodeAkun: '425839',
+        satker: SATKER_PILOT,
+      });
       tambahAudit(
         'Denda dicatat (manual)',
         'Denda',
@@ -469,6 +632,7 @@ export default function App() {
         ...d,
         dokumen: d.dokumen.map((x) => (x.id === dokumen.id ? { ...x, status } : x)),
       }));
+      simpanKeFirestore('dokumen', dokumen.id, { ...dokumen, status });
       tambahAudit(
         'Status dokumen diubah',
         'Dokumen',
@@ -500,6 +664,17 @@ export default function App() {
           },
         ],
       }));
+      simpanKeFirestore('pengajuan', id, {
+        id,
+        jenis: input.jenis,
+        pemohon: input.pemohon.trim(),
+        tanggalMasuk: input.tanggalMasuk,
+        kebutuhan: input.kebutuhan.trim(),
+        tahap: 'Masuk' as const,
+        penanggungJawab: input.penanggungJawab,
+        nilaiPerkiraan: input.nilaiPerkiraan,
+        satker: SATKER_PILOT,
+      });
       tambahAudit('Pengajuan dicatat', 'Pengajuan', id, '—', `${input.pemohon.trim()} — tahap Masuk`);
       return null;
     },
@@ -515,6 +690,11 @@ export default function App() {
             : p,
         ),
       }));
+      simpanKeFirestore('pengajuan', pengajuan.id, {
+        ...pengajuan,
+        tahap,
+        alasanTolak: tahap === 'Ditolak' ? alasan?.trim() : pengajuan.alasanTolak,
+      });
       tambahAudit(
         'Tahap pengajuan diubah',
         'Pengajuan',
@@ -606,6 +786,14 @@ export default function App() {
             : p,
         ),
       }));
+      if (klienBaru) simpanKeFirestore('klien', klienBaru.id, klienBaru);
+      simpanKeFirestore('kontrak', kontrak.id, kontrak);
+      checklist.forEach((dok) => simpanKeFirestore('dokumen', dok.id, dok));
+      simpanKeFirestore('pengajuan', pengajuan.id, {
+        ...pengajuan,
+        tahap: 'Dikonversi' as const,
+        hasilKonversi: { jenis: 'Kontrak' as const, id: nomorPks, label: nomorPks },
+      });
       tambahAudit(
         'Pengajuan dikonversi menjadi kontrak',
         'Pengajuan',
@@ -662,6 +850,7 @@ export default function App() {
         satker: SATKER_PILOT,
       };
       setData((d) => ({ ...d, prospect: [...d.prospect, prospect] }));
+      simpanKeFirestore('prospect', id, prospect);
       tambahAudit(
         'Prospek dicatat',
         'Prospek',
@@ -710,6 +899,18 @@ export default function App() {
             : p,
         ),
       }));
+      simpanKeFirestore('prospect', prospect.id, {
+        ...prospect,
+        tahap,
+        riwayat: [
+          ...prospect.riwayat,
+          {
+            tanggal: hariIniIso(),
+            catatan: catatan.trim(),
+            oleh: penggunaAktif.nama,
+          },
+        ],
+      });
       tambahAudit(
         'Tahap prospek diubah',
         'Prospek',
@@ -735,6 +936,7 @@ export default function App() {
             : p,
         ),
       }));
+      simpanKeFirestore('prospect', prospect.id, { ...prospect, riwayat: [...prospect.riwayat, entri] });
       tambahAudit(
         'Tindak lanjut dicatat',
         'Prospek',
@@ -811,6 +1013,19 @@ export default function App() {
             : p,
         ),
       }));
+      simpanKeFirestore('quotation', id, quotation);
+      simpanKeFirestore('prospect', prospect.id, {
+        ...prospect,
+        tahap: tahapMaju(prospect.tahap, 'Penawaran'),
+        riwayat: [
+          ...prospect.riwayat,
+          {
+            tanggal: hariIniIso(),
+            catatan: `Quotation ${id} dibuat (${formatRupiah(nilai)}).`,
+            oleh: penggunaAktif.nama,
+          },
+        ],
+      });
       tambahAudit(
         'Quotation dibuat',
         'Quotation',
@@ -856,6 +1071,24 @@ export default function App() {
               )
             : d.prospect,
       }));
+      simpanKeFirestore('quotation', quotation.id, { ...quotation, status });
+      if (status === 'Disetujui') {
+        const prospekTerkait = data.prospect.find((p) => p.id === quotation.prospectId);
+        if (prospekTerkait) {
+          simpanKeFirestore('prospect', prospekTerkait.id, {
+            ...prospekTerkait,
+            tahap: tahapMaju(prospekTerkait.tahap, 'Negosiasi'),
+            riwayat: [
+              ...prospekTerkait.riwayat,
+              {
+                tanggal: hariIniIso(),
+                catatan: `Quotation ${quotation.id} disetujui.`,
+                oleh: penggunaAktif.nama,
+              },
+            ],
+          });
+        }
+      }
       tambahAudit(
         'Status quotation diubah',
         'Quotation',
@@ -911,6 +1144,21 @@ export default function App() {
             : p,
         ),
       }));
+      simpanKeFirestore('order', id, order);
+      if (prospect) {
+        simpanKeFirestore('prospect', quotation.prospectId, {
+          ...prospect,
+          tahap: tahapMaju(prospect.tahap, 'Order'),
+          riwayat: [
+            ...prospect.riwayat,
+            {
+              tanggal: hariIniIso(),
+              catatan: `Order ${id} dibuat dari quotation ${quotation.id}.`,
+              oleh: penggunaAktif.nama,
+            },
+          ],
+        });
+      }
       tambahAudit(
         'Order dibuat',
         'Order',
@@ -937,6 +1185,7 @@ export default function App() {
           o.id === order.id ? { ...o, status } : o,
         ),
       }));
+      simpanKeFirestore('order', order.id, { ...order, status });
       tambahAudit(
         'Status order diubah',
         'Order',
@@ -1055,6 +1304,23 @@ export default function App() {
             : p,
         ),
       }));
+      if (klienBaru) simpanKeFirestore('klien', klienBaru.id, klienBaru);
+      simpanKeFirestore('kontrak', kontrak.id, kontrak);
+      checklist.forEach((dok) => simpanKeFirestore('dokumen', dok.id, dok));
+      simpanKeFirestore('order', order.id, { ...order, kontrakId: nomorPks });
+      simpanKeFirestore('prospect', prospect.id, {
+        ...prospect,
+        tahap: 'Menang',
+        kontrakId: nomorPks,
+        riwayat: [
+          ...prospect.riwayat,
+          {
+            tanggal: hariIniIso(),
+            catatan: `Order ${order.id} dikonversi menjadi kontrak ${nomorPks}.`,
+            oleh: penggunaAktif.nama,
+          },
+        ],
+      });
       tambahAudit(
         'Order dikonversi menjadi kontrak',
         'Order',
@@ -1098,6 +1364,7 @@ export default function App() {
         satker: SATKER_PILOT,
       };
       setData((d) => ({ ...d, meeting: [...d.meeting, meeting] }));
+      simpanKeFirestore('meeting', id, meeting);
       tambahAudit(
         'Meeting dijadwalkan',
         'Meeting',
@@ -1132,6 +1399,7 @@ export default function App() {
         satker: SATKER_PILOT,
       };
       setData((d) => ({ ...d, event: [...d.event, event] }));
+      simpanKeFirestore('event', id, event);
       tambahAudit(
         'Event dicatat',
         'Event',
@@ -1166,6 +1434,7 @@ export default function App() {
         ...d,
         advertisement: [...d.advertisement, advertisement],
       }));
+      simpanKeFirestore('advertisement', id, advertisement);
       tambahAudit(
         'Advertisement dicatat',
         'Advertisement',
@@ -1193,6 +1462,7 @@ export default function App() {
         satker: SATKER_PILOT,
       };
       setData((d) => ({ ...d, task: [...d.task, task] }));
+      simpanKeFirestore('task', id, task);
       tambahAudit(
         'Tugas dicatat',
         'Tugas',
@@ -1218,6 +1488,7 @@ export default function App() {
           t.id === task.id ? { ...t, status } : t,
         ),
       }));
+      simpanKeFirestore('task', task.id, { ...task, status });
       tambahAudit(
         'Status tugas diubah',
         'Tugas',
@@ -1251,6 +1522,7 @@ export default function App() {
         satker: SATKER_PILOT,
       };
       setData((d) => ({ ...d, task: [...d.task, task] }));
+      simpanKeFirestore('task', id, task);
       tambahAudit(
         'Disposisi dibuat',
         'Disposisi',
@@ -1266,11 +1538,10 @@ export default function App() {
       if (task.status !== 'Selesai') {
         return 'Disposisi hanya dapat ditutup bila status tugas Selesai.';
       }
-      if (
-        penggunaAktif.nama !== task.pemberiDisposisi &&
-        penggunaAktif.peran !== 'admin_sistem'
-      ) {
-        return 'Hanya pemberi disposisi atau Admin yang dapat menutup disposisi ini.';
+      // Model 1 role: hanya pemberi disposisi yang dapat menutupnya
+      // (tidak ada lagi peran Admin yang terpisah).
+      if (penggunaAktif.nama !== task.pemberiDisposisi) {
+        return 'Hanya pemberi disposisi yang dapat menutup disposisi ini.';
       }
       setData((d) => ({
         ...d,
@@ -1278,6 +1549,7 @@ export default function App() {
           t.id === task.id ? { ...t, status: 'Ditutup' as const } : t,
         ),
       }));
+      simpanKeFirestore('task', task.id, { ...task, status: 'Ditutup' as const });
       tambahAudit(
         'Disposisi ditutup',
         'Disposisi',
@@ -1287,6 +1559,23 @@ export default function App() {
       );
       return null;
     },
+  };
+
+  /** Jalankan migrasi satu kali (dari halaman Master & Pengguna). */
+  const tanganiMigrasi = async () => {
+    if (!db) {
+      throw new Error('Firebase belum terkonfigurasi.');
+    }
+    const hasil = await jalankanMigrasi(db, {
+      nama: penggunaAktif.nama,
+      email: authEmail ?? EMAIL_OPERATOR_USULAN,
+    });
+    setSudahDimigrasi(true);
+    setTanggalMigrasi(hasil.tanggal);
+    setModeData('firestore');
+    const dariFirestore = await muatDariFirestore(db, SATKER_PILOT.kode);
+    if (dariFirestore) setData(dariFirestore);
+    return hasil;
   };
 
   const navUtama = MODULES.filter((m) => m.phase !== 'Admin');
@@ -1373,8 +1662,16 @@ export default function App() {
           <p className="mt-1">{LABEL_PERAN[penggunaAktif.peran]}</p>
           <p>{penggunaAktif.jabatan}</p>
           <button
-            onClick={() => {
+            onClick={async () => {
+              await keluar();
               setUser(null);
+              setAuthEmail(null);
+              setData(DATA_NYATA);
+              setModeData(
+                isFirebaseConfigured ? 'belum-dimigrasi' : 'tidak-terkonfigurasi',
+              );
+              setSudahDimigrasi(false);
+              setTanggalMigrasi(undefined);
               setActive('dashboard');
             }}
             className="mt-3 flex items-center gap-2 rounded-md border border-white/30 px-3 py-1.5 text-xs font-semibold text-white hover:bg-white/10"
@@ -1411,15 +1708,43 @@ export default function App() {
             {current.description}
           </p>
 
-          {!isFirebaseConfigured && (
+          {modeData !== 'firestore' && (
             <div className="mt-4 max-w-2xl rounded-md border border-[#2573e2]/40 bg-[#2573e2]/5 px-4 py-3 text-sm">
-              <strong>Data nyata Palembang — mode contoh.</strong> Data di
-              bawah ini adalah data nyata hasil impor dari spreadsheet kerja
-              pada {formatTanggal(TANGGAL_IMPOR)}. Konfigurasi Firebase belum
-              dipasang (lihat <code>.env.example</code>), jadi perubahan hanya
-              tersimpan di sesi ini dan belum tersimpan permanen. Data contoh
-              (prospek, quotation, order, event, tugas) tetap berlabel
-              &quot;(Contoh)&quot;.
+              {modeData === 'tidak-terkonfigurasi' ? (
+                <>
+                  <strong>Data nyata Palembang — mode contoh.</strong> Data di
+                  bawah ini adalah data nyata hasil impor dari spreadsheet kerja
+                  pada {formatTanggal(TANGGAL_IMPOR)}. Konfigurasi Firebase belum
+                  dipasang (lihat <code>.env.example</code>), jadi perubahan hanya
+                  tersimpan di sesi ini dan belum tersimpan permanen. Data contoh
+                  (prospek, quotation, order, event, tugas) tetap berlabel
+                  &quot;(Contoh)&quot;.
+                </>
+              ) : (
+                <>
+                  <strong>Data contoh — belum dimigrasi ke Firestore.</strong>{' '}
+                  Data di bawah ini masih data contoh dari spreadsheet kerja.
+                  Jalankan migrasi di halaman Master &amp; Pengguna supaya
+                  perubahan tersimpan permanen di Firestore.
+                </>
+              )}
+            </div>
+          )}
+          {modeData === 'firestore' && (
+            <div className="mt-4 max-w-2xl rounded-md border border-[#2573e2]/40 bg-[#2573e2]/5 px-4 py-3 text-sm">
+              <strong>Data tersimpan di Firestore — Satker PALEMBANG.</strong>{' '}
+              Perubahan tersimpan permanen.
+            </div>
+          )}
+          {galatMuat && (
+            <div className="mt-4 max-w-2xl rounded-md border border-[#2573e2]/40 bg-[#2573e2]/5 px-4 py-3 text-sm">
+              <strong>Gagal memuat data dari Firestore:</strong> {galatMuat}{' '}
+              Menampilkan data contoh.
+            </div>
+          )}
+          {peringatanSimpan && (
+            <div className="mt-4 max-w-2xl rounded-md border border-[#2573e2]/40 bg-[#2573e2]/5 px-4 py-3 text-sm">
+              {peringatanSimpan}
             </div>
           )}
 
@@ -1434,7 +1759,20 @@ export default function App() {
             {active === 'marketing' && <Marketing {...propsModul} />}
             {active === 'todo' && <Todo {...propsModul} />}
             {active === 'audit' && <AuditPage {...propsModul} />}
-            {active === 'master' && <MasterPage {...propsModul} />}
+            {active === 'master' && (
+              <MasterPage
+                {...propsModul}
+                onMigrasi={tanganiMigrasi}
+                statusMigrasi={
+                  isFirebaseConfigured
+                    ? sudahDimigrasi
+                      ? 'sudah'
+                      : 'belum'
+                    : 'tidak-tersedia'
+                }
+                tanggalMigrasi={tanggalMigrasi}
+              />
+            )}
             {active === 'service' && (
               <div className="mt-6 max-w-2xl rounded-md border border-[#2573e2]/20 p-5">
                 <p className="text-sm font-semibold">

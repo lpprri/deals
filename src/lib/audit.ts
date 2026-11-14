@@ -1,7 +1,7 @@
 // Audit trail — tambah-saja (append-only), tidak dapat diedit dari
 // antarmuka (PRD Bab 10). Setiap buat/ubah/status/nilai pada data sensitif
 // mencatat pengguna, waktu, dan nilai sebelum/sesudah.
-// Halaman Audit HANYA untuk Admin Sistem dan TIDAK menampilkan konfigurasi
+// Halaman Audit HANYA untuk Operator dan TIDAK menampilkan konfigurasi
 // Firebase atau email admin (pelajaran Bab 13).
 
 import type { AuditEntry } from './types';
