@@ -18,7 +18,16 @@ export type Aksi =
   | 'verifikasiLaporan'
   | 'kunciLaporan'
   | 'lihatAudit'
-  | 'kelolaMaster';
+  | 'kelolaMaster'
+  // Fase B — Sales, Marketing, To-Do (PRD Bab 7.2, 7.3, 7.7).
+  | 'kelolaProspect'
+  | 'kelolaQuotation'
+  | 'kelolaOrder'
+  | 'kelolaMeeting'
+  | 'kelolaMarketing'
+  | 'kelolaTask'
+  | 'tambahDisposisi'
+  | 'tutupDisposisi';
 
 const IZIN: Record<Aksi, Role[]> = {
   tambahKlien: ['operator_layanan', 'admin_sistem'],
@@ -35,6 +44,17 @@ const IZIN: Record<Aksi, Role[]> = {
   kunciLaporan: ['verifikator_layanan', 'admin_sistem'],
   lihatAudit: ['admin_sistem'],
   kelolaMaster: ['admin_sistem'],
+  // Fase B: Operator Layanan mengerjakan penjualan & pemasaran; Pimpinan
+  // read-only kecuali membuat disposisi (Alur F — pemberi disposisi adalah
+  // atasan/pimpinan). Status tugas diubah pemiliknya sendiri atau Admin.
+  kelolaProspect: ['operator_layanan', 'admin_sistem'],
+  kelolaQuotation: ['operator_layanan', 'admin_sistem'],
+  kelolaOrder: ['operator_layanan', 'admin_sistem'],
+  kelolaMeeting: ['operator_layanan', 'umum', 'admin_sistem'],
+  kelolaMarketing: ['operator_layanan', 'admin_sistem'],
+  kelolaTask: ['operator_layanan', 'verifikator_layanan', 'keuangan', 'umum', 'admin_sistem'],
+  tambahDisposisi: ['verifikator_layanan', 'pimpinan', 'admin_sistem'],
+  tutupDisposisi: ['verifikator_layanan', 'pimpinan', 'admin_sistem'],
 };
 
 export function bolehAksi(peran: Role, aksi: Aksi): boolean {

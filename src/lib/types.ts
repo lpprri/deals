@@ -190,6 +190,148 @@ export interface PenerimaanAcuan {
   satker: SatkerRef;
 }
 
+// ---------------------------------------------------------------------------
+// Entitas Fase B (PRD v2.0 Final Bab 6.12, 7.2, 7.3, 7.7).
+// Aturan yang sama seperti Fase A: field `satker` wajib; tanggal ISO;
+// nilai Rupiah (number). Tahap pipeline masih DRAF — Q-11 belum terjawab
+// (lihat MASTER_TAHAP_PIPELINE di master.ts).
+
+export type TahapPipeline =
+  | 'Prospek Baru'
+  | 'Dihubungi'
+  | 'Penawaran'
+  | 'Negosiasi'
+  | 'Order'
+  | 'Menang'
+  | 'Kalah';
+
+export interface TindakLanjut {
+  tanggal: string;
+  catatan: string;
+  oleh: string;
+}
+
+export interface Prospect {
+  id: string;
+  namaInstansi: string;
+  kontakNama: string;
+  kontakJabatan?: string;
+  telepon: string;
+  email?: string;
+  sumber: string;
+  layananDiminati: string;
+  tahap: TahapPipeline;
+  penanggungJawab: string;
+  tanggalTindakLanjut?: string;
+  nilaiPerkiraan: number;
+  catatan?: string;
+  /** Tautan ke klien bila prospek sudah menjadi klien (Deals). */
+  klienId?: string;
+  /** Tautan ke pengajuan asal bila prospek masuk dari Pengajuan (Fase A). */
+  pengajuanId?: string;
+  /** Tautan ke kontrak hasil konversi (jejak end-to-end, gerbang Fase B). */
+  kontrakId?: string;
+  riwayat: TindakLanjut[];
+  satker: SatkerRef;
+}
+
+export type StatusQuotation = 'Draft' | 'Dikirim' | 'Disetujui' | 'Ditolak';
+
+export interface QuotationLayanan {
+  id: string;
+  kategori: string;
+  kodeAkun: string;
+  jenisPnBP: JenisPnBP;
+  satuan: string;
+  /** Tarif snapshot saat quotation dibuat — tidak berubah bila master berubah. */
+  tarif: number;
+  jumlah: number;
+  subtotal: number;
+  programa?: string;
+}
+
+export interface Quotation {
+  id: string;
+  prospectId: string;
+  tanggalBuat: string;
+  berlakuSampai: string;
+  status: StatusQuotation;
+  layanan: QuotationLayanan[];
+  /** Nilai penawaran = Σ subtotal layanan (dihitung, bukan diinput bebas). */
+  nilai: number;
+  catatan?: string;
+  satker: SatkerRef;
+}
+
+export type StatusOrder = 'Draft' | 'Diproses' | 'Selesai' | 'Dibatalkan';
+
+export interface Order {
+  id: string;
+  quotationId: string;
+  prospectId: string;
+  tanggalOrder: string;
+  status: StatusOrder;
+  nilai: number;
+  catatan?: string;
+  /** Tautan ke kontrak hasil konversi (Deals → Contracts). */
+  kontrakId?: string;
+  satker: SatkerRef;
+}
+
+export interface Meeting {
+  id: string;
+  tanggal: string; // 'yyyy-mm-dd'
+  jam: string; // 'hh:mm'
+  prospectId?: string;
+  klienId?: string;
+  peserta: string;
+  agenda: string;
+  hasil?: string;
+  satker: SatkerRef;
+}
+
+export interface Event {
+  id: string;
+  nama: string;
+  tanggal: string;
+  penyelenggara: string;
+  biaya: number;
+  hasil?: string;
+  /** Prospek/klien yang dihasilkan event ini (tautan opsional, Bab 7.2). */
+  prospectId?: string;
+  satker: SatkerRef;
+}
+
+export interface Advertisement {
+  id: string;
+  nama: string;
+  media: string;
+  periodeMulai: string;
+  periodeSelesai: string;
+  biaya: number;
+  hasil?: string;
+  satker: SatkerRef;
+}
+
+export type StatusTask = 'Belum Dikerjakan' | 'Berjalan' | 'Selesai' | 'Ditutup';
+
+export interface Task {
+  id: string;
+  pemilik: string;
+  judul: string;
+  tenggat: string;
+  status: StatusTask;
+  /** Bila tugas berasal dari disposisi (Alur F Bab 9.6). */
+  disposisiDari?: string;
+  instruksi?: string;
+  /** Pemberi disposisi; kosong untuk tugas pribadi. */
+  pemberiDisposisi?: string;
+  /** Tautan opsional ke prospek/klien/pengajuan terkait. */
+  terkaitId?: string;
+  terkaitLabel?: string;
+  satker: SatkerRef;
+}
+
 export interface AuditEntry {
   id: string;
   waktu: string; // ISO datetime
@@ -213,4 +355,12 @@ export interface AppData {
   pengajuan: Pengajuan[];
   penerimaanAcuan: PenerimaanAcuan[];
   audit: AuditEntry[];
+  // Fase B (PRD Bab 6.12).
+  prospect: Prospect[];
+  quotation: Quotation[];
+  order: Order[];
+  meeting: Meeting[];
+  event: Event[];
+  advertisement: Advertisement[];
+  task: Task[];
 }

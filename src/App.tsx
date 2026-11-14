@@ -1,6 +1,6 @@
-// Partnership LPP RRI — App Fase A (PRD v2.0 Final Bab 12.3, Langkah 2).
+// Partnership LPP RRI — App Fase A + Fase B (PRD Bab 12.3–12.4).
 // Shell 8 modul (Bab 4) + palet 3 warna RRI (Bab 8.2): Biru #2573E2,
-// Navy #0D2569, Putih #FFFFFF. Modul Fase B/C tampil "segera hadir".
+// Navy #0D2569, Putih #FFFFFF. Modul Service (Fase C) tampil "segera hadir".
 // Login mode contoh memakai peran dummy (Q-01); di produksi diganti
 // Firebase Auth. Store ada di state App; setiap aksi menulis audit trail.
 
@@ -24,27 +24,53 @@ import {
 import { isFirebaseConfigured } from './config/firebase';
 import { DATA_CONTOH } from './lib/sampleData';
 import type { DummyUser } from './lib/dummyUsers';
-import { MASTER_KATEGORI_LAYANAN, MASTER_JENIS_DOKUMEN, SATKER_PILOT } from './lib/master';
+import {
+  MASTER_KATEGORI_LAYANAN,
+  MASTER_JENIS_DOKUMEN,
+  MASTER_SUMBER_PROSPEK,
+  MASTER_TAHAP_PIPELINE,
+  SATKER_PILOT,
+} from './lib/master';
 import { buatEntriAudit } from './lib/audit';
 import { bolehAksi, LABEL_PERAN } from './lib/permissions';
-import { hariIniIso } from './lib/format';
+import { formatRupiah, hariIniIso } from './lib/format';
 import type {
+  Advertisement,
   AppData,
   DokumenItem,
+  Event,
   Klien,
   Kontrak,
   LayananKontrak,
+  Meeting,
+  Order,
   Pengajuan as PengajuanData,
+  Prospect,
+  Quotation,
+  QuotationLayanan,
   StatusDokumen,
+  StatusOrder,
+  StatusQuotation,
+  StatusTask,
   TahapPengajuan,
+  TahapPipeline,
+  Task,
 } from './lib/types';
 import type {
+  AdvertisementInput,
   DendaInput,
+  DisposisiInput,
+  EventInput,
   KlienInput,
   KontrakInput,
+  MeetingInput,
+  OrderInput,
   PembayaranInput,
   PengajuanInput,
+  ProspectInput,
+  QuotationInput,
   StoreActions,
+  TaskInput,
 } from './lib/store';
 import Login from './components/Login';
 import Dashboard from './modules/Dashboard';
@@ -53,6 +79,9 @@ import Sewa from './modules/Sewa';
 import Pengajuan from './modules/Pengajuan';
 import Revenue from './modules/Revenue';
 import Reporting from './modules/Reporting';
+import Sales from './modules/Sales';
+import Marketing from './modules/Marketing';
+import Todo from './modules/Todo';
 import AuditPage from './modules/AuditPage';
 import MasterPage from './modules/MasterPage';
 
@@ -187,6 +216,21 @@ function idBerikutnya(awalan: string, daftarId: string[]): string {
     lebar = Math.max(lebar, cocok[1].length);
   }
   return `${awalan}${String(maks + 1).padStart(lebar, '0')}`;
+}
+
+/**
+ * Tahap pipeline yang lebih maju (Fase B). Dipakai saat dokumen dibuat:
+ * quotation dibuat -> Penawaran, disetujui -> Negosiasi, order dibuat ->
+ * Order. Tidak pernah memundurkan tahap (PRD Bab 9.5).
+ */
+function tahapMaju(
+  tahapLama: TahapPipeline,
+  tahapBaru: TahapPipeline,
+): TahapPipeline {
+  return MASTER_TAHAP_PIPELINE.indexOf(tahapBaru) >
+    MASTER_TAHAP_PIPELINE.indexOf(tahapLama)
+    ? tahapBaru
+    : tahapLama;
 }
 
 /** Nomor PKS berikutnya untuk tahun berjalan (PKS-005/2026, dst.). */
@@ -571,6 +615,678 @@ export default function App() {
       );
       return null;
     },
+
+    // --- Aksi Fase B — Sales (PRD Bab 7.3, 9.5) ---
+    tambahProspect: (input: ProspectInput) => {
+      if (!input.namaInstansi.trim()) return 'Nama instansi wajib diisi.';
+      if (!input.kontakNama.trim()) return 'Nama kontak wajib diisi.';
+      if (!input.telepon.trim()) return 'Telepon wajib diisi.';
+      if (!MASTER_SUMBER_PROSPEK.includes(input.sumber)) {
+        return `Sumber prospek "${input.sumber}" tidak dikenal.`;
+      }
+      if (
+        !MASTER_KATEGORI_LAYANAN.some((k) => k.nama === input.layananDiminati)
+      ) {
+        return `Layanan "${input.layananDiminati}" tidak dikenal.`;
+      }
+      if (!(input.nilaiPerkiraan > 0)) return 'Nilai perkiraan harus lebih dari 0.';
+      if (
+        input.pengajuanId &&
+        !data.pengajuan.some((p) => p.id === input.pengajuanId)
+      ) {
+        return 'Pengajuan asal tidak ditemukan.';
+      }
+      const id = idBerikutnya('PRS-', data.prospect.map((p) => p.id));
+      const prospect: Prospect = {
+        id,
+        namaInstansi: input.namaInstansi.trim(),
+        kontakNama: input.kontakNama.trim(),
+        kontakJabatan: input.kontakJabatan || undefined,
+        telepon: input.telepon.trim(),
+        email: input.email || undefined,
+        sumber: input.sumber,
+        layananDiminati: input.layananDiminati,
+        tahap: 'Prospek Baru',
+        penanggungJawab: input.penanggungJawab,
+        tanggalTindakLanjut: input.tanggalTindakLanjut || undefined,
+        nilaiPerkiraan: input.nilaiPerkiraan,
+        catatan: input.catatan || undefined,
+        pengajuanId: input.pengajuanId || undefined,
+        riwayat: [
+          {
+            tanggal: hariIniIso(),
+            catatan: 'Prospek dicatat.',
+            oleh: penggunaAktif.nama,
+          },
+        ],
+        satker: SATKER_PILOT,
+      };
+      setData((d) => ({ ...d, prospect: [...d.prospect, prospect] }));
+      tambahAudit(
+        'Prospek dicatat',
+        'Prospek',
+        id,
+        '—',
+        `${prospect.namaInstansi} — Prospek Baru — ${formatRupiah(prospect.nilaiPerkiraan)}`,
+      );
+      return null;
+    },
+
+    ubahTahapProspect: (prospect: Prospect, tahap: TahapPipeline, catatan: string) => {
+      if (!catatan.trim()) return 'Catatan perpindahan tahap wajib diisi.';
+      if (!MASTER_TAHAP_PIPELINE.includes(tahap)) {
+        return `Tahap "${tahap}" tidak dikenal.`;
+      }
+      if (prospect.tahap === tahap) {
+        return 'Prospek sudah berada pada tahap tersebut.';
+      }
+      if (prospect.tahap === 'Menang' || prospect.tahap === 'Kalah') {
+        return `Prospek pada tahap ${prospect.tahap} sudah final dan tidak dapat dipindah.`;
+      }
+      // Tahap 'Order' dan 'Menang' dicapai otomatis lewat tambahOrder /
+      // konversiOrder, bukan pindah manual (supaya jejak tetap konsisten).
+      if (tahap === 'Order') {
+        return "Tahap Order dicapai otomatis saat order dibuat dari quotation yang disetujui.";
+      }
+      if (tahap === 'Menang') {
+        return 'Tahap Menang hanya dapat dicapai lewat konversi order menjadi kontrak.';
+      }
+      setData((d) => ({
+        ...d,
+        prospect: d.prospect.map((p) =>
+          p.id === prospect.id
+            ? {
+                ...p,
+                tahap,
+                riwayat: [
+                  ...p.riwayat,
+                  {
+                    tanggal: hariIniIso(),
+                    catatan: catatan.trim(),
+                    oleh: penggunaAktif.nama,
+                  },
+                ],
+              }
+            : p,
+        ),
+      }));
+      tambahAudit(
+        'Tahap prospek diubah',
+        'Prospek',
+        prospect.id,
+        prospect.tahap,
+        `${tahap} — ${catatan.trim()}`,
+      );
+      return null;
+    },
+
+    tambahTindakLanjut: (prospect: Prospect, catatan: string, tanggal?: string) => {
+      if (!catatan.trim()) return;
+      const entri = {
+        tanggal: tanggal ?? hariIniIso(),
+        catatan: catatan.trim(),
+        oleh: penggunaAktif.nama,
+      };
+      setData((d) => ({
+        ...d,
+        prospect: d.prospect.map((p) =>
+          p.id === prospect.id
+            ? { ...p, riwayat: [...p.riwayat, entri] }
+            : p,
+        ),
+      }));
+      tambahAudit(
+        'Tindak lanjut dicatat',
+        'Prospek',
+        prospect.id,
+        '—',
+        catatan.trim(),
+      );
+    },
+
+    tambahQuotation: (input: QuotationInput) => {
+      const prospect = data.prospect.find((p) => p.id === input.prospectId);
+      if (!prospect) return 'Prospek tidak ditemukan.';
+      if (prospect.tahap === 'Menang' || prospect.tahap === 'Kalah') {
+        return 'Prospek pada tahap final tidak dapat dibuatkan quotation.';
+      }
+      if (!input.berlakuSampai) return 'Tanggal berlaku sampai wajib diisi.';
+      if (input.layanan.length === 0) {
+        return 'Quotation wajib punya minimal 1 baris layanan.';
+      }
+      for (const [i, l] of input.layanan.entries()) {
+        const kat = MASTER_KATEGORI_LAYANAN.find((k) => k.nama === l.kategori);
+        if (!kat) return `Kategori layanan baris ${i + 1} tidak dikenal.`;
+        if (!(l.tarif > 0)) {
+          return `Tarif layanan baris ${i + 1} harus lebih dari 0.`;
+        }
+        if (!(l.jumlah > 0)) {
+          return `Jumlah layanan baris ${i + 1} harus lebih dari 0.`;
+        }
+      }
+      const id = idBerikutnya('QTN-', data.quotation.map((q) => q.id));
+      const layanan: QuotationLayanan[] = input.layanan.map((l, i) => {
+        const kat = MASTER_KATEGORI_LAYANAN.find((k) => k.nama === l.kategori)!;
+        return {
+          id: `QTL-${id}-${i + 1}`,
+          kategori: l.kategori,
+          kodeAkun: kat.kodeAkun,
+          jenisPnBP: kat.jenisPnBP,
+          satuan: l.satuan,
+          tarif: l.tarif,
+          jumlah: l.jumlah,
+          subtotal: l.tarif * l.jumlah,
+          programa: l.programa || undefined,
+        };
+      });
+      const nilai = layanan.reduce((s, l) => s + l.subtotal, 0);
+      const quotation: Quotation = {
+        id,
+        prospectId: prospect.id,
+        tanggalBuat: hariIniIso(),
+        berlakuSampai: input.berlakuSampai,
+        status: 'Draft',
+        layanan,
+        nilai,
+        catatan: input.catatan || undefined,
+        satker: SATKER_PILOT,
+      };
+      setData((d) => ({
+        ...d,
+        quotation: [...d.quotation, quotation],
+        prospect: d.prospect.map((p) =>
+          p.id === prospect.id
+            ? {
+                ...p,
+                tahap: tahapMaju(p.tahap, 'Penawaran'),
+                riwayat: [
+                  ...p.riwayat,
+                  {
+                    tanggal: hariIniIso(),
+                    catatan: `Quotation ${id} dibuat (${formatRupiah(nilai)}).`,
+                    oleh: penggunaAktif.nama,
+                  },
+                ],
+              }
+            : p,
+        ),
+      }));
+      tambahAudit(
+        'Quotation dibuat',
+        'Quotation',
+        id,
+        '—',
+        `${prospect.namaInstansi} — ${formatRupiah(nilai)} (Draft)`,
+      );
+      return null;
+    },
+
+    ubahStatusQuotation: (quotation: Quotation, status: StatusQuotation) => {
+      const sah: Record<StatusQuotation, StatusQuotation[]> = {
+        Draft: ['Dikirim'],
+        Dikirim: ['Disetujui', 'Ditolak'],
+        Disetujui: [],
+        Ditolak: [],
+      };
+      if (!sah[quotation.status].includes(status)) {
+        return `Status quotation tidak dapat diubah dari ${quotation.status} menjadi ${status}.`;
+      }
+      setData((d) => ({
+        ...d,
+        quotation: d.quotation.map((q) =>
+          q.id === quotation.id ? { ...q, status } : q,
+        ),
+        prospect:
+          status === 'Disetujui'
+            ? d.prospect.map((p) =>
+                p.id === quotation.prospectId
+                  ? {
+                      ...p,
+                      tahap: tahapMaju(p.tahap, 'Negosiasi'),
+                      riwayat: [
+                        ...p.riwayat,
+                        {
+                          tanggal: hariIniIso(),
+                          catatan: `Quotation ${quotation.id} disetujui.`,
+                          oleh: penggunaAktif.nama,
+                        },
+                      ],
+                    }
+                  : p,
+              )
+            : d.prospect,
+      }));
+      tambahAudit(
+        'Status quotation diubah',
+        'Quotation',
+        quotation.id,
+        quotation.status,
+        status,
+      );
+      return null;
+    },
+
+    tambahOrder: (input: OrderInput) => {
+      const quotation = data.quotation.find((q) => q.id === input.quotationId);
+      if (!quotation) return 'Quotation tidak ditemukan.';
+      if (quotation.status !== 'Disetujui') {
+        return 'Order hanya dapat dibuat dari quotation yang Disetujui.';
+      }
+      if (
+        data.order.some(
+          (o) => o.quotationId === quotation.id && o.status !== 'Dibatalkan',
+        )
+      ) {
+        return `Quotation ${quotation.id} sudah memiliki order aktif.`;
+      }
+      const prospect = data.prospect.find((p) => p.id === quotation.prospectId);
+      const id = idBerikutnya('ORD-', data.order.map((o) => o.id));
+      const order: Order = {
+        id,
+        quotationId: quotation.id,
+        prospectId: quotation.prospectId,
+        tanggalOrder: hariIniIso(),
+        status: 'Draft',
+        nilai: quotation.nilai,
+        catatan: input.catatan || undefined,
+        satker: SATKER_PILOT,
+      };
+      setData((d) => ({
+        ...d,
+        order: [...d.order, order],
+        prospect: d.prospect.map((p) =>
+          p.id === quotation.prospectId
+            ? {
+                ...p,
+                tahap: tahapMaju(p.tahap, 'Order'),
+                riwayat: [
+                  ...p.riwayat,
+                  {
+                    tanggal: hariIniIso(),
+                    catatan: `Order ${id} dibuat dari quotation ${quotation.id}.`,
+                    oleh: penggunaAktif.nama,
+                  },
+                ],
+              }
+            : p,
+        ),
+      }));
+      tambahAudit(
+        'Order dibuat',
+        'Order',
+        id,
+        '—',
+        `${prospect?.namaInstansi ?? quotation.prospectId} — ${formatRupiah(quotation.nilai)} (Draft)`,
+      );
+      return null;
+    },
+
+    ubahStatusOrder: (order: Order, status: StatusOrder) => {
+      const sah: Record<StatusOrder, StatusOrder[]> = {
+        Draft: ['Diproses', 'Dibatalkan'],
+        Diproses: ['Selesai', 'Dibatalkan'],
+        Selesai: [],
+        Dibatalkan: [],
+      };
+      if (!sah[order.status].includes(status)) {
+        return `Status order tidak dapat diubah dari ${order.status} menjadi ${status}.`;
+      }
+      setData((d) => ({
+        ...d,
+        order: d.order.map((o) =>
+          o.id === order.id ? { ...o, status } : o,
+        ),
+      }));
+      tambahAudit(
+        'Status order diubah',
+        'Order',
+        order.id,
+        order.status,
+        status,
+      );
+      return null;
+    },
+
+    konversiOrder: (order: Order) => {
+      if (order.status !== 'Selesai') {
+        return 'Order hanya dapat dikonversi bila statusnya Selesai.';
+      }
+      if (order.kontrakId) {
+        return `Order ${order.id} sudah dikonversi menjadi ${order.kontrakId}.`;
+      }
+      const quotation = data.quotation.find((q) => q.id === order.quotationId);
+      if (!quotation) return 'Quotation asal order tidak ditemukan.';
+      const prospect = data.prospect.find((p) => p.id === order.prospectId);
+      if (!prospect) return 'Prospek asal order tidak ditemukan.';
+      const nomorPks = nomorPksBerikutnya(data.kontrak);
+      // Klien: pakai klien yang sudah ditaut prospek, cocokkan nama, atau buat baru.
+      let klien = prospect.klienId
+        ? data.klien.find((k) => k.id === prospect.klienId)
+        : undefined;
+      if (!klien) {
+        const namaBersih = prospect.namaInstansi.replace(/ \(Contoh\)$/, '');
+        klien = data.klien.find(
+          (k) => k.nama.replace(/ \(Contoh\)$/, '') === namaBersih,
+        );
+      }
+      let klienBaru: Klien | null = null;
+      if (!klien) {
+        const id = idBerikutnya('KLN-', data.klien.map((k) => k.id));
+        klienBaru = {
+          id,
+          nama: prospect.namaInstansi,
+          jenis: 'Swasta',
+          alamat: '—',
+          kontakNama: prospect.kontakNama,
+          kontakJabatan: prospect.kontakJabatan ?? '—',
+          telepon: prospect.telepon,
+          email: prospect.email ?? '—',
+          status: 'Aktif',
+          catatan: `Klien dibuat otomatis dari prospek ${prospect.id}. Lengkapi datanya.`,
+          satker: SATKER_PILOT,
+          dibuatOleh: penggunaAktif.nama,
+          dibuatPada: hariIniIso(),
+        };
+        klien = klienBaru;
+      }
+      // Layanan kontrak memakai snapshot tarif dari quotation (bukan master).
+      const layanan: LayananKontrak[] = quotation.layanan.map((l, i) => ({
+        id: `LYN-${nomorPks}-${i + 1}`,
+        namaLayanan: l.kategori,
+        kategori: l.kategori,
+        kodeAkun: l.kodeAkun,
+        jenisPnBP: l.jenisPnBP,
+        satuan: l.satuan,
+        tarif: l.tarif,
+        jumlah: l.jumlah,
+        subtotal: l.subtotal,
+        programa: l.programa,
+      }));
+      const kategoriNama =
+        quotation.layanan[0]?.kategori ?? prospect.layananDiminati;
+      const kategori = MASTER_KATEGORI_LAYANAN.find(
+        (k) => k.nama === kategoriNama,
+      )!;
+      const mulai = hariIniIso();
+      const selesaiDate = new Date(`${mulai}T00:00:00`);
+      selesaiDate.setFullYear(selesaiDate.getFullYear() + 1);
+      selesaiDate.setDate(selesaiDate.getDate() - 1);
+      const selesai = selesaiDate.toISOString().slice(0, 10);
+      const kontrak: Kontrak = {
+        id: nomorPks,
+        nomorPks,
+        klienId: klien.id,
+        jenisPnBP: kategori.jenisPnBP,
+        kategoriLayanan: kategori.nama,
+        programa: quotation.layanan[0]?.programa,
+        tanggalMulai: mulai,
+        tanggalSelesai: selesai,
+        nilaiKontrak: order.nilai,
+        status: 'Draft',
+        penanggungJawab: prospect.penanggungJawab,
+        catatan: `Berasal dari order ${order.id} (prospek ${prospect.id}).`,
+        satker: SATKER_PILOT,
+        layanan,
+      };
+      const checklist = buatChecklistDokumen(kontrak.id, data.dokumen);
+      setData((d) => ({
+        ...d,
+        klien: klienBaru ? [...d.klien, klienBaru] : d.klien,
+        kontrak: [...d.kontrak, kontrak],
+        dokumen: [...d.dokumen, ...checklist],
+        order: d.order.map((o) =>
+          o.id === order.id ? { ...o, kontrakId: nomorPks } : o,
+        ),
+        prospect: d.prospect.map((p) =>
+          p.id === prospect.id
+            ? {
+                ...p,
+                tahap: 'Menang',
+                kontrakId: nomorPks,
+                riwayat: [
+                  ...p.riwayat,
+                  {
+                    tanggal: hariIniIso(),
+                    catatan: `Order ${order.id} dikonversi menjadi kontrak ${nomorPks}.`,
+                    oleh: penggunaAktif.nama,
+                  },
+                ],
+              }
+            : p,
+        ),
+      }));
+      tambahAudit(
+        'Order dikonversi menjadi kontrak',
+        'Order',
+        order.id,
+        'Selesai',
+        `Dikonversi — ${nomorPks} (Draft)`,
+      );
+      return null;
+    },
+
+    tambahMeeting: (input: MeetingInput) => {
+      if (!input.tanggal) return 'Tanggal meeting wajib diisi.';
+      if (!input.jam) return 'Jam meeting wajib diisi.';
+      if (!input.peserta.trim()) return 'Peserta meeting wajib diisi.';
+      if (!input.agenda.trim()) return 'Agenda meeting wajib diisi.';
+      if (!input.prospectId && !input.klienId) {
+        return 'Pilih prospek atau klien untuk meeting ini.';
+      }
+      if (
+        input.prospectId &&
+        !data.prospect.some((p) => p.id === input.prospectId)
+      ) {
+        return 'Prospek tidak ditemukan.';
+      }
+      if (
+        input.klienId &&
+        !data.klien.some((k) => k.id === input.klienId)
+      ) {
+        return 'Klien tidak ditemukan.';
+      }
+      const id = idBerikutnya('MTG-', data.meeting.map((m) => m.id));
+      const meeting: Meeting = {
+        id,
+        tanggal: input.tanggal,
+        jam: input.jam,
+        prospectId: input.prospectId || undefined,
+        klienId: input.klienId || undefined,
+        peserta: input.peserta.trim(),
+        agenda: input.agenda.trim(),
+        hasil: input.hasil || undefined,
+        satker: SATKER_PILOT,
+      };
+      setData((d) => ({ ...d, meeting: [...d.meeting, meeting] }));
+      tambahAudit(
+        'Meeting dijadwalkan',
+        'Meeting',
+        id,
+        '—',
+        `${input.tanggal} ${input.jam} — ${input.agenda.trim()}`,
+      );
+      return null;
+    },
+
+    // --- Aksi Fase B — Marketing (PRD Bab 7.2) ---
+    tambahEvent: (input: EventInput) => {
+      if (!input.nama.trim()) return 'Nama event wajib diisi.';
+      if (!input.tanggal) return 'Tanggal event wajib diisi.';
+      if (!input.penyelenggara.trim()) return 'Penyelenggara wajib diisi.';
+      if (!(input.biaya >= 0)) return 'Biaya event tidak boleh negatif.';
+      if (
+        input.prospectId &&
+        !data.prospect.some((p) => p.id === input.prospectId)
+      ) {
+        return 'Prospek yang dihasilkan tidak ditemukan.';
+      }
+      const id = idBerikutnya('EVT-', data.event.map((e) => e.id));
+      const event: Event = {
+        id,
+        nama: input.nama.trim(),
+        tanggal: input.tanggal,
+        penyelenggara: input.penyelenggara.trim(),
+        biaya: input.biaya,
+        hasil: input.hasil || undefined,
+        prospectId: input.prospectId || undefined,
+        satker: SATKER_PILOT,
+      };
+      setData((d) => ({ ...d, event: [...d.event, event] }));
+      tambahAudit(
+        'Event dicatat',
+        'Event',
+        id,
+        '—',
+        `${event.nama} — ${formatRupiah(event.biaya)}`,
+      );
+      return null;
+    },
+
+    tambahAdvertisement: (input: AdvertisementInput) => {
+      if (!input.nama.trim()) return 'Nama advertisement wajib diisi.';
+      if (!input.media.trim()) return 'Media/saluran wajib diisi.';
+      if (!input.periodeMulai) return 'Periode mulai wajib diisi.';
+      if (!input.periodeSelesai) return 'Periode selesai wajib diisi.';
+      if (input.periodeSelesai < input.periodeMulai) {
+        return 'Periode selesai tidak boleh sebelum periode mulai.';
+      }
+      if (!(input.biaya >= 0)) return 'Biaya advertisement tidak boleh negatif.';
+      const id = idBerikutnya('ADV-', data.advertisement.map((a) => a.id));
+      const advertisement: Advertisement = {
+        id,
+        nama: input.nama.trim(),
+        media: input.media.trim(),
+        periodeMulai: input.periodeMulai,
+        periodeSelesai: input.periodeSelesai,
+        biaya: input.biaya,
+        hasil: input.hasil || undefined,
+        satker: SATKER_PILOT,
+      };
+      setData((d) => ({
+        ...d,
+        advertisement: [...d.advertisement, advertisement],
+      }));
+      tambahAudit(
+        'Advertisement dicatat',
+        'Advertisement',
+        id,
+        '—',
+        `${advertisement.nama} — ${formatRupiah(advertisement.biaya)}`,
+      );
+      return null;
+    },
+
+    // --- Aksi Fase B — To-Do List (PRD Bab 7.7, 9.6) ---
+    tambahTask: (input: TaskInput) => {
+      if (!input.pemilik.trim()) return 'Pemilik tugas wajib diisi.';
+      if (!input.judul.trim()) return 'Judul tugas wajib diisi.';
+      if (!input.tenggat) return 'Tenggat tugas wajib diisi.';
+      const id = idBerikutnya('TSK-', data.task.map((t) => t.id));
+      const task: Task = {
+        id,
+        pemilik: input.pemilik.trim(),
+        judul: input.judul.trim(),
+        tenggat: input.tenggat,
+        status: 'Belum Dikerjakan',
+        terkaitId: input.terkaitId || undefined,
+        terkaitLabel: input.terkaitLabel || undefined,
+        satker: SATKER_PILOT,
+      };
+      setData((d) => ({ ...d, task: [...d.task, task] }));
+      tambahAudit(
+        'Tugas dicatat',
+        'Tugas',
+        id,
+        '—',
+        `${task.judul} — tenggat ${task.tenggat}`,
+      );
+      return null;
+    },
+
+    ubahStatusTask: (task: Task, status: StatusTask) => {
+      const sah: Record<StatusTask, StatusTask[]> = {
+        'Belum Dikerjakan': ['Berjalan'],
+        Berjalan: ['Selesai', 'Belum Dikerjakan'],
+        Selesai: ['Berjalan'],
+        // 'Ditutup' hanya lewat tutupDisposisi (Alur F Bab 9.6).
+        Ditutup: [],
+      };
+      if (!sah[task.status].includes(status)) return;
+      setData((d) => ({
+        ...d,
+        task: d.task.map((t) =>
+          t.id === task.id ? { ...t, status } : t,
+        ),
+      }));
+      tambahAudit(
+        'Status tugas diubah',
+        'Tugas',
+        task.id,
+        task.status,
+        status,
+      );
+    },
+
+    tambahDisposisi: (input: DisposisiInput) => {
+      if (!input.penerima.trim()) return 'Penerima disposisi wajib diisi.';
+      if (!input.judul.trim()) return 'Judul disposisi wajib diisi.';
+      if (!input.instruksi.trim()) return 'Instruksi disposisi wajib diisi.';
+      if (!input.tenggat) return 'Tenggat disposisi wajib diisi.';
+      const noDisposisi = idBerikutnya(
+        'DIS-',
+        data.task.map((t) => t.disposisiDari ?? ''),
+      );
+      const id = idBerikutnya('TSK-', data.task.map((t) => t.id));
+      const task: Task = {
+        id,
+        pemilik: input.penerima.trim(),
+        judul: input.judul.trim(),
+        tenggat: input.tenggat,
+        status: 'Belum Dikerjakan',
+        disposisiDari: noDisposisi,
+        instruksi: input.instruksi.trim(),
+        pemberiDisposisi: input.pemberiDisposisi.trim(),
+        terkaitId: input.terkaitId || undefined,
+        terkaitLabel: input.terkaitLabel || undefined,
+        satker: SATKER_PILOT,
+      };
+      setData((d) => ({ ...d, task: [...d.task, task] }));
+      tambahAudit(
+        'Disposisi dibuat',
+        'Disposisi',
+        noDisposisi,
+        '—',
+        `${input.penerima.trim()} — ${input.judul.trim()}`,
+      );
+      return null;
+    },
+
+    tutupDisposisi: (task: Task) => {
+      if (!task.pemberiDisposisi) return 'Tugas ini bukan disposisi.';
+      if (task.status !== 'Selesai') {
+        return 'Disposisi hanya dapat ditutup bila status tugas Selesai.';
+      }
+      if (
+        penggunaAktif.nama !== task.pemberiDisposisi &&
+        penggunaAktif.peran !== 'admin_sistem'
+      ) {
+        return 'Hanya pemberi disposisi atau Admin yang dapat menutup disposisi ini.';
+      }
+      setData((d) => ({
+        ...d,
+        task: d.task.map((t) =>
+          t.id === task.id ? { ...t, status: 'Ditutup' as const } : t,
+        ),
+      }));
+      tambahAudit(
+        'Disposisi ditutup',
+        'Disposisi',
+        task.disposisiDari ?? task.id,
+        'Selesai',
+        'Ditutup',
+      );
+      return null;
+    },
   };
 
   const navUtama = MODULES.filter((m) => m.phase !== 'Admin');
@@ -616,7 +1332,7 @@ export default function App() {
               >
                 <ItemIcon size={18} />
                 {m.label}
-                {m.phase !== 'A' && (
+                {m.phase === 'C' && (
                   <span className="ml-auto rounded bg-white/15 px-1.5 py-0.5 text-[10px]">
                     Fase {m.phase}
                   </span>
@@ -710,9 +1426,12 @@ export default function App() {
             {active === 'pengajuan' && <Pengajuan {...propsModul} />}
             {active === 'revenue' && <Revenue {...propsModul} />}
             {active === 'reporting' && <Reporting {...propsModul} />}
+            {active === 'sales' && <Sales {...propsModul} />}
+            {active === 'marketing' && <Marketing {...propsModul} />}
+            {active === 'todo' && <Todo {...propsModul} />}
             {active === 'audit' && <AuditPage {...propsModul} />}
             {active === 'master' && <MasterPage {...propsModul} />}
-            {(active === 'marketing' || active === 'sales' || active === 'todo' || active === 'service') && (
+            {active === 'service' && (
               <div className="mt-6 max-w-2xl rounded-md border border-[#2573e2]/20 p-5">
                 <p className="text-sm font-semibold">
                   Segera hadir — Fase {current.phase}

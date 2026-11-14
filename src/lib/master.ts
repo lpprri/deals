@@ -97,3 +97,60 @@ export const MASTER_METODE_PEMBAYARAN: string[] = [
 ];
 
 export const MASTER_JENIS_PNBP: JenisPnBP[] = ['Fungsional', 'Umum'];
+
+// --- Master Fase B (PRD Bab 6.12, 7.2, 7.3, 7.7) ---
+
+/**
+ * Tahap pipeline — DRAF. Q-11 belum terjawab: tahap final menunggu jawaban
+ * pemilik produk. Daftar ini sengaja dibuat sebagai satu master agar mudah
+ * diubah saat Q-11 terjawab, tanpa mengubah logika modul.
+ */
+export const MASTER_TAHAP_PIPELINE: string[] = [
+  'Prospek Baru',
+  'Dihubungi',
+  'Penawaran',
+  'Negosiasi',
+  'Order',
+  'Menang',
+  'Kalah',
+];
+
+/** Tahap yang masih dihitung sebagai pipeline aktif (nilai pipeline). */
+export const TAHAP_PIPELINE_AKTIF: string[] = [
+  'Prospek Baru',
+  'Dihubungi',
+  'Penawaran',
+  'Negosiasi',
+  'Order',
+];
+
+export const MASTER_SUMBER_PROSPEK: string[] = [
+  'Pengajuan',
+  'Kunjungan',
+  'Referensi',
+  'Event',
+  'Media Sosial',
+  'Telepon',
+  'Lainnya',
+];
+
+export const MASTER_STATUS_QUOTATION: string[] = [
+  'Draft',
+  'Dikirim',
+  'Disetujui',
+  'Ditolak',
+];
+
+export const MASTER_STATUS_ORDER: string[] = [
+  'Draft',
+  'Diproses',
+  'Selesai',
+  'Dibatalkan',
+];
+
+export const MASTER_STATUS_TASK: string[] = [
+  'Belum Dikerjakan',
+  'Berjalan',
+  'Selesai',
+  'Ditutup',
+];

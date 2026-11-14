@@ -1,4 +1,4 @@
-// Master data — Fase A (PRD v2.0 Final Bab 6.13).
+// Master data — Fase A + Fase B (PRD v2.0 Final Bab 6.13).
 // Tampilan READ-ONLY. Master hanya diubah Admin; nilai yang sudah dipakai
 // transaksi tidak dapat dihapus, hanya dinonaktifkan. Perubahan master
 // dilakukan di luar mode contoh ini (Fase A: tampil sebagai daftar).
@@ -11,7 +11,12 @@ import {
   MASTER_KODE_AKUN,
   MASTER_PROGRAMA,
   MASTER_STATUS_KONTRAK,
+  MASTER_STATUS_ORDER,
+  MASTER_STATUS_QUOTATION,
+  MASTER_STATUS_TASK,
+  MASTER_SUMBER_PROSPEK,
   MASTER_TAHAP_PENGAJUAN,
+  MASTER_TAHAP_PIPELINE,
   SATKER_PILOT,
 } from '../lib/master';
 import {
@@ -113,6 +118,17 @@ export default function MasterPage(_props: ModulProps) {
         <DaftarNilai judul="Jenis Dokumen" nilai={MASTER_JENIS_DOKUMEN} />
         <DaftarNilai judul="Status Kontrak" nilai={MASTER_STATUS_KONTRAK} />
         <DaftarNilai judul="Tahap Pengajuan" nilai={MASTER_TAHAP_PENGAJUAN} />
+        <DaftarNilai
+          judul="Tahap Pipeline (draf — menunggu Q-11)"
+          nilai={MASTER_TAHAP_PIPELINE}
+        />
+        <DaftarNilai judul="Sumber Prospek" nilai={MASTER_SUMBER_PROSPEK} />
+        <DaftarNilai
+          judul="Status Quotation"
+          nilai={MASTER_STATUS_QUOTATION}
+        />
+        <DaftarNilai judul="Status Order" nilai={MASTER_STATUS_ORDER} />
+        <DaftarNilai judul="Status Tugas" nilai={MASTER_STATUS_TASK} />
       </div>
 
       {/* Daftar Satker */}
