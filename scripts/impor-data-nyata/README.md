@@ -54,21 +54,27 @@ adalah konstanta `TANGGAL_IMPOR = '2026-11-14'` — bukan tanggal berjalan.
    = kontrak Rp6.000.000 + denda Rp1.440.000) — denda tidak ditambahkan lagi
    ke sisa piutang.
 
-## Yang belum diimpor (butuh attempt berikutnya)
+## Yang sudah diimpor pada attempt kedua (14/11/2026 ~15:48 WIB)
 
-- **Sheet 3 (DATA PNBP 2026) — seluruh 10 tab**: belum terbaca karena
-  rate limit konektor saat ekstraksi. `penerimaanAcuan = []`; rekonsiliasi
-  terhadap acuan Keuangan belum dapat dilakukan.
-- **Sheet 2, tab Pengajuan Baru, Indralaya, Temuan**: belum terbaca (rate
-  limit yang sama). `temuan` semua sewa masih `[]`; pengajuan sewa baru
-  dari Sheet 2 belum diketahui (pengajuan yang ada berasal dari Sheet 1).
-- Setelah kuota konektor pulih: ekstrak tab-tab itu, timpa file JSON
-  terkait di `data/`, lalu jalankan ulang `impor.mjs` + `verifikasi.mjs`.
+- **Sheet 3 (DATA PNBP 2026) — seluruh 10 tab**: 62 baris `penerimaanAcuan`
+  (total Rp257.590.368). Rekonsiliasi terhadap acuan Keuangan kini dapat
+  dilakukan — lihat `laporan-rekonsiliasi.json` butir (e). Pengecualian:
+  baris September di Rekap Penerimaan belum diisi (Rp0), padahal tab
+  September berisi 4 setoran Rp3.357.302 — selisih Rp3.357.302 antara total
+  Rekap dan jumlah tab bulanan.
+- **Sheet 2, tab Pengajuan Baru, Indralaya, Temuan**: 0 pengajuan baru
+  (tab Pengajuan Baru ternyata rencana penggunaan lahan, bukan daftar
+  pengajuan); 2 sewa baru Indralaya; 6 temuan lapangan ditempel ke sewa.
+  9 baris "KERJASAMA SEDANG BERJALAN" tidak diimpor sebagai sewa terpisah
+  (periode + nilainya sudah tercatat sebagai riwayatHarga sewa berjalan
+  yang sama). 3 temuan tak tercocokkan hanya dicatat di audit.
 
 ## Yang butuh keputusan/koreksi pengguna
 
 - Pengajuan **PGJ-01 & PGJ-02 memakai tanggal placeholder 2026-11-14**
-  (tanggal masuk tidak tercatat di sumber) — wajib dikoreksi.
+  (tanggal masuk tidak tercatat di sumber) — wajib dikoreksi. Tab
+  Pengajuan Baru Sheet 2 (attempt kedua) ternyata bukan daftar pengajuan,
+  jadi tidak ada tanggal asli dari sana.
 - Konfirmasi audit Sheet 2: pemetaan SPn/terlambat → Bermasalah; arti
   infix `PKS.F` (Indosat, Arip); nilai Revisi 2026 Sahara & Theodosius;
   total 2024 selisih Rp7.225.000 (lihat `data/sheet2-3-audit.json`).

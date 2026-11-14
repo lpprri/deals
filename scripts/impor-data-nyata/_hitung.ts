@@ -15,7 +15,7 @@
 // Untuk transparansi, perBulanTanggalMulai juga dihitung sebagai pembanding.
 
 import { DATA_NYATA } from '../../src/lib/seedNyata';
-import { hitungTotalKontrol } from '../../src/lib/derive';
+import { hitungTotalKontrol, totalPerKodeAkun } from '../../src/lib/derive';
 
 const BULAN = [
   '2026-01',
@@ -162,6 +162,57 @@ const pembayaranJuliJembatan = DATA_NYATA.pembayaran
   )
   .reduce((s, p) => s + p.jumlah, 0);
 
+// Jembatan acuan Keuangan (Sheet 3) vs pembayaran — pencocokan per NTPN.
+// NTPN diekstrak dari uraian acuan ("NTPN <kode>") dan buktiSetor
+// pembayaran ("NTB ... / NTPN <kode>"). Pasangan yang cocok dibandingkan
+// per kode akun; sisanya dirinci sebagai pembayaran tanpa acuan (di luar
+// periode Sheet 3) dan acuan tanpa pembayaran (di luar tagihan kerja sama).
+const ntpnDari = (s: string) => (s.match(/NTPN\s+([A-Za-z0-9]+)/) || [])[1] || null;
+const bayarPerNtpn = new Map<string, (typeof DATA_NYATA.pembayaran)[number]>();
+for (const p of DATA_NYATA.pembayaran) {
+  const n = ntpnDari(p.buktiSetor || '');
+  if (n) bayarPerNtpn.set(n, p);
+}
+const tagihanKode = new Map(DATA_NYATA.tagihan.map((t) => [t.id, t.kodeAkun]));
+const pasanganPerKode = new Map<string, { n: number; acuan: number; bayar: number }>();
+const acuanTanpaPembayaran: { id: string; kodeAkun: string; periode: string; jumlah: number }[] = [];
+let acuanTanpaNtpnJumlahBaris = 0;
+let acuanTanpaNtpnTotal = 0;
+for (const a of DATA_NYATA.penerimaanAcuan) {
+  const n = ntpnDari(a.uraian || '');
+  if (!n) {
+    acuanTanpaNtpnJumlahBaris += 1;
+    acuanTanpaNtpnTotal += a.jumlah;
+    continue;
+  }
+  const p = bayarPerNtpn.get(n);
+  if (!p) {
+    acuanTanpaPembayaran.push({ id: a.id, kodeAkun: a.kodeAkun, periode: a.periode, jumlah: a.jumlah });
+    continue;
+  }
+  const kunci = `${a.kodeAkun}/${tagihanKode.get(p.tagihanId) ?? '?'}`;
+  const e = pasanganPerKode.get(kunci) ?? { n: 0, acuan: 0, bayar: 0 };
+  e.n += 1;
+  e.acuan += a.jumlah;
+  e.bayar += p.jumlah;
+  pasanganPerKode.set(kunci, e);
+}
+const ntpnAcuan = new Set(
+  DATA_NYATA.penerimaanAcuan.map((a) => ntpnDari(a.uraian || '')).filter((x): x is string => x !== null),
+);
+const pembayaranTanpaAcuan = DATA_NYATA.pembayaran
+  .filter((p) => {
+    const n = ntpnDari(p.buktiSetor || '');
+    return n !== null && !ntpnAcuan.has(n);
+  })
+  .map((p) => ({
+    id: p.id,
+    tagihanId: p.tagihanId,
+    kodeAkun: tagihanKode.get(p.tagihanId),
+    tanggalBayar: p.tanggalBayar,
+    jumlah: p.jumlah,
+  }));
+
 const kontrol = hitungTotalKontrol(DATA_NYATA);
 
 console.log(
@@ -183,6 +234,15 @@ console.log(
         pembayaranJuliFisolMilaHerman: pembayaranJuliJembatan,
       },
       totalKontrol: kontrol,
+      // Rekonsiliasi vs acuan Keuangan (butir (e) verifikasi): per kode akun.
+      perKodeAkun: totalPerKodeAkun(DATA_NYATA),
+      // Jembatan NTPN acuan vs pembayaran (butir (e) verifikasi).
+      jembatanAcuan: {
+        pasanganPerKode: [...pasanganPerKode.entries()].map(([kunci, v]) => ({ kunci, ...v })),
+        pembayaranTanpaAcuan,
+        acuanTanpaPembayaran,
+        acuanTanpaNtpn: { jumlahBaris: acuanTanpaNtpnJumlahBaris, total: acuanTanpaNtpnTotal },
+      },
     },
     null,
     2,

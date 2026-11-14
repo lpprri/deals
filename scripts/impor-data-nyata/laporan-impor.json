@@ -14,21 +14,22 @@
     "pembayaran": 42,
     "pembayaranTerverifikasi": 42,
     "denda": 13,
-    "sewa": 39,
+    "sewa": 41,
     "pengajuan": 16,
-    "penerimaanAcuan": 0
+    "penerimaanAcuan": 62
   },
   "dilewati": {
-    "catatan": "Tidak ada baris entitas yang dilewati oleh skrip ini — baris header/total/blanko dan 2 baris duplikat kosong sudah disaring saat ekstraksi (lihat sheet1-audit.json). Yang TIDAK diimpor: seluruh Sheet 3 + tab Pengajuan Baru/Indralaya/Temuan Sheet 2 (belum terbaca — rate limit).",
+    "catatan": "Tidak ada baris entitas yang dilewati oleh skrip ini — baris header/total/blanko dan 2 baris duplikat kosong sudah disaring saat ekstraksi (lihat sheet1-audit.json). Attempt kedua: 9 baris \"KERJASAMA SEDANG BERJALAN\" tab Indralaya tidak diimpor sebagai sewa terpisah (periode + nilainya sudah tercatat sebagai riwayatHarga sewa berjalan yang sama); 6 baris ON-PROCESS + 6 baris PENGGUNAAN OLEH RRI/LAIN dilewati (bukan sewa pihak ke-3 / tanpa nomor-tanggal); 6 baris tab Pengajuan Baru dilewati (rencana penggunaan lahan, bukan daftar pengajuan); 3 temuan tak tercocokkan hanya dicatat di audit (lihat data/sheet2-tab-baru-audit.json).",
     "baris": []
   },
   "keputusanPemetaan": [
     "Pembayaran dengan NTB + NTPN → Terverifikasi (42/42). NTPN adalah bukti penerimaan negara; pola sama dengan data contoh Fase A.",
-    "Sewa tertaut ke kontrak lewat nomor referensi lama: 16/39 tertaut, 23 tanpa tautan (perjanjian 2025 ke bawah).",
+    "Sewa tertaut ke kontrak lewat nomor referensi lama: 16/41 tertaut, 25 tanpa tautan (perjanjian 2025 ke bawah).",
     "Field di luar types.ts dibuang: Tagihan.status (42 baris — status diturunkan derive.ts), Sewa._nomorReferensiKontrak (14 baris — nilai tetap ada di snapshot ./data/).",
     "Tautan Fase B ke contoh Fase A dihapus: pengajuanId PJ-001 ×1, pengajuanId PJ-003 ×1, klienId KLN-01 ×1, kontrakId PKS-001/2026 ×2, terkaitId PJ-002 ×1.",
-    "PenerimaanAcuan = [] — Sheet 3 belum terbaca (rate limit).",
-    "Pengajuan PGJ-01 & PGJ-02 memakai tanggal placeholder 2026-11-14 — wajib dikoreksi pengguna.",
+    "PenerimaanAcuan: 62 baris dari Sheet 3 (attempt kedua 14/11/2026), total Rp257.590.368. Selisih vs pembayaran terverifikasi dilaporkan di laporan-rekonsiliasi.json butir (e), bukan dihilangkan.",
+    "Temuan lapangan: 6 temuan ditempel ke sewa (tab Temuan Sheet 2, attempt kedua); 3 temuan tak tercocokkan hanya dicatat di audit.",
+    "Pengajuan PGJ-01 & PGJ-02 memakai tanggal placeholder 2026-11-14 — wajib dikoreksi pengguna. Tab Pengajuan Baru Sheet 2 ternyata bukan daftar pengajuan (rencana penggunaan lahan tanpa nama/tanggal); 0 pengajuan baru dari tab itu.",
     "Sheet 1 (kontrak/angsuran 2026) dan Sheet 2 (perjanjian sewa multi-tahun 2022–2026) adalah potongan berbeda — total nilainya tidak boleh dijumlahkan."
   ],
   "sewaTanpaTautan": [
@@ -146,6 +147,16 @@
       "id": "SW-056-RRI-PLB-PKS-U-12-2025",
       "penyewaNama": "Nehwa Atmojo",
       "nomorPerjanjian": "056/RRI.PLB/PKS.U/12/2025"
+    },
+    {
+      "id": "SW-039-RRI-PLB-PKS-U-09-2023",
+      "penyewaNama": "Yayan Apriansyah",
+      "nomorPerjanjian": "039/RRI.PLB/PKS.U/09/2023"
+    },
+    {
+      "id": "SW-003-RRI-PLB-PKS-U-01-2024",
+      "penyewaNama": "Wahidin Baskara",
+      "nomorPerjanjian": "003/RRI.PLB/PKS.U/01/2024"
     }
   ],
   "pengecualianKodeAkun": [
@@ -175,13 +186,24 @@
     }
   ],
   "belumDiimpor": {
-    "sheet3": "Seluruh 10 tab DATA PNBP 2026 (Rekap Penerimaan, Jan–Sep) — rate limit saat ekstraksi.",
-    "sheet2": "Tab Pengajuan Baru, Indralaya, Temuan — rate limit saat ekstraksi.",
-    "catatan": "Butuh attempt berikutnya setelah kuota konektor pulih; jalankan ulang ekstraksi untuk tab tersebut lalu jalankan ulang skrip ini."
+    "sheet3": null,
+    "sheet2": null,
+    "catatan": "Tidak ada lagi — semua tab sudah diimpor pada attempt kedua (14/11/2026 ~15:48 WIB)."
+  },
+  "diimporAttemptKedua": {
+    "penerimaanAcuan": 62,
+    "totalPenerimaanAcuan": 257590368,
+    "sewaIndralayaBaru": 2,
+    "temuanDitempel": 6,
+    "temuanTakTercocokkan": 3,
+    "pengajuanBaruSheet2": 0,
+    "koreksiTanggalPengajuan": 0
   },
   "masalahKualitasDiringkas": {
     "sheet1": 22,
     "sheet2": 22,
-    "catatan": "Rincian lengkap di data/sheet1-audit.json dan data/sheet2-3-audit.json. Yang paling penting: nomor PKS ganda 2036 (2 kontrak, id #010/#011), Samdini tertulis Lunas padahal tanpa NTB/NTPN, total Rekapitulasi stale, 2 pengajuan bertanggal placeholder."
+    "sheet3": 13,
+    "sheet2TabBaru": 14,
+    "catatan": "Rincian lengkap di data/sheet1-audit.json, data/sheet2-3-audit.json, data/sheet3-ekstraksi-audit.json, dan data/sheet2-tab-baru-audit.json. Yang paling penting: nomor PKS ganda 2036 (2 kontrak, id #010/#011), Samdini tertulis Lunas padahal tanpa NTB/NTPN, total Rekapitulasi stale, 2 pengajuan bertanggal placeholder, Rekap Penerimaan September belum diisi (selisih Rp3.357.302 vs tab bulanan)."
   }
 }

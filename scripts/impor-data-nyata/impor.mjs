@@ -30,15 +30,25 @@
 //     mereka ke entitas contoh Fase A yang sudah diganti data nyata
 //     (KLN-01, PKS-001/2026, PJ-001, PJ-002, PJ-003) DIHAPUS supaya tidak
 //     menggantung; jejak prospek→quotation→order di dalam Fase B tetap utuh.
-//  5. PenerimaanAcuan = [] — Sheet 3 (DATA PNBP 2026) belum terbaca karena
-//     rate limit konektor saat ekstraksi. BUKAN diisi data contoh.
-//     Rekonsiliasi terhadap acuan Keuangan belum dapat dilakukan sampai
-//     Sheet 3 diimpor pada attempt berikutnya.
+//  5. PenerimaanAcuan dibaca dari sheet3-penerimaan-acuan.json (Sheet 3,
+//     DATA PNBP 2026 — attempt kedua 14/11/2026, 62 baris). Sebelumnya
+//     kosong karena rate limit. Rekonsiliasi terhadap acuan Keuangan
+//     kini dapat dilakukan — selisih yang muncul DILAPORKAN, bukan
+//     dihilangkan (lihat verifikasi.mjs butir (e)).
 //  6. Pengajuan PGJ-01 & PGJ-02 memakai tanggal placeholder 2026-11-14
 //     (tanggal masuk tidak tercatat di sumber) — WAJIB dikoreksi pengguna.
+//     Tab Pengajuan Baru Sheet 2 (attempt kedua) ternyata bukan daftar
+//     pengajuan (rencana penggunaan lahan tanpa nama/tanggal), jadi
+//     tidak ada tanggal asli dari sana.
 //  7. Sheet 1 dan Sheet 2 adalah potongan berbeda: Sheet 1 = kontrak /
 //     angsuran 2026; Sheet 2 = perjanjian sewa multi-tahun 2022–2026.
 //     Total nilainya TIDAK BOLEH dijumlahkan.
+//  8. Attempt kedua (14/11/2026 ~15:48 WIB) menambahkan: 62 baris
+//     PenerimaanAcuan (Sheet 3), 2 sewa baru Indralaya, 6 temuan
+//     lapangan (Sheet 2). 9 baris "KERJASAMA SEDANG BERJALAN" tab
+//     Indralaya TIDAK diimpor sebagai sewa terpisah — periode + nilainya
+//     sudah tercatat sebagai riwayatHarga sewa berjalan yang sama
+//     (lihat data/sheet2-tab-baru-audit.json).
 //
 // Cara pakai:  node scripts/impor-data-nyata/impor.mjs
 //   (jalankan dari root repo; keluar non-zero bila validasi gagal)
@@ -90,6 +100,7 @@ const F = {
   temuan: ['tanggal', 'uraian', 'tindakLanjut', 'status'],
   sewa: ['id', 'aset', 'lokasi', 'penyewaId', 'penyewaNama', 'nomorPerjanjian', 'tanggalMulai', 'tanggalSelesai', 'nilaiSewa', 'status', 'diterimaDiMuka', 'masihHarusDiterima', 'kontrakId', 'riwayatHarga', 'temuan', 'satker'],
   pengajuan: ['id', 'jenis', 'pemohon', 'tanggalMasuk', 'kebutuhan', 'tahap', 'penanggungJawab', 'catatan', 'alasanTolak', 'nilaiPerkiraan', 'hasilKonversi', 'satker'],
+  penerimaanAcuan: ['id', 'periode', 'kodeAkun', 'uraian', 'jumlah', 'penyetor', 'tanggalSetor', 'satker'],
 };
 
 const ISO_TANGGAL = /^\d{4}-\d{2}-\d{2}$/;
@@ -155,10 +166,31 @@ const dokumen = baca('sheet1-dokumen.json').map((r) => pilih(r, F.dokumen));
 const tagihan = baca('sheet1-tagihan.json').map((r) => pilih(r, F.tagihan));
 const pembayaranMentah = baca('sheet1-pembayaran.json');
 const denda = baca('sheet1-denda.json').map((r) => pilih(r, F.denda));
-const pengajuan = baca('sheet1-pengajuan.json').map((r) => pilih(r, F.pengajuan));
-const sewaMentah = baca('sheet2-sewa.json');
+const pengajuanSheet1 = baca('sheet1-pengajuan.json').map((r) => pilih(r, F.pengajuan));
+const pengajuanSheet2Baru = baca('sheet2-pengajuan.json').map((r) => pilih(r, F.pengajuan));
+const koreksiPengajuan = baca('sheet2-koreksi-pengajuan.json');
+const pengajuan = [...pengajuanSheet1, ...pengajuanSheet2Baru];
+// Koreksi tanggal placeholder PGJ-01/PGJ-02 bila tab Pengajuan Baru Sheet 2
+// memuat tanggal masuk yang sebenarnya (attempt kedua: tidak ada —
+// file koreksi kosong, placeholder tetap berlaku).
+let koreksiTanggalDiterapkan = 0;
+for (const k of koreksiPengajuan) {
+  const target = pengajuan.find((p) => p.id === k.id);
+  if (target && tanggalValid(k.tanggalMasukBaru)) {
+    target.tanggalMasuk = k.tanggalMasukBaru;
+    koreksiTanggalDiterapkan += 1;
+  } else {
+    fail(`koreksi pengajuan ${k.id}: tidak ditemukan atau tanggal tidak valid (${k.tanggalMasukBaru})`);
+  }
+}
+// PenerimaanAcuan (Sheet 3, attempt kedua).
+const penerimaanAcuan = baca('sheet3-penerimaan-acuan.json').map((r) => pilih(r, F.penerimaanAcuan));
+const sewaMentah = [...baca('sheet2-sewa.json'), ...baca('sheet2-sewa-indralaya.json')];
+const temuanSheet2 = baca('sheet2-temuan.json');
 const auditSheet1 = baca('sheet1-audit.json');
 const auditSheet2 = baca('sheet2-3-audit.json');
+const auditSheet3 = baca('sheet3-ekstraksi-audit.json');
+const auditSheet2Baru = baca('sheet2-tab-baru-audit.json');
 
 // Pembayaran: NTB + NTPN → Terverifikasi (keputusan 1).
 let terverifikasi = 0;
@@ -203,6 +235,33 @@ const sewa = sewaMentah.map((r) => {
   return s;
 });
 
+// Temuan lapangan (tab Temuan Sheet 2, attempt kedua): tempel ke sewa
+// berdasarkan sewaId. nomorPerjanjian di temuan adalah nomor perjanjian
+// LAMA penyewa itu (2024) — sewa berjalan membawa nomor yang diperbarui
+// (2025) — jadi validasi memakai pasangan (penyewa, nomor) dari audit
+// tab 2024 + baris sewa berjalan, bukan kesamaan harfiah dengan nomor kini.
+const perjanjianLamaPerPenyewa = new Map();
+for (const d of auditSheet2.spreadsheet2?.perTab?.['2024']?.dilewati || []) {
+  perjanjianLamaPerPenyewa.set(`${d.penyewa}|${d.nomor}`, true);
+}
+const sewaPerId = new Map(sewa.map((s) => [s.id, s]));
+let temuanDitempel = 0;
+for (const t of temuanSheet2) {
+  const target = sewaPerId.get(t.sewaId);
+  if (!target) {
+    fail(`temuan ${t.sewaId}: sewa tidak ditemukan`);
+    continue;
+  }
+  const cocokKini = target.nomorPerjanjian === t.nomorPerjanjian;
+  const cocokLama = perjanjianLamaPerPenyewa.has(`${target.penyewaNama}|${t.nomorPerjanjian}`);
+  if (!cocokKini && !cocokLama) {
+    fail(`temuan ${t.sewaId}: nomorPerjanjian ${t.nomorPerjanjian} bukan nomor kini maupun nomor 2024 penyewa ${target.penyewaNama}`);
+    continue;
+  }
+  target.temuan.push(pilih(t.temuan, F.temuan));
+  temuanDitempel += 1;
+}
+
 // ---------------------------------------------------------------------------
 // 2. Validasi.
 // ---------------------------------------------------------------------------
@@ -214,6 +273,7 @@ cekUnik('pembayaran', pembayaran);
 cekUnik('denda', denda);
 cekUnik('sewa', sewa);
 cekUnik('pengajuan', pengajuan);
+cekUnik('penerimaanAcuan', penerimaanAcuan);
 
 cekTanggal('klien', klien, ['dibuatPada']);
 cekTanggal('kontrak', kontrak, ['tanggalMulai', 'tanggalSelesai']);
@@ -221,6 +281,13 @@ cekTanggal('tagihan', tagihan, ['tanggalTerbit', 'tanggalJatuhTempo']);
 cekTanggal('pembayaran', pembayaran, ['tanggalBayar']);
 cekTanggal('sewa', sewa, ['tanggalMulai', 'tanggalSelesai']);
 cekTanggal('pengajuan', pengajuan, ['tanggalMasuk']);
+cekTanggal('penerimaanAcuan', penerimaanAcuan, ['tanggalSetor']);
+for (const s of sewa) {
+  for (const t of s.temuan) {
+    if (!tanggalValid(t.tanggal)) fail(`sewa ${s.id}: temuan tanggal tidak valid (${t.tanggal})`);
+    if (!['Dalam Tindak Lanjut', 'Selesai'].includes(t.status)) fail(`sewa ${s.id}: temuan status tidak valid (${t.status})`);
+  }
+}
 
 cekSatker('klien', klien);
 cekSatker('kontrak', kontrak);
@@ -229,6 +296,7 @@ cekSatker('pembayaran', pembayaran);
 cekSatker('denda', denda);
 cekSatker('sewa', sewa);
 cekSatker('pengajuan', pengajuan);
+cekSatker('penerimaanAcuan', penerimaanAcuan);
 
 cekContoh('klien', klien, 'nama');
 cekContoh('kontrak', kontrak, 'nomorPks');
@@ -240,6 +308,7 @@ cekAngka('tagihan', tagihan, ['nilai']);
 cekAngka('pembayaran', pembayaran, ['jumlah']);
 cekAngka('denda', denda, ['jumlah']);
 cekAngka('sewa', sewa, ['nilaiSewa', 'diterimaDiMuka', 'masihHarusDiterima']);
+cekAngka('penerimaanAcuan', penerimaanAcuan, ['jumlah']);
 
 const idKlien = new Set(klien.map((k) => k.id));
 const idKontrak = new Set(kontrak.map((k) => k.id));
@@ -317,9 +386,11 @@ const auditImpor = [
     entitas: 'Dataset',
     entitasId: 'DATA_NYATA',
     sebelum: '—',
-    sesudah: `Data nyata Palembang diimpor dari 6 spreadsheet kerja (${TANGGAL_IMPOR}): ${klien.length} klien, ${kontrak.length} kontrak, ${tagihan.length} tagihan, ${pembayaran.length} pembayaran, ${denda.length} denda, ${sewa.length} sewa, ${pengajuan.length} pengajuan. Entitas Fase B tetap data contoh.`,
+    sesudah: `Data nyata Palembang diimpor dari 6 spreadsheet kerja (${TANGGAL_IMPOR}): ${klien.length} klien, ${kontrak.length} kontrak, ${tagihan.length} tagihan, ${pembayaran.length} pembayaran, ${denda.length} denda, ${sewa.length} sewa, ${pengajuan.length} pengajuan, ${penerimaanAcuan.length} penerimaan acuan. Entitas Fase B tetap data contoh.`,
   },
 ];
+
+const totalAcuan = penerimaanAcuan.reduce((s, a) => s + a.jumlah, 0);
 
 const header = `// Data NYATA Palembang — hasil impor spreadsheet (PRD v2.0 Final Bab 12.3).
 // Dibuat OTOMATIS oleh scripts/impor-data-nyata/impor.mjs dari snapshot
@@ -329,12 +400,15 @@ const header = `// Data NYATA Palembang — hasil impor spreadsheet (PRD v2.0 Fi
 // ISI:
 // - Klien/kontrak/tagihan/pembayaran/denda/dokumen/pengajuan: NYATA, dari
 //   spreadsheet "Kerja Sama PNBP 2026" (Sheet 1). TANPA label "(Contoh)".
-// - Sewa: NYATA, dari "Daftar Sewa Lahan/BMN" (Sheet 2). 14 dari 39 sewa
-//   tertaut ke kontrak lewat nomor referensi lama; 25 tidak tertaut
-//   (perjanjian 2025 ke bawah, tidak ada di kontrak 2026).
-// - PenerimaanAcuan: KOSONG — Sheet 3 (DATA PNBP 2026) belum terbaca karena
-//   rate limit konektor saat ekstraksi. Rekonsiliasi terhadap acuan Keuangan
-//   belum dapat dilakukan sampai Sheet 3 diimpor (attempt berikutnya).
+// - Sewa: NYATA, dari "Daftar Sewa Lahan/BMN" (Sheet 2). ${sewaTertaut} dari
+//   ${sewa.length} sewa tertaut ke kontrak lewat nomor referensi lama;
+//   sisanya tidak tertaut (perjanjian 2025 ke bawah, tidak ada di
+//   kontrak 2026). 6 temuan lapangan dari tab Temuan (attempt kedua).
+// - PenerimaanAcuan: NYATA, ${penerimaanAcuan.length} baris dari Sheet 3
+//   (DATA PNBP 2026, attempt kedua 14/11/2026), total Rp${totalAcuan.toLocaleString('id-ID')}.
+//   Data acuan Keuangan — READ-ONLY. Rekonsiliasi terhadap acuan kini
+//   dapat dilakukan; selisihnya dilaporkan di laporan-rekonsiliasi.json
+//   butir (e) — bukan dihilangkan.
 // - Entitas Fase B (prospect, quotation, order, meeting, event,
 //   advertisement, task): DATA CONTOH dari DATA_CONTOH, tetap berlabel
 //   "(Contoh)". Tautan mereka ke entitas contoh Fase A (KLN-01,
@@ -343,6 +417,9 @@ const header = `// Data NYATA Palembang — hasil impor spreadsheet (PRD v2.0 Fi
 //   penerimaan negara; lihat impor.mjs keputusan 1).
 // - Pengajuan PGJ-01 & PGJ-02 memakai tanggal placeholder 2026-11-14
 //   (tanggal masuk tidak tercatat di sumber) — WAJIB dikoreksi pengguna.
+//   Tab Pengajuan Baru Sheet 2 (attempt kedua) ternyata bukan daftar
+//   pengajuan (rencana penggunaan lahan tanpa nama/tanggal), jadi tidak
+//   ada tanggal asli dari sana.
 //
 // ANGKA KUNCI (dihitung ulang dari data ini — lihat laporan-rekonsiliasi):
 // - Nilai kontrak 2026: Rp356.685.875 (Jan–Sep Rp216.986.875 + Okt
@@ -365,7 +442,7 @@ export const DATA_NYATA: AppData = {
   denda: ${json(denda)},
   sewa: ${json(sewa)},
   pengajuan: ${json(pengajuan)},
-  penerimaanAcuan: [],
+  penerimaanAcuan: ${json(penerimaanAcuan)},
   audit: ${json(auditImpor)},
 ${blokFaseB}
 };
@@ -401,36 +478,48 @@ const laporan = {
     denda: denda.length,
     sewa: sewa.length,
     pengajuan: pengajuan.length,
-    penerimaanAcuan: 0,
+    penerimaanAcuan: penerimaanAcuan.length,
   },
   dilewati: {
     catatan:
-      'Tidak ada baris entitas yang dilewati oleh skrip ini — baris header/total/blanko dan 2 baris duplikat kosong sudah disaring saat ekstraksi (lihat sheet1-audit.json). Yang TIDAK diimpor: seluruh Sheet 3 + tab Pengajuan Baru/Indralaya/Temuan Sheet 2 (belum terbaca — rate limit).',
+      'Tidak ada baris entitas yang dilewati oleh skrip ini — baris header/total/blanko dan 2 baris duplikat kosong sudah disaring saat ekstraksi (lihat sheet1-audit.json). Attempt kedua: 9 baris "KERJASAMA SEDANG BERJALAN" tab Indralaya tidak diimpor sebagai sewa terpisah (periode + nilainya sudah tercatat sebagai riwayatHarga sewa berjalan yang sama); 6 baris ON-PROCESS + 6 baris PENGGUNAAN OLEH RRI/LAIN dilewati (bukan sewa pihak ke-3 / tanpa nomor-tanggal); 6 baris tab Pengajuan Baru dilewati (rencana penggunaan lahan, bukan daftar pengajuan); 3 temuan tak tercocokkan hanya dicatat di audit (lihat data/sheet2-tab-baru-audit.json).',
     baris: [],
   },
   keputusanPemetaan: [
     'Pembayaran dengan NTB + NTPN → Terverifikasi (42/42). NTPN adalah bukti penerimaan negara; pola sama dengan data contoh Fase A.',
-    `Sewa tertaut ke kontrak lewat nomor referensi lama: ${sewaTertaut}/39 tertaut, ${sewaTanpaTautan.length} tanpa tautan (perjanjian 2025 ke bawah).`,
+    `Sewa tertaut ke kontrak lewat nomor referensi lama: ${sewaTertaut}/${sewa.length} tertaut, ${sewaTanpaTautan.length} tanpa tautan (perjanjian 2025 ke bawah).`,
     'Field di luar types.ts dibuang: Tagihan.status (42 baris — status diturunkan derive.ts), Sewa._nomorReferensiKontrak (14 baris — nilai tetap ada di snapshot ./data/).',
     'Tautan Fase B ke contoh Fase A dihapus: ' +
       Object.entries(tautanDihapus).map(([k, v]) => `${k} ×${v}`).join(', ') + '.',
-    'PenerimaanAcuan = [] — Sheet 3 belum terbaca (rate limit).',
-    'Pengajuan PGJ-01 & PGJ-02 memakai tanggal placeholder 2026-11-14 — wajib dikoreksi pengguna.',
+    `PenerimaanAcuan: ${penerimaanAcuan.length} baris dari Sheet 3 (attempt kedua 14/11/2026), total Rp${totalAcuan.toLocaleString('id-ID')}. Selisih vs pembayaran terverifikasi dilaporkan di laporan-rekonsiliasi.json butir (e), bukan dihilangkan.`,
+    `Temuan lapangan: ${temuanDitempel} temuan ditempel ke sewa (tab Temuan Sheet 2, attempt kedua); 3 temuan tak tercocokkan hanya dicatat di audit.`,
+    'Pengajuan PGJ-01 & PGJ-02 memakai tanggal placeholder 2026-11-14 — wajib dikoreksi pengguna. Tab Pengajuan Baru Sheet 2 ternyata bukan daftar pengajuan (rencana penggunaan lahan tanpa nama/tanggal); 0 pengajuan baru dari tab itu.',
     'Sheet 1 (kontrak/angsuran 2026) dan Sheet 2 (perjanjian sewa multi-tahun 2022–2026) adalah potongan berbeda — total nilainya tidak boleh dijumlahkan.',
   ],
   sewaTanpaTautan,
   pengecualianKodeAkun: auditSheet1.pengecualianKodeAkun || [],
   belumDiimpor: {
-    sheet3: 'Seluruh 10 tab DATA PNBP 2026 (Rekap Penerimaan, Jan–Sep) — rate limit saat ekstraksi.',
-    sheet2: 'Tab Pengajuan Baru, Indralaya, Temuan — rate limit saat ekstraksi.',
+    sheet3: null,
+    sheet2: null,
     catatan:
-      'Butuh attempt berikutnya setelah kuota konektor pulih; jalankan ulang ekstraksi untuk tab tersebut lalu jalankan ulang skrip ini.',
+      'Tidak ada lagi — semua tab sudah diimpor pada attempt kedua (14/11/2026 ~15:48 WIB).',
+  },
+  diimporAttemptKedua: {
+    penerimaanAcuan: penerimaanAcuan.length,
+    totalPenerimaanAcuan: totalAcuan,
+    sewaIndralayaBaru: baca('sheet2-sewa-indralaya.json').length,
+    temuanDitempel,
+    temuanTakTercocokkan: (auditSheet2Baru.temuanTakTercocokkan || []).length,
+    pengajuanBaruSheet2: pengajuanSheet2Baru.length,
+    koreksiTanggalPengajuan: koreksiTanggalDiterapkan,
   },
   masalahKualitasDiringkas: {
     sheet1: (auditSheet1.masalahKualitas || []).length,
     sheet2: (auditSheet2.spreadsheet2?.masalahKualitas || []).length,
+    sheet3: (auditSheet3.masalahKualitas || []).length,
+    sheet2TabBaru: (auditSheet2Baru.masalahKualitas || []).length,
     catatan:
-      'Rincian lengkap di data/sheet1-audit.json dan data/sheet2-3-audit.json. Yang paling penting: nomor PKS ganda 2036 (2 kontrak, id #010/#011), Samdini tertulis Lunas padahal tanpa NTB/NTPN, total Rekapitulasi stale, 2 pengajuan bertanggal placeholder.',
+      'Rincian lengkap di data/sheet1-audit.json, data/sheet2-3-audit.json, data/sheet3-ekstraksi-audit.json, dan data/sheet2-tab-baru-audit.json. Yang paling penting: nomor PKS ganda 2036 (2 kontrak, id #010/#011), Samdini tertulis Lunas padahal tanpa NTB/NTPN, total Rekapitulasi stale, 2 pengajuan bertanggal placeholder, Rekap Penerimaan September belum diisi (selisih Rp3.357.302 vs tab bulanan).',
   },
 };
 
@@ -440,6 +529,7 @@ console.log(`OK — seed ditulis ke ${OUT_TS}`);
 console.log(
   `Diimpor: ${klien.length} klien, ${kontrak.length} kontrak, ${tagihan.length} tagihan, ` +
     `${pembayaran.length} pembayaran (${terverifikasi} terverifikasi), ${denda.length} denda, ` +
-    `${dokumen.length} dokumen, ${sewa.length} sewa (${sewaTertaut} tertaut kontrak), ${pengajuan.length} pengajuan.`,
+    `${dokumen.length} dokumen, ${sewa.length} sewa (${sewaTertaut} tertaut kontrak), ${pengajuan.length} pengajuan, ` +
+    `${penerimaanAcuan.length} penerimaan acuan (Rp${totalAcuan.toLocaleString('id-ID')}), ${temuanDitempel} temuan ditempel.`,
 );
 console.log(`Laporan: ${OUT_LAPORAN}`);

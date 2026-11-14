@@ -780,7 +780,7 @@ export default function Revenue(props: ModulProps) {
                       <Td>{a.periode}</Td>
                       <Td>{a.kodeAkun}</Td>
                       <Td>{a.uraian}</Td>
-                      <Td>{a.penyetor}</Td>
+                      <Td>{a.penyetor ?? '-'}</Td>
                       <Td>{formatTanggal(a.tanggalSetor)}</Td>
                       <Td kanan>{formatRupiah(a.jumlah)}</Td>
                       <Td>
