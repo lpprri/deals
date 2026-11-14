@@ -185,7 +185,11 @@ export interface PenerimaanAcuan {
   kodeAkun: string;
   uraian: string;
   jumlah: number;
-  penyetor: string;
+  // Opsional: sumber (Sheet 3) memang tidak mencantumkan penyetor pada
+  // 3 baris nyata — denda agregat Feb 2026 (ACU-010) dan 2 baris
+  // Pemindahtanganan BMN (ACU-003, ACU-057, penyetor "-" di sumber).
+  // Tidak ditebak; UI menampilkan '-' bila kosong.
+  penyetor?: string;
   tanggalSetor?: string;
   satker: SatkerRef;
 }

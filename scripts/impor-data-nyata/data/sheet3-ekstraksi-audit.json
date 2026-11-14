@@ -1,0 +1,598 @@
+{
+ "spreadsheet": {
+  "judul": "DATA PNBP 2026 (Penyetor PNBP)",
+  "id": "13UlqmLSEhkVtPMNvIxzw3diksvYnEAFfX0l69ZUIUUo",
+  "url": "https://docs.google.com/spreadsheets/d/13UlqmLSEhkVtPMNvIxzw3diksvYnEAFfX0l69ZUIUUo/edit"
+ },
+ "tanggalEkstraksi": "2026-11-14",
+ "periode": "Januari-September 2026, semua satker PALEMBANG (kode 41).",
+ "catatanStruktur": "Semua 9 tab bulanan memakai header multi-baris yang sama (baris 5-7: NO/URAIAN/NAMA KLIEN/NILAI KONTRAK/NOMOR KONTRAK/PERIODE SIAR/KODE AKUN/REALISASI SETORAN[KODE BILLING, NTPN, TANGGAL SETOR, JUMLAH]/NILAI SISA KONTRAK/dokumen). Jan-Apr frozen row 8, Mei-Agu frozen row 6, September tanpa frozen. Kolom JUMLAH (K) adalah nilai setoran yang diimpor; kolom NILAI KONTRAK (D) tidak selalu sama dengan JUMLAH (lihat masalah kualitas). Tab Rekap Penerimaan hanya dipakai sebagai pembanding, tidak diimpor sebagai baris.",
+ "perTab": [
+  {
+   "tab": "Jan",
+   "barisData": 6,
+   "jumlahDiimpor": 6,
+   "dilewati": [
+    {
+     "tab": "Jan",
+     "baris": 15,
+     "alasan": "Baris JUMLAH (total tab), bukan data."
+    },
+    {
+     "tab": "Jan",
+     "baris": 8,
+     "alasan": "Baris kosong antara header dan data."
+    }
+   ]
+  },
+  {
+   "tab": "Feb",
+   "barisData": 5,
+   "jumlahDiimpor": 5,
+   "dilewati": [
+    {
+     "tab": "Feb",
+     "baris": 14,
+     "alasan": "Baris JUMLAH (total tab), bukan data."
+    },
+    {
+     "tab": "Feb",
+     "baris": 8,
+     "alasan": "Baris kosong antara header dan data."
+    }
+   ]
+  },
+  {
+   "tab": "Mar",
+   "barisData": 4,
+   "jumlahDiimpor": 4,
+   "dilewati": [
+    {
+     "tab": "Mar",
+     "baris": 13,
+     "alasan": "Baris JUMLAH (total tab), bukan data."
+    },
+    {
+     "tab": "Mar",
+     "baris": 8,
+     "alasan": "Baris kosong antara header dan data."
+    }
+   ]
+  },
+  {
+   "tab": "April",
+   "barisData": 6,
+   "jumlahDiimpor": 6,
+   "dilewati": [
+    {
+     "tab": "April",
+     "baris": 15,
+     "alasan": "Baris JUMLAH (total tab), bukan data."
+    },
+    {
+     "tab": "April",
+     "baris": 8,
+     "alasan": "Baris kosong antara header dan data."
+    }
+   ]
+  },
+  {
+   "tab": "Mei",
+   "barisData": 8,
+   "jumlahDiimpor": 8,
+   "dilewati": [
+    {
+     "tab": "Mei",
+     "baris": 17,
+     "alasan": "Baris JUMLAH (total tab), bukan data."
+    },
+    {
+     "tab": "Mei",
+     "baris": 8,
+     "alasan": "Baris kosong antara header dan data."
+    }
+   ]
+  },
+  {
+   "tab": "Juni",
+   "barisData": 8,
+   "jumlahDiimpor": 8,
+   "dilewati": [
+    {
+     "tab": "Juni",
+     "baris": 17,
+     "alasan": "Baris JUMLAH (total tab), bukan data."
+    },
+    {
+     "tab": "Juni",
+     "baris": 8,
+     "alasan": "Baris kosong antara header dan data."
+    }
+   ]
+  },
+  {
+   "tab": "Juli",
+   "barisData": 21,
+   "jumlahDiimpor": 17,
+   "dilewati": [
+    {
+     "tab": "Juli",
+     "baris": 13,
+     "alasan": "Sub-rincian layanan (Siaran Langsung Rp 2.000.000) dari satu pembayaran DPRD Kota Palembang baris 12; digabung ke ACU-041 (total Rp 3.500.000), bukan transaksi terpisah — tanpa billing/NTPN/tanggal sendiri."
+    },
+    {
+     "tab": "Juli",
+     "baris": 14,
+     "alasan": "Sub-rincian layanan (Adlibs Rp 500.000) dari satu pembayaran DPRD Kota Palembang baris 12; digabung ke ACU-041."
+    },
+    {
+     "tab": "Juli",
+     "baris": 16,
+     "alasan": "Sub-rincian layanan (Live Youtube Rp 1.000.000) dari satu pembayaran PT Medco E&P Indonesia baris 15; digabung ke ACU-042 (total Rp 3.500.000), bukan transaksi terpisah."
+    },
+    {
+     "tab": "Juli",
+     "baris": 17,
+     "alasan": "Sub-rincian layanan (Adlibs Rp 500.000) dari satu pembayaran PT Medco E&P Indonesia baris 15; digabung ke ACU-042."
+    },
+    {
+     "tab": "Juli",
+     "baris": 30,
+     "alasan": "Baris JUMLAH (total tab), bukan data."
+    },
+    {
+     "tab": "Juli",
+     "baris": 8,
+     "alasan": "Baris kosong antara header dan data."
+    }
+   ]
+  },
+  {
+   "tab": "Agustus",
+   "barisData": 4,
+   "jumlahDiimpor": 4,
+   "dilewati": [
+    {
+     "tab": "Agustus",
+     "baris": 14,
+     "alasan": "Baris JUMLAH (total tab), bukan data."
+    },
+    {
+     "tab": "Agustus",
+     "baris": 8,
+     "alasan": "Baris kosong antara header dan data."
+    },
+    {
+     "tab": "Agustus",
+     "baris": 13,
+     "alasan": "Baris kosong."
+    }
+   ]
+  },
+  {
+   "tab": "September",
+   "barisData": 4,
+   "jumlahDiimpor": 4,
+   "dilewati": [
+    {
+     "tab": "September",
+     "baris": 14,
+     "alasan": "Baris JUMLAH (total tab), bukan data."
+    },
+    {
+     "tab": "September",
+     "baris": 8,
+     "alasan": "Baris kosong antara header dan data."
+    },
+    {
+     "tab": "September",
+     "baris": 13,
+     "alasan": "Baris kosong."
+    }
+   ]
+  },
+  {
+   "tab": "Rekap Penerimaan",
+   "barisData": 0,
+   "jumlahDiimpor": 0,
+   "dilewati": [
+    {
+     "tab": "Rekap Penerimaan",
+     "baris": "8-19",
+     "alasan": "Tab ringkasan (total per bulan+kodeAkun) — dipakai hanya sebagai pembanding kontrol, tidak dijadikan baris PenerimaanAcuan."
+    }
+   ]
+  }
+ ],
+ "totalDiimpor": 62,
+ "totalPerKodeAkun": {
+  "425122": 51350000,
+  "425131": 131478375,
+  "425151": 5227613,
+  "425531": 68630000,
+  "425839": 904380
+ },
+ "totalKeseluruhan": 257590368,
+ "kontrolRekap": [
+  {
+   "periode": "2026-01",
+   "kodeAkun": "425131",
+   "jumlahTabBulanan": 18558000,
+   "jumlahRekap": 18558000,
+   "selisih": 0,
+   "status": "cocok"
+  },
+  {
+   "periode": "2026-01",
+   "kodeAkun": "425531",
+   "jumlahTabBulanan": 0,
+   "jumlahRekap": 0,
+   "selisih": 0,
+   "status": "cocok"
+  },
+  {
+   "periode": "2026-01",
+   "kodeAkun": "425839",
+   "jumlahTabBulanan": 0,
+   "jumlahRekap": 0,
+   "selisih": 0,
+   "status": "cocok"
+  },
+  {
+   "periode": "2026-01",
+   "kodeAkun": "425151",
+   "jumlahTabBulanan": 452434,
+   "jumlahRekap": 452434,
+   "selisih": 0,
+   "status": "cocok"
+  },
+  {
+   "periode": "2026-01",
+   "kodeAkun": "425122",
+   "jumlahTabBulanan": 8100000,
+   "jumlahRekap": 8100000,
+   "selisih": 0,
+   "status": "cocok"
+  },
+  {
+   "periode": "2026-02",
+   "kodeAkun": "425131",
+   "jumlahTabBulanan": 15555000,
+   "jumlahRekap": 15555000,
+   "selisih": 0,
+   "status": "cocok"
+  },
+  {
+   "periode": "2026-02",
+   "kodeAkun": "425531",
+   "jumlahTabBulanan": 270000,
+   "jumlahRekap": 270000,
+   "selisih": 0,
+   "status": "cocok"
+  },
+  {
+   "periode": "2026-02",
+   "kodeAkun": "425839",
+   "jumlahTabBulanan": 180380,
+   "jumlahRekap": 180380,
+   "selisih": 0,
+   "status": "cocok"
+  },
+  {
+   "periode": "2026-02",
+   "kodeAkun": "425151",
+   "jumlahTabBulanan": 226217,
+   "jumlahRekap": 226217,
+   "selisih": 0,
+   "status": "cocok"
+  },
+  {
+   "periode": "2026-02",
+   "kodeAkun": "425122",
+   "jumlahTabBulanan": 0,
+   "jumlahRekap": 0,
+   "selisih": 0,
+   "status": "cocok"
+  },
+  {
+   "periode": "2026-03",
+   "kodeAkun": "425131",
+   "jumlahTabBulanan": 0,
+   "jumlahRekap": 0,
+   "selisih": 0,
+   "status": "cocok"
+  },
+  {
+   "periode": "2026-03",
+   "kodeAkun": "425531",
+   "jumlahTabBulanan": 1550000,
+   "jumlahRekap": 1550000,
+   "selisih": 0,
+   "status": "cocok"
+  },
+  {
+   "periode": "2026-03",
+   "kodeAkun": "425839",
+   "jumlahTabBulanan": 0,
+   "jumlahRekap": 0,
+   "selisih": 0,
+   "status": "cocok"
+  },
+  {
+   "periode": "2026-03",
+   "kodeAkun": "425151",
+   "jumlahTabBulanan": 929490,
+   "jumlahRekap": 929490,
+   "selisih": 0,
+   "status": "cocok"
+  },
+  {
+   "periode": "2026-03",
+   "kodeAkun": "425122",
+   "jumlahTabBulanan": 0,
+   "jumlahRekap": 0,
+   "selisih": 0,
+   "status": "cocok"
+  },
+  {
+   "periode": "2026-04",
+   "kodeAkun": "425131",
+   "jumlahTabBulanan": 0,
+   "jumlahRekap": 0,
+   "selisih": 0,
+   "status": "cocok"
+  },
+  {
+   "periode": "2026-04",
+   "kodeAkun": "425531",
+   "jumlahTabBulanan": 9550000,
+   "jumlahRekap": 9550000,
+   "selisih": 0,
+   "status": "cocok"
+  },
+  {
+   "periode": "2026-04",
+   "kodeAkun": "425839",
+   "jumlahTabBulanan": 0,
+   "jumlahRekap": 0,
+   "selisih": 0,
+   "status": "cocok"
+  },
+  {
+   "periode": "2026-04",
+   "kodeAkun": "425151",
+   "jumlahTabBulanan": 452434,
+   "jumlahRekap": 452434,
+   "selisih": 0,
+   "status": "cocok"
+  },
+  {
+   "periode": "2026-04",
+   "kodeAkun": "425122",
+   "jumlahTabBulanan": 0,
+   "jumlahRekap": 0,
+   "selisih": 0,
+   "status": "cocok"
+  },
+  {
+   "periode": "2026-05",
+   "kodeAkun": "425131",
+   "jumlahTabBulanan": 5320000,
+   "jumlahRekap": 5320000,
+   "selisih": 0,
+   "status": "cocok"
+  },
+  {
+   "periode": "2026-05",
+   "kodeAkun": "425531",
+   "jumlahTabBulanan": 8670000,
+   "jumlahRekap": 8670000,
+   "selisih": 0,
+   "status": "cocok"
+  },
+  {
+   "periode": "2026-05",
+   "kodeAkun": "425839",
+   "jumlahTabBulanan": 124000,
+   "jumlahRekap": 124000,
+   "selisih": 0,
+   "status": "cocok"
+  },
+  {
+   "periode": "2026-05",
+   "kodeAkun": "425151",
+   "jumlahTabBulanan": 452434,
+   "jumlahRekap": 452434,
+   "selisih": 0,
+   "status": "cocok"
+  },
+  {
+   "periode": "2026-05",
+   "kodeAkun": "425122",
+   "jumlahTabBulanan": 0,
+   "jumlahRekap": 0,
+   "selisih": 0,
+   "status": "cocok"
+  },
+  {
+   "periode": "2026-06",
+   "kodeAkun": "425131",
+   "jumlahTabBulanan": 14302250,
+   "jumlahRekap": 14302250,
+   "selisih": 0,
+   "status": "cocok"
+  },
+  {
+   "periode": "2026-06",
+   "kodeAkun": "425531",
+   "jumlahTabBulanan": 31550000,
+   "jumlahRekap": 31550000,
+   "selisih": 0,
+   "status": "cocok"
+  },
+  {
+   "periode": "2026-06",
+   "kodeAkun": "425839",
+   "jumlahTabBulanan": 0,
+   "jumlahRekap": 0,
+   "selisih": 0,
+   "status": "cocok"
+  },
+  {
+   "periode": "2026-06",
+   "kodeAkun": "425151",
+   "jumlahTabBulanan": 452434,
+   "jumlahRekap": 452434,
+   "selisih": 0,
+   "status": "cocok"
+  },
+  {
+   "periode": "2026-06",
+   "kodeAkun": "425122",
+   "jumlahTabBulanan": 0,
+   "jumlahRekap": 0,
+   "selisih": 0,
+   "status": "cocok"
+  },
+  {
+   "periode": "2026-07",
+   "kodeAkun": "425131",
+   "jumlahTabBulanan": 60596875,
+   "jumlahRekap": 60596875,
+   "selisih": 0,
+   "status": "cocok"
+  },
+  {
+   "periode": "2026-07",
+   "kodeAkun": "425531",
+   "jumlahTabBulanan": 15040000,
+   "jumlahRekap": 15040000,
+   "selisih": 0,
+   "status": "cocok"
+  },
+  {
+   "periode": "2026-07",
+   "kodeAkun": "425839",
+   "jumlahTabBulanan": 600000,
+   "jumlahRekap": 600000,
+   "selisih": 0,
+   "status": "cocok"
+  },
+  {
+   "periode": "2026-07",
+   "kodeAkun": "425151",
+   "jumlahTabBulanan": 452434,
+   "jumlahRekap": 452434,
+   "selisih": 0,
+   "status": "cocok"
+  },
+  {
+   "periode": "2026-07",
+   "kodeAkun": "425122",
+   "jumlahTabBulanan": 0,
+   "jumlahRekap": 0,
+   "selisih": 0,
+   "status": "cocok"
+  },
+  {
+   "periode": "2026-08",
+   "kodeAkun": "425131",
+   "jumlahTabBulanan": 17146250,
+   "jumlahRekap": 17146250,
+   "selisih": 0,
+   "status": "cocok"
+  },
+  {
+   "periode": "2026-08",
+   "kodeAkun": "425531",
+   "jumlahTabBulanan": 0,
+   "jumlahRekap": 0,
+   "selisih": 0,
+   "status": "cocok"
+  },
+  {
+   "periode": "2026-08",
+   "kodeAkun": "425839",
+   "jumlahTabBulanan": 0,
+   "jumlahRekap": 0,
+   "selisih": 0,
+   "status": "cocok"
+  },
+  {
+   "periode": "2026-08",
+   "kodeAkun": "425151",
+   "jumlahTabBulanan": 452434,
+   "jumlahRekap": 452434,
+   "selisih": 0,
+   "status": "cocok"
+  },
+  {
+   "periode": "2026-08",
+   "kodeAkun": "425122",
+   "jumlahTabBulanan": 43250000,
+   "jumlahRekap": 43250000,
+   "selisih": 0,
+   "status": "cocok"
+  },
+  {
+   "periode": "2026-09",
+   "kodeAkun": "425131",
+   "jumlahTabBulanan": 0,
+   "jumlahRekap": 0,
+   "selisih": 0,
+   "status": "cocok"
+  },
+  {
+   "periode": "2026-09",
+   "kodeAkun": "425531",
+   "jumlahTabBulanan": 2000000,
+   "jumlahRekap": 0,
+   "selisih": 2000000,
+   "status": "SELISIH"
+  },
+  {
+   "periode": "2026-09",
+   "kodeAkun": "425839",
+   "jumlahTabBulanan": 0,
+   "jumlahRekap": 0,
+   "selisih": 0,
+   "status": "cocok"
+  },
+  {
+   "periode": "2026-09",
+   "kodeAkun": "425151",
+   "jumlahTabBulanan": 1357302,
+   "jumlahRekap": 0,
+   "selisih": 1357302,
+   "status": "SELISIH"
+  },
+  {
+   "periode": "2026-09",
+   "kodeAkun": "425122",
+   "jumlahTabBulanan": 0,
+   "jumlahRekap": 0,
+   "selisih": 0,
+   "status": "cocok"
+  }
+ ],
+ "pengecualianKontrol": [
+  "September: Rekap menunjukkan Rp 0 untuk semua kode akun (baris 16: semua 'Rp -'), padahal tab September berisi 4 setoran senilai Rp 3.357.302 (425151 Rp 1.357.302 + 425531 Rp 2.000.000). Baris September di Rekap BELUM diisi/diperbarui.",
+  "Baris TOTAL Rekap (baris 20) juga belum memasukkan September: total Rekap 425531 Rp 66.630.000 vs jumlah tab bulanan Rp 68.630.000 (selisih Rp 2.000.000); total Rekap 425151 Rp 3.870.311 vs jumlah tab bulanan Rp 5.227.613 (selisih Rp 1.357.302); total keseluruhan Rekap Rp 254.233.066 vs jumlah tab bulanan Rp 257.590.368 (selisih Rp 3.357.302 = persis total September). Total Rekap 425131/425839/425122 cocok karena September nol untuk ketiganya.",
+  "Januari-Agustus: semua bulan+kodeAkun COCOK antara tab bulanan dan Rekap (40 dari 45 sel kontrol cocok; 5 selisih semuanya September)."
+ ],
+ "masalahKualitas": [
+  "Billing & NTPN yang sama dipakai untuk dua penyetor berbeda (satu pembayaran gabungan sewa rumah dinas): Mar baris 9-10 billing 00033T / NTPN 260140000005796 (Dedek Handoko Rp 250.839 + Suryadi Rp 226.217); Apr baris 9-10 billing 00080T / NTPN 260140000017048; Mei baris 9-10 billing 00099T / NTPN 260140000020232; Jun baris 9-10 billing 00119T / NTPN 260140000029092; Jul baris 9-10 billing 00150T / NTPN 260140000037148; Agu baris 9-10 billing 00169T / NTPN 260140000043736; Sep baris 9-10 billing 00197T / NTPN 260140000053291. Pola konsisten tiap bulan: satu NTPN untuk dua penyewa rumah dinas. Diimpor apa adanya sebagai dua baris terpisah sesuai baris sumber.",
+  "Feb baris 12 (Pendapatan Denda Lainnya, 425839, Rp 180.380): baris agregat tanpa nomor urut, tanpa penyetor, tanpa nomor kontrak, tanpa billing/NTPN/tanggal setoran. Diimpor sebagai ACU-010 tanpa field penyetor dan tanggalSetor (tidak ditebak).",
+  "Jan baris 11 & Agu baris 11 (Pemindahtanganan BMN, 425122): penyetor '-' (tidak tercantum). Diimpor sebagai ACU-003 dan ACU-057 tanpa field penyetor.",
+  "Mar baris 9 (Dedek Handoko): jumlah setoran Rp 250.839, berbeda dari tarif bulanan lazim Rp 226.217 — diimpor apa adanya.",
+  "Mar baris 11 (Azizul Hakim): jumlah setoran Rp 452.434 = 2 x Rp 226.217 (kemungkinan 2 bulan sekaligus) — diimpor apa adanya.",
+  "Sep baris 11 (Arianto, S. Sos): jumlah setoran Rp 904.868 = 4 x Rp 226.217, sementara kolom NILAI KONTRAK hanya Rp 226.217. Nilai yang diimpor adalah JUMLAH (Rp 904.868).",
+  "Juli baris 12 & 15: satu pembayaran (satu billing/NTPN/tanggal) menampung 3 layanan sekaligus — komponennya (baris 13,14,16,17) digabung ke satu baris ACU-041/ACU-042; uraian mencantumkan ketiga layanan. Jumlah ACU-041/ACU-042 = Rp 3.500.000 = jumlah komponen (1.000.000+2.000.000+500.000 dan 2.000.000+1.000.000+500.000).",
+  "Jun baris 13 (Darojad, Sewa Lahan Pemancar Indralaya, Rp 11.246.250): kolom Nomor Kontrak kosong; hanya Nomor Referensi Kontrak 027/RRI.PLB/PKS.F/06/2025 — dan referensinya berkode F (Fungsional) padahal kodeAkun baris itu 425131 (Umum). Klasifikasi mengikuti kodeAkun (Umum) sesuai instruksi.",
+  "Ejaan nama penyetor dipertahankan persis dari sumber, termasuk yang tampak salah ketik: 'Savano Entertaiment' (Mei baris 16), 'Dr. Jalaludiin, MPSA' (Juni baris 11), 'PT. Medco E&P Indonesia' (Juli baris 15), 'PT Vgreen Global Charging Station Investment Indonesia' (Agustus baris 12).",
+  "Periode siar beberapa kontrak dimulai setelah tanggal setoran (mis. Darojad: setor 18 Jun 2026, periode 1 Jul 2026-30 Jun 2027; Faridah Hanum/Fisol/Mila/Herman Juli: setor Jul 2026, periode mulai 1 Agu 2026) — dicatat, bukan kesalahan impor.",
+  "Kolom NILAI KONTRAK (D) pada baris JUMLAH tab bulanan tidak sama dengan JUMLAH (K) pada Feb (selisih Rp 180.380 = denda tanpa nilai kontrak), Mei (selisih Rp 124.000 = denda), Juli (selisih Rp 600.000 = 2 denda) dan September (selisih Rp 678.651 = kelebihan bayar Arianto vs nilai kontrak) — wajar karena denda tidak punya nilai kontrak; kontrol memakai kolom JUMLAH.",
+  "Semua tanggal sumber berbentuk teks Indonesia (mis. '1 Januari 2026') dan sudah dikonversi ke ISO tanpa ambiguitas; tidak ada tanggal serial/ambigu.",
+  "Kolom dokumen (KWITANSI, BUKTI SETOR BANK, BILLING, INVOICE, BAR, BKU, SPn) sebagian besar berisi tautan 'KLIK DISINI' — tidak diimpor (bukan bagian interface PenerimaanAcuan)."
+ ]
+}

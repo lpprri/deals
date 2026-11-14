@@ -618,6 +618,225 @@
       "penjelasan": "Sheet 6 (HQ) PALEMBANG = 0 — bulan belum diisi di format kantor pusat, bukan ketiadaan kerja sama (K-01/K-02). Aplikasi menghitung dari data nyata."
     }
   ],
+  "acuanKeuanganVsPembayaran": [
+    {
+      "kodeAkun": "425122",
+      "acuanKeuangan": 51350000,
+      "pembayaranTerverifikasi": 0,
+      "selisih": 51350000,
+      "penjelasan": "Acuan 425122 adalah penjualan peralatan/mesin (pemindahtanganan BMN) — tidak ada tagihan kerja sama untuk kode ini."
+    },
+    {
+      "kodeAkun": "425131",
+      "acuanKeuangan": 131478375,
+      "pembayaranTerverifikasi": 162601255,
+      "selisih": -31122880,
+      "penjelasan": "Selisih perlu penjelasan Keuangan (beda waktu setoran vs tagihan dan/atau setoran tanpa tagihan)."
+    },
+    {
+      "kodeAkun": "425151",
+      "acuanKeuangan": 5227613,
+      "pembayaranTerverifikasi": 0,
+      "selisih": 5227613,
+      "penjelasan": "Acuan 425151 adalah sewa rumah dinas — tidak ada tagihan kerja sama untuk kode ini, jadi seluruh acuan menjadi selisih."
+    },
+    {
+      "kodeAkun": "425531",
+      "acuanKeuangan": 68630000,
+      "pembayaranTerverifikasi": 66804000,
+      "selisih": 1826000,
+      "penjelasan": "Selisih perlu penjelasan Keuangan (beda waktu setoran vs tagihan dan/atau setoran tanpa tagihan)."
+    },
+    {
+      "kodeAkun": "425839",
+      "acuanKeuangan": 904380,
+      "pembayaranTerverifikasi": 0,
+      "selisih": 904380,
+      "penjelasan": "Acuan 425839 adalah setoran denda; denda di aplikasi tertanam dalam nilai tagihan (bukan tagihan terpisah), jadi perbandingan ini hanya informatif."
+    }
+  ],
+  "acuanKeuanganVsPembayaranTotal": {
+    "acuanKeuangan": 257590368,
+    "pembayaranTerverifikasi": 229405255,
+    "selisih": 28185113
+  },
+  "jembatanAcuan": {
+    "pasanganPerKode": [
+      {
+        "kunci": "425131/425131",
+        "n": 16,
+        "acuan": 131478375,
+        "bayar": 131658755
+      },
+      {
+        "kunci": "425531/425531",
+        "n": 19,
+        "acuan": 66080000,
+        "bayar": 66080000
+      },
+      {
+        "kunci": "425531/425131",
+        "n": 2,
+        "acuan": 2550000,
+        "bayar": 2550000
+      },
+      {
+        "kunci": "425839/425531",
+        "n": 3,
+        "acuan": 724000,
+        "bayar": 724000
+      }
+    ],
+    "pembayaranTanpaAcuan": [
+      {
+        "id": "BYR-039",
+        "tagihanId": "TGH-027-RRI-PLB-PKS-U-06-2025",
+        "kodeAkun": "425131",
+        "tanggalBayar": "2025-06-18",
+        "jumlah": 11246250
+      },
+      {
+        "id": "BYR-041",
+        "tagihanId": "TGH-016-PKS-DIR-LPU-06-2025",
+        "kodeAkun": "425131",
+        "tanggalBayar": "2025-07-01",
+        "jumlah": 17146250
+      }
+    ],
+    "acuanTanpaPembayaran": [
+      {
+        "id": "ACU-001",
+        "kodeAkun": "425151",
+        "periode": "2026-01",
+        "jumlah": 226217
+      },
+      {
+        "id": "ACU-002",
+        "kodeAkun": "425151",
+        "periode": "2026-01",
+        "jumlah": 226217
+      },
+      {
+        "id": "ACU-003",
+        "kodeAkun": "425122",
+        "periode": "2026-01",
+        "jumlah": 8100000
+      },
+      {
+        "id": "ACU-007",
+        "kodeAkun": "425151",
+        "periode": "2026-02",
+        "jumlah": 226217
+      },
+      {
+        "id": "ACU-012",
+        "kodeAkun": "425151",
+        "periode": "2026-03",
+        "jumlah": 250839
+      },
+      {
+        "id": "ACU-013",
+        "kodeAkun": "425151",
+        "periode": "2026-03",
+        "jumlah": 226217
+      },
+      {
+        "id": "ACU-014",
+        "kodeAkun": "425151",
+        "periode": "2026-03",
+        "jumlah": 452434
+      },
+      {
+        "id": "ACU-016",
+        "kodeAkun": "425151",
+        "periode": "2026-04",
+        "jumlah": 226217
+      },
+      {
+        "id": "ACU-017",
+        "kodeAkun": "425151",
+        "periode": "2026-04",
+        "jumlah": 226217
+      },
+      {
+        "id": "ACU-022",
+        "kodeAkun": "425151",
+        "periode": "2026-05",
+        "jumlah": 226217
+      },
+      {
+        "id": "ACU-023",
+        "kodeAkun": "425151",
+        "periode": "2026-05",
+        "jumlah": 226217
+      },
+      {
+        "id": "ACU-030",
+        "kodeAkun": "425151",
+        "periode": "2026-06",
+        "jumlah": 226217
+      },
+      {
+        "id": "ACU-031",
+        "kodeAkun": "425151",
+        "periode": "2026-06",
+        "jumlah": 226217
+      },
+      {
+        "id": "ACU-038",
+        "kodeAkun": "425151",
+        "periode": "2026-07",
+        "jumlah": 226217
+      },
+      {
+        "id": "ACU-039",
+        "kodeAkun": "425151",
+        "periode": "2026-07",
+        "jumlah": 226217
+      },
+      {
+        "id": "ACU-055",
+        "kodeAkun": "425151",
+        "periode": "2026-08",
+        "jumlah": 226217
+      },
+      {
+        "id": "ACU-056",
+        "kodeAkun": "425151",
+        "periode": "2026-08",
+        "jumlah": 226217
+      },
+      {
+        "id": "ACU-057",
+        "kodeAkun": "425122",
+        "periode": "2026-08",
+        "jumlah": 43250000
+      },
+      {
+        "id": "ACU-059",
+        "kodeAkun": "425151",
+        "periode": "2026-09",
+        "jumlah": 226217
+      },
+      {
+        "id": "ACU-060",
+        "kodeAkun": "425151",
+        "periode": "2026-09",
+        "jumlah": 226217
+      },
+      {
+        "id": "ACU-061",
+        "kodeAkun": "425151",
+        "periode": "2026-09",
+        "jumlah": 904868
+      }
+    ],
+    "acuanTanpaNtpn": {
+      "jumlahBaris": 1,
+      "total": 180380
+    }
+  },
+  "jembatanAcuanPenjelasan": "Jembatan NTPN: 425131/425131 16 pasangan (acuan Rp131.478.375 vs bayar Rp131.658.755); 425531/425531 19 pasangan (acuan Rp66.080.000 vs bayar Rp66.080.000); 425531/425131 2 pasangan (acuan Rp2.550.000 vs bayar Rp2.550.000); 425839/425531 3 pasangan (acuan Rp724.000 vs bayar Rp724.000). Acuan tanpa pembayaran 21 baris (Rp56.577.613 — sewa rumah dinas 425151 + penjualan BMN 425122, tidak ada tagihan kerja sama). Pembayaran tanpa acuan 2 baris (Rp28.392.500 — setoran 2025, di luar periode Sheet 3 Jan–Sep 2026). Acuan tanpa NTPN 1 baris (Rp180.380 — denda agregat Feb, bagian dari pembayaran yang sama dengan ACU-009).",
   "totalKontrol": {
     "jumlahPks": 15,
     "nilaiKontrak": 441863375,
@@ -626,8 +845,8 @@
     "totalPembayaranTerverifikasi": 229405255,
     "sisaPiutang": 149662949,
     "totalDenda": 8873330,
-    "totalPenerimaanAcuan": 0,
-    "selisihRekonsiliasi": -229405255
+    "totalPenerimaanAcuan": 257590368,
+    "selisihRekonsiliasi": 28185113
   },
   "kesimpulan": [
     "Nilai kontrak per bulan Jan–Sep: total & QTY cocok 9/9 bulan vs Laporan Bulanan; selisih hanya pergeseran Fungsional↔Umum (Adlibs → 425131/Umum), total tidak berubah.",
@@ -635,6 +854,7 @@
     "Posisi piutang 30 Sep: sisa tagihan aplikasi SAMA PERSIS dengan sisa Laporan Piutang September (Rp9.604.869).",
     "Sheet 6 (HQ) Juli & September PALEMBANG = 0 karena belum diisi; aplikasi menghitung dari data nyata (Juli Rp62.596.875, September Rp180.000).",
     "Basis bulan laporan = bulan terbit tagihan (bulan PKS diterbitkan), bukan tanggalMulai layanan — lihat pembandingTanggalMulai.",
+    "Acuan Keuangan (Sheet 3) total Rp257.590.368 vs pembayaran terverifikasi Rp229.405.255 — selisih Rp28.185.113 (lihat butir (e) per kode akun; selisih ini dilaporkan, bukan disembunyikan).",
     "Tidak ada selisih total baru di luar yang sudah dijelaskan."
   ]
 }

@@ -27,6 +27,12 @@
 //   (d) Sheet 6 (HQ): QTY dihitung per jenis layanan menurut PANDUAN,
 //       bukan PKS distinct — QTY keduanya tidak sebanding langsung;
 //       Juli & September PALEMBANG di Sheet 6 = 0 karena belum diisi.
+//   (e) Acuan Keuangan (Sheet 3) vs pembayaran terverifikasi — per kode
+//       akun. Selisih di sini BUKAN error hitung dan TIDAK membuat skrip
+//       gagal: acuan mencakup SEMUA penerimaan PNBP (termasuk sewa rumah
+//       dinas 425151, penjualan BMN 425122, dan denda 425839 yang dicatat
+//       terpisah), sementara pembayaran hanya setoran atas tagihan kerja
+//       sama. Selisih dilaporkan apa adanya dengan penjelasan per kode.
 //
 // Cara pakai:  node scripts/impor-data-nyata/verifikasi.mjs
 //   (jalankan dari root repo; butuh esbuild di node_modules — sudah ada
@@ -72,6 +78,10 @@ const laporan = {
   penyetoranPerBulanVsLaporanPiutang: [],
   posisiAkhirSeptember: {},
   hqVsLaporanBulanan: [],
+  acuanKeuanganVsPembayaran: [],
+  acuanKeuanganVsPembayaranTotal: {},
+  jembatanAcuan: {},
+  jembatanAcuanPenjelasan: '',
   totalKontrol: hitung.totalKontrol,
   kesimpulan: [],
 };
@@ -200,6 +210,43 @@ for (let i = 0; i < BULAN.length; i += 1) {
   });
 }
 
+// (e) Acuan Keuangan (Sheet 3) vs pembayaran terverifikasi — per kode akun.
+// Selisih di sini BUKAN error hitung dan TIDAK menambah selisihTotalBaru:
+// acuan mencakup SEMUA penerimaan PNBP, sementara pembayaran hanya setoran
+// atas tagihan kerja sama. Dilaporkan apa adanya.
+laporan.acuanKeuanganVsPembayaran = (hitung.perKodeAkun || []).map((r) => ({
+  kodeAkun: r.kodeAkun,
+  acuanKeuangan: r.acuan,
+  pembayaranTerverifikasi: r.pembayaran,
+  selisih: r.selisih,
+  penjelasan:
+    r.kodeAkun === '425151'
+      ? 'Acuan 425151 adalah sewa rumah dinas — tidak ada tagihan kerja sama untuk kode ini, jadi seluruh acuan menjadi selisih.'
+      : r.kodeAkun === '425122'
+        ? 'Acuan 425122 adalah penjualan peralatan/mesin (pemindahtanganan BMN) — tidak ada tagihan kerja sama untuk kode ini.'
+        : r.kodeAkun === '425839'
+          ? 'Acuan 425839 adalah setoran denda; denda di aplikasi tertanam dalam nilai tagihan (bukan tagihan terpisah), jadi perbandingan ini hanya informatif.'
+          : r.selisih === 0
+            ? 'Cocok.'
+            : 'Selisih perlu penjelasan Keuangan (beda waktu setoran vs tagihan dan/atau setoran tanpa tagihan).',
+}));
+laporan.acuanKeuanganVsPembayaranTotal = {
+  acuanKeuangan: hitung.totalKontrol.totalPenerimaanAcuan,
+  pembayaranTerverifikasi: hitung.totalKontrol.totalPembayaranTerverifikasi,
+  selisih: hitung.totalKontrol.selisihRekonsiliasi,
+};
+// Jembatan NTPN (dihitung _hitung.ts): pasangan per kode akun, pembayaran
+// tanpa acuan, dan acuan tanpa pembayaran — menjelaskan selisih di atas.
+laporan.jembatanAcuan = hitung.jembatanAcuan || {};
+const jembatan = laporan.jembatanAcuan;
+const totalAcuanTanpaPembayaran = (jembatan.acuanTanpaPembayaran || []).reduce((s, a) => s + a.jumlah, 0);
+const totalPembayaranTanpaAcuan = (jembatan.pembayaranTanpaAcuan || []).reduce((s, p) => s + p.jumlah, 0);
+laporan.jembatanAcuanPenjelasan =
+  `Jembatan NTPN: ${(jembatan.pasanganPerKode || []).map((p) => `${p.kunci} ${p.n} pasangan (acuan ${rupiah(p.acuan)} vs bayar ${rupiah(p.bayar)})`).join('; ')}. ` +
+  `Acuan tanpa pembayaran ${(jembatan.acuanTanpaPembayaran || []).length} baris (${rupiah(totalAcuanTanpaPembayaran)} — sewa rumah dinas 425151 + penjualan BMN 425122, tidak ada tagihan kerja sama). ` +
+  `Pembayaran tanpa acuan ${(jembatan.pembayaranTanpaAcuan || []).length} baris (${rupiah(totalPembayaranTanpaAcuan)} — setoran 2025, di luar periode Sheet 3 Jan–Sep 2026). ` +
+  `Acuan tanpa NTPN ${(jembatan.acuanTanpaNtpn?.jumlahBaris || 0)} baris (${rupiah(jembatan.acuanTanpaNtpn?.total || 0)} — denda agregat Feb, bagian dari pembayaran yang sama dengan ACU-009).`;
+
 // Kesimpulan.
 const kontrakCocok = laporan.kontrakPerBulanVsLaporanBulanan.filter((b) => b.selisih.total === 0 && b.selisih.qtyPks === 0).length;
 const setorCocok = laporan.penyetoranPerBulanVsLaporanPiutang.filter((b) => b.selisih === 0 || (b.bulan === 'agustus' && b.penjelasan.includes('cocok.'))).length;
@@ -210,6 +257,7 @@ laporan.kesimpulan = [
   'Posisi piutang 30 Sep: sisa tagihan aplikasi SAMA PERSIS dengan sisa Laporan Piutang September (Rp9.604.869).',
   'Sheet 6 (HQ) Juli & September PALEMBANG = 0 karena belum diisi; aplikasi menghitung dari data nyata (Juli Rp62.596.875, September Rp180.000).',
   'Basis bulan laporan = bulan terbit tagihan (bulan PKS diterbitkan), bukan tanggalMulai layanan — lihat pembandingTanggalMulai.',
+  `Acuan Keuangan (Sheet 3) total ${rupiah(laporan.acuanKeuanganVsPembayaranTotal.acuanKeuangan)} vs pembayaran terverifikasi ${rupiah(laporan.acuanKeuanganVsPembayaranTotal.pembayaranTerverifikasi)} — selisih ${rupiah(laporan.acuanKeuanganVsPembayaranTotal.selisih)} (lihat butir (e) per kode akun; selisih ini dilaporkan, bukan disembunyikan).`,
   selisihTotalBaru === 0
     ? 'Tidak ada selisih total baru di luar yang sudah dijelaskan.'
     : `Ada ${selisihTotalBaru} selisih total yang perlu penyelidikan.`,
@@ -238,6 +286,13 @@ console.log(`Selisih: ${rupiah(laporan.posisiAkhirSeptember.selisihSisaTagihanVs
 console.log(`(Denda belum dibayar ${rupiah(pos.totalDendaBelumDibayar)} TIDAK ditambahkan — sudah tertanam dalam nilai tagihan.)`);
 console.log('\n=== TOTAL KONTROL (derive.ts atas DATA_NYATA) ===');
 console.log(JSON.stringify(hitung.totalKontrol, null, 2));
+console.log('\n=== REKONSILIASI vs ACUAN KEUANGAN (Sheet 3) — per kode akun ===');
+for (const b of laporan.acuanKeuanganVsPembayaran) {
+  console.log(`${b.kodeAkun} | acuan ${rupiah(b.acuanKeuangan)} | pembayaran terverifikasi ${rupiah(b.pembayaranTerverifikasi)} | selisih ${rupiah(b.selisih)}  ${b.penjelasan}`);
+}
+console.log(`TOTAL | acuan ${rupiah(laporan.acuanKeuanganVsPembayaranTotal.acuanKeuangan)} | pembayaran ${rupiah(laporan.acuanKeuanganVsPembayaranTotal.pembayaranTerverifikasi)} | selisih ${rupiah(laporan.acuanKeuanganVsPembayaranTotal.selisih)}`);
+console.log('\n=== JEMBATAN NTPN (acuan vs pembayaran) ===');
+console.log(laporan.jembatanAcuanPenjelasan);
 console.log('\nLaporan lengkap: scripts/impor-data-nyata/laporan-rekonsiliasi.json');
 
 if (selisihTotalBaru > 0) {

@@ -1,1 +1,804 @@
-[]
+[
+ {
+  "id": "ACU-001",
+  "periode": "2026-01",
+  "kodeAkun": "425151",
+  "uraian": "Sewa Rumah Dinas — Setoran Dedek Handoko, S. Ak — kontrak 3054 Tahun 2025 — Billing 00002T — NTPN 269991528000845",
+  "jumlah": 226217,
+  "penyetor": "Dedek Handoko, S. Ak",
+  "tanggalSetor": "2026-01-01",
+  "satker": {
+   "kode": "41",
+   "nama": "PALEMBANG"
+  }
+ },
+ {
+  "id": "ACU-002",
+  "periode": "2026-01",
+  "kodeAkun": "425151",
+  "uraian": "Sewa Rumah Dinas — Setoran Azizul Hakim, A. Md — kontrak 3053 Tahun 2025 — Billing 00003T — NTPN 269991528000846",
+  "jumlah": 226217,
+  "penyetor": "Azizul Hakim, A. Md",
+  "tanggalSetor": "2026-01-01",
+  "satker": {
+   "kode": "41",
+   "nama": "PALEMBANG"
+  }
+ },
+ {
+  "id": "ACU-003",
+  "periode": "2026-01",
+  "kodeAkun": "425122",
+  "uraian": "Pemindahtanganan BMN — Billing 820260128300709 — NTPN 30D5E8N3F5U8P7L5",
+  "jumlah": 8100000,
+  "tanggalSetor": "2026-01-28",
+  "satker": {
+   "kode": "41",
+   "nama": "PALEMBANG"
+  }
+ },
+ {
+  "id": "ACU-004",
+  "periode": "2026-01",
+  "kodeAkun": "425131",
+  "uraian": "Sewa Lahan Pemancar Inderalaya — Setoran Meily Oktarina — kontrak 3152/PKS/RRI.PLB/02/2026 (ref 002/RRI.PLB/PKS.U/01/2026) — Billing 820260129495687 — NTPN 89BD96U8FGPH3MK7",
+  "jumlah": 6455000,
+  "penyetor": "Meily Oktarina",
+  "tanggalSetor": "2026-01-30",
+  "satker": {
+   "kode": "41",
+   "nama": "PALEMBANG"
+  }
+ },
+ {
+  "id": "ACU-005",
+  "periode": "2026-01",
+  "kodeAkun": "425131",
+  "uraian": "Sewa Lahan Pemancar Inderalaya — Setoran Dierga Salomon — kontrak 3160/PKS/RRI.PLB/02/2026 (ref 003/RRI.PLB/PKS.U/01/2026) — Billing 820260129496383 — NTPN 6118C3CIG6FVFN9V",
+  "jumlah": 5648000,
+  "penyetor": "Dierga Salomon",
+  "tanggalSetor": "2026-01-30",
+  "satker": {
+   "kode": "41",
+   "nama": "PALEMBANG"
+  }
+ },
+ {
+  "id": "ACU-006",
+  "periode": "2026-01",
+  "kodeAkun": "425131",
+  "uraian": "Sewa Lahan Pemancar Inderalaya — Setoran Aminul Khair — kontrak 3161/PKS/RRI.PLB/02/2026 (ref 004/RRI.PLB/PKS.U/01/2026) — Billing 820260129497246 — NTPN CB6262G50BTJ2O4U",
+  "jumlah": 6455000,
+  "penyetor": "Aminul Khair",
+  "tanggalSetor": "2026-01-30",
+  "satker": {
+   "kode": "41",
+   "nama": "PALEMBANG"
+  }
+ },
+ {
+  "id": "ACU-007",
+  "periode": "2026-02",
+  "kodeAkun": "425151",
+  "uraian": "Sewa Rumah Dinas — Setoran Dedek Handoko, S. Ak — kontrak 3054 Tahun 2025 — Billing 00012T — NTPN 260140000001832",
+  "jumlah": 226217,
+  "penyetor": "Dedek Handoko, S. Ak",
+  "tanggalSetor": "2026-02-01",
+  "satker": {
+   "kode": "41",
+   "nama": "PALEMBANG"
+  }
+ },
+ {
+  "id": "ACU-008",
+  "periode": "2026-02",
+  "kodeAkun": "425531",
+  "uraian": "Jasa Penyiaran Spot — Setoran PT PLN (Persero) UPT Palembang — kontrak 2339/PKS/RRI.PLB/01/2026 (ref 001/RRI.PLB/PKS.F/01/2026) — Billing 820260205527034 — NTPN 812AE3CIG6I7VVVQ",
+  "jumlah": 270000,
+  "penyetor": "PT PLN (Persero) UPT Palembang",
+  "tanggalSetor": "2026-02-05",
+  "satker": {
+   "kode": "41",
+   "nama": "PALEMBANG"
+  }
+ },
+ {
+  "id": "ACU-009",
+  "periode": "2026-02",
+  "kodeAkun": "425131",
+  "uraian": "Sewa Lahan Pemancar Inderalaya — Setoran Abdul Rozak Rusdy — kontrak 3580/PKS/RRI.PLB/02/2026 (ref 005/RRI.PLB/PKS.U/02/2026) — Billing 820260203188072 — NTPN 122D11JNGHDCUJR8",
+  "jumlah": 9019000,
+  "penyetor": "Abdul Rozak Rusdy",
+  "tanggalSetor": "2026-02-10",
+  "satker": {
+   "kode": "41",
+   "nama": "PALEMBANG"
+  }
+ },
+ {
+  "id": "ACU-010",
+  "periode": "2026-02",
+  "kodeAkun": "425839",
+  "uraian": "Pendapatan Denda Lainnya — penyetor, kode billing, NTPN & tanggal setoran tidak tercantum di sumber",
+  "jumlah": 180380,
+  "satker": {
+   "kode": "41",
+   "nama": "PALEMBANG"
+  }
+ },
+ {
+  "id": "ACU-011",
+  "periode": "2026-02",
+  "kodeAkun": "425131",
+  "uraian": "Sewa Lahan Pemancar Inderalaya — Setoran Assef Hidayat — kontrak 3607/PKS/RRI.PLB/02/2026 (ref 006/RRI.PLB/PKS.U/02/2026) — Billing 820260210141875 — NTPN 1E33B61QVM9HJQLJ",
+  "jumlah": 6536000,
+  "penyetor": "Assef Hidayat",
+  "tanggalSetor": "2026-02-10",
+  "satker": {
+   "kode": "41",
+   "nama": "PALEMBANG"
+  }
+ },
+ {
+  "id": "ACU-012",
+  "periode": "2026-03",
+  "kodeAkun": "425151",
+  "uraian": "Sewa Rumah Dinas — Setoran Dedek Handoko, S. Ak — kontrak 3054 Tahun 2025 — Billing 00033T — NTPN 260140000005796",
+  "jumlah": 250839,
+  "penyetor": "Dedek Handoko, S. Ak",
+  "tanggalSetor": "2026-03-01",
+  "satker": {
+   "kode": "41",
+   "nama": "PALEMBANG"
+  }
+ },
+ {
+  "id": "ACU-013",
+  "periode": "2026-03",
+  "kodeAkun": "425151",
+  "uraian": "Sewa Rumah Dinas — Setoran Suryadi, S. I. Kom — kontrak 24 Tahun 2026 — Billing 00033T — NTPN 260140000005796",
+  "jumlah": 226217,
+  "penyetor": "Suryadi, S. I. Kom",
+  "tanggalSetor": "2026-03-01",
+  "satker": {
+   "kode": "41",
+   "nama": "PALEMBANG"
+  }
+ },
+ {
+  "id": "ACU-014",
+  "periode": "2026-03",
+  "kodeAkun": "425151",
+  "uraian": "Sewa Rumah Dinas — Setoran Azizul Hakim — kontrak 3053 Tahun 2025 — Billing 00032T — NTPN 260140000005795",
+  "jumlah": 452434,
+  "penyetor": "Azizul Hakim",
+  "tanggalSetor": "2026-03-01",
+  "satker": {
+   "kode": "41",
+   "nama": "PALEMBANG"
+  }
+ },
+ {
+  "id": "ACU-015",
+  "periode": "2026-03",
+  "kodeAkun": "425531",
+  "uraian": "Jasa Penyiaran Adlibs — Setoran PT Mandiri Taspen — kontrak 001/PKS/DIR.LPU/01/2026 — Billing 820260325230579 — NTPN 0C5B68N3F644J1VJ",
+  "jumlah": 1550000,
+  "penyetor": "PT Mandiri Taspen",
+  "tanggalSetor": "2026-03-27",
+  "satker": {
+   "kode": "41",
+   "nama": "PALEMBANG"
+  }
+ },
+ {
+  "id": "ACU-016",
+  "periode": "2026-04",
+  "kodeAkun": "425151",
+  "uraian": "Sewa Rumah Dinas — Setoran Dedek Handoko, S. Ak — kontrak 3054 Tahun 2025 — Billing 00080T — NTPN 260140000017048",
+  "jumlah": 226217,
+  "penyetor": "Dedek Handoko, S. Ak",
+  "tanggalSetor": "2026-04-01",
+  "satker": {
+   "kode": "41",
+   "nama": "PALEMBANG"
+  }
+ },
+ {
+  "id": "ACU-017",
+  "periode": "2026-04",
+  "kodeAkun": "425151",
+  "uraian": "Sewa Rumah Dinas — Setoran Suryadi, S. I. Kom — kontrak 24 Tahun 2026 — Billing 00080T — NTPN 260140000017048",
+  "jumlah": 226217,
+  "penyetor": "Suryadi, S. I. Kom",
+  "tanggalSetor": "2026-04-01",
+  "satker": {
+   "kode": "41",
+   "nama": "PALEMBANG"
+  }
+ },
+ {
+  "id": "ACU-018",
+  "periode": "2026-04",
+  "kodeAkun": "425531",
+  "uraian": "Jasa Penyiaran Spot — Setoran Kantor Pengawasan dan Pelayanan Bea dan Cukai TMP B Palembang — kontrak 012/RRI.PLB/PKS.F/03/2026 — Billing 820260414967708 — NTPN 03EE67QLVBKDOJSS",
+  "jumlah": 4050000,
+  "penyetor": "Kantor Pengawasan dan Pelayanan Bea dan Cukai TMP B Palembang",
+  "tanggalSetor": "2026-04-14",
+  "satker": {
+   "kode": "41",
+   "nama": "PALEMBANG"
+  }
+ },
+ {
+  "id": "ACU-019",
+  "periode": "2026-04",
+  "kodeAkun": "425531",
+  "uraian": "Jasa Penyiaran Greeting — Setoran Diskominfo Kabupaten Musi Banyuasin — kontrak 009/RRI.PLB/PKS.F/02/2026 — Billing 820260422176512 — NTPN A58D86U8FH287JO0",
+  "jumlah": 3000000,
+  "penyetor": "Diskominfo Kabupaten Musi Banyuasin",
+  "tanggalSetor": "2026-04-22",
+  "satker": {
+   "kode": "41",
+   "nama": "PALEMBANG"
+  }
+ },
+ {
+  "id": "ACU-020",
+  "periode": "2026-04",
+  "kodeAkun": "425531",
+  "uraian": "Jasa Penyiaran Greeting — Setoran Diskominfo Kabupaten OKU Selatan — kontrak 013/RRI.PLB/PKS.F/03/2026 — Billing 820260422245816 — NTPN BEEF23CIG6OMLNDO",
+  "jumlah": 1500000,
+  "penyetor": "Diskominfo Kabupaten OKU Selatan",
+  "tanggalSetor": "2026-04-23",
+  "satker": {
+   "kode": "41",
+   "nama": "PALEMBANG"
+  }
+ },
+ {
+  "id": "ACU-021",
+  "periode": "2026-04",
+  "kodeAkun": "425531",
+  "uraian": "Jasa Penyiaran Greeting — Setoran BSI KCP Kenten 2 Palembang — kontrak 014/RRI.PLB/PKS.F/03/2026 — Billing 820260421045934 — NTPN F1A450NA0N1GA3LE",
+  "jumlah": 1000000,
+  "penyetor": "BSI KCP Kenten 2 Palembang",
+  "tanggalSetor": "2026-04-23",
+  "satker": {
+   "kode": "41",
+   "nama": "PALEMBANG"
+  }
+ },
+ {
+  "id": "ACU-022",
+  "periode": "2026-05",
+  "kodeAkun": "425151",
+  "uraian": "Sewa Rumah Dinas — Setoran Dedek Handoko, S. Ak — kontrak 3054 Tahun 2025 — Billing 00099T — NTPN 260140000020232",
+  "jumlah": 226217,
+  "penyetor": "Dedek Handoko, S. Ak",
+  "tanggalSetor": "2026-05-01",
+  "satker": {
+   "kode": "41",
+   "nama": "PALEMBANG"
+  }
+ },
+ {
+  "id": "ACU-023",
+  "periode": "2026-05",
+  "kodeAkun": "425151",
+  "uraian": "Sewa Rumah Dinas — Setoran Suryadi, S. I. Kom — kontrak 24 Tahun 2026 — Billing 00099T — NTPN 260140000020232",
+  "jumlah": 226217,
+  "penyetor": "Suryadi, S. I. Kom",
+  "tanggalSetor": "2026-05-01",
+  "satker": {
+   "kode": "41",
+   "nama": "PALEMBANG"
+  }
+ },
+ {
+  "id": "ACU-024",
+  "periode": "2026-05",
+  "kodeAkun": "425531",
+  "uraian": "Jasa Penyiaran Dialog Interaktif Dalam Studio — Setoran Kanwil DJP Sumsel dan Kepulauan Babel — kontrak 5201/PKS/RRI-PLB/04/2026 (ref 015/RRI.PLB/PKS.F/04/2026) — Billing 820260511902046 — NTPN 49A9C61QVMIHCQAU",
+  "jumlah": 2000000,
+  "penyetor": "Kanwil DJP Sumsel dan Kepulauan Babel",
+  "tanggalSetor": "2026-05-12",
+  "satker": {
+   "kode": "41",
+   "nama": "PALEMBANG"
+  }
+ },
+ {
+  "id": "ACU-025",
+  "periode": "2026-05",
+  "kodeAkun": "425531",
+  "uraian": "Jasa Penyiaran Greeting — Setoran Kantor Perwakilan Bank Indonesia Provinsi Sumatera Selatan — kontrak 4416/PKS/RRI-PLB/03/2026 (ref 011/RRI.PLB/PKS.F/02/2026) — Billing 820260513249583 — NTPN 0E7FA3CIG6RDEU9F",
+  "jumlah": 6200000,
+  "penyetor": "Kantor Perwakilan Bank Indonesia Provinsi Sumatera Selatan",
+  "tanggalSetor": "2026-05-13",
+  "satker": {
+   "kode": "41",
+   "nama": "PALEMBANG"
+  }
+ },
+ {
+  "id": "ACU-026",
+  "periode": "2026-05",
+  "kodeAkun": "425839",
+  "uraian": "Pendapatan Denda Lainnya (SPn 1) — Setoran Kantor Perwakilan Bank Indonesia Provinsi Sumatera Selatan — kontrak 4416/PKS/RRI-PLB/03/2026 (ref 011/RRI.PLB/PKS.F/02/2026) — Billing 820260513281865 — NTPN 40D6555DFS069TQ9",
+  "jumlah": 124000,
+  "penyetor": "Kantor Perwakilan Bank Indonesia Provinsi Sumatera Selatan",
+  "tanggalSetor": "2026-05-18",
+  "satker": {
+   "kode": "41",
+   "nama": "PALEMBANG"
+  }
+ },
+ {
+  "id": "ACU-027",
+  "periode": "2026-05",
+  "kodeAkun": "425531",
+  "uraian": "Jasa Penyiaran Greeting — Setoran PT PLN (Persero) UPT Palembang — kontrak 6585/PKS/RRI-PLB/05/2026 (ref 016/RRI.PLB/PKS.F/04/2026) — Billing 820260520213970 — NTPN 699683CIG6RK3FEI",
+  "jumlah": 270000,
+  "penyetor": "PT PLN (Persero) UPT Palembang",
+  "tanggalSetor": "2026-05-20",
+  "satker": {
+   "kode": "41",
+   "nama": "PALEMBANG"
+  }
+ },
+ {
+  "id": "ACU-028",
+  "periode": "2026-05",
+  "kodeAkun": "425131",
+  "uraian": "Sewa Lahan Pemancar Indralaya — Setoran Arip — kontrak 7293/PKS/RRI-PLB/06/2026 (ref 017/RRI.PLB/PKS.U/05/2026) — Billing 820260520202181 — NTPN 130C50NA0N4ES3U5",
+  "jumlah": 5320000,
+  "penyetor": "Arip",
+  "tanggalSetor": "2026-05-20",
+  "satker": {
+   "kode": "41",
+   "nama": "PALEMBANG"
+  }
+ },
+ {
+  "id": "ACU-029",
+  "periode": "2026-05",
+  "kodeAkun": "425531",
+  "uraian": "Jasa Digitalisasi Siaran Instagram Reels — Setoran Savano Entertaiment — kontrak 7297/PKS/RRI-PLB/06/2026 (ref 018/RRI.PLB/PKS.F/05/2026) — Billing 820260526984443 — NTPN 8F2571JNGHN1O37R",
+  "jumlah": 200000,
+  "penyetor": "Savano Entertaiment",
+  "tanggalSetor": "2026-05-26",
+  "satker": {
+   "kode": "41",
+   "nama": "PALEMBANG"
+  }
+ },
+ {
+  "id": "ACU-030",
+  "periode": "2026-06",
+  "kodeAkun": "425151",
+  "uraian": "Sewa Rumah Dinas — Setoran Dedek Handoko, S. Ak — kontrak 3054 Tahun 2025 — Billing 00119T — NTPN 260140000029092",
+  "jumlah": 226217,
+  "penyetor": "Dedek Handoko, S. Ak",
+  "tanggalSetor": "2026-06-01",
+  "satker": {
+   "kode": "41",
+   "nama": "PALEMBANG"
+  }
+ },
+ {
+  "id": "ACU-031",
+  "periode": "2026-06",
+  "kodeAkun": "425151",
+  "uraian": "Sewa Rumah Dinas — Setoran Suryadi, S. I. Kom — kontrak 24 Tahun 2026 — Billing 00119T — NTPN 260140000029092",
+  "jumlah": 226217,
+  "penyetor": "Suryadi, S. I. Kom",
+  "tanggalSetor": "2026-06-01",
+  "satker": {
+   "kode": "41",
+   "nama": "PALEMBANG"
+  }
+ },
+ {
+  "id": "ACU-032",
+  "periode": "2026-06",
+  "kodeAkun": "425131",
+  "uraian": "Sewa Aula — Setoran Dr. Jalaludiin, MPSA — kontrak 5350/PKS/RRI-PLB/06/2026 (ref 021/RRI.PLB/PKS.U/06/2026) — Billing 820260611306342 — NTPN 7435B49001GNCCR6",
+  "jumlah": 3056000,
+  "penyetor": "Dr. Jalaludiin, MPSA",
+  "tanggalSetor": "2026-06-12",
+  "satker": {
+   "kode": "41",
+   "nama": "PALEMBANG"
+  }
+ },
+ {
+  "id": "ACU-033",
+  "periode": "2026-06",
+  "kodeAkun": "425531",
+  "uraian": "Jasa Penyiaran Spot — Setoran Yayasan Islam Al-Ittifaqiah — kontrak 7299/PKS/RRI-PLB/06/2026 (ref 019/RRI.PLB/PKS.F/05/2026) — Billing 820260611283732 — NTPN 138122G50CBUHMOK",
+  "jumlah": 4050000,
+  "penyetor": "Yayasan Islam Al-Ittifaqiah",
+  "tanggalSetor": "2026-06-14",
+  "satker": {
+   "kode": "41",
+   "nama": "PALEMBANG"
+  }
+ },
+ {
+  "id": "ACU-034",
+  "periode": "2026-06",
+  "kodeAkun": "425131",
+  "uraian": "Sewa Lahan Pemancar Indralaya — Setoran Darojad — kontrak ref 027/RRI.PLB/PKS.F/06/2025 (tanpa Nomor Kontrak) — Billing 820260618264146 — NTPN 9E2A11JNGHPOPNII",
+  "jumlah": 11246250,
+  "penyetor": "Darojad",
+  "tanggalSetor": "2026-06-18",
+  "satker": {
+   "kode": "41",
+   "nama": "PALEMBANG"
+  }
+ },
+ {
+  "id": "ACU-035",
+  "periode": "2026-06",
+  "kodeAkun": "425531",
+  "uraian": "Jasa Penyiaran Greeting — Setoran Bank Sumsel dan Babel — kontrak 4415/PKS/RRI-PLB/03/2026 (ref 010/RRI.PLB/PKS.F/02/2026) — Billing 820260615730539 — NTPN B5E091JNGHPMCDBB",
+  "jumlah": 7500000,
+  "penyetor": "Bank Sumsel dan Babel",
+  "tanggalSetor": "2026-06-22",
+  "satker": {
+   "kode": "41",
+   "nama": "PALEMBANG"
+  }
+ },
+ {
+  "id": "ACU-036",
+  "periode": "2026-06",
+  "kodeAkun": "425531",
+  "uraian": "Jasa Penyiaran Greeting — Setoran Diskominfo Kota Palembang — kontrak 3874/PKS/RRI-PLB/03/2026 (ref 007/RRI.PLB/PKS.F/02/2026) — Billing 820260625423701 — NTPN BF4407QLVBQMF7AL",
+  "jumlah": 15000000,
+  "penyetor": "Diskominfo Kota Palembang",
+  "tanggalSetor": "2026-06-26",
+  "satker": {
+   "kode": "41",
+   "nama": "PALEMBANG"
+  }
+ },
+ {
+  "id": "ACU-037",
+  "periode": "2026-06",
+  "kodeAkun": "425531",
+  "uraian": "Jasa Penyiaran Greeting — Setoran Diskominfo Kabupaten Banyuasin — kontrak 3876/PKS/RRI-PLB/03/2026 (ref 008/RRI.PLB/PKS.F/02/2026) — Billing 820260624221021 — NTPN FFEFB3CIG6UN9GQT",
+  "jumlah": 5000000,
+  "penyetor": "Diskominfo Kabupaten Banyuasin",
+  "tanggalSetor": "2026-06-29",
+  "satker": {
+   "kode": "41",
+   "nama": "PALEMBANG"
+  }
+ },
+ {
+  "id": "ACU-038",
+  "periode": "2026-07",
+  "kodeAkun": "425151",
+  "uraian": "Sewa Rumah Dinas — Setoran Dedek Handoko, S. Ak — kontrak 3054 Tahun 2025 — Billing 00150T — NTPN 260140000037148",
+  "jumlah": 226217,
+  "penyetor": "Dedek Handoko, S. Ak",
+  "tanggalSetor": "2026-07-01",
+  "satker": {
+   "kode": "41",
+   "nama": "PALEMBANG"
+  }
+ },
+ {
+  "id": "ACU-039",
+  "periode": "2026-07",
+  "kodeAkun": "425151",
+  "uraian": "Sewa Rumah Dinas — Setoran Suryadi, S. I. Kom — kontrak 24 Tahun 2026 — Billing 00150T — NTPN 260140000037148",
+  "jumlah": 226217,
+  "penyetor": "Suryadi, S. I. Kom",
+  "tanggalSetor": "2026-07-01",
+  "satker": {
+   "kode": "41",
+   "nama": "PALEMBANG"
+  }
+ },
+ {
+  "id": "ACU-040",
+  "periode": "2026-07",
+  "kodeAkun": "425531",
+  "uraian": "Jasa Penyiaran Adlibs — Setoran Bank Indonesia Perwakilan Sumatera Selatan — kontrak 5592/PKS/RRI-PLB/06/2026 (ref 026/RRI.PLB/PKS.F/06/2026) — Billing 820260629925295 — NTPN 3A85755DFS3LHJDF",
+  "jumlah": 1000000,
+  "penyetor": "Bank Indonesia Perwakilan Sumatera Selatan",
+  "tanggalSetor": "2026-07-02",
+  "satker": {
+   "kode": "41",
+   "nama": "PALEMBANG"
+  }
+ },
+ {
+  "id": "ACU-041",
+  "periode": "2026-07",
+  "kodeAkun": "425531",
+  "uraian": "Digitalisasi Siaran Live Youtube + Jasa Penyiaran Siaran Langsung + Jasa Penyiaran Adlibs — Setoran DPRD Kota Palembang — kontrak 5390/PKS/RRI-PLB/06/2026 (ref 022/RRI.PLB/PKS.F/06/2026) — Billing 820260707096830 — NTPN 56E4F7QLVBT4BM7U",
+  "jumlah": 3500000,
+  "penyetor": "DPRD Kota Palembang",
+  "tanggalSetor": "2026-07-07",
+  "satker": {
+   "kode": "41",
+   "nama": "PALEMBANG"
+  }
+ },
+ {
+  "id": "ACU-042",
+  "periode": "2026-07",
+  "kodeAkun": "425531",
+  "uraian": "Dialog Interaktif Luar Studio + Digitalisasi Siaran Live Youtube + Jasa Penyiaran Adlibs — Setoran PT. Medco E&P Indonesia — kontrak 5391/PKS/RRI-PLB/06/2026 (ref 023/RRI.PLB/PKS.F/06/2026) — Billing 820260714274512 — NTPN A18170NA0NA7UNMG",
+  "jumlah": 3500000,
+  "penyetor": "PT. Medco E&P Indonesia",
+  "tanggalSetor": "2026-07-14",
+  "satker": {
+   "kode": "41",
+   "nama": "PALEMBANG"
+  }
+ },
+ {
+  "id": "ACU-043",
+  "periode": "2026-07",
+  "kodeAkun": "425839",
+  "uraian": "Pendapatan Denda Lainnya (SPn 2) — Setoran Bank Sumsel dan Babel — kontrak 4415/PKS/RRI-PLB/03/2026 (ref 010/RRI.PLB/PKS.F/02/2026) — Billing 820260714279389 — NTPN 295C92G50CF0OSET",
+  "jumlah": 300000,
+  "penyetor": "Bank Sumsel dan Babel",
+  "tanggalSetor": "2026-07-14",
+  "satker": {
+   "kode": "41",
+   "nama": "PALEMBANG"
+  }
+ },
+ {
+  "id": "ACU-044",
+  "periode": "2026-07",
+  "kodeAkun": "425839",
+  "uraian": "Pendapatan Denda Lainnya (SPn 3) — Setoran Diskominfo Kabupaten Banyuasin — kontrak 3876/PKS/RRI-PLB/03/2026 (ref 008/RRI.PLB/PKS.F/02/2026) — Billing 820260714279343 — NTPN 3310555DFS65VSDF",
+  "jumlah": 300000,
+  "penyetor": "Diskominfo Kabupaten Banyuasin",
+  "tanggalSetor": "2026-07-14",
+  "satker": {
+   "kode": "41",
+   "nama": "PALEMBANG"
+  }
+ },
+ {
+  "id": "ACU-045",
+  "periode": "2026-07",
+  "kodeAkun": "425531",
+  "uraian": "Jasa Penyiaran Dialog Interaktif Dalam Studio — Setoran Bank Indonesia Perwakilan Sumatera Selatan — kontrak 5484/PKS/RRI-PLB/06/2026 (ref 025/RRI.PLB/PKS.F/06/2026) — Billing 820260716693693 — NTPN 987CB3CIG71FFI5T",
+  "jumlah": 2000000,
+  "penyetor": "Bank Indonesia Perwakilan Sumatera Selatan",
+  "tanggalSetor": "2026-07-16",
+  "satker": {
+   "kode": "41",
+   "nama": "PALEMBANG"
+  }
+ },
+ {
+  "id": "ACU-046",
+  "periode": "2026-07",
+  "kodeAkun": "425131",
+  "uraian": "Sewa Lahan Pemancar Indralaya — Setoran Faridah Hanum — kontrak 7051/PKS/RRI-PLB/07/2026 (ref 028/RRI.PLB/PKS.U/07/2026) — Billing 820260716674372 — NTPN DCA0D2G50CF31VA4",
+  "jumlah": 6536000,
+  "penyetor": "Faridah Hanum",
+  "tanggalSetor": "2026-07-17",
+  "satker": {
+   "kode": "41",
+   "nama": "PALEMBANG"
+  }
+ },
+ {
+  "id": "ACU-047",
+  "periode": "2026-07",
+  "kodeAkun": "425531",
+  "uraian": "Jasa Penyiaran Spot — Setoran Kantor Pengawasan dan Pelayanan Bea dan Cukai TMP B Palembang — kontrak 5483/PKS/RRI-PLB/06/2026 (ref 024/RRI.PLB/PKS.F/06/2026) — Billing 820260722488280 — NTPN 99C250NA0NAFPCUO",
+  "jumlah": 4050000,
+  "penyetor": "Kantor Pengawasan dan Pelayanan Bea dan Cukai TMP B Palembang",
+  "tanggalSetor": "2026-07-27",
+  "satker": {
+   "kode": "41",
+   "nama": "PALEMBANG"
+  }
+ },
+ {
+  "id": "ACU-048",
+  "periode": "2026-07",
+  "kodeAkun": "425531",
+  "uraian": "Jasa Penyiaran Spot — Setoran PT Sumber Alfaria Trijaya Tbk (Alfamart) Palembang — kontrak 7302/PKS/RRI-PLB/06/2026 (ref 020/RRI.PLB/PKS.F/05/2026) — Billing 820260728396050 — NTPN 4AA9049001K71M8I",
+  "jumlah": 990000,
+  "penyetor": "PT Sumber Alfaria Trijaya Tbk (Alfamart) Palembang",
+  "tanggalSetor": "2026-07-28",
+  "satker": {
+   "kode": "41",
+   "nama": "PALEMBANG"
+  }
+ },
+ {
+  "id": "ACU-049",
+  "periode": "2026-07",
+  "kodeAkun": "425131",
+  "uraian": "Sewa Lahan Pemancar Indralaya — Setoran Fisol Jailani — kontrak 7053/PKS/RRI-PLB/07/2026 (ref 030/RRI.PLB/PKS.U/07/2026) — Billing 820260730797898 — NTPN 8EC633CIG71STVQA",
+  "jumlah": 12000000,
+  "penyetor": "Fisol Jailani",
+  "tanggalSetor": "2026-07-30",
+  "satker": {
+   "kode": "41",
+   "nama": "PALEMBANG"
+  }
+ },
+ {
+  "id": "ACU-050",
+  "periode": "2026-07",
+  "kodeAkun": "425131",
+  "uraian": "Sewa Lahan Pemancar Indralaya — Setoran Fisol Jailani — kontrak 7052/PKS/RRI-PLB/07/2026 (ref 029/RRI.PLB/PKS.U/07/2026) — Billing 820260730797865 — NTPN 5379561QVMP24VP9",
+  "jumlah": 6000000,
+  "penyetor": "Fisol Jailani",
+  "tanggalSetor": "2026-07-30",
+  "satker": {
+   "kode": "41",
+   "nama": "PALEMBANG"
+  }
+ },
+ {
+  "id": "ACU-051",
+  "periode": "2026-07",
+  "kodeAkun": "425131",
+  "uraian": "Sewa Lahan Pemancar Indralaya — Setoran Mila Agustina — kontrak 7054/PKS/RRI-PLB/07/2026 (ref 031/RRI.PLB/PKS.U/07/2026) — Billing 820260730825245 — NTPN C4B4D49001K9BQGT",
+  "jumlah": 7904292,
+  "penyetor": "Mila Agustina",
+  "tanggalSetor": "2026-07-30",
+  "satker": {
+   "kode": "41",
+   "nama": "PALEMBANG"
+  }
+ },
+ {
+  "id": "ACU-052",
+  "periode": "2026-07",
+  "kodeAkun": "425131",
+  "uraian": "Sewa Lahan Pemancar Indralaya — Setoran Mila Agustina — kontrak 7055/PKS/RRI-PLB/07/2026 (ref 032/RRI.PLB/PKS.U/07/2026) — Billing 820260730825192 — NTPN 8CDED2G50CFGHQF8",
+  "jumlah": 15808583,
+  "penyetor": "Mila Agustina",
+  "tanggalSetor": "2026-07-30",
+  "satker": {
+   "kode": "41",
+   "nama": "PALEMBANG"
+  }
+ },
+ {
+  "id": "ACU-053",
+  "periode": "2026-07",
+  "kodeAkun": "425131",
+  "uraian": "Sewa Lahan Pemancar Indralaya — Setoran Herman Sawiran — kontrak 7061/PKS/RRI-PLB/07/2026 (ref 034/RRI.PLB/PKS.U/07/2026) — Billing 820260731072240 — NTPN AE21E55DFS6M0BNG",
+  "jumlah": 8232000,
+  "penyetor": "Herman Sawiran",
+  "tanggalSetor": "2026-07-31",
+  "satker": {
+   "kode": "41",
+   "nama": "PALEMBANG"
+  }
+ },
+ {
+  "id": "ACU-054",
+  "periode": "2026-07",
+  "kodeAkun": "425131",
+  "uraian": "Sewa Lahan Pemancar Indralaya — Setoran Herman Sawiran — kontrak 7060/PKS/RRI-PLB/07/2026 (ref 033/RRI.PLB/PKS.U/07/2026) — Billing 820260731072349 — NTPN DA11E61QVMP2DBQT",
+  "jumlah": 4116000,
+  "penyetor": "Herman Sawiran",
+  "tanggalSetor": "2026-07-31",
+  "satker": {
+   "kode": "41",
+   "nama": "PALEMBANG"
+  }
+ },
+ {
+  "id": "ACU-055",
+  "periode": "2026-08",
+  "kodeAkun": "425151",
+  "uraian": "Sewa Rumah Dinas — Setoran Dedek Handoko, S. Ak — kontrak 3054 Tahun 2025 — Billing 00169T — NTPN 260140000043736",
+  "jumlah": 226217,
+  "penyetor": "Dedek Handoko, S. Ak",
+  "tanggalSetor": "2026-08-01",
+  "satker": {
+   "kode": "41",
+   "nama": "PALEMBANG"
+  }
+ },
+ {
+  "id": "ACU-056",
+  "periode": "2026-08",
+  "kodeAkun": "425151",
+  "uraian": "Sewa Rumah Dinas — Setoran Suryadi, S. I. Kom — kontrak 24 Tahun 2026 — Billing 00169T — NTPN 260140000043736",
+  "jumlah": 226217,
+  "penyetor": "Suryadi, S. I. Kom",
+  "tanggalSetor": "2026-08-01",
+  "satker": {
+   "kode": "41",
+   "nama": "PALEMBANG"
+  }
+ },
+ {
+  "id": "ACU-057",
+  "periode": "2026-08",
+  "kodeAkun": "425122",
+  "uraian": "Pemindahtanganan BMN — Billing 820260805757533 — NTPN F45473CIG744DIIT",
+  "jumlah": 43250000,
+  "tanggalSetor": "2026-08-05",
+  "satker": {
+   "kode": "41",
+   "nama": "PALEMBANG"
+  }
+ },
+ {
+  "id": "ACU-058",
+  "periode": "2026-08",
+  "kodeAkun": "425131",
+  "uraian": "Sewa Lahan Kantor RRI Palembang — Setoran PT Vgreen Global Charging Station Investment Indonesia — kontrak 0016/PKS/DIR.LPU/06/2025 — Billing 820260812804390 — NTPN A49300NA0ND5TK96",
+  "jumlah": 17146250,
+  "penyetor": "PT Vgreen Global Charging Station Investment Indonesia",
+  "tanggalSetor": "2026-08-13",
+  "satker": {
+   "kode": "41",
+   "nama": "PALEMBANG"
+  }
+ },
+ {
+  "id": "ACU-059",
+  "periode": "2026-09",
+  "kodeAkun": "425151",
+  "uraian": "Sewa Rumah Dinas — Setoran Dedek Handoko, S. Ak — kontrak 3054 Tahun 2025 — Billing 00197T — NTPN 260140000053291",
+  "jumlah": 226217,
+  "penyetor": "Dedek Handoko, S. Ak",
+  "tanggalSetor": "2026-09-01",
+  "satker": {
+   "kode": "41",
+   "nama": "PALEMBANG"
+  }
+ },
+ {
+  "id": "ACU-060",
+  "periode": "2026-09",
+  "kodeAkun": "425151",
+  "uraian": "Sewa Rumah Dinas — Setoran Suryadi, S. I. Kom — kontrak 24 Tahun 2026 — Billing 00197T — NTPN 260140000053291",
+  "jumlah": 226217,
+  "penyetor": "Suryadi, S. I. Kom",
+  "tanggalSetor": "2026-09-01",
+  "satker": {
+   "kode": "41",
+   "nama": "PALEMBANG"
+  }
+ },
+ {
+  "id": "ACU-061",
+  "periode": "2026-09",
+  "kodeAkun": "425151",
+  "uraian": "Sewa Rumah Dinas — Setoran Arianto, S. Sos — kontrak 1228 Tahun 2026 — Billing 00198T — NTPN 260140000053292",
+  "jumlah": 904868,
+  "penyetor": "Arianto, S. Sos",
+  "tanggalSetor": "2026-09-01",
+  "satker": {
+   "kode": "41",
+   "nama": "PALEMBANG"
+  }
+ },
+ {
+  "id": "ACU-062",
+  "periode": "2026-09",
+  "kodeAkun": "425531",
+  "uraian": "Jasa Penyiaran Dialog Interaktif Dalam Studio — Setoran Perempuan Indonesia Maju — kontrak 6593/PKS/RRI-PLB/07/2026 (ref 027/RRI.PLB/PKS.F/07/2026) — Billing 820260914784821 — NTPN 96D411JNGI2JIQHL",
+  "jumlah": 2000000,
+  "penyetor": "Perempuan Indonesia Maju",
+  "tanggalSetor": "2026-09-14",
+  "satker": {
+   "kode": "41",
+   "nama": "PALEMBANG"
+  }
+ }
+]
