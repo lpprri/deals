@@ -1,8 +1,9 @@
 // Master data — Fase A + Fase B (PRD v2.0 Final Bab 6.13).
-// Tampilan READ-ONLY. Master hanya diubah Admin; nilai yang sudah dipakai
+// Tampilan READ-ONLY. Master hanya diubah Operator; nilai yang sudah dipakai
 // transaksi tidak dapat dihapus, hanya dinonaktifkan. Perubahan master
 // dilakukan di luar mode contoh ini (Fase A: tampil sebagai daftar).
 
+import { useState } from 'react';
 import type { ModulProps } from '../lib/store';
 import {
   MASTER_JENIS_DOKUMEN,
@@ -32,6 +33,7 @@ import {
   Tabel,
   Td,
   Th,
+  TombolUtama,
 } from '../components/ui';
 
 function DaftarNilai({ judul, nilai }: { judul: string; nilai: string[] }) {
@@ -52,16 +54,148 @@ function DaftarNilai({ judul, nilai }: { judul: string; nilai: string[] }) {
   );
 }
 
-export default function MasterPage(_props: ModulProps) {
+export interface HasilMigrasiUI {
+  tanggal: string;
+  jumlahPerKoleksi: Record<string, number>;
+}
+
+export interface MasterPageProps extends ModulProps {
+  /**
+   * Dipanggil saat tombol migrasi diklik. Koordinator menyambungkannya ke
+   * `jalankanMigrasi` (src/lib/migrasi.ts). Halaman ini TIDAK memanggil
+   * Firebase langsung.
+   */
+  onMigrasi?: () => Promise<HasilMigrasiUI>;
+  /** Status migrasi dari Firestore (dokumen meta/migrasi). */
+  statusMigrasi?: 'belum' | 'sudah' | 'tidak-tersedia';
+  /** Tanggal migrasi (bila diketahui dari luar sesi ini). */
+  tanggalMigrasi?: string;
+}
+
+function formatTanggalIso(iso: string): string {
+  const d = new Date(iso);
+  return Number.isNaN(d.getTime())
+    ? iso
+    : d.toLocaleString('id-ID', { dateStyle: 'medium', timeStyle: 'short' });
+}
+
+/** Bagian "Migrasi ke Firestore" — migrasi satu kali data contoh. */
+function BagianMigrasi({
+  onMigrasi,
+  statusMigrasi,
+  tanggalMigrasi,
+}: {
+  onMigrasi?: () => Promise<HasilMigrasiUI>;
+  statusMigrasi: 'belum' | 'sudah' | 'tidak-tersedia';
+  tanggalMigrasi?: string;
+}) {
+  const [proses, setProses] = useState(false);
+  const [hasil, setHasil] = useState<HasilMigrasiUI | null>(null);
+  const [galat, setGalat] = useState<string | null>(null);
+
+  const sudah = statusMigrasi === 'sudah' || hasil !== null;
+
+  async function tanganiMigrasi() {
+    if (!onMigrasi || proses || sudah) return;
+    setProses(true);
+    setGalat(null);
+    try {
+      const r = await onMigrasi();
+      setHasil(r);
+    } catch (e) {
+      setGalat(
+        e instanceof Error ? e.message : 'Migrasi gagal. Coba lagi.',
+      );
+    } finally {
+      setProses(false);
+    }
+  }
+
+  return (
+    <Kartu>
+      <JudulBagian>Migrasi ke Firestore</JudulBagian>
+      {statusMigrasi === 'tidak-tersedia' ? (
+        <p className="mt-2 text-sm text-[#0d2569]/70">
+          Migrasi memerlukan konfigurasi Firebase. Lengkapi dulu enam variabel
+          VITE_FIREBASE_* di Vercel lalu redeploy, kemudian kembali ke halaman
+          ini.
+        </p>
+      ) : sudah ? (
+        <p className="mt-2 text-sm text-[#0d2569]/70">
+          Sudah dimigrasi pada{' '}
+          {hasil
+            ? formatTanggalIso(hasil.tanggal)
+            : tanggalMigrasi
+              ? formatTanggalIso(tanggalMigrasi)
+              : 'tanggal tercatat'}
+          . Migrasi hanya bisa dilakukan sekali.
+        </p>
+      ) : (
+        <>
+          <p className="mt-2 text-sm text-[#0d2569]/70">
+            Menulis seluruh data contoh (klien, kontrak, tagihan, pembayaran,
+            sewa, pengajuan, dan data Fase B) ke Firestore, beserta profil
+            operator. Migrasi hanya bisa dilakukan sekali — setelah berhasil,
+            tombol ini tidak aktif lagi.
+          </p>
+          <div className="mt-3">
+            <TombolUtama onClick={tanganiMigrasi} disabled={proses || !onMigrasi}>
+              {proses ? 'Memigrasi data…' : 'Migrasi data contoh ke Firestore'}
+            </TombolUtama>
+          </div>
+        </>
+      )}
+
+      {galat && (
+        <div className="mt-3">
+          <Peringatan teks={galat} />
+        </div>
+      )}
+
+      {hasil && (
+        <div className="mt-3">
+          <p className="text-sm font-semibold text-[#0d2569]">
+            Migrasi berhasil pada {formatTanggalIso(hasil.tanggal)}.
+          </p>
+          <Tabel>
+            <thead>
+              <tr>
+                <Th>Koleksi</Th>
+                <Th kanan>Jumlah dokumen</Th>
+              </tr>
+            </thead>
+            <tbody>
+              {Object.entries(hasil.jumlahPerKoleksi).map(([koleksi, jumlah]) => (
+                <Baris key={koleksi}>
+                  <Td>{koleksi}</Td>
+                  <Td kanan>{jumlah}</Td>
+                </Baris>
+              ))}
+            </tbody>
+          </Tabel>
+        </div>
+      )}
+    </Kartu>
+  );
+}
+
+export default function MasterPage(props: MasterPageProps) {
+  const { onMigrasi, statusMigrasi = 'tidak-tersedia', tanggalMigrasi } = props;
   return (
     <div className="space-y-6">
       <p className="text-sm text-[#0d2569]/70">
         Master data adalah sumber kebenaran tunggal aplikasi (satu kode akun =
         satu klasifikasi). Halaman ini hanya menampilkan master — perubahan
-        dilakukan oleh Admin Sistem.
+        dilakukan oleh Operator.
       </p>
 
-      <Peringatan teks="Master hanya diubah Admin; nilai yang sudah dipakai transaksi tidak dapat dihapus, hanya dinonaktifkan." />
+      <BagianMigrasi
+        onMigrasi={onMigrasi}
+        statusMigrasi={statusMigrasi}
+        tanggalMigrasi={tanggalMigrasi}
+      />
+
+      <Peringatan teks="Master hanya diubah Operator; nilai yang sudah dipakai transaksi tidak dapat dihapus, hanya dinonaktifkan." />
 
       {/* Kode Akun */}
       <Kartu>

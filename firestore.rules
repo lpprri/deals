@@ -1,0 +1,147 @@
+// Aturan keamanan Firestore — Partnership LPP RRI.
+// Model 1 ROLE (keputusan pengguna 14 Nov 2026 21:29 WIB): hanya ada
+// Operator (Staf Layanan & Pengembangan Usaha). 6 peran dummy Q-01 TIDAK
+// BERLAKU; peran Admin Nasional TIDAK DIPAKAI tahap ini.
+// Semua akses wajib terautentikasi. Data Keuangan (penerimaanAcuan) hanya
+// dibaca, tidak pernah ditulis dari aplikasi.
+// CARA AKTIFKAN: tempel seluruh isi file ini di Firebase console →
+// Firestore Database → Rules → Publish. File ini saja BELUM mengaktifkan
+// aturan apa pun di proyek pengguna.
+
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ---------- Pembantu ----------
+
+    // Sudah login (akun Auth apa pun yang dibuat admin di console).
+    function sudahLogin() {
+      return request.auth != null;
+    }
+
+    // Dokumen profil pemanggil di koleksi users.
+    function profilPemanggil() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
+    }
+
+    // Pemanggil adalah Operator (satu-satunya peran tahap ini).
+    function adalahOperator() {
+      return sudahLogin() && profilPemanggil().peran == 'operator';
+    }
+
+    // Kode satker pemanggil, dari dokumen users/{uid}-nya.
+    function satkerPemanggil() {
+      return profilPemanggil().satker.kode;
+    }
+
+    // Data (lama atau baru) milik satker pemanggil.
+    function satkerMilikPemanggil(data) {
+      return data.satker.kode == satkerPemanggil();
+    }
+
+    // ---------- Koleksi data bersatker (14 koleksi) ----------
+    // Baca/tulis hanya Operator dari satker yang sama. Saat membuat data
+    // baru, satker dicek dari data yang dikirim; saat mengubah, dicek dari
+    // data lama DAN data baru (tidak boleh pindah satker).
+    match /{koleksi}/{id} {
+      allow read: if koleksi in [
+          'klien', 'kontrak', 'tagihan', 'pembayaran', 'denda',
+          'sewa', 'pengajuan', 'prospect', 'quotation', 'order', 'meeting',
+          'event', 'advertisement', 'task'
+        ]
+        && adalahOperator()
+        && satkerMilikPemanggil(resource.data);
+      allow create: if koleksi in [
+          'klien', 'kontrak', 'tagihan', 'pembayaran', 'denda',
+          'sewa', 'pengajuan', 'prospect', 'quotation', 'order', 'meeting',
+          'event', 'advertisement', 'task'
+        ]
+        && adalahOperator()
+        && satkerMilikPemanggil(request.resource.data);
+      allow update: if koleksi in [
+          'klien', 'kontrak', 'tagihan', 'pembayaran', 'denda',
+          'sewa', 'pengajuan', 'prospect', 'quotation', 'order', 'meeting',
+          'event', 'advertisement', 'task'
+        ]
+        && adalahOperator()
+        && satkerMilikPemanggil(resource.data)
+        && satkerMilikPemanggil(request.resource.data);
+      allow delete: if koleksi in [
+          'klien', 'kontrak', 'tagihan', 'pembayaran', 'denda',
+          'sewa', 'pengajuan', 'prospect', 'quotation', 'order', 'meeting',
+          'event', 'advertisement', 'task'
+        ]
+        && adalahOperator()
+        && satkerMilikPemanggil(resource.data);
+    }
+
+    // ---------- Data acuan Keuangan: READ-ONLY ----------
+    // Setelah migrasi, tidak ada satu pun peran aplikasi yang boleh
+    // create/update/delete — data ini milik Keuangan; aplikasi hanya
+    // menampilkan dan merekonsiliasi. Satu-satunya pengecualian adalah
+    // migrasi satu kali (src/lib/migrasi.ts): sebelum dokumen
+    // `meta/migrasi` ada, Operator boleh create (menulis 62 baris acuan
+    // awal). Begitu penanda migrasi ada, create ikut tertutup.
+    match /penerimaanAcuan/{id} {
+      allow read: if adalahOperator()
+        && satkerMilikPemanggil(resource.data);
+      allow create: if adalahOperator()
+        && !exists(/databases/$(database)/documents/meta/migrasi)
+        && satkerMilikPemanggil(request.resource.data);
+      allow update, delete: if false;
+    }
+
+    // ---------- Dokumen: tanpa field satker ----------
+    // Koleksi dokumen tidak menyimpan field satker (tautan ke kontrak),
+    // jadi hanya dicek peran Operator.
+    match /dokumen/{id} {
+      allow read, create, update, delete: if adalahOperator();
+    }
+
+    // ---------- Audit: hanya tambah (append-only) ----------
+    // Entri audit tidak boleh diubah atau dihapus setelah ditulis.
+    match /audit/{id} {
+      allow read, create: if adalahOperator();
+      allow update, delete: if false;
+    }
+
+    // ---------- Penanda migrasi: hanya boleh dibuat sekali ----------
+    // Migrasi satu kali (src/lib/migrasi.ts) membuat dokumen ini; bila
+    // sudah ada, create ditolak.
+    match /meta/migrasi {
+      allow read: if adalahOperator();
+      allow create: if adalahOperator()
+        && !exists(/databases/$(database)/documents/meta/migrasi);
+      allow update, delete: if false;
+    }
+
+    // ---------- Profil pengguna (koleksi users) ----------
+    // Pengguna hanya boleh membaca dokumennya sendiri. Saat login pertama,
+    // pengguna membuat dokumennya sendiri sebagai Operator (akun Auth
+    // hanya dibuat admin lewat console, jadi tidak ada pendaftaran liar).
+    // Peran dan satker TIDAK boleh diubah setelah dibuat — perubahan peran
+    // dilakukan admin langsung di console.
+    match /users/{uid} {
+      allow get: if sudahLogin() && request.auth.uid == uid;
+      allow create: if sudahLogin()
+        && request.auth.uid == uid
+        && request.resource.data.peran == 'operator'
+        && request.resource.data.satker.kode is string;
+      allow update: if sudahLogin()
+        && request.auth.uid == uid
+        && request.resource.data.peran == resource.data.peran
+        && request.resource.data.satker == resource.data.satker;
+      allow delete: if false;
+    }
+
+    // ---------- Profil pengguna (koleksi userProfiles, dipakai migrasi) ----------
+    // Pengguna hanya boleh membaca dokumennya sendiri (dicocokkan lewat
+    // email akun Auth). Hanya Operator boleh menulis — dipakai untuk
+    // bootstrap profil saat migrasi satu kali.
+    match /userProfiles/{email} {
+      allow get: if sudahLogin() && request.auth.token.email == email;
+      allow create, update, delete: if adalahOperator();
+    }
+  }
+}

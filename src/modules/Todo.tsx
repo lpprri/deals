@@ -196,10 +196,8 @@ function DaftarTugas({
             <tbody>
               {tugas.map((t) => {
                 const berikut = statusBerikutnya(t.status);
-                const bolehUbahStatus =
-                  berikut !== null &&
-                  (t.pemilik === user.nama ||
-                    user.peran === 'admin_sistem');
+                // Model 1 role: Operator punya akses penuh atas tugas.
+                const bolehUbahStatus = berikut !== null;
                 return (
                   <Baris key={t.id}>
                     <Td tebal>{t.id}</Td>

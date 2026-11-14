@@ -1,16 +1,12 @@
-// Pengguna awal — DUMMY (Q-01, PRD v2.0 Final Lampiran C).
-// Nama dan jabatan di bawah ini HANYA CONTOH atas instruksi pemilik produk
-// (14 Nov 2026) agar pembangunan Tahap 0 dapat berjalan.
-// WAJIB diganti dengan nama dan jabatan asli sebelum setup Firebase Auth
-// dengan akun produksi. Jangan pakai daftar ini untuk akun nyata.
+// Pengguna awal — DUMMY, mode contoh saja.
+// KEPUTUSAN PENGGUNA 14/11/2026 21:29 WIB: hanya ada 1 role — Operator
+// (Staf Layanan & Pengembangan Usaha). Keenam peran dummy Q-01
+// (Andi Pratama, Siti Rahmawati, Budi Santoso, Dewi Lestari, Ahmad Fauzi,
+// Rizky Ramadhan) dinyatakan TIDAK BERLAKU, dan peran Admin Nasional
+// (PRD v2.1) TIDAK DIPAKAI tahap ini. Profil di bawah ini hanya untuk
+// mode contoh dan WAJIB diganti akun Firebase Auth produksi.
 
-export type Role =
-  | 'operator_layanan'
-  | 'verifikator_layanan'
-  | 'keuangan'
-  | 'umum'
-  | 'pimpinan'
-  | 'admin_sistem';
+export type Role = 'operator';
 
 export interface DummyUser {
   nama: string;
@@ -20,33 +16,8 @@ export interface DummyUser {
 
 export const DUMMY_USERS: DummyUser[] = [
   {
-    nama: 'Andi Pratama (Contoh)',
+    nama: 'Operator (Contoh)',
     jabatan: 'Staf Layanan & Pengembangan Usaha',
-    peran: 'operator_layanan',
-  },
-  {
-    nama: 'Siti Rahmawati (Contoh)',
-    jabatan: 'Kepala Bidang Layanan & Pengembangan Usaha',
-    peran: 'verifikator_layanan',
-  },
-  {
-    nama: 'Budi Santoso (Contoh)',
-    jabatan: 'Staf Keuangan',
-    peran: 'keuangan',
-  },
-  {
-    nama: 'Dewi Lestari (Contoh)',
-    jabatan: 'Staf Umum',
-    peran: 'umum',
-  },
-  {
-    nama: 'Ahmad Fauzi (Contoh)',
-    jabatan: 'Kepala LPP RRI Palembang',
-    peran: 'pimpinan',
-  },
-  {
-    nama: 'Rizky Ramadhan (Contoh)',
-    jabatan: 'Admin Sistem',
-    peran: 'admin_sistem',
+    peran: 'operator',
   },
 ];
