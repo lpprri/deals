@@ -77,7 +77,7 @@ export default function Login({
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   className="mt-1 w-full rounded-md border border-[#2573e2]/30 px-3 py-2 text-sm font-normal text-[#0d2569] outline-none focus:border-[#2573e2]"
-                  placeholder="operator@rri.go.id"
+                  placeholder="alamat email Anda"
                 />
               </label>
               <label className="mt-4 block text-sm font-semibold text-[#0d2569]">

@@ -6,11 +6,13 @@
 // Bootstrap: bila `users/{uid}` belum ada, profil diambil dari dokumen
 // `userProfiles/{email}` (key = email huruf kecil) yang di-seed oleh
 // migrasi satu kali (src/lib/migrasi.ts), lalu disalin ke `users/{uid}`.
-// Jalur pertama kali (first-run): sebelum migrasi berjalan belum ada
-// `userProfiles` sama sekali — login pertama tidak boleh buntu. Akun
-// dengan email operator yang sudah disepakati (EMAIL_OPERATOR_USULAN)
-// boleh membuat profil `users/{uid}`-nya sendiri sebagai Operator,
-// supaya ia bisa masuk dan menjalankan migrasi. Email lain tetap ditolak.
+// Bila tidak ada profil untuk email itu, akun tersebut tetap dibuatkan
+// profil Operator langsung — karena akun Auth HANYA bisa dibuat di
+// Firebase console oleh admin (tidak ada pendaftaran di aplikasi), dan
+// aplikasi tahap ini hanya punya 1 role. Jadi akun console mana pun yang
+// login pertama kali menjadi Operator. Bila nanti dibutuhkan pembatasan
+// (mis. daftar email yang diizinkan atau peran kedua), bootstrap ini
+// yang harus diperketat — jangan mengandalkan aturan lain.
 
 import {
   signInWithEmailAndPassword,
@@ -19,7 +21,6 @@ import {
 } from 'firebase/auth';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { auth, db, isFirebaseConfigured } from './firebaseApp';
-import { EMAIL_OPERATOR_USULAN } from './migrasi';
 import { SATKER_PILOT } from './master';
 import type { SatkerRef } from './types';
 
@@ -55,10 +56,12 @@ function bacaAppUser(uid: string, data: Record<string, unknown>): AppUser {
 /**
  * Membuat dokumen `users/{uid}` dari profil yang sudah disiapkan di
  * `userProfiles/{email}` (di-seed oleh migrasi satu kali). Bila belum ada
- * profil untuk email tersebut, akun dengan email operator yang sudah
- * disepakati (EMAIL_OPERATOR_USULAN) boleh membuat profilnya sendiri —
- * jalur pertama kali sebelum migrasi berjalan. Mengembalikan true bila
- * profil dibuat, false bila tidak ada profil untuk email tersebut.
+ * profil untuk email tersebut — mis. sebelum migrasi berjalan, atau akun
+ * dibuat di console dengan email lain — akun tersebut dibuatkan profil
+ * Operator langsung. Alasannya: akun Auth hanya bisa dibuat di Firebase
+ * console oleh admin, dan tahap ini hanya punya 1 role, jadi akun
+ * console mana pun yang login pertama kali adalah Operator. Selalu
+ * mengembalikan true bila profil berhasil dibuat.
  */
 export async function bootstrapProfil(
   uid: string,
@@ -81,23 +84,18 @@ export async function bootstrapProfil(
     return true;
   }
 
-  // Jalur pertama kali: belum ada userProfiles (migrasi belum berjalan).
-  // Hanya email operator yang disepakati yang boleh membuat profil
-  // sendiri — supaya operator bisa masuk dan menjalankan migrasi.
-  // Rules mengizinkan pembuatan users/{uid} sendiri sebagai operator.
-  if (emailKecil === EMAIL_OPERATOR_USULAN) {
-    await setDoc(doc(db!, 'users', uid), {
-      email: emailKecil,
-      nama: 'Operator Layanan & Pengembangan Usaha',
-      jabatan: 'Staf Layanan & Pengembangan Usaha',
-      peran: 'operator',
-      satker: SATKER_PILOT,
-      dibuatPada: new Date().toISOString(),
-    });
-    return true;
-  }
-
-  return false;
+  // Tidak ada profil yang disiapkan untuk email ini. Buatkan profil
+  // Operator langsung (lihat komentar file ini). Rules mengizinkan
+  // pembuatan users/{uid} sendiri sebagai operator.
+  await setDoc(doc(db!, 'users', uid), {
+    email: emailKecil,
+    nama: 'Operator Layanan & Pengembangan Usaha',
+    jabatan: 'Staf Layanan & Pengembangan Usaha',
+    peran: 'operator',
+    satker: SATKER_PILOT,
+    dibuatPada: new Date().toISOString(),
+  });
+  return true;
 }
 
 /**
