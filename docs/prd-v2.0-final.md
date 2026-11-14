@@ -1,12 +1,12 @@
 # PRD — Partnership LPP RRI
 
-**Versi 2.0 — FINAL (nama aplikasi diperbarui 14 November 2026)**
+**Versi 2.1 — FINAL + Amandemen Scope Nasional (14 November 2026)**
 **Tanggal:** 14 November 2026
-**Pemilik produk:** Bidang Layanan & Pengembangan Usaha, LPP RRI Palembang
+**Pemilik produk:** Bidang Layanan & Pengembangan Usaha, LPP RRI Palembang (satker pilot; cakupan aplikasi nasional)
 **Disusun oleh:** Digi — AI Product Manager
-**Status:** Final — menggantikan PRD v1.0 (Draft), Amandemen v1.1, dan Amandemen v1.2
+**Status:** Final — v2.0 disetujui pengguna pada 14 November 2026; Amandemen v2.1 (scope nasional) ditambahkan pada hari yang sama dan menjadi bagian dari dokumen ini. Menggantikan PRD v1.0 (Draft), Amandemen v1.1, dan Amandemen v1.2 sebagai acuan mandiri.
 
-> Nama aplikasi ini adalah **Partnership LPP RRI** (sebelumnya disebut "CRM LPP RRI Palembang" / CRM "Kerja Sama RRI"). Satu sistem untuk kerja sama, piutang, sewa aset, dan laporan PNBP otomatis — dari kontrak sampai laporan kantor pusat, tanpa input ulang.
+> Nama aplikasi ini adalah **Partnership LPP RRI** (sebelumnya disebut "CRM LPP RRI Palembang" / CRM "Kerja Sama RRI"). Satu sistem untuk kerja sama, piutang, sewa aset, dan laporan PNBP otomatis — dari kontrak sampai laporan kantor pusat, tanpa input ulang. Sejak Amandemen v2.1 cakupannya **nasional**: aplikasi dipakai oleh LPP RRI dan 60+ satuan kerja di seluruh Indonesia, dengan LPP RRI Palembang sebagai satker pilot.
 
 ## Riwayat versi
 
@@ -16,8 +16,43 @@
 | 1.1 | 13 Nov 2026, 17:20 WIB | Amandemen: build Tahap 0–4 diterima apa adanya, PRD disesuaikan ke build. Label tahap diseragamkan "Tahap 0–4". Deploy pindah Cloudflare → Vercel (login Cloudflare gagal di verifikasi bot). |
 | 1.2 | 14 Nov 2026 | Amandemen: mind map "Kerja Sama RRI" digabung (8 modul), UI dirombak gaya HubSpot (pola layout saja), palet hanya 3 warna dari logo RRI. Fase A/B/C. Pertanyaan baru Q-08–Q-12. |
 | **2.0 Final** | **14 Nov 2026** | **Konsolidasi v1.0 + v1.1 + v1.2 menjadi satu dokumen final, ditambah pelajaran dari percobaan build pertama (13–14 Nov 2026) dan rencana build ulang dari nol. Build pertama (AI Studio + repo `lpprri/Partnership`) dihapus pengguna pada 14 Nov 2026, 10:35 WIB; dokumen ini adalah satu-satunya acuan build baru.** |
+| **2.1** | **14 Nov 2026** | Amandemen: scope berubah dari satu satker menjadi **nasional — LPP RRI dan 60+ satuan kerja di seluruh Indonesia**. Q-08 terjawab (nasional). Q-01 diisi nama & jabatan **dummy** untuk sementara. Lihat "Amandemen v2.1 — Scope Nasional" di bawah. |
 
 Dokumen-dokumen lama (PRD v1.0 PDF, amandemen v1.1, amandemen v1.2, dan semua prompt AI Studio) dinyatakan **tidak berlaku sebagai acuan mandiri** — seluruh isinya yang masih relevan sudah diserap ke dalam dokumen ini. Prompt AI Studio 15:36 WIB (penomoran tahap keliru) dan prompt koreksi 17:19 WIB (menyembunyikan Tahap 2–4) dinyatakan **batal dan tidak boleh dipakai**.
+
+## Amandemen v2.1 — Scope Nasional (14 November 2026)
+
+Keputusan pengguna, 14 Nov 2026, 11:29 WIB: aplikasi ini nantinya akan digunakan **secara nasional oleh LPP RRI dan lebih dari 60 satuan kerja di seluruh Indonesia**. Amandemen ini mengubah asumsi "Satu satker: LPP RRI Palembang" (Bab 4.4) dan menjawab pertanyaan terbuka **Q-08 (nasional, bukan Palembang saja)**.
+
+### Yang berubah
+
+1. **Cakupan pengguna: 1 satker → 60+ satker.** Setiap satker adalah unit kerja LPP RRI di daerahnya masing-masing, dengan bidang Layanan, Keuangan, dan Umum sendiri. Palembang menjadi salah satu satker — dan satker pertama tempat aplikasi diuji (pilot) — bukan lagi satu-satunya pengguna.
+2. **Model data: semua record terikat ke satker.** Setiap entitas (Klien, Kontrak, Tagihan, Pembayaran, Sewa/BMN, Pengajuan, Prospek, Task, Tiket, Laporan) wajib memiliki field `satker` (kode + nama satuan kerja). Tanpa field ini, data antar-satker tidak dapat dipisahkan dan laporan nasional tidak dapat disusun.
+3. **Hak akses dibatasi per satker.** Pengguna satu satker hanya melihat dan mengubah data satkernya sendiri. Pengecualian: peran tingkat nasional (kantor pusat) dapat melihat agregat seluruh satker — detail peran nasional menunggu jawaban Q-08 lanjutan (siapa di kantor pusat yang berhak melihat apa). Penegakan tetap di Firestore Security Rules, bukan hanya di tampilan.
+4. **Dashboard dan ranking nasional menjadi fitur inti, bukan Fase C tertunda.** Revenue Analytics Nasional (nilai & % capaian ke target), Revenue Satker (nilai capaian, % sumbangsi ke capaian nasional, % capaian ke target), Employee Rank, dan Satker Rank (Leaderboard of Year / of The Month) tetap direncanakan di Fase C — tetapi sumber datanya kini jelas: data satker-satker yang memakai aplikasi ini. Yang masih menunggu jawaban adalah **mekanisme pengumpulan data satker yang belum memakai aplikasi** (apakah mereka input langsung, atau datanya diimpor berkala dari kantor pusat).
+5. **Laporan kantor pusat berubah makna.** Laporan format kantor pusat (Bab 7.6) kini juga menjadi laporan konsolidasi nasional: kantor pusat menerima laporan per satker dan menyusun total nasional. Aturan pengisian (QTY = jumlah PKS, sel kosong "0", isi tgl 10 / kumpul tgl 11) tetap berlaku per satker.
+6. **Peran baru (akan dirinci): Admin Nasional.** Selain Admin Sistem per satker, diperlukan peran yang mengelola master data nasional (daftar satker, target nasional) dan akun pengguna lintas satker. Rincian haknya ditetapkan sebelum Fase C.
+
+### Yang TIDAK berubah
+
+- Prinsip data tetap: satu sumber sewa/BMN (per satker), data Keuangan referensi read-only, laporan diturunkan otomatis dari data utama.
+- Palet 3 warna, UI gaya HubSpot, 8 modul, dan Fase A/B/C tetap berlaku. Pilot tetap dimulai dari Palembang (data 6 workbook yang sudah dibaca).
+- Target PNBP tahunan (Q-02) kini dibaca sebagai target **nasional** dengan pembagian target per satker — angka pastinya tetap menunggu jawaban Q-02.
+
+### Q-01 — Diisi dummy untuk sementara (14 Nov 2026)
+
+Atas instruksi pengguna ("gunakan nama & jabatan dummy untuk saat ini"), pengguna awal diisi sebagai berikut — **semuanya contoh, wajib diganti nama dan jabatan asli sebelum setup Firebase Auth produksi**:
+
+| Peran | Nama (Contoh) | Jabatan (Contoh) |
+|---|---|---|
+| Operator Layanan | Andi Pratama | Staf Layanan & Pengembangan Usaha |
+| Verifikator Layanan | Siti Rahmawati | Kepala Bidang Layanan & Pengembangan Usaha |
+| Keuangan (referensi) | Budi Santoso | Staf Keuangan |
+| Umum (aset) | Dewi Lestari | Staf Umum |
+| Pimpinan (viewer) | Ahmad Fauzi | Kepala LPP RRI Palembang |
+| Admin Sistem | Rizky Ramadhan | Admin Sistem |
+
+Daftar yang sama tersimpan di repo sebagai `src/lib/dummyUsers.ts` dan bertanda "(Contoh)" di setiap nama.
 
 ## Daftar isi
 
@@ -42,13 +77,14 @@ Dokumen-dokumen lama (PRD v1.0 PDF, amandemen v1.1, amandemen v1.2, dan semua pr
 
 **Cara membaca:** **Harus (MVP)** berarti tanpa fitur ini sistem belum layak dipakai menggantikan spreadsheet. **Seharusnya (lanjutan)** berarti bernilai, tetapi tidak menghalangi pemakaian. Setiap keputusan penting disertai alasan dan alternatif yang ditolak, agar peninjau dapat menilai trade-off-nya.
 
-### Lima keputusan kunci produk ini
+### Keputusan kunci produk ini
 
 1. **Satu sumber sewa.** Sewa lahan/BMN hanya hidup di modul Sewa. Kontrak kerja sama yang memuat sewa menaut ke record sewa yang sama, tidak menyalinnya. Duplikasi adalah sumber selisih yang paling sering terjadi di file sumber.
 2. **Keuangan sebagai referensi, bukan salinan.** Data penyetor PNBP milik Keuangan ditampilkan read-only untuk rekonsiliasi. Menyalin data Keuangan ke Partnership LPP RRI ditolak karena menciptakan dua versi kebenaran pembayaran.
 3. **Laporan selalu diturunkan, tidak pernah diketik.** Tidak ada form input laporan bulanan, piutang, atau kantor pusat. Jika angka salah, yang diperbaiki adalah data sumbernya, lalu laporan dibuat ulang.
 4. **QTY kantor pusat = jumlah Perjanjian Kerja Sama (PKS) dalam 1 bulan**, bukan jumlah siaran. Aturan ini dikunci di logika laporan dan diuji pada kriteria penerimaan.
 5. **GitHub adalah satu-satunya sumber kebenaran kode.** Semua perubahan kode lewat pull request. Tidak ada lagi pengembangan yang hanya hidup di satu alat tanpa tersimpan di repo.
+6. **Nasional sejak fondasi (Amandemen v2.1).** Setiap record wajib terikat ke satker pemiliknya sejak Fase A. Field `satker` tidak boleh ditambahkan belakangan: memisahkan data 60+ satker dari data yang sudah tercampur jauh lebih mahal daripada mewajibkannya sejak record pertama.
 
 ---
 
@@ -56,7 +92,7 @@ Dokumen-dokumen lama (PRD v1.0 PDF, amandemen v1.1, amandemen v1.2, dan semua pr
 
 ### 1.1 Ringkasan produk
 
-Partnership LPP RRI adalah Web App internal LPP RRI Palembang untuk mengelola seluruh siklus Penerimaan Negara Bukan Pajak (PNBP): klien dan kerja sama, layanan dan tarif, piutang dan penyetoran, denda, kelengkapan dokumen, sewa lahan dan Barang Milik Negara (BMN), pengajuan baru, pemasaran dan penjualan, serta pelaporan. Sistem ini menggantikan enam workbook yang selama ini dikelola terpisah dan saling menyalin data. Pengguna utamanya adalah Bidang Layanan & Pengembangan Usaha sebagai pengelola data utama, Bidang Keuangan sebagai pemilik data acuan penerimaan, dan Bidang Umum sebagai pengelola pemanfaatan aset. Pimpinan dan kantor pusat adalah konsumen laporan, bukan penginput data.
+Partnership LPP RRI adalah Web App internal LPP RRI untuk mengelola seluruh siklus Penerimaan Negara Bukan Pajak (PNBP): klien dan kerja sama, layanan dan tarif, piutang dan penyetoran, denda, kelengkapan dokumen, sewa lahan dan Barang Milik Negara (BMN), pengajuan baru, pemasaran dan penjualan, serta pelaporan, untuk **LPP RRI dan 60+ satuan kerja di seluruh Indonesia** (Amandemen v2.1). Sistem ini menggantikan enam workbook yang selama ini dikelola terpisah dan saling menyalin data. Pengguna utamanya adalah Bidang Layanan & Pengembangan Usaha sebagai pengelola data utama, Bidang Keuangan sebagai pemilik data acuan penerimaan, dan Bidang Umum sebagai pengelola pemanfaatan aset. Pimpinan dan kantor pusat adalah konsumen laporan — kantor pusat juga konsumen agregat nasional — bukan penginput data. LPP RRI Palembang adalah satker pilot: enam workbook sumber berasal dari Palembang dan migrasi pertama dilakukan di sana, tetapi model data dan hak akses dirancang nasional sejak awal.
 
 ### 1.2 Masalah yang diselesaikan
 
@@ -80,6 +116,8 @@ Sistem ini bukan sistem akuntansi negara, bukan pengganti aplikasi keuangan resm
 
 Prinsipnya adalah kepemilikan data yang tunggal: setiap jenis data punya satu bidang pemilik yang boleh mengubahnya. Bidang lain melihat sesuai kebutuhan tugasnya.
 
+**Dimensi satker (Amandemen v2.1):** Setiap pengguna terikat pada satu satker asal, dan setiap record terikat pada satker pemiliknya. Pengguna satu satker hanya melihat dan mengubah data satkernya sendiri; pandangan lintas satker hanya untuk peran tingkat nasional. Daftar satker adalah master data nasional yang dikelola Admin Nasional.
+
 ### 2.1 Peran
 
 | Peran | Siapa | Tanggung jawab utama |
@@ -90,6 +128,7 @@ Prinsipnya adalah kepemilikan data yang tunggal: setiap jenis data punya satu bi
 | Umum (aset) | Bidang Umum | Data aset/BMN, proses sewa, temuan lapangan, dan kenaikan harga sewa |
 | Pimpinan (viewer) | Pimpinan satker | Melihat dashboard dan laporan final; tidak menginput data operasional |
 | Admin sistem | Pengelola yang ditunjuk | Akun pengguna, master data/dropdown, dan konfigurasi; tanpa hak mengubah isi transaksi tanpa jejak audit |
+| Admin Nasional (Amandemen v2.1) | Pengelola tingkat kantor pusat yang ditunjuk | Master data nasional (daftar satker, target nasional), akun pengguna lintas satker, dan pandangan agregat nasional; rincian hak ditetapkan sebelum Fase C (Q-08 lanjutan) |
 | Klien eksternal (Fase C, bila disetujui) | Klien yang diberi akun portal | Melihat status order miliknya sendiri; mengajukan order — detail akses menunggu jawaban Q-10 |
 
 ### 2.2 Matriks hak akses ringkas
@@ -107,7 +146,7 @@ Prinsipnya adalah kepemilikan data yang tunggal: setiap jenis data punya satu bi
 | Master & pengguna | Lihat master | — | — | — (Admin saja) |
 | Audit trail | — | — | — | — (Admin saja) |
 
-\* Umum melihat kontrak hanya sejauh yang terkait dengan aset/sewa yang dikelolanya. Penegakan hak akses dilakukan di aturan keamanan Firebase (server-side), bukan hanya menyembunyikan menu di antarmuka. **Keputusan:** Tidak ada peran "super editor" untuk data transaksi. Bahkan Admin mengubah master dan akun, bukan angka kontrak atau pembayaran.
+\* Umum melihat kontrak hanya sejauh yang terkait dengan aset/sewa yang dikelolanya. **Catatan nasional (v2.1):** matriks di atas berlaku di dalam satu satker. Peran tingkat nasional (kantor pusat / Admin Nasional) melihat agregat seluruh satker dalam mode baca dan tidak menginput data operasional satker. Penegakan hak akses dilakukan di aturan keamanan Firebase (server-side), bukan hanya menyembunyikan menu di antarmuka. **Keputusan:** Tidak ada peran "super editor" untuk data transaksi. Bahkan Admin mengubah master dan akun, bukan angka kontrak atau pembayaran.
 
 ---
 
@@ -121,6 +160,7 @@ Prinsipnya adalah kepemilikan data yang tunggal: setiap jenis data punya satu bi
 4. Mempercepat rekonsiliasi dengan data acuan Keuangan per kode akun.
 5. Menjaga tenggat kantor pusat: pengisian maksimal tanggal 10 dan pengumpulan file tanggal 11 bulan berikutnya.
 6. Memberi Layanan alat kerja penjualan yang tertelusur: dari prospek sampai PKS (Fase B), dan memberi pimpinan gambaran capaian terhadap target (Fase C).
+7. Memberi kantor pusat pandangan nasional — capaian per satker dan total nasional — dari data yang sama, tanpa rekap manual per satker (Amandemen v2.1).
 
 ### 3.2 Kriteria sukses terukur
 
@@ -134,6 +174,8 @@ Prinsipnya adalah kepemilikan data yang tunggal: setiap jenis data punya satu bi
 | Selisih rekonsiliasi yang belum dijelaskan | Terdaftar 100% | Daftar selisih dengan status tindak lanjut |
 | Waktu menyusun laporan bulanan | Jauh lebih singkat dari cara manual | Dibandingkan saat uji pakai dengan pengguna Layanan |
 | Prospek sampai PKS tertelusur (Fase B) | 100% prospek punya tahap pipeline | Audit trail konversi prospek → quotation → order → kontrak |
+| Cakupan satker tercatat (v2.1) | 100% record memiliki field `satker` | Uji penerimaan: pencarian record tanpa satker menghasilkan 0 |
+| Isolasi data antar-satker (v2.1) | 0 kebocoran lintas satker | Uji akun satker A terhadap data satker B ditolak aturan keamanan |
 
 Catatan: Baseline waktu manual dan target PNBP tahunan belum tersedia pada saat PRD ini ditulis, sehingga tidak diisi dengan angka tebakan. Keduanya dicatat sebagai pertanyaan terbuka (Q-02) dan wajib dilengkapi sebelum target dinyatakan final.
 
@@ -181,17 +223,17 @@ Seluruh fungsi build pertama (Tahap 0–4) dipertahankan dan dipindahkan ke modu
 |---|---|---|
 | **Fase A — Fondasi + restruktur UI** | Repo baru, proyek Firebase dev/prod, Auth + peran, master data, navigasi 8 modul, shell UI gaya HubSpot (Bab 8), pemindahan fungsi lama ke modul baru, perbaikan bug P0/P1 (Bab 13). Modul baru yang belum ada datanya tampil sebagai "segera hadir" + tombol kembali — bukan halaman kosong dan bukan fitur palsu. | Login per peran berfungsi; seluruh fungsi lama dapat dipakai dari modul barunya; total kontrol laporan cocok dengan data uji. |
 | **Fase B — Sales + Marketing + To-Do** | Prospect List, Quotation, Pipeline, Order Form, Meeting Schedule, Sales Analytics, Events, Advertisement, Individual Task, Disposisi. | Prospek dapat dilacak dari tahap awal sampai menjadi kontrak; disposisi tercatat end-to-end. |
-| **Fase C — Ranking + Service** | Revenue Nasional & Satker Rank, Employee Rank, Client Order Portal, Feedback Survey, Help-Desk ke PIC kantor pusat, Knowledge Base. **Fase ini tergantung jawaban Q-08–Q-12 — jangan dibangun sebelum datanya jelas.** | Ranking memakai sumber data yang disepakati; portal klien memakai aturan akses yang disetujui. |
+| **Fase C — Ranking + Service** | Revenue Nasional & Satker Rank, Employee Rank, Client Order Portal, Feedback Survey, Help-Desk ke PIC kantor pusat, Knowledge Base. **Cakupan nasional sudah terjawab oleh Amandemen v2.1 (Q-08); fase ini tetap tergantung jawaban Q-09–Q-12 dan Q-08 lanjutan (mekanisme data satker yang belum memakai aplikasi, hak lihat kantor pusat) — jangan dibangun sebelum itu jelas.** | Ranking memakai sumber data yang disepakati; portal klien memakai aturan akses yang disetujui. |
 
 ### 4.4 MVP vs fitur lanjutan
 
-**MVP (Fase A):** Login dan hak akses per peran; master data & dropdown terpusat; Klien, kontrak/PKS, layanan & tarif; Tagihan, piutang, penyetoran, dan denda; Checklist dokumen per kontrak; Sewa/BMN satu sumber + pengajuan baru; Data acuan Keuangan read-only + layar rekonsiliasi dasar; Dashboard operasional dan deadline; Laporan otomatis: bulanan, piutang, kantor pusat + ekspor; Audit trail dan migrasi data awal dari 6 workbook.
+**MVP (Fase A):** Login dan hak akses per peran, termasuk pembatasan data per satker dan field `satker` wajib pada seluruh record (Amandemen v2.1); master data & dropdown terpusat; Klien, kontrak/PKS, layanan & tarif; Tagihan, piutang, penyetoran, dan denda; Checklist dokumen per kontrak; Sewa/BMN satu sumber + pengajuan baru; Data acuan Keuangan read-only + layar rekonsiliasi dasar; Dashboard operasional dan deadline; Laporan otomatis: bulanan, piutang, kantor pusat + ekspor; Audit trail dan migrasi data awal dari 6 workbook.
 
 **Fitur lanjutan (Fase B/C):** Modul Sales, Marketing, To-Do List, Service, dan ranking sesuai §4.3. Notifikasi otomatis (email/WhatsApp) untuk jatuh tempo; tanda tangan/persetujuan elektronik berjenjang; impor otomatis berkala dari file Keuangan; analitik tren PNBP, peramalan, dan target vs realisasi lanjutan; peta/lokasi aset dan galeri foto temuan lapangan.
 
 **Di luar ruang lingkup:** Pembukuan akuntansi dan pelaporan keuangan negara di luar format yang diminta pada data sumber. Pembayaran online / payment gateway untuk klien pada MVP. Penggantian aplikasi resmi pemerintah yang sudah diwajibkan; Partnership LPP RRI menautkan dan merekonsiliasi, bukan menggantikannya. Aplikasi mobile native (MVP cukup responsif di browser).
 
-**Asumsi ruang lingkup:** Pengguna bekerja dari browser desktop/laptop sebagai perangkat utama; tampilan tetap dapat dipakai di layar kecil. Satu satker: LPP RRI Palembang, termasuk daftar sewa Indralaya sebagai bagian dari data yang sama. Periode data awal mencakup kerja sama 2026 dan sewa 2022–2026 sesuai data sumber.
+**Asumsi ruang lingkup (diperbarui Amandemen v2.1):** Pengguna bekerja dari browser desktop/laptop sebagai perangkat utama; tampilan tetap dapat dipakai di layar kecil. Cakupan **nasional: LPP RRI dan 60+ satuan kerja di seluruh Indonesia** — Palembang adalah satker pilot, termasuk daftar sewa Indralaya sebagai bagian dari data yang sama. Periode data awal mencakup kerja sama 2026 dan sewa 2022–2026 sesuai data sumber.
 
 ---
 
@@ -249,16 +291,25 @@ Format: Sebagai [peran], saya ingin [kemampuan], agar [hasil]. ID story dipakai 
 | US-V2 | Sebagai Operator Layanan, saya ingin mencatat konsultasi ke PIC kantor pusat sebagai tiket agar jawaban dan tindak lanjutnya tersimpan. | Tergantung Q-12 |
 | US-V3 | Sebagai staf, saya ingin mencari regulasi dan SOP di Knowledge Base agar acuan kerja selalu merujuk dokumen terbaru. | Seharusnya (Fase C) |
 
+### 5.6 Nasional (Amandemen v2.1)
+
+| ID | User story | Prioritas |
+|---|---|---|
+| US-N1 | Sebagai staf satker, saya ingin hanya melihat data satker saya sendiri agar data antar-satker tidak tercampur. | Harus |
+| US-N2 | Sebagai pengelola kantor pusat, saya ingin melihat capaian seluruh satker dan total nasional agar rekap nasional tidak disusun manual. | Harus (Fase C) |
+| US-N3 | Sebagai Admin Nasional, saya ingin mengelola daftar satker dan target per satker agar ranking dan persen capaian memakai master yang sama. | Harus (Fase C) |
+
 ---
 
 ## 6. Model data
 
-Model data mengikuti prinsip satu entitas, satu tempat. Field di bawah adalah kebutuhan produk (nama logis), bukan skema fisik final; penamaan koleksi Firestore diselaraskan pada tahap desain teknis tanpa mengubah makna dan relasinya.
+Model data mengikuti prinsip satu entitas, satu tempat. Field di bawah adalah kebutuhan produk (nama logis), bukan skema fisik final; penamaan koleksi Firestore diselaraskan pada tahap desain teknis tanpa mengubah makna dan relasinya. **Sejak Amandemen v2.1, setiap entitas wajib memiliki field `satker` (kode + nama satuan kerja)** — lihat Amandemen v2.1 butir 2.
 
 ### 6.1 Peta relasi inti
 
 | Dari | Relasi | Ke | Aturan |
 |---|---|---|---|
+| Satker | 1 — banyak | Seluruh entitas (Klien, Kontrak, Tagihan, Pembayaran, Sewa, Prospek, Task, Tiket, Laporan) | Setiap record wajib memiliki field `satker` (kode + nama); record tanpa satker tidak valid (Amandemen v2.1) |
 | Klien | 1 — banyak | Kontrak / PKS | Klien yang punya kontrak tidak dapat dihapus, hanya dinonaktifkan |
 | Kontrak | 1 — banyak | Layanan kontrak, Tagihan, Dokumen | Nilai kontrak = jumlah layanan kontrak |
 | Tagihan | 1 — banyak | Pembayaran / Penyetoran | Status tagihan diturunkan dari pembayaran, tidak diinput bebas |
@@ -323,14 +374,14 @@ Model data mengikuti prinsip satu entitas, satu tempat. Field di bawah adalah ke
 
 ### 6.13 Master data
 
-Jenis PNBP, kategori layanan, programa, jenis klien, jenis dokumen, status, kode akun, satuan, tahap pipeline, dan daftar dropdown lain dari sheet Master pada file sumber. Master hanya diubah Admin; nilai master yang sudah dipakai transaksi tidak dapat dihapus, hanya dinonaktifkan.
+Jenis PNBP, kategori layanan, programa, jenis klien, jenis dokumen, status, kode akun, satuan, tahap pipeline, dan daftar dropdown lain dari sheet Master pada file sumber. Master hanya diubah Admin; nilai master yang sudah dipakai transaksi tidak dapat dihapus, hanya dinonaktifkan. **Daftar satker** (kode + nama satuan kerja, 60+ satker) adalah master data nasional sejak Amandemen v2.1 dan dikelola Admin Nasional; satker yang sudah memiliki data tidak dapat dihapus, hanya dinonaktifkan.
 
 ---
 ## 7. Fitur utama per modul
 
 ### 7.1 Dashboard
 
-**Ringkasan periode:** jumlah PKS aktif, nilai kontrak, realisasi penerimaan, total dan umur piutang, denda tercatat — difilter per bulan/triwulan/tahun dan jenis PNBP. **Revenue Analytics:** nilai & % capaian ke target (nasional dan satker), % sumbangsi satker ke capaian nasional (Fase C, tergantung Q-08). **Ranking:** Employee Rank dan Satker Rank, Leaderboard of Year dan of The Month (Fase C, tergantung Q-09). **Perlu perhatian:** tagihan lewat jatuh tempo, dokumen belum lengkap, pengajuan menunggu tindak lanjut, sewa akan berakhir, dan selisih rekonsiliasi terbuka. Setiap item menaut langsung ke record-nya. **Kalender deadline laporan:** hitung mundur ke tanggal 10 (batas pengisian) dan tanggal 11 (pengumpulan file) bulan berikutnya, dengan status kesiapan laporan periode berjalan. Dashboard Pimpinan adalah tampilan yang sama dalam mode ringkas/read-only, bukan dashboard terpisah yang angkanya dapat berbeda.
+**Ringkasan periode:** jumlah PKS aktif, nilai kontrak, realisasi penerimaan, total dan umur piutang, denda tercatat — difilter per bulan/triwulan/tahun dan jenis PNBP. **Revenue Analytics:** nilai & % capaian ke target (nasional dan satker), % sumbangsi satker ke capaian nasional (Fase C; cakupan nasional dan sumber datanya terjawab oleh Amandemen v2.1 — data satker yang memakai aplikasi ini). **Ranking:** Employee Rank dan Satker Rank, Leaderboard of Year dan of The Month (Fase C, tergantung Q-09). **Perlu perhatian:** tagihan lewat jatuh tempo, dokumen belum lengkap, pengajuan menunggu tindak lanjut, sewa akan berakhir, dan selisih rekonsiliasi terbuka. Setiap item menaut langsung ke record-nya. **Kalender deadline laporan:** hitung mundur ke tanggal 10 (batas pengisian) dan tanggal 11 (pengumpulan file) bulan berikutnya, dengan status kesiapan laporan periode berjalan. Dashboard Pimpinan adalah tampilan yang sama dalam mode ringkas/read-only, bukan dashboard terpisah yang angkanya dapat berbeda.
 
 ### 7.2 Marketing (Fase B)
 
@@ -463,7 +514,7 @@ Koreksi tidak membuka kunci secara diam-diam. Pengguna mengajukan koreksi dengan
 
 | Aspek | Kebutuhan |
 |---|---|
-| Keamanan | Login wajib (Firebase Authentication); kata sandi tidak disimpan di aplikasi. Otorisasi ditegakkan di Firestore Security Rules dan Storage Rules per peran — bukan hanya di tampilan. Sesi berakhir otomatis setelah tidak aktif (durasi dikonfirmasi Admin). Tidak ada data yang dapat diakses tanpa login. Halaman Audit hanya untuk Admin Sistem: email admin dan konfigurasi Firebase **tidak boleh** tampil ke peran lain. |
+| Keamanan | Login wajib (Firebase Authentication); kata sandi tidak disimpan di aplikasi. Otorisasi ditegakkan di Firestore Security Rules dan Storage Rules per peran — bukan hanya di tampilan. Sesi berakhir otomatis setelah tidak aktif (durasi dikonfirmasi Admin). Tidak ada data yang dapat diakses tanpa login. Akses dibatasi per satker (Amandemen v2.1): pengguna hanya dapat membaca dan menulis dokumen yang field `satker`-nya sama dengan satker asalnya, ditegakkan di Firestore Rules; akses lintas satker hanya untuk peran nasional dalam mode baca agregat. Halaman Audit hanya untuk Admin Sistem: email admin dan konfigurasi Firebase **tidak boleh** tampil ke peran lain. |
 | Hak akses | Sesuai matriks Bab 2, termasuk prinsip read-only data acuan Keuangan bagi bidang lain. Perubahan peran hanya oleh Admin dan tercatat. |
 | Audit trail | Setiap buat/ubah/status/nilai pada klien, kontrak, tagihan, pembayaran, denda, sewa, master, peran, dan laporan mencatat pengguna, waktu, nilai sebelum dan sesudah. Audit trail bersifat tambah-saja (append-only) dan tidak dapat diedit dari antarmuka. |
 | Integritas data | Validasi field wajib, keunikan nomor PKS, konsistensi tanggal (selesai tidak sebelum mulai), dan larangan nilai negatif pada tagihan/pembayaran kecuali record koreksi yang beralasan. Satu kode akun = satu klasifikasi (Bab 6.7). Total kontrol laporan harus rekonsiliasi sebelum ekspor (Bab 7.6). |
@@ -482,7 +533,7 @@ Koreksi tidak membuka kunci secara diam-diam. Pengguna mengajukan koreksi dengan
 | Antigravity (Google) | Lingkungan pengembangan utama (agentic IDE) | Menulis, menguji, dan memperbaiki kode langsung di repo lokal; bukan tempat hosting |
 | React + Vite + Tailwind CSS | Framework aplikasi | UI, routing, dan styling; build `vite build` |
 | Firebase Auth | Login dan identitas pengguna | Akun, peran (custom claims / dokumen peran) |
-| Cloud Firestore | Database utama | Klien, kontrak, layanan, tagihan, pembayaran, denda, sewa, pengajuan, prospek, quotation, order, task, tiket, master, laporan snapshot, audit trail |
+| Cloud Firestore | Database utama | Field `satker` pada setiap dokumen, klien, kontrak, layanan, tagihan, pembayaran, denda, sewa, pengajuan, prospek, quotation, order, task, tiket, master, laporan snapshot, audit trail |
 | Firebase Storage | File dokumen | PKS, bukti setor, dokumen sewa dan pengajuan; akses mengikuti peran |
 | Firebase Hosting / Cloud Functions | Hosting alternatif dan logika server tepercaya | Perhitungan status turunan, total kontrol, pembuatan snapshot laporan, dan tugas terjadwal deadline |
 | GitHub | Kendali versi dan kolaborasi — **satu-satunya sumber kebenaran kode** | Seluruh kode, aturan keamanan, migrasi, dan riwayat rilis; perubahan lewat branch + pull request; tidak ada perubahan langsung ke `main` |
@@ -496,7 +547,7 @@ Pengguna bekerja di Web App → Auth memverifikasi identitas dan peran → Fires
 
 ### 11.2 Lingkungan dan rilis
 
-Lingkungan terpisah untuk pengembangan/uji dan produksi, dengan proyek Firebase terpisah, agar data uji tidak bercampur dengan data asli. Aturan keamanan (Firestore/Storage Rules) disimpan di GitHub dan diuji bersama kode, bukan diubah manual di konsol produksi. Skrip migrasi data dari enam workbook bersifat dapat diulang (idempotent) dan menghasilkan laporan hasil migrasi untuk diverifikasi sebelum go-live. **Alternatif yang ditolak:** menyimpan data di spreadsheet yang disinkronkan dua arah — ditolak karena konflik edit dan tidak adanya penegakan hak akses per field, justru masalah yang ingin dihilangkan oleh produk ini.
+Lingkungan terpisah untuk pengembangan/uji dan produksi, dengan proyek Firebase terpisah, agar data uji tidak bercampur dengan data asli. Satu proyek Firebase produksi melayani seluruh satker: pemisahan antar-satker dilakukan lewat field `satker` dan Security Rules, bukan proyek terpisah per satker — proyek per satker ditolak karena konsolidasi nasional dan pemeliharaan 60+ proyek menjadi tidak realistis. Aturan keamanan (Firestore/Storage Rules) disimpan di GitHub dan diuji bersama kode, bukan diubah manual di konsol produksi. Skrip migrasi data dari enam workbook bersifat dapat diulang (idempotent) dan menghasilkan laporan hasil migrasi untuk diverifikasi sebelum go-live. **Alternatif yang ditolak:** menyimpan data di spreadsheet yang disinkronkan dua arah — ditolak karena konflik edit dan tidak adanya penegakan hak akses per field, justru masalah yang ingin dihilangkan oleh produk ini.
 
 ### 11.3 Aturan kerja kolaborasi (mengikat)
 
@@ -514,15 +565,15 @@ Build pertama dihapus pada 14 Nov 2026; rencana di bawah ini adalah satu-satunya
 
 ### 12.1 Langkah 0 — Persiapan (sebelum menulis kode)
 
-1. Persetujuan PRD v2.0 Final ini (Lampiran D).
-2. Jawaban Q-01 (nama + jabatan per peran) — paling mendesak, dibutuhkan sebelum setup Firebase Auth dengan akun asli.
-3. Buat repo GitHub baru (nama disarankan: `partnership-lpp-rri`, selaras dengan nama aplikasi Partnership LPP RRI).
-4. Buat proyek Vercel baru dari repo tersebut (framework Vite; hapus atau putuskan tautan project Vercel lama "partnership" yang menunjuk ke repo yang sudah dihapus).
+1. Persetujuan PRD v2.0 Final ini (Lampiran D) — **selesai: disetujui pengguna pada 14 Nov 2026.**
+2. Jawaban Q-01 (nama + jabatan per peran) — **selesai sementara: diisi nama & jabatan dummy (Amandemen v2.1)**; wajib diganti nama dan jabatan asli sebelum setup Firebase Auth produksi.
+3. Repo GitHub — **selesai: repo `lpprri/partnership` dibuat pengguna pada 14 Nov 2026** dan scaffolding Fase A sudah ter-push (commit `d763bc7`, 15 file) dengan verifikasi lokal `npm install`, `npm run lint`, dan `npm run build` lolos.
+4. Proyek Vercel dari repo tersebut (framework Vite) — auto-deploy dari repo yang dibuat ulang **belum terverifikasi** karena Vercel belum terhubung ke Digi; pengguna memeriksa dashboard Vercel. Project lama "partnership" yang menunjuk repo terhapus perlu dibersihkan atau dihubungkan ulang bila masih ada.
 5. Sambungkan Vercel ke Digi agar Digi dapat memverifikasi deployment.
 
 ### 12.2 Langkah 1 — Scaffolding (Fase A, fondasi)
 
-Scaffold React + Vite + Tailwind CSS langsung di repo dengan dependensi yang sudah benar sejak awal: Vite `^8.3.0` dengan esbuild `^0.28.0` (bukan `^0.25.0`), `package-lock.json` di-commit, `.env.example` berisi daftar `VITE_FIREBASE_*` tanpa nilai rahasia, `vite.config.ts`, dan struktur `src/` sesuai 8 modul Bab 4. Verifikasi: `npm install` dan `npm run build` lolos, deploy Vercel pertama (scaffolding) berhasil.
+Scaffold React + Vite + Tailwind CSS langsung di repo dengan dependensi yang sudah benar sejak awal: Vite `^8.3.0` dengan esbuild `^0.28.0` (bukan `^0.25.0`), `package-lock.json` di-commit, `.env.example` berisi daftar `VITE_FIREBASE_*` tanpa nilai rahasia, `vite.config.ts`, dan struktur `src/` sesuai 8 modul Bab 4. Skema setiap entitas wajib menyisihkan field `satker` sejak scaffolding (Amandemen v2.1), walaupun pilot hanya memakai satu satker (Palembang). Status: **scaffolding selesai dan ter-push ke `lpprri/partnership` (commit `d763bc7`)**. Verifikasi: `npm install` dan `npm run build` lolos di lokal; keberhasilan deploy Vercel pertama mengikuti status §12.1 butir 4 (belum terverifikasi).
 
 ### 12.3 Langkah 2 — Fase A (fungsi inti + UI)
 
@@ -530,7 +581,7 @@ Auth + peran, master data, 8 modul navigasi + shell UI Bab 8, pemindahan fungsi 
 
 ### 12.4 Langkah 3 — Fase B, lalu Fase C
 
-Sesuai §4.3. Fase C hanya dimulai setelah Q-08–Q-12 dijawab. Setiap fase diakhiri dengan verifikasi bersama Layanan, Keuangan, dan Umum sebelum lanjut.
+Sesuai §4.3. Fase C hanya dimulai setelah Q-09–Q-12 dan Q-08 lanjutan dijawab (cakupan nasionalnya sendiri sudah terjawab oleh Amandemen v2.1). Setiap fase diakhiri dengan verifikasi bersama Layanan, Keuangan, dan Umum sebelum lanjut.
 
 ### 12.5 Kriteria penerimaan umum (berlaku semua modul)
 
@@ -572,7 +623,7 @@ Bagian ini dicatat agar kesalahan yang sama tidak terulang pada build ulang. Fak
 2. **Limit harian AI Studio menghentikan pekerjaan di tengah jalan.** AI Studio bukan lagi alat build utama; Antigravity + GitHub adalah jalur kerja.
 3. **Jangan bergantung pada file yang hanya disediakan satu platform.** `firebase-applet-config.json` disediakan AI Studio dan tidak ada di GitHub/Vercel — preview crash karenanya. Konfigurasi wajib lewat environment variable (Bab 10).
 4. **Periksa kompatibilitas dependensi sebelum push.** ERESOLVE Vite 8.3 vs esbuild 0.25 adalah kesalahan yang bisa dicegah dengan satu pemeriksaan peer dependency. `package-lock.json` wajib di repo.
-5. **Satu nama repo, konsisten.** Repo sempat bernama `Kerja-Sama` lalu `Partnership`, sementara project Vercel bernama "partnership" — kebingungan nama memperlambat audit. Nama repo baru ditetapkan di §12.1 dan tidak diubah lagi tanpa keputusan tercatat.
+5. **Satu nama repo, konsisten.** Repo sempat bernama `Kerja-Sama` lalu `Partnership`, sementara project Vercel bernama "partnership" — kebingungan nama memperlambat audit. Nama repo yang berlaku dicatat di §12.1 dan tidak diubah lagi tanpa keputusan tercatat.
 6. **Verifikasi sebelum mengklaim selesai.** Status "Selesai" pada halaman Audit build pertama tidak didukung bukti (Firebase belum terhubung, data masih contoh). Klaim selesai wajib didukung hasil uji pada Bab 12.5.
 7. **Keputusan yang berubah dicatat, bukan ditimpa diam-diam.** Riwayat versi di awal dokumen ini adalah catatan resmi perubahan keputusan.
 
@@ -592,6 +643,7 @@ Bagian ini dicatat agar kesalahan yang sama tidak terulang pada build ulang. Fak
 | UI & palet | Seluruh tampilan hanya memakai Biru `#2573E2`, Navy `#0D2569`, dan Putih `#FFFFFF`; tidak ada warna keempat di mana pun. |
 | Sales (Fase B) | Prospek dapat dilacak dari tahap awal sampai kontrak; tidak ada prospek yang hilang dari pipeline. |
 | Deploy | `npm install` dan `npm run build` lolos dari clone baru; deploy Vercel dari `main` berhasil tanpa intervensi manual. |
+| Nasional (v2.1) | Record tanpa field `satker` tidak dapat disimpan; akun uji satker A tidak dapat membaca data satker B — termasuk lewat akses langsung, yang ditolak aturan keamanan. |
 
 ## Lampiran B — Risiko utama dan mitigasi
 
@@ -602,7 +654,9 @@ Bagian ini dicatat agar kesalahan yang sama tidak terulang pada build ulang. Fak
 | Perubahan format kantor pusat | Template laporan dipisahkan dari logika data, sehingga perubahan format tidak mengubah data utama. |
 | Adopsi pengguna | Istilah dipertahankan dari file sumber dan MVP dibatasi pada pekerjaan yang benar-benar menghilangkan input ulang. |
 | Ketergantungan pada satu alat/AI | GitHub sebagai sumber kebenaran tunggal; seluruh pekerjaan lewat branch + PR; tidak ada kode yang hanya hidup di satu alat. |
-| Data nasional/satker belum jelas (Fase C) | Ranking dan portal klien ditunda ke Fase C sampai Q-08–Q-12 dijawab; modul tampil "segera hadir", bukan ditebak. |
+| Data satker non-pengguna & hak lihat kantor pusat belum jelas (Q-08 lanjutan) | Cakupan nasional sudah diputuskan (Amandemen v2.1); mekanisme pengumpulan data satker yang belum memakai aplikasi dan rincian hak agregat kantor pusat ditetapkan sebelum Fase C. Ranking dan portal klien tetap Fase C. |
+| Kebocoran data antar-satker | Field `satker` wajib pada semua record + Security Rules per satker, diuji dengan akun uji lintas satker pada setiap fase (Lampiran A). |
+| Adopsi 60+ satker sekaligus tersendat | Rollout bertahap mulai satker pilot Palembang; satker lain bergabung setelah Fase A terverifikasi di pilot. |
 
 ## Lampiran C — Pertanyaan terbuka Q-01–Q-12
 
@@ -610,14 +664,14 @@ Bagian ini dicatat agar kesalahan yang sama tidak terulang pada build ulang. Fak
 
 | ID | Pertanyaan | Dibutuhkan sebelum |
 |---|---|---|
-| Q-01 | Siapa pengguna awal per peran dan siapa Verifikator serta Admin yang ditunjuk? (nama + jabatan) | Tahap 0 / Langkah 0 |
+| Q-01 | **Diisi dummy untuk sementara (Amandemen v2.1, 14 Nov 2026)** — lihat tabel dummy di Amandemen v2.1. Wajib diganti nama dan jabatan asli sebelum setup Firebase Auth produksi. | Tahap 0 / Langkah 0 |
 | Q-02 | Berapa baseline waktu penyusunan laporan manual dan target PNBP tahunan untuk kriteria sukses final? | Fase A (laporan) |
 | Q-03 | Apa rumus, tarif, dan dasar resmi denda keterlambatan per jenis layanan? | Fitur denda |
 | Q-04 | Format file final dan kanal pengiriman laporan kantor pusat yang berlaku saat ini? | Laporan kantor pusat |
 | Q-05 | Bagaimana data acuan Keuangan diperbarui berkala: input di Partnership oleh Keuangan atau impor file berkala? | Rekonsiliasi |
 | Q-06 | Daftar dokumen wajib per jenis kerja sama dan per sewa untuk template checklist? | Data utama |
 | Q-07 | Ambang umur piutang dan daftar sewa akan berakhir (jumlah hari) yang dipakai untuk penanda dashboard? | Piutang & dashboard |
-| Q-08 | Data Revenue Nasional & Satker Rank dari mana? Aplikasi ini untuk Palembang saja atau nasional? | Fase C |
+| Q-08 | **TERJAWAB (Amandemen v2.1, 14 Nov 2026): aplikasi dipakai nasional — LPP RRI dan 60+ satker.** Sisa pertanyaan lanjutan: mekanisme pengumpulan data satker yang belum memakai aplikasi, dan siapa di kantor pusat yang berhak melihat agregat nasional. | Fase C |
 | Q-09 | Aturan Employee Rank? Siapa yang dihitung, metriknya apa, dan periode Year/Month dihitung dari tanggal apa? | Fase C |
 | Q-10 | Client Order Portal: siapa yang boleh login? Data apa saja yang boleh mereka lihat dan siapa yang menyetujui akunnya? | Fase C |
 | Q-11 | Sales Pipeline: tahapannya apa, dan kapan prospek berubah menjadi klien/kontrak? | Fase B |
@@ -627,9 +681,10 @@ Bagian ini dicatat agar kesalahan yang sama tidak terulang pada build ulang. Fak
 
 ## Lampiran D — Lembar persetujuan Final
 
-Dengan menyetujui PRD v2.0 Final ini, pemilik produk menyetujui: ruang lingkup 8 modul dan Fase A/B/C (Bab 4), model data (Bab 6), rencana build ulang dari nol (Bab 12), dan bahwa PRD v1.0, Amandemen v1.1, dan Amandemen v1.2 tidak lagi berlaku sebagai acuan mandiri.
+Dengan menyetujui PRD v2.0 Final ini, pemilik produk menyetujui: ruang lingkup 8 modul dan Fase A/B/C (Bab 4), model data (Bab 6), rencana build ulang dari nol (Bab 12), dan bahwa PRD v1.0, Amandemen v1.1, dan Amandemen v1.2 tidak lagi berlaku sebagai acuan mandiri. **Amandemen v2.1** (scope nasional 60+ satker, Q-08 terjawab, Q-01 diisi dummy) adalah bagian dari dokumen ini dan berlaku sejak ditambahkan pada 14 November 2026 atas keputusan pengguna.
 
 - [ ] Saya setuju dengan PRD v2.0 Final ini sebagai satu-satunya acuan build Partnership LPP RRI.
+- [ ] Saya setuju dengan Amandemen v2.1 (cakupan nasional: LPP RRI dan 60+ satuan kerja) sebagai bagian dari PRD ini.
 - [ ] Ada perubahan: …
 
 | Peran | Nama | Tanda tangan / persetujuan | Tanggal |
@@ -637,6 +692,7 @@ Dengan menyetujui PRD v2.0 Final ini, pemilik produk menyetujui: ruang lingkup 8
 | Pemilik Produk — Layanan & Pengembangan Usaha | | | |
 | Bidang Keuangan | | | |
 | Bidang Umum | | | |
+| Penyetuju Amandemen v2.1 — Pemilik Produk | Keputusan pengguna tercatat di percakapan (14 Nov 2026, 11:29 WIB; penyusunan dilanjutkan atas instruksi pengguna) | Tercatat | 14 Nov 2026 |
 
 Perubahan setelah persetujuan dicatat sebagai versi PRD baru dengan daftar perubahan.
 
@@ -653,4 +709,4 @@ Enam workbook sumber (dibaca 13 Nov 2026, tetap menjadi acuan migrasi):
 
 ---
 
-*Dokumen ini disusun dari PRD v1.0 (13 Nov 2026), Amandemen v1.1 (13 Nov 2026), Amandemen v1.2 (14 Nov 2026), lembar jawaban Q-01–Q-07, hasil analisa build AI Studio 13 Nov 2026, log deploy Vercel 14 Nov 2026, dan hasil audit repo GitHub 14 Nov 2026. Seluruh keputusan, tanggal, dan angka di atas merujuk pada sumber-sumber tersebut.*
+*Dokumen ini disusun dari PRD v1.0 (13 Nov 2026), Amandemen v1.1 (13 Nov 2026), Amandemen v1.2 (14 Nov 2026), lembar jawaban Q-01–Q-07, hasil analisa build AI Studio 13 Nov 2026, log deploy Vercel 14 Nov 2026, hasil audit repo GitHub 14 Nov 2026, dan keputusan scope nasional pengguna pada 14 Nov 2026 (Amandemen v2.1). Seluruh keputusan, tanggal, dan angka di atas merujuk pada sumber-sumber tersebut.*
