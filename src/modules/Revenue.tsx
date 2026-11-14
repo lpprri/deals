@@ -225,6 +225,21 @@ export default function Revenue(props: ModulProps) {
     (p) => p.statusVerifikasi === 'Terverifikasi',
   );
 
+  // Status rekonsiliasi baris acuan memakai NTPN — aturan yang sama dengan
+  // jembatan rekonsiliasi di scripts/impor-data-nyata/_hitung.ts. NTPN
+  // diekstrak dari uraian acuan ("NTPN <kode>") dan buktiSetor pembayaran
+  // ("NTB ... / NTPN <kode>"). Aturan lama (jumlah persis + penyetor sama)
+  // hanya menemukan 20 baris cocok, padahal jembatan NTPN menemukan 39
+  // pasangan sama jumlah + 1 baris terpecah (ACU-009: pokok Rp9.019.000
+  // dari pembayaran Rp9.199.380 yang dipecah pokok + denda di Sheet 3).
+  const ntpnDari = (s: string) =>
+    (s.match(/NTPN\s+([A-Za-z0-9]+)/) || [])[1] || null;
+  const jumlahBayarPerNtpn = new Map<string, number>();
+  for (const p of pembayaranTerverifikasi) {
+    const n = ntpnDari(p.buktiSetor || '');
+    if (n && !jumlahBayarPerNtpn.has(n)) jumlahBayarPerNtpn.set(n, p.jumlah);
+  }
+
   return (
     <div className="space-y-4">
       <TabBar
@@ -771,9 +786,21 @@ export default function Revenue(props: ModulProps) {
               </thead>
               <tbody>
                 {data.penerimaanAcuan.map((a) => {
-                  const cocok = pembayaranTerverifikasi.some(
-                    (p) => p.jumlah === a.jumlah && p.penyetor === a.penyetor,
-                  );
+                  const ntpn = ntpnDari(a.uraian || '');
+                  const jumlahBayar =
+                    ntpn === null
+                      ? undefined
+                      : jumlahBayarPerNtpn.get(ntpn);
+                  // NTPN sama + jumlah sama = Sudah Cocok; NTPN sama tapi
+                  // jumlah berbeda (pembayaran terpecah di Sheet 3) =
+                  // Cocok Sebagian; tanpa NTPN yang cocok = Penerimaan
+                  // Tanpa Tagihan.
+                  const statusRekon =
+                    jumlahBayar === undefined
+                      ? 'Penerimaan Tanpa Tagihan'
+                      : jumlahBayar === a.jumlah
+                        ? 'Sudah Cocok'
+                        : 'Cocok Sebagian';
                   return (
                     <Baris key={a.id}>
                       <Td>{a.id}</Td>
@@ -784,11 +811,7 @@ export default function Revenue(props: ModulProps) {
                       <Td>{formatTanggal(a.tanggalSetor)}</Td>
                       <Td kanan>{formatRupiah(a.jumlah)}</Td>
                       <Td>
-                        <StatusBadge
-                          status={
-                            cocok ? 'Sudah Cocok' : 'Penerimaan Tanpa Tagihan'
-                          }
-                        />
+                        <StatusBadge status={statusRekon} />
                       </Td>
                     </Baris>
                   );
