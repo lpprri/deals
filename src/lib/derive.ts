@@ -204,6 +204,215 @@ export function totalPerKodeAkun(data: AppData): {
   });
 }
 
+/**
+ * Jembatan rekonsiliasi — menjelaskan selisih (penerimaan acuan Keuangan
+ * − pembayaran terverifikasi) sampai ke rupiah terakhir, dengan aturan
+ * yang sama seperti verifikasi impor (scripts/impor-data-nyata/_hitung.ts
+ * butir (e)): pencocokan per NTPN. NTPN diekstrak dari uraian acuan
+ * ("NTPN <kode>") dan buktiSetor pembayaran ("NTB ... / NTPN <kode>").
+ *
+ * Setiap baris acuan masuk tepat satu kategori, dan setiap pembayaran
+ * terverifikasi masuk tepat satu kategori, sehingga identitas ini selalu
+ * berlaku:
+ *   selisih = acuanTanpaPembayaran + acuanTanpaNtpn
+ *             − pembayaranTanpaAcuan + pasangan.selisih
+ * `sisaTakTerjelaskan` harus selalu 0 — bila tidak, ada baris yang tidak
+ * masuk kategori mana pun, dan itu bug, bukan data.
+ */
+export interface JembatanRekonsiliasi {
+  totalAcuan: number;
+  totalPembayaranTerverifikasi: number;
+  selisih: number;
+  /** Acuan ber-NTPN yang NTPN-nya tidak ada di pembayaran mana pun. */
+  acuanTanpaPembayaran: {
+    jumlahBaris: number;
+    total: number;
+    perKodeAkun: { kodeAkun: string; jumlahBaris: number; total: number }[];
+  };
+  /** Acuan tanpa NTPN di uraiannya — tidak bisa dipasangkan. */
+  acuanTanpaNtpn: { jumlahBaris: number; total: number };
+  /** Pembayaran terverifikasi yang NTPN-nya tidak ada di acuan mana pun. */
+  pembayaranTanpaAcuan: {
+    jumlahBaris: number;
+    total: number;
+    tanggalTerawal: string | null;
+    tanggalTerakhir: string | null;
+  };
+  /** Baris acuan & pembayaran yang terpasang lewat NTPN yang sama. */
+  pasangan: {
+    jumlahBarisAcuan: number;
+    jumlahPembayaran: number;
+    totalAcuan: number;
+    totalPembayaran: number;
+    selisih: number;
+  };
+  /** Pasangan yang kode akun acuannya ≠ kode akun tagihannya. */
+  pasanganBedaKode: {
+    kodeAcuan: string;
+    kodeTagihan: string;
+    jumlahBaris: number;
+    totalAcuan: number;
+    totalPembayaran: number;
+  }[];
+  /** Acuan denda (kode 425839, MASTER_KODE_AKUN) yang terpasang pada
+   * pembayaran tagihan — denda yang tertanam dalam pembayaran tagihan. */
+  dendaTertanam: { jumlahBaris: number; total: number };
+  sisaTakTerjelaskan: number;
+}
+
+const ntpnDariTeks = (s: string): string | null =>
+  (s.match(/NTPN\s+([A-Za-z0-9]+)/) || [])[1] || null;
+
+export function hitungJembatanRekonsiliasi(data: AppData): JembatanRekonsiliasi {
+  const tagihanKode = new Map(data.tagihan.map((t) => [t.id, t.kodeAkun]));
+  const bayarPerNtpn = new Map<string, (typeof data.pembayaran)[number]>();
+  for (const p of data.pembayaran) {
+    if (p.statusVerifikasi !== 'Terverifikasi') continue;
+    const n = ntpnDariTeks(p.buktiSetor || '');
+    if (n && !bayarPerNtpn.has(n)) bayarPerNtpn.set(n, p);
+  }
+  const ntpnAcuan = new Set(
+    data.penerimaanAcuan
+      .map((a) => ntpnDariTeks(a.uraian || ''))
+      .filter((x): x is string => x !== null),
+  );
+
+  const perKodeTanpaPembayaran = new Map<
+    string,
+    { jumlahBaris: number; total: number }
+  >();
+  let acuanTanpaPembayaranBaris = 0;
+  let acuanTanpaPembayaranTotal = 0;
+  let acuanTanpaNtpnBaris = 0;
+  let acuanTanpaNtpnTotal = 0;
+  let pasanganBarisAcuan = 0;
+  let pasanganTotalAcuan = 0;
+  let dendaTertanamBaris = 0;
+  let dendaTertanamTotal = 0;
+  const bedaKode = new Map<
+    string,
+    {
+      kodeAcuan: string;
+      kodeTagihan: string;
+      jumlahBaris: number;
+      totalAcuan: number;
+      totalPembayaran: number;
+    }
+  >();
+  for (const a of data.penerimaanAcuan) {
+    const n = ntpnDariTeks(a.uraian || '');
+    if (!n) {
+      acuanTanpaNtpnBaris += 1;
+      acuanTanpaNtpnTotal += a.jumlah;
+      continue;
+    }
+    const p = bayarPerNtpn.get(n);
+    if (!p) {
+      acuanTanpaPembayaranBaris += 1;
+      acuanTanpaPembayaranTotal += a.jumlah;
+      const e = perKodeTanpaPembayaran.get(a.kodeAkun) ?? {
+        jumlahBaris: 0,
+        total: 0,
+      };
+      e.jumlahBaris += 1;
+      e.total += a.jumlah;
+      perKodeTanpaPembayaran.set(a.kodeAkun, e);
+      continue;
+    }
+    pasanganBarisAcuan += 1;
+    pasanganTotalAcuan += a.jumlah;
+    const kodeTagihan = tagihanKode.get(p.tagihanId) ?? '?';
+    if (a.kodeAkun === '425839') {
+      dendaTertanamBaris += 1;
+      dendaTertanamTotal += a.jumlah;
+    }
+    if (a.kodeAkun !== kodeTagihan) {
+      const kunci = `${a.kodeAkun}/${kodeTagihan}`;
+      const e = bedaKode.get(kunci) ?? {
+        kodeAcuan: a.kodeAkun,
+        kodeTagihan,
+        jumlahBaris: 0,
+        totalAcuan: 0,
+        totalPembayaran: 0,
+      };
+      e.jumlahBaris += 1;
+      e.totalAcuan += a.jumlah;
+      e.totalPembayaran += p.jumlah;
+      bedaKode.set(kunci, e);
+    }
+  }
+
+  const pembayaranTerpasang = new Set<string>();
+  let pembayaranTanpaAcuanBaris = 0;
+  let pembayaranTanpaAcuanTotal = 0;
+  let tanpaAcuanTerawal: string | null = null;
+  let tanpaAcuanTerakhir: string | null = null;
+  let pasanganTotalPembayaran = 0;
+  for (const p of data.pembayaran) {
+    if (p.statusVerifikasi !== 'Terverifikasi') continue;
+    const n = ntpnDariTeks(p.buktiSetor || '');
+    if (n === null || !ntpnAcuan.has(n)) {
+      // Tanpa NTPN, atau NTPN-nya tidak ada di acuan mana pun.
+      pembayaranTanpaAcuanBaris += 1;
+      pembayaranTanpaAcuanTotal += p.jumlah;
+      if (tanpaAcuanTerawal === null || p.tanggalBayar < tanpaAcuanTerawal)
+        tanpaAcuanTerawal = p.tanggalBayar;
+      if (tanpaAcuanTerakhir === null || p.tanggalBayar > tanpaAcuanTerakhir)
+        tanpaAcuanTerakhir = p.tanggalBayar;
+    } else if (!pembayaranTerpasang.has(n)) {
+      pembayaranTerpasang.add(n);
+      pasanganTotalPembayaran += p.jumlah;
+    }
+  }
+
+  const totalAcuan = data.penerimaanAcuan.reduce((s, a) => s + a.jumlah, 0);
+  const totalPembayaranTerverifikasi = data.pembayaran
+    .filter((p) => p.statusVerifikasi === 'Terverifikasi')
+    .reduce((s, p) => s + p.jumlah, 0);
+  const selisih = totalAcuan - totalPembayaranTerverifikasi;
+  const pasanganSelisih = pasanganTotalAcuan - pasanganTotalPembayaran;
+  const terjelaskan =
+    acuanTanpaPembayaranTotal +
+    acuanTanpaNtpnTotal -
+    pembayaranTanpaAcuanTotal +
+    pasanganSelisih;
+
+  return {
+    totalAcuan,
+    totalPembayaranTerverifikasi,
+    selisih,
+    acuanTanpaPembayaran: {
+      jumlahBaris: acuanTanpaPembayaranBaris,
+      total: acuanTanpaPembayaranTotal,
+      perKodeAkun: [...perKodeTanpaPembayaran.entries()]
+        .map(([kodeAkun, v]) => ({ kodeAkun, ...v }))
+        .sort((a, b) => b.total - a.total),
+    },
+    acuanTanpaNtpn: {
+      jumlahBaris: acuanTanpaNtpnBaris,
+      total: acuanTanpaNtpnTotal,
+    },
+    pembayaranTanpaAcuan: {
+      jumlahBaris: pembayaranTanpaAcuanBaris,
+      total: pembayaranTanpaAcuanTotal,
+      tanggalTerawal: tanpaAcuanTerawal,
+      tanggalTerakhir: tanpaAcuanTerakhir,
+    },
+    pasangan: {
+      jumlahBarisAcuan: pasanganBarisAcuan,
+      jumlahPembayaran: pembayaranTerpasang.size,
+      totalAcuan: pasanganTotalAcuan,
+      totalPembayaran: pasanganTotalPembayaran,
+      selisih: pasanganSelisih,
+    },
+    pasanganBedaKode: [...bedaKode.values()].sort(
+      (a, b) => b.totalAcuan - a.totalAcuan,
+    ),
+    dendaTertanam: { jumlahBaris: dendaTertanamBaris, total: dendaTertanamTotal },
+    sisaTakTerjelaskan: selisih - terjelaskan,
+  };
+}
+
 /** Satu titik deret bulanan untuk grafik tren (pola DashStack). */
 export interface TitikBulanan {
   /** Periode 'yyyy-mm'. */

@@ -8,6 +8,7 @@ import type { ModulProps, PembayaranInput, DendaInput } from '../lib/store';
 import type { Tagihan } from '../lib/types';
 import {
   hitungTotalKontrol,
+  hitungJembatanRekonsiliasi,
   totalPerKodeAkun,
   sisaTagihan,
   dibayarTerverifikasi,
@@ -75,6 +76,7 @@ export default function Revenue(props: ModulProps) {
   const [suksesDenda, setSuksesDenda] = useState('');
 
   const kontrol = hitungTotalKontrol(data);
+  const jembatan = hitungJembatanRekonsiliasi(data);
   const perKodeAkun = totalPerKodeAkun(data);
 
   const namaKlien = (klienId: string): string =>
@@ -739,7 +741,7 @@ export default function Revenue(props: ModulProps) {
               nilai={formatRupiah(kontrol.totalPenerimaanAcuan)}
             />
             <StatCard
-              label="Selisih Terbuka"
+              label="Selisih Rekonsiliasi"
               nilai={
                 data.penerimaanAcuan.length === 0
                   ? '—'
@@ -750,15 +752,159 @@ export default function Revenue(props: ModulProps) {
                   ? 'Data acuan Keuangan belum diimpor.'
                   : kontrol.selisihRekonsiliasi === 0
                     ? 'Cocok — tidak ada selisih.'
-                    : 'Selisih harus ditindaklanjuti.'
+                    : jembatan.sisaTakTerjelaskan === 0
+                      ? 'Terjelaskan seluruhnya — lihat rincian di bawah.'
+                      : 'Sebagian belum terjelaskan — lihat rincian di bawah.'
               }
             />
           </div>
           {data.penerimaanAcuan.length > 0 &&
             kontrol.selisihRekonsiliasi !== 0 && (
-              <Peringatan
-                teks={`Selisih rekonsiliasi ${formatRupiah(kontrol.selisihRekonsiliasi)} belum dijelaskan. Perlu konfirmasi ke Keuangan: penerimaan acuan mana yang belum terpasangkan dengan pembayaran terverifikasi, atau catat sebagai penerimaan tanpa tagihan.`}
-              />
+              <Kartu>
+                <JudulBagian>Penjelasan Selisih</JudulBagian>
+                <p className="mt-2 text-sm text-[#0d2569]/70">
+                  Penerimaan acuan Keuangan{' '}
+                  {formatRupiah(jembatan.totalAcuan)} − pembayaran
+                  terverifikasi{' '}
+                  {formatRupiah(jembatan.totalPembayaranTerverifikasi)} =
+                  selisih {formatRupiah(jembatan.selisih)}. Rincian di
+                  bawah menjelaskan selisih itu sampai ke rupiah terakhir —
+                  dihitung dari data, bukan ditulis manual.
+                </p>
+                <Tabel>
+                  <thead>
+                    <tr>
+                      <Th>Uraian</Th>
+                      <Th>Baris</Th>
+                      <Th kanan>Jumlah</Th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <Baris>
+                      <Td>
+                        Penerimaan acuan tanpa tagihan
+                        <div className="text-xs text-[#0d2569]/60">
+                          Di luar tagihan kerja sama:{' '}
+                          {jembatan.acuanTanpaPembayaran.perKodeAkun
+                            .map(
+                              (r) =>
+                                `${r.kodeAkun} ${uraianKodeAkun(r.kodeAkun)} ${formatRupiah(r.total)} (${r.jumlahBaris} baris)`,
+                            )
+                            .join(' · ')}
+                        </div>
+                      </Td>
+                      <Td>
+                        {jembatan.acuanTanpaPembayaran.jumlahBaris} baris
+                      </Td>
+                      <Td kanan>
+                        {formatRupiah(jembatan.acuanTanpaPembayaran.total)}
+                      </Td>
+                    </Baris>
+                    <Baris>
+                      <Td>
+                        Penerimaan acuan tanpa NTPN
+                        <div className="text-xs text-[#0d2569]/60">
+                          Tidak ada NTPN di uraian — tidak bisa dipasangkan
+                          dengan pembayaran.
+                        </div>
+                      </Td>
+                      <Td>{jembatan.acuanTanpaNtpn.jumlahBaris} baris</Td>
+                      <Td kanan>
+                        {formatRupiah(jembatan.acuanTanpaNtpn.total)}
+                      </Td>
+                    </Baris>
+                    <Baris>
+                      <Td>
+                        Pembayaran terverifikasi tanpa acuan
+                        <div className="text-xs text-[#0d2569]/60">
+                          NTPN tidak ada di data acuan Keuangan
+                          {jembatan.pembayaranTanpaAcuan.tanggalTerawal !==
+                            null &&
+                            ` · tanggal bayar ${formatTanggal(jembatan.pembayaranTanpaAcuan.tanggalTerawal)}${jembatan.pembayaranTanpaAcuan.tanggalTerakhir !==
+                              jembatan.pembayaranTanpaAcuan.tanggalTerawal
+                              ? `–${formatTanggal(jembatan.pembayaranTanpaAcuan.tanggalTerakhir ?? '')}`
+                              : ''}`}
+                          .
+                        </div>
+                      </Td>
+                      <Td>
+                        {jembatan.pembayaranTanpaAcuan.jumlahBaris} baris
+                      </Td>
+                      <Td kanan>
+                        {formatRupiah(-jembatan.pembayaranTanpaAcuan.total)}
+                      </Td>
+                    </Baris>
+                    <Baris>
+                      <Td>
+                        Selisih pasangan NTPN (acuan terpasang − pembayaran
+                        terpasang)
+                        <div className="text-xs text-[#0d2569]/60">
+                          {jembatan.pasangan.selisih === 0
+                            ? 'Semua pasangan sama jumlah.'
+                            : jembatan.pasangan.selisih < 0
+                              ? 'Acuan terpasang lebih kecil dari pembayaran terpasang — pembayaran terpecah di Sheet 3 (pokok + denda).'
+                              : 'Acuan terpasang lebih besar dari pembayaran terpasang.'}
+                        </div>
+                      </Td>
+                      <Td>
+                        {jembatan.pasangan.jumlahBarisAcuan} baris acuan ·{' '}
+                        {jembatan.pasangan.jumlahPembayaran} pembayaran
+                      </Td>
+                      <Td kanan>
+                        {formatRupiah(jembatan.pasangan.selisih)}
+                      </Td>
+                    </Baris>
+                  </tbody>
+                  <tfoot>
+                    <Baris className="bg-[#2573e2]/5 font-semibold">
+                      <Td colSpan={2}>Selisih (terjelaskan)</Td>
+                      <Td kanan tebal>
+                        {formatRupiah(jembatan.selisih)}
+                      </Td>
+                    </Baris>
+                  </tfoot>
+                </Tabel>
+                {jembatan.sisaTakTerjelaskan === 0 ? (
+                  <p className="mt-3 text-xs text-[#0d2569]/60">
+                    Selisih terjelaskan seluruhnya — sisa tak terjelaskan
+                    Rp0.
+                  </p>
+                ) : (
+                  <div className="mt-3">
+                    <Peringatan
+                      teks={`Sisa selisih ${formatRupiah(jembatan.sisaTakTerjelaskan)} belum terjelaskan oleh rincian di atas — perlu konfirmasi ke Keuangan.`}
+                    />
+                  </div>
+                )}
+                {jembatan.pasanganBedaKode
+                  // Pasangan denda (acuan 425839) tidak ditampilkan di sini
+                  // — denda yang tertanam dalam pembayaran tagihan punya
+                  // catatan sendiri di bawah, dan klasifikasinya sudah
+                  // dipahami (bukan anomali yang menunggu konfirmasi).
+                  .filter((b) => b.kodeAcuan !== '425839')
+                  .map((b) => (
+                  <p
+                    key={`${b.kodeAcuan}/${b.kodeTagihan}`}
+                    className="mt-3 text-xs text-[#0d2569]/60"
+                  >
+                    Pasangan beda kode akun: {b.jumlahBaris} baris dicatat
+                    sebagai {b.kodeAcuan} ({uraianKodeAkun(b.kodeAcuan)}) di
+                    Sheet 3 padahal tagihannya {b.kodeTagihan} (
+                    {uraianKodeAkun(b.kodeTagihan)}) —{' '}
+                    {formatRupiah(b.totalAcuan)}. Ini selisih per kode akun,
+                    total tidak berubah; klasifikasi menunggu konfirmasi
+                    Keuangan.
+                  </p>
+                ))}
+                {jembatan.dendaTertanam.jumlahBaris > 0 && (
+                  <p className="mt-3 text-xs text-[#0d2569]/60">
+                    Denda tertanam {formatRupiah(jembatan.dendaTertanam.total)}{' '}
+                    ({jembatan.dendaTertanam.jumlahBaris} baris acuan 425839)
+                    sudah termasuk dalam pembayaran tagihan — dicatat sebagai
+                    425839 di Sheet 3, tidak ditambahkan lagi ke piutang.
+                  </p>
+                )}
+              </Kartu>
             )}
 
           <Kartu>
