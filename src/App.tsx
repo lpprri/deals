@@ -34,6 +34,7 @@ import {
   ShieldCheck,
   Stamp,
   Tag,
+  UserPlus,
   Users,
   Wallet,
   X,
@@ -74,6 +75,7 @@ import Notifikasi from './components/Notifikasi';
 import { DAFTAR_JENIS_PENGAJUAN_KLIEN, type JenisPengajuanKlien } from './lib/types';
 import { bolehAksi, LABEL_PERAN } from './lib/permissions';
 import { formatRupiah, formatTanggal, hariIniIso } from './lib/format';
+import { LOGO_DEALS_DATA_URI } from './lib/logoDeals';
 import {
   labelJabatan,
   labelKategoriLayanan,
@@ -153,6 +155,7 @@ import {
   MenuMoU,
 } from './modules/KerjaSama';
 import { MenuKlien } from './modules/Klien';
+import { MenuProspek } from './modules/Prospek';
 import { MenuOffer, MenuOrder } from './modules/Penawaran';
 import { MenuMeeting } from './modules/Pertemuan';
 import { MenuUmpanBalik } from './modules/UmpanBalik';
@@ -162,6 +165,7 @@ type ModuleId =
   | 'dashboard'
   | 'marketing'
   | 'klien'
+  | 'prospek'
   | 'offer'
   | 'order'
   | 'meeting'
@@ -193,8 +197,15 @@ interface NavItem {
    * sebagai item di panel tambahan di samping sidebar (klik induknya).
    * Nama induk TIDAK dicantumkan lagi di dalam panelnya sendiri
    * (perbaikan 15/11/2026 19:16 WIB): panel hanya berisi sub-item.
-   * Saat ini: 'sewa' di panel 'deals', 'pengajuan' di panel 'sales',
-   * 'umpanBalik' di panel 'reports'.
+   * Saat ini: 'umpanBalik' di panel 'reports'.
+   * 'sewa' TIDAK punya induk (dihapus dari panel 'deals' 15/11/2026,
+   * PR #40 — panel DEALS sudah hilang; 'sewa' juga TIDAK tampil di
+   * sidebar, seperti 'deals' dan 'pengajuan': modul + datanya tetap
+   * utuh, dibuka lewat notifikasi).
+   * 'pengajuan' TIDAK punya induk (dihapus dari panel 'sales'
+   * 15/11/2026 atas instruksi pengguna "hilangkan submission ini"):
+   * modul + datanya tetap utuh, dibuka lewat notifikasi, dan tidak
+   * tampil di sidebar (tidak ada di CLUSTER_SIDEBAR).
    * Id tetap dipakai untuk `active` dan render konten.
    */
   induk?: ModuleId;
@@ -245,16 +256,31 @@ const MODULES: NavItem[] = [
     label: 'Sales',
     icon: Briefcase,
     phase: 'B',
+    description: 'Pipeline, Quotation.',
+  },
+  {
+    id: 'sewa',
+    label: 'Lease / State Assets (BMN)',
+    icon: Building2,
+    phase: 'A',
+    // TIDAK punya induk dan TIDAK tampil di sidebar (15/11/2026,
+    // PR #40): dulu sub-item panel DEALS — panel DEALS hilang, dan
+    // promosi Sewa jadi menu utama DIBATALKAN (koreksi pengguna
+    // 20:59 WIB). Modul + datanya tetap utuh, dibuka lewat
+    // notifikasi ("Lease expiring soon" bernavigasi ke modul ini).
     description:
-      'Pipeline, Quotation, Meeting Schedule. New Submissions as a sub-module.',
+      'One lease list (Partnership Details → General PNBP): All, ON GOING, Expiring Soon, New Applications, Received in Advance, Still Receivable, Field Findings, Indralaya.',
   },
   {
     id: 'deals',
     label: 'Deals',
     icon: Handshake,
     phase: 'A',
+    // TIDAK tampil di sidebar (15/11/2026, PR #40): dihapus dari
+    // CLUSTER_SIDEBAR — modul + datanya tetap utuh, dibuka lewat
+    // notifikasi ("Missing document" bernavigasi ke modul ini).
     description:
-      'Clients, Partnership Details (Functional PNBP, General PNBP, Service Support, Memorandum of Understanding, Media Partner), Contracts, Documents. Lease / State Assets (BMN) as a sub-module.',
+      'Clients, Partnership Details (Functional PNBP, General PNBP, Service Support, Memorandum of Understanding, Media Partner), Contracts, Documents.',
   },
   {
     id: 'marketing',
@@ -264,11 +290,12 @@ const MODULES: NavItem[] = [
     description: 'Events and Advertisement.',
   },
   {
-    id: 'klien',
-    label: 'Clients',
-    icon: Users,
-    phase: 'A',
-    description: 'Client list — the same client list as Deals (Clients tab).',
+    id: 'prospek',
+    label: 'Prospect',
+    icon: UserPlus,
+    phase: 'B',
+    description:
+      'Prospect list — the same Prospect tab as Offer (PRS-01 …).',
   },
   {
     id: 'offer',
@@ -286,28 +313,27 @@ const MODULES: NavItem[] = [
     description: 'Order list — the same Order tab as Sales (ORD-01 …).',
   },
   {
+    id: 'klien',
+    label: 'Clients',
+    icon: Users,
+    phase: 'A',
+    description: 'Client list — the same client list as Deals (Clients tab).',
+  },
+  {
     id: 'meeting',
     label: 'Meeting',
     icon: CalendarDays,
     phase: 'B',
-    description:
-      'Meeting Schedule — the same Meeting tab as Sales (MTG-01 …).',
-  },
-  {
-    id: 'sewa',
-    label: 'Lease / State Assets (BMN)',
-    icon: Building2,
-    phase: 'A',
-    induk: 'deals',
-    description:
-      'One lease list (Deals → Partnership Details → General PNBP): All, ON GOING, Expiring Soon, New Applications, Received in Advance, Still Receivable, Field Findings, Indralaya.',
+    description: 'Meeting Schedule (MTG-01 …).',
   },
   {
     id: 'pengajuan',
     label: 'Submission',
     icon: FilePlus2,
     phase: 'A',
-    induk: 'sales',
+    // TIDAK punya induk (15/11/2026): dihapus dari panel 'sales' atas
+    // instruksi pengguna — modul + data tetap utuh, dibuka lewat
+    // notifikasi; tidak tampil di sidebar (tidak ada di CLUSTER_SIDEBAR).
     description:
       'New Submissions (new partnership / new lease): Received → Under review → Awaiting documents → Approved/Rejected → Converted to contract.',
   },
@@ -385,7 +411,15 @@ const MODULES: NavItem[] = [
     20:14 WIB — menu Offer dan Order ditambahkan di cluster itu,
     setelah Clients; PR #39, diminta pengguna 15/11/2026
     20:36 WIB — menu Meeting ditambahkan di cluster itu, setelah
-    Order):
+    Order; PR #40, diminta pengguna 15/11/2026 20:53 WIB — menu
+    Prospect ditambahkan di cluster itu, setelah Campaign;
+    dikoreksi pengguna 20:55 WIB — Clients pindah ke setelah Order,
+    urutan akhir cluster 3: Sales, Deals, Campaign, Prospect, Offer,
+    Order, Clients, Meeting; diminta pengguna 20:57 WIB — Deals
+    dihapus dari sidebar, Sewa naik jadi menu utama di posisi Deals;
+    KOREKSI pengguna 20:59 WIB — promosi Sewa DIBATALKAN, Lease/BMN
+    juga dihapus dari sidebar, urutan AKHIR cluster 3: Sales,
+    Campaign, Prospect, Offer, Order, Clients, Meeting):
     item nav utama dibagi ke cluster yang dipisah garis tipis, tanpa
     label kelompok (kecuali ADMIN yang sudah punya label). Urutan
     cluster = urutan tampil di sidebar; urutan di dalam cluster
@@ -393,7 +427,7 @@ const MODULES: NavItem[] = [
 const CLUSTER_SIDEBAR: ModuleId[][] = [
   ['home'],
   ['kontrak', 'mou', 'komitmen', 'approvement'],
-  ['sales', 'deals', 'marketing', 'klien', 'offer', 'order', 'meeting'],
+  ['sales', 'marketing', 'prospek', 'offer', 'order', 'klien', 'meeting'],
   ['revenue', 'reporting', 'dashboard'],
   ['todo', 'service'],
 ];
@@ -2486,9 +2520,7 @@ export default function App() {
       <header className="flex shrink-0 items-center gap-4 border-b border-[#2573e2]/15 bg-white px-6 py-3">
         <div className="flex shrink-0 items-center gap-3">
           <img src="/logo-rri.svg" alt="Logo RRI" className="h-9 w-auto" />
-          <span className="text-lg font-bold leading-tight text-[#0d2569]">
-            Partnership LPP RRI
-          </span>
+          <img src={LOGO_DEALS_DATA_URI} alt="Deals" className="h-9 w-auto" />
         </div>
         <div className="ml-auto flex shrink-0 items-center gap-3">
           <Notifikasi data={data} onNavigasi={(m) => setActive(m)} />
@@ -2718,6 +2750,7 @@ export default function App() {
             {active === 'sales' && <Sales {...propsModul} />}
             {active === 'marketing' && <Marketing {...propsModul} />}
             {active === 'klien' && <MenuKlien {...propsModul} />}
+            {active === 'prospek' && <MenuProspek {...propsModul} />}
             {active === 'offer' && <MenuOffer {...propsModul} />}
             {active === 'order' && <MenuOrder {...propsModul} />}
             {active === 'meeting' && <MenuMeeting {...propsModul} />}
