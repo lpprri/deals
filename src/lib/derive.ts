@@ -676,3 +676,182 @@ export function ringkasanPeriodeRanking(
   });
   return { jumlahKontrak, jumlahFallback, jumlahTanpaOperator };
 }
+
+// ---------------------------------------------------------------------------
+// Analytics Dashboard + Cross-Filtering (template Figma "Analytics Dashboard
+// with Cross-Filtering", sailesh.tripathy, CC BY 4.0 — pola layout, panel
+// filter, dan perilaku cross-filtering saja; semua angka dari data nyata).
+// Filter yang diminta pengguna 2026-11-15: Kategori (kategori layanan),
+// Region (satker), Time Period (tahun/bulan dari tanggal acuan kontrak —
+// sama dengan Ranking). ATURAN YANG DICATAT (bukan tebakan diam-diam):
+// - Semua KPI dan grafik dihitung dari kontrak yang lolos SEMUA filter
+//   aktif, sehingga totalnya selalu cocok satu sama lain. Template demo
+//   angkanya berubah-ubah dan tidak rekonsiliasi — itu TIDAK ditiru.
+// - Periode memakai tanggalAcuanKontrak (tanda tangan ?? mulai).
+// - Tren bulanan memakai basis bulan terbit tagihan (sama dengan
+//   nilaiKontrakPerBulan dan Laporan Bulanan).
+// - Region hanya menampilkan satker yang punya data (saat ini PALEMBANG);
+//   satker tanpa data tidak ditampilkan sebagai nol palsu.
+
+export interface FilterAnalytics {
+  kategori: string;
+  satker: string;
+  periode: string;
+}
+
+export const FILTER_ANALYTICS_KOSONG: FilterAnalytics = {
+  kategori: '',
+  satker: '',
+  periode: '',
+};
+
+export interface BarisAnalytics {
+  label: string;
+  kode?: string;
+  nilai: number;
+  jumlah: number;
+}
+
+export interface RingkasanAnalytics {
+  nilaiKontrak: number;
+  pembayaranTerverifikasi: number;
+  sisaPiutang: number;
+  jumlahKontrak: number;
+  jumlahKlien: number;
+  perKategori: BarisAnalytics[];
+  perSatker: BarisAnalytics[];
+  perBulan: TitikBulanan[];
+  perTahun: { tahun: string; nilai: number; jumlah: number }[];
+}
+
+/** Kontrak lolos bila cocok dengan semua filter yang aktif. */
+export function kontrakLolosFilterAnalytics(
+  kontrak: Kontrak,
+  filter: FilterAnalytics,
+): boolean {
+  if (filter.kategori !== '' && kontrak.kategoriLayanan !== filter.kategori)
+    return false;
+  if (filter.satker !== '' && kontrak.satker.kode !== filter.satker)
+    return false;
+  if (filter.periode !== '') {
+    const tanggal = tanggalAcuanKontrak(kontrak);
+    const acuan =
+      filter.periode.length === 4
+        ? tanggal.slice(0, 4)
+        : tanggal.slice(0, 7);
+    if (acuan !== filter.periode) return false;
+  }
+  return true;
+}
+
+/**
+ * Ringkasan analytics dari kontrak yang lolos filter: KPI + pengelompokan
+ * per kategori, per satker, per bulan (basis terbit tagihan), dan per
+ * tahun (basis tanggal acuan). Semua pengelompokan dijumlahkan kembali
+ * ke nilaiKontrak yang sama.
+ */
+export function ringkasanAnalytics(
+  data: AppData,
+  filter: FilterAnalytics,
+): RingkasanAnalytics {
+  const kontrak = data.kontrak.filter((k) =>
+    kontrakLolosFilterAnalytics(k, filter),
+  );
+  const idKontrak = new Set(kontrak.map((k) => k.id));
+  const tagihan = data.tagihan.filter((t) => idKontrak.has(t.kontrakId));
+  const idTagihan = new Set(tagihan.map((t) => t.id));
+  const pembayaranTerverifikasi = data.pembayaran
+    .filter(
+      (p) =>
+        p.statusVerifikasi === 'Terverifikasi' && idTagihan.has(p.tagihanId),
+    )
+    .reduce((s, p) => s + p.jumlah, 0);
+  const sisaPiutang = tagihan.reduce(
+    (s, t) => s + sisaTagihan(t, data.pembayaran),
+    0,
+  );
+  const kelompok = (
+    kunci: (k: Kontrak) => { label: string; kode?: string },
+  ): BarisAnalytics[] => {
+    const peta = new Map<
+      string,
+      { label: string; kode?: string; nilai: number; jumlah: number }
+    >();
+    kontrak.forEach((k) => {
+      const { label, kode } = kunci(k);
+      const entri = peta.get(label) ?? { label, kode, nilai: 0, jumlah: 0 };
+      entri.nilai += k.nilaiKontrak;
+      entri.jumlah += 1;
+      peta.set(label, entri);
+    });
+    return [...peta.values()].sort(
+      (a, b) => b.nilai - a.nilai || b.jumlah - a.jumlah,
+    );
+  };
+  const perKategori = kelompok((k) => ({ label: k.kategoriLayanan }));
+  const perSatker = kelompok((k) => ({
+    label: k.satker.nama,
+    kode: k.satker.kode,
+  }));
+  const tagihanPerKontrak = new Map(
+    data.tagihan.map((t) => [t.kontrakId, t]),
+  );
+  const petaBulan = new Map<string, number>();
+  kontrak.forEach((k) => {
+    const terbit =
+      tagihanPerKontrak.get(k.id)?.tanggalTerbit ?? k.tanggalMulai;
+    const periode = terbit.slice(0, 7);
+    petaBulan.set(periode, (petaBulan.get(periode) ?? 0) + k.nilaiKontrak);
+  });
+  const perBulan: TitikBulanan[] = [...petaBulan.entries()]
+    .sort(([a], [b]) => (a < b ? -1 : 1))
+    .map(([periode, nilai]) => ({ periode, nilai }));
+  const petaTahun = new Map<string, { nilai: number; jumlah: number }>();
+  kontrak.forEach((k) => {
+    const tahun = tanggalAcuanKontrak(k).slice(0, 4);
+    const entri = petaTahun.get(tahun) ?? { nilai: 0, jumlah: 0 };
+    entri.nilai += k.nilaiKontrak;
+    entri.jumlah += 1;
+    petaTahun.set(tahun, entri);
+  });
+  const perTahun = [...petaTahun.entries()]
+    .sort(([a], [b]) => (a < b ? -1 : 1))
+    .map(([tahun, v]) => ({ tahun, nilai: v.nilai, jumlah: v.jumlah }));
+  return {
+    nilaiKontrak: kontrak.reduce((s, k) => s + k.nilaiKontrak, 0),
+    pembayaranTerverifikasi,
+    sisaPiutang,
+    jumlahKontrak: kontrak.length,
+    jumlahKlien: new Set(kontrak.map((k) => k.klienId)).size,
+    perKategori,
+    perSatker,
+    perBulan,
+    perTahun,
+  };
+}
+
+/** Opsi dropdown filter dari data (hanya nilai yang benar-benar ada). */
+export function opsiFilterAnalytics(data: AppData): {
+  kategori: string[];
+  satker: { kode: string; nama: string }[];
+  periode: string[];
+} {
+  const kategori = [...new Set(data.kontrak.map((k) => k.kategoriLayanan))].sort();
+  const petaSatker = new Map<string, string>();
+  data.kontrak.forEach((k) => petaSatker.set(k.satker.kode, k.satker.nama));
+  const satker = [...petaSatker.entries()]
+    .map(([kode, nama]) => ({ kode, nama }))
+    .sort((a, b) => a.nama.localeCompare(b.nama));
+  const tahun = new Set<string>();
+  const bulan = new Set<string>();
+  data.kontrak.forEach((k) => {
+    const tanggal = tanggalAcuanKontrak(k);
+    tahun.add(tanggal.slice(0, 4));
+    bulan.add(tanggal.slice(0, 7));
+  });
+  const periode = [
+    ...[...tahun].sort().reverse(),
+    ...[...bulan].sort().reverse(),
+  ];
+  return { kategori, satker, periode };
+}
