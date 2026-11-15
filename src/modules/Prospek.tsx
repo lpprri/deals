@@ -1,5 +1,7 @@
 // Menu Prospect baru (keputusan pengguna 15/11/2026 20:53 WIB, PR #40):
-// menu tingkat atas di cluster Sales & Deals, di bawah Clients.
+// menu tingkat atas di cluster Sales & Deals, setelah Campaign
+// (dikoreksi pengguna 20:55 WIB — urutan akhir cluster 3: Sales,
+// Deals, Campaign, Prospect, Offer, Order, Clients, Meeting).
 // Memakai ulang daftar prospect yang sama dari Sales (komponen
 // TabProspek yang diekspor); TIDAK ada duplikasi tabel/data dan total
 // tidak berubah. Tab "Prospect" di halaman Offer TETAP ADA — ini menu

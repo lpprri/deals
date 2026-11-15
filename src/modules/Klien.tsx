@@ -1,5 +1,8 @@
 // Menu Clients baru (keputusan pengguna 15/11/2026, PR #37):
-// menu tingkat atas di cluster Sales & Deals, setelah Campaign.
+// menu tingkat atas di cluster Sales & Deals — awalnya setelah
+// Campaign, dipindah ke setelah Order (koreksi pengguna 15/11/2026
+// 20:55 WIB, PR #40; urutan akhir cluster 3: Sales, Deals, Campaign,
+// Prospect, Offer, Order, Clients, Meeting).
 // Memakai ulang daftar klien yang sama dari Deals (komponen TabKlien
 // yang diekspor); TIDAK ada duplikasi tabel/data dan total tidak
 // berubah. Clients adalah navigasi langsung — tanpa sub-item dan

@@ -269,13 +269,6 @@ const MODULES: NavItem[] = [
     description: 'Events and Advertisement.',
   },
   {
-    id: 'klien',
-    label: 'Clients',
-    icon: Users,
-    phase: 'A',
-    description: 'Client list — the same client list as Deals (Clients tab).',
-  },
-  {
     id: 'prospek',
     label: 'Prospect',
     icon: UserPlus,
@@ -297,6 +290,13 @@ const MODULES: NavItem[] = [
     icon: ClipboardList,
     phase: 'B',
     description: 'Order list — the same Order tab as Sales (ORD-01 …).',
+  },
+  {
+    id: 'klien',
+    label: 'Clients',
+    icon: Users,
+    phase: 'A',
+    description: 'Client list — the same client list as Deals (Clients tab).',
   },
   {
     id: 'meeting',
@@ -400,7 +400,10 @@ const MODULES: NavItem[] = [
     setelah Clients; PR #39, diminta pengguna 15/11/2026
     20:36 WIB — menu Meeting ditambahkan di cluster itu, setelah
     Order; PR #40, diminta pengguna 15/11/2026 20:53 WIB — menu
-    Prospect ditambahkan di cluster itu, di bawah Clients):
+    Prospect ditambahkan di cluster itu, setelah Campaign;
+    dikoreksi pengguna 20:55 WIB — Clients pindah ke setelah Order,
+    urutan akhir cluster 3: Sales, Deals, Campaign, Prospect, Offer,
+    Order, Clients, Meeting):
     item nav utama dibagi ke cluster yang dipisah garis tipis, tanpa
     label kelompok (kecuali ADMIN yang sudah punya label). Urutan
     cluster = urutan tampil di sidebar; urutan di dalam cluster
@@ -408,7 +411,7 @@ const MODULES: NavItem[] = [
 const CLUSTER_SIDEBAR: ModuleId[][] = [
   ['home'],
   ['kontrak', 'mou', 'komitmen', 'approvement'],
-  ['sales', 'deals', 'marketing', 'klien', 'prospek', 'offer', 'order', 'meeting'],
+  ['sales', 'deals', 'marketing', 'prospek', 'offer', 'order', 'klien', 'meeting'],
   ['revenue', 'reporting', 'dashboard'],
   ['todo', 'service'],
 ];
