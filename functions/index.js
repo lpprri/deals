@@ -30,21 +30,20 @@
 //      (pay-as-you-go) dan periksa tagihan.
 //   7. Periksa di Firebase console → Functions: status "Active", tanpa error.
 //
-// CARA PAKAI DARI APLIKASI (belum diimplementasikan — tindak lanjut):
-//   Di App.tsx / Lacak.tsx, bila Firebase terkonfigurasi, panggil:
-//     import { getFunctions, httpsCallable } from 'firebase/functions';
-//     const lacak = httpsCallable(getFunctions(app, 'asia-southeast2'), 'lacakKerjaSama');
-//     const hasil = await lacak({ kode });
-//   Bila `hasil.data.ditemukan` false → tampilkan "Nomor tidak ditemukan".
-//   Bila function belum di-deploy / gagal → fallback ke data seed
-//   (mode contoh) seperti sekarang, dan tampilkan catatan jujur.
+// CARA PAKAI DARI APLIKASI (sudah diimplementasikan — wiring PR #29):
+//   Di Lacak.tsx, bila Firebase terkonfigurasi (modeLive), panggil
+//   lacakViaFunction (src/lib/lacakFunction.ts) yang memanggil function
+//   ini (region asia-southeast2). Bila `hasil.ditemukan` false → tampilkan
+//   "Nomor tidak ditemukan". Bila function belum di-deploy / gagal →
+//   fallback ke data seed (mode contoh) seperti sekarang, dan tampilkan
+//   catatan jujur bahwa yang tampil adalah data contoh.
 //   TIDAK ADA secret di file ini: Admin SDK memakai kredensial default
 //   lingkungan Cloud Functions.
 //
-// STATUS: STUB — ditulis dari dokumentasi Firebase, BELUM diuji deploy
-// maupun dipanggil dari aplikasi. Jangan klaim Lacak mode Firestore
-// sudah berfungsi penuh sebelum langkah 5–7 di atas selesai dan
-// pemanggilan dari aplikasi diimplementasikan + diverifikasi live.
+// STATUS: Diimplementasikan; wiring dari aplikasi selesai (PR #29).
+// BELUM diuji deploy maupun dipanggil dari aplikasi live — deploy
+// (langkah 5–7 di atas) lalu uji Lacak di mode Firestore sebelum klaim
+// Lacak mode Firestore berfungsi penuh.
 
 const { onCall, HttpsError } = require('firebase-functions/v2/https');
 const { initializeApp } = require('firebase-admin/app');
@@ -62,8 +61,9 @@ function docDenganId(snap) {
  * Lacak satu kerja sama berdasarkan kode transaksi (nomor PKS atau nomor
  * tagihan). Callable — boleh dipanggil tanpa login (akses publik).
  * Kembalian: { ditemukan: false } bila tidak ada yang cocok, atau
- * { ditemukan: true, kontrak, tagihan, dokumen, pembayaran } — hanya
- * data kontrak yang cocok itu, tanpa data kontrak lain.
+ * { ditemukan: true, kontrak, klien, tagihan, dokumen, pembayaran } —
+ * hanya data kontrak yang cocok itu, tanpa data kontrak lain. `klien`
+ * null bila dokumen klien tidak ditemukan (klien dibuat belakangan).
  */
 exports.lacakKerjaSama = onCall(
   { region: 'asia-southeast2' },
@@ -119,6 +119,16 @@ exports.lacakKerjaSama = onCall(
 
     const kontrak = docDenganId(kontrakSnap);
 
+    // Klien pemilik kontrak (satu dokumen; null bila belum tercatat).
+    let klien = null;
+    if (typeof kontrak.klienId === 'string' && kontrak.klienId !== '') {
+      const klienSnap = await db
+        .collection('klien')
+        .doc(kontrak.klienId)
+        .get();
+      if (klienSnap.exists) klien = docDenganId(klienSnap);
+    }
+
     // 3. Daftar terkait — HANYA untuk kontrak yang cocok ini.
     const [tagihanSnap, dokumenSnap] = await Promise.all([
       db.collection('tagihan').where('kontrakId', '==', kontrak.id).get(),
@@ -140,6 +150,6 @@ exports.lacakKerjaSama = onCall(
       pembayaran.push(...bayarSnap.docs.map(docDenganId));
     }
 
-    return { ditemukan: true, kontrak, tagihan, dokumen, pembayaran };
+    return { ditemukan: true, kontrak, klien, tagihan, dokumen, pembayaran };
   },
 );

@@ -19,11 +19,16 @@
 // dokumen, peringatan "Menunggu diterbitkan") — tanpa form submission,
 // tanpa "Pengajuan saya", tanpa login.
 //
-// TITIK INTEGRASI MODE FIRESTORE:
-// Data diterima lewat prop `data`. Dalam mode contoh, App.tsx memberi
-// DATA_NYATA (seed). Dalam mode Firestore, App.tsx kelak memberi data hasil
-// Cloud Function lacakKerjaSama / get-by-ID — komponen ini tidak memanggil
-// Firestore langsung.
+// TITIK INTEGRASI MODE FIRESTORE (wiring PR #29):
+// Data diterima lewat prop `data` (seed, mode contoh). Bila prop
+// `modeLive` benar (Firebase terkonfigurasi — App.tsx memberi
+// `isFirebaseConfigured && !!db`), pencarian memanggil Cloud Function
+// `lacakKerjaSama` dulu (src/lib/lacakFunction.ts): Function mengembalikan
+// SATU kontrak + daftar terkait + klien dari Firestore live. Bila
+// Function belum di-deploy / tidak bisa dihubungi, pencarian jatuh ke
+// data seed dan komponen menampilkan catatan jujur bahwa yang tampil
+// adalah data contoh. Bila Function menjawab "tidak ditemukan", nomor
+// memang tidak ada — tidak ada fallback ke seed.
 //
 // Palet HANYA 3 warna RRI: Biru #2573E2, Navy #0D2569, Putih #FFFFFF.
 // Status dibedakan teks & ikon (StatusBadge), bukan warna baru.
@@ -34,6 +39,7 @@ import { FileText } from 'lucide-react';
 import type {
   AppData,
   DokumenItem,
+  Klien,
   Kontrak,
   Pembayaran,
   Tagihan,
@@ -68,10 +74,14 @@ import {
 export interface LacakProps {
   data: AppData;
   onKembali: () => void;
+  /** Benar bila Firebase terkonfigurasi — Lacak memakai Cloud Function. */
+  modeLive?: boolean;
 }
 
 export interface HasilLacak {
   kontrak: Kontrak;
+  /** Klien pemilik kontrak; null bila belum tercatat. */
+  klien?: Klien | null;
   tagihan: Tagihan[];
   dokumen: DokumenItem[];
   /** Semua pembayaran atas tagihan kontrak ini (semua status verifikasi). */
@@ -148,29 +158,73 @@ export function cariKerjaSama(
   const pembayaran = data.pembayaran.filter((p) =>
     tagihanIds.has(p.tagihanId),
   );
-  return { kontrak, tagihan, dokumen, pembayaran };
+  return {
+    kontrak,
+    klien: data.klien.find((k) => k.id === kontrak.klienId) ?? null,
+    tagihan,
+    dokumen,
+    pembayaran,
+  };
 }
 
-export default function Lacak({ data, onKembali }: LacakProps) {
+export default function Lacak({ data, onKembali, modeLive = false }: LacakProps) {
   const [kode, setKode] = useState('');
   const [hasil, setHasil] = useState<HasilLacak | null>(null);
   const [pesan, setPesan] = useState<string | null>(null);
+  const [mencari, setMencari] = useState(false);
+  /** 'fungsi' = data live Firestore; 'contoh' = fallback data seed. */
+  const [sumber, setSumber] = useState<'fungsi' | 'contoh' | null>(null);
 
-  const lacak = (e: FormEvent) => {
+  const lacak = async (e: FormEvent) => {
     e.preventDefault();
+    if (mencari) return;
     if (kode.trim() === '') {
       setHasil(null);
       setPesan('Enter your PKS or invoice number first.');
+      setSumber(null);
       return;
+    }
+    if (modeLive) {
+      setMencari(true);
+      try {
+        // Import LAZY: Firebase SDK (lacakFunction) hanya dimuat saat
+        // pencarian live benar-benar dilakukan — dan skrip cek yang
+        // mengimpor modul ini tidak ikut membundel Firebase SDK.
+        const { lacakViaFunction } = await import('../lib/lacakFunction');
+        const dariFungsi = await lacakViaFunction(kode);
+        setMencari(false);
+        if (dariFungsi) {
+          setHasil(dariFungsi);
+          setPesan(null);
+          setSumber('fungsi');
+          return;
+        }
+        // Function menjawab "tidak ditemukan" — nomor memang tidak ada.
+        setHasil(null);
+        setPesan(PESAN_TIDAK_DITEMUKAN);
+        setSumber(null);
+        return;
+      } catch (err) {
+        // Function belum di-deploy / tidak bisa dihubungi — fallback ke
+        // data seed dengan catatan jujur (bukan klaim data live).
+        console.error(
+          'Lacak via Cloud Function gagal, memakai data contoh:',
+          err,
+        );
+        setMencari(false);
+      }
     }
     const ditemukan = cariKerjaSama(data, kode);
     setHasil(ditemukan);
     setPesan(ditemukan ? null : PESAN_TIDAK_DITEMUKAN);
+    setSumber(ditemukan && modeLive ? 'contoh' : null);
   };
 
   const kontrak = hasil?.kontrak ?? null;
+  // Nama klien: dari Function bila ada, bila tidak dari data seed.
   const klien = kontrak
-    ? data.klien.find((k) => k.id === kontrak.klienId)
+    ? hasil?.klien ??
+      data.klien.find((k) => k.id === kontrak.klienId)
     : undefined;
 
   const tagihan = hasil?.tagihan ?? [];
@@ -265,9 +319,21 @@ export default function Lacak({ data, onKembali }: LacakProps) {
               />
             </div>
             <div className="flex items-end">
-              <TombolUtama type="submit">Track</TombolUtama>
+              <TombolUtama type="submit" disabled={mencari}>
+                {mencari ? 'Searching…' : 'Track'}
+              </TombolUtama>
             </div>
           </form>
+          {sumber === 'fungsi' && (
+            <p className="mt-3 text-xs text-[#0d2569]/60">
+              Source: live Firestore data.
+            </p>
+          )}
+          {sumber === 'contoh' && (
+            <div className="mt-4">
+              <Peringatan teks="Live lookup is unavailable (the Cloud Function has not been deployed yet) — showing sample data for this number." />
+            </div>
+          )}
           {pesan !== null && (
             <div className="mt-4">
               <Peringatan teks={pesan} />

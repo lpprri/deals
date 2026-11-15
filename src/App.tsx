@@ -498,6 +498,7 @@ export default function App() {
       return (
         <Lacak
           data={data}
+          modeLive={isFirebaseConfigured && !!db}
           onKembali={() => {
             setHalamanLanding('beranda');
             setHalamanPublik('beranda');
