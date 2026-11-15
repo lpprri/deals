@@ -195,14 +195,6 @@ const MODULES: NavItem[] = [
       'Home page inside the admin app — intentionally empty for now (correction 15/11/2026: not the landing page, not a sign-out).',
   },
   {
-    id: 'dashboard',
-    label: 'Dashboard',
-    icon: LayoutDashboard,
-    phase: 'A',
-    description:
-      'Period summary, Revenue Analytics, head office report deadlines (fill in by the 10th, submit by the 11th). Employee Rank & Satker Rank (Leaderboard of the Year / of the Month) per contract signing date period.',
-  },
-  {
     id: 'marketing',
     label: 'Campaign',
     icon: Megaphone,
@@ -291,15 +283,23 @@ const MODULES: NavItem[] = [
       'Satker Reports: PNBP Report, Receivables & Deposits Report, Service Support Report, Memorandum of Understanding Report, Media Partner Report.',
   },
   {
+    id: 'dashboard',
+    label: 'Dashboard',
+    icon: LayoutDashboard,
+    phase: 'A',
+    description:
+      'Period summary, Revenue Analytics, head office report deadlines (fill in by the 10th, submit by the 11th). Employee Rank & Satker Rank (Leaderboard of the Year / of the Month) per contract signing date period.',
+  },
+  {
     id: 'todo',
-    label: 'To-Do List',
+    label: 'Task',
     icon: CheckSquare,
     phase: 'B',
     description: 'Individual Tasks and Dispositions.',
   },
   {
     id: 'service',
-    label: 'Service',
+    label: 'Resources',
     icon: BarChart3,
     phase: 'C',
     description:
