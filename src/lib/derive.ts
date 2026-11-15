@@ -472,10 +472,12 @@ export function penyetoranPerBulan(data: AppData): TitikBulanan[] {
 // - Ranking nasional hanya mencakup satker yang datanya ada di aplikasi
 //   (saat ini PALEMBANG saja; Q-08 lanjutan masih terbuka) — satker
 //   tanpa data tidak ditampilkan sebagai nol palsu.
-// - Employee Rank memakai field Kontrak.penanggungJawab apa adanya.
-//   Catatan data: pada kontrak impor nyata, field ini berisi nama PIC
-//   klien, bukan operator RRI — peringkat mengikuti isi field tersebut
-//   sampai atribusi operator per kontrak dicatat.
+// - Employee Rank memakai field Kontrak.operatorPenutup (keputusan
+//   pengguna 2026-11-15): operator Staf Layanan yang menutup kontrak.
+//   Kontrak tanpa operatorPenutup TIDAK masuk ranking (dihitung terpisah
+//   di ringkasanPeriodeRanking sebagai jumlahTanpaOperator) — ranking
+//   tidak boleh meranking PIC klien. penanggungJawab tetap berarti PIC
+//   klien dan tidak dipakai ranking.
 // Helper ini hanya membaca data; total kontrol tidak berubah.
 
 export type ModePeriodeRanking = 'tahun' | 'bulan';
@@ -525,8 +527,9 @@ export function periodeRankingTersedia(
 }
 
 /**
- * Employee Rank (Q-09): kontrak dikelompokkan per penanggungJawab,
- * metrik Σ nilaiKontrak, terurut dari nilai terbesar.
+ * Employee Rank (Q-09): kontrak dikelompokkan per operatorPenutup,
+ * metrik Σ nilaiKontrak, terurut dari nilai terbesar. Kontrak yang
+ * belum punya operatorPenutup tidak masuk ranking (bukan nol palsu).
  */
 export function rankingOperator(
   data: AppData,
@@ -536,10 +539,11 @@ export function rankingOperator(
   const peta = new Map<string, { nilai: number; jumlah: number }>();
   data.kontrak.forEach((k) => {
     if (!kontrakDalamPeriode(k, mode, periode)) return;
-    const entri = peta.get(k.penanggungJawab) ?? { nilai: 0, jumlah: 0 };
+    if (!k.operatorPenutup) return;
+    const entri = peta.get(k.operatorPenutup) ?? { nilai: 0, jumlah: 0 };
     entri.nilai += k.nilaiKontrak;
     entri.jumlah += 1;
-    peta.set(k.penanggungJawab, entri);
+    peta.set(k.operatorPenutup, entri);
   });
   return [...peta.entries()]
     .map(([label, v]) => ({
@@ -578,18 +582,24 @@ export function rankingSatker(
     .sort((a, b) => b.nilai - a.nilai || b.jumlahKontrak - a.jumlahKontrak);
 }
 
-/** Ringkasan jujur periode ranking: berapa kontrak dihitung & berapa yang memakai fallback tanggalMulai. */
+/** Ringkasan jujur periode ranking: berapa kontrak dihitung, berapa yang memakai fallback tanggalMulai, dan berapa yang belum punya operator penutup (tidak masuk Employee Rank). */
 export function ringkasanPeriodeRanking(
   data: AppData,
   mode: ModePeriodeRanking,
   periode: string,
-): { jumlahKontrak: number; jumlahFallback: number } {
+): {
+  jumlahKontrak: number;
+  jumlahFallback: number;
+  jumlahTanpaOperator: number;
+} {
   let jumlahKontrak = 0;
   let jumlahFallback = 0;
+  let jumlahTanpaOperator = 0;
   data.kontrak.forEach((k) => {
     if (!kontrakDalamPeriode(k, mode, periode)) return;
     jumlahKontrak += 1;
     if (!k.tanggalTandaTangan) jumlahFallback += 1;
+    if (!k.operatorPenutup) jumlahTanpaOperator += 1;
   });
-  return { jumlahKontrak, jumlahFallback };
+  return { jumlahKontrak, jumlahFallback, jumlahTanpaOperator };
 }

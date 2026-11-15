@@ -593,11 +593,14 @@ export default function App() {
         jenisPnBP: kategori.jenisPnBP,
         kategoriLayanan: input.kategoriLayanan,
         programa: input.programa || undefined,
+        tanggalTandaTangan: input.tanggalTandaTangan || undefined,
         tanggalMulai: input.tanggalMulai,
         tanggalSelesai: input.tanggalSelesai,
         nilaiKontrak,
         status: 'Draft',
         penanggungJawab: input.penanggungJawab,
+        operatorPenutup:
+          input.operatorPenutup?.trim() || penggunaAktif.nama,
         catatan: input.catatan || undefined,
         satker: SATKER_PILOT,
         layanan,
@@ -616,6 +619,32 @@ export default function App() {
         kontrak.nomorPks,
         '—',
         `${kontrak.nomorPks} — ${kategori.jenisPnBP} — Rp${nilaiKontrak.toLocaleString('id-ID')} (Draft)`,
+      );
+      return null;
+    },
+
+    ubahAtribusiKontrak: (kontrak, input) => {
+      const operator = (input.operatorPenutup ?? '').trim();
+      const tanggal = (input.tanggalTandaTangan ?? '').trim();
+      // Tanpa validasi tanggal tambahan: tanggal tanda tangan bisa
+      // mendahului tanggal mulai (lazim) dan data sumber pun punya
+      // tanggal yang tidak berurutan rapi — jangan tolak input yang sah.
+      const kontrakBaru: Kontrak = {
+        ...kontrak,
+        operatorPenutup: operator === '' ? undefined : operator,
+        tanggalTandaTangan: tanggal === '' ? undefined : tanggal,
+      };
+      setData((d) => ({
+        ...d,
+        kontrak: d.kontrak.map((k) => (k.id === kontrak.id ? kontrakBaru : k)),
+      }));
+      simpanKeFirestore('kontrak', kontrak.id, kontrakBaru);
+      tambahAudit(
+        'Atribusi kontrak diubah',
+        'Kontrak',
+        kontrak.nomorPks,
+        kontrak.operatorPenutup ?? '—',
+        `Operator penutup: ${kontrakBaru.operatorPenutup ?? '—'}; tanggal tanda tangan: ${kontrakBaru.tanggalTandaTangan ?? '—'}`,
       );
       return null;
     },
@@ -860,6 +889,7 @@ export default function App() {
         nilaiKontrak: nilai,
         status: 'Draft',
         penanggungJawab: pengajuan.penanggungJawab,
+        operatorPenutup: penggunaAktif.nama,
         catatan: `Berasal dari pengajuan ${pengajuan.id} (Dikonversi).`,
         satker: SATKER_PILOT,
         layanan: [
@@ -1556,6 +1586,7 @@ export default function App() {
         nilaiKontrak: order.nilai,
         status: 'Draft',
         penanggungJawab: prospect.penanggungJawab,
+        operatorPenutup: penggunaAktif.nama,
         catatan: `Berasal dari order ${order.id} (prospek ${prospect.id}).`,
         satker: SATKER_PILOT,
         layanan,

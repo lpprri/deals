@@ -382,6 +382,12 @@ function KartuRanking({ data }: { data: AppData }) {
           ` — pada ${labelPeriode}, ${formatAngka(ringkasan.jumlahFallback)} dari ${formatAngka(ringkasan.jumlahKontrak)} kontrak memakai tanggal mulai.`}
       </p>
       <p className="mt-1 text-xs text-[#0d2569]/60">
+        Employee Rank hanya menghitung kontrak yang sudah punya operator
+        penutup (staf Layanan yang menutup kontrak)
+        {ringkasan.jumlahTanpaOperator > 0 &&
+          ` — pada ${labelPeriode}, ${formatAngka(ringkasan.jumlahTanpaOperator)} dari ${formatAngka(ringkasan.jumlahKontrak)} kontrak belum punya operator penutup; tugaskan di detail kontrak (Deals → Contracts).`}
+      </p>
+      <p className="mt-1 text-xs text-[#0d2569]/60">
         Ranking nasional hanya mencakup satker yang datanya ada di aplikasi
         (saat ini PALEMBANG); satker tanpa data tidak ditampilkan.
       </p>

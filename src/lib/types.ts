@@ -66,7 +66,18 @@ export interface Kontrak {
   nilaiKontrak: number;
   status: StatusKontrak;
   sewaId?: string;
+  /** PIC klien (bukan operator RRI) — nama penanggung jawab di sisi klien/mitra. */
   penanggungJawab: string;
+  /**
+   * Operator Staf Layanan & Pengembangan Usaha yang menutup kontrak ini
+   * (Q-09; keputusan pengguna 2026-11-15). Acuan Employee Rank — BUKAN
+   * penanggungJawab (itu PIC klien). Diisi otomatis dari nama operator
+   * yang login saat kontrak dibuat/dikonversi; bisa diubah di detail
+   * kontrak. Kontrak impor lama belum punya field ini (tidak diketahui
+   * operatornya) — ranking hanya menghitung kontrak yang sudah punya
+   * operatorPenutup dan memberi catatan jujur untuk sisanya.
+   */
+  operatorPenutup?: string;
   catatan?: string;
   satker: SatkerRef;
   layanan: LayananKontrak[];

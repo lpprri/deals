@@ -66,9 +66,13 @@ export interface KontrakInput {
   klienId: string;
   kategoriLayanan: string;
   programa?: string;
+  /** Tanggal kontrak ditandatangani (Q-09) — opsional; kosong = fallback tanggalMulai. */
+  tanggalTandaTangan?: string;
   tanggalMulai: string;
   tanggalSelesai: string;
   penanggungJawab: string;
+  /** Operator penutup (Q-09) — opsional; kosong = diisi nama operator yang login. */
+  operatorPenutup?: string;
   catatan?: string;
   layanan: LayananInput[];
 }
@@ -211,6 +215,16 @@ export interface ArtikelKBInput {
 export interface StoreActions {
   tambahKlien: (input: KlienInput) => string | null;
   tambahKontrak: (input: KontrakInput) => string | null;
+  /**
+   * Ubah atribusi kontrak (Q-09; keputusan 2026-11-15): operator penutup
+   * dan/atau tanggal tanda tangan. Dipakai untuk menugaskan operator ke
+   * kontrak impor yang belum punya operatorPenutup. Kontrak lain tidak
+   * berubah; perubahan tercatat di audit.
+   */
+  ubahAtribusiKontrak: (
+    kontrak: Kontrak,
+    input: { operatorPenutup?: string; tanggalTandaTangan?: string },
+  ) => string | null;
   catatPembayaran: (input: PembayaranInput) => string | null;
   verifikasiPembayaran: (id: string) => void;
   tambahDenda: (input: DendaInput) => string | null;
