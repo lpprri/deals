@@ -163,7 +163,7 @@ export default function Deals(props: ModulProps) {
 
 /* ============================== Tab Klien ============================== */
 
-function TabKlien({
+export function TabKlien({
   data,
   user,
   actions,
