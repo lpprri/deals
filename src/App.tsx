@@ -22,7 +22,6 @@ import {
   LayoutDashboard,
   LogOut,
   Megaphone,
-  Settings,
   ShieldCheck,
   Wallet,
 } from 'lucide-react';
@@ -2180,9 +2179,6 @@ export default function App() {
           )}
         </nav>
         <div className="border-t border-white/15 px-5 py-4 text-xs text-white/70">
-          <p className="flex items-center gap-2">
-            <Settings size={14} /> {penggunaAktif.nama}
-          </p>
           <p className="mt-1">{LABEL_PERAN[penggunaAktif.peran]}</p>
           <p>{labelJabatan(penggunaAktif.jabatan)}</p>
           <button
