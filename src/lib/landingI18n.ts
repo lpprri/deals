@@ -92,9 +92,6 @@ export interface KamusLanding {
   lahanCocokUntuk: string;
   lahanLuas: string;
   lahanTarifEstimasi: string;
-  lacakJudul: string;
-  lacakDesk: string;
-  lacakCta: string;
   tentangJudul: string;
   profilJudul: string;
   profilIsi: string;
@@ -217,10 +214,6 @@ export const KAMUS: Record<BahasaLanding, KamusLanding> = {
     lahanCocokUntuk: 'Cocok untuk',
     lahanLuas: 'Luas',
     lahanTarifEstimasi: 'Tarif estimasi',
-    lacakJudul: 'Lacak Kerja Sama Anda',
-    lacakDesk:
-      'Masukkan nomor PKS atau nomor tagihan Anda untuk melihat detail kerja sama, dokumen, dan tagihan — tanpa login dan tanpa akun.',
-    lacakCta: 'Lacak Sekarang',
     tentangJudul: 'Tentang Kami',
     profilJudul: 'Profil',
     profilIsi:
@@ -352,10 +345,6 @@ export const KAMUS: Record<BahasaLanding, KamusLanding> = {
     lahanCocokUntuk: 'Suitable for',
     lahanLuas: 'Area',
     lahanTarifEstimasi: 'Estimated rate',
-    lacakJudul: 'Track Your Partnership',
-    lacakDesk:
-      'Enter your PKS number or invoice number to see the details of your partnership, documents, and invoices — no sign-in, no account.',
-    lacakCta: 'Track Now',
     tentangJudul: 'About Us',
     profilJudul: 'Profile',
     profilIsi:

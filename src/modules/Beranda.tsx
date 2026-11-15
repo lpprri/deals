@@ -1,17 +1,20 @@
 // Shell landing page publik "Partnership LPP RRI" (halaman depan, tanpa login).
 //
-// Struktur satu halaman panjang + navigasi anchor:
-//   Header (sticky) → Hero → Our Service (Worker 2) → Track & Trace +
-//   About Us (Worker 3) → How It Works → FAQ → CTA banner → Footer.
-// Section Layanan dan Tentang dibuat worker lain secara paralel
-// (src/modules/landing/Layanan.tsx dan Tentang.tsx); file ini hanya
-// mengimpor dan merangkainya, serta meneruskan kamus `t` + callback.
-// Kedua section itu membawa id anchor-nya sendiri (Layanan: #layanan;
-// Tentang: #lacak dan #tentang) — Beranda TIDAK membungkusnya dengan
-// div ber-id dan TIDAK me-render strip Lacak sendiri (duplikasi id).
-// CATATAN PERAKITAN: artikel Contact Us di Tentang.tsx belum punya
-// id="kontak", jadi tautan nav #kontak saat ini tidak punya target —
-// Worker 3 perlu menambahkan id="kontak" pada artikel Contact Us.
+// Struktur HALAMAN TERPISAH per section (keputusan pengguna 2026-11-15):
+//   Header (sticky) + Footer dipakai bersama semua halaman; <main> hanya
+//   me-render SATU halaman sesuai `halamanLanding` — Home hanya menampilkan
+//   Hero (tanpa section lain yang bertumpuk). Navigasi header/footer
+//   memanggil `onNavigasiLanding(halaman)`; "Lacak" membuka halaman Track
+//   yang sudah ada (src/modules/Lacak.tsx) lewat `onTrack`; "Hubungi Kami"
+//   membuka halaman Tentang lalu menggulir ke kartu kontak (jangkar).
+//   Halaman: beranda (Hero) | layanan (Our Service + Book a Room +
+//   Rent a Space) | kolaborasi | tentang (About Us: Profile, Contact,
+//   Clients) | cara (How It Works) | faq. Banner CTA tampil di semua
+//   halaman landing, sebelum footer.
+// Section Layanan, Kolaborasi, dan Tentang dibuat worker lain secara
+// paralel (src/modules/landing/Layanan.tsx, Kolaborasi.tsx, Tentang.tsx);
+// file ini hanya mengimpor dan merangkainya, serta meneruskan kamus `t` +
+// callback.
 //
 // Bahasa: dual ID/EN dengan toggle di header, default Bahasa Indonesia
 // (keputusan pengguna 2026-11-15). Pilihan disimpan di localStorage
@@ -48,14 +51,34 @@ export type OnAjukanLanding = (
   uraianAwal: string,
 ) => void;
 
+/** Satu halaman landing yang ditampilkan di <main> (halaman terpisah). */
+export type HalamanLanding =
+  | 'beranda'
+  | 'layanan'
+  | 'kolaborasi'
+  | 'tentang'
+  | 'cara'
+  | 'faq';
+
 export interface BerandaProps {
   data: AppData;
   onLogin: () => void;
   onTrack: () => void;
   onAjukan: OnAjukanLanding;
+  halamanLanding: HalamanLanding;
+  jangkarLanding: string | null;
+  onNavigasiLanding: (halaman: HalamanLanding, jangkar?: string) => void;
 }
 
-export default function Beranda({ data, onLogin, onTrack, onAjukan }: BerandaProps) {
+export default function Beranda({
+  data,
+  onLogin,
+  onTrack,
+  onAjukan,
+  halamanLanding,
+  jangkarLanding,
+  onNavigasiLanding,
+}: BerandaProps) {
   // Pilihan bahasa disimpan di localStorage agar tidak reset ke ID saat
   // pengguna membuka form pengajuan/Lacak lalu kembali ke beranda.
   const [bahasa, setBahasa] = useState<BahasaLanding>(() => {
@@ -73,6 +96,16 @@ export default function Beranda({ data, onLogin, onTrack, onAjukan }: BerandaPro
       // Penyimpanan tidak tersedia (mode privat, dsb.) — abaikan saja.
     }
   }, [bahasa]);
+
+  // "Hubungi Kami" membuka halaman Tentang lalu menggulir ke kartu kontak.
+  useEffect(() => {
+    if (!jangkarLanding) return;
+    document.getElementById(jangkarLanding)?.scrollIntoView({ behavior: 'smooth' });
+  }, [halamanLanding, jangkarLanding]);
+
+  // Item nav halaman aktif ditandai biru + tebal (rasa "tab").
+  const kelasNav = (aktif: boolean) =>
+    aktif ? 'font-bold text-[#2573e2]' : 'hover:text-[#2573e2]';
   const t: KamusLanding = KAMUS[bahasa];
 
   // Statistik hero — DATA NYATA, dihitung dari prop + master satker.
@@ -101,7 +134,12 @@ export default function Beranda({ data, onLogin, onTrack, onAjukan }: BerandaPro
       {/* ---------- Header (sticky, latar putih) ---------- */}
       <header className="sticky top-0 z-50 border-b border-slate-200 bg-white">
         <div className="mx-auto flex max-w-7xl items-center gap-4 px-4 py-3 sm:px-6">
-          <a href="#beranda" className="flex min-w-0 items-center gap-3">
+          <button
+            type="button"
+            onClick={() => onNavigasiLanding('beranda')}
+            className="flex min-w-0 items-center gap-3"
+            aria-label="Partnership LPP RRI — Beranda"
+          >
             <img
               src={LOGO_RRI_LANDING_DATA_URI}
               alt="Radio Republik Indonesia"
@@ -110,30 +148,58 @@ export default function Beranda({ data, onLogin, onTrack, onAjukan }: BerandaPro
             <span className="truncate text-base font-bold text-[#0d2569] sm:text-lg">
               Partnership LPP RRI
             </span>
-          </a>
+          </button>
 
           <nav
             aria-label="Navigasi utama"
             className="ml-auto hidden items-center gap-6 text-sm font-medium lg:flex"
           >
-            <a href="#beranda" className="hover:text-[#2573e2]">
+            <button
+              type="button"
+              onClick={() => onNavigasiLanding('beranda')}
+              aria-current={halamanLanding === 'beranda' ? 'page' : undefined}
+              className={kelasNav(halamanLanding === 'beranda')}
+            >
               {t.navBeranda}
-            </a>
-            <a href="#layanan" className="hover:text-[#2573e2]">
+            </button>
+            <button
+              type="button"
+              onClick={() => onNavigasiLanding('layanan')}
+              aria-current={halamanLanding === 'layanan' ? 'page' : undefined}
+              className={kelasNav(halamanLanding === 'layanan')}
+            >
               {t.navLayanan}
-            </a>
-            <a href="#kolaborasi" className="hover:text-[#2573e2]">
+            </button>
+            <button
+              type="button"
+              onClick={() => onNavigasiLanding('kolaborasi')}
+              aria-current={halamanLanding === 'kolaborasi' ? 'page' : undefined}
+              className={kelasNav(halamanLanding === 'kolaborasi')}
+            >
               {t.navKolaborasi}
-            </a>
-            <a href="#lacak" className="hover:text-[#2573e2]">
+            </button>
+            <button
+              type="button"
+              onClick={onTrack}
+              className="hover:text-[#2573e2]"
+            >
               {t.navLacak}
-            </a>
-            <a href="#tentang" className="hover:text-[#2573e2]">
+            </button>
+            <button
+              type="button"
+              onClick={() => onNavigasiLanding('tentang')}
+              aria-current={halamanLanding === 'tentang' ? 'page' : undefined}
+              className={kelasNav(halamanLanding === 'tentang')}
+            >
               {t.navTentang}
-            </a>
-            <a href="#kontak" className="hover:text-[#2573e2]">
+            </button>
+            <button
+              type="button"
+              onClick={() => onNavigasiLanding('tentang', 'kontak')}
+              className="hover:text-[#2573e2]"
+            >
               {t.navKontak}
-            </a>
+            </button>
           </nav>
 
           {/* Toggle bahasa: ID | EN */}
@@ -179,7 +245,8 @@ export default function Beranda({ data, onLogin, onTrack, onAjukan }: BerandaPro
       </header>
 
       <main>
-        {/* ---------- Hero ---------- */}
+        {/* ---------- Hero — hanya di halaman Home ---------- */}
+        {halamanLanding === 'beranda' && (
         <section id="beranda" className="bg-white">
           <div className="mx-auto grid max-w-7xl gap-10 px-4 py-12 sm:px-6 lg:grid-cols-2 lg:items-center lg:py-16">
             <div>
@@ -251,18 +318,19 @@ export default function Beranda({ data, onLogin, onTrack, onAjukan }: BerandaPro
             </div>
           </div>
         </section>
+        )}
 
-        {/* ---------- Our Service (Worker 2; section ber-id #layanan) ---------- */}
-        <LayananSection t={t} onAjukan={onAjukan} />
+        {/* ---------- Services — halaman sendiri ---------- */}
+        {halamanLanding === 'layanan' && <LayananSection t={t} onAjukan={onAjukan} />}
 
-        {/* ---------- Collaboration (di antara Services dan Track) ---------- */}
-        <KolaborasiSection t={t} onAjukan={onAjukan} />
+        {/* ---------- Collaboration — halaman sendiri ---------- */}
+        {halamanLanding === 'kolaborasi' && <KolaborasiSection t={t} onAjukan={onAjukan} />}
 
-        {/* ---------- Track & Trace + About Us (Worker 3;
-            section ber-id #lacak dan #tentang) ---------- */}
-        <TentangSection t={t} onTrack={onTrack} onAjukan={onAjukan} />
+        {/* ---------- About Us — halaman sendiri ---------- */}
+        {halamanLanding === 'tentang' && <TentangSection t={t} onAjukan={onAjukan} />}
 
-        {/* ---------- Cara Kerja / How It Works ---------- */}
+        {/* ---------- Cara Kerja / How It Works — halaman sendiri ---------- */}
+        {halamanLanding === 'cara' && (
         <section id="cara-kerja" className="bg-white">
           <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6">
             <h2 className="text-center text-2xl font-extrabold text-[#0d2569] sm:text-3xl">
@@ -288,8 +356,10 @@ export default function Beranda({ data, onLogin, onTrack, onAjukan }: BerandaPro
             </ol>
           </div>
         </section>
+        )}
 
-        {/* ---------- FAQ ---------- */}
+        {/* ---------- FAQ — halaman sendiri ---------- */}
+        {halamanLanding === 'faq' && (
         <section id="faq" className="bg-white">
           <div className="mx-auto max-w-3xl px-4 py-12 sm:px-6">
             <h2 className="text-center text-2xl font-extrabold text-[#0d2569] sm:text-3xl">
@@ -312,8 +382,9 @@ export default function Beranda({ data, onLogin, onTrack, onAjukan }: BerandaPro
             </div>
           </div>
         </section>
+        )}
 
-        {/* ---------- CTA banner (Navy RRI) ---------- */}
+        {/* ---------- CTA banner (Navy RRI) — di semua halaman landing ---------- */}
         <section className="bg-[#0d2569]">
           <div className="mx-auto max-w-7xl px-4 py-12 text-center sm:px-6">
             <h2 className="text-2xl font-extrabold text-white sm:text-3xl">
@@ -355,19 +426,31 @@ export default function Beranda({ data, onLogin, onTrack, onAjukan }: BerandaPro
             <h3 className="text-sm font-bold text-[#0d2569]">{t.footerLayanan}</h3>
             <ul className="mt-3 space-y-2 text-sm text-slate-600">
               <li>
-                <a href="#layanan" className="hover:text-[#2573e2]">
+                <button
+                  type="button"
+                  onClick={() => onNavigasiLanding('layanan')}
+                  className="hover:text-[#2573e2]"
+                >
                   {t.navLayanan}
-                </a>
+                </button>
               </li>
               <li>
-                <a href="#kolaborasi" className="hover:text-[#2573e2]">
+                <button
+                  type="button"
+                  onClick={() => onNavigasiLanding('kolaborasi')}
+                  className="hover:text-[#2573e2]"
+                >
                   {t.navKolaborasi}
-                </a>
+                </button>
               </li>
               <li>
-                <a href="#lacak" className="hover:text-[#2573e2]">
+                <button
+                  type="button"
+                  onClick={onTrack}
+                  className="hover:text-[#2573e2]"
+                >
                   {t.navLacak}
-                </a>
+                </button>
               </li>
             </ul>
           </nav>
@@ -375,24 +458,49 @@ export default function Beranda({ data, onLogin, onTrack, onAjukan }: BerandaPro
             <h3 className="text-sm font-bold text-[#0d2569]">{t.footerTentang}</h3>
             <ul className="mt-3 space-y-2 text-sm text-slate-600">
               <li>
-                <a href="#beranda" className="hover:text-[#2573e2]">
+                <button
+                  type="button"
+                  onClick={() => onNavigasiLanding('beranda')}
+                  className="hover:text-[#2573e2]"
+                >
                   {t.navBeranda}
-                </a>
+                </button>
               </li>
               <li>
-                <a href="#tentang" className="hover:text-[#2573e2]">
+                <button
+                  type="button"
+                  onClick={() => onNavigasiLanding('tentang')}
+                  className="hover:text-[#2573e2]"
+                >
                   {t.navTentang}
-                </a>
+                </button>
               </li>
               <li>
-                <a href="#kontak" className="hover:text-[#2573e2]">
+                <button
+                  type="button"
+                  onClick={() => onNavigasiLanding('tentang', 'kontak')}
+                  className="hover:text-[#2573e2]"
+                >
                   {t.navKontak}
-                </a>
+                </button>
               </li>
               <li>
-                <a href="#faq" className="hover:text-[#2573e2]">
+                <button
+                  type="button"
+                  onClick={() => onNavigasiLanding('cara')}
+                  className="hover:text-[#2573e2]"
+                >
+                  {t.caraJudul}
+                </button>
+              </li>
+              <li>
+                <button
+                  type="button"
+                  onClick={() => onNavigasiLanding('faq')}
+                  className="hover:text-[#2573e2]"
+                >
                   {t.faqJudul}
-                </a>
+                </button>
               </li>
               <li>
                 <button
