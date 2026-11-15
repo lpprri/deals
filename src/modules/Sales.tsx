@@ -1136,7 +1136,7 @@ const BARIS_QUOTATION_AWAL: BarisQuotationForm = {
   programa: '',
 };
 
-function FormQuotation({
+export function FormQuotation({
   data,
   actions,
   onBatal,
@@ -2024,7 +2024,7 @@ export function TabAnalytics({ data }: { data: ModulProps['data'] }) {
 
   return (
     <div className="space-y-4">
-      <JudulBagian>Analytics</JudulBagian>
+      <JudulBagian>Summary</JudulBagian>
       <div className="grid gap-3 md:grid-cols-3 xl:grid-cols-5">
         <StatCard label="Number of Prospects" nilai={String(a.jumlahProspect)} />
         <StatCard

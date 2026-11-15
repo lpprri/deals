@@ -295,7 +295,7 @@ const MODULES: NavItem[] = [
     icon: UserPlus,
     phase: 'B',
     description:
-      'Prospect list — the same Prospect tab as Offer (PRS-01 …).',
+      'Prospect list — the same prospects as the Offer pipeline (PRS-01 …).',
   },
   {
     id: 'offer',
@@ -303,7 +303,7 @@ const MODULES: NavItem[] = [
     icon: Tag,
     phase: 'B',
     description:
-      'Quotation + Prospect — the same Quotation and Prospect tabs as Sales (QTN-01 …, PRS-01 …).',
+      'Offer pipeline — opportunities from first contact to accepted or rejected (QTN-01 …, PRS-01 …).',
   },
   {
     id: 'order',
