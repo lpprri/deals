@@ -35,6 +35,7 @@ import type { AppData } from '../lib/types';
 import { DAFTAR_SATKER } from '../lib/satker';
 import { GEDUNG_RRI_DATA_URI } from '../lib/gedungRri';
 import { LOGO_RRI_LANDING_DATA_URI } from '../lib/logoRriLanding';
+import { LOGO_DEALS_DATA_URI } from '../lib/logoDeals';
 import {
   KAMUS,
   type BahasaLanding,
@@ -138,16 +139,18 @@ export default function Beranda({
             type="button"
             onClick={() => onNavigasiLanding('beranda')}
             className="flex min-w-0 items-center gap-3"
-            aria-label="Partnership LPP RRI — Beranda"
+            aria-label="Deals — Beranda"
           >
             <img
               src={LOGO_RRI_LANDING_DATA_URI}
               alt="Radio Republik Indonesia"
               className="h-10 w-auto shrink-0"
             />
-            <span className="truncate text-base font-bold text-[#0d2569] sm:text-lg">
-              Partnership LPP RRI
-            </span>
+            <img
+              src={LOGO_DEALS_DATA_URI}
+              alt="Deals"
+              className="h-10 w-auto shrink-0"
+            />
           </button>
 
           <nav
@@ -414,9 +417,11 @@ export default function Beranda({
                 alt="Radio Republik Indonesia"
                 className="h-10 w-auto shrink-0"
               />
-              <span className="text-base font-bold text-[#0d2569]">
-                Partnership LPP RRI
-              </span>
+              <img
+                src={LOGO_DEALS_DATA_URI}
+                alt="Deals"
+                className="h-10 w-auto shrink-0"
+              />
             </div>
             <p className="mt-4 max-w-md text-sm leading-relaxed text-slate-600">
               {t.footerDesk}
