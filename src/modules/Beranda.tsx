@@ -14,8 +14,10 @@
 // Worker 3 perlu menambahkan id="kontak" pada artikel Contact Us.
 //
 // Bahasa: dual ID/EN dengan toggle di header, default Bahasa Indonesia
-// (keputusan pengguna 2026-11-15). Dashboard/aplikasi tetap Inggris penuh;
-// kamus ini hanya untuk landing page (lihat src/lib/landingI18n.ts).
+// (keputusan pengguna 2026-11-15). Pilihan disimpan di localStorage
+// ('rri-bahasa-landing') agar tetap terpilih saat pengguna membuka form
+// pengajuan/Lacak lalu kembali ke beranda. Dashboard/aplikasi tetap
+// Inggris penuh; kamus ini hanya untuk landing page (lihat src/lib/landingI18n.ts).
 //
 // Data: statistik hero dihitung dari DATA NYATA (prop `data` + daftar
 // satker nasional) — tidak ada angka karangan. Foto hero memakai foto
@@ -25,7 +27,7 @@
 // section gelap), Putih #FFFFFF (latar). Abu-abu netral (slate) dipakai
 // HANYA untuk teks sekunder — bukan warna aksen baru.
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import type { AppData } from '../lib/types';
 import { DAFTAR_SATKER } from '../lib/satker';
 import { GEDUNG_RRI_DATA_URI } from '../lib/gedungRri';
@@ -52,7 +54,23 @@ export interface BerandaProps {
 }
 
 export default function Beranda({ data, onLogin, onTrack, onAjukan }: BerandaProps) {
-  const [bahasa, setBahasa] = useState<BahasaLanding>('id');
+  // Pilihan bahasa disimpan di localStorage agar tidak reset ke ID saat
+  // pengguna membuka form pengajuan/Lacak lalu kembali ke beranda.
+  const [bahasa, setBahasa] = useState<BahasaLanding>(() => {
+    try {
+      const tersimpan = localStorage.getItem('rri-bahasa-landing');
+      return tersimpan === 'en' || tersimpan === 'id' ? tersimpan : 'id';
+    } catch {
+      return 'id';
+    }
+  });
+  useEffect(() => {
+    try {
+      localStorage.setItem('rri-bahasa-landing', bahasa);
+    } catch {
+      // Penyimpanan tidak tersedia (mode privat, dsb.) — abaikan saja.
+    }
+  }, [bahasa]);
   const t: KamusLanding = KAMUS[bahasa];
 
   // Statistik hero — DATA NYATA, dihitung dari prop + master satker.
