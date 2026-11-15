@@ -110,7 +110,7 @@ import type {
   UmpanBalikInput,
 } from './lib/store';
 import Login from './components/Login';
-import Beranda from './modules/Beranda';
+import Beranda, { type HalamanLanding } from './modules/Beranda';
 import Lacak from './modules/Lacak';
 import Ajukan from './modules/Ajukan';
 import Dashboard from './modules/Dashboard';
@@ -325,6 +325,17 @@ export default function App() {
   const [peringatanSimpan, setPeringatanSimpan] = useState<string | null>(null);
   /** Halaman publik tanpa login (lacak/ajukan) saat belum masuk. */
   const [halamanPublik, setHalamanPublik] = useState<'beranda' | 'login' | 'lacak' | 'ajukan'>('beranda');
+  /** Halaman landing yang tampil (halaman terpisah per section). */
+  const [halamanLanding, setHalamanLanding] = useState<HalamanLanding>('beranda');
+  /** Jangkar tujuan setelah pindah halaman landing (mis. 'kontak'). */
+  const [jangkarLanding, setJangkarLanding] = useState<string | null>(null);
+  /** Pindah halaman landing; gulir ke atas (atau ke jangkar bila ada). */
+  const navigasiLanding = (halaman: HalamanLanding, jangkar?: string) => {
+    setHalamanLanding(halaman);
+    setJangkarLanding(jangkar ?? null);
+    setHalamanPublik('beranda');
+    window.scrollTo(0, 0);
+  };
   /** Prefill form Ajukan dari landing page (layanan/ruangan/lahan). */
   const [ajukanAwal, setAjukanAwal] = useState<{
     jenis: JenisPengajuanKlien;
@@ -471,17 +482,31 @@ export default function App() {
             setAjukanAwal({ jenis, judul, uraian });
             setHalamanPublik('ajukan');
           }}
+          halamanLanding={halamanLanding}
+          jangkarLanding={jangkarLanding}
+          onNavigasiLanding={navigasiLanding}
         />
       );
     }
     if (halamanPublik === 'lacak') {
-      return <Lacak data={data} onKembali={() => setHalamanPublik('beranda')} />;
+      return (
+        <Lacak
+          data={data}
+          onKembali={() => {
+            setHalamanLanding('beranda');
+            setHalamanPublik('beranda');
+          }}
+        />
+      );
     }
     if (halamanPublik === 'ajukan') {
       return (
         <Ajukan
           onKirim={kirimPengajuanPublik}
-          onKembali={() => setHalamanPublik('beranda')}
+          onKembali={() => {
+            setHalamanLanding('beranda');
+            setHalamanPublik('beranda');
+          }}
           jenisAwal={ajukanAwal?.jenis}
           judulAwal={ajukanAwal?.judul}
           uraianAwal={ajukanAwal?.uraian}

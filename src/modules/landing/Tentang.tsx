@@ -1,10 +1,10 @@
-// Section Track & Trace + About Us untuk landing page publik
-// "Partnership LPP RRI" (REVISI 2026-11-15: klien TIDAK perlu login/akun).
+// Section About Us untuk landing page publik "Partnership LPP RRI"
+// (REVISI 2026-11-15: klien TIDAK perlu login/akun; REVISI HALAMAN
+// TERPISAH 2026-11-15: section Track & Trace dihapus dari sini —
+// tombol "Lacak" di navigasi langsung membuka halaman Track yang
+// sudah ada (src/modules/Lacak.tsx) lewat onTrack() di Beranda).
 //
-// Track & Trace HANYA mengarahkan ke halaman Track yang sudah ada
-// (src/modules/Lacak.tsx) lewat onTrack() — TIDAK membangun ulang halaman
-// tracking, TIDAK ada input nomor di section ini, TIDAK ada pencarian
-// nama. About Us me-render teks dari kamus landing (landingI18n.ts):
+// About Us me-render teks dari kamus landing (landingI18n.ts):
 // Profile, Contact Us (identitas dummy + jam layanan), dan Our Clients
 // dari registry logo (src/lib/clientLogos.ts — saat ini kosong, jadi
 // tampil empty state yang jujur).
@@ -12,17 +12,15 @@
 // Warna: Biru RRI #2573E2 (aksen), Navy #0D2569, Putih #FFFFFF; abu-abu
 // netral hanya untuk teks sekunder.
 
-import { ArrowRight, Building2, Clock, Mail, MapPin, Phone } from 'lucide-react';
+import { Building2, Clock, Mail, MapPin, Phone } from 'lucide-react';
 import type { KamusLanding } from '../../lib/landingI18n';
 import { DAFTAR_LOGO_KLIEN } from '../../lib/clientLogos';
 
 export default function Tentang({
   t,
-  onTrack,
   onAjukan,
 }: {
   t: KamusLanding;
-  onTrack: () => void;
   onAjukan: (
     jenisAwal: 'Pengajuan Kerja Sama' | 'Media Order' | 'Permohonan Sewa',
     judulAwal: string,
@@ -30,28 +28,6 @@ export default function Tentang({
   ) => void;
 }) {
   return (
-    <>
-      {/* --- Track & Trace: tombol menuju halaman Track yang sudah ada --- */}
-      <section id="lacak" className="bg-white py-16 sm:py-20">
-        <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
-          <div className="mx-auto max-w-2xl text-center">
-            <h2 className="text-2xl font-bold text-[#0D2569] sm:text-3xl">
-              {t.lacakJudul}
-            </h2>
-            <p className="mt-4 text-base text-slate-600">{t.lacakDesk}</p>
-            <button
-              type="button"
-              onClick={onTrack}
-              className="mt-8 inline-flex items-center gap-2 rounded-lg bg-[#2573E2] px-8 py-3 text-base font-semibold text-white shadow-sm transition hover:bg-[#1a5fc4] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#2573E2] focus-visible:ring-offset-2"
-            >
-              {t.lacakCta}
-              <ArrowRight className="h-5 w-5" aria-hidden="true" />
-            </button>
-          </div>
-        </div>
-      </section>
-
-      {/* --- About Us: Profile, Contact Us, Our Clients --- */}
       <section id="tentang" className="bg-slate-50 py-16 sm:py-20">
         <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
           <h2 className="text-center text-2xl font-bold text-[#0D2569] sm:text-3xl">
@@ -140,6 +116,5 @@ export default function Tentang({
           </article>
         </div>
       </section>
-    </>
   );
 }
