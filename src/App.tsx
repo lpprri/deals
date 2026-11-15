@@ -34,6 +34,7 @@ import {
   ShieldCheck,
   Stamp,
   Tag,
+  UserPlus,
   Users,
   Wallet,
   X,
@@ -153,6 +154,7 @@ import {
   MenuMoU,
 } from './modules/KerjaSama';
 import { MenuKlien } from './modules/Klien';
+import { MenuProspek } from './modules/Prospek';
 import { MenuOffer, MenuOrder } from './modules/Penawaran';
 import { MenuMeeting } from './modules/Pertemuan';
 import { MenuUmpanBalik } from './modules/UmpanBalik';
@@ -162,6 +164,7 @@ type ModuleId =
   | 'dashboard'
   | 'marketing'
   | 'klien'
+  | 'prospek'
   | 'offer'
   | 'order'
   | 'meeting'
@@ -271,6 +274,14 @@ const MODULES: NavItem[] = [
     icon: Users,
     phase: 'A',
     description: 'Client list — the same client list as Deals (Clients tab).',
+  },
+  {
+    id: 'prospek',
+    label: 'Prospect',
+    icon: UserPlus,
+    phase: 'B',
+    description:
+      'Prospect list — the same Prospect tab as Offer (PRS-01 …).',
   },
   {
     id: 'offer',
@@ -388,7 +399,8 @@ const MODULES: NavItem[] = [
     20:14 WIB — menu Offer dan Order ditambahkan di cluster itu,
     setelah Clients; PR #39, diminta pengguna 15/11/2026
     20:36 WIB — menu Meeting ditambahkan di cluster itu, setelah
-    Order):
+    Order; PR #40, diminta pengguna 15/11/2026 20:53 WIB — menu
+    Prospect ditambahkan di cluster itu, di bawah Clients):
     item nav utama dibagi ke cluster yang dipisah garis tipis, tanpa
     label kelompok (kecuali ADMIN yang sudah punya label). Urutan
     cluster = urutan tampil di sidebar; urutan di dalam cluster
@@ -396,7 +408,7 @@ const MODULES: NavItem[] = [
 const CLUSTER_SIDEBAR: ModuleId[][] = [
   ['home'],
   ['kontrak', 'mou', 'komitmen', 'approvement'],
-  ['sales', 'deals', 'marketing', 'klien', 'offer', 'order', 'meeting'],
+  ['sales', 'deals', 'marketing', 'klien', 'prospek', 'offer', 'order', 'meeting'],
   ['revenue', 'reporting', 'dashboard'],
   ['todo', 'service'],
 ];
@@ -2721,6 +2733,7 @@ export default function App() {
             {active === 'sales' && <Sales {...propsModul} />}
             {active === 'marketing' && <Marketing {...propsModul} />}
             {active === 'klien' && <MenuKlien {...propsModul} />}
+            {active === 'prospek' && <MenuProspek {...propsModul} />}
             {active === 'offer' && <MenuOffer {...propsModul} />}
             {active === 'order' && <MenuOrder {...propsModul} />}
             {active === 'meeting' && <MenuMeeting {...propsModul} />}
