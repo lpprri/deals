@@ -57,6 +57,7 @@ import {
   ringkasanDistribusi,
 } from './lib/derive';
 import { buatEntriAudit } from './lib/audit';
+import Notifikasi from './components/Notifikasi';
 import { DAFTAR_JENIS_PENGAJUAN_KLIEN, type JenisPengajuanKlien } from './lib/types';
 import { bolehAksi, LABEL_PERAN } from './lib/permissions';
 import { formatRupiah, formatTanggal, hariIniIso } from './lib/format';
@@ -2188,23 +2189,55 @@ export default function App() {
   const propsModul = { data, user: penggunaAktif, actions, cari };
 
   return (
-    <div className="flex h-full">
-      {/* Sidebar gelap — Navy RRI #0D2569 */}
-      <aside className="flex w-60 shrink-0 flex-col bg-[#0d2569] text-white">
-        <div className="px-5 pb-4 pt-5">
-          <div className="flex items-center gap-3">
-            <span className="flex h-10 shrink-0 items-center rounded-md bg-white px-2 py-1">
-              <img src="/logo-rri.svg" alt="Logo RRI" className="h-7 w-auto" />
+    <div className="flex h-full flex-col">
+      {/* Top bar putih gaya Qontak — logo + search + aksi di satu baris.
+          Nama operator tampil DI SINI (instruksi pengguna 15/11/2026);
+          footer sidebar tetap tanpa nama (keputusan 15/11/2026 12:14 WIB). */}
+      <header className="flex shrink-0 items-center gap-4 border-b border-[#2573e2]/15 bg-white px-6 py-3">
+        <div className="flex shrink-0 items-center gap-3">
+          <img src="/logo-rri.svg" alt="Logo RRI" className="h-9 w-auto" />
+          <span className="text-lg font-bold leading-tight text-[#0d2569]">
+            Partnership LPP RRI
+          </span>
+        </div>
+        <div className="min-w-0 flex-1">
+          <input
+            type="search"
+            value={cari}
+            onChange={(e) => setCari(e.target.value)}
+            placeholder="Search clients, contracts, invoices…"
+            className="w-full max-w-md rounded-md border border-[#2573e2]/40 px-3 py-2 text-sm outline-none placeholder:text-[#0d2569]/50 focus:border-[#2573e2]"
+          />
+        </div>
+        <div className="ml-auto flex shrink-0 items-center gap-3">
+          <button
+            onClick={() => setActive('pengajuan')}
+            className="rounded-md bg-[#2573e2] px-4 py-2 text-sm font-semibold text-white"
+          >
+            + Add
+          </button>
+          <Notifikasi data={data} onNavigasi={(m) => setActive(m)} />
+          <div className="flex items-center gap-2.5">
+            <span className="flex h-9 w-9 items-center justify-center rounded-full bg-[#2573e2] text-sm font-bold text-white">
+              {penggunaAktif.nama.trim().charAt(0).toUpperCase()}
             </span>
-            <span>
-              <p className="text-lg font-bold leading-tight">Partnership</p>
-              <p className="text-lg font-bold leading-tight">LPP RRI</p>
+            <span className="leading-tight">
+              <span className="block text-sm font-semibold text-[#0d2569]">
+                {penggunaAktif.nama}
+              </span>
+              <span className="block text-xs text-[#0d2569]/60">
+                {penggunaAktif.satker?.nama ?? 'PALEMBANG'}
+              </span>
             </span>
           </div>
-          <p className="mt-2 text-xs text-white/70">Radio Republik Indonesia</p>
-          <p className="mt-1 text-xs text-white/70">Satker: PALEMBANG (Pilot)</p>
         </div>
-        <nav className="flex-1 space-y-1 overflow-auto px-3">
+      </header>
+
+      <div className="flex min-h-0 flex-1">
+      {/* Sidebar gelap — Navy RRI #0D2569 (blok header logo dihapus: logo &
+          satker sudah di top bar) */}
+      <aside className="flex w-60 shrink-0 flex-col bg-[#0d2569] text-white">
+        <nav className="flex-1 space-y-1 overflow-auto px-3 pt-4">
           {navUtama.map((m) => {
             const ItemIcon = m.icon;
             const isActive = m.id === active;
@@ -2286,24 +2319,8 @@ export default function App() {
         </div>
       </aside>
 
-      {/* Konten */}
+      {/* Konten (search + Add sudah pindah ke top bar) */}
       <div className="flex min-w-0 flex-1 flex-col bg-white">
-        <header className="flex items-center gap-4 border-b border-[#2573e2]/15 px-6 py-3">
-          <input
-            type="search"
-            value={cari}
-            onChange={(e) => setCari(e.target.value)}
-            placeholder="Search clients, contracts, invoices…"
-            className="w-full max-w-md rounded-md border border-[#2573e2]/40 px-3 py-2 text-sm outline-none placeholder:text-[#0d2569]/50 focus:border-[#2573e2]"
-          />
-          <button
-            onClick={() => setActive('pengajuan')}
-            className="ml-auto rounded-md bg-[#2573e2] px-4 py-2 text-sm font-semibold text-white"
-          >
-            + Add
-          </button>
-        </header>
-
         <main className="flex-1 overflow-auto px-6 py-6">
           <h1 className="flex items-center gap-2 text-2xl font-bold text-[#0d2569]">
             <Icon size={26} className="text-[#2573e2]" />
@@ -2381,6 +2398,7 @@ export default function App() {
             {active === 'service' && <Service {...propsModul} />}
           </div>
         </main>
+      </div>
       </div>
     </div>
   );
