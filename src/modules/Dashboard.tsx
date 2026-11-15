@@ -19,18 +19,23 @@ import type { AppData } from '../lib/types';
 import {
   BENIH_ACAK_ATRIBUSI,
   distribusiAcakOperator,
+  FILTER_ANALYTICS_KOSONG,
   hitungTotalKontrol,
   nilaiKontrakPerBulan,
+  opsiFilterAnalytics,
   penyetoranPerBulan,
   periodeRankingTersedia,
   rankingOperator,
   rankingSatker,
   ringkasanDistribusi,
+  ringkasanAnalytics,
   ringkasanPeriodeRanking,
   sisaTagihan,
   statusTagihan,
   totalPerKodeAkun,
+  type BarisAnalytics,
   type BarisRanking,
+  type FilterAnalytics,
   type ModePeriodeRanking,
   type RingkasanOperator,
   type TitikBulanan,
@@ -50,6 +55,7 @@ import {
   labelAksiAudit,
   labelEntitasAudit,
   labelJenisDokumen,
+  labelKategoriLayanan,
   labelTahapPengajuan,
   labelUraianKodeAkun,
 } from '../lib/labels';
@@ -232,6 +238,586 @@ function GrafikTren({
         Contract value uses the invoice issue month (the month the PKS was
         issued); deposits use the payment date (cash flow) — same as the
         report reconciliation.
+      </p>
+    </Kartu>
+  );
+}
+
+/**
+ * Analytics Dashboard + Cross-Filtering (template Figma "Analytics Dashboard
+ * with Cross-Filtering" — pola panel filter, kartu KPI, dan perilaku
+ * cross-filtering saja; semua angka dari data nyata lewat ringkasanAnalytics).
+ * Filter Kategori / Region / Time Period; klik segmen donat, batang satker,
+ * atau batang tahun ikut mengatur filter yang sama. Semua KPI dan grafik
+ * mengikuti filter aktif, sehingga totalnya selalu cocok.
+ */
+
+// Warna segmen donat per kategori (PRD v2.2: warna tambahan diizinkan bila
+// memang dibutuhkan — segmen donat harus bisa dibedakan satu sama lain;
+// selain itu hanya warna dasar RRI yang dipakai).
+const WARNA_KATEGORI: Record<string, string> = {
+  'Jasa Penyiaran': '#2573E2',
+  'Jasa Penggunaan Sarana dan Prasarana Siaran': '#0D2569',
+  'Jasa Digitalisasi Penyiaran': '#2E9E6B',
+};
+const WARNA_KATEGORI_LAIN = ['#D97706', '#7C3AED', '#0891B2'];
+
+function warnaKategori(nama: string, indeks: number): string {
+  return (
+    WARNA_KATEGORI[nama] ??
+    WARNA_KATEGORI_LAIN[indeks % WARNA_KATEGORI_LAIN.length]
+  );
+}
+
+function labelPeriodeAnalytics(periode: string): string {
+  if (periode === '') return 'All Time';
+  if (periode.length === 4) return `Year ${periode}`;
+  return formatPeriode(periode);
+}
+
+function DonatKategori({
+  baris,
+  aktif,
+  onPilih,
+}: {
+  baris: BarisAnalytics[];
+  aktif: string;
+  onPilih: (label: string) => void;
+}) {
+  const total = baris.reduce((s, b) => s + b.nilai, 0);
+  const R = 70;
+  const C = 2 * Math.PI * R;
+  let berjalan = 0;
+  const segmen = baris.map((b, i) => {
+    const fraksi = total > 0 ? b.nilai / total : 0;
+    const seg = {
+      ...b,
+      warna: warnaKategori(b.label, i),
+      panjang: fraksi * C,
+      mulai: berjalan,
+      persen: fraksi * 100,
+    };
+    berjalan += fraksi * C;
+    return seg;
+  });
+  return (
+    <div className="flex flex-wrap items-center gap-4">
+      <svg
+        viewBox="0 0 180 180"
+        className="h-44 w-44 shrink-0"
+        role="img"
+        aria-label="Contract value by service category"
+      >
+        <circle
+          cx="90"
+          cy="90"
+          r={R}
+          fill="none"
+          stroke="#2573e2"
+          strokeOpacity={0.08}
+          strokeWidth={28}
+        />
+        {segmen.map((s) => (
+          <circle
+            key={s.label}
+            cx="90"
+            cy="90"
+            r={R}
+            fill="none"
+            stroke={s.warna}
+            strokeWidth={28}
+            strokeDasharray={`${s.panjang} ${C - s.panjang}`}
+            strokeDashoffset={-s.mulai}
+            transform="rotate(-90 90 90)"
+            opacity={aktif === '' || aktif === s.label ? 1 : 0.35}
+            className="cursor-pointer"
+            onClick={() => onPilih(s.label)}
+          >
+            <title>{`${labelKategoriLayanan(s.label)}: ${formatRupiah(s.nilai)} (${s.persen.toFixed(1)}%) — click to filter`}</title>
+          </circle>
+        ))}
+        <text
+          x="90"
+          y="88"
+          textAnchor="middle"
+          fontSize={16}
+          fontWeight={700}
+          fill="#0d2569"
+        >
+          {formatRupiahSingkat(total)}
+        </text>
+        <text
+          x="90"
+          y="106"
+          textAnchor="middle"
+          fontSize={11}
+          fill="#0d2569"
+          fillOpacity={0.6}
+        >
+          Total
+        </text>
+      </svg>
+      <ul className="min-w-56 flex-1 space-y-2">
+        {segmen.map((s) => (
+          <li key={s.label}>
+            <button
+              type="button"
+              onClick={() => onPilih(s.label)}
+              aria-pressed={aktif === s.label}
+              className={`flex w-full items-center gap-2 rounded-md border px-3 py-2 text-left text-sm ${
+                aktif === s.label
+                  ? 'border-[#2573e2] bg-[#2573e2]/5 font-semibold text-[#0d2569]'
+                  : 'border-[#2573e2]/15 bg-white text-[#0d2569]'
+              }`}
+            >
+              <span
+                className="h-3 w-3 shrink-0 rounded-sm"
+                style={{ background: s.warna }}
+              />
+              <span className="flex-1">
+                {labelKategoriLayanan(s.label)}
+              </span>
+              <span className="text-[#0d2569]/60">
+                {s.persen.toFixed(1)}%
+              </span>
+              <span className="font-semibold">{formatRupiah(s.nilai)}</span>
+            </button>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+function GrafikBatang({
+  baris,
+  aktif,
+  onPilih,
+  sumbu,
+}: {
+  baris: BarisAnalytics[];
+  aktif?: string;
+  onPilih?: (label: string) => void;
+  sumbu: (b: BarisAnalytics) => string;
+}) {
+  const W = 720;
+  const H = 240;
+  const PL = 64;
+  const PR = 16;
+  const PT = 24;
+  const PB = 28;
+  const maks = Math.max(...baris.map((b) => b.nilai), 1);
+  const lebar = baris.length > 0 ? (W - PL - PR) / baris.length : 0;
+  const y = (v: number) => PT + (1 - v / maks) * (H - PT - PB);
+  return (
+    <svg
+      viewBox={`0 0 ${W} ${H}`}
+      className="mt-4 w-full"
+      role="img"
+      aria-label="Bar chart"
+    >
+      {[0, 0.5, 1].map((f) => (
+        <g key={f}>
+          <line
+            x1={PL}
+            x2={W - PR}
+            y1={y(maks * f)}
+            y2={y(maks * f)}
+            stroke="#2573e2"
+            strokeOpacity={0.12}
+          />
+          <text
+            x={PL - 8}
+            y={y(maks * f) + 4}
+            textAnchor="end"
+            fontSize={11}
+            fill="#0d2569"
+            fillOpacity={0.6}
+          >
+            {formatRupiahSingkat(maks * f)}
+          </text>
+        </g>
+      ))}
+      {baris.map((b, i) => {
+        const bw = Math.min(72, lebar * 0.55);
+        const bx = PL + i * lebar + (lebar - bw) / 2;
+        const kunci = b.kode ?? b.label;
+        const aktifIni = aktif !== undefined && aktif === kunci;
+        return (
+          <g key={b.label}>
+            <rect
+              x={bx}
+              y={y(b.nilai)}
+              width={bw}
+              height={Math.max(H - PB - y(b.nilai), 0)}
+              rx={4}
+              fill={aktifIni ? '#0D2569' : '#2573E2'}
+              fillOpacity={
+                onPilih && aktif !== undefined && aktif !== '' && !aktifIni
+                  ? 0.35
+                  : 1
+              }
+              className={onPilih ? 'cursor-pointer' : undefined}
+              onClick={onPilih ? () => onPilih(kunci) : undefined}
+            >
+              <title>{`${sumbu(b)}: ${formatRupiah(b.nilai)} (${formatAngka(b.jumlah)} contracts)${onPilih ? ' — click to filter' : ''}`}</title>
+            </rect>
+            <text
+              x={bx + bw / 2}
+              y={y(b.nilai) - 6}
+              textAnchor="middle"
+              fontSize={11}
+              fontWeight={700}
+              fill="#0d2569"
+            >
+              {formatRupiahSingkat(b.nilai)}
+            </text>
+            <text
+              x={bx + bw / 2}
+              y={H - 8}
+              textAnchor="middle"
+              fontSize={11}
+              fill="#0d2569"
+              fillOpacity={0.6}
+            >
+              {sumbu(b)}
+            </text>
+          </g>
+        );
+      })}
+    </svg>
+  );
+}
+
+function GrafikTrenAnalytics({ titik }: { titik: TitikBulanan[] }) {
+  const periode = titik.map((t) => t.periode);
+  const nilai = titik.map((t) => t.nilai);
+  const total = nilai.reduce((a, b) => a + b, 0);
+  const maks = Math.max(...nilai, 1);
+  const idxTertinggi = nilai.indexOf(Math.max(...nilai));
+  const W = 720;
+  const H = 240;
+  const PL = 64;
+  const PR = 16;
+  const PT = 16;
+  const PB = 28;
+  const x = (i: number) =>
+    PL + (i * (W - PL - PR)) / Math.max(periode.length - 1, 1);
+  const y = (v: number) => PT + (1 - v / maks) * (H - PT - PB);
+  const garis = nilai.map((v, i) => `${x(i)},${y(v)}`).join(' ');
+  const area = `${PL},${H - PB} ${garis} ${x(periode.length - 1)},${H - PB}`;
+  return (
+    <>
+      <p className="mt-1 text-xs text-[#0d2569]/60">
+        {periode.length > 0
+          ? `${formatPeriode(periode[0])} – ${formatPeriode(periode[periode.length - 1])}`
+          : 'No data yet'}{' '}
+        · Total {formatRupiah(total)}
+        {idxTertinggi >= 0 && nilai[idxTertinggi] > 0 && (
+          <>
+            {' · '}Highest {formatPeriode(periode[idxTertinggi])}{' '}
+            {formatRupiah(nilai[idxTertinggi])}
+          </>
+        )}
+      </p>
+      {periode.length === 0 ? (
+        <div className="mt-3">
+          <PesanKosong teks="No contract value in the selected filters." />
+        </div>
+      ) : (
+        <svg
+          viewBox={`0 0 ${W} ${H}`}
+          className="mt-4 w-full"
+          role="img"
+          aria-label="Filtered monthly contract value trend"
+        >
+          {[0, 0.5, 1].map((f) => (
+            <g key={f}>
+              <line
+                x1={PL}
+                x2={W - PR}
+                y1={y(maks * f)}
+                y2={y(maks * f)}
+                stroke="#2573e2"
+                strokeOpacity={0.12}
+              />
+              <text
+                x={PL - 8}
+                y={y(maks * f) + 4}
+                textAnchor="end"
+                fontSize={11}
+                fill="#0d2569"
+                fillOpacity={0.6}
+              >
+                {formatRupiahSingkat(maks * f)}
+              </text>
+            </g>
+          ))}
+          <polygon points={area} fill="#2573e2" fillOpacity={0.08} />
+          <polyline
+            points={garis}
+            fill="none"
+            stroke="#2573e2"
+            strokeWidth={2}
+            strokeLinejoin="round"
+            strokeLinecap="round"
+          />
+          {nilai.map((v, i) => (
+            <g key={periode[i]}>
+              <circle
+                cx={x(i)}
+                cy={y(v)}
+                r={4}
+                fill="#ffffff"
+                stroke="#2573e2"
+                strokeWidth={2}
+              >
+                <title>
+                  {formatPeriode(periode[i])}: {formatRupiah(v)}
+                </title>
+              </circle>
+              <text
+                x={x(i)}
+                y={H - 8}
+                textAnchor="middle"
+                fontSize={11}
+                fill="#0d2569"
+                fillOpacity={0.6}
+              >
+                {formatBulanSingkat(periode[i])}
+              </text>
+            </g>
+          ))}
+        </svg>
+      )}
+      <p className="mt-2 text-xs text-[#0d2569]/60">
+        Contract value uses the invoice issue month — same as the report
+        reconciliation.
+      </p>
+    </>
+  );
+}
+
+function KartuAnalytics({ data }: { data: AppData }) {
+  const opsi = useMemo(() => opsiFilterAnalytics(data), [data.kontrak]);
+  const [filter, setFilter] = useState<FilterAnalytics>(
+    FILTER_ANALYTICS_KOSONG,
+  );
+  const ringkasan = useMemo(
+    () => ringkasanAnalytics(data, filter),
+    [data, filter],
+  );
+  const ubahFilter = (patch: Partial<FilterAnalytics>) =>
+    setFilter((f) => ({ ...f, ...patch }));
+  const bersihkanFilter = (kunci: keyof FilterAnalytics) => {
+    if (kunci === 'kategori') setFilter((f) => ({ ...f, kategori: '' }));
+    else if (kunci === 'satker') setFilter((f) => ({ ...f, satker: '' }));
+    else setFilter((f) => ({ ...f, periode: '' }));
+  };
+  const alihkanKategori = (label: string) =>
+    setFilter((f) => ({ ...f, kategori: f.kategori === label ? '' : label }));
+  const alihkanSatker = (kode: string) =>
+    setFilter((f) => ({ ...f, satker: f.satker === kode ? '' : kode }));
+  const alihkanTahun = (tahun: string) =>
+    setFilter((f) => ({ ...f, periode: f.periode === tahun ? '' : tahun }));
+  const filterAktif = (
+    [
+      filter.kategori !== ''
+        ? {
+            kunci: 'kategori' as const,
+            label: `Category: ${labelKategoriLayanan(filter.kategori)}`,
+          }
+        : null,
+      filter.satker !== ''
+        ? {
+            kunci: 'satker' as const,
+            label: `Region: ${opsi.satker.find((s) => s.kode === filter.satker)?.nama ?? filter.satker}`,
+          }
+        : null,
+      filter.periode !== ''
+        ? {
+            kunci: 'periode' as const,
+            label: `Time Period: ${labelPeriodeAnalytics(filter.periode)}`,
+          }
+        : null,
+    ] as ({ kunci: keyof FilterAnalytics; label: string } | null)[]
+  ).filter(
+    (x): x is { kunci: keyof FilterAnalytics; label: string } => x !== null,
+  );
+  const persen = (bagian: number, total: number) =>
+    total > 0 ? `${((bagian / total) * 100).toFixed(1)}%` : '—';
+  return (
+    <Kartu>
+      <div>
+        <JudulBagian>Analytics — Cross-Filtering</JudulBagian>
+        <p className="mt-1 text-xs text-[#0d2569]/60">
+          Filter by category, work unit, and time period — every KPI and
+          chart on this card follows the active filters. Click a donut
+          segment or a bar to filter by it.
+        </p>
+      </div>
+      <div className="mt-4 flex flex-wrap gap-3">
+        <label className="flex flex-col gap-1 text-xs font-semibold text-[#0d2569]/70">
+          Category
+          <select
+            value={filter.kategori}
+            onChange={(e) => ubahFilter({ kategori: e.target.value })}
+            aria-label="Filter by category"
+            className="rounded-md border border-[#2573e2]/30 bg-white px-2 py-1 text-xs font-semibold text-[#0d2569]"
+          >
+            <option value="">All Categories</option>
+            {opsi.kategori.map((k) => (
+              <option key={k} value={k}>
+                {labelKategoriLayanan(k)}
+              </option>
+            ))}
+          </select>
+        </label>
+        <label className="flex flex-col gap-1 text-xs font-semibold text-[#0d2569]/70">
+          Region
+          <select
+            value={filter.satker}
+            onChange={(e) => ubahFilter({ satker: e.target.value })}
+            aria-label="Filter by work unit"
+            className="rounded-md border border-[#2573e2]/30 bg-white px-2 py-1 text-xs font-semibold text-[#0d2569]"
+          >
+            <option value="">All Work Units</option>
+            {opsi.satker.map((s) => (
+              <option key={s.kode} value={s.kode}>
+                {s.nama}
+              </option>
+            ))}
+          </select>
+        </label>
+        <label className="flex flex-col gap-1 text-xs font-semibold text-[#0d2569]/70">
+          Time Period
+          <select
+            value={filter.periode}
+            onChange={(e) => ubahFilter({ periode: e.target.value })}
+            aria-label="Filter by time period"
+            className="rounded-md border border-[#2573e2]/30 bg-white px-2 py-1 text-xs font-semibold text-[#0d2569]"
+          >
+            <option value="">All Time</option>
+            {opsi.periode.map((p) => (
+              <option key={p} value={p}>
+                {labelPeriodeAnalytics(p)}
+              </option>
+            ))}
+          </select>
+        </label>
+      </div>
+      {filterAktif.length > 0 && (
+        <div className="mt-3 flex flex-wrap items-center gap-2 text-xs">
+          <span className="font-semibold text-[#0d2569]/70">
+            Active Selections:
+          </span>
+          {filterAktif.map((f) => (
+            <button
+              key={f.kunci}
+              type="button"
+              onClick={() => bersihkanFilter(f.kunci)}
+              aria-label={`Clear ${f.label}`}
+              className="rounded-full border border-[#2573e2]/30 bg-[#2573e2]/5 px-2 py-1 font-semibold text-[#0d2569]"
+            >
+              {f.label} ×
+            </button>
+          ))}
+          <button
+            type="button"
+            onClick={() => setFilter(FILTER_ANALYTICS_KOSONG)}
+            className="rounded-full bg-[#2573e2] px-2 py-1 font-semibold text-white"
+          >
+            Clear All
+          </button>
+        </div>
+      )}
+      <div className="mt-4 grid grid-cols-2 gap-3 lg:grid-cols-4">
+        <StatCard
+          label="Contract value"
+          nilai={formatRupiah(ringkasan.nilaiKontrak)}
+          keterangan={`${formatAngka(ringkasan.jumlahKontrak)} contracts · ${formatAngka(ringkasan.jumlahKlien)} clients`}
+          ikon={<Handshake size={20} />}
+        />
+        <StatCard
+          label="Verified payments"
+          nilai={formatRupiah(ringkasan.pembayaranTerverifikasi)}
+          keterangan={`${persen(ringkasan.pembayaranTerverifikasi, ringkasan.nilaiKontrak)} of contract value`}
+          ikon={<CheckCircle2 size={20} />}
+        />
+        <StatCard
+          label="Outstanding receivables"
+          nilai={formatRupiah(ringkasan.sisaPiutang)}
+          keterangan={`${persen(ringkasan.sisaPiutang, ringkasan.nilaiKontrak)} of contract value`}
+          ikon={<Clock size={20} />}
+        />
+        <StatCard
+          label="Contracts"
+          nilai={formatAngka(ringkasan.jumlahKontrak)}
+          keterangan={`${formatAngka(ringkasan.jumlahKlien)} clients`}
+          ikon={<FileText size={20} />}
+        />
+      </div>
+      {ringkasan.jumlahKontrak === 0 ? (
+        <div className="mt-4">
+          <PesanKosong teks="No contracts match the active filters." />
+        </div>
+      ) : (
+        <div className="mt-4 grid gap-4 lg:grid-cols-2">
+          <div className="rounded-lg border border-[#2573e2]/15 p-4">
+            <JudulBagian>Contract Value Trend</JudulBagian>
+            <GrafikTrenAnalytics titik={ringkasan.perBulan} />
+          </div>
+          <div className="rounded-lg border border-[#2573e2]/15 p-4">
+            <JudulBagian>Contract Value by Category</JudulBagian>
+            <p className="mt-1 text-xs text-[#0d2569]/60">
+              Click a segment or a legend row to filter by that category;
+              click again to clear.
+            </p>
+            <div className="mt-3">
+              <DonatKategori
+                baris={ringkasan.perKategori}
+                aktif={filter.kategori}
+                onPilih={alihkanKategori}
+              />
+            </div>
+          </div>
+          <div className="rounded-lg border border-[#2573e2]/15 p-4">
+            <JudulBagian>Contract Value by Work Unit</JudulBagian>
+            <p className="mt-1 text-xs text-[#0d2569]/60">
+              Only work units with data are shown. Click a bar to filter by
+              that work unit.
+            </p>
+            <GrafikBatang
+              baris={ringkasan.perSatker}
+              aktif={filter.satker}
+              onPilih={alihkanSatker}
+              sumbu={(b) => b.label}
+            />
+          </div>
+          <div className="rounded-lg border border-[#2573e2]/15 p-4">
+            <JudulBagian>Contract Value by Year</JudulBagian>
+            <p className="mt-1 text-xs text-[#0d2569]/60">
+              Click a bar to filter by that year.
+            </p>
+            <GrafikBatang
+              baris={ringkasan.perTahun.map((t) => ({
+                label: t.tahun,
+                nilai: t.nilai,
+                jumlah: t.jumlah,
+              }))}
+              aktif={filter.periode}
+              onPilih={alihkanTahun}
+              sumbu={(b) => b.label}
+            />
+          </div>
+        </div>
+      )}
+      <p className="mt-4 text-xs text-[#0d2569]/60">
+        Every figure on this card is computed from the same filtered
+        contracts, so the KPIs and all four charts always agree. The period
+        follows the contract signing date (or the start date when the signing
+        date is empty), the same basis as Employee Rank; the monthly trend
+        uses the invoice issue month, the same basis as the monthly reports.
       </p>
     </Kartu>
   );
@@ -613,6 +1199,9 @@ export default function Dashboard({ data, actions }: ModulProps) {
         kontrak={nilaiKontrakPerBulan(data)}
         penyetoran={penyetoranPerBulan(data)}
       />
+
+      {/* (a2b) Analytics + Cross-Filtering (template Figma). */}
+      <KartuAnalytics data={data} />
 
       {/* (a3) Ranking Fase C — Employee Rank & Satker Rank. */}
       <KartuRanking data={data} actions={actions} />
