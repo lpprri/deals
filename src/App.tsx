@@ -15,6 +15,8 @@ import {
   Briefcase,
   Building2,
   CheckSquare,
+  ChevronLeft,
+  ChevronRight,
   Database,
   FilePlus2,
   FileText,
@@ -24,6 +26,7 @@ import {
   Megaphone,
   ShieldCheck,
   Wallet,
+  X,
 } from 'lucide-react';
 import { auth, db, isFirebaseConfigured } from './lib/firebaseApp';
 import {
@@ -317,6 +320,44 @@ export default function App() {
   const [user, setUser] = useState<DummyUser | null>(null);
   const [data, setData] = useState<AppData>(DATA_NYATA);
   const [active, setActive] = useState<ModuleId>('dashboard');
+  /** Sidebar bisa dilipat ke rel ikon saja — status disimpan di localStorage
+      (pola sama seperti 'rri-bahasa-landing' di Beranda.tsx). */
+  const [sidebarCiut, setSidebarCiut] = useState<boolean>(() => {
+    try {
+      return localStorage.getItem('rri-sidebar-ciut') === '1';
+    } catch {
+      return false;
+    }
+  });
+  useEffect(() => {
+    try {
+      localStorage.setItem('rri-sidebar-ciut', sidebarCiut ? '1' : '0');
+    } catch {
+      // Penyimpanan tidak tersedia (mode privat, dsb.) — abaikan saja.
+    }
+  }, [sidebarCiut]);
+  /** Flyout submenu (mode terlipat): id modul induk yang panelnya terbuka. */
+  const [flyoutTerbuka, setFlyoutTerbuka] = useState<ModuleId | null>(null);
+  /** Posisi atas flyout (disejajarkan dengan ikon induk yang diklik). */
+  const [flyoutAtas, setFlyoutAtas] = useState(0);
+  /** Escape / klik di luar menutup flyout. */
+  useEffect(() => {
+    if (!flyoutTerbuka) return;
+    const tutupDenganEscape = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setFlyoutTerbuka(null);
+    };
+    const tutupDenganKlikLuar = (e: MouseEvent) => {
+      if (!(e.target as HTMLElement).closest('[data-flyout]')) {
+        setFlyoutTerbuka(null);
+      }
+    };
+    document.addEventListener('keydown', tutupDenganEscape);
+    document.addEventListener('mousedown', tutupDenganKlikLuar);
+    return () => {
+      document.removeEventListener('keydown', tutupDenganEscape);
+      document.removeEventListener('mousedown', tutupDenganKlikLuar);
+    };
+  }, [flyoutTerbuka]);
   // Pencarian global di top bar DIHAPUS atas instruksi pengguna 15/11/2026
   // ("hilangkan ini di bar teratas"). `cari` dipertahankan sebagai '' agar
   // filter daftar di modul-modul tetap jalan (menampilkan semua); plumbing
@@ -2192,6 +2233,38 @@ export default function App() {
   const Icon = current.icon;
   const propsModul = { data, user: penggunaAktif, actions, cari };
 
+  /** Flyout yang sedang terbuka (mode terlipat): modul induk + sub-item-nya. */
+  const flyoutInduk = sidebarCiut
+    ? MODULES.find((m) => m.id === flyoutTerbuka)
+    : undefined;
+  const flyoutAnak = flyoutInduk
+    ? MODULES.filter((c) => c.induk === flyoutInduk.id)
+    : [];
+
+  /** Klik item nav: mode terlipat + punya sub-item -> buka/tutup flyout;
+      sisanya navigasi langsung (dan menutup flyout bila sedang terbuka). */
+  const tanganiKlikNav = (m: NavItem, tombol?: HTMLButtonElement) => {
+    const anak = MODULES.filter((c) => c.induk === m.id);
+    if (sidebarCiut && anak.length > 0) {
+      if (flyoutTerbuka === m.id) {
+        setFlyoutTerbuka(null);
+      } else if (tombol) {
+        const wadah = tombol.closest('aside');
+        setFlyoutAtas(
+          wadah
+            ? tombol.getBoundingClientRect().top - wadah.getBoundingClientRect().top
+            : 0,
+        );
+        setFlyoutTerbuka(m.id);
+      } else {
+        setFlyoutTerbuka(m.id);
+      }
+      return;
+    }
+    setActive(m.id);
+    setFlyoutTerbuka(null);
+  };
+
   return (
     <div className="flex h-full flex-col">
       {/* Top bar putih gaya Qontak — logo + search + aksi di satu baris.
@@ -2223,89 +2296,199 @@ export default function App() {
       </header>
 
       <div className="flex min-h-0 flex-1">
-      {/* Sidebar gelap — Navy RRI #0D2569 (blok header logo dihapus: logo &
-          satker sudah di top bar) */}
-      <aside className="flex w-60 shrink-0 flex-col bg-[#0d2569] text-white">
-        <nav className="flex-1 space-y-1 overflow-auto px-3 pt-4">
+      {/* Sidebar terang gaya Qontak — putih, teks navy (blok header logo
+          dihapus: logo & satker sudah di top bar). Bisa dilipat ke rel
+          ikon saja; mode terlipat memakai flyout submenu di samping rel. */}
+      <aside
+        data-flyout
+        className={`relative flex shrink-0 flex-col bg-white text-[#0d2569] ${
+          sidebarCiut ? 'w-[72px]' : 'w-60'
+        }`}
+      >
+        {/* Tombol lipat/buka sidebar */}
+        <div
+          className={`flex shrink-0 px-2 pt-3 ${
+            sidebarCiut ? 'justify-center' : 'justify-end'
+          }`}
+        >
+          <button
+            onClick={() => {
+              setSidebarCiut(!sidebarCiut);
+              setFlyoutTerbuka(null);
+            }}
+            title={sidebarCiut ? 'Buka sidebar' : 'Lipat sidebar'}
+            aria-label={sidebarCiut ? 'Buka sidebar' : 'Lipat sidebar'}
+            className="flex h-8 w-8 items-center justify-center rounded-md text-[#0d2569]/60 hover:bg-[#2573e2]/10 hover:text-[#2573e2]"
+          >
+            {sidebarCiut ? <ChevronRight size={18} /> : <ChevronLeft size={18} />}
+          </button>
+        </div>
+        <nav
+          onScroll={() => setFlyoutTerbuka(null)}
+          className="scrollbar-tersembunyi min-h-0 flex-1 space-y-1 overflow-y-auto px-3 pb-4 pt-2"
+        >
           {navUtama.map((m) => {
             const ItemIcon = m.icon;
-            const isActive = m.id === active;
             const anak = MODULES.filter((c) => c.induk === m.id);
+            // Induk ikut ter-highlight saat sub-item-nya yang aktif.
+            const isActive = m.id === active || anak.some((c) => c.id === active);
             return (
               <div key={m.id}>
                 <button
-                  onClick={() => setActive(m.id)}
-                  className={`flex w-full items-center gap-3 rounded-md px-3 py-2 text-left text-sm ${
+                  title={sidebarCiut ? m.label : undefined}
+                  onClick={(e) => tanganiKlikNav(m, e.currentTarget)}
+                  className={`flex w-full items-center gap-3 rounded-md py-2 text-left text-sm ${
+                    sidebarCiut ? 'justify-center px-0' : 'px-3'
+                  } ${
                     isActive
-                      ? 'bg-[#2573e2] font-semibold text-white'
-                      : 'text-white/80 hover:bg-white/10 hover:text-white'
+                      ? 'bg-[#2573e2]/10 font-semibold text-[#2573e2]'
+                      : 'text-[#0d2569]/70 hover:bg-[#2573e2]/5 hover:text-[#0d2569]'
                   }`}
                 >
-                  <ItemIcon size={18} />
-                  {m.label}
-                  {m.phase === 'C' && (
-                    <span className="ml-auto rounded bg-white/15 px-1.5 py-0.5 text-[10px]">
+                  <ItemIcon size={18} className="shrink-0" />
+                  {!sidebarCiut && m.label}
+                  {!sidebarCiut && m.phase === 'C' && (
+                    <span className="ml-auto shrink-0 rounded bg-[#2573e2]/10 px-1.5 py-0.5 text-[10px] text-[#2573e2]">
                       Phase {m.phase}
                     </span>
                   )}
                 </button>
-                {anak.map((c) => {
-                  const AnakIcon = c.icon;
-                  const anakAktif = c.id === active;
-                  return (
-                    <button
-                      key={c.id}
-                      onClick={() => setActive(c.id)}
-                      className={`mt-1 flex w-full items-center gap-3 rounded-md py-2 pl-10 pr-3 text-left text-sm ${
-                        anakAktif
-                          ? 'bg-[#2573e2] font-semibold text-white'
-                          : 'text-white/80 hover:bg-white/10 hover:text-white'
-                      }`}
-                    >
-                      <AnakIcon size={15} />
-                      {c.label}
-                    </button>
-                  );
-                })}
+                {!sidebarCiut &&
+                  anak.map((c) => {
+                    const AnakIcon = c.icon;
+                    const anakAktif = c.id === active;
+                    return (
+                      <button
+                        key={c.id}
+                        onClick={() => {
+                          setActive(c.id);
+                          setFlyoutTerbuka(null);
+                        }}
+                        className={`mt-1 flex w-full items-center gap-3 rounded-md py-2 pl-10 pr-3 text-left text-sm ${
+                          anakAktif
+                            ? 'bg-[#2573e2]/10 font-semibold text-[#2573e2]'
+                            : 'text-[#0d2569]/70 hover:bg-[#2573e2]/5 hover:text-[#0d2569]'
+                        }`}
+                      >
+                        <AnakIcon size={15} className="shrink-0" />
+                        {c.label}
+                      </button>
+                    );
+                  })}
               </div>
             );
           })}
           {navAdmin.length > 0 && (
             <>
-              <p className="px-3 pb-1 pt-4 text-[10px] font-semibold uppercase tracking-wide text-white/50">
-                Admin
-              </p>
+              {sidebarCiut ? (
+                <div className="h-3" aria-hidden="true" />
+              ) : (
+                <p className="px-3 pb-1 pt-4 text-[10px] font-semibold uppercase tracking-wide text-[#0d2569]/45">
+                  Admin
+                </p>
+              )}
               {navAdmin.map((m) => {
                 const ItemIcon = m.icon;
                 const isActive = m.id === active;
                 return (
                   <button
                     key={m.id}
-                    onClick={() => setActive(m.id)}
-                    className={`flex w-full items-center gap-3 rounded-md px-3 py-2 text-left text-sm ${
+                    title={sidebarCiut ? m.label : undefined}
+                    onClick={() => {
+                      setActive(m.id);
+                      setFlyoutTerbuka(null);
+                    }}
+                    className={`flex w-full items-center gap-3 rounded-md py-2 text-left text-sm ${
+                      sidebarCiut ? 'justify-center px-0' : 'px-3'
+                    } ${
                       isActive
-                        ? 'bg-[#2573e2] font-semibold text-white'
-                        : 'text-white/80 hover:bg-white/10 hover:text-white'
+                        ? 'bg-[#2573e2]/10 font-semibold text-[#2573e2]'
+                        : 'text-[#0d2569]/70 hover:bg-[#2573e2]/5 hover:text-[#0d2569]'
                     }`}
                   >
-                    <ItemIcon size={18} />
-                    {m.label}
+                    <ItemIcon size={18} className="shrink-0" />
+                    {!sidebarCiut && m.label}
                   </button>
                 );
               })}
             </>
           )}
         </nav>
-        <div className="border-t border-white/15 px-5 py-4 text-xs text-white/70">
-          <p className="mt-1">{LABEL_PERAN[penggunaAktif.peran]}</p>
-          <p>{labelJabatan(penggunaAktif.jabatan)}</p>
-          <button
-            onClick={tanganiKeluar}
-            className="mt-3 flex items-center gap-2 rounded-md border border-white/30 px-3 py-1.5 text-xs font-semibold text-white hover:bg-white/10"
+        {sidebarCiut ? (
+          <div className="flex shrink-0 justify-center border-t border-[#0d2569]/10 px-2 py-3">
+            <button
+              onClick={tanganiKeluar}
+              title="Sign out"
+              aria-label="Sign out"
+              className="flex h-9 w-9 items-center justify-center rounded-md border border-[#0d2569]/15 text-[#0d2569]/70 hover:bg-[#2573e2]/10 hover:text-[#2573e2]"
+            >
+              <LogOut size={15} />
+            </button>
+          </div>
+        ) : (
+          <div className="shrink-0 border-t border-[#0d2569]/10 px-5 py-4 text-xs text-[#0d2569]/60">
+            <p className="mt-1">{LABEL_PERAN[penggunaAktif.peran]}</p>
+            <p>{labelJabatan(penggunaAktif.jabatan)}</p>
+            <button
+              onClick={tanganiKeluar}
+              className="mt-3 flex items-center gap-2 rounded-md border border-[#0d2569]/20 px-3 py-1.5 text-xs font-semibold text-[#0d2569] hover:bg-[#2573e2]/10 hover:text-[#2573e2]"
+            >
+              <LogOut size={13} /> Sign out
+            </button>
+          </div>
+        )}
+        {/* Flyout submenu (mode terlipat): panel kedua di samping rel —
+            judul modul (klik = buka modul induk) + daftar sub-item. */}
+        {flyoutInduk && flyoutAnak.length > 0 && (
+          <div
+            style={{ top: flyoutAtas }}
+            className="absolute left-full z-30 ml-2 flex max-h-[calc(100%-1rem)] w-60 flex-col rounded-lg border border-[#0d2569]/10 bg-white py-2 shadow-lg"
           >
-            <LogOut size={13} /> Sign out
-          </button>
-        </div>
+            <div className="flex shrink-0 items-center justify-between px-4 pb-2 pt-1">
+              <button
+                onClick={() => {
+                  setActive(flyoutInduk.id);
+                  setFlyoutTerbuka(null);
+                }}
+                title={`Buka ${flyoutInduk.label}`}
+                className="text-xs font-bold uppercase tracking-wide text-[#0d2569] hover:text-[#2573e2]"
+              >
+                {flyoutInduk.label}
+              </button>
+              <button
+                onClick={() => setFlyoutTerbuka(null)}
+                title="Tutup"
+                aria-label="Tutup panel"
+                className="flex h-6 w-6 items-center justify-center rounded-md text-[#0d2569]/50 hover:bg-[#2573e2]/10 hover:text-[#2573e2]"
+              >
+                <X size={15} />
+              </button>
+            </div>
+            <div className="scrollbar-tersembunyi min-h-0 flex-1 space-y-1 overflow-y-auto px-2 pb-1">
+              {flyoutAnak.map((c) => {
+                const AnakIcon = c.icon;
+                const anakAktif = c.id === active;
+                return (
+                  <button
+                    key={c.id}
+                    onClick={() => {
+                      setActive(c.id);
+                      setFlyoutTerbuka(null);
+                    }}
+                    className={`flex w-full items-center gap-3 rounded-md px-3 py-2 text-left text-sm ${
+                      anakAktif
+                        ? 'bg-[#2573e2]/10 font-semibold text-[#2573e2]'
+                        : 'text-[#0d2569]/70 hover:bg-[#2573e2]/5 hover:text-[#0d2569]'
+                    }`}
+                  >
+                    <AnakIcon size={15} className="shrink-0" />
+                    {c.label}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        )}
       </aside>
 
       {/* Konten (search + Add di top bar dihapus atas instruksi pengguna 15/11/2026) */}
