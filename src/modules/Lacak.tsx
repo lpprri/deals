@@ -247,7 +247,7 @@ export default function Lacak({ data, onKembali }: LacakProps) {
           </p>
         </div>
         <div className="ml-auto">
-          <TombolSekunder onClick={onKembali}>Back to Sign in</TombolSekunder>
+          <TombolSekunder onClick={onKembali}>Back to Home</TombolSekunder>
         </div>
       </header>
 
