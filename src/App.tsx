@@ -17,6 +17,8 @@ import {
   CheckSquare,
   ChevronLeft,
   ChevronRight,
+  ClipboardCheck,
+  ClipboardList,
   Database,
   FilePlus2,
   FileSignature,
@@ -30,6 +32,7 @@ import {
   ScrollText,
   ShieldCheck,
   Stamp,
+  Tag,
   Users,
   Wallet,
   X,
@@ -149,12 +152,16 @@ import {
   MenuMoU,
 } from './modules/KerjaSama';
 import { MenuKlien } from './modules/Klien';
+import { MenuOffer, MenuOrder } from './modules/Penawaran';
+import { MenuUmpanBalik } from './modules/UmpanBalik';
 
 type ModuleId =
   | 'home'
   | 'dashboard'
   | 'marketing'
   | 'klien'
+  | 'offer'
+  | 'order'
   | 'kontrak'
   | 'mou'
   | 'komitmen'
@@ -163,6 +170,7 @@ type ModuleId =
   | 'deals'
   | 'sewa'
   | 'pengajuan'
+  | 'umpanBalik'
   | 'revenue'
   | 'reporting'
   | 'todo'
@@ -182,7 +190,8 @@ interface NavItem {
    * sebagai item di panel tambahan di samping sidebar (klik induknya).
    * Nama induk TIDAK dicantumkan lagi di dalam panelnya sendiri
    * (perbaikan 15/11/2026 19:16 WIB): panel hanya berisi sub-item.
-   * Saat ini: 'sewa' di panel 'deals', 'pengajuan' di panel 'sales'.
+   * Saat ini: 'sewa' di panel 'deals', 'pengajuan' di panel 'sales',
+   * 'umpanBalik' di panel 'reports'.
    * Id tetap dipakai untuk `active` dan render konten.
    */
   induk?: ModuleId;
@@ -259,6 +268,21 @@ const MODULES: NavItem[] = [
     description: 'Client list — the same client list as Deals (Clients tab).',
   },
   {
+    id: 'offer',
+    label: 'Offer',
+    icon: Tag,
+    phase: 'B',
+    description:
+      'Quotation list — the same Quotation tab as Sales (QTN-01 …).',
+  },
+  {
+    id: 'order',
+    label: 'Order',
+    icon: ClipboardList,
+    phase: 'B',
+    description: 'Order list — the same Order tab as Sales (ORD-01 …).',
+  },
+  {
     id: 'sewa',
     label: 'Lease / State Assets (BMN)',
     icon: Building2,
@@ -275,6 +299,15 @@ const MODULES: NavItem[] = [
     induk: 'sales',
     description:
       'New Submissions (new partnership / new lease): Received → Under review → Awaiting documents → Approved/Rejected → Converted to contract.',
+  },
+  {
+    id: 'umpanBalik',
+    label: 'Feedback Survey',
+    icon: ClipboardCheck,
+    phase: 'C',
+    induk: 'reporting',
+    description:
+      'Client satisfaction survey per contract (scale 1–5) — the same Feedback Survey as Resources before 15/11/2026.',
   },
   {
     id: 'revenue',
@@ -313,7 +346,7 @@ const MODULES: NavItem[] = [
     icon: BarChart3,
     phase: 'C',
     description:
-      'Feedback Survey, Help-Desk to head office PIC, Knowledge Base (Regulations, SOP).',
+      'Help-Desk to head office PIC, Knowledge Base (Regulations, SOP).',
   },
   {
     id: 'audit',
@@ -337,7 +370,9 @@ const MODULES: NavItem[] = [
     dikoreksi 19:37 WIB — Dashboard di cluster Revenue/Reports; PR #37,
     diminta pengguna 15/11/2026 19:47 WIB — Campaign pindah dari
     cluster 2 ke cluster Sales & Deals, menu Clients ditambahkan di
-    cluster itu, setelah Campaign):
+    cluster itu, setelah Campaign; PR #38, diminta pengguna 15/11/2026
+    20:14 WIB — menu Offer dan Order ditambahkan di cluster itu,
+    setelah Clients):
     item nav utama dibagi ke cluster yang dipisah garis tipis, tanpa
     label kelompok (kecuali ADMIN yang sudah punya label). Urutan
     cluster = urutan tampil di sidebar; urutan di dalam cluster
@@ -345,7 +380,7 @@ const MODULES: NavItem[] = [
 const CLUSTER_SIDEBAR: ModuleId[][] = [
   ['home'],
   ['kontrak', 'mou', 'komitmen', 'approvement'],
-  ['sales', 'deals', 'marketing', 'klien'],
+  ['sales', 'deals', 'marketing', 'klien', 'offer', 'order'],
   ['revenue', 'reporting', 'dashboard'],
   ['todo', 'service'],
 ];
@@ -2670,6 +2705,9 @@ export default function App() {
             {active === 'sales' && <Sales {...propsModul} />}
             {active === 'marketing' && <Marketing {...propsModul} />}
             {active === 'klien' && <MenuKlien {...propsModul} />}
+            {active === 'offer' && <MenuOffer {...propsModul} />}
+            {active === 'order' && <MenuOrder {...propsModul} />}
+            {active === 'umpanBalik' && <MenuUmpanBalik {...propsModul} />}
             {active === 'todo' && <Todo {...propsModul} />}
             {active === 'audit' && <AuditPage {...propsModul} />}
             {active === 'master' && (

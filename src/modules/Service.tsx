@@ -1,7 +1,9 @@
 // Modul Service (PRD v2.0 Final Bab 7.8; Q-12 terjawab 15/11/2026).
-// Tiga tab: Help-Desk (tiket konsultasi ke Direktorat Layanan &
-// Pengembangan Usaha), Feedback Survey (survei kepuasan klien per kontrak),
-// Knowledge Base (Regulasi & SOP nasional).
+// Dua tab: Help-Desk (tiket konsultasi ke Direktorat Layanan &
+// Pengembangan Usaha) dan Knowledge Base (Regulasi & SOP nasional).
+// Tab Feedback Survey PINDAH ke sub-navigasi Reports (keputusan
+// pengguna 15/11/2026 20:15 WIB, PR #38) — komponennya (TabUmpanBalik)
+// tetap diekspor dari file ini dan dipakai ulang oleh modul UmpanBalik.
 // Palet HANYA 3 warna RRI: Biru #2573E2, Navy #0D2569, Putih #FFFFFF.
 // Knowledge Base mulai KOSONG — tidak ada nomor regulasi karangan; Operator
 // menambahkan entri lewat form. Model 1 role: Operator punya akses penuh
@@ -60,7 +62,6 @@ export default function Service(props: ModulProps) {
       <TabBar
         tabs={[
           { id: 'helpdesk', label: 'Help-Desk' },
-          { id: 'feedback', label: 'Feedback Survey' },
           { id: 'kb', label: 'Knowledge Base' },
         ]}
         aktif={tab}
@@ -68,8 +69,6 @@ export default function Service(props: ModulProps) {
       />
       {tab === 'helpdesk' ? (
         <HelpDesk data={data} user={user} actions={actions} cari={cari} />
-      ) : tab === 'feedback' ? (
-        <Feedback data={data} user={user} actions={actions} cari={cari} />
       ) : (
         <KnowledgeBase data={data} user={user} actions={actions} cari={cari} />
       )}
@@ -452,17 +451,7 @@ function rataRata(angka: number[]): number | null {
   return angka.reduce((s, n) => s + n, 0) / angka.length;
 }
 
-function Feedback({
-  data,
-  user,
-  actions,
-  cari,
-}: {
-  data: ModulProps['data'];
-  user: ModulProps['user'];
-  actions: ModulProps['actions'];
-  cari: string;
-}) {
+export function TabUmpanBalik({ data, user, actions, cari }: ModulProps) {
   const [tampilForm, setTampilForm] = useState(false);
   const [pesan, setPesan] = useState('');
 
