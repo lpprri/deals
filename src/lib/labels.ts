@@ -208,7 +208,7 @@ export function labelJenisKlien(jenis: string): string {
   );
 }
 
-/** Jenis dokumen (master checklist): nama dokumen yang ditampilkan. */
+/** Jenis dokumen (master checklist + varian impor): nama dokumen yang ditampilkan. */
 export function labelJenisDokumen(jenis: string): string {
   return petakan(
     {
@@ -216,10 +216,16 @@ export function labelJenisDokumen(jenis: string): string {
       NPWP: 'NPWP',
       'NIB/SIUP': 'NIB/SIUP',
       'Surat Permohonan': 'Application Letter',
-      'Bukti Pembayaran': 'Payment Receipt',
+      'Bukti Pembayaran': 'Proof of Payment',
       'Berita Acara Serah Terima': 'Handover Minutes',
       Kwitansi: 'Receipt',
       'Bukti Siaran': 'Broadcast Proof',
+      // Varian jenis dokumen dari data impor (tidak ada di
+      // MASTER_JENIS_DOKUMEN, tapi tampil di tabel dokumen & timeline).
+      'Billing Pembayaran': 'Payment Billing',
+      'Kwitansi Pembayaran': 'Payment Receipt',
+      'Surat Penagihan': 'Collection Letter',
+      'Permohonan Sewa': 'Lease Application',
     },
     jenis,
   );
@@ -230,7 +236,7 @@ export function labelJenisPnBP(jenis: string): string {
   return petakan({ Fungsional: 'Functional', Umum: 'General' }, jenis);
 }
 
-/** Kategori layanan (master): nama layanan yang ditampilkan. */
+/** Kategori layanan (master + varian impor): nama layanan yang ditampilkan. */
 export function labelKategoriLayanan(kategori: string): string {
   return petakan(
     {
@@ -242,8 +248,49 @@ export function labelKategoriLayanan(kategori: string): string {
       'Dukungan Layanan': 'Service Support',
       'Nota Kesepahaman': 'Memorandum of Understanding',
       'Media Partner': 'Media Partner',
+      // Kategori dari data impor (tidak ada di MASTER_KATEGORI_LAYANAN,
+      // tapi tersimpan di kontrak/layanan dan tampil di Deals, Sales,
+      // Lacak, dan MasterPage).
+      'Jasa Penyiaran': 'Broadcasting Services',
+      'Jasa Digitalisasi Penyiaran': 'Broadcast Digitalisation Services',
+      'Jasa Penggunaan Sarana dan Prasarana Siaran':
+        'Use of Broadcast Facilities & Infrastructure',
     },
     kategori,
+  );
+}
+
+/**
+ * Tujuan tiket Help-Desk (nilai tersimpan TUJUAN_TIKET, Q-12):
+ * 'Direktorat Layanan & Pengembangan Usaha' — tampil sebagai prosa di
+ * Service (intro Help-Desk dan detail tiket).
+ */
+export function labelTujuanTiket(tujuan: string): string {
+  return petakan(
+    {
+      'Direktorat Layanan & Pengembangan Usaha':
+        'Directorate of Service & Business Development',
+    },
+    tujuan,
+  );
+}
+
+/**
+ * Jabatan pengguna (nilai tersimpan di profil operator / entri audit):
+ * deskripsi peran operator yang tampil di sidebar, tombol Operator
+ * contoh di Login, daftar penerima tugas, dan kolom Role di Audit.
+ * Nama akun (penggunaAktif.nama) TIDAK dipetakan — itu nama, bukan prosa.
+ */
+export function labelJabatan(jabatan: string): string {
+  return petakan(
+    {
+      'Staf Layanan & Pengembangan Usaha':
+        'Service & Business Development Staff',
+      'Kepala Bidang Layanan & Pengembangan Usaha':
+        'Head of Service & Business Development Division',
+      'Staf Umum': 'General Affairs Staff',
+    },
+    jabatan,
   );
 }
 

@@ -253,8 +253,8 @@ export default function Ajukan({
           </form>
         </Kartu>
         <p className="mt-4 text-center text-xs text-[#0d2569]/60">
-          Your request will be reviewed by the Operator (Layanan &amp;
-          Pengembangan Usaha). No account needed.
+          Your request will be reviewed by the Operator (Service &amp;
+          Business Development). No account needed.
         </p>
       </main>
     </div>

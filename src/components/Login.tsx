@@ -26,6 +26,7 @@ import type { DummyUser } from '../lib/dummyUsers';
 import { DUMMY_USERS } from '../lib/dummyUsers';
 import { isFirebaseConfigured } from '../lib/firebaseApp';
 import { GEDUNG_RRI_DATA_URI } from '../lib/gedungRri';
+import { labelJabatan } from '../lib/labels';
 import { FASE_TERBANGUN } from '../lib/master';
 import { LABEL_PERAN } from '../lib/permissions';
 import { Peringatan } from './ui';
@@ -180,7 +181,7 @@ export default function Login({
                     {operatorDummy.nama}
                   </p>
                   <p className="mt-1 text-xs text-[#0d2569]/70">
-                    {operatorDummy.jabatan}
+                    {labelJabatan(operatorDummy.jabatan)}
                   </p>
                   <p className="mt-2">
                     <span className="inline-flex items-center gap-1 rounded bg-[#2573e2]/10 px-2 py-0.5 text-xs font-semibold text-[#0d2569]">

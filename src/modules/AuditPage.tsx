@@ -6,7 +6,7 @@
 
 import type { ModulProps } from '../lib/store';
 import { formatWaktuAudit } from '../lib/audit';
-import { labelAksiAudit, labelEntitasAudit } from '../lib/labels';
+import { labelAksiAudit, labelEntitasAudit, labelJabatan } from '../lib/labels';
 import {
   Baris,
   JudulBagian,
@@ -60,7 +60,7 @@ export default function AuditPage({ data }: ModulProps) {
                       {formatWaktuAudit(a.waktu)}
                     </Td>
                     <Td>{a.pengguna}</Td>
-                    <Td>{a.peran}</Td>
+                    <Td>{labelJabatan(a.peran)}</Td>
                     <Td tebal>{labelAksiAudit(a.aksi)}</Td>
                     <Td>{labelEntitasAudit(a.entitas)}</Td>
                     <Td>{a.entitasId}</Td>
