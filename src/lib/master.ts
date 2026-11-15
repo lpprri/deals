@@ -10,6 +10,20 @@ import type { JenisPnBP, SatkerRef } from './types';
 export const SATKER_PILOT: SatkerRef = { kode: '41', nama: 'PALEMBANG' };
 
 /**
+ * Operator Staf Layanan & Pengembangan Usaha — Palembang (nama diberikan
+ * pengguna 2026-11-15; dipakai distribusi acak atribusi Employee Rank).
+ * Daftar ini khusus satker pilot; satker lain menyusul saat mereka
+ * memakai aplikasi (Q-01 lanjutan).
+ */
+export const OPERATOR_PALEMBANG: string[] = [
+  "Ja'far",
+  'Meliyana',
+  'Nadya Pratita',
+  'Dessi Maya Sari',
+  'A. Kadir Kurniawan',
+];
+
+/**
  * Fase pengembangan yang sudah terbangun dan tayang — satu-satunya tempat
  * label status fase ditulis. Dipakai label di UI (mis. halaman login) agar
  * tidak kedaluwarsa saat fase berikutnya selesai: cukup ubah konstanta ini.

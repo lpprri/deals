@@ -5,7 +5,7 @@
 // (referensi Figma 14/11/2026) — hanya pola tata letak; palet tetap
 // 3 warna RRI dan tren persen tidak dipakai (data hanya sampai Sep 2026).
 
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import {
   CheckCircle2,
   Clock,
@@ -14,21 +14,25 @@ import {
   Receipt,
   Trophy,
 } from 'lucide-react';
-import type { ModulProps } from '../lib/store';
+import type { ModulProps, StoreActions } from '../lib/store';
 import type { AppData } from '../lib/types';
 import {
+  BENIH_ACAK_ATRIBUSI,
+  distribusiAcakOperator,
   hitungTotalKontrol,
   nilaiKontrakPerBulan,
   penyetoranPerBulan,
   periodeRankingTersedia,
   rankingOperator,
   rankingSatker,
+  ringkasanDistribusi,
   ringkasanPeriodeRanking,
   sisaTagihan,
   statusTagihan,
   totalPerKodeAkun,
   type BarisRanking,
   type ModePeriodeRanking,
+  type RingkasanOperator,
   type TitikBulanan,
 } from '../lib/derive';
 import {
@@ -41,7 +45,7 @@ import {
   hariIniIso,
   selisihHari,
 } from '../lib/format';
-import { uraianKodeAkun } from '../lib/master';
+import { OPERATOR_PALEMBANG, uraianKodeAkun } from '../lib/master';
 import {
   labelAksiAudit,
   labelEntitasAudit,
@@ -288,7 +292,7 @@ function TabelRanking({
   );
 }
 
-function KartuRanking({ data }: { data: AppData }) {
+function KartuRanking({ data, actions }: { data: AppData; actions: StoreActions }) {
   const [mode, setMode] = useState<ModePeriodeRanking>('tahun');
   const tahunTersedia = periodeRankingTersedia(data, 'tahun');
   const bulanTersedia = periodeRankingTersedia(data, 'bulan');
@@ -310,6 +314,30 @@ function KartuRanking({ data }: { data: AppData }) {
   const employee = rankingOperator(data, mode, periode);
   const satker = rankingSatker(data, mode, periode);
   const ringkasan = ringkasanPeriodeRanking(data, mode, periode);
+
+  // Atribusi massal acak (keputusan pengguna 2026-11-15): pratinjau
+  // memakai fungsi deterministik yang sama dengan aksi terapkannya,
+  // sehingga angka pratinjau sama persis dengan hasil penerapan.
+  const tanpaOperator = data.kontrak.filter((k) => !k.operatorPenutup);
+  const pratinjau = useMemo(
+    () =>
+      tanpaOperator.length === 0
+        ? []
+        : ringkasanDistribusi(
+            tanpaOperator,
+            distribusiAcakOperator(
+              tanpaOperator,
+              OPERATOR_PALEMBANG,
+              BENIH_ACAK_ATRIBUSI,
+            ),
+          ),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [data.kontrak],
+  );
+  const [hasilAtribusi, setHasilAtribusi] = useState<{
+    diterapkan: number;
+    perOperator: RingkasanOperator[];
+  } | null>(null);
 
   const tombolMode = (id: ModePeriodeRanking, teks: string) => (
     <button
@@ -395,6 +423,58 @@ function KartuRanking({ data }: { data: AppData }) {
         {ringkasan.jumlahTanpaOperator > 0 &&
           ` — in ${labelPeriode}, ${formatAngka(ringkasan.jumlahTanpaOperator)} of ${formatAngka(ringkasan.jumlahKontrak)} contracts do not have a closing operator yet; assign one in the contract details (Deals → Contracts).`}
       </p>
+      {(tanpaOperator.length > 0 || hasilAtribusi) && (
+        <div className="mt-4 rounded-lg border border-[#2573e2]/30 bg-[#2573e2]/5 p-4">
+          <h3 className="text-sm font-bold text-[#0d2569]">
+            Bulk Attribution (Random)
+          </h3>
+          {hasilAtribusi ? (
+            <p className="mt-2 text-sm text-[#0d2569]">
+              Applied to {formatAngka(hasilAtribusi.diterapkan)} contracts:{' '}
+              {hasilAtribusi.perOperator
+                .map(
+                  (p) =>
+                    `${p.operator} — ${formatAngka(p.jumlah)} contracts (${formatRupiah(p.nilai)})`,
+                )
+                .join('; ')}
+              .
+            </p>
+          ) : (
+            <>
+              <p className="mt-2 text-sm text-[#0d2569]/80">
+                Distribute the {OPERATOR_PALEMBANG.length} Palembang operators
+                randomly to the {formatAngka(tanpaOperator.length)} contracts
+                that do not have a closing operator yet. The split is even
+                (at most 1 contract apart per operator); the signing date is
+                filled with the start date when still empty. Contracts that
+                already have an operator are not changed. This distribution
+                is random as instructed — the ranking reflects this random
+                split, not actual closing performance.
+              </p>
+              <ul className="mt-3 space-y-1 text-sm text-[#0d2569]">
+                {pratinjau.map((p) => (
+                  <li key={p.operator} className="flex justify-between gap-4">
+                    <span>{p.operator}</span>
+                    <span className="font-semibold">
+                      {formatAngka(p.jumlah)} contracts · {formatRupiah(p.nilai)}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+              <button
+                type="button"
+                onClick={() => {
+                  const hasil = actions.terapkanAtribusiAcak();
+                  if (hasil) setHasilAtribusi(hasil);
+                }}
+                className="mt-4 rounded-lg bg-[#2573e2] px-4 py-2 text-sm font-bold text-white hover:bg-[#0d2569]"
+              >
+                Apply Random Distribution
+              </button>
+            </>
+          )}
+        </div>
+      )}
       <p className="mt-1 text-xs text-[#0d2569]/60">
         The national ranking only covers satker whose data is in the app
         (currently PALEMBANG); satker without data are not shown.
@@ -403,7 +483,7 @@ function KartuRanking({ data }: { data: AppData }) {
   );
 }
 
-export default function Dashboard({ data }: ModulProps) {
+export default function Dashboard({ data, actions }: ModulProps) {
   const total = hitungTotalKontrol(data);
   const hariIni = hariIniIso();
   const perKodeAkun = totalPerKodeAkun(data);
@@ -535,7 +615,7 @@ export default function Dashboard({ data }: ModulProps) {
       />
 
       {/* (a3) Ranking Fase C — Employee Rank & Satker Rank. */}
-      <KartuRanking data={data} />
+      <KartuRanking data={data} actions={actions} />
 
       {/* (b) Deadline laporan kantor pusat */}
       <Kartu>

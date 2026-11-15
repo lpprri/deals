@@ -229,6 +229,19 @@ export interface StoreActions {
     kontrak: Kontrak,
     input: { operatorPenutup?: string; tanggalTandaTangan?: string },
   ) => string | null;
+  /**
+   * Atribusi massal acak (keputusan pengguna 2026-11-15): distribusikan
+   * operator Palembang secara acak (deterministik, pembagian merata) ke
+   * SEMUA kontrak yang belum punya operatorPenutup; tanggal tanda tangan
+   * diisi tanggal mulai bila masih kosong. Kontrak yang sudah punya
+   * operator TIDAK diubah. Satu entri audit merangkum aksi ini.
+   * Mengembalikan ringkasan hasil, atau null bila tidak ada kontrak
+   * tanpa operator.
+   */
+  terapkanAtribusiAcak: () => {
+    diterapkan: number;
+    perOperator: { operator: string; jumlah: number; nilai: number }[];
+  } | null;
   catatPembayaran: (input: PembayaranInput) => string | null;
   verifikasiPembayaran: (id: string) => void;
   tambahDenda: (input: DendaInput) => string | null;
