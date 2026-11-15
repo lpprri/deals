@@ -51,7 +51,7 @@ import {
   TUJUAN_TIKET,
 } from './lib/master';
 import { buatEntriAudit } from './lib/audit';
-import { DAFTAR_JENIS_PENGAJUAN_KLIEN } from './lib/types';
+import { DAFTAR_JENIS_PENGAJUAN_KLIEN, type JenisPengajuanKlien } from './lib/types';
 import { bolehAksi, LABEL_PERAN } from './lib/permissions';
 import { formatRupiah, formatTanggal, hariIniIso } from './lib/format';
 import {
@@ -110,6 +110,7 @@ import type {
   UmpanBalikInput,
 } from './lib/store';
 import Login from './components/Login';
+import Beranda from './modules/Beranda';
 import Lacak from './modules/Lacak';
 import Ajukan from './modules/Ajukan';
 import Dashboard from './modules/Dashboard';
@@ -323,7 +324,13 @@ export default function App() {
   const [galatMuat, setGalatMuat] = useState<string | null>(null);
   const [peringatanSimpan, setPeringatanSimpan] = useState<string | null>(null);
   /** Halaman publik tanpa login (lacak/ajukan) saat belum masuk. */
-  const [halamanPublik, setHalamanPublik] = useState<'login' | 'lacak' | 'ajukan'>('login');
+  const [halamanPublik, setHalamanPublik] = useState<'beranda' | 'login' | 'lacak' | 'ajukan'>('beranda');
+  /** Prefill form Ajukan dari landing page (layanan/ruangan/lahan). */
+  const [ajukanAwal, setAjukanAwal] = useState<{
+    jenis: JenisPengajuanKlien;
+    judul: string;
+    uraian: string;
+  } | null>(null);
 
   // Pulihkan sesi Auth yang sudah masuk (bila Firebase terkonfigurasi).
   useEffect(() => {
@@ -454,14 +461,30 @@ export default function App() {
   };
 
   if (!user) {
+    if (halamanPublik === 'beranda') {
+      return (
+        <Beranda
+          data={data}
+          onLogin={() => setHalamanPublik('login')}
+          onTrack={() => setHalamanPublik('lacak')}
+          onAjukan={(jenis, judul, uraian) => {
+            setAjukanAwal({ jenis, judul, uraian });
+            setHalamanPublik('ajukan');
+          }}
+        />
+      );
+    }
     if (halamanPublik === 'lacak') {
-      return <Lacak data={data} onKembali={() => setHalamanPublik('login')} />;
+      return <Lacak data={data} onKembali={() => setHalamanPublik('beranda')} />;
     }
     if (halamanPublik === 'ajukan') {
       return (
         <Ajukan
           onKirim={kirimPengajuanPublik}
-          onKembali={() => setHalamanPublik('login')}
+          onKembali={() => setHalamanPublik('beranda')}
+          jenisAwal={ajukanAwal?.jenis}
+          judulAwal={ajukanAwal?.judul}
+          uraianAwal={ajukanAwal?.uraian}
         />
       );
     }
@@ -517,7 +540,7 @@ export default function App() {
     );
     setSudahDimigrasi(false);
     setTanggalMigrasi(undefined);
-    setHalamanPublik('login');
+    setHalamanPublik('beranda');
     setActive('dashboard');
   };
 

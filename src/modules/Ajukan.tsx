@@ -32,18 +32,25 @@ const LABEL_JENIS_PENGAJUAN_KLIEN: Record<string, string> = {
 export default function Ajukan({
   onKirim,
   onKembali,
+  jenisAwal,
+  judulAwal,
+  uraianAwal,
 }: {
   onKirim: (input: PengajuanPublikInput) => Promise<string | null>;
   onKembali: () => void;
+  /** Pre-select dari landing page (opsional; fallback ke default). */
+  jenisAwal?: PengajuanPublikInput['jenis'];
+  judulAwal?: string;
+  uraianAwal?: string;
 }) {
   const [form, setForm] = useState<PengajuanPublikInput>({
     namaPemohon: '',
     namaInstitusi: '',
     kontakEmail: '',
     kontakTelepon: '',
-    jenis: 'Pengajuan Kerja Sama',
-    judul: '',
-    uraian: '',
+    jenis: jenisAwal ?? 'Pengajuan Kerja Sama',
+    judul: judulAwal ?? '',
+    uraian: uraianAwal ?? '',
     nilaiPerkiraan: undefined,
   });
   const [nilaiTeks, setNilaiTeks] = useState('');
@@ -128,7 +135,7 @@ export default function Ajukan({
             </div>
           </div>
           <TombolSekunder onClick={onKembali}>
-            &larr; Back to Sign in
+            &larr; Back to Home
           </TombolSekunder>
         </div>
       </header>
