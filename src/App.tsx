@@ -30,6 +30,7 @@ import {
   ScrollText,
   ShieldCheck,
   Stamp,
+  Users,
   Wallet,
   X,
 } from 'lucide-react';
@@ -147,11 +148,13 @@ import {
   MenuKontrak,
   MenuMoU,
 } from './modules/KerjaSama';
+import { MenuKlien } from './modules/Klien';
 
 type ModuleId =
   | 'home'
   | 'dashboard'
   | 'marketing'
+  | 'klien'
   | 'kontrak'
   | 'mou'
   | 'komitmen'
@@ -193,13 +196,6 @@ const MODULES: NavItem[] = [
     phase: 'A',
     description:
       'Home page inside the admin app — intentionally empty for now (correction 15/11/2026: not the landing page, not a sign-out).',
-  },
-  {
-    id: 'marketing',
-    label: 'Campaign',
-    icon: Megaphone,
-    phase: 'B',
-    description: 'Events and Advertisement.',
   },
   {
     id: 'kontrak',
@@ -247,6 +243,20 @@ const MODULES: NavItem[] = [
     phase: 'A',
     description:
       'Clients, Partnership Details (Functional PNBP, General PNBP, Service Support, Memorandum of Understanding, Media Partner), Contracts, Documents. Lease / State Assets (BMN) as a sub-module.',
+  },
+  {
+    id: 'marketing',
+    label: 'Campaign',
+    icon: Megaphone,
+    phase: 'B',
+    description: 'Events and Advertisement.',
+  },
+  {
+    id: 'klien',
+    label: 'Clients',
+    icon: Users,
+    phase: 'A',
+    description: 'Client list — the same client list as Deals (Clients tab).',
   },
   {
     id: 'sewa',
@@ -324,15 +334,18 @@ const MODULES: NavItem[] = [
 ];
 
 /** Cluster sidebar (PR #36, disetujui pengguna 15/11/2026 19:37 WIB,
-    dikoreksi 19:37 WIB — Dashboard di cluster Revenue/Reports):
+    dikoreksi 19:37 WIB — Dashboard di cluster Revenue/Reports; PR #37,
+    diminta pengguna 15/11/2026 19:47 WIB — Campaign pindah dari
+    cluster 2 ke cluster Sales & Deals, menu Clients ditambahkan di
+    cluster itu, setelah Campaign):
     item nav utama dibagi ke cluster yang dipisah garis tipis, tanpa
     label kelompok (kecuali ADMIN yang sudah punya label). Urutan
     cluster = urutan tampil di sidebar; urutan di dalam cluster
     mengikuti MODULES. */
 const CLUSTER_SIDEBAR: ModuleId[][] = [
   ['home'],
-  ['marketing', 'kontrak', 'mou', 'komitmen', 'approvement'],
-  ['sales', 'deals'],
+  ['kontrak', 'mou', 'komitmen', 'approvement'],
+  ['sales', 'deals', 'marketing', 'klien'],
   ['revenue', 'reporting', 'dashboard'],
   ['todo', 'service'],
 ];
@@ -2656,6 +2669,7 @@ export default function App() {
             {active === 'reporting' && <Reporting {...propsModul} />}
             {active === 'sales' && <Sales {...propsModul} />}
             {active === 'marketing' && <Marketing {...propsModul} />}
+            {active === 'klien' && <MenuKlien {...propsModul} />}
             {active === 'todo' && <Todo {...propsModul} />}
             {active === 'audit' && <AuditPage {...propsModul} />}
             {active === 'master' && (
