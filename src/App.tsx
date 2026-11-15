@@ -14,6 +14,7 @@ import {
   BarChart3,
   Briefcase,
   Building2,
+  CalendarDays,
   CheckSquare,
   ChevronLeft,
   ChevronRight,
@@ -153,6 +154,7 @@ import {
 } from './modules/KerjaSama';
 import { MenuKlien } from './modules/Klien';
 import { MenuOffer, MenuOrder } from './modules/Penawaran';
+import { MenuMeeting } from './modules/Pertemuan';
 import { MenuUmpanBalik } from './modules/UmpanBalik';
 
 type ModuleId =
@@ -162,6 +164,7 @@ type ModuleId =
   | 'klien'
   | 'offer'
   | 'order'
+  | 'meeting'
   | 'kontrak'
   | 'mou'
   | 'komitmen'
@@ -243,7 +246,7 @@ const MODULES: NavItem[] = [
     icon: Briefcase,
     phase: 'B',
     description:
-      'Prospect List, Sales Analytics, Quotation, Pipeline, Order, Meeting Schedule. New Submissions as a sub-module.',
+      'Pipeline, Quotation, Meeting Schedule. New Submissions as a sub-module.',
   },
   {
     id: 'deals',
@@ -273,7 +276,7 @@ const MODULES: NavItem[] = [
     icon: Tag,
     phase: 'B',
     description:
-      'Quotation list — the same Quotation tab as Sales (QTN-01 …).',
+      'Quotation + Prospect — the same Quotation and Prospect tabs as Sales (QTN-01 …, PRS-01 …).',
   },
   {
     id: 'order',
@@ -281,6 +284,14 @@ const MODULES: NavItem[] = [
     icon: ClipboardList,
     phase: 'B',
     description: 'Order list — the same Order tab as Sales (ORD-01 …).',
+  },
+  {
+    id: 'meeting',
+    label: 'Meeting',
+    icon: CalendarDays,
+    phase: 'B',
+    description:
+      'Meeting Schedule — the same Meeting tab as Sales (MTG-01 …).',
   },
   {
     id: 'sewa',
@@ -372,7 +383,9 @@ const MODULES: NavItem[] = [
     cluster 2 ke cluster Sales & Deals, menu Clients ditambahkan di
     cluster itu, setelah Campaign; PR #38, diminta pengguna 15/11/2026
     20:14 WIB — menu Offer dan Order ditambahkan di cluster itu,
-    setelah Clients):
+    setelah Clients; PR #39, diminta pengguna 15/11/2026
+    20:36 WIB — menu Meeting ditambahkan di cluster itu, setelah
+    Order):
     item nav utama dibagi ke cluster yang dipisah garis tipis, tanpa
     label kelompok (kecuali ADMIN yang sudah punya label). Urutan
     cluster = urutan tampil di sidebar; urutan di dalam cluster
@@ -380,7 +393,7 @@ const MODULES: NavItem[] = [
 const CLUSTER_SIDEBAR: ModuleId[][] = [
   ['home'],
   ['kontrak', 'mou', 'komitmen', 'approvement'],
-  ['sales', 'deals', 'marketing', 'klien', 'offer', 'order'],
+  ['sales', 'deals', 'marketing', 'klien', 'offer', 'order', 'meeting'],
   ['revenue', 'reporting', 'dashboard'],
   ['todo', 'service'],
 ];
@@ -2707,6 +2720,7 @@ export default function App() {
             {active === 'klien' && <MenuKlien {...propsModul} />}
             {active === 'offer' && <MenuOffer {...propsModul} />}
             {active === 'order' && <MenuOrder {...propsModul} />}
+            {active === 'meeting' && <MenuMeeting {...propsModul} />}
             {active === 'umpanBalik' && <MenuUmpanBalik {...propsModul} />}
             {active === 'todo' && <Todo {...propsModul} />}
             {active === 'audit' && <AuditPage {...propsModul} />}
