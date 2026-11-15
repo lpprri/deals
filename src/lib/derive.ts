@@ -60,10 +60,10 @@ export function umurPiutangHari(tagihan: Tagihan, hariIni: string = hariIniIso()
 /** Kelompok umur piutang (ambang final menunggu Q-07; dipakai ambang PRD 7.5). */
 export function kelompokUmurPiutang(tagihan: Tagihan, hariIni: string = hariIniIso()): string {
   const umur = umurPiutangHari(tagihan, hariIni);
-  if (umur === 0) return 'Belum jatuh tempo';
-  if (umur <= 30) return '1–30 hari';
-  if (umur <= 60) return '31–60 hari';
-  return 'Lebih dari 60 hari';
+  if (umur === 0) return 'Not yet due';
+  if (umur <= 30) return '1–30 days';
+  if (umur <= 60) return '31–60 days';
+  return 'More than 60 days';
 }
 
 export interface TotalKontrol {

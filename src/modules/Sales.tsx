@@ -29,6 +29,16 @@ import { hitungAnalitikSales } from '../lib/derive';
 import { formatRupiah, formatTanggal, hariIniIso } from '../lib/format';
 import { bolehAksi } from '../lib/permissions';
 import {
+  labelJenisPnBP,
+  labelKategoriLayanan,
+  labelStatusKontrak,
+  labelStatusOrder,
+  labelStatusPersetujuan,
+  labelSumberProspek,
+  labelTahapPengajuan,
+  labelTahapPipeline,
+} from '../lib/labels';
+import {
   Baris,
   ItemDaftar,
   JudulBagian,
@@ -48,7 +58,7 @@ import {
 } from '../components/ui';
 
 const TABS = [
-  { id: 'prospek', label: 'Prospek' },
+  { id: 'prospek', label: 'Prospect' },
   { id: 'pipeline', label: 'Pipeline' },
   { id: 'quotation', label: 'Quotation' },
   { id: 'order', label: 'Order' },
@@ -112,41 +122,41 @@ function TabProspek({ data, user, actions, cari }: ModulProps) {
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <JudulBagian>Prospek</JudulBagian>
+        <JudulBagian>Prospects</JudulBagian>
         {bolehAksi(user.peran, 'kelolaProspect') && (
           <TombolUtama onClick={() => setTampilForm(true)}>
-            + Tambah Prospek
+            + Add Prospect
           </TombolUtama>
         )}
       </div>
 
       <div className="flex flex-wrap gap-4">
         <div>
-          <Label>Filter tahap</Label>
+          <Label>Filter by stage</Label>
           <select
             className={`${inputClass} max-w-xs`}
             value={filterTahap}
             onChange={(e) => setFilterTahap(e.target.value)}
           >
-            <option value="Semua">Semua</option>
+            <option value="Semua">All</option>
             {MASTER_TAHAP_PIPELINE.map((t) => (
               <option key={t} value={t}>
-                {t}
+                {labelTahapPipeline(t)}
               </option>
             ))}
           </select>
         </div>
         <div>
-          <Label>Filter sumber</Label>
+          <Label>Filter by source</Label>
           <select
             className={`${inputClass} max-w-xs`}
             value={filterSumber}
             onChange={(e) => setFilterSumber(e.target.value)}
           >
-            <option value="Semua">Semua</option>
+            <option value="Semua">All</option>
             {MASTER_SUMBER_PROSPEK.map((s) => (
               <option key={s} value={s}>
-                {s}
+                {labelSumberProspek(s)}
               </option>
             ))}
           </select>
@@ -162,21 +172,21 @@ function TabProspek({ data, user, actions, cari }: ModulProps) {
       )}
 
       {prospekTersaring.length === 0 ? (
-        <PesanKosong teks="Belum ada prospek yang cocok." />
+        <PesanKosong teks="No matching prospects yet." />
       ) : (
         <Kartu>
           <Tabel>
             <thead>
               <tr>
                 <Th>ID</Th>
-                <Th>Nama Instansi</Th>
-                <Th>Kontak</Th>
-                <Th>Sumber</Th>
-                <Th>Layanan Diminati</Th>
-                <Th>Tahap</Th>
-                <Th>Penanggung Jawab</Th>
-                <Th>Tgl Tindak Lanjut</Th>
-                <Th kanan>Nilai Perkiraan</Th>
+                <Th>Institution Name</Th>
+                <Th>Contact</Th>
+                <Th>Source</Th>
+                <Th>Service of Interest</Th>
+                <Th>Stage</Th>
+                <Th>Person in Charge</Th>
+                <Th>Follow-up Date</Th>
+                <Th kanan>Estimated Value</Th>
               </tr>
             </thead>
             <tbody>
@@ -189,10 +199,10 @@ function TabProspek({ data, user, actions, cari }: ModulProps) {
                     <br />
                     <span className="text-xs text-[#0d2569]/60">{p.telepon}</span>
                   </Td>
-                  <Td>{p.sumber}</Td>
-                  <Td>{p.layananDiminati}</Td>
+                  <Td>{labelSumberProspek(p.sumber)}</Td>
+                  <Td>{labelKategoriLayanan(p.layananDiminati)}</Td>
                   <Td>
-                    <StatusBadge status={p.tahap} />
+                    <StatusBadge status={labelTahapPipeline(p.tahap)} />
                   </Td>
                   <Td>{p.penanggungJawab}</Td>
                   <Td>{formatTanggal(p.tanggalTindakLanjut)}</Td>
@@ -242,11 +252,11 @@ function DetailProspek({
 
   const pindahTahap = () => {
     if (tahapTarget === prospect.tahap) {
-      setPesan('Pilih tahap tujuan yang berbeda dari tahap saat ini.');
+      setPesan('Choose a target stage different from the current stage.');
       return;
     }
     if (catatanTahap.trim() === '') {
-      setPesan('Catatan tindak lanjut wajib diisi untuk pindah tahap.');
+      setPesan('A follow-up note is required to change stage.');
       return;
     }
     const hasil = actions.ubahTahapProspect(
@@ -259,27 +269,27 @@ function DetailProspek({
       return;
     }
     setCatatanTahap('');
-    setPesan(`Tahap prospek diubah menjadi ${tahapTarget}.`);
+    setPesan(`Prospect stage changed to ${labelTahapPipeline(tahapTarget)}.`);
   };
 
   const tambahTindakLanjut = () => {
     if (tlCatatan.trim() === '') {
-      setPesan('Catatan tindak lanjut wajib diisi.');
+      setPesan('A follow-up note is required.');
       return;
     }
     if (tlTanggal === '') {
-      setPesan('Tanggal tindak lanjut wajib diisi.');
+      setPesan('A follow-up date is required.');
       return;
     }
     actions.tambahTindakLanjut(prospect, tlCatatan.trim(), tlTanggal);
     setTlCatatan('');
     setTlTanggal(hariIniIso());
-    setPesan('Tindak lanjut dicatat.');
+    setPesan('Follow-up recorded.');
   };
 
   return (
     <div className="space-y-4">
-      <TombolSekunder onClick={onKembali}>&larr; Kembali ke daftar</TombolSekunder>
+      <TombolSekunder onClick={onKembali}>&larr; Back to list</TombolSekunder>
       <JudulBagian>
         {prospect.id} — {prospect.namaInstansi}
       </JudulBagian>
@@ -287,14 +297,14 @@ function DetailProspek({
       <Kartu>
         <dl className="grid gap-2 text-sm md:grid-cols-2">
           <div className="flex justify-between gap-4">
-            <dt className="text-[#0d2569]/60">Kontak</dt>
+            <dt className="text-[#0d2569]/60">Contact</dt>
             <dd className="text-right font-semibold text-[#0d2569]">
               {prospect.kontakNama}
               {prospect.kontakJabatan ? ` (${prospect.kontakJabatan})` : ''}
             </dd>
           </div>
           <div className="flex justify-between gap-4">
-            <dt className="text-[#0d2569]/60">Telepon</dt>
+            <dt className="text-[#0d2569]/60">Phone</dt>
             <dd className="text-[#0d2569]">{prospect.telepon}</dd>
           </div>
           <div className="flex justify-between gap-4">
@@ -302,31 +312,31 @@ function DetailProspek({
             <dd className="text-[#0d2569]">{prospect.email ?? '-'}</dd>
           </div>
           <div className="flex justify-between gap-4">
-            <dt className="text-[#0d2569]/60">Sumber</dt>
-            <dd className="text-[#0d2569]">{prospect.sumber}</dd>
+            <dt className="text-[#0d2569]/60">Source</dt>
+            <dd className="text-[#0d2569]">{labelSumberProspek(prospect.sumber)}</dd>
           </div>
           <div className="flex justify-between gap-4">
-            <dt className="text-[#0d2569]/60">Layanan diminati</dt>
-            <dd className="text-right text-[#0d2569]">{prospect.layananDiminati}</dd>
+            <dt className="text-[#0d2569]/60">Service of interest</dt>
+            <dd className="text-right text-[#0d2569]">{labelKategoriLayanan(prospect.layananDiminati)}</dd>
           </div>
           <div className="flex justify-between gap-4">
-            <dt className="text-[#0d2569]/60">Tahap</dt>
+            <dt className="text-[#0d2569]/60">Stage</dt>
             <dd>
-              <StatusBadge status={prospect.tahap} />
+              <StatusBadge status={labelTahapPipeline(prospect.tahap)} />
             </dd>
           </div>
           <div className="flex justify-between gap-4">
-            <dt className="text-[#0d2569]/60">Penanggung jawab</dt>
+            <dt className="text-[#0d2569]/60">Person in charge</dt>
             <dd className="text-[#0d2569]">{prospect.penanggungJawab}</dd>
           </div>
           <div className="flex justify-between gap-4">
-            <dt className="text-[#0d2569]/60">Tgl tindak lanjut</dt>
+            <dt className="text-[#0d2569]/60">Follow-up date</dt>
             <dd className="text-[#0d2569]">
               {formatTanggal(prospect.tanggalTindakLanjut)}
             </dd>
           </div>
           <div className="flex justify-between gap-4">
-            <dt className="text-[#0d2569]/60">Nilai perkiraan</dt>
+            <dt className="text-[#0d2569]/60">Estimated value</dt>
             <dd className="text-[#0d2569]">{formatRupiah(prospect.nilaiPerkiraan)}</dd>
           </div>
           <div className="flex justify-between gap-4">
@@ -337,13 +347,13 @@ function DetailProspek({
           </div>
           {prospect.catatan && (
             <div className="flex justify-between gap-4 md:col-span-2">
-              <dt className="text-[#0d2569]/60">Catatan</dt>
+              <dt className="text-[#0d2569]/60">Notes</dt>
               <dd className="text-right text-[#0d2569]">{prospect.catatan}</dd>
             </div>
           )}
           {klien && (
             <div className="flex justify-between gap-4 md:col-span-2">
-              <dt className="text-[#0d2569]/60">Klien terkait</dt>
+              <dt className="text-[#0d2569]/60">Related client</dt>
               <dd className="text-right font-semibold text-[#0d2569]">
                 {klien.nama} ({klien.id})
               </dd>
@@ -351,17 +361,17 @@ function DetailProspek({
           )}
           {pengajuan && (
             <div className="flex justify-between gap-4 md:col-span-2">
-              <dt className="text-[#0d2569]/60">Pengajuan asal</dt>
+              <dt className="text-[#0d2569]/60">Source submission</dt>
               <dd className="text-right font-semibold text-[#0d2569]">
-                {pengajuan.id} — tahap {pengajuan.tahap}
+                {pengajuan.id} — stage {labelTahapPengajuan(pengajuan.tahap)}
               </dd>
             </div>
           )}
           {kontrak && (
             <div className="flex justify-between gap-4 md:col-span-2">
-              <dt className="text-[#0d2569]/60">Kontrak hasil konversi</dt>
+              <dt className="text-[#0d2569]/60">Contract resulting from conversion</dt>
               <dd className="text-right font-semibold text-[#0d2569]">
-                {kontrak.nomorPks} ({kontrak.status})
+                {kontrak.nomorPks} ({labelStatusKontrak(kontrak.status)})
               </dd>
             </div>
           )}
@@ -369,10 +379,10 @@ function DetailProspek({
       </Kartu>
 
       <Kartu>
-        <JudulBagian>Riwayat Tindak Lanjut</JudulBagian>
+        <JudulBagian>Follow-up History</JudulBagian>
         {prospect.riwayat.length === 0 ? (
           <p className="mt-2 text-sm text-[#0d2569]/70">
-            Belum ada tindak lanjut yang dicatat.
+            No follow-ups recorded yet.
           </p>
         ) : (
           <ul className="mt-3 text-sm">
@@ -390,10 +400,10 @@ function DetailProspek({
 
       {bolehUbah && (
         <Kartu>
-          <JudulBagian>Pindah Tahap</JudulBagian>
+          <JudulBagian>Change Stage</JudulBagian>
           <div className="mt-3 grid gap-4 md:grid-cols-2">
             <div>
-              <Label>Tahap tujuan *</Label>
+              <Label>Target stage *</Label>
               <select
                 className={inputClass}
                 value={tahapTarget}
@@ -404,34 +414,34 @@ function DetailProspek({
                 {MASTER_TAHAP_PIPELINE.filter((t) => t !== prospect.tahap).map(
                   (t) => (
                     <option key={t} value={t}>
-                      {t}
+                      {labelTahapPipeline(t)}
                     </option>
                   ),
                 )}
               </select>
             </div>
             <div>
-              <Label>Catatan tindak lanjut *</Label>
+              <Label>Follow-up note *</Label>
               <input
                 className={inputClass}
                 value={catatanTahap}
                 onChange={(e) => setCatatanTahap(e.target.value)}
-                placeholder="Alasan / catatan perpindahan tahap"
+                placeholder="Reason / note for the stage change"
               />
             </div>
           </div>
           <div className="mt-3">
-            <TombolUtama onClick={pindahTahap}>Pindah Tahap</TombolUtama>
+            <TombolUtama onClick={pindahTahap}>Change Stage</TombolUtama>
           </div>
         </Kartu>
       )}
 
       {bolehUbah && (
         <Kartu>
-          <JudulBagian>Tambah Tindak Lanjut</JudulBagian>
+          <JudulBagian>Add Follow-up</JudulBagian>
           <div className="mt-3 grid gap-4 md:grid-cols-2">
             <div>
-              <Label>Tanggal *</Label>
+              <Label>Date *</Label>
               <input
                 className={inputClass}
                 type="date"
@@ -440,18 +450,18 @@ function DetailProspek({
               />
             </div>
             <div>
-              <Label>Catatan *</Label>
+              <Label>Note *</Label>
               <input
                 className={inputClass}
                 value={tlCatatan}
                 onChange={(e) => setTlCatatan(e.target.value)}
-                placeholder="Catatan tindak lanjut"
+                placeholder="Follow-up note"
               />
             </div>
           </div>
           <div className="mt-3">
             <TombolUtama onClick={tambahTindakLanjut}>
-              Simpan Tindak Lanjut
+              Save Follow-up
             </TombolUtama>
           </div>
         </Kartu>
@@ -496,32 +506,32 @@ function FormProspek({
 
   const simpan = () => {
     if (form.namaInstansi.trim() === '') {
-      setError('Nama instansi wajib diisi.');
+      setError('Institution name is required.');
       return;
     }
     if (form.kontakNama.trim() === '') {
-      setError('Nama kontak wajib diisi.');
+      setError('Contact name is required.');
       return;
     }
     if (form.telepon.trim() === '') {
-      setError('Telepon wajib diisi.');
+      setError('Phone is required.');
       return;
     }
     if (form.sumber === '') {
-      setError('Sumber prospek wajib dipilih.');
+      setError('Prospect source must be selected.');
       return;
     }
     if (form.layananDiminati === '') {
-      setError('Layanan diminati wajib dipilih.');
+      setError('Service of interest must be selected.');
       return;
     }
     if (form.penanggungJawab.trim() === '') {
-      setError('Penanggung jawab wajib diisi.');
+      setError('Person in charge is required.');
       return;
     }
     const nilaiPerkiraan = Number(nilaiTeks);
     if (!(nilaiPerkiraan > 0)) {
-      setError('Nilai perkiraan wajib diisi dan harus lebih dari 0.');
+      setError('Estimated value is required and must be greater than 0.');
       return;
     }
     const hasil = actions.tambahProspect({
@@ -548,42 +558,42 @@ function FormProspek({
 
   return (
     <Kartu>
-      <JudulBagian>Tambah Prospek</JudulBagian>
+      <JudulBagian>Add Prospect</JudulBagian>
       <div className="mt-4 grid gap-4 md:grid-cols-2">
         <div>
-          <Label>Nama instansi *</Label>
+          <Label>Institution name *</Label>
           <input
             className={inputClass}
             value={form.namaInstansi}
             onChange={(e) => ubah('namaInstansi', e.target.value)}
-            placeholder="Nama instansi / perusahaan"
+            placeholder="Institution / company name"
           />
         </div>
         <div>
-          <Label>Nama kontak *</Label>
+          <Label>Contact name *</Label>
           <input
             className={inputClass}
             value={form.kontakNama}
             onChange={(e) => ubah('kontakNama', e.target.value)}
-            placeholder="Nama narahubung"
+            placeholder="Contact person name"
           />
         </div>
         <div>
-          <Label>Jabatan kontak</Label>
+          <Label>Contact position</Label>
           <input
             className={inputClass}
             value={form.kontakJabatan ?? ''}
             onChange={(e) => ubah('kontakJabatan', e.target.value)}
-            placeholder="Jabatan narahubung (opsional)"
+            placeholder="Contact position (optional)"
           />
         </div>
         <div>
-          <Label>Telepon *</Label>
+          <Label>Phone *</Label>
           <input
             className={inputClass}
             value={form.telepon}
             onChange={(e) => ubah('telepon', e.target.value)}
-            placeholder="Nomor telepon"
+            placeholder="Phone number"
           />
         </div>
         <div>
@@ -593,50 +603,50 @@ function FormProspek({
             type="email"
             value={form.email ?? ''}
             onChange={(e) => ubah('email', e.target.value)}
-            placeholder="Email (opsional)"
+            placeholder="Email (optional)"
           />
         </div>
         <div>
-          <Label>Sumber *</Label>
+          <Label>Source *</Label>
           <select
             className={inputClass}
             value={form.sumber}
             onChange={(e) => ubah('sumber', e.target.value)}
           >
-            <option value="">— Pilih sumber —</option>
+            <option value="">— Select a source —</option>
             {MASTER_SUMBER_PROSPEK.map((s) => (
               <option key={s} value={s}>
-                {s}
+                {labelSumberProspek(s)}
               </option>
             ))}
           </select>
         </div>
         <div>
-          <Label>Layanan diminati *</Label>
+          <Label>Service of interest *</Label>
           <select
             className={inputClass}
             value={form.layananDiminati}
             onChange={(e) => ubah('layananDiminati', e.target.value)}
           >
-            <option value="">— Pilih layanan —</option>
+            <option value="">— Select a service —</option>
             {MASTER_KATEGORI_LAYANAN.map((k) => (
               <option key={k.nama} value={k.nama}>
-                {k.nama}
+                {labelKategoriLayanan(k.nama)}
               </option>
             ))}
           </select>
         </div>
         <div>
-          <Label>Penanggung jawab *</Label>
+          <Label>Person in charge *</Label>
           <input
             className={inputClass}
             value={form.penanggungJawab}
             onChange={(e) => ubah('penanggungJawab', e.target.value)}
-            placeholder="Nama penanggung jawab"
+            placeholder="Name of the person in charge"
           />
         </div>
         <div>
-          <Label>Tanggal tindak lanjut</Label>
+          <Label>Follow-up date</Label>
           <input
             className={inputClass}
             type="date"
@@ -645,23 +655,23 @@ function FormProspek({
           />
         </div>
         <div>
-          <Label>Nilai perkiraan (Rp) *</Label>
+          <Label>Estimated value (Rp) *</Label>
           <input
             className={inputClass}
             type="number"
             min="1"
             value={nilaiTeks}
             onChange={(e) => setNilaiTeks(e.target.value)}
-            placeholder="Harus lebih dari 0"
+            placeholder="Must be greater than 0"
           />
         </div>
         <div className="md:col-span-2">
-          <Label>Catatan</Label>
+          <Label>Notes</Label>
           <textarea
             className={`${inputClass} min-h-20`}
             value={form.catatan ?? ''}
             onChange={(e) => ubah('catatan', e.target.value)}
-            placeholder="Catatan prospek (opsional)"
+            placeholder="Prospect notes (optional)"
           />
         </div>
       </div>
@@ -672,8 +682,8 @@ function FormProspek({
         </p>
       )}
       <div className="mt-4 flex gap-2">
-        <TombolUtama onClick={simpan}>Simpan Prospek</TombolUtama>
-        <TombolSekunder onClick={onBatal}>Batal</TombolSekunder>
+        <TombolUtama onClick={simpan}>Save Prospect</TombolUtama>
+        <TombolSekunder onClick={onBatal}>Cancel</TombolSekunder>
       </div>
     </Kartu>
   );
@@ -688,7 +698,6 @@ function TabPipeline({ data, user, actions }: ModulProps) {
   return (
     <div className="space-y-4">
       <JudulBagian>Pipeline</JudulBagian>
-      <Peringatan teks="Tahap pipeline masih draf — menunggu jawaban Q-11 (PRD Lampiran C). Tahap dapat berubah tanpa mengubah data." />
       <div className="flex gap-3 overflow-x-auto pb-2">
         {MASTER_TAHAP_PIPELINE.map((tahap) => {
           const isi = data.prospect.filter((p) => p.tahap === tahap);
@@ -698,14 +707,14 @@ function TabPipeline({ data, user, actions }: ModulProps) {
               key={tahap}
               className="w-64 shrink-0 rounded-md border border-[#2573e2]/20 bg-white p-3"
             >
-              <p className="text-sm font-bold text-[#0d2569]">{tahap}</p>
+              <p className="text-sm font-bold text-[#0d2569]">{labelTahapPipeline(tahap)}</p>
               <p className="mt-0.5 text-xs text-[#0d2569]/60">
-                {isi.length} prospek — {formatRupiah(nilai)}
+                {isi.length} {isi.length === 1 ? 'prospect' : 'prospects'} — {formatRupiah(nilai)}
               </p>
               <div className="mt-3 space-y-2">
                 {isi.length === 0 ? (
                   <p className="text-xs text-[#0d2569]/60">
-                    Belum ada prospek pada tahap ini.
+                    No prospects at this stage yet.
                   </p>
                 ) : (
                   isi.map((p) => (
@@ -751,11 +760,11 @@ function PipelineCard({
 
   const pindah = () => {
     if (tahapTarget === prospect.tahap) {
-      setPesan('Pilih tahap tujuan yang berbeda dari tahap saat ini.');
+      setPesan('Choose a target stage different from the current stage.');
       return;
     }
     if (catatan.trim() === '') {
-      setPesan('Catatan wajib diisi untuk pindah tahap.');
+      setPesan('A note is required to change stage.');
       return;
     }
     const hasil = actions.ubahTahapProspect(
@@ -768,7 +777,7 @@ function PipelineCard({
       return;
     }
     setCatatan('');
-    setPesan(`Pindah ke ${tahapTarget}.`);
+    setPesan(`Moved to ${labelTahapPipeline(tahapTarget)}.`);
   };
 
   return (
@@ -800,7 +809,7 @@ function PipelineCard({
               {MASTER_TAHAP_PIPELINE.filter((t) => t !== prospect.tahap).map(
                 (t) => (
                   <option key={t} value={t}>
-                    {t}
+                    {labelTahapPipeline(t)}
                   </option>
                 ),
               )}
@@ -824,9 +833,9 @@ function PipelineCard({
             className={`${inputClass} px-2 py-1.5 text-xs`}
             value={catatan}
             onChange={(e) => setCatatan(e.target.value)}
-            placeholder="Catatan pindah tahap *"
+            placeholder="Stage change note *"
           />
-          <TombolSekunder onClick={pindah}>Pindah Tahap</TombolSekunder>
+          <TombolSekunder onClick={pindah}>Change Stage</TombolSekunder>
           {pesan !== '' && (
             <p className="text-xs font-semibold text-[#0d2569]">{pesan}</p>
           )}
@@ -894,7 +903,7 @@ function TabQuotation({ data, user, actions, cari }: ModulProps) {
         <JudulBagian>Quotation</JudulBagian>
         {bolehAksi(user.peran, 'kelolaQuotation') && (
           <TombolUtama onClick={() => setTampilForm(true)}>
-            + Buat Quotation
+            + Create Quotation
           </TombolUtama>
         )}
       </div>
@@ -909,18 +918,18 @@ function TabQuotation({ data, user, actions, cari }: ModulProps) {
       )}
 
       {quotationTersaring.length === 0 ? (
-        <PesanKosong teks="Belum ada quotation yang cocok." />
+        <PesanKosong teks="No matching quotations yet." />
       ) : (
         <Kartu>
           <Tabel>
             <thead>
               <tr>
                 <Th>ID</Th>
-                <Th>Prospek</Th>
-                <Th>Tanggal Buat</Th>
-                <Th>Berlaku Sampai</Th>
+                <Th>Prospect</Th>
+                <Th>Created Date</Th>
+                <Th>Valid Until</Th>
                 <Th>Status</Th>
-                <Th kanan>Nilai</Th>
+                <Th kanan>Value</Th>
               </tr>
             </thead>
             <tbody>
@@ -931,7 +940,7 @@ function TabQuotation({ data, user, actions, cari }: ModulProps) {
                   <Td>{formatTanggal(q.tanggalBuat)}</Td>
                   <Td>{formatTanggal(q.berlakuSampai)}</Td>
                   <Td>
-                    <StatusBadge status={q.status} />
+                    <StatusBadge status={labelStatusPersetujuan(q.status)} />
                   </Td>
                   <Td kanan>{formatRupiah(q.nilai)}</Td>
                 </Baris>
@@ -968,7 +977,7 @@ function DetailQuotation({
       setPesan(hasil);
       return;
     }
-    setPesan(`Status quotation diubah menjadi ${status}.`);
+    setPesan(`Quotation status changed to ${labelStatusPersetujuan(status)}.`);
   };
 
   const buatOrder = () => {
@@ -977,12 +986,12 @@ function DetailQuotation({
       setPesan(hasil);
       return;
     }
-    setPesan('Order berhasil dibuat dari quotation ini. Lihat tab Order.');
+    setPesan('Order successfully created from this quotation. See the Order tab.');
   };
 
   return (
     <div className="space-y-4">
-      <TombolSekunder onClick={onKembali}>&larr; Kembali ke daftar</TombolSekunder>
+      <TombolSekunder onClick={onKembali}>&larr; Back to list</TombolSekunder>
       <JudulBagian>
         {quotation.id} — {namaProspek(data, quotation.prospectId)}
       </JudulBagian>
@@ -990,7 +999,7 @@ function DetailQuotation({
       <Kartu>
         <dl className="grid gap-2 text-sm md:grid-cols-2">
           <div className="flex justify-between gap-4">
-            <dt className="text-[#0d2569]/60">Prospek</dt>
+            <dt className="text-[#0d2569]/60">Prospect</dt>
             <dd className="text-right font-semibold text-[#0d2569]">
               {namaProspek(data, quotation.prospectId)} ({quotation.prospectId})
             </dd>
@@ -998,19 +1007,19 @@ function DetailQuotation({
           <div className="flex justify-between gap-4">
             <dt className="text-[#0d2569]/60">Status</dt>
             <dd>
-              <StatusBadge status={quotation.status} />
+              <StatusBadge status={labelStatusPersetujuan(quotation.status)} />
             </dd>
           </div>
           <div className="flex justify-between gap-4">
-            <dt className="text-[#0d2569]/60">Tanggal buat</dt>
+            <dt className="text-[#0d2569]/60">Created date</dt>
             <dd className="text-[#0d2569]">{formatTanggal(quotation.tanggalBuat)}</dd>
           </div>
           <div className="flex justify-between gap-4">
-            <dt className="text-[#0d2569]/60">Berlaku sampai</dt>
+            <dt className="text-[#0d2569]/60">Valid until</dt>
             <dd className="text-[#0d2569]">{formatTanggal(quotation.berlakuSampai)}</dd>
           </div>
           <div className="flex justify-between gap-4">
-            <dt className="text-[#0d2569]/60">Nilai penawaran</dt>
+            <dt className="text-[#0d2569]/60">Quotation value</dt>
             <dd className="font-semibold text-[#0d2569]">
               {formatRupiah(quotation.nilai)}
             </dd>
@@ -1023,7 +1032,7 @@ function DetailQuotation({
           </div>
           {quotation.catatan && (
             <div className="flex justify-between gap-4 md:col-span-2">
-              <dt className="text-[#0d2569]/60">Catatan</dt>
+              <dt className="text-[#0d2569]/60">Notes</dt>
               <dd className="text-right text-[#0d2569]">{quotation.catatan}</dd>
             </div>
           )}
@@ -1031,27 +1040,27 @@ function DetailQuotation({
       </Kartu>
 
       <Kartu>
-        <JudulBagian>Layanan (Snapshot Tarif)</JudulBagian>
+        <JudulBagian>Services (Tariff Snapshot)</JudulBagian>
         <div className="mt-3">
           <Tabel>
             <thead>
               <tr>
-                <Th>Kategori</Th>
-                <Th>Kode Akun</Th>
-                <Th>Jenis PNBP</Th>
-                <Th>Satuan</Th>
-                <Th kanan>Tarif</Th>
-                <Th kanan>Jumlah</Th>
+                <Th>Category</Th>
+                <Th>Account Code</Th>
+                <Th>PNBP Type</Th>
+                <Th>Unit</Th>
+                <Th kanan>Tariff</Th>
+                <Th kanan>Quantity</Th>
                 <Th kanan>Subtotal</Th>
-                <Th>Programa</Th>
+                <Th>Program</Th>
               </tr>
             </thead>
             <tbody>
               {quotation.layanan.map((l) => (
                 <Baris key={l.id}>
-                  <Td>{l.kategori}</Td>
+                  <Td>{labelKategoriLayanan(l.kategori)}</Td>
                   <Td>{l.kodeAkun}</Td>
-                  <Td>{l.jenisPnBP}</Td>
+                  <Td>{labelJenisPnBP(l.jenisPnBP)}</Td>
                   <Td>{l.satuan}</Td>
                   <Td kanan>{formatRupiah(l.tarif)}</Td>
                   <Td kanan>{l.jumlah}</Td>
@@ -1063,22 +1072,22 @@ function DetailQuotation({
           </Tabel>
         </div>
         <p className="mt-3 text-sm text-[#0d2569]/70">
-          Tarif di atas adalah snapshot saat quotation dibuat dan tidak berubah
-          bila master berubah.
+          The tariffs above are a snapshot taken when the quotation was created
+          and do not change if the master data changes.
         </p>
       </Kartu>
 
       {bolehUbah && statusQuotationBerikutnya(quotation.status).length > 0 && (
         <Kartu>
-          <JudulBagian>Ubah Status</JudulBagian>
+          <JudulBagian>Change Status</JudulBagian>
           <div className="mt-3 flex flex-wrap gap-2">
             {statusQuotationBerikutnya(quotation.status).map((s) => (
               <TombolSekunder key={s} onClick={() => ubahStatus(s)}>
                 {s === 'Dikirim'
-                  ? 'Kirim Quotation'
+                  ? 'Send Quotation'
                   : s === 'Disetujui'
-                    ? 'Setujui'
-                    : 'Tolak'}
+                    ? 'Approve'
+                    : 'Reject'}
               </TombolSekunder>
             ))}
           </div>
@@ -1090,17 +1099,17 @@ function DetailQuotation({
           <JudulBagian>Order</JudulBagian>
           {orderTerkait ? (
             <p className="mt-1 text-sm text-[#0d2569]">
-              Order sudah dibuat dari quotation ini: {orderTerkait.id} (status{' '}
-              {orderTerkait.status}).
+              An order has already been created from this quotation:{' '}
+              {orderTerkait.id} (status {labelStatusOrder(orderTerkait.status)}).
             </p>
           ) : (
             <>
               <p className="mt-1 text-sm text-[#0d2569]/70">
-                Quotation disetujui — order dapat dibuat dari quotation ini.
+                Quotation approved — an order can be created from this quotation.
               </p>
               {bolehOrder && (
                 <div className="mt-3">
-                  <TombolUtama onClick={buatOrder}>Buat Order</TombolUtama>
+                  <TombolUtama onClick={buatOrder}>Create Order</TombolUtama>
                 </div>
               )}
             </>
@@ -1167,28 +1176,28 @@ function FormQuotation({
 
   const simpan = () => {
     if (prospectId === '') {
-      setError('Prospek wajib dipilih.');
+      setError('A prospect must be selected.');
       return;
     }
     if (berlakuSampai === '') {
-      setError('Tanggal berlaku sampai wajib diisi.');
+      setError('Valid-until date is required.');
       return;
     }
     if (baris.length === 0) {
-      setError('Minimal satu baris layanan wajib diisi.');
+      setError('At least one service row is required.');
       return;
     }
     for (let i = 0; i < baris.length; i += 1) {
       if (baris[i].satuan.trim() === '') {
-        setError(`Satuan pada baris layanan ${i + 1} wajib diisi.`);
+        setError(`Unit on service row ${i + 1} is required.`);
         return;
       }
       if (!(Number(baris[i].tarif) > 0)) {
-        setError(`Tarif pada baris layanan ${i + 1} harus lebih dari 0.`);
+        setError(`Tariff on service row ${i + 1} must be greater than 0.`);
         return;
       }
       if (!(Number(baris[i].jumlah) > 0)) {
-        setError(`Jumlah pada baris layanan ${i + 1} harus lebih dari 0.`);
+        setError(`Quantity on service row ${i + 1} must be greater than 0.`);
         return;
       }
     }
@@ -1216,9 +1225,9 @@ function FormQuotation({
   if (prospekLayak.length === 0) {
     return (
       <Kartu>
-        <PesanKosong teks="Belum ada prospek yang dapat dibuatkan quotation (semua prospek sudah Diterima atau Ditolak)." />
+        <PesanKosong teks="No prospects can be given a quotation yet (all prospects are already Accepted or Rejected)." />
         <div className="mt-3">
-          <TombolSekunder onClick={onBatal}>Tutup</TombolSekunder>
+          <TombolSekunder onClick={onBatal}>Close</TombolSekunder>
         </div>
       </Kartu>
     );
@@ -1226,11 +1235,11 @@ function FormQuotation({
 
   return (
     <Kartu>
-      <JudulBagian>Buat Quotation</JudulBagian>
-      <Peringatan teks="Tarif diisi operator per baris layanan dan dibekukan sebagai snapshot saat quotation dibuat — tarif tidak berubah bila master berubah (pola yang sama dengan tarif layanan pada form kontrak Fase A)." />
+      <JudulBagian>Create Quotation</JudulBagian>
+      <Peringatan teks="Tariffs are entered by the operator per service row and frozen as a snapshot when the quotation is created — tariffs do not change if the master data changes (same pattern as the service tariffs on the Phase A contract form)." />
       <div className="mt-4 grid gap-4 md:grid-cols-2">
         <div>
-          <Label>Prospek *</Label>
+          <Label>Prospect *</Label>
           <select
             className={inputClass}
             value={prospectId}
@@ -1238,13 +1247,13 @@ function FormQuotation({
           >
             {prospekLayak.map((p) => (
               <option key={p.id} value={p.id}>
-                {p.namaInstansi} ({p.tahap})
+                {p.namaInstansi} ({labelTahapPipeline(p.tahap)})
               </option>
             ))}
           </select>
         </div>
         <div>
-          <Label>Berlaku sampai *</Label>
+          <Label>Valid until *</Label>
           <input
             className={inputClass}
             type="date"
@@ -1253,18 +1262,18 @@ function FormQuotation({
           />
         </div>
         <div className="md:col-span-2">
-          <Label>Catatan</Label>
+          <Label>Notes</Label>
           <input
             className={inputClass}
             value={catatan}
             onChange={(e) => setCatatan(e.target.value)}
-            placeholder="Catatan quotation (opsional)"
+            placeholder="Quotation notes (optional)"
           />
         </div>
       </div>
 
       <div className="mt-4 space-y-3">
-        <JudulBagian>Layanan</JudulBagian>
+        <JudulBagian>Services</JudulBagian>
         {baris.map((b, idx) => {
           const master = MASTER_KATEGORI_LAYANAN.find((k) => k.nama === b.kategori);
           return (
@@ -1273,7 +1282,7 @@ function FormQuotation({
               className="grid gap-3 rounded-md border border-[#2573e2]/20 p-3 md:grid-cols-5"
             >
               <div>
-                <Label>Kategori *</Label>
+                <Label>Category *</Label>
                 <select
                   className={inputClass}
                   value={b.kategori}
@@ -1281,36 +1290,36 @@ function FormQuotation({
                 >
                   {MASTER_KATEGORI_LAYANAN.map((k) => (
                     <option key={k.nama} value={k.nama}>
-                      {k.nama}
+                      {labelKategoriLayanan(k.nama)}
                     </option>
                   ))}
                 </select>
                 <p className="mt-1 text-xs text-[#0d2569]/60">
-                  Kode akun {master?.kodeAkun ?? '-'} — {master?.jenisPnBP ?? '-'}
+                  Account code {master?.kodeAkun ?? '-'} — {master?.jenisPnBP ? labelJenisPnBP(master.jenisPnBP) : '-'}
                 </p>
               </div>
               <div>
-                <Label>Satuan *</Label>
+                <Label>Unit *</Label>
                 <input
                   className={inputClass}
                   value={b.satuan}
                   onChange={(e) => ubahBaris(idx, 'satuan', e.target.value)}
-                  placeholder="cth: Termin / Paket / Bulan"
+                  placeholder="e.g.: Installment / Package / Month"
                 />
               </div>
               <div>
-                <Label>Tarif (Rp) *</Label>
+                <Label>Tariff (Rp) *</Label>
                 <input
                   className={inputClass}
                   type="number"
                   min="1"
                   value={b.tarif}
                   onChange={(e) => ubahBaris(idx, 'tarif', e.target.value)}
-                  placeholder="cth: 3000000"
+                  placeholder="e.g.: 3000000"
                 />
               </div>
               <div>
-                <Label>Jumlah *</Label>
+                <Label>Quantity *</Label>
                 <input
                   className={inputClass}
                   type="number"
@@ -1320,13 +1329,13 @@ function FormQuotation({
                 />
               </div>
               <div>
-                <Label>Programa</Label>
+                <Label>Program</Label>
                 <select
                   className={inputClass}
                   value={b.programa}
                   onChange={(e) => ubahBaris(idx, 'programa', e.target.value)}
                 >
-                  <option value="">— Tanpa programa —</option>
+                  <option value="">— No program —</option>
                   {MASTER_PROGRAMA.map((p) => (
                     <option key={p} value={p}>
                       {p}
@@ -1335,11 +1344,11 @@ function FormQuotation({
                 </select>
               </div>
               <p className="text-xs text-[#0d2569]/60 md:col-span-5">
-                Subtotal baris {idx + 1}:{' '}
+                Row {idx + 1} subtotal:{' '}
                 {Number(b.tarif) > 0 && Number(b.jumlah) > 0
                   ? formatRupiah(Number(b.tarif) * Number(b.jumlah))
                   : '—'}
-                . Tarif dibekukan sebagai snapshot saat quotation disimpan.
+                . The tariff is frozen as a snapshot when the quotation is saved.
               </p>
               {baris.length > 1 && (
                 <div className="md:col-span-5">
@@ -1348,7 +1357,7 @@ function FormQuotation({
                       setBaris((rows) => rows.filter((_, i) => i !== idx))
                     }
                   >
-                    Hapus baris
+                    Remove row
                   </TombolSekunder>
                 </div>
               )}
@@ -1358,10 +1367,10 @@ function FormQuotation({
         <TombolSekunder
           onClick={() => setBaris((rows) => [...rows, { ...BARIS_QUOTATION_AWAL }])}
         >
-          + Tambah Baris Layanan
+          + Add Service Row
         </TombolSekunder>
         <p className="mt-3 text-sm font-semibold text-[#0d2569]">
-          Nilai penawaran (Σ subtotal):{' '}
+          Quotation value (Σ subtotal):{' '}
           {formatRupiah(
             baris.reduce(
               (s, b) =>
@@ -1381,8 +1390,8 @@ function FormQuotation({
         </p>
       )}
       <div className="mt-4 flex gap-2">
-        <TombolUtama onClick={simpan}>Simpan Quotation</TombolUtama>
-        <TombolSekunder onClick={onBatal}>Batal</TombolSekunder>
+        <TombolUtama onClick={simpan}>Save Quotation</TombolUtama>
+        <TombolSekunder onClick={onBatal}>Cancel</TombolSekunder>
       </div>
     </Kartu>
   );
@@ -1438,7 +1447,7 @@ function TabOrder({ data, user, actions, cari }: ModulProps) {
         <JudulBagian>Order</JudulBagian>
         {bolehAksi(user.peran, 'kelolaOrder') && (
           <TombolUtama onClick={() => setTampilForm(true)}>
-            + Buat Order
+            + Create Order
           </TombolUtama>
         )}
       </div>
@@ -1453,7 +1462,7 @@ function TabOrder({ data, user, actions, cari }: ModulProps) {
       )}
 
       {orderTersaring.length === 0 ? (
-        <PesanKosong teks="Belum ada order yang cocok." />
+        <PesanKosong teks="No matching orders yet." />
       ) : (
         <Kartu>
           <Tabel>
@@ -1461,11 +1470,11 @@ function TabOrder({ data, user, actions, cari }: ModulProps) {
               <tr>
                 <Th>ID</Th>
                 <Th>Quotation</Th>
-                <Th>Prospek</Th>
-                <Th>Tanggal Order</Th>
+                <Th>Prospect</Th>
+                <Th>Order Date</Th>
                 <Th>Status</Th>
-                <Th kanan>Nilai</Th>
-                <Th>Kontrak</Th>
+                <Th kanan>Value</Th>
+                <Th>Contract</Th>
               </tr>
             </thead>
             <tbody>
@@ -1480,7 +1489,7 @@ function TabOrder({ data, user, actions, cari }: ModulProps) {
                     <Td>{namaProspek(data, o.prospectId)}</Td>
                     <Td>{formatTanggal(o.tanggalOrder)}</Td>
                     <Td>
-                      <StatusBadge status={o.status} />
+                      <StatusBadge status={labelStatusOrder(o.status)} />
                     </Td>
                     <Td kanan>{formatRupiah(o.nilai)}</Td>
                     <Td>{kontrak ? kontrak.nomorPks : '-'}</Td>
@@ -1521,7 +1530,7 @@ function DetailOrder({
       setPesan(hasil);
       return;
     }
-    setPesan(`Status order diubah menjadi ${status}.`);
+    setPesan(`Order status changed to ${labelStatusOrder(status)}.`);
   };
 
   const konversi = () => {
@@ -1536,14 +1545,14 @@ function DetailOrder({
       : null;
     setPesan(
       kontrakBaru
-        ? `Order berhasil dikonversi menjadi kontrak ${kontrakBaru.nomorPks}.`
-        : 'Order berhasil dikonversi menjadi kontrak.',
+        ? `Order successfully converted into contract ${kontrakBaru.nomorPks}.`
+        : 'Order successfully converted into a contract.',
     );
   };
 
   return (
     <div className="space-y-4">
-      <TombolSekunder onClick={onKembali}>&larr; Kembali ke daftar</TombolSekunder>
+      <TombolSekunder onClick={onKembali}>&larr; Back to list</TombolSekunder>
       <JudulBagian>
         {order.id} — {namaProspek(data, order.prospectId)}
       </JudulBagian>
@@ -1554,27 +1563,27 @@ function DetailOrder({
             <dt className="text-[#0d2569]/60">Quotation</dt>
             <dd className="font-semibold text-[#0d2569]">
               {order.quotationId}
-              {quotation ? ` (${quotation.status})` : ''}
+              {quotation ? ` (${labelStatusPersetujuan(quotation.status)})` : ''}
             </dd>
           </div>
           <div className="flex justify-between gap-4">
-            <dt className="text-[#0d2569]/60">Prospek</dt>
+            <dt className="text-[#0d2569]/60">Prospect</dt>
             <dd className="text-right text-[#0d2569]">
               {namaProspek(data, order.prospectId)} ({order.prospectId})
             </dd>
           </div>
           <div className="flex justify-between gap-4">
-            <dt className="text-[#0d2569]/60">Tanggal order</dt>
+            <dt className="text-[#0d2569]/60">Order date</dt>
             <dd className="text-[#0d2569]">{formatTanggal(order.tanggalOrder)}</dd>
           </div>
           <div className="flex justify-between gap-4">
             <dt className="text-[#0d2569]/60">Status</dt>
             <dd>
-              <StatusBadge status={order.status} />
+              <StatusBadge status={labelStatusOrder(order.status)} />
             </dd>
           </div>
           <div className="flex justify-between gap-4">
-            <dt className="text-[#0d2569]/60">Nilai</dt>
+            <dt className="text-[#0d2569]/60">Value</dt>
             <dd className="font-semibold text-[#0d2569]">
               {formatRupiah(order.nilai)}
             </dd>
@@ -1587,15 +1596,15 @@ function DetailOrder({
           </div>
           {order.catatan && (
             <div className="flex justify-between gap-4 md:col-span-2">
-              <dt className="text-[#0d2569]/60">Catatan</dt>
+              <dt className="text-[#0d2569]/60">Notes</dt>
               <dd className="text-right text-[#0d2569]">{order.catatan}</dd>
             </div>
           )}
           {kontrak && (
             <div className="flex justify-between gap-4 md:col-span-2">
-              <dt className="text-[#0d2569]/60">Kontrak hasil konversi</dt>
+              <dt className="text-[#0d2569]/60">Contract resulting from conversion</dt>
               <dd className="text-right font-semibold text-[#0d2569]">
-                {kontrak.nomorPks} ({kontrak.status})
+                {kontrak.nomorPks} ({labelStatusKontrak(kontrak.status)})
               </dd>
             </div>
           )}
@@ -1604,15 +1613,15 @@ function DetailOrder({
 
       {bolehUbah && statusOrderBerikutnya(order.status).length > 0 && (
         <Kartu>
-          <JudulBagian>Ubah Status</JudulBagian>
+          <JudulBagian>Change Status</JudulBagian>
           <div className="mt-3 flex flex-wrap gap-2">
             {statusOrderBerikutnya(order.status).map((s) => (
               <TombolSekunder key={s} onClick={() => ubahStatus(s)}>
                 {s === 'Diproses'
-                  ? 'Proses Order'
+                  ? 'Process Order'
                   : s === 'Selesai'
-                    ? 'Tandai Selesai'
-                    : 'Batalkan'}
+                    ? 'Mark Completed'
+                    : 'Cancel'}
               </TombolSekunder>
             ))}
           </div>
@@ -1621,15 +1630,15 @@ function DetailOrder({
 
       {order.status === 'Selesai' && !order.kontrakId && (
         <Kartu>
-          <JudulBagian>Konversi menjadi Kontrak</JudulBagian>
+          <JudulBagian>Convert into Contract</JudulBagian>
           <p className="mt-1 text-sm text-[#0d2569]/70">
-            Order yang selesai dapat dikonversi menjadi kontrak (PKS). Prospek
-            terkait menjadi Diterima.
+            A completed order can be converted into a contract (PKS). The related
+            prospect becomes Accepted.
           </p>
           {bolehUbah && (
             <div className="mt-3">
               <TombolUtama onClick={konversi}>
-                Konversi menjadi Kontrak
+                Convert into Contract
               </TombolUtama>
             </div>
           )}
@@ -1668,9 +1677,9 @@ function FormOrder({
   if (quotationDisetujui.length === 0) {
     return (
       <Kartu>
-        <PesanKosong teks="Belum ada quotation yang disetujui. Order hanya dapat dibuat dari quotation berstatus Disetujui." />
+        <PesanKosong teks="No approved quotations yet. Orders can only be created from a quotation with Approved status." />
         <div className="mt-3">
-          <TombolSekunder onClick={onBatal}>Tutup</TombolSekunder>
+          <TombolSekunder onClick={onBatal}>Close</TombolSekunder>
         </div>
       </Kartu>
     );
@@ -1678,7 +1687,7 @@ function FormOrder({
 
   const simpan = () => {
     if (quotationId === '') {
-      setError('Quotation wajib dipilih.');
+      setError('A quotation must be selected.');
       return;
     }
     const hasil = actions.tambahOrder({
@@ -1694,10 +1703,10 @@ function FormOrder({
 
   return (
     <Kartu>
-      <JudulBagian>Buat Order</JudulBagian>
+      <JudulBagian>Create Order</JudulBagian>
       <div className="mt-4 grid gap-4 md:grid-cols-2">
         <div>
-          <Label>Quotation (Disetujui) *</Label>
+          <Label>Quotation (Approved) *</Label>
           <select
             className={inputClass}
             value={quotationId}
@@ -1712,12 +1721,12 @@ function FormOrder({
           </select>
         </div>
         <div>
-          <Label>Catatan</Label>
+          <Label>Notes</Label>
           <input
             className={inputClass}
             value={catatan}
             onChange={(e) => setCatatan(e.target.value)}
-            placeholder="Catatan order (opsional)"
+            placeholder="Order notes (optional)"
           />
         </div>
       </div>
@@ -1728,8 +1737,8 @@ function FormOrder({
         </p>
       )}
       <div className="mt-4 flex gap-2">
-        <TombolUtama onClick={simpan}>Simpan Order</TombolUtama>
-        <TombolSekunder onClick={onBatal}>Batal</TombolSekunder>
+        <TombolUtama onClick={simpan}>Save Order</TombolUtama>
+        <TombolSekunder onClick={onBatal}>Cancel</TombolSekunder>
       </div>
     </Kartu>
   );
@@ -1769,13 +1778,13 @@ function TabMeeting({ data, user, actions, cari }: ModulProps) {
         <JudulBagian>Meeting</JudulBagian>
         {bolehAksi(user.peran, 'kelolaMeeting') && (
           <TombolUtama onClick={() => setTampilForm(true)}>
-            + Tambah Meeting
+            + Add Meeting
           </TombolUtama>
         )}
       </div>
 
       <div>
-        <Label>Filter waktu</Label>
+        <Label>Filter by time</Label>
         <select
           className={`${inputClass} max-w-xs`}
           value={filterWaktu}
@@ -1783,8 +1792,8 @@ function TabMeeting({ data, user, actions, cari }: ModulProps) {
             setFilterWaktu(e.target.value as 'mendatang' | 'semua')
           }
         >
-          <option value="mendatang">Mendatang</option>
-          <option value="semua">Semua</option>
+          <option value="mendatang">Upcoming</option>
+          <option value="semua">All</option>
         </select>
       </div>
 
@@ -1798,18 +1807,18 @@ function TabMeeting({ data, user, actions, cari }: ModulProps) {
       )}
 
       {meetingTersaring.length === 0 ? (
-        <PesanKosong teks="Belum ada meeting yang cocok." />
+        <PesanKosong teks="No matching meetings yet." />
       ) : (
         <Kartu>
           <Tabel>
             <thead>
               <tr>
-                <Th>Tanggal</Th>
-                <Th>Jam</Th>
-                <Th>Prospek / Klien</Th>
-                <Th>Peserta</Th>
+                <Th>Date</Th>
+                <Th>Time</Th>
+                <Th>Prospect / Client</Th>
+                <Th>Participants</Th>
                 <Th>Agenda</Th>
-                <Th>Hasil</Th>
+                <Th>Outcome</Th>
               </tr>
             </thead>
             <tbody>
@@ -1869,26 +1878,26 @@ function FormMeeting({
 
   const simpan = () => {
     if (form.tanggal === '') {
-      setError('Tanggal meeting wajib diisi.');
+      setError('Meeting date is required.');
       return;
     }
     if (form.jam === '') {
-      setError('Jam meeting wajib diisi.');
+      setError('Meeting time is required.');
       return;
     }
     if (
       (form.prospectId === '' || form.prospectId === undefined) &&
       (form.klienId === '' || form.klienId === undefined)
     ) {
-      setError('Pilih salah satu: prospek atau klien.');
+      setError('Choose one: prospect or client.');
       return;
     }
     if (form.peserta.trim() === '') {
-      setError('Peserta wajib diisi.');
+      setError('Participants are required.');
       return;
     }
     if (form.agenda.trim() === '') {
-      setError('Agenda wajib diisi.');
+      setError('Agenda is required.');
       return;
     }
     const hasil = actions.tambahMeeting({
@@ -1910,10 +1919,10 @@ function FormMeeting({
 
   return (
     <Kartu>
-      <JudulBagian>Tambah Meeting</JudulBagian>
+      <JudulBagian>Add Meeting</JudulBagian>
       <div className="mt-4 grid gap-4 md:grid-cols-2">
         <div>
-          <Label>Tanggal *</Label>
+          <Label>Date *</Label>
           <input
             className={inputClass}
             type="date"
@@ -1922,7 +1931,7 @@ function FormMeeting({
           />
         </div>
         <div>
-          <Label>Jam *</Label>
+          <Label>Time *</Label>
           <input
             className={inputClass}
             type="time"
@@ -1931,13 +1940,13 @@ function FormMeeting({
           />
         </div>
         <div>
-          <Label>Prospek (pilih salah satu) *</Label>
+          <Label>Prospect (choose one) *</Label>
           <select
             className={inputClass}
             value={form.prospectId ?? ''}
             onChange={(e) => ubah('prospectId', e.target.value)}
           >
-            <option value="">— Tanpa prospek —</option>
+            <option value="">— No prospect —</option>
             {data.prospect.map((p) => (
               <option key={p.id} value={p.id}>
                 {p.namaInstansi}
@@ -1946,13 +1955,13 @@ function FormMeeting({
           </select>
         </div>
         <div>
-          <Label>Klien (pilih salah satu) *</Label>
+          <Label>Client (choose one) *</Label>
           <select
             className={inputClass}
             value={form.klienId ?? ''}
             onChange={(e) => ubah('klienId', e.target.value)}
           >
-            <option value="">— Tanpa klien —</option>
+            <option value="">— No client —</option>
             {data.klien.map((k) => (
               <option key={k.id} value={k.id}>
                 {k.nama}
@@ -1961,12 +1970,12 @@ function FormMeeting({
           </select>
         </div>
         <div className="md:col-span-2">
-          <Label>Peserta *</Label>
+          <Label>Participants *</Label>
           <input
             className={inputClass}
             value={form.peserta}
             onChange={(e) => ubah('peserta', e.target.value)}
-            placeholder="Nama peserta meeting"
+            placeholder="Meeting participant names"
           />
         </div>
         <div className="md:col-span-2">
@@ -1975,16 +1984,16 @@ function FormMeeting({
             className={`${inputClass} min-h-20`}
             value={form.agenda}
             onChange={(e) => ubah('agenda', e.target.value)}
-            placeholder="Agenda meeting"
+            placeholder="Meeting agenda"
           />
         </div>
         <div className="md:col-span-2">
-          <Label>Hasil</Label>
+          <Label>Outcome</Label>
           <input
             className={inputClass}
             value={form.hasil ?? ''}
             onChange={(e) => ubah('hasil', e.target.value)}
-            placeholder="Hasil meeting (opsional)"
+            placeholder="Meeting outcome (optional)"
           />
         </div>
       </div>
@@ -1995,8 +2004,8 @@ function FormMeeting({
         </p>
       )}
       <div className="mt-4 flex gap-2">
-        <TombolUtama onClick={simpan}>Simpan Meeting</TombolUtama>
-        <TombolSekunder onClick={onBatal}>Batal</TombolSekunder>
+        <TombolUtama onClick={simpan}>Save Meeting</TombolUtama>
+        <TombolSekunder onClick={onBatal}>Cancel</TombolSekunder>
       </div>
     </Kartu>
   );
@@ -2013,59 +2022,59 @@ function TabAnalytics({ data }: { data: ModulProps['data'] }) {
     0,
   );
   const konversi: { label: string; nilai: number }[] = [
-    { label: 'Prospek → Quotation', nilai: a.konversiProspectKeQuotation },
+    { label: 'Prospect → Quotation', nilai: a.konversiProspectKeQuotation },
     { label: 'Quotation → Order', nilai: a.konversiQuotationKeOrder },
-    { label: 'Order → Kontrak', nilai: a.konversiOrderKeKontrak },
-    { label: 'Prospek → Kontrak', nilai: a.konversiProspectKeKontrak },
+    { label: 'Order → Contract', nilai: a.konversiOrderKeKontrak },
+    { label: 'Prospect → Contract', nilai: a.konversiProspectKeKontrak },
   ];
 
   return (
     <div className="space-y-4">
       <JudulBagian>Analytics</JudulBagian>
       <div className="grid gap-3 md:grid-cols-3 xl:grid-cols-5">
-        <StatCard label="Jumlah Prospek" nilai={String(a.jumlahProspect)} />
+        <StatCard label="Number of Prospects" nilai={String(a.jumlahProspect)} />
         <StatCard
-          label="Nilai Pipeline"
+          label="Pipeline Value"
           nilai={formatRupiah(a.nilaiPipeline)}
-          keterangan={`${totalProspekAktif} prospek pada tahap aktif`}
+          keterangan={`${totalProspekAktif} ${totalProspekAktif === 1 ? 'prospect' : 'prospects'} in active stages`}
         />
         <StatCard
-          label="Jumlah Quotation"
+          label="Number of Quotations"
           nilai={String(a.jumlahQuotation)}
-          keterangan={`${a.jumlahQuotationDisetujui} disetujui`}
+          keterangan={`${a.jumlahQuotationDisetujui} approved`}
         />
         <StatCard
-          label="Jumlah Order"
+          label="Number of Orders"
           nilai={String(a.jumlahOrder)}
-          keterangan={`${a.jumlahOrderSelesai} selesai`}
+          keterangan={`${a.jumlahOrderSelesai} completed`}
         />
         <StatCard
-          label="Kontrak dari Prospek"
+          label="Contracts from Prospects"
           nilai={String(a.jumlahKontrakDariProspect)}
         />
       </div>
 
       <Kartu>
-        <JudulBagian>Prospek per Tahap (Aktif)</JudulBagian>
+        <JudulBagian>Prospects per Stage (Active)</JudulBagian>
         <div className="mt-3">
           <Tabel>
             <thead>
               <tr>
-                <Th>Tahap</Th>
-                <Th kanan>Jumlah Prospek</Th>
-                <Th kanan>Nilai</Th>
+                <Th>Stage</Th>
+                <Th kanan>Number of Prospects</Th>
+                <Th kanan>Value</Th>
               </tr>
             </thead>
             <tbody>
               {a.prospectPerTahap.map((r) => (
                 <Baris key={r.tahap}>
-                  <Td>{r.tahap}</Td>
+                  <Td>{labelTahapPipeline(r.tahap)}</Td>
                   <Td kanan>{r.jumlah}</Td>
                   <Td kanan>{formatRupiah(r.nilai)}</Td>
                 </Baris>
               ))}
               <Baris className="bg-[#2573e2]/5 font-semibold">
-                <Td tebal>Total (tahap aktif)</Td>
+                <Td tebal>Total (active stages)</Td>
                 <Td kanan tebal>{totalProspekAktif}</Td>
                 <Td kanan tebal>{formatRupiah(a.nilaiPipeline)}</Td>
               </Baris>
@@ -2075,7 +2084,7 @@ function TabAnalytics({ data }: { data: ModulProps['data'] }) {
       </Kartu>
 
       <Kartu>
-        <JudulBagian>Tingkat Konversi</JudulBagian>
+        <JudulBagian>Conversion Rate</JudulBagian>
         <div className="mt-3 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
           {konversi.map((k) => (
             <StatCard key={k.label} label={k.label} nilai={`${k.nilai}%`} />

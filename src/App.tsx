@@ -55,6 +55,11 @@ import { buatEntriAudit } from './lib/audit';
 import { DAFTAR_JENIS_PENGAJUAN_KLIEN } from './lib/types';
 import { bolehAksi, LABEL_PERAN } from './lib/permissions';
 import { formatRupiah, formatTanggal, hariIniIso } from './lib/format';
+import {
+  labelStatusOrder,
+  labelStatusPersetujuan,
+  labelTahapPipeline,
+} from './lib/labels';
 import type {
   Advertisement,
   AppData,
@@ -155,14 +160,14 @@ const MODULES: NavItem[] = [
     icon: LayoutDashboard,
     phase: 'A',
     description:
-      'Ringkasan periode, Revenue Analytics, deadline laporan kantor pusat (isi tgl 10, kumpul tgl 11). Employee Rank & Satker Rank (Leaderboard of Year / of The Month) per periode tanggal tanda tangan kontrak.',
+      'Period summary, Revenue Analytics, head office report deadlines (fill in by the 10th, submit by the 11th). Employee Rank & Satker Rank (Leaderboard of the Year / of the Month) per contract signing date period.',
   },
   {
     id: 'marketing',
     label: 'Marketing',
     icon: Megaphone,
     phase: 'B',
-    description: 'Events dan Advertisement.',
+    description: 'Events and Advertisement.',
   },
   {
     id: 'sales',
@@ -170,7 +175,7 @@ const MODULES: NavItem[] = [
     icon: Briefcase,
     phase: 'B',
     description:
-      'Prospect List, Sales Analytics, Quotation, Pipeline, Order, Meeting Schedule. Pengajuan Baru sebagai sub-modul.',
+      'Prospect List, Sales Analytics, Quotation, Pipeline, Order, Meeting Schedule. New Submissions as a sub-module.',
   },
   {
     id: 'deals',
@@ -178,25 +183,25 @@ const MODULES: NavItem[] = [
     icon: Handshake,
     phase: 'A',
     description:
-      'Clients, Partnership Details (PNBP Fungsional, PNBP Umum, Dukungan Layanan, Nota Kesepahaman, Media Partner), Contracts, Documents. Sewa / BMN sebagai sub-modul.',
+      'Clients, Partnership Details (Functional PNBP, General PNBP, Service Support, Memorandum of Understanding, Media Partner), Contracts, Documents. Lease / State Assets (BMN) as a sub-module.',
   },
   {
     id: 'sewa',
-    label: 'Sewa / BMN',
+    label: 'Lease / State Assets (BMN)',
     icon: Building2,
     phase: 'A',
     induk: 'deals',
     description:
-      'Satu daftar sewa (Deals → Partnership Details → PNBP Umum): Semua, ON GOING, Akan Berakhir, Pengajuan Baru, Diterima di Muka, Masih Harus Diterima, Temuan Lapangan, Indralaya.',
+      'One lease list (Deals → Partnership Details → General PNBP): All, ON GOING, Expiring Soon, New Applications, Received in Advance, Still Receivable, Field Findings, Indralaya.',
   },
   {
     id: 'pengajuan',
-    label: 'Pengajuan',
+    label: 'Submission',
     icon: FilePlus2,
     phase: 'A',
     induk: 'sales',
     description:
-      'Pengajuan Baru (kerja sama baru / sewa baru): Masuk → Ditelaah → Menunggu Dokumen → Disetujui/Ditolak → Dikonversi ke kontrak.',
+      'New Submissions (new partnership / new lease): Received → Under review → Awaiting documents → Approved/Rejected → Converted to contract.',
   },
   {
     id: 'revenue',
@@ -204,7 +209,7 @@ const MODULES: NavItem[] = [
     icon: Wallet,
     phase: 'A',
     description:
-      'Overview, Revenue Stream, Revenue Type, Invoice, Payments, Billings, dan Rekonsiliasi dengan data acuan Keuangan (read-only).',
+      'Overview, Revenue Stream, Revenue Type, Invoice, Payments, Billings, and Reconciliation with Finance reference data (read-only).',
   },
   {
     id: 'reporting',
@@ -212,14 +217,14 @@ const MODULES: NavItem[] = [
     icon: FileText,
     phase: 'A',
     description:
-      'Laporan Satker: Laporan PNBP, Laporan Piutang & Penyetoran, Laporan Dukungan Layanan, Laporan Nota Kesepahaman, Laporan Media Partner.',
+      'Satker Reports: PNBP Report, Receivables & Deposits Report, Service Support Report, Memorandum of Understanding Report, Media Partner Report.',
   },
   {
     id: 'todo',
     label: 'To-Do List',
     icon: CheckSquare,
     phase: 'B',
-    description: 'Individual Task dan Disposisi.',
+    description: 'Individual Tasks and Dispositions.',
   },
   {
     id: 'service',
@@ -227,7 +232,7 @@ const MODULES: NavItem[] = [
     icon: BarChart3,
     phase: 'C',
     description:
-      'Feedback Survey, Help-Desk ke PIC kantor pusat, Knowledge Base (Regulasi, SOP).',
+      'Feedback Survey, Help-Desk to head office PIC, Knowledge Base (Regulations, SOP).',
   },
   {
     id: 'audit',
@@ -235,15 +240,15 @@ const MODULES: NavItem[] = [
     icon: ShieldCheck,
     phase: 'Admin',
     description:
-      'Audit trail (append-only). Hanya Admin Sistem; tidak menampilkan konfigurasi Firebase atau email admin.',
+      'Audit trail (append-only). System Admin only; does not show Firebase configuration or admin email.',
   },
   {
     id: 'master',
-    label: 'Master & Pengguna',
+    label: 'Master Data & Users',
     icon: Database,
     phase: 'Admin',
     description:
-      'Master data terpusat (kode akun, layanan, programa, jenis klien, jenis dokumen, status, daftar satker) dan pengguna dummy.',
+      'Centralised master data (account codes, services, programs, client types, document types, statuses, satker list) and dummy users.',
   },
 ];
 
@@ -367,7 +372,7 @@ export default function App() {
       } catch (e) {
         if (!batal) {
           setGalatMuat(
-            e instanceof Error ? e.message : 'Gagal memuat data dari Firestore.',
+            e instanceof Error ? e.message : 'Failed to load data from Firestore.',
           );
         }
       }
@@ -393,21 +398,21 @@ export default function App() {
     input: PengajuanPublikInput,
   ): Promise<string | null> => {
     if (!DAFTAR_JENIS_PENGAJUAN_KLIEN.includes(input.jenis)) {
-      return `Jenis permohonan "${input.jenis}" tidak dikenal.`;
+      return `Request type "${input.jenis}" is not recognised.`;
     }
-    if (!input.namaPemohon.trim()) return 'Nama pemohon wajib diisi.';
-    if (!input.namaInstitusi.trim()) return 'Nama institusi wajib diisi.';
-    if (!input.kontakEmail.trim()) return 'Email kontak wajib diisi.';
+    if (!input.namaPemohon.trim()) return 'Applicant name is required.';
+    if (!input.namaInstitusi.trim()) return 'Institution name is required.';
+    if (!input.kontakEmail.trim()) return 'Contact email is required.';
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(input.kontakEmail.trim())) {
-      return 'Email kontak tidak valid.';
+      return 'Contact email is not valid.';
     }
-    if (!input.judul.trim()) return 'Judul permohonan wajib diisi.';
-    if (!input.uraian.trim()) return 'Detail permohonan wajib diisi.';
+    if (!input.judul.trim()) return 'Request title is required.';
+    if (!input.uraian.trim()) return 'Request details are required.';
     if (
       input.nilaiPerkiraan !== undefined &&
       !(input.nilaiPerkiraan >= 0)
     ) {
-      return 'Nilai perkiraan harus berupa angka 0 atau lebih.';
+      return 'Estimated value must be 0 or more.';
     }
     const id = idBerikutnya('PKL-', data.pengajuanKlien.map((s) => s.id));
     const submission: PengajuanKlien = {
@@ -441,7 +446,7 @@ export default function App() {
         await kirimPengajuanPublikKeFirestore(db, submission);
       } catch (e) {
         console.error('Gagal menyimpan submission publik ke Firestore:', e);
-        return 'Permohonan tercatat lokal, tetapi gagal tersimpan di Firestore — hubungi Operator.';
+        return 'Request recorded locally, but failed to save to Firestore — contact the Operator.';
       }
     }
     return null;
@@ -480,15 +485,15 @@ export default function App() {
               kode === 'auth/user-not-found' ||
               kode === 'auth/wrong-password'
             ) {
-              return 'Email atau kata sandi salah.';
+              return 'Incorrect email or password.';
             }
             if (kode === 'auth/too-many-requests') {
-              return 'Terlalu banyak percobaan masuk — coba lagi nanti.';
+              return 'Too many sign-in attempts — try again later.';
             }
             if (kode === 'auth/network-request-failed') {
-              return 'Tidak ada koneksi jaringan.';
+              return 'No network connection.';
             }
-            return e instanceof Error ? e.message : 'Gagal masuk. Coba lagi.';
+            return e instanceof Error ? e.message : 'Failed to sign in. Try again.';
           }
         }}
         onLoginDummy={setUser}
@@ -536,7 +541,7 @@ export default function App() {
       tulisAudit(db, entri).catch((e) => {
         console.error('Gagal menulis audit ke Firestore:', e);
         setPeringatanSimpan(
-          'Gagal menyimpan catatan audit ke Firestore — perubahan hanya ada di sesi ini.',
+          'Failed to save the audit record to Firestore — changes exist only in this session.',
         );
       });
     }
@@ -553,15 +558,15 @@ export default function App() {
     simpanDokumen(db, koleksi, id, entitas).catch((e) => {
       console.error('Gagal menyimpan ke Firestore:', e);
       setPeringatanSimpan(
-        'Gagal menyimpan perubahan ke Firestore — perubahan hanya ada di sesi ini.',
+        'Failed to save changes to Firestore — changes exist only in this session.',
       );
     });
   };
 
   const actions: StoreActions = {
     tambahKlien: (input: KlienInput) => {
-      if (!input.nama.trim()) return 'Nama klien wajib diisi.';
-      if (!input.telepon.trim()) return 'Telepon klien wajib diisi.';
+      if (!input.nama.trim()) return 'Client name is required.';
+      if (!input.telepon.trim()) return 'Client phone number is required.';
       const id = idBerikutnya('KLN-', data.klien.map((k) => k.id));
       const klien: Klien = {
         id,
@@ -586,22 +591,22 @@ export default function App() {
     },
 
     tambahKontrak: (input: KontrakInput) => {
-      if (!input.nomorPks.trim()) return 'Nomor PKS wajib diisi.';
+      if (!input.nomorPks.trim()) return 'PKS number is required.';
       if (data.kontrak.some((k) => k.nomorPks === input.nomorPks.trim())) {
-        return `Nomor PKS ${input.nomorPks.trim()} sudah dipakai kontrak lain.`;
+        return `PKS number ${input.nomorPks.trim()} is already used by another contract.`;
       }
-      if (!input.tanggalMulai) return 'Tanggal mulai wajib diisi.';
-      if (!input.tanggalSelesai) return 'Tanggal selesai wajib diisi.';
+      if (!input.tanggalMulai) return 'Start date is required.';
+      if (!input.tanggalSelesai) return 'End date is required.';
       if (input.tanggalSelesai < input.tanggalMulai) {
-        return 'Tanggal selesai tidak boleh sebelum tanggal mulai.';
+        return 'End date cannot be before start date.';
       }
-      if (input.layanan.length === 0) return 'Kontrak wajib punya minimal 1 baris layanan.';
+      if (input.layanan.length === 0) return 'A contract must have at least 1 service line.';
       for (const [i, l] of input.layanan.entries()) {
-        if (l.tarif <= 0) return `Tarif layanan baris ${i + 1} harus lebih dari 0.`;
-        if (l.jumlah <= 0) return `Jumlah layanan baris ${i + 1} harus lebih dari 0.`;
+        if (l.tarif <= 0) return `Service rate on line ${i + 1} must be more than 0.`;
+        if (l.jumlah <= 0) return `Service quantity on line ${i + 1} must be more than 0.`;
       }
       const kategori = MASTER_KATEGORI_LAYANAN.find((k) => k.nama === input.kategoriLayanan);
-      if (!kategori) return `Kategori layanan "${input.kategoriLayanan}" tidak dikenal.`;
+      if (!kategori) return `Service category "${input.kategoriLayanan}" is not recognised.`;
       const layanan: LayananKontrak[] = input.layanan.map((l, i) => {
         const kat = MASTER_KATEGORI_LAYANAN.find((k) => k.nama === l.kategori);
         return {
@@ -683,18 +688,18 @@ export default function App() {
 
     catatPembayaran: (input: PembayaranInput) => {
       const tagihan = data.tagihan.find((t) => t.id === input.tagihanId);
-      if (!tagihan) return 'Tagihan tidak ditemukan.';
-      if (!input.tanggalBayar) return 'Tanggal bayar wajib diisi.';
-      if (input.jumlah <= 0) return 'Jumlah pembayaran harus lebih dari 0.';
+      if (!tagihan) return 'Invoice not found.';
+      if (!input.tanggalBayar) return 'Payment date is required.';
+      if (input.jumlah <= 0) return 'Payment amount must be more than 0.';
       const sisa =
         tagihan.nilai -
         data.pembayaran
           .filter((p) => p.tagihanId === tagihan.id && p.statusVerifikasi === 'Terverifikasi')
           .reduce((s, p) => s + p.jumlah, 0);
       if (input.jumlah > sisa) {
-        return `Jumlah pembayaran (Rp${input.jumlah.toLocaleString('id-ID')}) melebihi sisa piutang tagihan ini (Rp${sisa.toLocaleString('id-ID')}).`;
+        return `Payment amount (Rp${input.jumlah.toLocaleString('id-ID')}) exceeds the outstanding receivables for this invoice (Rp${sisa.toLocaleString('id-ID')}).`;
       }
-      if (!input.penyetor.trim()) return 'Penyetor wajib diisi.';
+      if (!input.penyetor.trim()) return 'Payer is required.';
       const id = idBerikutnya('BYR-', data.pembayaran.map((p) => p.id));
       setData((d) => ({
         ...d,
@@ -754,10 +759,10 @@ export default function App() {
     },
 
     tambahDenda: (input: DendaInput) => {
-      if (!input.dasar.trim()) return 'Dasar keterlambatan wajib diisi.';
-      if (input.jumlah <= 0) return 'Jumlah denda harus lebih dari 0.';
+      if (!input.dasar.trim()) return 'Late-payment basis is required.';
+      if (input.jumlah <= 0) return 'Late fee amount must be more than 0.';
       const tagihan = data.tagihan.find((t) => t.id === input.tagihanId);
-      if (!tagihan) return 'Tagihan tidak ditemukan.';
+      if (!tagihan) return 'Invoice not found.';
       const id = idBerikutnya('DND-', data.denda.map((x) => x.id));
       setData((d) => ({
         ...d,
@@ -810,9 +815,9 @@ export default function App() {
     },
 
     tambahPengajuan: (input: PengajuanInput) => {
-      if (!input.pemohon.trim()) return 'Pemohon wajib diisi.';
-      if (!input.tanggalMasuk) return 'Tanggal masuk wajib diisi.';
-      if (!input.kebutuhan.trim()) return 'Kebutuhan wajib diisi.';
+      if (!input.pemohon.trim()) return 'Applicant is required.';
+      if (!input.tanggalMasuk) return 'Received date is required.';
+      if (!input.kebutuhan.trim()) return 'Requirements are required.';
       const id = idBerikutnya('PJ-', data.pengajuan.map((p) => p.id));
       setData((d) => ({
         ...d,
@@ -873,7 +878,7 @@ export default function App() {
 
     konversiPengajuan: (pengajuan: PengajuanData) => {
       if (pengajuan.tahap !== 'Disetujui') {
-        return 'Pengajuan hanya dapat dikonversi bila tahapnya Disetujui.';
+        return 'A submission can only be converted when its stage is Approved.';
       }
       const nomorPks = nomorPksBerikutnya(data.kontrak);
       const namaPemohon = pengajuan.pemohon.replace(/ \(Contoh\)$/, '');
@@ -983,10 +988,10 @@ export default function App() {
     // kosong), Operator menyetujui sekaligus dibuatkan Klien baru.
     setujuiPengajuanKlien: (submission: PengajuanKlien, catatan?: string) => {
       if (penggunaAktif.peran !== 'operator') {
-        return 'Hanya Operator yang bisa menyetujui submission portal.';
+        return 'Only the Operator can approve portal submissions.';
       }
       if (submission.status !== 'Menunggu') {
-        return 'Submission ini sudah diproses sebelumnya.';
+        return 'This submission has already been processed.';
       }
       // REVISI KOREKSI 2026-11-15: submission publik dari calon klien
       // yang belum tercatat punya klienId kosong — buatkan Klien baru
@@ -1077,12 +1082,12 @@ export default function App() {
 
     tolakPengajuanKlien: (submission: PengajuanKlien, catatan: string) => {
       if (penggunaAktif.peran !== 'operator') {
-        return 'Hanya Operator yang bisa menolak submission portal.';
+        return 'Only the Operator can reject portal submissions.';
       }
       if (submission.status !== 'Menunggu') {
-        return 'Submission ini sudah diproses sebelumnya.';
+        return 'This submission has already been processed.';
       }
-      if (!catatan.trim()) return 'Catatan penolakan wajib diisi.';
+      if (!catatan.trim()) return 'A rejection note is required.';
       const terbaru: PengajuanKlien = {
         ...submission,
         status: 'Ditolak',
@@ -1107,23 +1112,23 @@ export default function App() {
 
     // --- Aksi Fase B — Sales (PRD Bab 7.3, 9.5) ---
     tambahProspect: (input: ProspectInput) => {
-      if (!input.namaInstansi.trim()) return 'Nama instansi wajib diisi.';
-      if (!input.kontakNama.trim()) return 'Nama kontak wajib diisi.';
-      if (!input.telepon.trim()) return 'Telepon wajib diisi.';
+      if (!input.namaInstansi.trim()) return 'Institution name is required.';
+      if (!input.kontakNama.trim()) return 'Contact name is required.';
+      if (!input.telepon.trim()) return 'Phone number is required.';
       if (!MASTER_SUMBER_PROSPEK.includes(input.sumber)) {
-        return `Sumber prospek "${input.sumber}" tidak dikenal.`;
+        return `Prospect source "${input.sumber}" is not recognised.`;
       }
       if (
         !MASTER_KATEGORI_LAYANAN.some((k) => k.nama === input.layananDiminati)
       ) {
-        return `Layanan "${input.layananDiminati}" tidak dikenal.`;
+        return `Service "${input.layananDiminati}" is not recognised.`;
       }
-      if (!(input.nilaiPerkiraan > 0)) return 'Nilai perkiraan harus lebih dari 0.';
+      if (!(input.nilaiPerkiraan > 0)) return 'Estimated value must be more than 0.';
       if (
         input.pengajuanId &&
         !data.pengajuan.some((p) => p.id === input.pengajuanId)
       ) {
-        return 'Pengajuan asal tidak ditemukan.';
+        return 'Source submission not found.';
       }
       const id = idBerikutnya('PRS-', data.prospect.map((p) => p.id));
       const prospect: Prospect = {
@@ -1163,23 +1168,23 @@ export default function App() {
     },
 
     ubahTahapProspect: (prospect: Prospect, tahap: TahapPipeline, catatan: string) => {
-      if (!catatan.trim()) return 'Catatan perpindahan tahap wajib diisi.';
+      if (!catatan.trim()) return 'A stage-change note is required.';
       if (!MASTER_TAHAP_PIPELINE.includes(tahap)) {
-        return `Tahap "${tahap}" tidak dikenal.`;
+        return `Stage "${tahap}" is not recognised.`;
       }
       if (prospect.tahap === tahap) {
-        return 'Prospek sudah berada pada tahap tersebut.';
+        return 'The prospect is already at that stage.';
       }
       if (prospect.tahap === 'Diterima' || prospect.tahap === 'Ditolak') {
-        return `Prospek pada tahap ${prospect.tahap} sudah final dan tidak dapat dipindah.`;
+        return `A prospect at the ${labelTahapPipeline(prospect.tahap)} stage is final and cannot be moved.`;
       }
       // Tahap 'Order' dan 'Diterima' dicapai otomatis lewat tambahOrder /
       // konversiOrder, bukan pindah manual (supaya jejak tetap konsisten).
       if (tahap === 'Order') {
-        return "Tahap Order dicapai otomatis saat order dibuat dari quotation yang disetujui.";
+        return 'The Order stage is reached automatically when an order is created from an approved quotation.';
       }
       if (tahap === 'Diterima') {
-        return 'Tahap Diterima hanya dapat dicapai lewat konversi order menjadi kontrak.';
+        return 'The Accepted stage can only be reached by converting an order into a contract.';
       }
       setData((d) => ({
         ...d,
@@ -1249,22 +1254,22 @@ export default function App() {
 
     tambahQuotation: (input: QuotationInput) => {
       const prospect = data.prospect.find((p) => p.id === input.prospectId);
-      if (!prospect) return 'Prospek tidak ditemukan.';
+      if (!prospect) return 'Prospect not found.';
       if (prospect.tahap === 'Diterima' || prospect.tahap === 'Ditolak') {
-        return 'Prospek pada tahap final tidak dapat dibuatkan quotation.';
+        return 'A prospect at a final stage cannot be given a quotation.';
       }
-      if (!input.berlakuSampai) return 'Tanggal berlaku sampai wajib diisi.';
+      if (!input.berlakuSampai) return 'Valid-until date is required.';
       if (input.layanan.length === 0) {
-        return 'Quotation wajib punya minimal 1 baris layanan.';
+        return 'A quotation must have at least 1 service line.';
       }
       for (const [i, l] of input.layanan.entries()) {
         const kat = MASTER_KATEGORI_LAYANAN.find((k) => k.nama === l.kategori);
-        if (!kat) return `Kategori layanan baris ${i + 1} tidak dikenal.`;
+        if (!kat) return `Service category on line ${i + 1} is not recognised.`;
         if (!(l.tarif > 0)) {
-          return `Tarif layanan baris ${i + 1} harus lebih dari 0.`;
+          return `Service rate on line ${i + 1} must be more than 0.`;
         }
         if (!(l.jumlah > 0)) {
-          return `Jumlah layanan baris ${i + 1} harus lebih dari 0.`;
+          return `Service quantity on line ${i + 1} must be more than 0.`;
         }
       }
       const id = idBerikutnya('QTN-', data.quotation.map((q) => q.id));
@@ -1345,7 +1350,7 @@ export default function App() {
         Ditolak: [],
       };
       if (!sah[quotation.status].includes(status)) {
-        return `Status quotation tidak dapat diubah dari ${quotation.status} menjadi ${status}.`;
+        return `Quotation status cannot be changed from ${labelStatusPersetujuan(quotation.status)} to ${labelStatusPersetujuan(status)}.`;
       }
       setData((d) => ({
         ...d,
@@ -1402,16 +1407,16 @@ export default function App() {
 
     tambahOrder: (input: OrderInput) => {
       const quotation = data.quotation.find((q) => q.id === input.quotationId);
-      if (!quotation) return 'Quotation tidak ditemukan.';
+      if (!quotation) return 'Quotation not found.';
       if (quotation.status !== 'Disetujui') {
-        return 'Order hanya dapat dibuat dari quotation yang Disetujui.';
+        return 'An order can only be created from an approved quotation.';
       }
       if (
         data.order.some(
           (o) => o.quotationId === quotation.id && o.status !== 'Dibatalkan',
         )
       ) {
-        return `Quotation ${quotation.id} sudah memiliki order aktif.`;
+        return `Quotation ${quotation.id} already has an active order.`;
       }
       const prospect = data.prospect.find((p) => p.id === quotation.prospectId);
       // Q-11: prospek menjadi klien SAAT ORDER DIBUAT — buat/tautkan Klien
@@ -1518,7 +1523,7 @@ export default function App() {
         Dibatalkan: [],
       };
       if (!sah[order.status].includes(status)) {
-        return `Status order tidak dapat diubah dari ${order.status} menjadi ${status}.`;
+        return `Order status cannot be changed from ${labelStatusOrder(order.status)} to ${labelStatusOrder(status)}.`;
       }
       setData((d) => ({
         ...d,
@@ -1539,15 +1544,15 @@ export default function App() {
 
     konversiOrder: (order: Order) => {
       if (order.status !== 'Selesai') {
-        return 'Order hanya dapat dikonversi bila statusnya Selesai.';
+        return 'An order can only be converted when its status is Completed.';
       }
       if (order.kontrakId) {
-        return `Order ${order.id} sudah dikonversi menjadi ${order.kontrakId}.`;
+        return `Order ${order.id} has already been converted into ${order.kontrakId}.`;
       }
       const quotation = data.quotation.find((q) => q.id === order.quotationId);
-      if (!quotation) return 'Quotation asal order tidak ditemukan.';
+      if (!quotation) return "The order's source quotation was not found.";
       const prospect = data.prospect.find((p) => p.id === order.prospectId);
-      if (!prospect) return 'Prospek asal order tidak ditemukan.';
+      if (!prospect) return "The order's source prospect was not found.";
       const nomorPks = nomorPksBerikutnya(data.kontrak);
       // Klien: pakai klien yang sudah ditaut prospek, cocokkan nama, atau buat baru.
       let klien = prospect.klienId
@@ -1674,24 +1679,24 @@ export default function App() {
     },
 
     tambahMeeting: (input: MeetingInput) => {
-      if (!input.tanggal) return 'Tanggal meeting wajib diisi.';
-      if (!input.jam) return 'Jam meeting wajib diisi.';
-      if (!input.peserta.trim()) return 'Peserta meeting wajib diisi.';
-      if (!input.agenda.trim()) return 'Agenda meeting wajib diisi.';
+      if (!input.tanggal) return 'Meeting date is required.';
+      if (!input.jam) return 'Meeting time is required.';
+      if (!input.peserta.trim()) return 'Meeting attendees are required.';
+      if (!input.agenda.trim()) return 'Meeting agenda is required.';
       if (!input.prospectId && !input.klienId) {
-        return 'Pilih prospek atau klien untuk meeting ini.';
+        return 'Select a prospect or client for this meeting.';
       }
       if (
         input.prospectId &&
         !data.prospect.some((p) => p.id === input.prospectId)
       ) {
-        return 'Prospek tidak ditemukan.';
+        return 'Prospect not found.';
       }
       if (
         input.klienId &&
         !data.klien.some((k) => k.id === input.klienId)
       ) {
-        return 'Klien tidak ditemukan.';
+        return 'Client not found.';
       }
       const id = idBerikutnya('MTG-', data.meeting.map((m) => m.id));
       const meeting: Meeting = {
@@ -1719,15 +1724,15 @@ export default function App() {
 
     // --- Aksi Fase B — Marketing (PRD Bab 7.2) ---
     tambahEvent: (input: EventInput) => {
-      if (!input.nama.trim()) return 'Nama event wajib diisi.';
-      if (!input.tanggal) return 'Tanggal event wajib diisi.';
-      if (!input.penyelenggara.trim()) return 'Penyelenggara wajib diisi.';
-      if (!(input.biaya >= 0)) return 'Biaya event tidak boleh negatif.';
+      if (!input.nama.trim()) return 'Event name is required.';
+      if (!input.tanggal) return 'Event date is required.';
+      if (!input.penyelenggara.trim()) return 'Organiser is required.';
+      if (!(input.biaya >= 0)) return 'Event cost cannot be negative.';
       if (
         input.prospectId &&
         !data.prospect.some((p) => p.id === input.prospectId)
       ) {
-        return 'Prospek yang dihasilkan tidak ditemukan.';
+        return 'The resulting prospect was not found.';
       }
       const id = idBerikutnya('EVT-', data.event.map((e) => e.id));
       const event: Event = {
@@ -1753,14 +1758,14 @@ export default function App() {
     },
 
     tambahAdvertisement: (input: AdvertisementInput) => {
-      if (!input.nama.trim()) return 'Nama advertisement wajib diisi.';
-      if (!input.media.trim()) return 'Media/saluran wajib diisi.';
-      if (!input.periodeMulai) return 'Periode mulai wajib diisi.';
-      if (!input.periodeSelesai) return 'Periode selesai wajib diisi.';
+      if (!input.nama.trim()) return 'Advertisement name is required.';
+      if (!input.media.trim()) return 'Media / channel is required.';
+      if (!input.periodeMulai) return 'Start period is required.';
+      if (!input.periodeSelesai) return 'End period is required.';
       if (input.periodeSelesai < input.periodeMulai) {
-        return 'Periode selesai tidak boleh sebelum periode mulai.';
+        return 'End period cannot be before start period.';
       }
-      if (!(input.biaya >= 0)) return 'Biaya advertisement tidak boleh negatif.';
+      if (!(input.biaya >= 0)) return 'Advertisement cost cannot be negative.';
       const id = idBerikutnya('ADV-', data.advertisement.map((a) => a.id));
       const advertisement: Advertisement = {
         id,
@@ -1789,9 +1794,9 @@ export default function App() {
 
     // --- Aksi Fase B — To-Do List (PRD Bab 7.7, 9.6) ---
     tambahTask: (input: TaskInput) => {
-      if (!input.pemilik.trim()) return 'Pemilik tugas wajib diisi.';
-      if (!input.judul.trim()) return 'Judul tugas wajib diisi.';
-      if (!input.tenggat) return 'Tenggat tugas wajib diisi.';
+      if (!input.pemilik.trim()) return 'Task owner is required.';
+      if (!input.judul.trim()) return 'Task title is required.';
+      if (!input.tenggat) return 'Task deadline is required.';
       const id = idBerikutnya('TSK-', data.task.map((t) => t.id));
       const task: Task = {
         id,
@@ -1841,10 +1846,10 @@ export default function App() {
     },
 
     tambahDisposisi: (input: DisposisiInput) => {
-      if (!input.penerima.trim()) return 'Penerima disposisi wajib diisi.';
-      if (!input.judul.trim()) return 'Judul disposisi wajib diisi.';
-      if (!input.instruksi.trim()) return 'Instruksi disposisi wajib diisi.';
-      if (!input.tenggat) return 'Tenggat disposisi wajib diisi.';
+      if (!input.penerima.trim()) return 'Disposition recipient is required.';
+      if (!input.judul.trim()) return 'Disposition title is required.';
+      if (!input.instruksi.trim()) return 'Disposition instructions are required.';
+      if (!input.tenggat) return 'Disposition deadline is required.';
       const noDisposisi = idBerikutnya(
         'DIS-',
         data.task.map((t) => t.disposisiDari ?? ''),
@@ -1876,14 +1881,14 @@ export default function App() {
     },
 
     tutupDisposisi: (task: Task) => {
-      if (!task.pemberiDisposisi) return 'Tugas ini bukan disposisi.';
+      if (!task.pemberiDisposisi) return 'This task is not a disposition.';
       if (task.status !== 'Selesai') {
-        return 'Disposisi hanya dapat ditutup bila status tugas Selesai.';
+        return 'A disposition can only be closed when the task status is Completed.';
       }
       // Model 1 role: hanya pemberi disposisi yang dapat menutupnya
       // (tidak ada lagi peran Admin yang terpisah).
       if (penggunaAktif.nama !== task.pemberiDisposisi) {
-        return 'Hanya pemberi disposisi yang dapat menutup disposisi ini.';
+        return 'Only the disposition giver can close this disposition.';
       }
       setData((d) => ({
         ...d,
@@ -1905,10 +1910,10 @@ export default function App() {
     // --- Aksi Fase C — Service (PRD Bab 7.8; Q-12) ---
     tambahTiket: (input: TiketInput) => {
       if (!MASTER_KATEGORI_TIKET.includes(input.kategori)) {
-        return 'Kategori konsultasi tidak dikenal.';
+        return 'Consultation category is not recognised.';
       }
-      if (!input.judul.trim()) return 'Judul tiket wajib diisi.';
-      if (!input.isi.trim()) return 'Isi konsultasi wajib diisi.';
+      if (!input.judul.trim()) return 'Ticket title is required.';
+      if (!input.isi.trim()) return 'Consultation details are required.';
       const id = idBerikutnya('TKT-', data.tiket.map((t) => t.id));
       const tiket: Tiket = {
         id,
@@ -1936,9 +1941,9 @@ export default function App() {
 
     tambahBalasanTiket: (tiket: Tiket, isi: string) => {
       if (tiket.status === 'Ditutup') {
-        return 'Tiket sudah ditutup — buka kembali tiket sebelum membalas.';
+        return 'The ticket is already closed — reopen it before replying.';
       }
-      if (!isi.trim()) return 'Isi balasan wajib diisi.';
+      if (!isi.trim()) return 'Reply content is required.';
       const balasan: BalasanTiket = {
         id: idBerikutnya('BLS-', tiket.balasan.map((b) => b.id)),
         tanggal: hariIniIso(),
@@ -1987,14 +1992,14 @@ export default function App() {
 
     tambahUmpanBalik: (input: UmpanBalikInput) => {
       const kontrak = data.kontrak.find((k) => k.id === input.kontrakId);
-      if (!kontrak) return 'Kontrak terkait tidak ditemukan.';
+      if (!kontrak) return 'Related contract not found.';
       if (data.umpanBalik.some((u) => u.kontrakId === input.kontrakId)) {
-        return 'Kontrak ini sudah memiliki survei kepuasan.';
+        return 'This contract already has a satisfaction survey.';
       }
       for (const p of MASTER_PERTANYAAN_SURVEI) {
         const j = input.jawaban.find((x) => x.pertanyaan === p);
         if (!j || j.skor < 1 || j.skor > 5) {
-          return `Pertanyaan "${p}" wajib dijawab dengan skor 1–5.`;
+          return `Question "${p}" must be answered with a score of 1–5.`;
         }
       }
       const id = idBerikutnya('UMP-', data.umpanBalik.map((u) => u.id));
@@ -2026,10 +2031,10 @@ export default function App() {
     },
 
     tambahArtikelKB: (input: ArtikelKBInput) => {
-      if (!input.judul.trim()) return 'Judul dokumen wajib diisi.';
-      if (!input.ringkasan.trim()) return 'Ringkasan dokumen wajib diisi.';
+      if (!input.judul.trim()) return 'Document title is required.';
+      if (!input.ringkasan.trim()) return 'Document summary is required.';
       if (input.tautan && !/^https?:\/\//i.test(input.tautan.trim())) {
-        return 'Tautan dokumen harus diawali http:// atau https://.';
+        return 'Document link must start with http:// or https://.';
       }
       const id = idBerikutnya('KB-', data.artikelKB.map((a) => a.id));
       const artikel: ArtikelKB = {
@@ -2059,7 +2064,7 @@ export default function App() {
   /** Jalankan migrasi satu kali (dari halaman Master & Pengguna). */
   const tanganiMigrasi = async () => {
     if (!db) {
-      throw new Error('Firebase belum terkonfigurasi.');
+      throw new Error('Firebase is not yet configured.');
     }
     const hasil = await jalankanMigrasi(db, {
       nama: penggunaAktif.nama,
@@ -2121,7 +2126,7 @@ export default function App() {
                   {m.label}
                   {m.phase === 'C' && (
                     <span className="ml-auto rounded bg-white/15 px-1.5 py-0.5 text-[10px]">
-                      Fase {m.phase}
+                      Phase {m.phase}
                     </span>
                   )}
                 </button>
@@ -2182,7 +2187,7 @@ export default function App() {
             onClick={tanganiKeluar}
             className="mt-3 flex items-center gap-2 rounded-md border border-white/30 px-3 py-1.5 text-xs font-semibold text-white hover:bg-white/10"
           >
-            <LogOut size={13} /> Keluar
+            <LogOut size={13} /> Sign out
           </button>
         </div>
       </aside>
@@ -2194,14 +2199,14 @@ export default function App() {
             type="search"
             value={cari}
             onChange={(e) => setCari(e.target.value)}
-            placeholder="Cari klien, kontrak, tagihan…"
+            placeholder="Search clients, contracts, invoices…"
             className="w-full max-w-md rounded-md border border-[#2573e2]/40 px-3 py-2 text-sm outline-none placeholder:text-[#0d2569]/50 focus:border-[#2573e2]"
           />
           <button
             onClick={() => setActive('pengajuan')}
             className="ml-auto rounded-md bg-[#2573e2] px-4 py-2 text-sm font-semibold text-white"
           >
-            + Tambah
+            + Add
           </button>
         </header>
 
@@ -2218,34 +2223,34 @@ export default function App() {
             <div className="mt-4 max-w-2xl rounded-md border border-[#2573e2]/40 bg-[#2573e2]/5 px-4 py-3 text-sm">
               {modeData === 'tidak-terkonfigurasi' ? (
                 <>
-                  <strong>Data nyata Palembang — mode contoh.</strong> Data di
-                  bawah ini adalah data nyata hasil impor dari spreadsheet kerja
-                  pada {formatTanggal(TANGGAL_IMPOR)}. Konfigurasi Firebase belum
-                  dipasang (lihat <code>.env.example</code>), jadi perubahan hanya
-                  tersimpan di sesi ini dan belum tersimpan permanen. Data contoh
-                  (prospek, quotation, order, event, tugas) tetap berlabel
-                  &quot;(Contoh)&quot;.
+                  <strong>Real Palembang data — sample mode.</strong> The data
+                  below is real data imported from the working spreadsheet on{' '}
+                  {formatTanggal(TANGGAL_IMPOR)}. Firebase is not configured
+                  yet (see <code>.env.example</code>), so changes are only
+                  saved in this session and not stored permanently. Sample
+                  data (prospects, quotations, orders, events, tasks) remains
+                  labelled &quot;(Sample)&quot;.
                 </>
               ) : (
                 <>
-                  <strong>Data contoh — belum dimigrasi ke Firestore.</strong>{' '}
-                  Data di bawah ini masih data contoh dari spreadsheet kerja.
-                  Jalankan migrasi di halaman Master &amp; Pengguna supaya
-                  perubahan tersimpan permanen di Firestore.
+                  <strong>Sample data — not yet migrated to Firestore.</strong>{' '}
+                  The data below is still sample data from the working
+                  spreadsheet. Run the migration on the Master Data &amp;
+                  Users page so changes are stored permanently in Firestore.
                 </>
               )}
             </div>
           )}
           {modeData === 'firestore' && (
             <div className="mt-4 max-w-2xl rounded-md border border-[#2573e2]/40 bg-[#2573e2]/5 px-4 py-3 text-sm">
-              <strong>Data tersimpan di Firestore — Satker PALEMBANG.</strong>{' '}
-              Perubahan tersimpan permanen.
+              <strong>Data stored in Firestore — Satker PALEMBANG.</strong>{' '}
+              Changes are stored permanently.
             </div>
           )}
           {galatMuat && (
             <div className="mt-4 max-w-2xl rounded-md border border-[#2573e2]/40 bg-[#2573e2]/5 px-4 py-3 text-sm">
-              <strong>Gagal memuat data dari Firestore:</strong> {galatMuat}{' '}
-              Menampilkan data contoh.
+              <strong>Failed to load data from Firestore:</strong> {galatMuat}{' '}
+              Showing sample data.
             </div>
           )}
           {peringatanSimpan && (

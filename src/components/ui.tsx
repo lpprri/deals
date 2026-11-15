@@ -4,6 +4,52 @@
 
 import type { ReactNode } from 'react';
 import { AlertTriangle, CheckCircle2, Clock, Info, XCircle } from 'lucide-react';
+import {
+  labelStatusDenda,
+  labelStatusDokumen,
+  labelStatusKlien,
+  labelStatusKontrak,
+  labelStatusOrder,
+  labelStatusPersetujuan,
+  labelStatusSewa,
+  labelStatusTagihan,
+  labelStatusTask,
+  labelStatusTemuan,
+  labelStatusTiket,
+  labelStatusVerifikasi,
+  labelTahapPengajuan,
+  labelTahapPipeline,
+} from '../lib/labels';
+
+/**
+ * Label Inggris untuk nilai status tersimpan apa pun yang tampil di badge.
+ * Setiap helper mengembalikan nilai asli bila tidak mengenalnya, jadi
+ * rantai ini aman untuk semua domain status (kontrak, tagihan, dokumen,
+ * pembayaran, denda, sewa, temuan, persetujuan, order, task, tiket,
+ * tahap pengajuan/pipeline). Nilai yang sudah Inggris lolos apa adanya.
+ */
+function labelStatusTampilan(status: string): string {
+  for (const fn of [
+    labelStatusKontrak,
+    labelStatusKlien,
+    labelStatusDokumen,
+    labelStatusTagihan,
+    labelStatusVerifikasi,
+    labelStatusDenda,
+    labelStatusSewa,
+    labelStatusTemuan,
+    labelStatusPersetujuan,
+    labelStatusOrder,
+    labelStatusTask,
+    labelStatusTiket,
+    labelTahapPipeline,
+    labelTahapPengajuan,
+  ]) {
+    const mapped = fn(status);
+    if (mapped !== status) return mapped;
+  }
+  return status;
+}
 
 export function Kartu({ children, className = '' }: { children: ReactNode; className?: string }) {
   return (
@@ -59,18 +105,60 @@ export function StatCard({
 
 /** Badge status: teks + ikon, latar tint Biru/Navy saja (Bab 8.2). */
 export function StatusBadge({ status }: { status: string }) {
+  // Ikon dipilih dari nilai mentah (Indonesia) ATAU label tampil (Inggris)
+  // — call-site boleh meneruskan keduanya. 'Clock' dicek sebelum centang
+  // supaya 'Belum Ada' ('Not yet available') tidak mendapat ikon centang
+  // karena mengandung 'ada'/'available'.
   const s = status.toLowerCase();
-  const Icon = s.includes('lewat') || s.includes('ditolak') || s.includes('bermasalah')
-    ? XCircle
-    : s.includes('lunas') || s.includes('selesai') || s.includes('aktif') || s.includes('ada') || s.includes('terverifikasi') || s.includes('disetujui') || s.includes('dikonversi')
-      ? CheckCircle2
-      : s.includes('menunggu') || s.includes('belum') || s.includes('ditelaah') || s.includes('masuk')
-        ? Clock
-        : Info;
+  const t = labelStatusTampilan(status).toLowerCase();
+  const negatif =
+    s.includes('lewat') ||
+    s.includes('ditolak') ||
+    s.includes('bermasalah') ||
+    s.includes('dibatalkan') ||
+    s.includes('dihapus') ||
+    t.includes('overdue') ||
+    t.includes('rejected') ||
+    t.includes('problematic') ||
+    t.includes('cancelled') ||
+    t.includes('removed');
+  const menunggu =
+    s.includes('menunggu') ||
+    s.includes('belum') ||
+    s.includes('ditelaah') ||
+    s.includes('masuk') ||
+    s.includes('diproses') ||
+    s.includes('berjalan') ||
+    t.includes('pending') ||
+    t.includes('not yet') ||
+    t.includes('awaiting') ||
+    t.includes('in progress') ||
+    t.includes('under review') ||
+    t.includes('due') ||
+    t.includes('received');
+  const positif =
+    s.includes('lunas') ||
+    s.includes('selesai') ||
+    s.includes('aktif') ||
+    s.includes('terverifikasi') ||
+    s.includes('disetujui') ||
+    s.includes('dikonversi') ||
+    t.includes('paid') ||
+    t.includes('completed') ||
+    t.includes('active') ||
+    t.includes('available') ||
+    t.includes('verified') ||
+    t.includes('approved') ||
+    t.includes('converted') ||
+    t.includes('matched') ||
+    t.includes('sent') ||
+    t.includes('answered') ||
+    t.includes('resolved');
+  const Icon = negatif ? XCircle : menunggu ? Clock : positif ? CheckCircle2 : Info;
   return (
     <span className="inline-flex items-center gap-1 rounded bg-[#2573e2]/10 px-2 py-0.5 text-xs font-semibold text-[#0d2569]">
       <Icon size={13} className="text-[#2573e2]" />
-      {status}
+      {labelStatusTampilan(status)}
     </span>
   );
 }

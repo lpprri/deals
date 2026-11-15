@@ -18,6 +18,17 @@ import {
   inputClass,
 } from '../components/ui';
 
+/**
+ * Label Inggris untuk jenis permohonan tersimpan (DAFTAR_JENIS_PENGAJUAN_KLIEN).
+ * Nilai yang disimpan TIDAK berubah — hanya label tampilannya. Belum ada di
+ * labels.ts; laporkan ke koordinator untuk konsolidasi.
+ */
+const LABEL_JENIS_PENGAJUAN_KLIEN: Record<string, string> = {
+  'Pengajuan Kerja Sama': 'Partnership Submission',
+  'Media Order': 'Media Order',
+  'Permohonan Sewa': 'Lease Request',
+};
+
 export default function Ajukan({
   onKirim,
   onKembali,
@@ -43,33 +54,33 @@ export default function Ajukan({
     e.preventDefault();
     setPesanSukses('');
     if (form.namaPemohon.trim() === '') {
-      setError('Nama pemohon wajib diisi.');
+      setError('Applicant name is required.');
       return;
     }
     if (form.namaInstitusi.trim() === '') {
-      setError('Nama institusi wajib diisi.');
+      setError('Institution name is required.');
       return;
     }
     if (form.kontakEmail.trim() === '') {
-      setError('Email kontak wajib diisi.');
+      setError('Contact email is required.');
       return;
     }
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.kontakEmail.trim())) {
-      setError('Email kontak tidak valid.');
+      setError('Contact email is not valid.');
       return;
     }
     if (form.judul.trim() === '') {
-      setError('Judul permohonan wajib diisi.');
+      setError('Request title is required.');
       return;
     }
     if (form.uraian.trim() === '') {
-      setError('Detail permohonan wajib diisi.');
+      setError('Request details are required.');
       return;
     }
     const nilaiPerkiraan =
       nilaiTeks.trim() === '' ? undefined : Number(nilaiTeks);
     if (nilaiPerkiraan !== undefined && !(nilaiPerkiraan >= 0)) {
-      setError('Nilai perkiraan harus berupa angka 0 atau lebih.');
+      setError('Estimated value must be 0 or more.');
       return;
     }
     const hasil = await onKirim({
@@ -98,7 +109,7 @@ export default function Ajukan({
       nilaiPerkiraan: undefined,
     });
     setNilaiTeks('');
-    setPesanSukses('Permohonan terkirim dan menunggu diproses Operator.');
+    setPesanSukses('Your request has been sent and is awaiting review by the Operator.');
   };
 
   return (
@@ -109,7 +120,7 @@ export default function Ajukan({
             <img src="/logo-rri.svg" alt="Logo RRI" className="h-10 w-auto" />
             <div>
               <p className="text-base font-bold text-[#0d2569]">
-                Ajukan Permohonan Kerja Sama
+                Submit a Partnership Request
               </p>
               <p className="text-xs text-[#0d2569]/60">
                 Partnership LPP RRI
@@ -117,39 +128,39 @@ export default function Ajukan({
             </div>
           </div>
           <TombolSekunder onClick={onKembali}>
-            &larr; Kembali ke Masuk
+            &larr; Back to Sign in
           </TombolSekunder>
         </div>
       </header>
 
       <main className="mx-auto max-w-2xl px-4 py-8">
         <Kartu>
-          <JudulBagian>Form permohonan</JudulBagian>
+          <JudulBagian>Request form</JudulBagian>
           <form onSubmit={kirim} className="mt-4 grid gap-4 md:grid-cols-2">
             <div>
-              <Label>Nama pemohon *</Label>
+              <Label>Applicant name *</Label>
               <input
                 className={inputClass}
                 value={form.namaPemohon}
                 onChange={(e) =>
                   setForm((f) => ({ ...f, namaPemohon: e.target.value }))
                 }
-                placeholder="Nama penanggung jawab / PIC"
+                placeholder="Name of the person in charge / PIC"
               />
             </div>
             <div>
-              <Label>Nama institusi *</Label>
+              <Label>Institution name *</Label>
               <input
                 className={inputClass}
                 value={form.namaInstitusi}
                 onChange={(e) =>
                   setForm((f) => ({ ...f, namaInstitusi: e.target.value }))
                 }
-                placeholder="Nama perusahaan / instansi"
+                placeholder="Company / institution name"
               />
             </div>
             <div>
-              <Label>Email kontak *</Label>
+              <Label>Contact email *</Label>
               <input
                 className={inputClass}
                 type="email"
@@ -158,11 +169,11 @@ export default function Ajukan({
                 onChange={(e) =>
                   setForm((f) => ({ ...f, kontakEmail: e.target.value }))
                 }
-                placeholder="email@contoh.id"
+                placeholder="email@example.com"
               />
             </div>
             <div>
-              <Label>Telepon</Label>
+              <Label>Phone</Label>
               <input
                 className={inputClass}
                 type="tel"
@@ -170,11 +181,11 @@ export default function Ajukan({
                 onChange={(e) =>
                   setForm((f) => ({ ...f, kontakTelepon: e.target.value }))
                 }
-                placeholder="Nomor telepon (opsional)"
+                placeholder="Phone number (optional)"
               />
             </div>
             <div>
-              <Label>Jenis permohonan *</Label>
+              <Label>Request type *</Label>
               <select
                 className={inputClass}
                 value={form.jenis}
@@ -188,42 +199,42 @@ export default function Ajukan({
               >
                 {DAFTAR_JENIS_PENGAJUAN_KLIEN.map((j) => (
                   <option key={j} value={j}>
-                    {j}
+                    {LABEL_JENIS_PENGAJUAN_KLIEN[j] ?? j}
                   </option>
                 ))}
               </select>
             </div>
             <div>
-              <Label>Nilai perkiraan (Rp, opsional)</Label>
+              <Label>Estimated value (Rp, optional)</Label>
               <input
                 className={inputClass}
                 type="number"
                 min="0"
                 value={nilaiTeks}
                 onChange={(e) => setNilaiTeks(e.target.value)}
-                placeholder="Kosongkan bila belum ada perkiraan"
+                placeholder="Leave blank if you do not have an estimate yet"
               />
             </div>
             <div className="md:col-span-2">
-              <Label>Judul permohonan *</Label>
+              <Label>Request title *</Label>
               <input
                 className={inputClass}
                 value={form.judul}
                 onChange={(e) =>
                   setForm((f) => ({ ...f, judul: e.target.value }))
                 }
-                placeholder="Judul singkat permohonan"
+                placeholder="Short title for the request"
               />
             </div>
             <div className="md:col-span-2">
-              <Label>Detail permohonan *</Label>
+              <Label>Request details *</Label>
               <textarea
                 className={`${inputClass} min-h-24`}
                 value={form.uraian}
                 onChange={(e) =>
                   setForm((f) => ({ ...f, uraian: e.target.value }))
                 }
-                placeholder="Uraian kebutuhan: layanan, periode, dan hal lain yang perlu diketahui Operator"
+                placeholder="Describe what you need: service, period, and anything else the Operator should know"
               />
             </div>
             <div className="md:col-span-2">
@@ -237,13 +248,13 @@ export default function Ajukan({
                   {pesanSukses}
                 </p>
               )}
-              <TombolUtama type="submit">Kirim Permohonan</TombolUtama>
+              <TombolUtama type="submit">Submit Request</TombolUtama>
             </div>
           </form>
         </Kartu>
         <p className="mt-4 text-center text-xs text-[#0d2569]/60">
-          Permohonan Anda akan diperiksa Operator (Layanan &amp;
-          Pengembangan Usaha). Tidak perlu akun.
+          Your request will be reviewed by the Operator (Layanan &amp;
+          Pengembangan Usaha). No account needed.
         </p>
       </main>
     </div>

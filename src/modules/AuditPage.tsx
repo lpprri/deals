@@ -6,6 +6,7 @@
 
 import type { ModulProps } from '../lib/store';
 import { formatWaktuAudit } from '../lib/audit';
+import { labelAksiAudit, labelEntitasAudit } from '../lib/labels';
 import {
   Baris,
   JudulBagian,
@@ -25,31 +26,31 @@ export default function AuditPage({ data }: ModulProps) {
   return (
     <div className="space-y-6">
       <p className="text-sm text-[#0d2569]/70">
-        Jejak audit seluruh perubahan data sensitif — siapa, kapan, apa yang
-        berubah. Entri terbaru ditampilkan paling atas.
+        Audit trail of all sensitive data changes — who, when, what changed.
+        Newest entries are shown first.
       </p>
 
-      <Peringatan teks="Audit trail bersifat tambah-saja (append-only) dan tidak dapat diedit dari antarmuka." />
+      <Peringatan teks="The audit trail is append-only and cannot be edited from the interface." />
 
       <Kartu>
-        <JudulBagian>Audit Trail ({entri.length} entri)</JudulBagian>
+        <JudulBagian>Audit Trail ({entri.length} entries)</JudulBagian>
         {entri.length === 0 ? (
           <div className="mt-3">
-            <PesanKosong teks="Belum ada entri audit." />
+            <PesanKosong teks="No audit entries yet." />
           </div>
         ) : (
           <div className="mt-3">
             <Tabel>
               <thead>
                 <tr>
-                  <Th>Waktu</Th>
-                  <Th>Pengguna</Th>
-                  <Th>Peran</Th>
-                  <Th>Aksi</Th>
-                  <Th>Entitas</Th>
-                  <Th>ID Entitas</Th>
-                  <Th>Sebelum</Th>
-                  <Th>Sesudah</Th>
+                  <Th>Time</Th>
+                  <Th>User</Th>
+                  <Th>Role</Th>
+                  <Th>Action</Th>
+                  <Th>Entity</Th>
+                  <Th>Entity ID</Th>
+                  <Th>Before</Th>
+                  <Th>After</Th>
                 </tr>
               </thead>
               <tbody>
@@ -60,8 +61,8 @@ export default function AuditPage({ data }: ModulProps) {
                     </Td>
                     <Td>{a.pengguna}</Td>
                     <Td>{a.peran}</Td>
-                    <Td tebal>{a.aksi}</Td>
-                    <Td>{a.entitas}</Td>
+                    <Td tebal>{labelAksiAudit(a.aksi)}</Td>
+                    <Td>{labelEntitasAudit(a.entitas)}</Td>
                     <Td>{a.entitasId}</Td>
                     <Td>
                       <span className="text-[#0d2569]/70">

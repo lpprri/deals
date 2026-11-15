@@ -83,18 +83,18 @@ function DaftarEvent({
   return (
     <div className="space-y-4">
       <div className="grid gap-3 sm:grid-cols-2">
-        <StatCard label="Jumlah event" nilai={String(events.length)} />
+        <StatCard label="Number of events" nilai={String(events.length)} />
         <StatCard
-          label="Total biaya event"
+          label="Total event cost"
           nilai={formatRupiah(totalBiaya)}
-          keterangan="Dihitung dari event yang ditampilkan"
+          keterangan="Calculated from the events shown"
         />
       </div>
 
       {bolehKelola && (
         <div>
           <TombolUtama onClick={() => setTampilForm(true)}>
-            + Tambah Event
+            + Add Event
           </TombolUtama>
         </div>
       )}
@@ -109,19 +109,19 @@ function DaftarEvent({
       )}
 
       {events.length === 0 ? (
-        <PesanKosong teks="Belum ada event yang cocok." />
+        <PesanKosong teks="No matching events yet." />
       ) : (
         <Kartu>
           <Tabel>
             <thead>
               <tr>
                 <Th>ID</Th>
-                <Th>Nama Event</Th>
-                <Th>Tanggal</Th>
-                <Th>Penyelenggara</Th>
-                <Th kanan>Biaya</Th>
-                <Th>Hasil</Th>
-                <Th>Prospek yang Dihasilkan</Th>
+                <Th>Event Name</Th>
+                <Th>Date</Th>
+                <Th>Organizer</Th>
+                <Th kanan>Cost</Th>
+                <Th>Outcome</Th>
+                <Th>Prospects Generated</Th>
               </tr>
             </thead>
             <tbody>
@@ -180,20 +180,20 @@ function FormEvent({
 
   const simpan = () => {
     if (form.nama.trim() === '') {
-      setError('Nama event wajib diisi.');
+      setError('Event name is required.');
       return;
     }
     if (form.tanggal === '') {
-      setError('Tanggal event wajib diisi.');
+      setError('Event date is required.');
       return;
     }
     if (form.penyelenggara.trim() === '') {
-      setError('Penyelenggara wajib diisi.');
+      setError('Organizer is required.');
       return;
     }
     const biaya = biayaTeks.trim() === '' ? 0 : Number(biayaTeks);
     if (!(biaya >= 0)) {
-      setError('Biaya harus berupa angka 0 atau lebih.');
+      setError('Cost must be a number 0 or greater.');
       return;
     }
     const hasil = actions.tambahEvent({
@@ -214,19 +214,19 @@ function FormEvent({
 
   return (
     <Kartu>
-      <JudulBagian>Tambah Event</JudulBagian>
+      <JudulBagian>Add Event</JudulBagian>
       <div className="mt-4 grid gap-4 md:grid-cols-2">
         <div>
-          <Label>Nama event *</Label>
+          <Label>Event name *</Label>
           <input
             className={inputClass}
             value={form.nama}
             onChange={(e) => ubahTeks('nama', e.target.value)}
-            placeholder="Nama event"
+            placeholder="Event name"
           />
         </div>
         <div>
-          <Label>Tanggal *</Label>
+          <Label>Date *</Label>
           <input
             className={inputClass}
             type="date"
@@ -235,16 +235,16 @@ function FormEvent({
           />
         </div>
         <div>
-          <Label>Penyelenggara *</Label>
+          <Label>Organizer *</Label>
           <input
             className={inputClass}
             value={form.penyelenggara}
             onChange={(e) => ubahTeks('penyelenggara', e.target.value)}
-            placeholder="Nama penyelenggara"
+            placeholder="Organizer name"
           />
         </div>
         <div>
-          <Label>Biaya (Rp) *</Label>
+          <Label>Cost (Rp) *</Label>
           <input
             className={inputClass}
             type="number"
@@ -255,7 +255,7 @@ function FormEvent({
           />
         </div>
         <div>
-          <Label>Prospek yang dihasilkan (opsional)</Label>
+          <Label>Prospects generated (optional)</Label>
           <select
             className={inputClass}
             value={form.prospectId ?? ''}
@@ -267,7 +267,7 @@ function FormEvent({
               }))
             }
           >
-            <option value="">— Tidak ada —</option>
+            <option value="">— None —</option>
             {data.prospect.map((p) => (
               <option key={p.id} value={p.id}>
                 {p.namaInstansi} ({p.id})
@@ -276,12 +276,12 @@ function FormEvent({
           </select>
         </div>
         <div>
-          <Label>Hasil (opsional)</Label>
+          <Label>Outcome (optional)</Label>
           <input
             className={inputClass}
             value={form.hasil ?? ''}
             onChange={(e) => ubahTeks('hasil', e.target.value)}
-            placeholder="Hasil atau capaian event"
+            placeholder="Event outcome or achievement"
           />
         </div>
       </div>
@@ -292,8 +292,8 @@ function FormEvent({
         </p>
       )}
       <div className="mt-4 flex gap-2">
-        <TombolUtama onClick={simpan}>Simpan Event</TombolUtama>
-        <TombolSekunder onClick={onBatal}>Batal</TombolSekunder>
+        <TombolUtama onClick={simpan}>Save Event</TombolUtama>
+        <TombolSekunder onClick={onBatal}>Cancel</TombolSekunder>
       </div>
     </Kartu>
   );
@@ -324,18 +324,18 @@ function DaftarAdvertisement({
   return (
     <div className="space-y-4">
       <div className="grid gap-3 sm:grid-cols-2">
-        <StatCard label="Jumlah iklan" nilai={String(iklan.length)} />
+        <StatCard label="Number of advertisements" nilai={String(iklan.length)} />
         <StatCard
-          label="Total biaya iklan"
+          label="Total advertisement cost"
           nilai={formatRupiah(totalBiaya)}
-          keterangan="Dihitung dari iklan yang ditampilkan"
+          keterangan="Calculated from the advertisements shown"
         />
       </div>
 
       {bolehKelola && (
         <div>
           <TombolUtama onClick={() => setTampilForm(true)}>
-            + Tambah Iklan
+            + Add Advertisement
           </TombolUtama>
         </div>
       )}
@@ -349,18 +349,18 @@ function DaftarAdvertisement({
       )}
 
       {iklan.length === 0 ? (
-        <PesanKosong teks="Belum ada iklan yang cocok." />
+        <PesanKosong teks="No matching advertisements yet." />
       ) : (
         <Kartu>
           <Tabel>
             <thead>
               <tr>
                 <Th>ID</Th>
-                <Th>Nama Iklan</Th>
-                <Th>Media / Saluran</Th>
-                <Th>Periode</Th>
-                <Th kanan>Biaya</Th>
-                <Th>Hasil</Th>
+                <Th>Advertisement Name</Th>
+                <Th>Media / Channel</Th>
+                <Th>Period</Th>
+                <Th kanan>Cost</Th>
+                <Th>Outcome</Th>
               </tr>
             </thead>
             <tbody>
@@ -412,28 +412,28 @@ function FormAdvertisement({
 
   const simpan = () => {
     if (form.nama.trim() === '') {
-      setError('Nama iklan wajib diisi.');
+      setError('Advertisement name is required.');
       return;
     }
     if (form.media.trim() === '') {
-      setError('Media / saluran wajib diisi.');
+      setError('Media / channel is required.');
       return;
     }
     if (form.periodeMulai === '') {
-      setError('Periode mulai wajib diisi.');
+      setError('Start period is required.');
       return;
     }
     if (form.periodeSelesai === '') {
-      setError('Periode selesai wajib diisi.');
+      setError('End period is required.');
       return;
     }
     if (form.periodeSelesai < form.periodeMulai) {
-      setError('Periode selesai tidak boleh lebih awal dari periode mulai.');
+      setError('End period must not be earlier than the start period.');
       return;
     }
     const biaya = biayaTeks.trim() === '' ? 0 : Number(biayaTeks);
     if (!(biaya >= 0)) {
-      setError('Biaya harus berupa angka 0 atau lebih.');
+      setError('Cost must be a number 0 or greater.');
       return;
     }
     const hasil = actions.tambahAdvertisement({
@@ -453,28 +453,28 @@ function FormAdvertisement({
 
   return (
     <Kartu>
-      <JudulBagian>Tambah Iklan</JudulBagian>
+      <JudulBagian>Add Advertisement</JudulBagian>
       <div className="mt-4 grid gap-4 md:grid-cols-2">
         <div>
-          <Label>Nama iklan *</Label>
+          <Label>Advertisement name *</Label>
           <input
             className={inputClass}
             value={form.nama}
             onChange={(e) => ubahTeks('nama', e.target.value)}
-            placeholder="Nama iklan"
+            placeholder="Advertisement name"
           />
         </div>
         <div>
-          <Label>Media / saluran *</Label>
+          <Label>Media / channel *</Label>
           <input
             className={inputClass}
             value={form.media}
             onChange={(e) => ubahTeks('media', e.target.value)}
-            placeholder="Contoh: Media Sosial (Instagram/Facebook)"
+            placeholder="Example: Social Media (Instagram/Facebook)"
           />
         </div>
         <div>
-          <Label>Periode mulai *</Label>
+          <Label>Start period *</Label>
           <input
             className={inputClass}
             type="date"
@@ -483,7 +483,7 @@ function FormAdvertisement({
           />
         </div>
         <div>
-          <Label>Periode selesai *</Label>
+          <Label>End period *</Label>
           <input
             className={inputClass}
             type="date"
@@ -492,7 +492,7 @@ function FormAdvertisement({
           />
         </div>
         <div>
-          <Label>Biaya (Rp) *</Label>
+          <Label>Cost (Rp) *</Label>
           <input
             className={inputClass}
             type="number"
@@ -503,12 +503,12 @@ function FormAdvertisement({
           />
         </div>
         <div>
-          <Label>Hasil (opsional)</Label>
+          <Label>Outcome (optional)</Label>
           <input
             className={inputClass}
             value={form.hasil ?? ''}
             onChange={(e) => ubahTeks('hasil', e.target.value)}
-            placeholder="Hasil atau capaian iklan"
+            placeholder="Advertisement outcome or achievement"
           />
         </div>
       </div>
@@ -519,8 +519,8 @@ function FormAdvertisement({
         </p>
       )}
       <div className="mt-4 flex gap-2">
-        <TombolUtama onClick={simpan}>Simpan Iklan</TombolUtama>
-        <TombolSekunder onClick={onBatal}>Batal</TombolSekunder>
+        <TombolUtama onClick={simpan}>Save Advertisement</TombolUtama>
+        <TombolSekunder onClick={onBatal}>Cancel</TombolSekunder>
       </div>
     </Kartu>
   );
