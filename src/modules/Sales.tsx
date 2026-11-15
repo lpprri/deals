@@ -866,7 +866,7 @@ function namaProspek(data: ModulProps['data'], prospectId: string): string {
   );
 }
 
-function TabQuotation({ data, user, actions, cari }: ModulProps) {
+export function TabQuotation({ data, user, actions, cari }: ModulProps) {
   const [quotationIdTerpilih, setQuotationIdTerpilih] = useState<string | null>(
     null,
   );
@@ -1412,7 +1412,7 @@ function statusOrderBerikutnya(status: StatusOrder): StatusOrder[] {
   }
 }
 
-function TabOrder({ data, user, actions, cari }: ModulProps) {
+export function TabOrder({ data, user, actions, cari }: ModulProps) {
   const [orderIdTerpilih, setOrderIdTerpilih] = useState<string | null>(null);
   const [tampilForm, setTampilForm] = useState(false);
 
