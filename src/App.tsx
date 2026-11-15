@@ -317,7 +317,11 @@ export default function App() {
   const [user, setUser] = useState<DummyUser | null>(null);
   const [data, setData] = useState<AppData>(DATA_NYATA);
   const [active, setActive] = useState<ModuleId>('dashboard');
-  const [cari, setCari] = useState('');
+  // Pencarian global di top bar DIHAPUS atas instruksi pengguna 15/11/2026
+  // ("hilangkan ini di bar teratas"). `cari` dipertahankan sebagai '' agar
+  // filter daftar di modul-modul tetap jalan (menampilkan semua); plumbing
+  // pencarian dipertahankan bila suatu saat kolom pencarian ditambahkan lagi.
+  const [cari] = useState('');
 
   /** Mode sumber data: contoh (belum terkonfigurasi / belum dimigrasi) atau Firestore. */
   type ModeData = 'tidak-terkonfigurasi' | 'belum-dimigrasi' | 'firestore';
@@ -2200,22 +2204,7 @@ export default function App() {
             Partnership LPP RRI
           </span>
         </div>
-        <div className="min-w-0 flex-1">
-          <input
-            type="search"
-            value={cari}
-            onChange={(e) => setCari(e.target.value)}
-            placeholder="Search clients, contracts, invoices…"
-            className="w-full max-w-md rounded-md border border-[#2573e2]/40 px-3 py-2 text-sm outline-none placeholder:text-[#0d2569]/50 focus:border-[#2573e2]"
-          />
-        </div>
         <div className="ml-auto flex shrink-0 items-center gap-3">
-          <button
-            onClick={() => setActive('pengajuan')}
-            className="rounded-md bg-[#2573e2] px-4 py-2 text-sm font-semibold text-white"
-          >
-            + Add
-          </button>
           <Notifikasi data={data} onNavigasi={(m) => setActive(m)} />
           <div className="flex items-center gap-2.5">
             <span className="flex h-9 w-9 items-center justify-center rounded-full bg-[#2573e2] text-sm font-bold text-white">
@@ -2319,7 +2308,7 @@ export default function App() {
         </div>
       </aside>
 
-      {/* Konten (search + Add sudah pindah ke top bar) */}
+      {/* Konten (search + Add di top bar dihapus atas instruksi pengguna 15/11/2026) */}
       <div className="flex min-w-0 flex-1 flex-col bg-white">
         <main className="flex-1 overflow-auto px-6 py-6">
           <h1 className="flex items-center gap-2 text-2xl font-bold text-[#0d2569]">
