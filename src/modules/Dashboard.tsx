@@ -12,15 +12,23 @@ import {
   FileText,
   Handshake,
   Receipt,
+  Trophy,
 } from 'lucide-react';
 import type { ModulProps } from '../lib/store';
+import type { AppData } from '../lib/types';
 import {
   hitungTotalKontrol,
   nilaiKontrakPerBulan,
   penyetoranPerBulan,
+  periodeRankingTersedia,
+  rankingOperator,
+  rankingSatker,
+  ringkasanPeriodeRanking,
   sisaTagihan,
   statusTagihan,
   totalPerKodeAkun,
+  type BarisRanking,
+  type ModePeriodeRanking,
   type TitikBulanan,
 } from '../lib/derive';
 import {
@@ -217,6 +225,170 @@ function GrafikTren({
   );
 }
 
+/**
+ * Ranking Fase C (Q-09, Q-11): Employee Rank & Satker Rank — Leaderboard
+ * of Year dan of The Month, toggle Tahun/Bulan. Metrik keduanya
+ * Σ nilaiKontrak; periode dari tanggal tanda tangan kontrak (fallback
+ * tanggalMulai bila belum diisi — lihat derive.ts). Satker Rank sekaligus
+ * Revenue Analytics nasional per satker pada periode yang sama.
+ * Hanya 3 warna RRI.
+ */
+function TabelRanking({
+  judul,
+  baris,
+  teksKosong,
+}: {
+  judul: string;
+  baris: BarisRanking[];
+  teksKosong: string;
+}) {
+  return (
+    <div>
+      <h3 className="text-sm font-semibold text-[#0d2569]">{judul}</h3>
+      {baris.length === 0 ? (
+        <div className="mt-3">
+          <PesanKosong teks={teksKosong} />
+        </div>
+      ) : (
+        <div className="mt-3">
+          <Tabel>
+            <thead>
+              <tr>
+                <Th>#</Th>
+                <Th>Nama</Th>
+                <Th kanan>Kontrak</Th>
+                <Th kanan>Nilai kontrak</Th>
+              </tr>
+            </thead>
+            <tbody>
+              {baris.map((r, i) => (
+                <Baris key={r.label}>
+                  <Td>{formatAngka(i + 1)}</Td>
+                  <Td tebal>
+                    {r.label}
+                    {r.sub ? ` (${r.sub})` : ''}
+                  </Td>
+                  <Td kanan>{formatAngka(r.jumlahKontrak)}</Td>
+                  <Td kanan tebal>{formatRupiah(r.nilai)}</Td>
+                </Baris>
+              ))}
+            </tbody>
+          </Tabel>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function KartuRanking({ data }: { data: AppData }) {
+  const [mode, setMode] = useState<ModePeriodeRanking>('tahun');
+  const tahunTersedia = periodeRankingTersedia(data, 'tahun');
+  const bulanTersedia = periodeRankingTersedia(data, 'bulan');
+  const [tahunDipilih, setTahunDipilih] = useState('');
+  const [bulanDipilih, setBulanDipilih] = useState('');
+  // Bila pilihan tersimpan belum ada di data (mis. data baru dimuat dari
+  // Firestore setelah render pertama), pakai periode terbaru yang ada.
+  const tahun =
+    tahunDipilih !== '' && tahunTersedia.includes(tahunDipilih)
+      ? tahunDipilih
+      : (tahunTersedia[0] ?? hariIniIso().slice(0, 4));
+  const bulan =
+    bulanDipilih !== '' && bulanTersedia.includes(bulanDipilih)
+      ? bulanDipilih
+      : (bulanTersedia[0] ?? hariIniIso().slice(0, 7));
+  const periode = mode === 'tahun' ? tahun : bulan;
+  const labelPeriode =
+    mode === 'tahun' ? `Tahun ${periode}` : formatPeriode(periode);
+  const employee = rankingOperator(data, mode, periode);
+  const satker = rankingSatker(data, mode, periode);
+  const ringkasan = ringkasanPeriodeRanking(data, mode, periode);
+
+  const tombolMode = (id: ModePeriodeRanking, teks: string) => (
+    <button
+      key={id}
+      type="button"
+      onClick={() => setMode(id)}
+      className={
+        mode === id
+          ? 'rounded-md bg-[#2573e2] px-3 py-1 text-xs font-semibold text-white'
+          : 'rounded-md border border-[#2573e2]/30 bg-white px-3 py-1 text-xs font-semibold text-[#0d2569]'
+      }
+    >
+      {teks}
+    </button>
+  );
+
+  return (
+    <Kartu>
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div className="flex items-center gap-2">
+          <Trophy size={18} className="text-[#2573e2]" />
+          <div>
+            <JudulBagian>Ranking — Employee Rank &amp; Satker Rank</JudulBagian>
+            <p className="mt-1 text-xs text-[#0d2569]/60">
+              Leaderboard {mode === 'tahun' ? 'of Year' : 'of The Month'} ·{' '}
+              {labelPeriode} · Metrik: nilai kontrak yang ditutup
+            </p>
+          </div>
+        </div>
+        <div className="flex flex-wrap items-center gap-2">
+          {tombolMode('tahun', 'Tahun')}
+          {tombolMode('bulan', 'Bulan')}
+          {mode === 'tahun' ? (
+            <select
+              value={tahun}
+              onChange={(e) => setTahunDipilih(e.target.value)}
+              aria-label="Pilih tahun"
+              className="rounded-md border border-[#2573e2]/30 bg-white px-2 py-1 text-xs font-semibold text-[#0d2569]"
+            >
+              {tahunTersedia.map((t) => (
+                <option key={t} value={t}>
+                  {t}
+                </option>
+              ))}
+            </select>
+          ) : (
+            <select
+              value={bulan}
+              onChange={(e) => setBulanDipilih(e.target.value)}
+              aria-label="Pilih bulan"
+              className="rounded-md border border-[#2573e2]/30 bg-white px-2 py-1 text-xs font-semibold text-[#0d2569]"
+            >
+              {bulanTersedia.map((b) => (
+                <option key={b} value={b}>
+                  {formatPeriode(b)}
+                </option>
+              ))}
+            </select>
+          )}
+        </div>
+      </div>
+      <div className="mt-4 grid gap-6 md:grid-cols-2">
+        <TabelRanking
+          judul="Employee Rank — nilai kontrak per penanggung jawab"
+          baris={employee}
+          teksKosong={`Belum ada kontrak yang ditutup pada ${labelPeriode}.`}
+        />
+        <TabelRanking
+          judul="Satker Rank — Revenue Analytics nasional per satker"
+          baris={satker}
+          teksKosong={`Belum ada kontrak yang ditutup pada ${labelPeriode}.`}
+        />
+      </div>
+      <p className="mt-4 text-xs text-[#0d2569]/60">
+        Periode dihitung dari tanggal kontrak ditandatangani; bila tanggal
+        tanda tangan belum diisi, dipakai tanggal mulai kontrak
+        {ringkasan.jumlahKontrak > 0 &&
+          ` — pada ${labelPeriode}, ${formatAngka(ringkasan.jumlahFallback)} dari ${formatAngka(ringkasan.jumlahKontrak)} kontrak memakai tanggal mulai.`}
+      </p>
+      <p className="mt-1 text-xs text-[#0d2569]/60">
+        Ranking nasional hanya mencakup satker yang datanya ada di aplikasi
+        (saat ini PALEMBANG); satker tanpa data tidak ditampilkan.
+      </p>
+    </Kartu>
+  );
+}
+
 export default function Dashboard({ data }: ModulProps) {
   const total = hitungTotalKontrol(data);
   const hariIni = hariIniIso();
@@ -347,6 +519,9 @@ export default function Dashboard({ data }: ModulProps) {
         kontrak={nilaiKontrakPerBulan(data)}
         penyetoran={penyetoranPerBulan(data)}
       />
+
+      {/* (a3) Ranking Fase C — Employee Rank & Satker Rank. */}
+      <KartuRanking data={data} />
 
       {/* (b) Deadline laporan kantor pusat */}
       <Kartu>

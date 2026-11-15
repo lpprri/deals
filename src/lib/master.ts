@@ -14,7 +14,7 @@ export const SATKER_PILOT: SatkerRef = { kode: '41', nama: 'PALEMBANG' };
  * label status fase ditulis. Dipakai label di UI (mis. halaman login) agar
  * tidak kedaluwarsa saat fase berikutnya selesai: cukup ubah konstanta ini.
  */
-export const FASE_TERBANGUN = 'Fase A dan Fase B';
+export const FASE_TERBANGUN = 'Fase A, Fase B, dan Fase C';
 
 export interface KodeAkun {
   kode: string;
@@ -78,6 +78,12 @@ export const MASTER_JENIS_DOKUMEN: string[] = [
   'Surat Permohonan',
   'Bukti Pembayaran',
   'Berita Acara Serah Terima',
+  // Fase C — Client Order Portal (Q-10): kwitansi & bukti siaran adalah
+  // output yang diterbitkan untuk klien dan tampil di timeline portal.
+  // Hanya dipakai checklist kontrak BARU; checklist kontrak lama tidak
+  // berubah dan tidak ada total yang berubah.
+  'Kwitansi',
+  'Bukti Siaran',
 ];
 
 export const MASTER_STATUS_KONTRAK: string[] = [
@@ -108,9 +114,10 @@ export const MASTER_JENIS_PNBP: JenisPnBP[] = ['Fungsional', 'Umum'];
 // --- Master Fase B (PRD Bab 6.12, 7.2, 7.3, 7.7) ---
 
 /**
- * Tahap pipeline — DRAF. Q-11 belum terjawab: tahap final menunggu jawaban
- * pemilik produk. Daftar ini sengaja dibuat sebagai satu master agar mudah
- * diubah saat Q-11 terjawab, tanpa mengubah logika modul.
+ * Tahap pipeline — FINAL (Q-11 terjawab 15/11/2026): 7 tahap,
+ * 'Menang' diganti 'Diterima' dan 'Kalah' diganti 'Ditolak'.
+ * Daftar ini sengaja dibuat sebagai satu master agar mudah diubah
+ * tanpa mengubah logika modul.
  */
 export const MASTER_TAHAP_PIPELINE: string[] = [
   'Prospek Baru',
@@ -118,8 +125,8 @@ export const MASTER_TAHAP_PIPELINE: string[] = [
   'Penawaran',
   'Negosiasi',
   'Order',
-  'Menang',
-  'Kalah',
+  'Diterima',
+  'Ditolak',
 ];
 
 /** Tahap yang masih dihitung sebagai pipeline aktif (nilai pipeline). */
@@ -160,4 +167,34 @@ export const MASTER_STATUS_TASK: string[] = [
   'Berjalan',
   'Selesai',
   'Ditutup',
+];
+
+// --- Master Fase C — Service (PRD Bab 7.8; Q-12 terjawab 15/11/2026) ---
+
+/**
+ * Tujuan tiket Help-Desk — selalu Direktorat Layanan & Pengembangan Usaha.
+ * PIC beragam tergantung jenis konsultasi dan nama PIC per kategori belum
+ * ditentukan, jadi tujuan tampil sebagai nama direktorat, bukan nama orang.
+ */
+export const TUJUAN_TIKET = 'Direktorat Layanan & Pengembangan Usaha';
+
+/** Jenis konsultasi Help-Desk — tiket wajib punya field kategori (Q-12). */
+export const MASTER_KATEGORI_TIKET: string[] = [
+  'Tarif & Kode Akun PNBP',
+  'Prosedur Kerja Sama',
+  'Kontrak & PKS',
+  'Penagihan & Pembayaran',
+  'Sewa / BMN',
+  'Laporan PNBP',
+  'Lainnya',
+];
+
+export const MASTER_STATUS_TIKET: string[] = ['Terbuka', 'Dijawab', 'Ditutup'];
+
+/** Pertanyaan survei kepuasan klien — skala 1–5 untuk tiap pertanyaan. */
+export const MASTER_PERTANYAAN_SURVEI: string[] = [
+  'Kemudahan proses kerja sama',
+  'Kualitas layanan yang diterima',
+  'Kecepatan penagihan & administrasi',
+  'Kepuasan keseluruhan',
 ];

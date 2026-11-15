@@ -2,7 +2,11 @@
 // Palet HANYA 3 warna RRI: Biru #2573E2, Navy #0D2569, Putih #FFFFFF.
 
 import { useState } from 'react';
-import type { Pengajuan as PengajuanItem, TahapPengajuan } from '../lib/types';
+import type {
+  Pengajuan as PengajuanItem,
+  PengajuanKlien,
+  TahapPengajuan,
+} from '../lib/types';
 import type { ModulProps, PengajuanInput } from '../lib/store';
 import { MASTER_TAHAP_PENGAJUAN } from '../lib/master';
 import { formatRupiah, formatTanggal, hariIniIso } from '../lib/format';
@@ -14,6 +18,7 @@ import {
   Label,
   PesanKosong,
   StatusBadge,
+  TabBar,
   Tabel,
   Td,
   Th,
@@ -46,6 +51,12 @@ export default function Pengajuan(props: ModulProps) {
   const [filterTahap, setFilterTahap] = useState<string>('Semua');
   const [pengajuanIdTerpilih, setPengajuanIdTerpilih] = useState<string | null>(null);
   const [tampilForm, setTampilForm] = useState(false);
+  // Fase C — Client Order Portal (Q-10): tab antrean approval submission
+  // PIC klien, di dalam modul Pengajuan (bukan modul/sidebar baru).
+  const [tabAktif, setTabAktif] = useState<string>('pengajuan');
+  const jumlahMenungguPortal = data.pengajuanKlien.filter(
+    (s) => s.status === 'Menunggu',
+  ).length;
 
   const kataKunci = cari.trim().toLowerCase();
   const pengajuanTersaring = data.pengajuan.filter(
@@ -61,7 +72,7 @@ export default function Pengajuan(props: ModulProps) {
     ? data.pengajuan.find((p) => p.id === pengajuanIdTerpilih) ?? null
     : null;
 
-  if (pengajuanTerpilih) {
+  if (pengajuanTerpilih && tabAktif === 'pengajuan') {
     return (
       <DetailPengajuan
         data={data}
@@ -77,39 +88,289 @@ export default function Pengajuan(props: ModulProps) {
     <div className="space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <JudulBagian>Pengajuan</JudulBagian>
-        {bolehAksi(user.peran, 'tambahPengajuan') && (
+        {tabAktif === 'pengajuan' && bolehAksi(user.peran, 'tambahPengajuan') && (
           <TombolUtama onClick={() => setTampilForm(true)}>
             + Tambah Pengajuan
           </TombolUtama>
         )}
       </div>
 
+      <TabBar
+        tabs={[
+          { id: 'pengajuan', label: 'Pengajuan' },
+          {
+            id: 'portal',
+            label:
+              jumlahMenungguPortal > 0
+                ? `Portal Klien (${jumlahMenungguPortal} menunggu)`
+                : 'Portal Klien',
+          },
+        ]}
+        aktif={tabAktif}
+        onPilih={setTabAktif}
+      />
+
+      {tabAktif === 'portal' ? (
+        <AntreanPortalKlien data={data} user={user} actions={actions} cari={cari} />
+      ) : (
+        <>
+          <div>
+            <Label>Filter tahap</Label>
+            <select
+              className={`${inputClass} max-w-xs`}
+              value={filterTahap}
+              onChange={(e) => setFilterTahap(e.target.value)}
+            >
+              <option value="Semua">Semua</option>
+              {MASTER_TAHAP_PENGAJUAN.map((t) => (
+                <option key={t} value={t}>
+                  {t}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {tampilForm && (
+            <FormPengajuan
+              actions={actions}
+              onBatal={() => setTampilForm(false)}
+              onSukses={() => setTampilForm(false)}
+            />
+          )}
+
+          {pengajuanTersaring.length === 0 ? (
+            <PesanKosong teks="Belum ada pengajuan yang cocok." />
+          ) : (
+            <Kartu>
+              <Tabel>
+                <thead>
+                  <tr>
+                    <Th>ID</Th>
+                    <Th>Jenis</Th>
+                    <Th>Pemohon</Th>
+                    <Th>Tanggal Masuk</Th>
+                    <Th>Kebutuhan</Th>
+                    <Th>Tahap</Th>
+                    <Th>Penanggung Jawab</Th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {pengajuanTersaring.map((p) => (
+                    <Baris
+                      key={p.id}
+                      onClick={() => setPengajuanIdTerpilih(p.id)}
+                      className="border-t border-[#2573e2]/10"
+                    >
+                      <Td tebal>{p.id}</Td>
+                      <Td>{p.jenis}</Td>
+                      <Td>{p.pemohon}</Td>
+                      <Td>{formatTanggal(p.tanggalMasuk)}</Td>
+                      <Td>{p.kebutuhan}</Td>
+                      <Td>
+                        <StatusBadge status={p.tahap} />
+                      </Td>
+                      <Td>{p.penanggungJawab}</Td>
+                    </Baris>
+                  ))}
+                </tbody>
+              </Tabel>
+            </Kartu>
+          )}
+        </>
+      )}
+    </div>
+  );
+}
+
+/**
+ * Antrean approval submission portal klien (Fase C, Q-10).
+ * Approval dilakukan OPERATOR. Submission yang disetujui menjadi Prospect
+ * baru lewat alur Sales yang sudah ada (bukan entitas order kedua);
+ * yang ditolak menyimpan status + catatan, dan keduanya tercatat di
+ * audit trail.
+ */
+function AntreanPortalKlien({ data, user, actions, cari }: ModulProps) {
+  const [filterStatus, setFilterStatus] = useState<string>('Semua');
+  const [terpilihId, setTerpilihId] = useState<string | null>(null);
+  const [catatan, setCatatan] = useState('');
+  const [pesan, setPesan] = useState('');
+
+  const bolehSetujui = bolehAksi(user.peran, 'setujuiPengajuanKlien');
+  const bolehTolak = bolehAksi(user.peran, 'tolakPengajuanKlien');
+
+  const kataKunci = cari.trim().toLowerCase();
+  const daftar = data.pengajuanKlien.filter(
+    (s) =>
+      (filterStatus === 'Semua' || s.status === filterStatus) &&
+      (kataKunci === '' ||
+        `${s.id} ${s.jenis} ${s.judul} ${s.namaPic} ${s.uraian}`
+          .toLowerCase()
+          .includes(kataKunci)),
+  );
+  const terpilih = terpilihId
+    ? data.pengajuanKlien.find((s) => s.id === terpilihId) ?? null
+    : null;
+
+  const setujui = (s: PengajuanKlien) => {
+    const hasil = actions.setujuiPengajuanKlien(s, catatan.trim() || undefined);
+    if (hasil !== null) {
+      setPesan(hasil);
+      return;
+    }
+    const terbaru = data.pengajuanKlien.find((x) => x.id === s.id);
+    setPesan(
+      terbaru?.prospectId
+        ? `Submission disetujui — Prospect baru ${terbaru.prospectId} dibuat untuk ditindaklanjuti lewat alur Sales.`
+        : 'Submission disetujui.',
+    );
+    setCatatan('');
+  };
+
+  const tolak = (s: PengajuanKlien) => {
+    if (catatan.trim() === '') {
+      setPesan('Catatan penolakan wajib diisi.');
+      return;
+    }
+    const hasil = actions.tolakPengajuanKlien(s, catatan.trim());
+    if (hasil !== null) {
+      setPesan(hasil);
+      return;
+    }
+    setPesan('Submission ditolak dengan catatan yang tersimpan.');
+    setCatatan('');
+  };
+
+  if (terpilih) {
+    const namaKlien =
+      data.klien.find((k) => k.id === terpilih.klienId)?.nama ??
+      terpilih.klienId;
+    return (
+      <div className="space-y-4">
+        <TombolSekunder onClick={() => setTerpilihId(null)}>
+          &larr; Kembali ke antrean
+        </TombolSekunder>
+        <JudulBagian>
+          {terpilih.id} — {terpilih.jenis}
+        </JudulBagian>
+        <Kartu>
+          <dl className="grid gap-2 text-sm md:grid-cols-2">
+            <div className="flex justify-between gap-4">
+              <dt className="text-[#0d2569]/60">Klien</dt>
+              <dd className="text-right font-semibold text-[#0d2569]">
+                {namaKlien}
+              </dd>
+            </div>
+            <div className="flex justify-between gap-4">
+              <dt className="text-[#0d2569]/60">PIC pembuat</dt>
+              <dd className="text-right text-[#0d2569]">
+                {terpilih.namaPic} ({terpilih.dibuatOleh})
+              </dd>
+            </div>
+            <div className="flex justify-between gap-4">
+              <dt className="text-[#0d2569]/60">Tanggal buat</dt>
+              <dd className="text-[#0d2569]">
+                {formatTanggal(terpilih.tanggalBuat)}
+              </dd>
+            </div>
+            <div className="flex justify-between gap-4">
+              <dt className="text-[#0d2569]/60">Status</dt>
+              <dd>
+                <StatusBadge status={terpilih.status} />
+              </dd>
+            </div>
+            <div className="flex justify-between gap-4 md:col-span-2">
+              <dt className="text-[#0d2569]/60">Judul</dt>
+              <dd className="text-right text-[#0d2569]">{terpilih.judul}</dd>
+            </div>
+            <div className="flex justify-between gap-4 md:col-span-2">
+              <dt className="text-[#0d2569]/60">Uraian</dt>
+              <dd className="text-right text-[#0d2569]">{terpilih.uraian}</dd>
+            </div>
+            {terpilih.nilaiPerkiraan !== undefined && (
+              <div className="flex justify-between gap-4">
+                <dt className="text-[#0d2569]/60">Nilai perkiraan</dt>
+                <dd className="text-[#0d2569]">
+                  {formatRupiah(terpilih.nilaiPerkiraan)}
+                </dd>
+              </div>
+            )}
+            {terpilih.prospectId && (
+              <div className="flex justify-between gap-4">
+                <dt className="text-[#0d2569]/60">Prospect hasil approval</dt>
+                <dd className="font-semibold text-[#0d2569]">
+                  {terpilih.prospectId}
+                </dd>
+              </div>
+            )}
+            {terpilih.catatanOperator && (
+              <div className="flex justify-between gap-4 md:col-span-2">
+                <dt className="text-[#0d2569]/60">Catatan Operator</dt>
+                <dd className="text-right text-[#0d2569]">
+                  {terpilih.catatanOperator}
+                </dd>
+              </div>
+            )}
+          </dl>
+        </Kartu>
+
+        {(bolehSetujui || bolehTolak) && terpilih.status === 'Menunggu' && (
+          <Kartu>
+            <JudulBagian>Keputusan approval</JudulBagian>
+            <p className="mt-1 text-sm text-[#0d2569]/70">
+              Menyetujui akan membuat Prospect baru untuk klien ini dan
+              melanjutkannya lewat alur Sales yang sudah ada (prospect →
+              quotation → order → kontrak).
+            </p>
+            <div className="mt-3">
+              <Label>Catatan Operator (wajib bila menolak)</Label>
+              <textarea
+                className={`${inputClass} min-h-20`}
+                value={catatan}
+                onChange={(e) => setCatatan(e.target.value)}
+                placeholder="Catatan untuk PIC klien"
+              />
+            </div>
+            <div className="mt-3 flex gap-2">
+              {bolehSetujui && (
+                <TombolUtama onClick={() => setujui(terpilih)}>
+                  Setujui
+                </TombolUtama>
+              )}
+              {bolehTolak && (
+                <TombolSekunder onClick={() => tolak(terpilih)}>
+                  Tolak
+                </TombolSekunder>
+              )}
+            </div>
+          </Kartu>
+        )}
+
+        {pesan !== '' && (
+          <p className="rounded-md border border-[#2573e2]/40 bg-[#2573e2]/5 px-3 py-2 text-sm font-semibold text-[#0d2569]">
+            {pesan}
+          </p>
+        )}
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-4">
       <div>
-        <Label>Filter tahap</Label>
+        <Label>Filter status</Label>
         <select
           className={`${inputClass} max-w-xs`}
-          value={filterTahap}
-          onChange={(e) => setFilterTahap(e.target.value)}
+          value={filterStatus}
+          onChange={(e) => setFilterStatus(e.target.value)}
         >
           <option value="Semua">Semua</option>
-          {MASTER_TAHAP_PENGAJUAN.map((t) => (
-            <option key={t} value={t}>
-              {t}
-            </option>
-          ))}
+          <option value="Menunggu">Menunggu</option>
+          <option value="Disetujui">Disetujui</option>
+          <option value="Ditolak">Ditolak</option>
         </select>
       </div>
-
-      {tampilForm && (
-        <FormPengajuan
-          actions={actions}
-          onBatal={() => setTampilForm(false)}
-          onSukses={() => setTampilForm(false)}
-        />
-      )}
-
-      {pengajuanTersaring.length === 0 ? (
-        <PesanKosong teks="Belum ada pengajuan yang cocok." />
+      {daftar.length === 0 ? (
+        <PesanKosong teks="Belum ada submission portal klien yang cocok." />
       ) : (
         <Kartu>
           <Tabel>
@@ -117,29 +378,32 @@ export default function Pengajuan(props: ModulProps) {
               <tr>
                 <Th>ID</Th>
                 <Th>Jenis</Th>
-                <Th>Pemohon</Th>
-                <Th>Tanggal Masuk</Th>
-                <Th>Kebutuhan</Th>
-                <Th>Tahap</Th>
-                <Th>Penanggung Jawab</Th>
+                <Th>Judul</Th>
+                <Th>Klien</Th>
+                <Th>PIC</Th>
+                <Th>Tanggal</Th>
+                <Th>Status</Th>
               </tr>
             </thead>
             <tbody>
-              {pengajuanTersaring.map((p) => (
+              {daftar.map((s) => (
                 <Baris
-                  key={p.id}
-                  onClick={() => setPengajuanIdTerpilih(p.id)}
+                  key={s.id}
+                  onClick={() => setTerpilihId(s.id)}
                   className="border-t border-[#2573e2]/10"
                 >
-                  <Td tebal>{p.id}</Td>
-                  <Td>{p.jenis}</Td>
-                  <Td>{p.pemohon}</Td>
-                  <Td>{formatTanggal(p.tanggalMasuk)}</Td>
-                  <Td>{p.kebutuhan}</Td>
+                  <Td tebal>{s.id}</Td>
+                  <Td>{s.jenis}</Td>
+                  <Td>{s.judul}</Td>
                   <Td>
-                    <StatusBadge status={p.tahap} />
+                    {data.klien.find((k) => k.id === s.klienId)?.nama ??
+                      s.klienId}
                   </Td>
-                  <Td>{p.penanggungJawab}</Td>
+                  <Td>{s.namaPic}</Td>
+                  <Td>{formatTanggal(s.tanggalBuat)}</Td>
+                  <Td>
+                    <StatusBadge status={s.status} />
+                  </Td>
                 </Baris>
               ))}
             </tbody>

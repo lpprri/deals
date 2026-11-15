@@ -5461,6 +5461,7 @@ export const DATA_NYATA: AppData = {
     }
   }
 ],
+  pengajuanKlien: [],
   penerimaanAcuan: [
   {
     "id": "ACU-001",
@@ -6310,7 +6311,7 @@ export const DATA_NYATA: AppData = {
       email: 'rina@swaramedia.co.id',
       sumber: 'Referensi',
       layananDiminati: 'Siaran Iklan (Spot/Jingle/Filler/Advetorial)',
-      tahap: 'Menang',
+      tahap: 'Diterima',
       penanggungJawab: 'Andi Pratama (Contoh)',
       nilaiPerkiraan: 48000000,
       catatan: 'Jejak lengkap: prospek → QTN-01 → ORD-01 → PKS-001/2026.',
@@ -6331,7 +6332,7 @@ export const DATA_NYATA: AppData = {
       telepon: '0813-5566-7788',
       sumber: 'Kunjungan',
       layananDiminati: 'Dukungan Layanan',
-      tahap: 'Kalah',
+      tahap: 'Ditolak',
       penanggungJawab: 'Andi Pratama (Contoh)',
       nilaiPerkiraan: 5000000,
       catatan: 'Tidak lanjut — dokumen persyaratan tidak lengkap (lihat PJ-003).',
@@ -6558,4 +6559,8 @@ export const DATA_NYATA: AppData = {
       satker: S,
     },
   ],
+  // Fase C — Service (PRD Bab 7.8): koleksi baru, mulai kosong.
+  tiket: [],
+  umpanBalik: [],
+  artikelKB: [],
 };

@@ -28,11 +28,12 @@
 //   tautan antar-entitas (kontrakId, tagihanId, dst.) tetap memakai id asli.
 //   Pemanggil TIDAK PERLU meng-encode sendiri: simpanDokumen() meng-encode,
 //   muatDariFirestore() memakai field `id` dari dokumen.
-// - `dokumen` dan `audit` TIDAK punya field `satker` (lihat types.ts), jadi
-//   dibaca tanpa filter satker. Konsekuensinya: di tingkat nasional,
-//   koleksi `dokumen` memuat dokumen SEMUA satker dan `audit` memuat audit
-//   SEMUA satker — lihat daftar risiko di laporan integrasi. Dokumen tetap
-//   terikat ke kontrak satker ini lewat kontrakId.
+// - `dokumen`, `audit`, dan `artikelKB` (Fase C) TIDAK punya field
+//   `satker` (lihat types.ts), jadi dibaca tanpa filter satker.
+//   Konsekuensinya: di tingkat nasional, koleksi `dokumen` memuat dokumen
+//   SEMUA satker dan `audit` memuat audit SEMUA satker — lihat daftar risiko
+//   di laporan integrasi. Dokumen tetap terikat ke kontrak satker ini lewat
+//   kontrakId; `artikelKB` memang bersifat nasional (Regulasi & SOP).
 // - `penerimaanAcuan` adalah data acuan Keuangan — READ-ONLY (PRD Bab 6.5).
 //   Lapisan ini hanya membacanya; tidak ada aksi tulis yang menyentuhnya.
 //
@@ -65,6 +66,7 @@ export const KOLEKSI: Record<keyof AppData, string> = {
   denda: 'denda',
   sewa: 'sewa',
   pengajuan: 'pengajuan',
+  pengajuanKlien: 'pengajuanKlien',
   penerimaanAcuan: 'penerimaanAcuan',
   audit: 'audit',
   prospect: 'prospect',
@@ -74,12 +76,17 @@ export const KOLEKSI: Record<keyof AppData, string> = {
   event: 'event',
   advertisement: 'advertisement',
   task: 'task',
+  tiket: 'tiket',
+  umpanBalik: 'umpanBalik',
+  artikelKB: 'artikelKB',
 };
 
 /** Kunci AppData yang entitasnya TIDAK punya field `satker`. */
 export const KUNCI_TANPA_SATKER: ReadonlySet<keyof AppData> = new Set([
   'dokumen',
   'audit',
+  // Fase C — Service: artikel Knowledge Base bersifat nasional.
+  'artikelKB',
 ]);
 
 /**
@@ -127,6 +134,8 @@ const ARRAY_WAJIB: Partial<Record<keyof AppData, string[]>> = {
   kontrak: ['layanan'],
   sewa: ['riwayatHarga', 'temuan'],
   prospect: ['riwayat'],
+  tiket: ['balasan'],
+  umpanBalik: ['jawaban'],
 };
 
 /**
@@ -174,9 +183,9 @@ export async function cekSudahDimigrasi(db: Firestore): Promise<boolean> {
  * - Bila `meta/migrasi` TIDAK ada → null (pemanggil memakai DATA_NYATA
  *   dengan label mode (b) "Data contoh — belum dimigrasi ke Firestore").
  * - Koleksi yang entitasnya punya `satker` difilter
- *   `where('satker.kode', '==', satkerKode)`; `dokumen` dan `audit`
- *   dibaca tanpa filter (tidak punya satker; dokumen terikat ke kontrak
- *   lewat kontrakId, audit bersifat global).
+ *   `where('satker.kode', '==', satkerKode)`; `dokumen`, `audit`, dan
+ *   `artikelKB` dibaca tanpa filter (tidak punya satker; dokumen terikat ke
+ *   kontrak lewat kontrakId, audit bersifat global, artikelKB nasional).
  * - Selalu mengembalikan AppData lengkap; koleksi kosong → array kosong,
  *   bukan undefined.
  */
@@ -198,6 +207,124 @@ export async function muatDariFirestore(
     }),
   );
   return hasil as AppData;
+}
+
+/**
+ * Muat data milik SATU klien untuk Client Order Portal (Fase C, Q-10).
+ * Dipakai App saat pengguna login adalah klien — muatDariFirestore()
+ * TIDAK bisa dipakai klien karena query-nya dibatasi aturan Operator.
+ * Hanya memakai SATU filter `where` per query supaya tidak butuh
+ * composite index di console: kontrak & pengajuanKlien difilter
+ * `klienId`, tagihan/dokumen difilter `kontrakId`, pembayaran difilter
+ * `tagihanId` (operator `in`, dipotong per 30 — batas Firestore).
+ * Koleksi lain dikembalikan kosong; portal hanya memakai irisan ini.
+ * `dokumen` dibaca tanpa filter satker (tidak punya field satker) tapi
+ * tetap hanya dokumen dari kontrak klien itu (lewat kontrakId).
+ */
+export async function muatDataKlien(
+  db: Firestore,
+  satkerKode: string,
+  klienId: string,
+): Promise<AppData> {
+  if (!(await cekSudahDimigrasi(db))) {
+    throw new Error('Data belum dimigrasi ke Firestore.');
+  }
+  const kosong: AppData = {
+    klien: [],
+    kontrak: [],
+    dokumen: [],
+    tagihan: [],
+    pembayaran: [],
+    denda: [],
+    sewa: [],
+    pengajuan: [],
+    pengajuanKlien: [],
+    penerimaanAcuan: [],
+    audit: [],
+    prospect: [],
+    quotation: [],
+    order: [],
+    meeting: [],
+    event: [],
+    advertisement: [],
+    task: [],
+    tiket: [],
+    umpanBalik: [],
+    artikelKB: [],
+  };
+  const potong30 = <T,>(daftar: T[]): T[][] => {
+    const hasil: T[][] = [];
+    for (let i = 0; i < daftar.length; i += 30) hasil.push(daftar.slice(i, i + 30));
+    return hasil;
+  };
+  const klienSnap = await getDoc(doc(db, KOLEKSI.klien, kodeIdDokumen(klienId)));
+  if (klienSnap.exists()) {
+    kosong.klien = [
+      normalisasiEntitas('klien', klienSnap.id, klienSnap.data(), satkerKode),
+    ];
+  }
+  const kontrakSnap = await getDocs(
+    query(collection(db, KOLEKSI.kontrak), where('klienId', '==', klienId)),
+  );
+  kosong.kontrak = kontrakSnap.docs.map((d) =>
+    normalisasiEntitas('kontrak', d.id, d.data() as Record<string, unknown>, satkerKode),
+  );
+  const kontrakIds = kosong.kontrak.map((k) => k.id);
+  const tagihan: AppData['tagihan'] = [];
+  for (const potong of potong30(kontrakIds)) {
+    if (potong.length === 0) continue;
+    const snap = await getDocs(
+      query(collection(db, KOLEKSI.tagihan), where('kontrakId', 'in', potong)),
+    );
+    tagihan.push(
+      ...snap.docs.map((d) =>
+        normalisasiEntitas('tagihan', d.id, d.data() as Record<string, unknown>, satkerKode),
+      ),
+    );
+  }
+  kosong.tagihan = tagihan;
+  const dokumen: AppData['dokumen'] = [];
+  for (const potong of potong30(kontrakIds)) {
+    if (potong.length === 0) continue;
+    const snap = await getDocs(
+      query(collection(db, KOLEKSI.dokumen), where('kontrakId', 'in', potong)),
+    );
+    dokumen.push(
+      ...snap.docs.map((d) =>
+        normalisasiEntitas('dokumen', d.id, d.data() as Record<string, unknown>, satkerKode),
+      ),
+    );
+  }
+  kosong.dokumen = dokumen;
+  const tagihanIds = tagihan.map((t) => t.id);
+  const pembayaran: AppData['pembayaran'] = [];
+  for (const potong of potong30(tagihanIds)) {
+    if (potong.length === 0) continue;
+    const snap = await getDocs(
+      query(collection(db, KOLEKSI.pembayaran), where('tagihanId', 'in', potong)),
+    );
+    pembayaran.push(
+      ...snap.docs.map((d) =>
+        normalisasiEntitas('pembayaran', d.id, d.data() as Record<string, unknown>, satkerKode),
+      ),
+    );
+  }
+  kosong.pembayaran = pembayaran;
+  const pengajuanKlienSnap = await getDocs(
+    query(
+      collection(db, KOLEKSI.pengajuanKlien),
+      where('klienId', '==', klienId),
+    ),
+  );
+  kosong.pengajuanKlien = pengajuanKlienSnap.docs.map((d) =>
+    normalisasiEntitas(
+      'pengajuanKlien',
+      d.id,
+      d.data() as Record<string, unknown>,
+      satkerKode,
+    ),
+  );
+  return kosong;
 }
 
 /**

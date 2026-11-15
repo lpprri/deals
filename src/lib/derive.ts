@@ -4,6 +4,7 @@
 
 import type {
   AppData,
+  Kontrak,
   Pembayaran,
   StatusTagihan,
   Tagihan,
@@ -457,3 +458,138 @@ export function penyetoranPerBulan(data: AppData): TitikBulanan[] {
     .map(([periode, nilai]) => ({ periode, nilai }));
 }
 
+// ---------------------------------------------------------------------------
+// Ranking Fase C — Employee Rank & Satker Rank (Q-09, Q-11; PRD Bab 7.5).
+// ASUMSI YANG DICATAT (bukan tebakan diam-diam):
+// - Metrik Employee Rank DAN Satker Rank = Σ nilaiKontrak.
+// - Periode dihitung dari TANGGAL KONTRAK DITANDATANGANI (Q-09).
+// - Definisi "ditutup": kontrak dihitung bila tanggal acuannya jatuh
+//   dalam periode. Status kontrak TIDAK dipakai sebagai syarat — kontrak
+//   Draft yang tanggalnya masuk periode tetap dihitung. Bila definisi
+//   ini berubah, ubah kontrakDalamPeriode saja.
+// - Fallback: kontrak yang belum punya tanggalTandaTangan memakai
+//   tanggalMulai; UI wajib memberi label jujur (lihat Dashboard).
+// - Ranking nasional hanya mencakup satker yang datanya ada di aplikasi
+//   (saat ini PALEMBANG saja; Q-08 lanjutan masih terbuka) — satker
+//   tanpa data tidak ditampilkan sebagai nol palsu.
+// - Employee Rank memakai field Kontrak.penanggungJawab apa adanya.
+//   Catatan data: pada kontrak impor nyata, field ini berisi nama PIC
+//   klien, bukan operator RRI — peringkat mengikuti isi field tersebut
+//   sampai atribusi operator per kontrak dicatat.
+// Helper ini hanya membaca data; total kontrol tidak berubah.
+
+export type ModePeriodeRanking = 'tahun' | 'bulan';
+
+export interface BarisRanking {
+  /** Nama operator (Employee Rank) atau nama satker (Satker Rank). */
+  label: string;
+  /** Keterangan tambahan — dipakai Satker Rank untuk kode satker. */
+  sub?: string;
+  /** Σ nilai kontrak yang ditutup dalam periode. */
+  nilai: number;
+  /** Jumlah kontrak yang dihitung dalam periode. */
+  jumlahKontrak: number;
+}
+
+/**
+ * Tanggal acuan "kontrak ditutup" (Q-09): tanggal tanda tangan bila ada,
+ * bila belum diisi memakai tanggalMulai sebagai fallback.
+ */
+export function tanggalAcuanKontrak(kontrak: Kontrak): string {
+  return kontrak.tanggalTandaTangan ?? kontrak.tanggalMulai;
+}
+
+/** Kontrak dihitung bila tanggal acuannya jatuh dalam periode. */
+export function kontrakDalamPeriode(
+  kontrak: Kontrak,
+  mode: ModePeriodeRanking,
+  periode: string,
+): boolean {
+  const tanggal = tanggalAcuanKontrak(kontrak);
+  return mode === 'tahun'
+    ? tanggal.slice(0, 4) === periode
+    : tanggal.slice(0, 7) === periode;
+}
+
+/** Daftar periode ('yyyy' atau 'yyyy-mm') yang punya kontrak, terbaru dulu. */
+export function periodeRankingTersedia(
+  data: AppData,
+  mode: ModePeriodeRanking,
+): string[] {
+  const daftar = new Set<string>();
+  data.kontrak.forEach((k) => {
+    const tanggal = tanggalAcuanKontrak(k);
+    daftar.add(mode === 'tahun' ? tanggal.slice(0, 4) : tanggal.slice(0, 7));
+  });
+  return [...daftar].sort().reverse();
+}
+
+/**
+ * Employee Rank (Q-09): kontrak dikelompokkan per penanggungJawab,
+ * metrik Σ nilaiKontrak, terurut dari nilai terbesar.
+ */
+export function rankingOperator(
+  data: AppData,
+  mode: ModePeriodeRanking,
+  periode: string,
+): BarisRanking[] {
+  const peta = new Map<string, { nilai: number; jumlah: number }>();
+  data.kontrak.forEach((k) => {
+    if (!kontrakDalamPeriode(k, mode, periode)) return;
+    const entri = peta.get(k.penanggungJawab) ?? { nilai: 0, jumlah: 0 };
+    entri.nilai += k.nilaiKontrak;
+    entri.jumlah += 1;
+    peta.set(k.penanggungJawab, entri);
+  });
+  return [...peta.entries()]
+    .map(([label, v]) => ({
+      label,
+      nilai: v.nilai,
+      jumlahKontrak: v.jumlah,
+    }))
+    .sort((a, b) => b.nilai - a.nilai || b.jumlahKontrak - a.jumlahKontrak);
+}
+
+/**
+ * Satker Rank — sekaligus Revenue Analytics nasional per satker (tugas b):
+ * nilai kontrak per satker pada periode yang sama, terurut dari nilai
+ * terbesar. Hanya satker yang punya kontrak dalam periode yang tampil.
+ */
+export function rankingSatker(
+  data: AppData,
+  mode: ModePeriodeRanking,
+  periode: string,
+): BarisRanking[] {
+  const peta = new Map<string, { nilai: number; jumlah: number }>();
+  data.kontrak.forEach((k) => {
+    if (!kontrakDalamPeriode(k, mode, periode)) return;
+    const kunci = k.satker.kode;
+    const entri = peta.get(kunci) ?? { nilai: 0, jumlah: 0 };
+    entri.nilai += k.nilaiKontrak;
+    entri.jumlah += 1;
+    peta.set(kunci, entri);
+  });
+  return [...peta.entries()]
+    .map(([kode, v]) => {
+      const nama =
+        data.kontrak.find((k) => k.satker.kode === kode)?.satker.nama ?? kode;
+      return { label: nama, sub: kode, nilai: v.nilai, jumlahKontrak: v.jumlah };
+    })
+    .sort((a, b) => b.nilai - a.nilai || b.jumlahKontrak - a.jumlahKontrak);
+}
+
+/** Ringkasan jujur periode ranking: berapa kontrak dihitung & berapa yang memakai fallback tanggalMulai. */
+export function ringkasanPeriodeRanking(
+  data: AppData,
+  mode: ModePeriodeRanking,
+  periode: string,
+): { jumlahKontrak: number; jumlahFallback: number } {
+  let jumlahKontrak = 0;
+  let jumlahFallback = 0;
+  data.kontrak.forEach((k) => {
+    if (!kontrakDalamPeriode(k, mode, periode)) return;
+    jumlahKontrak += 1;
+    if (!k.tanggalTandaTangan) jumlahFallback += 1;
+  });
+  return { jumlahKontrak, jumlahFallback };
+}

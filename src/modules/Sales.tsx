@@ -1144,9 +1144,9 @@ function FormQuotation({
   onBatal: () => void;
   onSukses: () => void;
 }) {
-  // Hanya prospek yang tahapnya bukan Menang/Kalah.
+  // Hanya prospek yang tahapnya bukan Diterima/Ditolak.
   const prospekLayak = data.prospect.filter(
-    (p) => p.tahap !== 'Menang' && p.tahap !== 'Kalah',
+    (p) => p.tahap !== 'Diterima' && p.tahap !== 'Ditolak',
   );
   const [prospectId, setProspectId] = useState(prospekLayak[0]?.id ?? '');
   const [berlakuSampai, setBerlakuSampai] = useState('');
@@ -1216,7 +1216,7 @@ function FormQuotation({
   if (prospekLayak.length === 0) {
     return (
       <Kartu>
-        <PesanKosong teks="Belum ada prospek yang dapat dibuatkan quotation (semua prospek sudah Menang atau Kalah)." />
+        <PesanKosong teks="Belum ada prospek yang dapat dibuatkan quotation (semua prospek sudah Diterima atau Ditolak)." />
         <div className="mt-3">
           <TombolSekunder onClick={onBatal}>Tutup</TombolSekunder>
         </div>
@@ -1624,7 +1624,7 @@ function DetailOrder({
           <JudulBagian>Konversi menjadi Kontrak</JudulBagian>
           <p className="mt-1 text-sm text-[#0d2569]/70">
             Order yang selesai dapat dikonversi menjadi kontrak (PKS). Prospek
-            terkait menjadi Menang.
+            terkait menjadi Diterima.
           </p>
           {bolehUbah && (
             <div className="mt-3">
