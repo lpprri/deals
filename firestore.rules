@@ -2,6 +2,10 @@
 // Model 1 ROLE (keputusan pengguna 14 Nov 2026 21:29 WIB): hanya ada
 // Operator (Staf Layanan & Pengembangan Usaha). 6 peran dummy Q-01 TIDAK
 // BERLAKU; peran Admin Nasional TIDAK DIPAKAI tahap ini.
+// FASE C — Client Order Portal (Q-10, 15/11/2026): peran kedua 'klien'
+// (PIC tiap klien, daftar sendiri, wajib disetujui Operator). Aturan
+// klien ada di blok "Client Order Portal" di bawah; klien HANYA boleh
+// baca data miliknya sendiri + membuat submission portal.
 // Semua akses wajib terautentikasi. Data Keuangan (penerimaanAcuan) hanya
 // dibaca, tidak pernah ditulis dari aplikasi.
 // CARA AKTIFKAN: tempel seluruh isi file ini di Firebase console →
@@ -40,10 +44,12 @@ service cloud.firestore {
       return data.satker.kode == satkerPemanggil();
     }
 
-    // ---------- Koleksi data bersatker (14 koleksi) ----------
+    // ---------- Koleksi data bersatker (14 koleksi di blok ini) ----------
     // Baca/tulis hanya Operator dari satker yang sama. Saat membuat data
     // baru, satker dicek dari data yang dikirim; saat mengubah, dicek dari
-    // data lama DAN data baru (tidak boleh pindah satker).
+    // data lama DAN data baru (tidak boleh pindah satker). Tiket &
+    // umpanBalik (Fase C) memakai aturan yang sama di blok tersendiri di
+    // bawah, jadi total koleksi bersatker menjadi 16.
     match /{koleksi}/{id} {
       allow read: if koleksi in [
           'klien', 'kontrak', 'tagihan', 'pembayaran', 'denda',
@@ -99,6 +105,39 @@ service cloud.firestore {
       allow read, create, update, delete: if adalahOperator();
     }
 
+    // ---------- Help-Desk & Feedback: bersatker (Fase C) ----------
+    // Tiket konsultasi dan umpan balik survei milik satker pemanggil —
+    // aturan sama seperti koleksi bersatker lain (dibuat di blok umum di
+    // atas, tapi ditulis terpisah di sini agar mudah dibaca per modul).
+    // Tiket ditujukan ke Direktorat Layanan & Pengembangan Usaha (Q-12);
+    // PIC per kategori belum ditentukan, jadi tidak ada aturan per PIC.
+    match /tiket/{id} {
+      allow read: if adalahOperator() && satkerMilikPemanggil(resource.data);
+      allow create: if adalahOperator()
+        && satkerMilikPemanggil(request.resource.data);
+      allow update: if adalahOperator()
+        && satkerMilikPemanggil(resource.data)
+        && satkerMilikPemanggil(request.resource.data);
+      allow delete: if adalahOperator() && satkerMilikPemanggil(resource.data);
+    }
+    match /umpanBalik/{id} {
+      allow read: if adalahOperator() && satkerMilikPemanggil(resource.data);
+      allow create: if adalahOperator()
+        && satkerMilikPemanggil(request.resource.data);
+      allow update: if adalahOperator()
+        && satkerMilikPemanggil(resource.data)
+        && satkerMilikPemanggil(request.resource.data);
+      allow delete: if adalahOperator() && satkerMilikPemanggil(resource.data);
+    }
+
+    // ---------- Knowledge Base: nasional, tanpa field satker (Fase C) ----------
+    // Artikel Regulasi & SOP dibaca Operator mana pun (nasional, seperti
+    // dokumen) dan ditulis Operator. Tidak ada filter satker karena entitas
+    // artikelKB memang tidak menyimpan field satker.
+    match /artikelKB/{id} {
+      allow read, create, update, delete: if adalahOperator();
+    }
+
     // ---------- Audit: hanya tambah (append-only) ----------
     // Entri audit tidak boleh diubah atau dihapus setelah ditulis.
     match /audit/{id} {
@@ -143,5 +182,122 @@ service cloud.firestore {
       allow get: if sudahLogin() && request.auth.token.email == email;
       allow create, update, delete: if adalahOperator();
     }
+
+    // ---------- Client Order Portal — peran Klien (Fase C, Q-10) ----------
+    // PIC tiap klien: daftar sendiri, wajib disetujui Operator sebelum
+    // bisa masuk portal. Klien HANYA boleh:
+    //   - membuat profilnya sendiri sebagai 'klien' (status 'Menunggu'),
+    //   - membaca data MILIKNYA sendiri (kontrak/tagihan/dokumen/
+    //     pembayaran/klien lewat klienId; submission lewat klienId),
+    //   - membuat submission portal (pengajuanKlien) miliknya,
+    //   - membaca tiket Help-Desk miliknya (lihat catatan di bawah).
+    // Klien TIDAK boleh: baca/tulis data satker lain, baca/tulis data
+    // keuangan acuan (penerimaanAcuan — tetap Operator saja, tidak ada
+    // aturan klien untuk koleksi itu), menulis audit/meta/dokumen, atau
+    // mengubah status approval-nya sendiri.
+    // PERINGATAN: blok ini BELUM TERVALIDASI COMPILER — ditulis dari
+    // dokumentasi aturan Firestore dan belum diuji di Rules Playground /
+    // emulator. Tempel di console, periksa tidak ada error, baru Publish.
+    // Aturan Firestore bersifat OR antar blok match yang sama, jadi blok
+    // di bawah ini MENAMBAH akses klien tanpa mengubah blok di atas.
+
+    // Pemanggil adalah Klien (PIC) — profilnya punya peran 'klien'.
+    function adalahKlien() {
+      return sudahLogin() && profilPemanggil().peran == 'klien';
+    }
+
+    // Id klien yang diwakili pemanggil (dari dokumen users/{uid}-nya).
+    function klienIdPemanggil() {
+      return profilPemanggil().klienId;
+    }
+
+    // Kontrak yang ditunjuk milik klien pemanggil (dipakai tagihan,
+    // dokumen, dan pembayaran yang hanya menaut lewat kontrakId).
+    function kontrakMilikKlien(kontrakId) {
+      return get(/databases/$(database)/documents/kontrak/$(kontrakId)).data.klienId
+        == klienIdPemanggil();
+    }
+
+    // Profil pengguna — tambahan peran Klien (blok users/{uid} di atas
+    // tetap berlaku; yang di sini hanya menambah dua izin).
+    match /users/{uid} {
+      // PIC mendaftar sendiri: hanya sebagai 'klien' + 'Menunggu'.
+      // Status 'Disetujui' tidak bisa dibuat sendiri — approval hanya
+      // lewat update oleh Operator di bawah.
+      allow create: if sudahLogin()
+        && request.auth.uid == uid
+        && request.resource.data.peran == 'klien'
+        && request.resource.data.statusApproval == 'Menunggu'
+        && request.resource.data.klienId is string
+        && request.resource.data.email == request.auth.token.email
+        && request.resource.data.satker.kode is string;
+      // Operator menyetujui/menolak PIC: boleh ubah statusApproval (dan
+      // satker bila perlu), tapi peran dan klienId TIDAK boleh berubah.
+      allow update: if adalahOperator()
+        && resource.data.peran == 'klien'
+        && request.resource.data.peran == 'klien'
+        && request.resource.data.klienId == resource.data.klienId;
+    }
+
+    // Submission portal klien.
+    match /pengajuanKlien/{id} {
+      // Operator: baca penuh satkernya (dipakai muatDariFirestore).
+      allow read: if adalahOperator()
+        && satkerMilikPemanggil(resource.data);
+      // Klien: hanya submission miliknya sendiri.
+      allow get, list: if adalahKlien()
+        && resource.data.klienId == klienIdPemanggil();
+      // Operator boleh membuat (tidak dipakai aplikasi saat ini).
+      allow create: if adalahOperator()
+        && satkerMilikPemanggil(request.resource.data);
+      // Klien membuat submission miliknya, selalu berstatus 'Menunggu'.
+      allow create: if adalahKlien()
+        && request.resource.data.klienId == klienIdPemanggil()
+        && request.resource.data.status == 'Menunggu'
+        && request.resource.data.satker.kode == satkerPemanggil();
+      // Hanya Operator yang mengubah (approval): satker tidak boleh pindah.
+      allow update: if adalahOperator()
+        && satkerMilikPemanggil(resource.data)
+        && satkerMilikPemanggil(request.resource.data);
+      allow delete: if false;
+    }
+
+    // Data kerja sama milik klien — Klien hanya boleh MEMBACA.
+    match /kontrak/{id} {
+      allow get, list: if adalahKlien()
+        && resource.data.klienId == klienIdPemanggil();
+    }
+
+    match /klien/{id} {
+      allow get: if adalahKlien()
+        && resource.data.id == klienIdPemanggil();
+    }
+
+    // Tagihan & dokumen menaut ke kontrak lewat kontrakId.
+    match /tagihan/{id} {
+      allow get, list: if adalahKlien()
+        && kontrakMilikKlien(resource.data.kontrakId);
+    }
+
+    match /dokumen/{id} {
+      allow get, list: if adalahKlien()
+        && kontrakMilikKlien(resource.data.kontrakId);
+    }
+
+    // Pembayaran menaut ke tagihan, tagihan menaut ke kontrak (2x get).
+    match /pembayaran/{id} {
+      allow get, list: if adalahKlien()
+        && kontrakMilikKlien(
+          get(/databases/$(database)/documents/tagihan/$(resource.data.tagihanId)).data.kontrakId
+        );
+    }
+
+    // Help-Desk HANYA untuk Operator (Q-12: Operator berkonsultasi ke
+    // PIC kantor pusat; klien tidak punya akses tiket — portal klien
+    // hanya menampilkan timeline kerja samanya sendiri). Blok aturan
+    // klien untuk /tiket sengaja TIDAK ada: `dibuatOleh` menyimpan nama
+    // pembuat (bukan email), sehingga pencocokan lewat email tidak akan
+    // pernah cocok; menambahkan aturan itu hanya memberi kesan palsu
+    // bahwa klien bisa membaca tiket.
   }
 }

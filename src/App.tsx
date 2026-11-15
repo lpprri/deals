@@ -27,11 +27,17 @@ import {
   Wallet,
 } from 'lucide-react';
 import { auth, db, isFirebaseConfigured } from './lib/firebaseApp';
-import { keluar, masukDenganEmail } from './lib/auth';
+import {
+  daftarSebagaiKlien,
+  keluar,
+  masukDenganEmail,
+  type PendaftaranKlienInput,
+} from './lib/auth';
 import { EMAIL_OPERATOR_USULAN, jalankanMigrasi } from './lib/migrasi';
 import {
   cekSudahDimigrasi,
   muatDariFirestore,
+  muatDataKlien,
   simpanDokumen,
   tulisAudit,
 } from './lib/firestoreStore';
@@ -40,16 +46,22 @@ import type { DummyUser } from './lib/dummyUsers';
 import {
   MASTER_KATEGORI_LAYANAN,
   MASTER_JENIS_DOKUMEN,
+  MASTER_KATEGORI_TIKET,
+  MASTER_PERTANYAAN_SURVEI,
   MASTER_SUMBER_PROSPEK,
   MASTER_TAHAP_PIPELINE,
   SATKER_PILOT,
+  TUJUAN_TIKET,
 } from './lib/master';
 import { buatEntriAudit } from './lib/audit';
+import { DAFTAR_JENIS_PENGAJUAN_KLIEN } from './lib/types';
 import { bolehAksi, LABEL_PERAN } from './lib/permissions';
 import { formatRupiah, formatTanggal, hariIniIso } from './lib/format';
 import type {
   Advertisement,
   AppData,
+  ArtikelKB,
+  BalasanTiket,
   DokumenItem,
   Event,
   Klien,
@@ -58,6 +70,7 @@ import type {
   Meeting,
   Order,
   Pengajuan as PengajuanData,
+  PengajuanKlien,
   Prospect,
   Quotation,
   QuotationLayanan,
@@ -65,12 +78,16 @@ import type {
   StatusOrder,
   StatusQuotation,
   StatusTask,
+  StatusTiket,
   TahapPengajuan,
   TahapPipeline,
   Task,
+  Tiket,
+  UmpanBalik,
 } from './lib/types';
 import type {
   AdvertisementInput,
+  ArtikelKBInput,
   DendaInput,
   DisposisiInput,
   EventInput,
@@ -80,21 +97,26 @@ import type {
   OrderInput,
   PembayaranInput,
   PengajuanInput,
+  PengajuanKlienInput,
   ProspectInput,
   QuotationInput,
   StoreActions,
   TaskInput,
+  TiketInput,
+  UmpanBalikInput,
 } from './lib/store';
 import Login from './components/Login';
 import Dashboard from './modules/Dashboard';
 import Deals from './modules/Deals';
 import Sewa from './modules/Sewa';
 import Pengajuan from './modules/Pengajuan';
+import Portal, { LayarMenungguApproval } from './modules/Portal';
 import Revenue from './modules/Revenue';
 import Reporting from './modules/Reporting';
 import Sales from './modules/Sales';
 import Marketing from './modules/Marketing';
 import Todo from './modules/Todo';
+import Service from './modules/Service';
 import AuditPage from './modules/AuditPage';
 import MasterPage from './modules/MasterPage';
 
@@ -118,6 +140,13 @@ interface NavItem {
   icon: typeof LayoutDashboard;
   phase: 'A' | 'B' | 'C' | 'Admin';
   description: string;
+  /**
+   * Induk sub-item (keputusan pengguna 15/11/2026): item dengan `induk`
+   * TIDAK tampil di daftar utama sidebar — hanya sebagai sub-item di
+   * bawah induknya. Saat ini: 'sewa' di bawah 'deals', 'pengajuan' di
+   * bawah 'sales'. Id tetap dipakai untuk `active` dan render konten.
+   */
+  induk?: ModuleId;
 }
 
 const MODULES: NavItem[] = [
@@ -127,7 +156,7 @@ const MODULES: NavItem[] = [
     icon: LayoutDashboard,
     phase: 'A',
     description:
-      'Ringkasan periode, Revenue Analytics, deadline laporan kantor pusat (isi tgl 10, kumpul tgl 11). Ranking nasional & satker menyusul di Fase C.',
+      'Ringkasan periode, Revenue Analytics, deadline laporan kantor pusat (isi tgl 10, kumpul tgl 11). Employee Rank & Satker Rank (Leaderboard of Year / of The Month) per periode tanggal tanda tangan kontrak.',
   },
   {
     id: 'marketing',
@@ -142,7 +171,7 @@ const MODULES: NavItem[] = [
     icon: Briefcase,
     phase: 'B',
     description:
-      'Prospect List, Sales Analytics, Quotation, Pipeline, Order, Meeting Schedule.',
+      'Prospect List, Sales Analytics, Quotation, Pipeline, Order, Meeting Schedule. Pengajuan Baru sebagai sub-modul.',
   },
   {
     id: 'deals',
@@ -150,13 +179,14 @@ const MODULES: NavItem[] = [
     icon: Handshake,
     phase: 'A',
     description:
-      'Clients, Partnership Details (PNBP Fungsional, PNBP Umum, Dukungan Layanan, Nota Kesepahaman, Media Partner), Contracts, Documents.',
+      'Clients, Partnership Details (PNBP Fungsional, PNBP Umum, Dukungan Layanan, Nota Kesepahaman, Media Partner), Contracts, Documents. Sewa / BMN sebagai sub-modul.',
   },
   {
     id: 'sewa',
     label: 'Sewa / BMN',
     icon: Building2,
     phase: 'A',
+    induk: 'deals',
     description:
       'Satu daftar sewa (Deals → Partnership Details → PNBP Umum): Semua, ON GOING, Akan Berakhir, Pengajuan Baru, Diterima di Muka, Masih Harus Diterima, Temuan Lapangan, Indralaya.',
   },
@@ -165,6 +195,7 @@ const MODULES: NavItem[] = [
     label: 'Pengajuan',
     icon: FilePlus2,
     phase: 'A',
+    induk: 'sales',
     description:
       'Pengajuan Baru (kerja sama baru / sewa baru): Masuk → Ditelaah → Menunggu Dokumen → Disetujui/Ditolak → Dikonversi ke kontrak.',
   },
@@ -294,12 +325,23 @@ export default function App() {
       if (!fbUser || !db) return;
       try {
         const snap = await getDoc(doc(db, 'users', fbUser.uid));
-        if (snap.exists() && snap.data().peran === 'operator') {
+        if (
+          snap.exists() &&
+          (snap.data().peran === 'operator' || snap.data().peran === 'klien')
+        ) {
           const d = snap.data();
+          const peran = d.peran === 'klien' ? 'klien' : 'operator';
           setUser({
             nama: String(d.nama ?? ''),
             jabatan: String(d.jabatan ?? ''),
-            peran: 'operator',
+            peran,
+            email: String(d.email ?? fbUser.email ?? ''),
+            klienId: peran === 'klien' ? String(d.klienId ?? '') : undefined,
+            statusApproval:
+              peran === 'klien'
+                ? (d.statusApproval as 'Menunggu' | 'Disetujui' | 'Ditolak')
+                : undefined,
+            satker: d.satker as { kode: string; nama: string } | undefined,
           });
           setAuthEmail(fbUser.email ?? null);
         }
@@ -311,6 +353,9 @@ export default function App() {
   }, []);
 
   // Muat data dari Firestore setelah login, bila sudah dimigrasi.
+  // Pengguna klien memuat HANYA data kliennya sendiri (muatDataKlien) —
+  // muatDariFirestore() memakai query Operator dan ditolak aturan untuk
+  // klien.
   useEffect(() => {
     if (!user || !isFirebaseConfigured || !db) return;
     let batal = false;
@@ -322,7 +367,14 @@ export default function App() {
           setModeData('belum-dimigrasi');
           return;
         }
-        const dariFirestore = await muatDariFirestore(db, SATKER_PILOT.kode);
+        const dariFirestore =
+          user.peran === 'klien' && user.klienId
+            ? await muatDataKlien(
+                db,
+                user.satker?.kode ?? SATKER_PILOT.kode,
+                user.klienId,
+              )
+            : await muatDariFirestore(db, SATKER_PILOT.kode);
         if (batal) return;
         if (dariFirestore) {
           setData(dariFirestore);
@@ -351,7 +403,11 @@ export default function App() {
             setUser({
               nama: appUser.nama,
               jabatan: appUser.jabatan,
-              peran: 'operator',
+              peran: appUser.peran,
+              email: appUser.email,
+              klienId: appUser.klienId,
+              statusApproval: appUser.statusApproval,
+              satker: appUser.satker,
             });
             setAuthEmail(appUser.email);
             return null;
@@ -374,11 +430,57 @@ export default function App() {
           }
         }}
         onLoginDummy={setUser}
+        onDaftarKlien={async (input: PendaftaranKlienInput) => {
+          try {
+            const appUser = await daftarSebagaiKlien(input);
+            setUser({
+              nama: appUser.nama,
+              jabatan: appUser.jabatan,
+              peran: 'klien',
+              email: appUser.email,
+              klienId: appUser.klienId,
+              statusApproval: appUser.statusApproval,
+              satker: appUser.satker,
+            });
+            setAuthEmail(appUser.email);
+            return null;
+          } catch (e) {
+            const kode = (e as { code?: string }).code;
+            if (kode === 'auth/email-already-in-use') {
+              return 'Email sudah terdaftar — masuk dengan akun tersebut.';
+            }
+            if (kode === 'auth/invalid-email') {
+              return 'Format email tidak valid.';
+            }
+            if (kode === 'auth/weak-password') {
+              return 'Kata sandi minimal 6 karakter.';
+            }
+            if (kode === 'auth/network-request-failed') {
+              return 'Tidak ada koneksi jaringan.';
+            }
+            return e instanceof Error ? e.message : 'Gagal mendaftar. Coba lagi.';
+          }
+        }}
+        daftarKlien={data.klien.map((k) => ({ id: k.id, nama: k.nama }))}
       />
     );
   }
 
   const penggunaAktif: DummyUser = user;
+
+  /** Keluar: tutup sesi Auth dan kembalikan state ke mode contoh. */
+  const tanganiKeluar = async () => {
+    await keluar();
+    setUser(null);
+    setAuthEmail(null);
+    setData(DATA_NYATA);
+    setModeData(
+      isFirebaseConfigured ? 'belum-dimigrasi' : 'tidak-terkonfigurasi',
+    );
+    setSudahDimigrasi(false);
+    setTanggalMigrasi(undefined);
+    setActive('dashboard');
+  };
 
   const tambahAudit = (
     aksi: string,
@@ -394,7 +496,11 @@ export default function App() {
       ...d,
       audit: [entri, ...d.audit],
     }));
-    if (modeData === 'firestore' && db) {
+    // Tulis audit ke Firestore HANYA untuk Operator: aturan Firestore
+    // membatasi create audit untuk Operator (klien tidak boleh menulis
+    // audit). Entri audit klien tetap tercatat di state lokal sesi itu;
+    // jejak permanennya dilengkapi entri approval Operator.
+    if (modeData === 'firestore' && db && penggunaAktif.peran === 'operator') {
       tulisAudit(db, entri).catch((e) => {
         console.error('Gagal menulis audit ke Firestore:', e);
         setPeringatanSimpan(
@@ -487,11 +593,14 @@ export default function App() {
         jenisPnBP: kategori.jenisPnBP,
         kategoriLayanan: input.kategoriLayanan,
         programa: input.programa || undefined,
+        tanggalTandaTangan: input.tanggalTandaTangan || undefined,
         tanggalMulai: input.tanggalMulai,
         tanggalSelesai: input.tanggalSelesai,
         nilaiKontrak,
         status: 'Draft',
         penanggungJawab: input.penanggungJawab,
+        operatorPenutup:
+          input.operatorPenutup?.trim() || penggunaAktif.nama,
         catatan: input.catatan || undefined,
         satker: SATKER_PILOT,
         layanan,
@@ -510,6 +619,32 @@ export default function App() {
         kontrak.nomorPks,
         '—',
         `${kontrak.nomorPks} — ${kategori.jenisPnBP} — Rp${nilaiKontrak.toLocaleString('id-ID')} (Draft)`,
+      );
+      return null;
+    },
+
+    ubahAtribusiKontrak: (kontrak, input) => {
+      const operator = (input.operatorPenutup ?? '').trim();
+      const tanggal = (input.tanggalTandaTangan ?? '').trim();
+      // Tanpa validasi tanggal tambahan: tanggal tanda tangan bisa
+      // mendahului tanggal mulai (lazim) dan data sumber pun punya
+      // tanggal yang tidak berurutan rapi — jangan tolak input yang sah.
+      const kontrakBaru: Kontrak = {
+        ...kontrak,
+        operatorPenutup: operator === '' ? undefined : operator,
+        tanggalTandaTangan: tanggal === '' ? undefined : tanggal,
+      };
+      setData((d) => ({
+        ...d,
+        kontrak: d.kontrak.map((k) => (k.id === kontrak.id ? kontrakBaru : k)),
+      }));
+      simpanKeFirestore('kontrak', kontrak.id, kontrakBaru);
+      tambahAudit(
+        'Atribusi kontrak diubah',
+        'Kontrak',
+        kontrak.nomorPks,
+        kontrak.operatorPenutup ?? '—',
+        `Operator penutup: ${kontrakBaru.operatorPenutup ?? '—'}; tanggal tanda tangan: ${kontrakBaru.tanggalTandaTangan ?? '—'}`,
       );
       return null;
     },
@@ -754,6 +889,7 @@ export default function App() {
         nilaiKontrak: nilai,
         status: 'Draft',
         penanggungJawab: pengajuan.penanggungJawab,
+        operatorPenutup: penggunaAktif.nama,
         catatan: `Berasal dari pengajuan ${pengajuan.id} (Dikonversi).`,
         satker: SATKER_PILOT,
         layanan: [
@@ -800,6 +936,143 @@ export default function App() {
         pengajuan.id,
         'Disetujui',
         `Dikonversi — ${nomorPks} (Draft)`,
+      );
+      return null;
+    },
+
+    // --- Aksi Fase C — Client Order Portal (Q-10) ---
+    // ASUMSI YANG DITETAPKAN: approval dilakukan OPERATOR. Submission
+    // yang disetujui TIDAK menjadi entitas order kedua — ia menjadi
+    // Prospect baru lewat alur Sales yang sudah ada (prospect →
+    // quotation → order → kontrak); submission menautkannya lewat
+    // `prospectId`. Tidak ada duplikasi total order/kontrak.
+    tambahPengajuanKlien: (input: PengajuanKlienInput) => {
+      if (penggunaAktif.peran !== 'klien' || !penggunaAktif.klienId) {
+        return 'Hanya PIC klien yang bisa membuat pengajuan portal.';
+      }
+      if (!DAFTAR_JENIS_PENGAJUAN_KLIEN.includes(input.jenis)) {
+        return `Jenis pengajuan "${input.jenis}" tidak dikenal.`;
+      }
+      if (!input.judul.trim()) return 'Judul wajib diisi.';
+      if (!input.uraian.trim()) return 'Uraian wajib diisi.';
+      const id = idBerikutnya('PKL-', data.pengajuanKlien.map((s) => s.id));
+      const submission: PengajuanKlien = {
+        id,
+        klienId: penggunaAktif.klienId,
+        jenis: input.jenis,
+        judul: input.judul.trim(),
+        uraian: input.uraian.trim(),
+        namaPic: penggunaAktif.nama,
+        dibuatOleh: penggunaAktif.email ?? penggunaAktif.nama,
+        tanggalBuat: hariIniIso(),
+        nilaiPerkiraan: input.nilaiPerkiraan,
+        status: 'Menunggu',
+        satker: penggunaAktif.satker ?? SATKER_PILOT,
+      };
+      setData((d) => ({ ...d, pengajuanKlien: [...d.pengajuanKlien, submission] }));
+      simpanKeFirestore('pengajuanKlien', id, submission);
+      tambahAudit(
+        'Pengajuan portal dicatat',
+        'Pengajuan Klien',
+        id,
+        '—',
+        `${submission.jenis} — ${submission.judul} — Menunggu`,
+      );
+      return null;
+    },
+
+    setujuiPengajuanKlien: (submission: PengajuanKlien, catatan?: string) => {
+      if (penggunaAktif.peran !== 'operator') {
+        return 'Hanya Operator yang bisa menyetujui submission portal.';
+      }
+      if (submission.status !== 'Menunggu') {
+        return 'Submission ini sudah diproses sebelumnya.';
+      }
+      const klien = data.klien.find((k) => k.id === submission.klienId);
+      if (!klien) return 'Klien asal submission tidak ditemukan.';
+      const kategoriNama =
+        submission.jenis === 'Permohonan Sewa'
+          ? 'Sewa Lahan / BMN'
+          : submission.jenis === 'Media Order'
+            ? 'Siaran Iklan (Spot/Jingle/Filler/Advetorial)'
+            : 'Dukungan Layanan';
+      const kategori = MASTER_KATEGORI_LAYANAN.find(
+        (k) => k.nama === kategoriNama,
+      )!;
+      const idProspect = idBerikutnya('PRS-', data.prospect.map((p) => p.id));
+      const prospect: Prospect = {
+        id: idProspect,
+        namaInstansi: klien.nama,
+        kontakNama: submission.namaPic,
+        telepon: klien.telepon,
+        email: submission.dibuatOleh,
+        sumber: 'Pengajuan',
+        layananDiminati: kategori.nama,
+        tahap: 'Prospek Baru',
+        penanggungJawab: penggunaAktif.nama,
+        nilaiPerkiraan: submission.nilaiPerkiraan ?? 0,
+        catatan: `Berasal dari submission portal klien ${submission.id} (${submission.jenis}) — disetujui Operator.`,
+        klienId: klien.id,
+        riwayat: [
+          {
+            tanggal: hariIniIso(),
+            catatan: `Prospek dibuat dari submission portal klien ${submission.id} yang disetujui.`,
+            oleh: penggunaAktif.nama,
+          },
+        ],
+        satker: submission.satker,
+      };
+      const terbaru: PengajuanKlien = {
+        ...submission,
+        status: 'Disetujui',
+        catatanOperator: catatan?.trim() || undefined,
+        prospectId: idProspect,
+      };
+      setData((d) => ({
+        ...d,
+        prospect: [...d.prospect, prospect],
+        pengajuanKlien: d.pengajuanKlien.map((s) =>
+          s.id === submission.id ? terbaru : s,
+        ),
+      }));
+      simpanKeFirestore('prospect', idProspect, prospect);
+      simpanKeFirestore('pengajuanKlien', submission.id, terbaru);
+      tambahAudit(
+        'Submission portal disetujui',
+        'Pengajuan Klien',
+        submission.id,
+        'Menunggu',
+        `Disetujui — Prospect ${idProspect}`,
+      );
+      return null;
+    },
+
+    tolakPengajuanKlien: (submission: PengajuanKlien, catatan: string) => {
+      if (penggunaAktif.peran !== 'operator') {
+        return 'Hanya Operator yang bisa menolak submission portal.';
+      }
+      if (submission.status !== 'Menunggu') {
+        return 'Submission ini sudah diproses sebelumnya.';
+      }
+      if (!catatan.trim()) return 'Catatan penolakan wajib diisi.';
+      const terbaru: PengajuanKlien = {
+        ...submission,
+        status: 'Ditolak',
+        catatanOperator: catatan.trim(),
+      };
+      setData((d) => ({
+        ...d,
+        pengajuanKlien: d.pengajuanKlien.map((s) =>
+          s.id === submission.id ? terbaru : s,
+        ),
+      }));
+      simpanKeFirestore('pengajuanKlien', submission.id, terbaru);
+      tambahAudit(
+        'Submission portal ditolak',
+        'Pengajuan Klien',
+        submission.id,
+        'Menunggu',
+        `Ditolak — ${catatan.trim()}`,
       );
       return null;
     },
@@ -869,16 +1142,16 @@ export default function App() {
       if (prospect.tahap === tahap) {
         return 'Prospek sudah berada pada tahap tersebut.';
       }
-      if (prospect.tahap === 'Menang' || prospect.tahap === 'Kalah') {
+      if (prospect.tahap === 'Diterima' || prospect.tahap === 'Ditolak') {
         return `Prospek pada tahap ${prospect.tahap} sudah final dan tidak dapat dipindah.`;
       }
-      // Tahap 'Order' dan 'Menang' dicapai otomatis lewat tambahOrder /
+      // Tahap 'Order' dan 'Diterima' dicapai otomatis lewat tambahOrder /
       // konversiOrder, bukan pindah manual (supaya jejak tetap konsisten).
       if (tahap === 'Order') {
         return "Tahap Order dicapai otomatis saat order dibuat dari quotation yang disetujui.";
       }
-      if (tahap === 'Menang') {
-        return 'Tahap Menang hanya dapat dicapai lewat konversi order menjadi kontrak.';
+      if (tahap === 'Diterima') {
+        return 'Tahap Diterima hanya dapat dicapai lewat konversi order menjadi kontrak.';
       }
       setData((d) => ({
         ...d,
@@ -949,7 +1222,7 @@ export default function App() {
     tambahQuotation: (input: QuotationInput) => {
       const prospect = data.prospect.find((p) => p.id === input.prospectId);
       if (!prospect) return 'Prospek tidak ditemukan.';
-      if (prospect.tahap === 'Menang' || prospect.tahap === 'Kalah') {
+      if (prospect.tahap === 'Diterima' || prospect.tahap === 'Ditolak') {
         return 'Prospek pada tahap final tidak dapat dibuatkan quotation.';
       }
       if (!input.berlakuSampai) return 'Tanggal berlaku sampai wajib diisi.';
@@ -1113,6 +1386,42 @@ export default function App() {
         return `Quotation ${quotation.id} sudah memiliki order aktif.`;
       }
       const prospect = data.prospect.find((p) => p.id === quotation.prospectId);
+      // Q-11: prospek menjadi klien SAAT ORDER DIBUAT — buat/tautkan Klien
+      // dari prospek dan simpan tautannya di prospect.klienId (field
+      // "Tautan ke klien bila prospek sudah menjadi klien"). Membuat Klien
+      // tidak mengubah total kontrol (bukan kontrak/tagihan/pembayaran).
+      // Logika pencocokan sama dengan konversiOrder, supaya order yang
+      // sama tidak membuat klien ganda: pakai klien yang sudah ditaut,
+      // cocokkan nama, atau buat baru.
+      let klien = prospect?.klienId
+        ? data.klien.find((k) => k.id === prospect.klienId)
+        : undefined;
+      if (!klien && prospect) {
+        const namaBersih = prospect.namaInstansi.replace(/ \(Contoh\)$/, '');
+        klien = data.klien.find(
+          (k) => k.nama.replace(/ \(Contoh\)$/, '') === namaBersih,
+        );
+      }
+      let klienBaru: Klien | null = null;
+      if (!klien && prospect) {
+        const idKlien = idBerikutnya('KLN-', data.klien.map((k) => k.id));
+        klienBaru = {
+          id: idKlien,
+          nama: prospect.namaInstansi,
+          jenis: 'Swasta',
+          alamat: '—',
+          kontakNama: prospect.kontakNama,
+          kontakJabatan: prospect.kontakJabatan ?? '—',
+          telepon: prospect.telepon,
+          email: prospect.email ?? '—',
+          status: 'Aktif',
+          catatan: `Klien dibuat otomatis dari prospek ${prospect.id} saat order dibuat. Lengkapi datanya.`,
+          satker: SATKER_PILOT,
+          dibuatOleh: penggunaAktif.nama,
+          dibuatPada: hariIniIso(),
+        };
+        klien = klienBaru;
+      }
       const id = idBerikutnya('ORD-', data.order.map((o) => o.id));
       const order: Order = {
         id,
@@ -1127,16 +1436,18 @@ export default function App() {
       setData((d) => ({
         ...d,
         order: [...d.order, order],
+        klien: klienBaru ? [...d.klien, klienBaru] : d.klien,
         prospect: d.prospect.map((p) =>
           p.id === quotation.prospectId
             ? {
                 ...p,
                 tahap: tahapMaju(p.tahap, 'Order'),
+                klienId: klien ? klien.id : p.klienId,
                 riwayat: [
                   ...p.riwayat,
                   {
                     tanggal: hariIniIso(),
-                    catatan: `Order ${id} dibuat dari quotation ${quotation.id}.`,
+                    catatan: `Order ${id} dibuat dari quotation ${quotation.id}.${klienBaru ? ` Klien ${klienBaru.id} dibuat dari prospek.` : ''}`,
                     oleh: penggunaAktif.nama,
                   },
                 ],
@@ -1145,15 +1456,17 @@ export default function App() {
         ),
       }));
       simpanKeFirestore('order', id, order);
+      if (klienBaru) simpanKeFirestore('klien', klienBaru.id, klienBaru);
       if (prospect) {
         simpanKeFirestore('prospect', quotation.prospectId, {
           ...prospect,
           tahap: tahapMaju(prospect.tahap, 'Order'),
+          klienId: klien ? klien.id : prospect.klienId,
           riwayat: [
             ...prospect.riwayat,
             {
               tanggal: hariIniIso(),
-              catatan: `Order ${id} dibuat dari quotation ${quotation.id}.`,
+              catatan: `Order ${id} dibuat dari quotation ${quotation.id}.${klienBaru ? ` Klien ${klienBaru.id} dibuat dari prospek.` : ''}`,
               oleh: penggunaAktif.nama,
             },
           ],
@@ -1164,7 +1477,7 @@ export default function App() {
         'Order',
         id,
         '—',
-        `${prospect?.namaInstansi ?? quotation.prospectId} — ${formatRupiah(quotation.nilai)} (Draft)`,
+        `${prospect?.namaInstansi ?? quotation.prospectId} — ${formatRupiah(quotation.nilai)} (Draft)${klien ? ` · Klien ${klien.id}` : ''}`,
       );
       return null;
     },
@@ -1273,6 +1586,7 @@ export default function App() {
         nilaiKontrak: order.nilai,
         status: 'Draft',
         penanggungJawab: prospect.penanggungJawab,
+        operatorPenutup: penggunaAktif.nama,
         catatan: `Berasal dari order ${order.id} (prospek ${prospect.id}).`,
         satker: SATKER_PILOT,
         layanan,
@@ -1290,7 +1604,7 @@ export default function App() {
           p.id === prospect.id
             ? {
                 ...p,
-                tahap: 'Menang',
+                tahap: 'Diterima',
                 kontrakId: nomorPks,
                 riwayat: [
                   ...p.riwayat,
@@ -1310,7 +1624,7 @@ export default function App() {
       simpanKeFirestore('order', order.id, { ...order, kontrakId: nomorPks });
       simpanKeFirestore('prospect', prospect.id, {
         ...prospect,
-        tahap: 'Menang',
+        tahap: 'Diterima',
         kontrakId: nomorPks,
         riwayat: [
           ...prospect.riwayat,
@@ -1559,6 +1873,159 @@ export default function App() {
       );
       return null;
     },
+
+    // --- Aksi Fase C — Service (PRD Bab 7.8; Q-12) ---
+    tambahTiket: (input: TiketInput) => {
+      if (!MASTER_KATEGORI_TIKET.includes(input.kategori)) {
+        return 'Kategori konsultasi tidak dikenal.';
+      }
+      if (!input.judul.trim()) return 'Judul tiket wajib diisi.';
+      if (!input.isi.trim()) return 'Isi konsultasi wajib diisi.';
+      const id = idBerikutnya('TKT-', data.tiket.map((t) => t.id));
+      const tiket: Tiket = {
+        id,
+        kategori: input.kategori,
+        judul: input.judul.trim(),
+        isi: input.isi.trim(),
+        tujuan: TUJUAN_TIKET,
+        tanggal: hariIniIso(),
+        dibuatOleh: penggunaAktif.nama,
+        status: 'Terbuka',
+        balasan: [],
+        satker: SATKER_PILOT,
+      };
+      setData((d) => ({ ...d, tiket: [...d.tiket, tiket] }));
+      simpanKeFirestore('tiket', id, tiket);
+      tambahAudit(
+        'Tiket Help-Desk dibuat',
+        'Tiket',
+        id,
+        '—',
+        `${tiket.kategori} — ${tiket.judul}`,
+      );
+      return null;
+    },
+
+    tambahBalasanTiket: (tiket: Tiket, isi: string) => {
+      if (tiket.status === 'Ditutup') {
+        return 'Tiket sudah ditutup — buka kembali tiket sebelum membalas.';
+      }
+      if (!isi.trim()) return 'Isi balasan wajib diisi.';
+      const balasan: BalasanTiket = {
+        id: idBerikutnya('BLS-', tiket.balasan.map((b) => b.id)),
+        tanggal: hariIniIso(),
+        isi: isi.trim(),
+        oleh: penggunaAktif.nama,
+      };
+      const statusBaru: StatusTiket =
+        tiket.status === 'Terbuka' ? 'Dijawab' : tiket.status;
+      const tiketBaru: Tiket = {
+        ...tiket,
+        status: statusBaru,
+        balasan: [...tiket.balasan, balasan],
+      };
+      setData((d) => ({
+        ...d,
+        tiket: d.tiket.map((t) => (t.id === tiket.id ? tiketBaru : t)),
+      }));
+      simpanKeFirestore('tiket', tiket.id, tiketBaru);
+      tambahAudit(
+        'Tiket Help-Desk dijawab',
+        'Tiket',
+        tiket.id,
+        tiket.status,
+        statusBaru === tiket.status ? 'Balasan ditambahkan' : statusBaru,
+      );
+      return null;
+    },
+
+    ubahStatusTiket: (tiket: Tiket, status: StatusTiket) => {
+      const sah: Record<StatusTiket, StatusTiket[]> = {
+        Terbuka: ['Dijawab', 'Ditutup'],
+        Dijawab: ['Terbuka', 'Ditutup'],
+        // Ditutup bisa dibuka kembali bila ada konsultasi lanjutan.
+        Ditutup: ['Terbuka'],
+      };
+      if (!sah[tiket.status].includes(status)) return;
+      setData((d) => ({
+        ...d,
+        tiket: d.tiket.map((t) =>
+          t.id === tiket.id ? { ...t, status } : t,
+        ),
+      }));
+      simpanKeFirestore('tiket', tiket.id, { ...tiket, status });
+      tambahAudit('Status tiket diubah', 'Tiket', tiket.id, tiket.status, status);
+    },
+
+    tambahUmpanBalik: (input: UmpanBalikInput) => {
+      const kontrak = data.kontrak.find((k) => k.id === input.kontrakId);
+      if (!kontrak) return 'Kontrak terkait tidak ditemukan.';
+      if (data.umpanBalik.some((u) => u.kontrakId === input.kontrakId)) {
+        return 'Kontrak ini sudah memiliki survei kepuasan.';
+      }
+      for (const p of MASTER_PERTANYAAN_SURVEI) {
+        const j = input.jawaban.find((x) => x.pertanyaan === p);
+        if (!j || j.skor < 1 || j.skor > 5) {
+          return `Pertanyaan "${p}" wajib dijawab dengan skor 1–5.`;
+        }
+      }
+      const id = idBerikutnya('UMP-', data.umpanBalik.map((u) => u.id));
+      const umpanBalik: UmpanBalik = {
+        id,
+        kontrakId: input.kontrakId,
+        tanggal: hariIniIso(),
+        jawaban: MASTER_PERTANYAAN_SURVEI.map((p) => ({
+          pertanyaan: p,
+          skor: input.jawaban.find((x) => x.pertanyaan === p)!.skor,
+        })),
+        komentar: input.komentar?.trim() || undefined,
+        dibuatOleh: penggunaAktif.nama,
+        satker: SATKER_PILOT,
+      };
+      setData((d) => ({ ...d, umpanBalik: [...d.umpanBalik, umpanBalik] }));
+      simpanKeFirestore('umpanBalik', id, umpanBalik);
+      tambahAudit(
+        'Survei kepuasan dicatat',
+        'Umpan Balik',
+        id,
+        '—',
+        `${kontrak.nomorPks} — rata-rata ${(
+          umpanBalik.jawaban.reduce((s, j) => s + j.skor, 0) /
+          umpanBalik.jawaban.length
+        ).toFixed(1)}/5`,
+      );
+      return null;
+    },
+
+    tambahArtikelKB: (input: ArtikelKBInput) => {
+      if (!input.judul.trim()) return 'Judul dokumen wajib diisi.';
+      if (!input.ringkasan.trim()) return 'Ringkasan dokumen wajib diisi.';
+      if (input.tautan && !/^https?:\/\//i.test(input.tautan.trim())) {
+        return 'Tautan dokumen harus diawali http:// atau https://.';
+      }
+      const id = idBerikutnya('KB-', data.artikelKB.map((a) => a.id));
+      const artikel: ArtikelKB = {
+        id,
+        judul: input.judul.trim(),
+        nomor: input.nomor?.trim() || undefined,
+        tanggalBerlaku: input.tanggalBerlaku || undefined,
+        ringkasan: input.ringkasan.trim(),
+        isi: input.isi?.trim() || undefined,
+        tautan: input.tautan?.trim() || undefined,
+        dibuatOleh: penggunaAktif.nama,
+        dibuatPada: hariIniIso(),
+      };
+      setData((d) => ({ ...d, artikelKB: [...d.artikelKB, artikel] }));
+      simpanKeFirestore('artikelKB', id, artikel);
+      tambahAudit(
+        'Dokumen Knowledge Base ditambah',
+        'Knowledge Base',
+        id,
+        '—',
+        artikel.judul,
+      );
+      return null;
+    },
   };
 
   /** Jalankan migrasi satu kali (dari halaman Master & Pengguna). */
@@ -1578,7 +2045,9 @@ export default function App() {
     return hasil;
   };
 
-  const navUtama = MODULES.filter((m) => m.phase !== 'Admin');
+  // Daftar utama sidebar: hanya item tanpa induk (sub-item dirender di
+  // bawah induknya, lihat nav di bawah).
+  const navUtama = MODULES.filter((m) => m.phase !== 'Admin' && !m.induk);
   const navAdmin = MODULES.filter((m) => m.phase === 'Admin').filter((m) =>
     m.id === 'audit'
       ? bolehAksi(penggunaAktif.peran, 'lihatAudit')
@@ -1587,6 +2056,25 @@ export default function App() {
   const current = MODULES.find((m) => m.id === active) ?? MODULES[0];
   const Icon = current.icon;
   const propsModul = { data, user: penggunaAktif, actions, cari };
+
+  // Fase C — Client Order Portal (Q-10): pengguna klien TIDAK masuk
+  // shell operator (tanpa sidebar/nav modul). Akun yang belum disetujui
+  // Operator hanya melihat layar "menunggu approval" / "ditolak".
+  if (penggunaAktif.peran === 'klien') {
+    if (penggunaAktif.statusApproval !== 'Disetujui') {
+      return (
+        <LayarMenungguApproval user={penggunaAktif} onKeluar={tanganiKeluar} />
+      );
+    }
+    return (
+      <Portal
+        data={data}
+        user={penggunaAktif}
+        actions={actions}
+        onKeluar={tanganiKeluar}
+      />
+    );
+  }
 
   return (
     <div className="flex h-full">
@@ -1609,24 +2097,44 @@ export default function App() {
           {navUtama.map((m) => {
             const ItemIcon = m.icon;
             const isActive = m.id === active;
+            const anak = MODULES.filter((c) => c.induk === m.id);
             return (
-              <button
-                key={m.id}
-                onClick={() => setActive(m.id)}
-                className={`flex w-full items-center gap-3 rounded-md px-3 py-2 text-left text-sm ${
-                  isActive
-                    ? 'bg-[#2573e2] font-semibold text-white'
-                    : 'text-white/80 hover:bg-white/10 hover:text-white'
-                }`}
-              >
-                <ItemIcon size={18} />
-                {m.label}
-                {m.phase === 'C' && (
-                  <span className="ml-auto rounded bg-white/15 px-1.5 py-0.5 text-[10px]">
-                    Fase {m.phase}
-                  </span>
-                )}
-              </button>
+              <div key={m.id}>
+                <button
+                  onClick={() => setActive(m.id)}
+                  className={`flex w-full items-center gap-3 rounded-md px-3 py-2 text-left text-sm ${
+                    isActive
+                      ? 'bg-[#2573e2] font-semibold text-white'
+                      : 'text-white/80 hover:bg-white/10 hover:text-white'
+                  }`}
+                >
+                  <ItemIcon size={18} />
+                  {m.label}
+                  {m.phase === 'C' && (
+                    <span className="ml-auto rounded bg-white/15 px-1.5 py-0.5 text-[10px]">
+                      Fase {m.phase}
+                    </span>
+                  )}
+                </button>
+                {anak.map((c) => {
+                  const AnakIcon = c.icon;
+                  const anakAktif = c.id === active;
+                  return (
+                    <button
+                      key={c.id}
+                      onClick={() => setActive(c.id)}
+                      className={`mt-1 flex w-full items-center gap-3 rounded-md py-2 pl-10 pr-3 text-left text-sm ${
+                        anakAktif
+                          ? 'bg-[#2573e2] font-semibold text-white'
+                          : 'text-white/80 hover:bg-white/10 hover:text-white'
+                      }`}
+                    >
+                      <AnakIcon size={15} />
+                      {c.label}
+                    </button>
+                  );
+                })}
+              </div>
             );
           })}
           {navAdmin.length > 0 && (
@@ -1662,18 +2170,7 @@ export default function App() {
           <p className="mt-1">{LABEL_PERAN[penggunaAktif.peran]}</p>
           <p>{penggunaAktif.jabatan}</p>
           <button
-            onClick={async () => {
-              await keluar();
-              setUser(null);
-              setAuthEmail(null);
-              setData(DATA_NYATA);
-              setModeData(
-                isFirebaseConfigured ? 'belum-dimigrasi' : 'tidak-terkonfigurasi',
-              );
-              setSudahDimigrasi(false);
-              setTanggalMigrasi(undefined);
-              setActive('dashboard');
-            }}
+            onClick={tanganiKeluar}
             className="mt-3 flex items-center gap-2 rounded-md border border-white/30 px-3 py-1.5 text-xs font-semibold text-white hover:bg-white/10"
           >
             <LogOut size={13} /> Keluar
@@ -1773,18 +2270,7 @@ export default function App() {
                 tanggalMigrasi={tanggalMigrasi}
               />
             )}
-            {active === 'service' && (
-              <div className="mt-6 max-w-2xl rounded-md border border-[#2573e2]/20 p-5">
-                <p className="text-sm font-semibold">
-                  Segera hadir — Fase {current.phase}
-                </p>
-                <p className="mt-1 text-sm text-[#0d2569]/80">
-                  Modul ini direncanakan pada Fase {current.phase} (PRD v2.0
-                  Final Bab 4.3) dan belum dibangun. Tidak ada fitur palsu di
-                  halaman ini.
-                </p>
-              </div>
-            )}
+            {active === 'service' && <Service {...propsModul} />}
           </div>
         </main>
       </div>

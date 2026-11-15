@@ -59,12 +59,25 @@ export interface Kontrak {
   jenisPnBP: JenisPnBP;
   kategoriLayanan: string;
   programa?: string;
+  /** Tanggal kontrak ditandatangani (Q-09, Fase C) — acuan periode Employee Rank & Satker Rank. Opsional: kontrak impor lama belum punya field ini; bila kosong, ranking memakai tanggalMulai sebagai fallback (lihat tanggalAcuanKontrak di derive.ts). */
+  tanggalTandaTangan?: string;
   tanggalMulai: string;
   tanggalSelesai: string;
   nilaiKontrak: number;
   status: StatusKontrak;
   sewaId?: string;
+  /** PIC klien (bukan operator RRI) — nama penanggung jawab di sisi klien/mitra. */
   penanggungJawab: string;
+  /**
+   * Operator Staf Layanan & Pengembangan Usaha yang menutup kontrak ini
+   * (Q-09; keputusan pengguna 2026-11-15). Acuan Employee Rank — BUKAN
+   * penanggungJawab (itu PIC klien). Diisi otomatis dari nama operator
+   * yang login saat kontrak dibuat/dikonversi; bisa diubah di detail
+   * kontrak. Kontrak impor lama belum punya field ini (tidak diketahui
+   * operatornya) — ranking hanya menghitung kontrak yang sudah punya
+   * operatorPenutup dan memberi catatan jujur untuk sisanya.
+   */
+  operatorPenutup?: string;
   catatan?: string;
   satker: SatkerRef;
   layanan: LayananKontrak[];
@@ -178,6 +191,60 @@ export interface Pengajuan {
   satker: SatkerRef;
 }
 
+// ---------------------------------------------------------------------------
+// Entitas Fase C — Client Order Portal (PRD v2.0 Final Bab 7.8; Q-10
+// terjawab 15/11/2026: PIC tiap klien DAFTAR SENDIRI, lalu membuat
+// pengajuan / media order / permohonan sewa; setelah approval Operator,
+// PIC melihat timeline kerja sama kliennya sendiri).
+//
+// ASUMSI YANG DITETAPKAN (bukan tebakan diam-diam):
+// - Yang memberi approval adalah OPERATOR (satu-satunya peran yang bisa
+//   menyetujui dari dalam aplikasi).
+// - Submission portal yang disetujui TIDAK menjadi entitas order kedua:
+//   ia menjadi Prospect baru lewat alur Sales yang sudah ada (prospect →
+//   quotation → order → kontrak), dan submission menautkannya lewat
+//   `prospectId`. Tidak ada duplikasi total order/kontrak.
+// - Satu akun PIC terikat ke SATU klien (`klienId` di profil pengguna).
+
+/** Status approval akun PIC klien (disetujui Operator sebelum bisa masuk). */
+export type StatusApprovalKlien = 'Menunggu' | 'Disetujui' | 'Ditolak';
+
+/** Jenis submission yang bisa dibuat PIC klien dari portal (Q-10). */
+export type JenisPengajuanKlien =
+  | 'Pengajuan Kerja Sama'
+  | 'Media Order'
+  | 'Permohonan Sewa';
+
+export const DAFTAR_JENIS_PENGAJUAN_KLIEN: JenisPengajuanKlien[] = [
+  'Pengajuan Kerja Sama',
+  'Media Order',
+  'Permohonan Sewa',
+];
+
+/** Status antrean approval submission portal klien. */
+export type StatusPengajuanKlien = 'Menunggu' | 'Disetujui' | 'Ditolak';
+
+export interface PengajuanKlien {
+  id: string;
+  /** Klien yang diwakili PIC pembuat submission. */
+  klienId: string;
+  jenis: JenisPengajuanKlien;
+  judul: string;
+  uraian: string;
+  /** Nama PIC pembuat (diambil dari profil pengguna saat submit). */
+  namaPic: string;
+  /** Email PIC pembuat (diambil dari akun Auth saat submit). */
+  dibuatOleh: string;
+  tanggalBuat: string; // 'yyyy-mm-dd'
+  nilaiPerkiraan?: number;
+  status: StatusPengajuanKlien;
+  /** Catatan Operator saat menyetujui/menolak (wajib diisi bila menolak). */
+  catatanOperator?: string;
+  /** Tautan ke Prospect internal hasil approval (alur Sales yang sudah ada). */
+  prospectId?: string;
+  satker: SatkerRef;
+}
+
 /** Data acuan Keuangan — READ-ONLY untuk Layanan dan Umum (PRD Bab 6.5). */
 export interface PenerimaanAcuan {
   id: string;
@@ -197,8 +264,9 @@ export interface PenerimaanAcuan {
 // ---------------------------------------------------------------------------
 // Entitas Fase B (PRD v2.0 Final Bab 6.12, 7.2, 7.3, 7.7).
 // Aturan yang sama seperti Fase A: field `satker` wajib; tanggal ISO;
-// nilai Rupiah (number). Tahap pipeline masih DRAF — Q-11 belum terjawab
-// (lihat MASTER_TAHAP_PIPELINE di master.ts).
+// nilai Rupiah (number). Tahap pipeline FINAL — Q-11 terjawab 15/11/2026
+// (7 tahap; 'Menang'/'Kalah' diganti 'Diterima'/'Ditolak', lihat
+// MASTER_TAHAP_PIPELINE di master.ts).
 
 export type TahapPipeline =
   | 'Prospek Baru'
@@ -206,8 +274,8 @@ export type TahapPipeline =
   | 'Penawaran'
   | 'Negosiasi'
   | 'Order'
-  | 'Menang'
-  | 'Kalah';
+  | 'Diterima'
+  | 'Ditolak';
 
 export interface TindakLanjut {
   tanggal: string;
@@ -348,6 +416,70 @@ export interface AuditEntry {
   sesudah?: string;
 }
 
+// ---------------------------------------------------------------------------
+// Entitas Fase C — Service (PRD v2.0 Final Bab 7.8; Q-12 terjawab 15/11/2026).
+// Help-Desk: tiket konsultasi ke Direktorat Layanan & Pengembangan Usaha
+// (PIC beragam per kategori; nama PIC per kategori belum ditentukan — tiket
+// wajib punya field kategori, tujuan tampil sebagai nama direktorat).
+// Feedback: survei kepuasan klien per kontrak. Knowledge Base: Regulasi &
+// SOP nasional (tanpa field satker — dibaca semua Operator).
+
+export type StatusTiket = 'Terbuka' | 'Dijawab' | 'Ditutup';
+
+export interface BalasanTiket {
+  id: string;
+  tanggal: string; // 'yyyy-mm-dd'
+  isi: string;
+  oleh: string;
+}
+
+export interface Tiket {
+  id: string;
+  kategori: string; // jenis konsultasi, dari MASTER_KATEGORI_TIKET
+  judul: string;
+  isi: string;
+  /** PIC tujuan — selalu "Direktorat Layanan & Pengembangan Usaha" (Q-12). */
+  tujuan: string;
+  tanggal: string; // 'yyyy-mm-dd'
+  dibuatOleh: string;
+  status: StatusTiket;
+  /** Riwayat balasan & tindak lanjut (jawaban tersimpan per tiket, Q-12). */
+  balasan: BalasanTiket[];
+  satker: SatkerRef;
+}
+
+export interface JawabanSurvei {
+  pertanyaan: string;
+  /** Skala kepuasan 1–5. */
+  skor: number;
+}
+
+export interface UmpanBalik {
+  id: string;
+  kontrakId: string;
+  tanggal: string; // 'yyyy-mm-dd'
+  /** Satu survei per kontrak; jawaban mencakup semua MASTER_PERTANYAAN_SURVEI. */
+  jawaban: JawabanSurvei[];
+  komentar?: string;
+  dibuatOleh: string;
+  satker: SatkerRef;
+}
+
+export interface ArtikelKB {
+  id: string;
+  judul: string;
+  /** Nomor regulasi/dokumen bila ada — kosong bila tidak tercantum. */
+  nomor?: string;
+  tanggalBerlaku?: string; // 'yyyy-mm-dd'
+  ringkasan: string;
+  isi?: string;
+  /** Tautan dokumen (mis. Drive) bila ada. */
+  tautan?: string;
+  dibuatOleh: string;
+  dibuatPada: string; // 'yyyy-mm-dd'
+  // TIDAK punya field satker: Regulasi & SOP bersifat nasional.
+}
+
 export interface AppData {
   klien: Klien[];
   kontrak: Kontrak[];
@@ -357,6 +489,7 @@ export interface AppData {
   denda: Denda[];
   sewa: Sewa[];
   pengajuan: Pengajuan[];
+  pengajuanKlien: PengajuanKlien[];
   penerimaanAcuan: PenerimaanAcuan[];
   audit: AuditEntry[];
   // Fase B (PRD Bab 6.12).
@@ -367,4 +500,8 @@ export interface AppData {
   event: Event[];
   advertisement: Advertisement[];
   task: Task[];
+  // Fase C — Service (PRD Bab 7.8).
+  tiket: Tiket[];
+  umpanBalik: UmpanBalik[];
+  artikelKB: ArtikelKB[];
 }

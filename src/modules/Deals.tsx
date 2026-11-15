@@ -592,6 +592,7 @@ function TabKontrak({
       <DetailKontrak
         data={data}
         kontrak={kontrakTerpilih}
+        actions={actions}
         onKembali={() => onPilihKontrak(null)}
       />
     );
@@ -699,10 +700,12 @@ function TabKontrak({
 function DetailKontrak({
   data,
   kontrak,
+  actions,
   onKembali,
 }: {
   data: ModulProps['data'];
   kontrak: Kontrak;
+  actions: ModulProps['actions'];
   onKembali: () => void;
 }) {
   const klien = data.klien.find((k) => k.id === kontrak.klienId);
@@ -710,6 +713,13 @@ function DetailKontrak({
   const sewa = kontrak.sewaId
     ? data.sewa.find((s) => s.id === kontrak.sewaId)
     : undefined;
+  const [operatorPenutup, setOperatorPenutup] = useState(
+    kontrak.operatorPenutup ?? '',
+  );
+  const [tanggalTandaTangan, setTanggalTandaTangan] = useState(
+    kontrak.tanggalTandaTangan ?? '',
+  );
+  const [pesanAtribusi, setPesanAtribusi] = useState('');
 
   return (
     <div className="space-y-4">
@@ -766,6 +776,20 @@ function DetailKontrak({
             <dd className="text-[#0d2569]">{kontrak.penanggungJawab}</dd>
           </div>
           <div className="flex justify-between gap-4">
+            <dt className="text-[#0d2569]/60">Operator penutup</dt>
+            <dd className="text-[#0d2569]">
+              {kontrak.operatorPenutup ?? '— belum ditentukan'}
+            </dd>
+          </div>
+          <div className="flex justify-between gap-4">
+            <dt className="text-[#0d2569]/60">Tanggal tanda tangan</dt>
+            <dd className="text-[#0d2569]">
+              {kontrak.tanggalTandaTangan
+                ? formatTanggal(kontrak.tanggalTandaTangan)
+                : '— (dipakai tanggal mulai)'}
+            </dd>
+          </div>
+          <div className="flex justify-between gap-4">
             <dt className="text-[#0d2569]/60">Satker</dt>
             <dd className="text-[#0d2569]">
               {kontrak.satker.nama} ({kontrak.satker.kode})
@@ -787,6 +811,53 @@ function DetailKontrak({
             </div>
           )}
         </dl>
+      </Kartu>
+
+      <Kartu>
+        <JudulBagian>Atribusi Employee Rank</JudulBagian>
+        <p className="mt-1 text-xs text-[#0d2569]/70">
+          Operator penutup dan tanggal tanda tangan menentukan Employee Rank
+          (Q-09). Kontrak impor yang belum punya operator penutup tidak masuk
+          ranking sampai ditugaskan di sini.
+        </p>
+        <div className="mt-3 grid gap-4 md:grid-cols-2">
+          <div>
+            <Label>Operator penutup</Label>
+            <input
+              className={inputClass}
+              value={operatorPenutup}
+              onChange={(e) => setOperatorPenutup(e.target.value)}
+              placeholder="Nama staf Layanan yang menutup kontrak"
+            />
+          </div>
+          <div>
+            <Label>Tanggal tanda tangan</Label>
+            <input
+              className={inputClass}
+              type="date"
+              value={tanggalTandaTangan}
+              onChange={(e) => setTanggalTandaTangan(e.target.value)}
+            />
+          </div>
+        </div>
+        {pesanAtribusi !== '' && (
+          <p className="mt-2 text-sm text-[#0d2569]">{pesanAtribusi}</p>
+        )}
+        <div className="mt-3">
+          <TombolUtama
+            onClick={() => {
+              const hasil = actions.ubahAtribusiKontrak(kontrak, {
+                operatorPenutup,
+                tanggalTandaTangan,
+              });
+              setPesanAtribusi(
+                hasil !== null ? hasil : 'Atribusi kontrak tersimpan.',
+              );
+            }}
+          >
+            Simpan Atribusi
+          </TombolUtama>
+        </div>
       </Kartu>
 
       <Kartu>
@@ -889,7 +960,9 @@ function FormKontrak({
   const [programa, setPrograma] = useState(MASTER_PROGRAMA[0]);
   const [tanggalMulai, setTanggalMulai] = useState('');
   const [tanggalSelesai, setTanggalSelesai] = useState('');
+  const [tanggalTandaTangan, setTanggalTandaTangan] = useState('');
   const [penanggungJawab, setPenanggungJawab] = useState('');
+  const [operatorPenutup, setOperatorPenutup] = useState('');
   const [catatan, setCatatan] = useState('');
   const [baris, setBaris] = useState<BarisLayananForm[]>([{ ...BARIS_LAYANAN_AWAL }]);
   const [error, setError] = useState('');
@@ -964,9 +1037,11 @@ function FormKontrak({
       klienId,
       kategoriLayanan,
       programa,
+      tanggalTandaTangan: tanggalTandaTangan === '' ? undefined : tanggalTandaTangan,
       tanggalMulai,
       tanggalSelesai,
       penanggungJawab: penanggungJawab.trim(),
+      operatorPenutup: operatorPenutup.trim() === '' ? undefined : operatorPenutup.trim(),
       catatan: catatan.trim() === '' ? undefined : catatan.trim(),
       layanan,
     };
@@ -1060,6 +1135,19 @@ function FormKontrak({
           />
         </div>
         <div>
+          <Label>Tanggal tanda tangan</Label>
+          <input
+            className={inputClass}
+            type="date"
+            value={tanggalTandaTangan}
+            onChange={(e) => setTanggalTandaTangan(e.target.value)}
+          />
+          <p className="mt-1 text-xs text-[#0d2569]/70">
+            Acuan periode Employee Rank (Q-09). Kosongkan bila belum tahu —
+            dipakai tanggal mulai.
+          </p>
+        </div>
+        <div>
           <Label>Penanggung jawab *</Label>
           <input
             className={inputClass}
@@ -1067,6 +1155,21 @@ function FormKontrak({
             onChange={(e) => setPenanggungJawab(e.target.value)}
             placeholder="Nama penanggung jawab"
           />
+          <p className="mt-1 text-xs text-[#0d2569]/70">
+            PIC klien (bukan operator).
+          </p>
+        </div>
+        <div>
+          <Label>Operator penutup</Label>
+          <input
+            className={inputClass}
+            value={operatorPenutup}
+            onChange={(e) => setOperatorPenutup(e.target.value)}
+            placeholder="Kosongkan = operator yang login"
+          />
+          <p className="mt-1 text-xs text-[#0d2569]/70">
+            Staf Layanan yang menutup kontrak ini — acuan Employee Rank.
+          </p>
         </div>
         <div>
           <Label>Catatan</Label>

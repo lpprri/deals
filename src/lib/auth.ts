@@ -1,20 +1,29 @@
 // Autentikasi Firebase Auth (email + kata sandi) — aktivasi Firebase.
 // KEPUTUSAN PENGGUNA 14/11/2026 21:29 WIB: hanya ada 1 role — Operator
-// (Staf Layanan & Pengembangan Usaha). Akun Auth dibuat pengguna di
-// Firebase console; file ini TIDAK membuat akun Auth.
+// (Staf Layanan & Pengembangan Usaha). Akun Auth Operator dibuat pengguna
+// di Firebase console; file ini TIDAK membuat akun Auth Operator.
+// FASE C — Client Order Portal (Q-10, 15/11/2026): peran kedua 'klien'
+// (PIC dari tiap klien). Berbeda dengan Operator, akun PIC dibuat SENDIRI
+// lewat pendaftaran di aplikasi (self-service) dan berstatus 'Menunggu'
+// sampai disetujui Operator — PIC belum bisa masuk dashboard sebelum
+// disetujui. Jadi SATU-SATUNYA pembuatan akun Auth di file ini adalah
+// pendaftaran PIC klien (daftarSebagaiKlien); akun Operator tetap hanya
+// dari console.
 // Profil peran disimpan di Firestore: dokumen `users/{uid}`.
 // Bootstrap: bila `users/{uid}` belum ada, profil diambil dari dokumen
 // `userProfiles/{email}` (key = email huruf kecil) yang di-seed oleh
 // migrasi satu kali (src/lib/migrasi.ts), lalu disalin ke `users/{uid}`.
 // Bila tidak ada profil untuk email itu, akun tersebut tetap dibuatkan
-// profil Operator langsung — karena akun Auth HANYA bisa dibuat di
-// Firebase console oleh admin (tidak ada pendaftaran di aplikasi), dan
-// aplikasi tahap ini hanya punya 1 role. Jadi akun console mana pun yang
-// login pertama kali menjadi Operator. Bila nanti dibutuhkan pembatasan
-// (mis. daftar email yang diizinkan atau peran kedua), bootstrap ini
-// yang harus diperketat — jangan mengandalkan aturan lain.
+// profil Operator langsung — karena akun Auth Operator HANYA bisa dibuat
+// di Firebase console oleh admin (tidak ada pendaftaran Operator di
+// aplikasi), dan tahap ini hanya punya 1 peran Operator. Jadi akun
+// console mana pun yang login pertama kali menjadi Operator. Bila nanti
+// dibutuhkan pembatasan (mis. daftar email yang diizinkan atau peran
+// kedua), bootstrap ini yang harus diperketat — jangan mengandalkan
+// aturan lain.
 
 import {
+  createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
   signOut,
   type User,
@@ -22,15 +31,19 @@ import {
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { auth, db, isFirebaseConfigured } from './firebaseApp';
 import { SATKER_PILOT } from './master';
-import type { SatkerRef } from './types';
+import type { SatkerRef, StatusApprovalKlien } from './types';
 
 export interface AppUser {
   uid: string;
   email: string;
   nama: string;
   jabatan: string;
-  peran: 'operator';
+  peran: 'operator' | 'klien';
   satker: SatkerRef;
+  /** Klien yang diwakili — hanya untuk peran 'klien'. */
+  klienId?: string;
+  /** Status approval akun PIC — hanya untuk peran 'klien'. */
+  statusApproval?: StatusApprovalKlien;
 }
 
 function pastikanTerkonfigurasi(): void {
@@ -43,13 +56,84 @@ function pastikanTerkonfigurasi(): void {
 
 function bacaAppUser(uid: string, data: Record<string, unknown>): AppUser {
   const satker = data.satker as SatkerRef | undefined;
+  const peran = data.peran === 'klien' ? 'klien' : 'operator';
+  const statusApproval = data.statusApproval as StatusApprovalKlien | undefined;
   return {
     uid,
     email: String(data.email ?? ''),
     nama: String(data.nama ?? ''),
     jabatan: String(data.jabatan ?? ''),
-    peran: 'operator',
+    peran,
     satker: satker ?? SATKER_PILOT,
+    klienId:
+      peran === 'klien' && typeof data.klienId === 'string'
+        ? data.klienId
+        : undefined,
+    statusApproval:
+      peran === 'klien' &&
+      (statusApproval === 'Menunggu' ||
+        statusApproval === 'Disetujui' ||
+        statusApproval === 'Ditolak')
+        ? statusApproval
+        : undefined,
+  };
+}
+
+/**
+ * Pendaftaran PIC klien (self-service, Q-10). Membuat akun Auth lalu
+ * profil `users/{uid}` dengan peran 'klien' dan statusApproval
+ * 'Menunggu'. Akun BARU ini TIDAK bisa masuk dashboard sebelum Operator
+ * menyetujuinya (App menampilkan layar "menunggu approval").
+ * Satker profil memakai SATKER_PILOT: pendaftaran memilih klien dari
+ * daftar klien satker pilot, dan seluruh klien nyata saat ini adalah
+ * Palembang. Saat cakupan nasional dibuka, satker profil sebaiknya
+ * disalin dari record klien oleh Operator saat approval — jangan
+ * mengandalkan konstanta ini untuk satker lain.
+ */
+export interface PendaftaranKlienInput {
+  email: string;
+  kataSandi: string;
+  namaPic: string;
+  klienId: string;
+}
+
+export async function daftarSebagaiKlien(
+  input: PendaftaranKlienInput,
+): Promise<AppUser> {
+  pastikanTerkonfigurasi();
+  const email = input.email.trim().toLowerCase();
+  const namaPic = input.namaPic.trim();
+  if (!email || !namaPic || !input.klienId) {
+    throw new Error('Email, nama PIC, dan klien wajib diisi.');
+  }
+  if (input.kataSandi.length < 6) {
+    throw new Error('Kata sandi minimal 6 karakter.');
+  }
+  const kredensial = await createUserWithEmailAndPassword(
+    auth!,
+    email,
+    input.kataSandi,
+  );
+  const pengguna: User = kredensial.user;
+  await setDoc(doc(db!, 'users', pengguna.uid), {
+    email,
+    nama: namaPic,
+    jabatan: 'PIC Klien',
+    peran: 'klien',
+    klienId: input.klienId,
+    statusApproval: 'Menunggu',
+    satker: SATKER_PILOT,
+    dibuatPada: new Date().toISOString(),
+  });
+  return {
+    uid: pengguna.uid,
+    email,
+    nama: namaPic,
+    jabatan: 'PIC Klien',
+    peran: 'klien',
+    satker: SATKER_PILOT,
+    klienId: input.klienId,
+    statusApproval: 'Menunggu',
   };
 }
 
@@ -101,8 +185,11 @@ export async function bootstrapProfil(
 /**
  * Masuk dengan email + kata sandi. Setelah sign-in, dokumen `users/{uid}`
  * dibaca; bila belum ada, dijalankan bootstrap dari `userProfiles/{email}`
- * lalu dibaca lagi. Bila tetap tidak ada atau perannya bukan operator,
- * sesi ditutup dan dilempar Error.
+ * lalu dibaca lagi. Bila tetap tidak ada atau perannya bukan operator
+ * maupun klien, sesi ditutup dan dilempar Error.
+ * Akun klien berstatus 'Menunggu'/'Ditolak' TETAP dikembalikan (bukan
+ * error): App yang menampilkan layar "menunggu approval" / "ditolak"
+ * dan menahan akses dashboard sampai statusnya 'Disetujui'.
  */
 export async function masukDenganEmail(
   email: string,
@@ -122,10 +209,13 @@ export async function masukDenganEmail(
     snap = await getDoc(doc(db!, 'users', pengguna.uid));
   }
 
-  if (!snap.exists() || snap.data().peran !== 'operator') {
+  if (
+    !snap.exists() ||
+    (snap.data().peran !== 'operator' && snap.data().peran !== 'klien')
+  ) {
     await signOut(auth!);
     throw new Error(
-      'Akun belum diberi peran Operator — hubungi operator aplikasi.',
+      'Akun belum diberi peran Operator atau Klien — hubungi operator aplikasi.',
     );
   }
 

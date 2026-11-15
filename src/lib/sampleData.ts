@@ -14,8 +14,8 @@
 // Semua record berlabel "(Contoh)" di antarmuka.
 //
 // ANGKA KUNCI FASE B (PRD Bab 7.2, 7.3, 7.7; dihitung derive.ts):
-// - Prospek: 4 (PRS-01 Negosiasi Rp9.000.000, PRS-02 Menang Rp48.000.000,
-//   PRS-03 Kalah Rp5.000.000, PRS-04 Prospek Baru Rp12.000.000)
+// - Prospek: 4 (PRS-01 Negosiasi Rp9.000.000, PRS-02 Diterima Rp48.000.000,
+//   PRS-03 Ditolak Rp5.000.000, PRS-04 Prospek Baru Rp12.000.000)
 // - Nilai pipeline (tahap aktif): Rp21.000.000 (PRS-01 + PRS-04)
 // - Quotation: 3 (QTN-01 Disetujui Rp48.000.000, QTN-02 Dikirim Rp9.000.000,
 //   QTN-03 Ditolak Rp5.000.000) — konversi prospek→quotation 3/4 = 75%
@@ -444,7 +444,7 @@ export const DATA_CONTOH: AppData = {
       email: 'rina@swaramedia.co.id',
       sumber: 'Referensi',
       layananDiminati: 'Siaran Iklan (Spot/Jingle/Filler/Advetorial)',
-      tahap: 'Menang',
+      tahap: 'Diterima',
       penanggungJawab: 'Andi Pratama (Contoh)',
       nilaiPerkiraan: 48000000,
       catatan: 'Jejak lengkap: prospek → QTN-01 → ORD-01 → PKS-001/2026.',
@@ -467,7 +467,7 @@ export const DATA_CONTOH: AppData = {
       telepon: '0813-5566-7788',
       sumber: 'Kunjungan',
       layananDiminati: 'Dukungan Layanan',
-      tahap: 'Kalah',
+      tahap: 'Ditolak',
       penanggungJawab: 'Andi Pratama (Contoh)',
       nilaiPerkiraan: 5000000,
       catatan: 'Tidak lanjut — dokumen persyaratan tidak lengkap (lihat PJ-003).',
@@ -698,4 +698,10 @@ export const DATA_CONTOH: AppData = {
       satker: S,
     },
   ],
+  // Fase C — Service (PRD Bab 7.8): data contoh belum punya tiket/survei/artikel.
+  // Fase C — Client Order Portal (Q-10): data contoh belum punya submission portal.
+  pengajuanKlien: [],
+  tiket: [],
+  umpanBalik: [],
+  artikelKB: [],
 };
