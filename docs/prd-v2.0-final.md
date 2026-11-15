@@ -1,10 +1,10 @@
 # PRD — Partnership LPP RRI
 
-**Versi 2.1 — FINAL + Amandemen Scope Nasional (14 November 2026)**
-**Tanggal:** 14 November 2026
+**Versi 2.2 — FINAL + Amandemen Revisi Palet Warna (15 November 2026)**
+**Tanggal:** 15 November 2026
 **Pemilik produk:** Bidang Layanan & Pengembangan Usaha, LPP RRI Palembang (satker pilot; cakupan aplikasi nasional)
 **Disusun oleh:** Digi — AI Product Manager
-**Status:** Final — v2.0 disetujui pengguna pada 14 November 2026; Amandemen v2.1 (scope nasional) ditambahkan pada hari yang sama dan menjadi bagian dari dokumen ini. Menggantikan PRD v1.0 (Draft), Amandemen v1.1, dan Amandemen v1.2 sebagai acuan mandiri.
+**Status:** Final — v2.0 disetujui pengguna pada 14 November 2026; Amandemen v2.1 (scope nasional) ditambahkan pada hari yang sama dan menjadi bagian dari dokumen ini. Amandemen v2.2 (revisi palet warna) ditambahkan 15 November 2026. Menggantikan PRD v1.0 (Draft), Amandemen v1.1, dan Amandemen v1.2 sebagai acuan mandiri.
 
 > Nama aplikasi ini adalah **Partnership LPP RRI** (sebelumnya disebut "CRM LPP RRI Palembang" / CRM "Kerja Sama RRI"). Satu sistem untuk kerja sama, piutang, sewa aset, dan laporan PNBP otomatis — dari kontrak sampai laporan kantor pusat, tanpa input ulang. Sejak Amandemen v2.1 cakupannya **nasional**: aplikasi dipakai oleh LPP RRI dan 60+ satuan kerja di seluruh Indonesia, dengan LPP RRI Palembang sebagai satker pilot.
 
@@ -17,6 +17,7 @@
 | 1.2 | 14 Nov 2026 | Amandemen: mind map "Kerja Sama RRI" digabung (8 modul), UI dirombak gaya HubSpot (pola layout saja), palet hanya 3 warna dari logo RRI. Fase A/B/C. Pertanyaan baru Q-08–Q-12. |
 | **2.0 Final** | **14 Nov 2026** | **Konsolidasi v1.0 + v1.1 + v1.2 menjadi satu dokumen final, ditambah pelajaran dari percobaan build pertama (13–14 Nov 2026) dan rencana build ulang dari nol. Build pertama (AI Studio + repo `lpprri/Partnership`) dihapus pengguna pada 14 Nov 2026, 10:35 WIB; dokumen ini adalah satu-satunya acuan build baru.** |
 | **2.1** | **14 Nov 2026** | Amandemen: scope berubah dari satu satker menjadi **nasional — LPP RRI dan 60+ satuan kerja di seluruh Indonesia**. Q-08 terjawab (nasional). Q-01 diisi nama & jabatan **dummy** untuk sementara. Lihat "Amandemen v2.1 — Scope Nasional" di bawah. |
+| **2.2** | **15 Nov 2026** | Amandemen: revisi palet — 3 warna RRI adalah warna dasar, bukan satu-satunya; warna tambahan boleh dipakai bila memang dibutuhkan (mis. warna status), dengan alasan fungsional. Bahasa Inggris penuh (PR #17/#18), nama operator tidak ditampilkan di footer sidebar (PR #19), landing page dual-bahasa live (PR #20–#25), atribusi Employee Rank massal acak (PR #26). Lihat "Amandemen v2.2 — Revisi Palet Warna" di bawah. |
 
 Dokumen-dokumen lama (PRD v1.0 PDF, amandemen v1.1, amandemen v1.2, dan semua prompt AI Studio) dinyatakan **tidak berlaku sebagai acuan mandiri** — seluruh isinya yang masih relevan sudah diserap ke dalam dokumen ini. Prompt AI Studio 15:36 WIB (penomoran tahap keliru) dan prompt koreksi 17:19 WIB (menyembunyikan Tahap 2–4) dinyatakan **batal dan tidak boleh dipakai**.
 
@@ -36,7 +37,7 @@ Keputusan pengguna, 14 Nov 2026, 11:29 WIB: aplikasi ini nantinya akan digunakan
 ### Yang TIDAK berubah
 
 - Prinsip data tetap: satu sumber sewa/BMN (per satker), data Keuangan referensi read-only, laporan diturunkan otomatis dari data utama.
-- Palet 3 warna, UI gaya HubSpot, 8 modul, dan Fase A/B/C tetap berlaku. Pilot tetap dimulai dari Palembang (data 6 workbook yang sudah dibaca).
+- Palet 3 warna RRI sebagai warna dasar (revisi 15 Nov 2026 — Amandemen v2.2: warna tambahan boleh dipakai bila memang dibutuhkan), UI gaya HubSpot, 8 modul, dan Fase A/B/C tetap berlaku. Pilot tetap dimulai dari Palembang (data 6 workbook yang sudah dibaca).
 - Target PNBP tahunan (Q-02) kini dibaca sebagai target **nasional** dengan pembagian target per satker — angka pastinya tetap menunggu jawaban Q-02.
 
 ### Q-01 — Diisi dummy untuk sementara (14 Nov 2026)
@@ -53,6 +54,21 @@ Atas instruksi pengguna ("gunakan nama & jabatan dummy untuk saat ini"), penggun
 | Admin Sistem | Rizky Ramadhan | Admin Sistem |
 
 Daftar yang sama tersimpan di repo sebagai `src/lib/dummyUsers.ts` dan bertanda "(Contoh)" di setiap nama.
+
+## Amandemen v2.2 — Revisi Palet Warna (15 November 2026)
+
+Keputusan pengguna, 15 Nov 2026, 12:04 WIB: "jangan hanya kaku dengan 3 warna dasar yang ditetapkan, apabila memang dibutuhkan tambahan warna lain tidak masalah, 3 warna tersebut hanya warna dasar bukan menjadi satu-satunya".
+
+### Yang berubah
+
+- **3 warna RRI menjadi warna dasar, bukan satu-satunya.** Biru RRI `#2573E2`, Navy RRI `#0D2569`, dan Putih `#FFFFFF` tetap warna dasar dan utama, tetapi warna tambahan **boleh** dipakai bila memang dibutuhkan — misalnya warna status (Aktif, Selesai, Lewat Tempo, Ditolak) supaya terbaca lebih cepat — dan harus punya alasan fungsional yang bisa disebutkan, bukan sekadar dekorasi.
+- **Aturan lama "tidak ada warna keempat" dicabut.** Kalimat itu dihapus dari §8.2 dokumen ini (dan dari Amandemen v1.2 §3a, yang kini dinyatakan tidak berlaku sebagai acuan mandiri). Status tetap dibedakan dengan teks dan ikon; warna tambahan adalah pelengkap, bukan pengganti teks/ikon.
+
+### Yang TIDAK berubah
+
+- Logo RRI dipakai apa adanya, tidak diwarnai ulang; sidebar tetap Navy, tombol utama tetap Biru.
+- Identitas visual aplikasi tetap dibangun dari ketiga warna dasar.
+- Revisi ini tidak mengubah hasil PR #17/#18/#19 (sudah merge & live, terverifikasi hanya memakai warna RRI) dan tidak butuh perbaikan ulang; prompt landing page sudah memakai aturan baru sejak disiapkan.
 
 ## Daftar isi
 
@@ -439,7 +455,7 @@ Referensi: halaman Companies HubSpot. Yang ditiru adalah pola layout dan ritme t
 - **Kartu dan detail**: halaman detail klien/kontrak memakai layout dua kolom — kolom utama berisi data & timeline aktivitas, kolom kanan berisi ringkasan (nilai kontrak, status, kontak, dokumen).
 - **Bahasa**: seluruh antarmuka Bahasa Indonesia. Format tanggal dd/mm/yyyy dan format angka/tanggal Indonesia.
 
-### 8.2 Palet warna — hanya 3 warna dari logo RRI (keputusan 14 Nov 2026, diukur langsung dari file logo)
+### 8.2 Palet warna — 3 warna dasar dari logo RRI (keputusan 14 Nov 2026, direvisi 15 Nov 2026)
 
 | # | Nama | Hex | Dipakai untuk |
 |---|---|---|---|
@@ -447,7 +463,7 @@ Referensi: halaman Companies HubSpot. Yang ditiru adalah pola layout dan ritme t
 | 2 | Navy RRI | `#0D2569` | Teks utama & judul, sidebar gelap, teks di atas biru/putih |
 | 3 | Putih | `#FFFFFF` | Latar konten, kartu, tabel, teks di atas biru/navy |
 
-**Aturan pakai (mengikat):** Tidak ada warna keempat — tidak ada teal HubSpot, abu-abu, hijau, merah, atau kuning tambahan. Sidebar gelap = Navy `#0D2569`, teks di dalamnya putih, menu aktif ditandai Biru `#2573E2`. Tombol utama = Biru `#2573E2` dengan teks putih. Tombol sekunder = putih dengan border Biru `#2573E2` dan teks Navy `#0D2569`. Latar halaman = putih; pemisah antar kartu/bagian hanya memakai variasi opacity dari Biru/Navy di atas putih (mis. Biru 8–10% untuk latar sorotan). Status (Aktif, Draft, Selesai, Lewat Tempo, dll.) **tidak** dibedakan dengan warna baru: bedakan dengan teks dan ikon, dengan latar tint Biru/Navy yang sama. Logo RRI dipakai apa adanya di sidebar dan halaman login; jangan mewarnai ulang logo.
+**Aturan pakai:** Biru `#2573E2`, Navy `#0D2569`, dan Putih `#FFFFFF` adalah warna dasar dan utama. Warna tambahan boleh dipakai bila memang dibutuhkan — misalnya warna status supaya terbaca lebih cepat — dan harus punya alasan fungsional. Sidebar gelap = Navy `#0D2569`, teks di dalamnya putih, menu aktif ditandai Biru `#2573E2`. Tombol utama = Biru `#2573E2` dengan teks putih. Tombol sekunder = putih dengan border Biru `#2573E2` dan teks Navy `#0D2569`. Latar halaman = putih; pemisah antar kartu/bagian memakai variasi opacity dari Biru/Navy di atas putih (mis. Biru 8–10% untuk latar sorotan). Status (Aktif, Draft, Selesai, Lewat Tempo, dll.) dibedakan dengan teks dan ikon, dan boleh dibantu warna status bila memang dibutuhkan. Logo RRI dipakai apa adanya di sidebar dan halaman login; jangan mewarnai ulang logo.
 
 ---
 
@@ -640,7 +656,7 @@ Bagian ini dicatat agar kesalahan yang sama tidak terulang pada build ulang. Fak
 | Keuangan read-only | Akun Layanan dan Umum tidak dapat mengubah data acuan penerimaan, termasuk lewat antarmuka maupun akses langsung yang ditolak aturan keamanan. |
 | Periode terkunci | Perubahan data pada periode terkunci tertolak; jalur koreksi menghasilkan versi laporan baru dan jejak audit lengkap. |
 | Kode akun | Tidak ada kode akun dengan dua klasifikasi; 425131 tercatat sebagai Umum di semua tempat. |
-| UI & palet | Seluruh tampilan hanya memakai Biru `#2573E2`, Navy `#0D2569`, dan Putih `#FFFFFF`; tidak ada warna keempat di mana pun. |
+| UI & palet | 3 warna RRI (Biru `#2573E2`, Navy `#0D2569`, Putih `#FFFFFF`) sebagai warna dasar dan utama; warna tambahan hanya bila memang dibutuhkan (mis. warna status), dengan alasan fungsional. |
 | Sales (Fase B) | Prospek dapat dilacak dari tahap awal sampai kontrak; tidak ada prospek yang hilang dari pipeline. |
 | Deploy | `npm install` dan `npm run build` lolos dari clone baru; deploy Vercel dari `main` berhasil tanpa intervensi manual. |
 | Nasional (v2.1) | Record tanpa field `satker` tidak dapat disimpan; akun uji satker A tidak dapat membaca data satker B — termasuk lewat akses langsung, yang ditolak aturan keamanan. |
