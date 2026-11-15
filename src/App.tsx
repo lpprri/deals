@@ -47,9 +47,15 @@ import {
   MASTER_PERTANYAAN_SURVEI,
   MASTER_SUMBER_PROSPEK,
   MASTER_TAHAP_PIPELINE,
+  OPERATOR_PALEMBANG,
   SATKER_PILOT,
   TUJUAN_TIKET,
 } from './lib/master';
+import {
+  BENIH_ACAK_ATRIBUSI,
+  distribusiAcakOperator,
+  ringkasanDistribusi,
+} from './lib/derive';
 import { buatEntriAudit } from './lib/audit';
 import { DAFTAR_JENIS_PENGAJUAN_KLIEN, type JenisPengajuanKlien } from './lib/types';
 import { bolehAksi, LABEL_PERAN } from './lib/permissions';
@@ -731,6 +737,49 @@ export default function App() {
         `Operator penutup: ${kontrakBaru.operatorPenutup ?? '—'}; tanggal tanda tangan: ${kontrakBaru.tanggalTandaTangan ?? '—'}`,
       );
       return null;
+    },
+
+    terapkanAtribusiAcak: () => {
+      const tanpaOperator = data.kontrak
+        .filter((k) => !k.operatorPenutup)
+        .sort(
+          (a, b) =>
+            a.tanggalMulai.localeCompare(b.tanggalMulai) ||
+            a.nomorPks.localeCompare(b.nomorPks),
+        );
+      if (tanpaOperator.length === 0) return null;
+      const peta = distribusiAcakOperator(
+        tanpaOperator,
+        OPERATOR_PALEMBANG,
+        BENIH_ACAK_ATRIBUSI,
+      );
+      const kontrakBaru = data.kontrak.map((k) => {
+        const op = peta.get(k.id);
+        if (!op) return k;
+        return {
+          ...k,
+          operatorPenutup: op,
+          tanggalTandaTangan: k.tanggalTandaTangan ?? k.tanggalMulai,
+        };
+      });
+      setData((d) => ({ ...d, kontrak: kontrakBaru }));
+      kontrakBaru.forEach((k) => {
+        if (peta.has(k.id)) simpanKeFirestore('kontrak', k.id, k);
+      });
+      const perOperator = ringkasanDistribusi(tanpaOperator, peta);
+      tambahAudit(
+        'Atribusi massal diterapkan',
+        'Kontrak',
+        `${tanpaOperator.length} kontrak`,
+        '—',
+        `Distribusi acak ke ${OPERATOR_PALEMBANG.length} operator Palembang: ${perOperator
+          .map(
+            (p) =>
+              `${p.operator} (${p.jumlah} kontrak, Rp${p.nilai.toLocaleString('id-ID')})`,
+          )
+          .join('; ')}`,
+      );
+      return { diterapkan: tanpaOperator.length, perOperator };
     },
 
     catatPembayaran: (input: PembayaranInput) => {

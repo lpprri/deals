@@ -555,6 +555,79 @@ export function rankingOperator(
 }
 
 /**
+ * Benih tetap untuk distribusi acak atribusi (2026-11-15) — hasil acak
+ * dapat direproduksi dan diverifikasi, bukan acak baru tiap hitung.
+ */
+export const BENIH_ACAK_ATRIBUSI = 20261115;
+
+/** PRNG deterministik (mulberry32) — cukup untuk pengacakan pembagian. */
+export function acakBerbenih(benih: number): () => number {
+  let a = benih >>> 0;
+  return () => {
+    a |= 0;
+    a = (a + 0x6d2b79f5) | 0;
+    let t = Math.imul(a ^ (a >>> 15), 1 | a);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+export interface RingkasanOperator {
+  operator: string;
+  jumlah: number;
+  nilai: number;
+}
+
+/**
+ * Distribusi acak (deterministik, pembagian merata) operator ke kontrak.
+ * Slot operator disusun round-robin (tiap operator mendapat jumlah
+ * kontrak yang selisihnya paling banyak 1) lalu diacak dengan
+ * Fisher-Yates berbenih; kontrak diproses urut (tanggalMulai, nomorPks)
+ * agar hasilnya stabil. Mengembalikan Map kontrakId -> operator.
+ * Dipakai alat atribusi massal dan skrip verifikasi yang sama.
+ */
+export function distribusiAcakOperator(
+  kontrak: Kontrak[],
+  operator: string[],
+  benih: number,
+): Map<string, string> {
+  const peta = new Map<string, string>();
+  if (kontrak.length === 0 || operator.length === 0) return peta;
+  const urut = [...kontrak].sort(
+    (a, b) =>
+      a.tanggalMulai.localeCompare(b.tanggalMulai) ||
+      a.nomorPks.localeCompare(b.nomorPks),
+  );
+  const slot = urut.map((_, i) => operator[i % operator.length]);
+  const acak = acakBerbenih(benih);
+  for (let i = slot.length - 1; i > 0; i -= 1) {
+    const j = Math.floor(acak() * (i + 1));
+    [slot[i], slot[j]] = [slot[j], slot[i]];
+  }
+  urut.forEach((k, i) => peta.set(k.id, slot[i]));
+  return peta;
+}
+
+/** Ringkasan per operator dari sebuah peta distribusi (untuk pratinjau). */
+export function ringkasanDistribusi(
+  kontrak: Kontrak[],
+  peta: Map<string, string>,
+): RingkasanOperator[] {
+  const agregat = new Map<string, { jumlah: number; nilai: number }>();
+  kontrak.forEach((k) => {
+    const op = peta.get(k.id);
+    if (!op) return;
+    const entri = agregat.get(op) ?? { jumlah: 0, nilai: 0 };
+    entri.jumlah += 1;
+    entri.nilai += k.nilaiKontrak;
+    agregat.set(op, entri);
+  });
+  return [...agregat.entries()]
+    .map(([operator, v]) => ({ operator, jumlah: v.jumlah, nilai: v.nilai }))
+    .sort((a, b) => b.nilai - a.nilai || b.jumlah - a.jumlah);
+}
+
+/**
  * Satker Rank — sekaligus Revenue Analytics nasional per satker (tugas b):
  * nilai kontrak per satker pada periode yang sama, terurut dari nilai
  * terbesar. Hanya satker yang punya kontrak dalam periode yang tampil.
