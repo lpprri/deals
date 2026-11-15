@@ -38,6 +38,7 @@ import {
   type KamusLanding,
 } from '../lib/landingI18n';
 import LayananSection from './landing/Layanan';
+import KolaborasiSection from './landing/Kolaborasi';
 import TentangSection from './landing/Tentang';
 
 /** Callback pengajuan yang sama dipakai semua section landing page. */
@@ -115,8 +116,14 @@ export default function Beranda({ data, onLogin, onTrack, onAjukan }: BerandaPro
             aria-label="Navigasi utama"
             className="ml-auto hidden items-center gap-6 text-sm font-medium lg:flex"
           >
+            <a href="#beranda" className="hover:text-[#2573e2]">
+              {t.navBeranda}
+            </a>
             <a href="#layanan" className="hover:text-[#2573e2]">
               {t.navLayanan}
+            </a>
+            <a href="#kolaborasi" className="hover:text-[#2573e2]">
+              {t.navKolaborasi}
             </a>
             <a href="#lacak" className="hover:text-[#2573e2]">
               {t.navLacak}
@@ -248,6 +255,9 @@ export default function Beranda({ data, onLogin, onTrack, onAjukan }: BerandaPro
         {/* ---------- Our Service (Worker 2; section ber-id #layanan) ---------- */}
         <LayananSection t={t} onAjukan={onAjukan} />
 
+        {/* ---------- Collaboration (di antara Services dan Track) ---------- */}
+        <KolaborasiSection t={t} onAjukan={onAjukan} />
+
         {/* ---------- Track & Trace + About Us (Worker 3;
             section ber-id #lacak dan #tentang) ---------- */}
         <TentangSection t={t} onTrack={onTrack} onAjukan={onAjukan} />
@@ -350,6 +360,11 @@ export default function Beranda({ data, onLogin, onTrack, onAjukan }: BerandaPro
                 </a>
               </li>
               <li>
+                <a href="#kolaborasi" className="hover:text-[#2573e2]">
+                  {t.navKolaborasi}
+                </a>
+              </li>
+              <li>
                 <a href="#lacak" className="hover:text-[#2573e2]">
                   {t.navLacak}
                 </a>
@@ -359,6 +374,11 @@ export default function Beranda({ data, onLogin, onTrack, onAjukan }: BerandaPro
           <nav aria-label={t.footerTentang}>
             <h3 className="text-sm font-bold text-[#0d2569]">{t.footerTentang}</h3>
             <ul className="mt-3 space-y-2 text-sm text-slate-600">
+              <li>
+                <a href="#beranda" className="hover:text-[#2573e2]">
+                  {t.navBeranda}
+                </a>
+              </li>
               <li>
                 <a href="#tentang" className="hover:text-[#2573e2]">
                   {t.navTentang}

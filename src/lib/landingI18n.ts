@@ -23,7 +23,9 @@
 export type BahasaLanding = 'id' | 'en';
 
 export interface KamusLanding {
+  navBeranda: string;
   navLayanan: string;
+  navKolaborasi: string;
   navLacak: string;
   navTentang: string;
   navKontak: string;
@@ -55,8 +57,13 @@ export interface KamusLanding {
   layananSubLiveBroadcast: string;
   layananSubLiveReport: string;
   layananSubNewsCoverage: string;
-  layananSubEvent: string;
   layananSubPodcast: string;
+  kolaborasiJudul: string;
+  kolaborasiSubjudul: string;
+  kolaborasiJoinEvent: string;
+  kolaborasiJoinEventDesk: string;
+  kolaborasiMediaPartner: string;
+  kolaborasiMediaPartnerDesk: string;
   ruanganJudul: string;
   ruanganPilihKota: string;
   ruanganPilihJenis: string;
@@ -129,7 +136,9 @@ export interface KamusLanding {
 
 export const KAMUS: Record<BahasaLanding, KamusLanding> = {
   id: {
+    navBeranda: 'Beranda',
     navLayanan: 'Layanan',
+    navKolaborasi: 'Kolaborasi',
     navLacak: 'Lacak',
     navTentang: 'Tentang Kami',
     navKontak: 'Hubungi Kami',
@@ -154,7 +163,7 @@ export const KAMUS: Record<BahasaLanding, KamusLanding> = {
       'Publikasikan acara Anda lewat siaran langsung, laporan langsung, dan liputan berita RRI.',
     layananSupportProgram: 'Support a Program',
     layananSupportProgramDesk:
-      'Dukung program RRI — acara dan podcast — sebagai mitra pendukung program.',
+      'Dukung podcast RRI sebagai mitra pendukung program.',
     layananBookRoom: 'Book a Room',
     layananBookRoomDesk:
       'Pesan ruangan RRI untuk kegiatan Anda: auditorium, ruang rapat, ruang multi-purpose, atau aula.',
@@ -168,8 +177,16 @@ export const KAMUS: Record<BahasaLanding, KamusLanding> = {
     layananSubLiveBroadcast: 'Live Broadcast',
     layananSubLiveReport: 'Live Report',
     layananSubNewsCoverage: 'Liputan Berita',
-    layananSubEvent: 'Event',
     layananSubPodcast: 'Podcast',
+    kolaborasiJudul: 'Kolaborasi',
+    kolaborasiSubjudul:
+      'Bermitra lebih dekat dengan RRI — ikuti acara kami atau jadi media partner.',
+    kolaborasiJoinEvent: 'Join Our Event',
+    kolaborasiJoinEventDesk:
+      'Ikuti acara RRI sebagai peserta atau mitra pelaksana — ajukan keikutsertaan Anda lewat formulir pengajuan.',
+    kolaborasiMediaPartner: 'Be Media Partner',
+    kolaborasiMediaPartnerDesk:
+      'Jadi media partner RRI — liput dan sebarkan program serta acara RRI bersama kami.',
     ruanganJudul: 'Pesan Ruangan',
     ruanganPilihKota: 'Pilih kota',
     ruanganPilihJenis: 'Pilih jenis ruangan',
@@ -254,7 +271,9 @@ export const KAMUS: Record<BahasaLanding, KamusLanding> = {
     umumKembaliBeranda: 'Kembali ke Beranda',
   },
   en: {
+    navBeranda: 'Home',
     navLayanan: 'Services',
+    navKolaborasi: 'Collaboration',
     navLacak: 'Track',
     navTentang: 'About Us',
     navKontak: 'Contact Us',
@@ -279,7 +298,7 @@ export const KAMUS: Record<BahasaLanding, KamusLanding> = {
       'Publish your event through RRI live broadcasts, live reports, and news coverage.',
     layananSupportProgram: 'Support a Program',
     layananSupportProgramDesk:
-      'Support an RRI programme — events and podcasts — as a programme partner.',
+      'Support an RRI podcast as a programme partner.',
     layananBookRoom: 'Book a Room',
     layananBookRoomDesk:
       'Book an RRI room for your activity: auditorium, meeting room, multipurpose room, or hall.',
@@ -293,8 +312,16 @@ export const KAMUS: Record<BahasaLanding, KamusLanding> = {
     layananSubLiveBroadcast: 'Live Broadcast',
     layananSubLiveReport: 'Live Report',
     layananSubNewsCoverage: 'News Coverage',
-    layananSubEvent: 'Event',
     layananSubPodcast: 'Podcast',
+    kolaborasiJudul: 'Collaboration',
+    kolaborasiSubjudul:
+      'Partner even closer with RRI — join our events or become a media partner.',
+    kolaborasiJoinEvent: 'Join Our Event',
+    kolaborasiJoinEventDesk:
+      'Join an RRI event as a participant or implementing partner — submit your request through the form.',
+    kolaborasiMediaPartner: 'Be Media Partner',
+    kolaborasiMediaPartnerDesk:
+      'Become an RRI media partner — cover and share RRI programmes and events with us.',
     ruanganJudul: 'Book a Room',
     ruanganPilihKota: 'Choose a city',
     ruanganPilihJenis: 'Choose a room type',

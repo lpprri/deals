@@ -71,7 +71,7 @@ export default function Layanan({
       judulInggris: 'Support a Program',
       deskripsi: t.layananSupportProgramDesk,
       jenis: 'Pengajuan Kerja Sama',
-      sub: [t.layananSubEvent, t.layananSubPodcast],
+      sub: [t.layananSubPodcast],
     },
     {
       judulTampil: t.layananBookRoom,
