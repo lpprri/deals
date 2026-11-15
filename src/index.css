@@ -18,7 +18,7 @@ body {
   background: #ffffff;
 }
 
-/* Scrollbar tersembunyi (sidebar + flyout submenu): konten tetap bisa
+/* Scrollbar tersembunyi (sidebar + panel tambahan): konten tetap bisa
    digulir (mouse wheel / trackpad / sentuhan) tetapi tidak ada bilah
    scroll (track/thumb) yang tampak di tepi panel. */
 .scrollbar-tersembunyi {

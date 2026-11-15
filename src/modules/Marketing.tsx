@@ -29,7 +29,7 @@ export default function Marketing(props: ModulProps) {
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <JudulBagian>Marketing</JudulBagian>
+        <JudulBagian>Campaign</JudulBagian>
       </div>
       <TabBar
         tabs={[

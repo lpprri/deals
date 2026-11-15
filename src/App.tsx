@@ -21,6 +21,7 @@ import {
   FilePlus2,
   FileText,
   Handshake,
+  Home,
   LayoutDashboard,
   LogOut,
   Megaphone,
@@ -157,10 +158,12 @@ interface NavItem {
   phase: 'A' | 'B' | 'C' | 'Admin';
   description: string;
   /**
-   * Induk sub-item (keputusan pengguna 15/11/2026): item dengan `induk`
-   * TIDAK tampil di daftar utama sidebar — hanya sebagai sub-item di
-   * bawah induknya. Saat ini: 'sewa' di bawah 'deals', 'pengajuan' di
-   * bawah 'sales'. Id tetap dipakai untuk `active` dan render konten.
+   * Induk sub-item (keputusan pengguna 15/11/2026, diubah 15/11/2026):
+   * item dengan `induk` TIDAK tampil di daftar utama sidebar — hanya
+   * sebagai item di panel tambahan di samping sidebar (klik induknya),
+   * bersama item induk itu sendiri. Saat ini: 'sewa' di panel 'deals',
+   * 'pengajuan' di panel 'sales'. Id tetap dipakai untuk `active` dan
+   * render konten.
    */
   induk?: ModuleId;
 }
@@ -176,7 +179,7 @@ const MODULES: NavItem[] = [
   },
   {
     id: 'marketing',
-    label: 'Marketing',
+    label: 'Campaign',
     icon: Megaphone,
     phase: 'B',
     description: 'Events and Advertisement.',
@@ -336,19 +339,37 @@ export default function App() {
       // Penyimpanan tidak tersedia (mode privat, dsb.) — abaikan saja.
     }
   }, [sidebarCiut]);
-  /** Flyout submenu (mode terlipat): id modul induk yang panelnya terbuka. */
-  const [flyoutTerbuka, setFlyoutTerbuka] = useState<ModuleId | null>(null);
-  /** Posisi atas flyout (disejajarkan dengan ikon induk yang diklik). */
-  const [flyoutAtas, setFlyoutAtas] = useState(0);
-  /** Escape / klik di luar menutup flyout. */
+  /** Panel tambahan sub-navigasi (gaya Qontak): id modul induk yang
+      panelnya terbuka. Berlaku di mode terbuka MAUPUN terlipat. */
+  const [panelTerbuka, setPanelTerbuka] = useState<ModuleId | null>(null);
+  /** Induk panel sub-navigasi untuk suatu tampilan: induknya bila
+      tampilan adalah sub-item, dirinya sendiri bila punya sub-item,
+      null bila tidak punya sub-navigasi. */
+  const panelUntukTampilan = (id: ModuleId): ModuleId | null => {
+    const m = MODULES.find((x) => x.id === id);
+    if (!m) return null;
+    if (m.induk) return m.induk;
+    return MODULES.some((c) => c.induk === m.id) ? m.id : null;
+  };
+  /** Panel mengikuti tampilan aktif: bila tampilan adalah sub-item
+      (atau induk yang punya sub-item) — mis. navigasi dari notifikasi,
+      dari dalam modul, atau dari panel itu sendiri — panel induknya
+      terbuka. Efek hanya jalan saat `active` berubah, jadi tutup manual
+      (Escape / klik di luar / klik kedua pada induk) tetap bertahan
+      sampai tampilan berpindah. */
   useEffect(() => {
-    if (!flyoutTerbuka) return;
+    const induk = panelUntukTampilan(active);
+    if (induk) setPanelTerbuka(induk);
+  }, [active]);
+  /** Escape / klik di luar menutup panel. */
+  useEffect(() => {
+    if (!panelTerbuka) return;
     const tutupDenganEscape = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') setFlyoutTerbuka(null);
+      if (e.key === 'Escape') setPanelTerbuka(null);
     };
     const tutupDenganKlikLuar = (e: MouseEvent) => {
-      if (!(e.target as HTMLElement).closest('[data-flyout]')) {
-        setFlyoutTerbuka(null);
+      if (!(e.target as HTMLElement).closest('[data-panel]')) {
+        setPanelTerbuka(null);
       }
     };
     document.addEventListener('keydown', tutupDenganEscape);
@@ -357,7 +378,7 @@ export default function App() {
       document.removeEventListener('keydown', tutupDenganEscape);
       document.removeEventListener('mousedown', tutupDenganKlikLuar);
     };
-  }, [flyoutTerbuka]);
+  }, [panelTerbuka]);
   // Pencarian global di top bar DIHAPUS atas instruksi pengguna 15/11/2026
   // ("hilangkan ini di bar teratas"). `cari` dipertahankan sebagai '' agar
   // filter daftar di modul-modul tetap jalan (menampilkan semua); plumbing
@@ -611,6 +632,7 @@ export default function App() {
     setUser(null);
     setAuthEmail(null);
     setData(DATA_NYATA);
+    setPanelTerbuka(null);
     setModeData(
       isFirebaseConfigured ? 'belum-dimigrasi' : 'tidak-terkonfigurasi',
     );
@@ -2221,8 +2243,8 @@ export default function App() {
     return hasil;
   };
 
-  // Daftar utama sidebar: hanya item tanpa induk (sub-item dirender di
-  // bawah induknya, lihat nav di bawah).
+  // Daftar utama sidebar: hanya item tanpa induk (sub-item tampil di
+  // panel tambahan di samping sidebar, lihat panel di bawah).
   const navUtama = MODULES.filter((m) => m.phase !== 'Admin' && !m.induk);
   const navAdmin = MODULES.filter((m) => m.phase === 'Admin').filter((m) =>
     m.id === 'audit'
@@ -2233,36 +2255,32 @@ export default function App() {
   const Icon = current.icon;
   const propsModul = { data, user: penggunaAktif, actions, cari };
 
-  /** Flyout yang sedang terbuka (mode terlipat): modul induk + sub-item-nya. */
-  const flyoutInduk = sidebarCiut
-    ? MODULES.find((m) => m.id === flyoutTerbuka)
-    : undefined;
-  const flyoutAnak = flyoutInduk
-    ? MODULES.filter((c) => c.induk === flyoutInduk.id)
+  /** Panel tambahan yang sedang terbuka: modul induk + item-itemnya
+      (halaman utama modul, lalu sub-item-nya). */
+  const panelInduk = MODULES.find((m) => m.id === panelTerbuka);
+  const panelItem: NavItem[] = panelInduk
+    ? [panelInduk, ...MODULES.filter((c) => c.induk === panelInduk.id)]
     : [];
 
-  /** Klik item nav: mode terlipat + punya sub-item -> buka/tutup flyout;
-      sisanya navigasi langsung (dan menutup flyout bila sedang terbuka). */
-  const tanganiKlikNav = (m: NavItem, tombol?: HTMLButtonElement) => {
+  /** Klik item nav utama: punya sub-item -> buka/tutup panel tambahan
+      (tanpa navigasi — navigasi lewat item di dalam panel); tanpa
+      sub-item -> navigasi langsung dan panel tertutup. */
+  const tanganiKlikNav = (m: NavItem) => {
     const anak = MODULES.filter((c) => c.induk === m.id);
-    if (sidebarCiut && anak.length > 0) {
-      if (flyoutTerbuka === m.id) {
-        setFlyoutTerbuka(null);
-      } else if (tombol) {
-        const wadah = tombol.closest('aside');
-        setFlyoutAtas(
-          wadah
-            ? tombol.getBoundingClientRect().top - wadah.getBoundingClientRect().top
-            : 0,
-        );
-        setFlyoutTerbuka(m.id);
-      } else {
-        setFlyoutTerbuka(m.id);
-      }
+    if (anak.length > 0) {
+      setPanelTerbuka((terbuka) => (terbuka === m.id ? null : m.id));
       return;
     }
     setActive(m.id);
-    setFlyoutTerbuka(null);
+    setPanelTerbuka(null);
+  };
+
+  /** Klik item di panel tambahan: navigasi, panel tetap terbuka karena
+      tampilan masih di bagian induk yang sama (efek `active` di atas
+      juga membukanya bila navigasi datang dari luar panel). */
+  const tanganiKlikPanel = (id: ModuleId) => {
+    setActive(id);
+    setPanelTerbuka(panelUntukTampilan(id));
   };
 
   return (
@@ -2298,9 +2316,10 @@ export default function App() {
       <div className="flex min-h-0 flex-1">
       {/* Sidebar terang gaya Qontak — putih, teks navy (blok header logo
           dihapus: logo & satker sudah di top bar). Bisa dilipat ke rel
-          ikon saja; mode terlipat memakai flyout submenu di samping rel. */}
+          ikon saja; sub-navigasi tampil di panel tambahan di samping
+          sidebar (klik induknya), di mode terbuka maupun terlipat. */}
       <aside
-        data-flyout
+        data-panel
         className={`relative flex shrink-0 flex-col bg-white text-[#0d2569] ${
           sidebarCiut ? 'w-[72px]' : 'w-60'
         }`}
@@ -2312,10 +2331,7 @@ export default function App() {
           }`}
         >
           <button
-            onClick={() => {
-              setSidebarCiut(!sidebarCiut);
-              setFlyoutTerbuka(null);
-            }}
+            onClick={() => setSidebarCiut(!sidebarCiut)}
             title={sidebarCiut ? 'Buka sidebar' : 'Lipat sidebar'}
             aria-label={sidebarCiut ? 'Buka sidebar' : 'Lipat sidebar'}
             className="flex h-8 w-8 items-center justify-center rounded-md text-[#0d2569]/60 hover:bg-[#2573e2]/10 hover:text-[#2573e2]"
@@ -2323,59 +2339,50 @@ export default function App() {
             {sidebarCiut ? <ChevronRight size={18} /> : <ChevronLeft size={18} />}
           </button>
         </div>
-        <nav
-          onScroll={() => setFlyoutTerbuka(null)}
-          className="scrollbar-tersembunyi min-h-0 flex-1 space-y-1 overflow-y-auto px-3 pb-4 pt-2"
-        >
+        <nav className="scrollbar-tersembunyi min-h-0 flex-1 space-y-1 overflow-y-auto px-3 pb-4 pt-2">
+          {/* Home — halaman depan publik (Beranda). Bukan modul: klik =
+              keluar ke landing page (sama seperti Sign out); tombol Login
+              di landing page kembali ke dashboard. Tidak punya sub-item
+              atau panel; tidak pernah berstatus aktif. */}
+          <button
+            title={sidebarCiut ? 'Home' : undefined}
+            onClick={() => {
+              setPanelTerbuka(null);
+              void tanganiKeluar();
+            }}
+            className={`flex w-full items-center gap-3 rounded-md py-2 text-left text-sm ${
+              sidebarCiut ? 'justify-center px-0' : 'px-3'
+            } text-[#0d2569]/70 hover:bg-[#2573e2]/5 hover:text-[#0d2569]`}
+          >
+            <Home size={18} className="shrink-0" />
+            {!sidebarCiut && 'Home'}
+          </button>
           {navUtama.map((m) => {
             const ItemIcon = m.icon;
             const anak = MODULES.filter((c) => c.induk === m.id);
             // Induk ikut ter-highlight saat sub-item-nya yang aktif.
             const isActive = m.id === active || anak.some((c) => c.id === active);
             return (
-              <div key={m.id}>
-                <button
-                  title={sidebarCiut ? m.label : undefined}
-                  onClick={(e) => tanganiKlikNav(m, e.currentTarget)}
-                  className={`flex w-full items-center gap-3 rounded-md py-2 text-left text-sm ${
-                    sidebarCiut ? 'justify-center px-0' : 'px-3'
-                  } ${
-                    isActive
-                      ? 'bg-[#2573e2]/10 font-semibold text-[#2573e2]'
-                      : 'text-[#0d2569]/70 hover:bg-[#2573e2]/5 hover:text-[#0d2569]'
-                  }`}
-                >
-                  <ItemIcon size={18} className="shrink-0" />
-                  {!sidebarCiut && m.label}
-                  {!sidebarCiut && m.phase === 'C' && (
-                    <span className="ml-auto shrink-0 rounded bg-[#2573e2]/10 px-1.5 py-0.5 text-[10px] text-[#2573e2]">
-                      Phase {m.phase}
-                    </span>
-                  )}
-                </button>
-                {!sidebarCiut &&
-                  anak.map((c) => {
-                    const AnakIcon = c.icon;
-                    const anakAktif = c.id === active;
-                    return (
-                      <button
-                        key={c.id}
-                        onClick={() => {
-                          setActive(c.id);
-                          setFlyoutTerbuka(null);
-                        }}
-                        className={`mt-1 flex w-full items-center gap-3 rounded-md py-2 pl-10 pr-3 text-left text-sm ${
-                          anakAktif
-                            ? 'bg-[#2573e2]/10 font-semibold text-[#2573e2]'
-                            : 'text-[#0d2569]/70 hover:bg-[#2573e2]/5 hover:text-[#0d2569]'
-                        }`}
-                      >
-                        <AnakIcon size={15} className="shrink-0" />
-                        {c.label}
-                      </button>
-                    );
-                  })}
-              </div>
+              <button
+                key={m.id}
+                title={sidebarCiut ? m.label : undefined}
+                onClick={() => tanganiKlikNav(m)}
+                className={`flex w-full items-center gap-3 rounded-md py-2 text-left text-sm ${
+                  sidebarCiut ? 'justify-center px-0' : 'px-3'
+                } ${
+                  isActive
+                    ? 'bg-[#2573e2]/10 font-semibold text-[#2573e2]'
+                    : 'text-[#0d2569]/70 hover:bg-[#2573e2]/5 hover:text-[#0d2569]'
+                }`}
+              >
+                <ItemIcon size={18} className="shrink-0" />
+                {!sidebarCiut && m.label}
+                {!sidebarCiut && m.phase === 'C' && (
+                  <span className="ml-auto shrink-0 rounded bg-[#2573e2]/10 px-1.5 py-0.5 text-[10px] text-[#2573e2]">
+                    Phase {m.phase}
+                  </span>
+                )}
+              </button>
             );
           })}
           {navAdmin.length > 0 && (
@@ -2396,7 +2403,7 @@ export default function App() {
                     title={sidebarCiut ? m.label : undefined}
                     onClick={() => {
                       setActive(m.id);
-                      setFlyoutTerbuka(null);
+                      setPanelTerbuka(null);
                     }}
                     className={`flex w-full items-center gap-3 rounded-md py-2 text-left text-sm ${
                       sidebarCiut ? 'justify-center px-0' : 'px-3'
@@ -2437,59 +2444,52 @@ export default function App() {
             </button>
           </div>
         )}
-        {/* Flyout submenu (mode terlipat): panel kedua di samping rel —
-            judul modul (klik = buka modul induk) + daftar sub-item. */}
-        {flyoutInduk && flyoutAnak.length > 0 && (
-          <div
-            style={{ top: flyoutAtas }}
-            className="absolute left-full z-30 ml-2 flex max-h-[calc(100%-1rem)] w-60 flex-col rounded-lg border border-[#0d2569]/10 bg-white py-2 shadow-lg"
-          >
-            <div className="flex shrink-0 items-center justify-between px-4 pb-2 pt-1">
-              <button
-                onClick={() => {
-                  setActive(flyoutInduk.id);
-                  setFlyoutTerbuka(null);
-                }}
-                title={`Buka ${flyoutInduk.label}`}
-                className="text-xs font-bold uppercase tracking-wide text-[#0d2569] hover:text-[#2573e2]"
-              >
-                {flyoutInduk.label}
-              </button>
-              <button
-                onClick={() => setFlyoutTerbuka(null)}
-                title="Tutup"
-                aria-label="Tutup panel"
-                className="flex h-6 w-6 items-center justify-center rounded-md text-[#0d2569]/50 hover:bg-[#2573e2]/10 hover:text-[#2573e2]"
-              >
-                <X size={15} />
-              </button>
-            </div>
-            <div className="scrollbar-tersembunyi min-h-0 flex-1 space-y-1 overflow-y-auto px-2 pb-1">
-              {flyoutAnak.map((c) => {
-                const AnakIcon = c.icon;
-                const anakAktif = c.id === active;
-                return (
-                  <button
-                    key={c.id}
-                    onClick={() => {
-                      setActive(c.id);
-                      setFlyoutTerbuka(null);
-                    }}
-                    className={`flex w-full items-center gap-3 rounded-md px-3 py-2 text-left text-sm ${
-                      anakAktif
-                        ? 'bg-[#2573e2]/10 font-semibold text-[#2573e2]'
-                        : 'text-[#0d2569]/70 hover:bg-[#2573e2]/5 hover:text-[#0d2569]'
-                    }`}
-                  >
-                    <AnakIcon size={15} className="shrink-0" />
-                    {c.label}
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-        )}
       </aside>
+
+      {/* Panel tambahan sub-navigasi (gaya Qontak): kolom kedua di antara
+          sidebar dan konten — judul kapital + halaman utama modul dan
+          sub-item-nya. In-flow (flex), jadi konten bergeser, bukan
+          tertutup panel. Tampil di mode terbuka maupun terlipat. */}
+      {panelInduk && panelItem.length > 0 && (
+        <div
+          data-panel
+          className="flex w-60 shrink-0 flex-col border-r border-[#0d2569]/10 bg-white"
+        >
+          <div className="flex shrink-0 items-center justify-between px-4 pb-2 pt-4">
+            <span className="text-xs font-bold uppercase tracking-wide text-[#0d2569]">
+              {panelInduk.label}
+            </span>
+            <button
+              onClick={() => setPanelTerbuka(null)}
+              title="Tutup"
+              aria-label="Tutup panel"
+              className="flex h-6 w-6 items-center justify-center rounded-md text-[#0d2569]/50 hover:bg-[#2573e2]/10 hover:text-[#2573e2]"
+            >
+              <X size={15} />
+            </button>
+          </div>
+          <div className="scrollbar-tersembunyi min-h-0 flex-1 space-y-1 overflow-y-auto px-2 pb-4">
+            {panelItem.map((item) => {
+              const PanelIcon = item.icon;
+              const itemAktif = item.id === active;
+              return (
+                <button
+                  key={item.id}
+                  onClick={() => tanganiKlikPanel(item.id)}
+                  className={`flex w-full items-center gap-3 rounded-md px-3 py-2 text-left text-sm ${
+                    itemAktif
+                      ? 'bg-[#2573e2]/10 font-semibold text-[#2573e2]'
+                      : 'text-[#0d2569]/70 hover:bg-[#2573e2]/5 hover:text-[#0d2569]'
+                  }`}
+                >
+                  <PanelIcon size={15} className="shrink-0" />
+                  {item.label}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
 
       {/* Konten (search + Add di top bar dihapus atas instruksi pengguna 15/11/2026) */}
       <div className="flex min-w-0 flex-1 flex-col bg-white">
