@@ -161,9 +161,6 @@ export default function Login({
             </>
           )}
 
-          <p className="mt-8 text-center text-xs text-[#0d2569]/60">
-            Partnership LPP RRI — {FASE_TERBANGUN}
-          </p>
         </div>
       </div>
 
