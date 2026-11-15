@@ -58,26 +58,20 @@ import {
 } from '../components/ui';
 
 const TABS = [
-  { id: 'prospek', label: 'Prospect' },
   { id: 'pipeline', label: 'Pipeline' },
   { id: 'quotation', label: 'Quotation' },
-  { id: 'order', label: 'Order' },
   { id: 'meeting', label: 'Meeting' },
-  { id: 'analytics', label: 'Analytics' },
 ];
 
 export default function Sales(props: ModulProps) {
-  const [tab, setTab] = useState('prospek');
+  const [tab, setTab] = useState('pipeline');
   return (
     <div className="space-y-4">
       <JudulBagian>Sales</JudulBagian>
       <TabBar tabs={TABS} aktif={tab} onPilih={setTab} />
-      {tab === 'prospek' && <TabProspek {...props} />}
       {tab === 'pipeline' && <TabPipeline {...props} />}
       {tab === 'quotation' && <TabQuotation {...props} />}
-      {tab === 'order' && <TabOrder {...props} />}
       {tab === 'meeting' && <TabMeeting {...props} />}
-      {tab === 'analytics' && <TabAnalytics data={props.data} />}
     </div>
   );
 }
@@ -86,7 +80,7 @@ export default function Sales(props: ModulProps) {
 // PROSPEK (US-S1)
 // ---------------------------------------------------------------------------
 
-function TabProspek({ data, user, actions, cari }: ModulProps) {
+export function TabProspek({ data, user, actions, cari }: ModulProps) {
   const [filterTahap, setFilterTahap] = useState('Semua');
   const [filterSumber, setFilterSumber] = useState('Semua');
   const [prospekIdTerpilih, setProspekIdTerpilih] = useState<string | null>(null);
@@ -1748,7 +1742,7 @@ function FormOrder({
 // MEETING
 // ---------------------------------------------------------------------------
 
-function TabMeeting({ data, user, actions, cari }: ModulProps) {
+export function TabMeeting({ data, user, actions, cari }: ModulProps) {
   const [filterWaktu, setFilterWaktu] = useState<'mendatang' | 'semua'>(
     'mendatang',
   );
@@ -2015,7 +2009,7 @@ function FormMeeting({
 // ANALYTICS — semua angka dari hitungAnalitikSales(data), tanpa hitung ulang.
 // ---------------------------------------------------------------------------
 
-function TabAnalytics({ data }: { data: ModulProps['data'] }) {
+export function TabAnalytics({ data }: { data: ModulProps['data'] }) {
   const a = hitungAnalitikSales(data);
   const totalProspekAktif = a.prospectPerTahap.reduce(
     (s, r) => s + r.jumlah,
