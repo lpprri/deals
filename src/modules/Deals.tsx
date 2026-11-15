@@ -568,8 +568,11 @@ function FormKlien({
 }
 
 /* ============================= Tab Kontrak ============================= */
+// Diekspor supaya menu kerja sama baru (Contract, MoU, Commitment,
+// Approvement — src/modules/KerjaSama.tsx) memakai ulang tabel yang
+// sama dari sumber data yang sama, tanpa duplikasi data.
 
-function TabKontrak({
+export function TabKontrak({
   data,
   user,
   actions,

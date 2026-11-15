@@ -19,13 +19,17 @@ import {
   ChevronRight,
   Database,
   FilePlus2,
+  FileSignature,
   FileText,
   Handshake,
+  HeartHandshake,
   Home,
   LayoutDashboard,
   LogOut,
   Megaphone,
+  ScrollText,
   ShieldCheck,
+  Stamp,
   Wallet,
   X,
 } from 'lucide-react';
@@ -136,10 +140,22 @@ import Todo from './modules/Todo';
 import Service from './modules/Service';
 import AuditPage from './modules/AuditPage';
 import MasterPage from './modules/MasterPage';
+import HomePage from './modules/Home';
+import {
+  MenuApprovement,
+  MenuKomitmen,
+  MenuKontrak,
+  MenuMoU,
+} from './modules/KerjaSama';
 
 type ModuleId =
+  | 'home'
   | 'dashboard'
   | 'marketing'
+  | 'kontrak'
+  | 'mou'
+  | 'komitmen'
+  | 'approvement'
   | 'sales'
   | 'deals'
   | 'sewa'
@@ -170,6 +186,14 @@ interface NavItem {
 
 const MODULES: NavItem[] = [
   {
+    id: 'home',
+    label: 'Home',
+    icon: Home,
+    phase: 'A',
+    description:
+      'Home page inside the admin app — intentionally empty for now (correction 15/11/2026: not the landing page, not a sign-out).',
+  },
+  {
     id: 'dashboard',
     label: 'Dashboard',
     icon: LayoutDashboard,
@@ -183,6 +207,37 @@ const MODULES: NavItem[] = [
     icon: Megaphone,
     phase: 'B',
     description: 'Events and Advertisement.',
+  },
+  {
+    id: 'kontrak',
+    label: 'Contract',
+    icon: FileSignature,
+    phase: 'A',
+    description:
+      'PNBP contracts — the same contract list as Deals (Contracts / PKS).',
+  },
+  {
+    id: 'mou',
+    label: 'Memorandum of Understanding',
+    icon: ScrollText,
+    phase: 'A',
+    description:
+      'Memorandum of Understanding (Nota Kesepahaman) supporting broadcast programmes.',
+  },
+  {
+    id: 'komitmen',
+    label: 'Commitment',
+    icon: HeartHandshake,
+    phase: 'A',
+    description:
+      'Service-support cooperation documents for RRI events & programmes.',
+  },
+  {
+    id: 'approvement',
+    label: 'Approvement',
+    icon: Stamp,
+    phase: 'A',
+    description: 'Media partner documents.',
   },
   {
     id: 'sales',
@@ -2340,23 +2395,9 @@ export default function App() {
           </button>
         </div>
         <nav className="scrollbar-tersembunyi min-h-0 flex-1 space-y-1 overflow-y-auto px-3 pb-4 pt-2">
-          {/* Home — halaman depan publik (Beranda). Bukan modul: klik =
-              keluar ke landing page (sama seperti Sign out); tombol Login
-              di landing page kembali ke dashboard. Tidak punya sub-item
-              atau panel; tidak pernah berstatus aktif. */}
-          <button
-            title={sidebarCiut ? 'Home' : undefined}
-            onClick={() => {
-              setPanelTerbuka(null);
-              void tanganiKeluar();
-            }}
-            className={`flex w-full items-center gap-3 rounded-md py-2 text-left text-sm ${
-              sidebarCiut ? 'justify-center px-0' : 'px-3'
-            } text-[#0d2569]/70 hover:bg-[#2573e2]/5 hover:text-[#0d2569]`}
-          >
-            <Home size={18} className="shrink-0" />
-            {!sidebarCiut && 'Home'}
-          </button>
+          {/* Home kini modul biasa pertama di MODULES (koreksi pengguna
+              15/11/2026): klik Home membuka tampilan Home kosong di
+              dalam aplikasi, BUKAN keluar ke landing page. */}
           {navUtama.map((m) => {
             const ItemIcon = m.icon;
             const anak = MODULES.filter((c) => c.induk === m.id);
@@ -2543,7 +2584,12 @@ export default function App() {
           )}
 
           <div className="mt-6">
+            {active === 'home' && <HomePage />}
             {active === 'dashboard' && <Dashboard {...propsModul} />}
+            {active === 'kontrak' && <MenuKontrak {...propsModul} />}
+            {active === 'mou' && <MenuMoU {...propsModul} />}
+            {active === 'komitmen' && <MenuKomitmen {...propsModul} />}
+            {active === 'approvement' && <MenuApprovement {...propsModul} />}
             {active === 'deals' && <Deals {...propsModul} />}
             {active === 'sewa' && <Sewa {...propsModul} />}
             {active === 'pengajuan' && <Pengajuan {...propsModul} />}
