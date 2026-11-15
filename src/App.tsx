@@ -176,10 +176,11 @@ interface NavItem {
   /**
    * Induk sub-item (keputusan pengguna 15/11/2026, diubah 15/11/2026):
    * item dengan `induk` TIDAK tampil di daftar utama sidebar — hanya
-   * sebagai item di panel tambahan di samping sidebar (klik induknya),
-   * bersama item induk itu sendiri. Saat ini: 'sewa' di panel 'deals',
-   * 'pengajuan' di panel 'sales'. Id tetap dipakai untuk `active` dan
-   * render konten.
+   * sebagai item di panel tambahan di samping sidebar (klik induknya).
+   * Nama induk TIDAK dicantumkan lagi di dalam panelnya sendiri
+   * (perbaikan 15/11/2026 19:16 WIB): panel hanya berisi sub-item.
+   * Saat ini: 'sewa' di panel 'deals', 'pengajuan' di panel 'sales'.
+   * Id tetap dipakai untuk `active` dan render konten.
    */
   induk?: ModuleId;
 }
@@ -2310,20 +2311,32 @@ export default function App() {
   const Icon = current.icon;
   const propsModul = { data, user: penggunaAktif, actions, cari };
 
-  /** Panel tambahan yang sedang terbuka: modul induk + item-itemnya
-      (halaman utama modul, lalu sub-item-nya). */
+  /** Panel tambahan yang sedang terbuka: HANYA sub-item induknya
+      (perbaikan 15/11/2026 19:16 WIB — nama induk tidak dicantumkan
+      lagi di dalam panelnya sendiri; judul panel sudah memuatnya). */
   const panelInduk = MODULES.find((m) => m.id === panelTerbuka);
   const panelItem: NavItem[] = panelInduk
-    ? [panelInduk, ...MODULES.filter((c) => c.induk === panelInduk.id)]
+    ? MODULES.filter((c) => c.induk === panelInduk.id)
     : [];
 
-  /** Klik item nav utama: punya sub-item -> buka/tutup panel tambahan
-      (tanpa navigasi — navigasi lewat item di dalam panel); tanpa
-      sub-item -> navigasi langsung dan panel tertutup. */
+  /** Klik item nav utama (perbaikan 15/11/2026 19:16 WIB): induk yang
+      punya sub-item NAVIGASI ke halaman induk itu SEKALIGUS membuka
+      panel-nya (sebelumnya hanya membuka panel, konten tertahan di
+      halaman sebelumnya); klik kedua pada induk yang sedang aktif =
+      tutup panel saja, tetap di halaman induk. Tanpa sub-item ->
+      navigasi langsung dan panel tertutup. */
   const tanganiKlikNav = (m: NavItem) => {
     const anak = MODULES.filter((c) => c.induk === m.id);
     if (anak.length > 0) {
-      setPanelTerbuka((terbuka) => (terbuka === m.id ? null : m.id));
+      if (active === m.id) {
+        // Sudah di halaman induk: alihkan panel saja. `active` tidak
+        // berubah, jadi efek auto-open di atas tidak jalan dan panel
+        // yang ditutup manual tidak terbuka kembali.
+        setPanelTerbuka((terbuka) => (terbuka === m.id ? null : m.id));
+        return;
+      }
+      setActive(m.id);
+      setPanelTerbuka(m.id);
       return;
     }
     setActive(m.id);
@@ -2488,9 +2501,10 @@ export default function App() {
       </aside>
 
       {/* Panel tambahan sub-navigasi (gaya Qontak): kolom kedua di antara
-          sidebar dan konten — judul kapital + halaman utama modul dan
-          sub-item-nya. In-flow (flex), jadi konten bergeser, bukan
-          tertutup panel. Tampil di mode terbuka maupun terlipat. */}
+          sidebar dan konten — judul kapital + sub-item-nya saja (nama
+          induk tidak dicantumkan lagi di dalam panel). In-flow (flex),
+          jadi konten bergeser, bukan tertutup panel. Tampil di mode
+          terbuka maupun terlipat. */}
       {panelInduk && panelItem.length > 0 && (
         <div
           data-panel
