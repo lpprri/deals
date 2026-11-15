@@ -31,6 +31,7 @@ import { useEffect, useState } from 'react';
 import type { AppData } from '../lib/types';
 import { DAFTAR_SATKER } from '../lib/satker';
 import { GEDUNG_RRI_DATA_URI } from '../lib/gedungRri';
+import { LOGO_RRI_LANDING_DATA_URI } from '../lib/logoRriLanding';
 import {
   KAMUS,
   type BahasaLanding,
@@ -100,9 +101,11 @@ export default function Beranda({ data, onLogin, onTrack, onAjukan }: BerandaPro
       <header className="sticky top-0 z-50 border-b border-slate-200 bg-white">
         <div className="mx-auto flex max-w-7xl items-center gap-4 px-4 py-3 sm:px-6">
           <a href="#beranda" className="flex min-w-0 items-center gap-3">
-            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-white ring-1 ring-slate-200">
-              <img src="/logo-rri.svg" alt="RRI" className="h-8 w-auto" />
-            </span>
+            <img
+              src={LOGO_RRI_LANDING_DATA_URI}
+              alt="Radio Republik Indonesia"
+              className="h-10 w-auto shrink-0"
+            />
             <span className="truncate text-base font-bold text-[#0d2569] sm:text-lg">
               Partnership LPP RRI
             </span>
@@ -325,9 +328,11 @@ export default function Beranda({ data, onLogin, onTrack, onAjukan }: BerandaPro
         <div className="mx-auto grid max-w-7xl gap-10 px-4 py-12 sm:px-6 md:grid-cols-4">
           <div className="md:col-span-2">
             <div className="flex items-center gap-3">
-              <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-white ring-1 ring-slate-200">
-                <img src="/logo-rri.svg" alt="RRI" className="h-8 w-auto" />
-              </span>
+              <img
+                src={LOGO_RRI_LANDING_DATA_URI}
+                alt="Radio Republik Indonesia"
+                className="h-10 w-auto shrink-0"
+              />
               <span className="text-base font-bold text-[#0d2569]">
                 Partnership LPP RRI
               </span>
