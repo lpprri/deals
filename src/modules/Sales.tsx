@@ -60,7 +60,8 @@ import {
 const TABS = [
   { id: 'pipeline', label: 'Pipeline' },
   { id: 'quotation', label: 'Quotation' },
-  { id: 'meeting', label: 'Meeting' },
+  // Tab 'meeting' DIHAPUS 15/11/2026 atas instruksi pengguna — komponen
+  // TabMeeting tetap ada di bawah, dipakai ulang menu Meeting.
 ];
 
 export default function Sales(props: ModulProps) {
@@ -71,7 +72,6 @@ export default function Sales(props: ModulProps) {
       <TabBar tabs={TABS} aktif={tab} onPilih={setTab} />
       {tab === 'pipeline' && <TabPipeline {...props} />}
       {tab === 'quotation' && <TabQuotation {...props} />}
-      {tab === 'meeting' && <TabMeeting {...props} />}
     </div>
   );
 }

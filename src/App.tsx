@@ -193,8 +193,11 @@ interface NavItem {
    * sebagai item di panel tambahan di samping sidebar (klik induknya).
    * Nama induk TIDAK dicantumkan lagi di dalam panelnya sendiri
    * (perbaikan 15/11/2026 19:16 WIB): panel hanya berisi sub-item.
-   * Saat ini: 'sewa' di panel 'deals', 'pengajuan' di panel 'sales',
-   * 'umpanBalik' di panel 'reports'.
+   * Saat ini: 'sewa' di panel 'deals', 'umpanBalik' di panel 'reports'.
+   * 'pengajuan' TIDAK punya induk (dihapus dari panel 'sales'
+   * 15/11/2026 atas instruksi pengguna "hilangkan submission ini"):
+   * modul + datanya tetap utuh, dibuka lewat notifikasi, dan tidak
+   * tampil di sidebar (tidak ada di CLUSTER_SIDEBAR).
    * Id tetap dipakai untuk `active` dan render konten.
    */
   induk?: ModuleId;
@@ -245,8 +248,7 @@ const MODULES: NavItem[] = [
     label: 'Sales',
     icon: Briefcase,
     phase: 'B',
-    description:
-      'Pipeline, Quotation, Meeting Schedule. New Submissions as a sub-module.',
+    description: 'Pipeline, Quotation.',
   },
   {
     id: 'deals',
@@ -290,8 +292,7 @@ const MODULES: NavItem[] = [
     label: 'Meeting',
     icon: CalendarDays,
     phase: 'B',
-    description:
-      'Meeting Schedule — the same Meeting tab as Sales (MTG-01 …).',
+    description: 'Meeting Schedule (MTG-01 …).',
   },
   {
     id: 'sewa',
@@ -307,7 +308,9 @@ const MODULES: NavItem[] = [
     label: 'Submission',
     icon: FilePlus2,
     phase: 'A',
-    induk: 'sales',
+    // TIDAK punya induk (15/11/2026): dihapus dari panel 'sales' atas
+    // instruksi pengguna — modul + data tetap utuh, dibuka lewat
+    // notifikasi; tidak tampil di sidebar (tidak ada di CLUSTER_SIDEBAR).
     description:
       'New Submissions (new partnership / new lease): Received → Under review → Awaiting documents → Approved/Rejected → Converted to contract.',
   },
