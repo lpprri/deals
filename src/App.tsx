@@ -521,8 +521,6 @@ export default function App() {
           }
         }}
         onLoginDummy={setUser}
-        onBukaLacak={() => setHalamanPublik('lacak')}
-        onBukaAjukan={() => setHalamanPublik('ajukan')}
       />
     );
   }

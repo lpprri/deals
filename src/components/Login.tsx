@@ -7,9 +7,10 @@
 // Indonesia; palet tetap 3 warna RRI (Biru #2573E2, Navy #0D2569, Putih);
 // tombol Biru; TIDAK ada login sosial, TIDAK ada Forgot password (belum
 // ada alurnya), TIDAK ada checkbox Remember (persistensi Firebase sudah
-// default), TIDAK ada signup klien. Di bawah tombol Masuk: tautan ke
-// halaman publik Lacak Kerja Sama dan Ajukan Permohonan (menggantikan
-// divider + tombol sosial + footer signup pada template).
+// default), TIDAK ada signup klien. Tautan publik Lacak/Ajukan TIDAK ada
+// di halaman ini lagi (keputusan pengguna 2026-11-15) — halaman publik
+// tersebut dijangkau lewat landing page, yang kini menjadi pintu masuk
+// publik aplikasi.
 // KOREKSI 2026-11-15: klien tidak punya login/akun; halaman ini hanya
 // untuk Operator. Akses klien lewat Lacak (kode transaksi) dan Ajukan
 // Permohonan (form publik).
@@ -46,41 +47,14 @@ function Kolom({ label, children }: { label: string; children: ReactNode }) {
   );
 }
 
-/** Tautan ke halaman publik (tanpa login). */
-function TautanPublik({
-  onClick,
-  teks,
-}: {
-  onClick: () => void;
-  teks: string;
-}) {
-  return (
-    <p className="text-center">
-      <button
-        type="button"
-        onClick={onClick}
-        className="text-sm font-semibold text-[#2573e2] underline underline-offset-2"
-      >
-        {teks}
-      </button>
-    </p>
-  );
-}
-
 export default function Login({
   onLoginAuth,
   onLoginDummy,
-  onBukaLacak,
-  onBukaAjukan,
 }: {
   /** Dipanggil saat Firebase terkonfigurasi; kembalikan pesan error atau null bila sukses. */
   onLoginAuth: (email: string, kataSandi: string) => Promise<string | null>;
   /** Dipanggil saat mode contoh (Firebase belum terkonfigurasi). */
   onLoginDummy: (user: DummyUser) => void;
-  /** Buka halaman publik Lacak Kerja Sama (tanpa login). */
-  onBukaLacak: () => void;
-  /** Buka halaman publik Ajukan Permohonan (tanpa login). */
-  onBukaAjukan: () => void;
 }) {
   const [email, setEmail] = useState('');
   const [kataSandi, setKataSandi] = useState('');
@@ -152,16 +126,6 @@ export default function Login({
                   {sedangMasuk ? 'Checking…' : 'Sign in'}
                 </button>
               </form>
-              <div className="mt-6 space-y-2">
-                <TautanPublik
-                  onClick={onBukaLacak}
-                  teks="Track partnership (no sign-in)"
-                />
-                <TautanPublik
-                  onClick={onBukaAjukan}
-                  teks="Submit a partnership request"
-                />
-              </div>
             </>
           ) : (
             <>
@@ -194,16 +158,6 @@ export default function Login({
                 No password — sample mode is for development only{' '}
                 {FASE_TERBANGUN}.
               </p>
-              <div className="mt-4 space-y-2">
-                <TautanPublik
-                  onClick={onBukaLacak}
-                  teks="Track partnership (no sign-in)"
-                />
-                <TautanPublik
-                  onClick={onBukaAjukan}
-                  teks="Submit a partnership request"
-                />
-              </div>
             </>
           )}
 
