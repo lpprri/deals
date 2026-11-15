@@ -18,22 +18,22 @@ export function formatTanggal(iso: string | undefined): string {
   return `${d}/${m}/${y}`;
 }
 
-/** '2026-02' -> 'Februari 2026'. */
+/** '2026-02' -> 'February 2026'. */
 export function formatPeriode(periode: string): string {
   const [y, m] = periode.split('-');
   const bulan = [
-    'Januari',
-    'Februari',
-    'Maret',
+    'January',
+    'February',
+    'March',
     'April',
-    'Mei',
-    'Juni',
-    'Juli',
-    'Agustus',
+    'May',
+    'June',
+    'July',
+    'August',
     'September',
-    'Oktober',
+    'October',
     'November',
-    'Desember',
+    'December',
   ];
   const idx = Number(m) - 1;
   if (!y || idx < 0 || idx > 11) return periode;
@@ -60,20 +60,20 @@ export function periodeDariTanggal(iso: string): string {
   return iso.slice(0, 7);
 }
 
-/** Nama bulan singkat Indonesia untuk label sumbu grafik. */
+/** Short month names (English) for chart axis labels. */
 export const BULAN_SINGKAT = [
   'Jan',
   'Feb',
   'Mar',
   'Apr',
-  'Mei',
+  'May',
   'Jun',
   'Jul',
-  'Agu',
+  'Aug',
   'Sep',
-  'Okt',
+  'Oct',
   'Nov',
-  'Des',
+  'Dec',
 ];
 
 /** '2026-01' -> 'Jan'. Mengembalikan periode apa adanya bila tidak valid. */
@@ -84,16 +84,16 @@ export function formatBulanSingkat(periode: string): string {
   return BULAN_SINGKAT[idx];
 }
 
-/** Rupiah ringkas untuk label sumbu grafik, mis. 62.596.875 -> 'Rp63 jt'. */
+/** Rupiah ringkas untuk label sumbu grafik, mis. 62.596.875 -> 'Rp63M'. */
 export function formatRupiahSingkat(nilai: number): string {
   if (nilai >= 1_000_000_000) {
-    return `Rp${(nilai / 1_000_000_000).toLocaleString('id-ID', { maximumFractionDigits: 1 })} M`;
+    return `Rp${(nilai / 1_000_000_000).toLocaleString('id-ID', { maximumFractionDigits: 1 })}B`;
   }
   if (nilai >= 1_000_000) {
-    return `Rp${Math.round(nilai / 1_000_000).toLocaleString('id-ID')} jt`;
+    return `Rp${Math.round(nilai / 1_000_000).toLocaleString('id-ID')}M`;
   }
   if (nilai >= 1_000) {
-    return `Rp${Math.round(nilai / 1_000).toLocaleString('id-ID')} rb`;
+    return `Rp${Math.round(nilai / 1_000).toLocaleString('id-ID')}K`;
   }
   return `Rp${nilai.toLocaleString('id-ID')}`;
 }

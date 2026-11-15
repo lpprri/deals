@@ -17,6 +17,26 @@ import {
 } from '../lib/derive';
 import { formatRupiah, formatTanggal, hariIniIso } from '../lib/format';
 import { MASTER_METODE_PEMBAYARAN, uraianKodeAkun } from '../lib/master';
+import {
+  labelMetodePembayaran,
+  labelStatusDenda,
+  labelStatusTagihan,
+  labelStatusVerifikasi,
+  labelUmurPiutang,
+  labelUraianKodeAkun,
+} from '../lib/labels';
+
+/** Status rekonsiliasi (nilai turunan — belum ada di labels.ts, pemetaan lokal). */
+const PETA_STATUS_REKON: Record<string, string> = {
+  'Penerimaan Tanpa Tagihan': 'Receipt without invoice',
+  'Sudah Cocok': 'Matched',
+  'Cocok Sebagian': 'Partially matched',
+  'Belum Ada Penerimaan': 'No receipt yet',
+};
+function labelStatusRekon(status: string): string {
+  return PETA_STATUS_REKON[status] ?? status;
+}
+
 import { bolehAksi } from '../lib/permissions';
 import {
   Baris,
@@ -43,7 +63,7 @@ const TABS: { id: TabRevenue; label: string }[] = [
   { id: 'invoice', label: 'Invoice' },
   { id: 'payments', label: 'Payments' },
   { id: 'billings', label: 'Billings' },
-  { id: 'rekonsiliasi', label: 'Rekonsiliasi' },
+  { id: 'rekonsiliasi', label: 'Reconciliation' },
 ];
 
 const STATUS_TAGIHAN: string[] = [
@@ -102,24 +122,24 @@ export default function Revenue(props: ModulProps) {
     const sisa = sisaTagihan(tagihanTerpilih, data.pembayaran);
     const jumlah = Number(jumlahBayar);
     if (!jumlahBayar || Number.isNaN(jumlah) || jumlah <= 0) {
-      setErrorBayar('Jumlah pembayaran wajib diisi dan lebih dari 0.');
+      setErrorBayar('Payment amount is required and must be more than 0.');
       setSuksesBayar('');
       return;
     }
     if (jumlah > sisa) {
       setErrorBayar(
-        `Jumlah pembayaran (${formatRupiah(jumlah)}) melebihi sisa piutang tagihan ini (${formatRupiah(sisa)}). Kurangi jumlah pembayaran.`,
+        `Payment amount (${formatRupiah(jumlah)}) exceeds the outstanding receivables of this invoice (${formatRupiah(sisa)}). Reduce the payment amount.`,
       );
       setSuksesBayar('');
       return;
     }
     if (!tanggalBayar) {
-      setErrorBayar('Tanggal bayar wajib diisi.');
+      setErrorBayar('Payment date is required.');
       setSuksesBayar('');
       return;
     }
     if (!penyetor.trim()) {
-      setErrorBayar('Penyetor wajib diisi.');
+      setErrorBayar('Depositor is required.');
       setSuksesBayar('');
       return;
     }
@@ -139,7 +159,7 @@ export default function Revenue(props: ModulProps) {
     }
     setErrorBayar('');
     setSuksesBayar(
-      `Pembayaran ${formatRupiah(jumlah)} dicatat dengan status Menunggu Verifikasi.`,
+      `Payment ${formatRupiah(jumlah)} recorded with status Pending verification.`,
     );
     setJumlahBayar('');
     setPenyetor('');
@@ -150,12 +170,12 @@ export default function Revenue(props: ModulProps) {
     if (!tagihanTerpilih) return;
     const jumlah = Number(jumlahDenda);
     if (!dasarDenda.trim()) {
-      setErrorDenda('Dasar denda wajib diisi.');
+      setErrorDenda('Late fee basis is required.');
       setSuksesDenda('');
       return;
     }
     if (!jumlahDenda || Number.isNaN(jumlah) || jumlah <= 0) {
-      setErrorDenda('Jumlah denda wajib diisi dan lebih dari 0.');
+      setErrorDenda('Late fee amount is required and must be more than 0.');
       setSuksesDenda('');
       return;
     }
@@ -171,7 +191,7 @@ export default function Revenue(props: ModulProps) {
       return;
     }
     setErrorDenda('');
-    setSuksesDenda(`Denda ${formatRupiah(jumlah)} dicatat untuk ${tagihanTerpilih.nomor}.`);
+    setSuksesDenda(`Late fee ${formatRupiah(jumlah)} recorded for ${tagihanTerpilih.nomor}.`);
     setJumlahDenda('');
     setDasarDenda('');
   };
@@ -253,32 +273,32 @@ export default function Revenue(props: ModulProps) {
       {tab === 'overview' && (
         <div className="space-y-4">
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
-            <StatCard label="Total Tagihan" nilai={formatRupiah(kontrol.totalTagihan)} />
+            <StatCard label="Total Invoices" nilai={formatRupiah(kontrol.totalTagihan)} />
             <StatCard
-              label="Pembayaran Terverifikasi"
+              label="Verified Payments"
               nilai={formatRupiah(kontrol.totalPembayaranTerverifikasi)}
             />
-            <StatCard label="Sisa Piutang" nilai={formatRupiah(kontrol.sisaPiutang)} />
-            <StatCard label="Denda Tercatat" nilai={formatRupiah(kontrol.totalDenda)} />
+            <StatCard label="Outstanding Receivables" nilai={formatRupiah(kontrol.sisaPiutang)} />
+            <StatCard label="Recorded Late Fees" nilai={formatRupiah(kontrol.totalDenda)} />
           </div>
           <Kartu>
-            <JudulBagian>Total per Kode Akun</JudulBagian>
+            <JudulBagian>Totals per Account Code</JudulBagian>
             <Tabel>
               <thead>
                 <tr>
-                  <Th>Kode Akun</Th>
-                  <Th>Uraian</Th>
-                  <Th kanan>Tagihan</Th>
-                  <Th kanan>Pembayaran</Th>
-                  <Th kanan>Acuan Keuangan</Th>
-                  <Th kanan>Selisih</Th>
+                  <Th>Account Code</Th>
+                  <Th>Description</Th>
+                  <Th kanan>Invoices</Th>
+                  <Th kanan>Payments</Th>
+                  <Th kanan>Finance Reference</Th>
+                  <Th kanan>Difference</Th>
                 </tr>
               </thead>
               <tbody>
                 {perKodeAkun.map((r) => (
                   <Baris key={r.kodeAkun}>
                     <Td>{r.kodeAkun}</Td>
-                    <Td>{uraianKodeAkun(r.kodeAkun)}</Td>
+                    <Td>{labelUraianKodeAkun(uraianKodeAkun(r.kodeAkun))}</Td>
                     <Td kanan>{formatRupiah(r.tagihan)}</Td>
                     <Td kanan>{formatRupiah(r.pembayaran)}</Td>
                     <Td kanan>{formatRupiah(r.acuan)}</Td>
@@ -288,8 +308,8 @@ export default function Revenue(props: ModulProps) {
               </tbody>
             </Tabel>
             <p className="mt-3 text-xs text-[#0d2569]/60">
-              Data acuan Keuangan bersifat read-only — hanya ditampilkan untuk
-              rekonsiliasi, tidak dapat diubah dari modul ini.
+              Finance reference data is read-only — shown for reconciliation
+              only and cannot be changed from this module.
             </p>
           </Kartu>
         </div>
@@ -300,39 +320,39 @@ export default function Revenue(props: ModulProps) {
           <Kartu>
             <div className="flex flex-wrap items-end gap-3">
               <div>
-                <Label>Filter Status</Label>
+                <Label>Filter by Status</Label>
                 <select
                   value={filterStatus}
                   onChange={(e) => setFilterStatus(e.target.value)}
                   className={inputClass}
                 >
-                  <option value="Semua">Semua Status</option>
+                  <option value="Semua">All Statuses</option>
                   {STATUS_TAGIHAN.map((s) => (
                     <option key={s} value={s}>
-                      {s}
+                      {labelStatusTagihan(s)}
                     </option>
                   ))}
                 </select>
               </div>
               <p className="pb-2 text-xs text-[#0d2569]/60">
                 {kataCari
-                  ? `Pencarian: "${cari}" — ${tagihanTampil.length} tagihan ditemukan.`
-                  : 'Klik baris tagihan untuk melihat detail, pembayaran, dan denda.'}
+                  ? `Search: "${cari}" — ${tagihanTampil.length} invoices found.`
+                  : 'Click an invoice row to see details, payments, and late fees.'}
               </p>
             </div>
             <Tabel>
               <thead>
                 <tr>
-                  <Th>Nomor</Th>
-                  <Th>Kontrak</Th>
-                  <Th>Uraian</Th>
-                  <Th kanan>Nilai</Th>
-                  <Th>Terbit</Th>
-                  <Th>Jatuh Tempo</Th>
-                  <Th>Kode Akun</Th>
+                  <Th>Number</Th>
+                  <Th>Contract</Th>
+                  <Th>Description</Th>
+                  <Th kanan>Amount</Th>
+                  <Th>Issued</Th>
+                  <Th>Due Date</Th>
+                  <Th>Account Code</Th>
                   <Th>Status</Th>
-                  <Th kanan>Sisa</Th>
-                  <Th>Umur Piutang</Th>
+                  <Th kanan>Balance</Th>
+                  <Th>Receivables Age</Th>
                 </tr>
               </thead>
               <tbody>
@@ -350,19 +370,19 @@ export default function Revenue(props: ModulProps) {
                     <Td>{formatTanggal(t.tanggalJatuhTempo)}</Td>
                     <Td>{t.kodeAkun}</Td>
                     <Td>
-                      <StatusBadge status={statusTagihan(t, data.pembayaran)} />
+                      <StatusBadge status={labelStatusTagihan(statusTagihan(t, data.pembayaran))} />
                     </Td>
                     <Td kanan>
                       {formatRupiah(sisaTagihan(t, data.pembayaran))}
                     </Td>
-                    <Td>{kelompokUmurPiutang(t)}</Td>
+                    <Td>{labelUmurPiutang(kelompokUmurPiutang(t))}</Td>
                   </Baris>
                 ))}
               </tbody>
             </Tabel>
             {tagihanTampil.length === 0 && (
               <div className="mt-3">
-                <PesanKosong teks="Tidak ada tagihan yang cocok dengan filter atau pencarian." />
+                <PesanKosong teks="No invoices match the filter or search." />
               </div>
             )}
           </Kartu>
@@ -371,69 +391,69 @@ export default function Revenue(props: ModulProps) {
             <Kartu>
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <JudulBagian>
-                  Detail {tagihanTerpilih.nomor} — {tagihanTerpilih.uraian}
+                  Details {tagihanTerpilih.nomor} — {tagihanTerpilih.uraian}
                 </JudulBagian>
                 <TombolSekunder onClick={() => setTagihanTerpilihId(null)}>
-                  Tutup Detail
+                  Close Details
                 </TombolSekunder>
               </div>
               <dl className="mt-3 grid grid-cols-2 gap-2 text-sm text-[#0d2569] sm:grid-cols-4">
                 <div>
-                  <dt className="text-xs text-[#0d2569]/60">Kontrak</dt>
+                  <dt className="text-xs text-[#0d2569]/60">Contract</dt>
                   <dd>{nomorKontrak(tagihanTerpilih.kontrakId)}</dd>
                 </div>
                 <div>
-                  <dt className="text-xs text-[#0d2569]/60">Nilai</dt>
+                  <dt className="text-xs text-[#0d2569]/60">Amount</dt>
                   <dd>{formatRupiah(tagihanTerpilih.nilai)}</dd>
                 </div>
                 <div>
-                  <dt className="text-xs text-[#0d2569]/60">Sisa Piutang</dt>
+                  <dt className="text-xs text-[#0d2569]/60">Outstanding Receivables</dt>
                   <dd>{formatRupiah(sisaTagihan(tagihanTerpilih, data.pembayaran))}</dd>
                 </div>
                 <div>
                   <dt className="text-xs text-[#0d2569]/60">Status</dt>
                   <dd>
                     <StatusBadge
-                      status={statusTagihan(tagihanTerpilih, data.pembayaran)}
+                      status={labelStatusTagihan(statusTagihan(tagihanTerpilih, data.pembayaran))}
                     />
                   </dd>
                 </div>
                 <div>
-                  <dt className="text-xs text-[#0d2569]/60">Tanggal Terbit</dt>
+                  <dt className="text-xs text-[#0d2569]/60">Issue Date</dt>
                   <dd>{formatTanggal(tagihanTerpilih.tanggalTerbit)}</dd>
                 </div>
                 <div>
-                  <dt className="text-xs text-[#0d2569]/60">Jatuh Tempo</dt>
+                  <dt className="text-xs text-[#0d2569]/60">Due Date</dt>
                   <dd>{formatTanggal(tagihanTerpilih.tanggalJatuhTempo)}</dd>
                 </div>
                 <div>
-                  <dt className="text-xs text-[#0d2569]/60">Kode Akun</dt>
+                  <dt className="text-xs text-[#0d2569]/60">Account Code</dt>
                   <dd>
                     {tagihanTerpilih.kodeAkun} —{' '}
-                    {uraianKodeAkun(tagihanTerpilih.kodeAkun)}
+                    {labelUraianKodeAkun(uraianKodeAkun(tagihanTerpilih.kodeAkun))}
                   </dd>
                 </div>
                 <div>
-                  <dt className="text-xs text-[#0d2569]/60">Umur Piutang</dt>
-                  <dd>{kelompokUmurPiutang(tagihanTerpilih)}</dd>
+                  <dt className="text-xs text-[#0d2569]/60">Receivables Age</dt>
+                  <dd>{labelUmurPiutang(kelompokUmurPiutang(tagihanTerpilih))}</dd>
                 </div>
               </dl>
 
-              <h3 className="mt-5 text-sm font-bold text-[#0d2569]">Pembayaran</h3>
+              <h3 className="mt-5 text-sm font-bold text-[#0d2569]">Payments</h3>
               {data.pembayaran.filter((p) => p.tagihanId === tagihanTerpilih.id)
                 .length === 0 ? (
                 <div className="mt-2">
-                  <PesanKosong teks="Belum ada pembayaran untuk tagihan ini." />
+                  <PesanKosong teks="No payments yet for this invoice." />
                 </div>
               ) : (
                 <Tabel>
                   <thead>
                     <tr>
-                      <Th>Tanggal Bayar</Th>
-                      <Th kanan>Jumlah</Th>
-                      <Th>Metode</Th>
-                      <Th>Penyetor</Th>
-                      <Th>Status Verifikasi</Th>
+                      <Th>Payment Date</Th>
+                      <Th kanan>Amount</Th>
+                      <Th>Method</Th>
+                      <Th>Depositor</Th>
+                      <Th>Verification Status</Th>
                     </tr>
                   </thead>
                   <tbody>
@@ -443,10 +463,10 @@ export default function Revenue(props: ModulProps) {
                         <Baris key={p.id}>
                           <Td>{formatTanggal(p.tanggalBayar)}</Td>
                           <Td kanan>{formatRupiah(p.jumlah)}</Td>
-                          <Td>{p.metode}</Td>
+                          <Td>{labelMetodePembayaran(p.metode)}</Td>
                           <Td>{p.penyetor}</Td>
                           <Td>
-                            <StatusBadge status={p.statusVerifikasi} />
+                            <StatusBadge status={labelStatusVerifikasi(p.statusVerifikasi)} />
                           </Td>
                         </Baris>
                       ))}
@@ -454,20 +474,20 @@ export default function Revenue(props: ModulProps) {
                 </Tabel>
               )}
 
-              <h3 className="mt-5 text-sm font-bold text-[#0d2569]">Denda</h3>
+              <h3 className="mt-5 text-sm font-bold text-[#0d2569]">Late Fees</h3>
               {data.denda.filter((d) => d.tagihanId === tagihanTerpilih.id).length ===
               0 ? (
                 <div className="mt-2">
-                  <PesanKosong teks="Belum ada denda untuk tagihan ini." />
+                  <PesanKosong teks="No late fees yet for this invoice." />
                 </div>
               ) : (
                 <Tabel>
                   <thead>
                     <tr>
                       <Th>ID</Th>
-                      <Th kanan>Jumlah</Th>
+                      <Th kanan>Amount</Th>
                       <Th>Status</Th>
-                      <Th>Dasar</Th>
+                      <Th>Basis</Th>
                     </tr>
                   </thead>
                   <tbody>
@@ -478,7 +498,7 @@ export default function Revenue(props: ModulProps) {
                           <Td>{d.id}</Td>
                           <Td kanan>{formatRupiah(d.jumlah)}</Td>
                           <Td>
-                            <StatusBadge status={d.status} />
+                            <StatusBadge status={labelStatusDenda(d.status)} />
                           </Td>
                           <Td>{d.dasar}</Td>
                         </Baris>
@@ -490,15 +510,15 @@ export default function Revenue(props: ModulProps) {
               {bolehAksi(user.peran, 'catatPembayaran') && (
                 <div className="mt-6 rounded-md border border-[#2573e2]/20 bg-[#2573e2]/5 p-4">
                   <h3 className="text-sm font-bold text-[#0d2569]">
-                    Catat Pembayaran
+                    Record Payment
                   </h3>
                   <p className="mt-1 text-xs text-[#0d2569]/60">
-                    Pembayaran baru berstatus Menunggu Verifikasi sampai diverifikasi
-                    Keuangan.
+                    New payments have the status Pending verification until
+                    verified by Finance.
                   </p>
                   <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
                     <div>
-                      <Label>Tanggal Bayar</Label>
+                      <Label>Payment Date</Label>
                       <input
                         type="date"
                         value={tanggalBayar}
@@ -507,22 +527,22 @@ export default function Revenue(props: ModulProps) {
                       />
                     </div>
                     <div>
-                      <Label>Jumlah (Rp)</Label>
+                      <Label>Amount (Rp)</Label>
                       <input
                         type="number"
                         min={1}
                         value={jumlahBayar}
                         onChange={(e) => setJumlahBayar(e.target.value)}
-                        placeholder="Contoh: 5000000"
+                        placeholder="Example: 5000000"
                         className={inputClass}
                       />
                       <p className="mt-1 text-xs text-[#0d2569]/60">
-                        Maksimal sisa piutang:{' '}
+                        Maximum outstanding receivables:{' '}
                         {formatRupiah(sisaTagihan(tagihanTerpilih, data.pembayaran))}
                       </p>
                     </div>
                     <div>
-                      <Label>Metode</Label>
+                      <Label>Method</Label>
                       <select
                         value={metodeBayar}
                         onChange={(e) => setMetodeBayar(e.target.value)}
@@ -530,28 +550,28 @@ export default function Revenue(props: ModulProps) {
                       >
                         {MASTER_METODE_PEMBAYARAN.map((m) => (
                           <option key={m} value={m}>
-                            {m}
+                            {labelMetodePembayaran(m)}
                           </option>
                         ))}
                       </select>
                     </div>
                     <div>
-                      <Label>Penyetor</Label>
+                      <Label>Depositor</Label>
                       <input
                         type="text"
                         value={penyetor}
                         onChange={(e) => setPenyetor(e.target.value)}
-                        placeholder="Nama penyetor"
+                        placeholder="Depositor name"
                         className={inputClass}
                       />
                     </div>
                     <div className="sm:col-span-2">
-                      <Label>Bukti Setor (opsional)</Label>
+                      <Label>Deposit Receipt (optional)</Label>
                       <input
                         type="text"
                         value={buktiSetor}
                         onChange={(e) => setBuktiSetor(e.target.value)}
-                        placeholder="Nomor/keterangan bukti setor"
+                        placeholder="Receipt number / reference"
                         className={inputClass}
                       />
                     </div>
@@ -566,7 +586,7 @@ export default function Revenue(props: ModulProps) {
                   )}
                   <div className="mt-3">
                     <TombolUtama onClick={simpanPembayaran}>
-                      Simpan Pembayaran
+                      Save Payment
                     </TombolUtama>
                   </div>
                 </div>
@@ -574,29 +594,29 @@ export default function Revenue(props: ModulProps) {
 
               {bolehAksi(user.peran, 'tambahDenda') && (
                 <div className="mt-4 rounded-md border border-[#2573e2]/20 bg-[#2573e2]/5 p-4">
-                  <h3 className="text-sm font-bold text-[#0d2569]">Tambah Denda</h3>
+                  <h3 className="text-sm font-bold text-[#0d2569]">Add Late Fee</h3>
                   <p className="mt-1 text-xs text-[#0d2569]/60">
-                    Denda dicatat manual; rumus dan tarif resmi belum dikonfirmasi
-                    (Q-03).
+                    Late fees are recorded manually; the official formula and
+                    rates are not yet confirmed (Q-03).
                   </p>
                   <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
                     <div>
-                      <Label>Jumlah Denda (Rp)</Label>
+                      <Label>Late Fee Amount (Rp)</Label>
                       <input
                         type="number"
                         min={1}
                         value={jumlahDenda}
                         onChange={(e) => setJumlahDenda(e.target.value)}
-                        placeholder="Contoh: 350000"
+                        placeholder="Example: 350000"
                         className={inputClass}
                       />
                     </div>
                     <div>
-                      <Label>Dasar (wajib diisi)</Label>
+                      <Label>Basis (required)</Label>
                       <textarea
                         value={dasarDenda}
                         onChange={(e) => setDasarDenda(e.target.value)}
-                        placeholder="Contoh: Lewat jatuh tempo 05/05/2026."
+                        placeholder="Example: Overdue since 05/05/2026."
                         className={inputClass}
                         rows={2}
                       />
@@ -611,7 +631,7 @@ export default function Revenue(props: ModulProps) {
                     <p className="mt-3 text-sm text-[#0d2569]/70">{suksesDenda}</p>
                   )}
                   <div className="mt-3">
-                    <TombolUtama onClick={simpanDenda}>Simpan Denda</TombolUtama>
+                    <TombolUtama onClick={simpanDenda}>Save Late Fee</TombolUtama>
                   </div>
                 </div>
               )}
@@ -622,17 +642,17 @@ export default function Revenue(props: ModulProps) {
 
       {tab === 'payments' && (
         <Kartu>
-          <JudulBagian>Semua Pembayaran</JudulBagian>
+          <JudulBagian>All Payments</JudulBagian>
           <Tabel>
             <thead>
               <tr>
-                <Th>Tanggal Bayar</Th>
-                <Th>Tagihan</Th>
-                <Th>Penyetor</Th>
-                <Th kanan>Jumlah</Th>
-                <Th>Metode</Th>
-                <Th>Status Verifikasi</Th>
-                <Th>Aksi</Th>
+                <Th>Payment Date</Th>
+                <Th>Invoice</Th>
+                <Th>Depositor</Th>
+                <Th kanan>Amount</Th>
+                <Th>Method</Th>
+                <Th>Verification Status</Th>
+                <Th>Action</Th>
               </tr>
             </thead>
             <tbody>
@@ -647,20 +667,20 @@ export default function Revenue(props: ModulProps) {
                     </Td>
                     <Td>{p.penyetor}</Td>
                     <Td kanan>{formatRupiah(p.jumlah)}</Td>
-                    <Td>{p.metode}</Td>
+                    <Td>{labelMetodePembayaran(p.metode)}</Td>
                     <Td>
-                      <StatusBadge status={p.statusVerifikasi} />
+                      <StatusBadge status={labelStatusVerifikasi(p.statusVerifikasi)} />
                     </Td>
                     <Td>
                       {menunggu && bolehAksi(user.peran, 'verifikasiPembayaran') ? (
                         <TombolSekunder
                           onClick={() => actions.verifikasiPembayaran(p.id)}
                         >
-                          Verifikasi
+                          Verify
                         </TombolSekunder>
                       ) : menunggu ? (
                         <span className="text-xs text-[#0d2569]/60">
-                          Hanya Keuangan yang dapat memverifikasi
+                          Only Finance can verify
                         </span>
                       ) : (
                         <span className="text-xs text-[#0d2569]/60">—</span>
@@ -673,7 +693,7 @@ export default function Revenue(props: ModulProps) {
           </Tabel>
           {pembayaranTerurut.length === 0 && (
             <div className="mt-3">
-              <PesanKosong teks="Belum ada pembayaran." />
+              <PesanKosong teks="No payments yet." />
             </div>
           )}
         </Kartu>
@@ -681,17 +701,17 @@ export default function Revenue(props: ModulProps) {
 
       {tab === 'billings' && (
         <Kartu>
-          <JudulBagian>Ringkasan Penagihan per Kontrak</JudulBagian>
+          <JudulBagian>Billing Summary per Contract</JudulBagian>
           <Tabel>
             <thead>
               <tr>
-                <Th>Nomor PKS</Th>
-                <Th>Klien</Th>
-                <Th kanan>Nilai Kontrak</Th>
-                <Th kanan>Total Tagihan</Th>
-                <Th kanan>Total Dibayar (Terverifikasi)</Th>
-                <Th kanan>Sisa Piutang</Th>
-                <Th kanan>Jumlah Tagihan</Th>
+                <Th>PKS Number</Th>
+                <Th>Client</Th>
+                <Th kanan>Contract Value</Th>
+                <Th kanan>Total Invoices</Th>
+                <Th kanan>Total Paid (Verified)</Th>
+                <Th kanan>Outstanding Receivables</Th>
+                <Th kanan>Invoice Count</Th>
               </tr>
             </thead>
             <tbody>
@@ -721,10 +741,10 @@ export default function Revenue(props: ModulProps) {
             </tfoot>
           </Tabel>
           <p className="mt-3 text-xs text-[#0d2569]/60">
-            Total baris bawah dihitung dari baris-baris di atas dan sama dengan total
-            kontrol: total tagihan {formatRupiah(kontrol.totalTagihan)}, pembayaran
-            terverifikasi {formatRupiah(kontrol.totalPembayaranTerverifikasi)}, sisa
-            piutang {formatRupiah(kontrol.sisaPiutang)}.
+            The bottom-row totals are calculated from the rows above and match the
+            control totals: total invoices {formatRupiah(kontrol.totalTagihan)}, verified
+            payments {formatRupiah(kontrol.totalPembayaranTerverifikasi)}, outstanding
+            receivables {formatRupiah(kontrol.sisaPiutang)}.
           </p>
         </Kartu>
       )}
@@ -733,15 +753,15 @@ export default function Revenue(props: ModulProps) {
         <div className="space-y-4">
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
             <StatCard
-              label="Pembayaran Terverifikasi"
+              label="Verified Payments"
               nilai={formatRupiah(kontrol.totalPembayaranTerverifikasi)}
             />
             <StatCard
-              label="Penerimaan Acuan Keuangan"
+              label="Finance Reference Receipts"
               nilai={formatRupiah(kontrol.totalPenerimaanAcuan)}
             />
             <StatCard
-              label="Selisih Rekonsiliasi"
+              label="Reconciliation Difference"
               nilai={
                 data.penerimaanAcuan.length === 0
                   ? '—'
@@ -749,52 +769,52 @@ export default function Revenue(props: ModulProps) {
               }
               keterangan={
                 data.penerimaanAcuan.length === 0
-                  ? 'Data acuan Keuangan belum diimpor.'
+                  ? 'Finance reference data has not been imported yet.'
                   : kontrol.selisihRekonsiliasi === 0
-                    ? 'Cocok — tidak ada selisih.'
+                    ? 'Match — no difference.'
                     : jembatan.sisaTakTerjelaskan === 0
-                      ? 'Terjelaskan seluruhnya — lihat rincian di bawah.'
-                      : 'Sebagian belum terjelaskan — lihat rincian di bawah.'
+                      ? 'Fully explained — see the details below.'
+                      : 'Partly unexplained — see the details below.'
               }
             />
           </div>
           {data.penerimaanAcuan.length > 0 &&
             kontrol.selisihRekonsiliasi !== 0 && (
               <Kartu>
-                <JudulBagian>Penjelasan Selisih</JudulBagian>
+                <JudulBagian>Difference Explained</JudulBagian>
                 <p className="mt-2 text-sm text-[#0d2569]/70">
-                  Penerimaan acuan Keuangan{' '}
-                  {formatRupiah(jembatan.totalAcuan)} − pembayaran
-                  terverifikasi{' '}
+                  Finance reference receipts{' '}
+                  {formatRupiah(jembatan.totalAcuan)} − verified
+                  payments{' '}
                   {formatRupiah(jembatan.totalPembayaranTerverifikasi)} =
-                  selisih {formatRupiah(jembatan.selisih)}. Rincian di
-                  bawah menjelaskan selisih itu sampai ke rupiah terakhir —
-                  dihitung dari data, bukan ditulis manual.
+                  difference {formatRupiah(jembatan.selisih)}. The details
+                  below explain the difference down to the last rupiah —
+                  calculated from data, not written manually.
                 </p>
                 <Tabel>
                   <thead>
                     <tr>
-                      <Th>Uraian</Th>
-                      <Th>Baris</Th>
-                      <Th kanan>Jumlah</Th>
+                      <Th>Description</Th>
+                      <Th>Rows</Th>
+                      <Th kanan>Amount</Th>
                     </tr>
                   </thead>
                   <tbody>
                     <Baris>
                       <Td>
-                        Penerimaan acuan tanpa tagihan
+                        Reference receipts without an invoice
                         <div className="text-xs text-[#0d2569]/60">
-                          Di luar tagihan kerja sama:{' '}
+                          Outside partnership invoices:{' '}
                           {jembatan.acuanTanpaPembayaran.perKodeAkun
                             .map(
                               (r) =>
-                                `${r.kodeAkun} ${uraianKodeAkun(r.kodeAkun)} ${formatRupiah(r.total)} (${r.jumlahBaris} baris)`,
+                                `${r.kodeAkun} ${labelUraianKodeAkun(uraianKodeAkun(r.kodeAkun))} ${formatRupiah(r.total)} (${r.jumlahBaris} rows)`,
                             )
                             .join(' · ')}
                         </div>
                       </Td>
                       <Td>
-                        {jembatan.acuanTanpaPembayaran.jumlahBaris} baris
+                        {jembatan.acuanTanpaPembayaran.jumlahBaris} rows
                       </Td>
                       <Td kanan>
                         {formatRupiah(jembatan.acuanTanpaPembayaran.total)}
@@ -802,25 +822,25 @@ export default function Revenue(props: ModulProps) {
                     </Baris>
                     <Baris>
                       <Td>
-                        Penerimaan acuan tanpa NTPN
+                        Reference receipts without NTPN
                         <div className="text-xs text-[#0d2569]/60">
-                          Tidak ada NTPN di uraian — tidak bisa dipasangkan
-                          dengan pembayaran.
+                          No NTPN in the description — cannot be matched
+                          with a payment.
                         </div>
                       </Td>
-                      <Td>{jembatan.acuanTanpaNtpn.jumlahBaris} baris</Td>
+                      <Td>{jembatan.acuanTanpaNtpn.jumlahBaris} rows</Td>
                       <Td kanan>
                         {formatRupiah(jembatan.acuanTanpaNtpn.total)}
                       </Td>
                     </Baris>
                     <Baris>
                       <Td>
-                        Pembayaran terverifikasi tanpa acuan
+                        Verified payments without a reference
                         <div className="text-xs text-[#0d2569]/60">
-                          NTPN tidak ada di data acuan Keuangan
+                          NTPN is not in the Finance reference data
                           {jembatan.pembayaranTanpaAcuan.tanggalTerawal !==
                             null &&
-                            ` · tanggal bayar ${formatTanggal(jembatan.pembayaranTanpaAcuan.tanggalTerawal)}${jembatan.pembayaranTanpaAcuan.tanggalTerakhir !==
+                            ` · payment date ${formatTanggal(jembatan.pembayaranTanpaAcuan.tanggalTerawal)}${jembatan.pembayaranTanpaAcuan.tanggalTerakhir !==
                               jembatan.pembayaranTanpaAcuan.tanggalTerawal
                               ? `–${formatTanggal(jembatan.pembayaranTanpaAcuan.tanggalTerakhir ?? '')}`
                               : ''}`}
@@ -828,7 +848,7 @@ export default function Revenue(props: ModulProps) {
                         </div>
                       </Td>
                       <Td>
-                        {jembatan.pembayaranTanpaAcuan.jumlahBaris} baris
+                        {jembatan.pembayaranTanpaAcuan.jumlahBaris} rows
                       </Td>
                       <Td kanan>
                         {formatRupiah(-jembatan.pembayaranTanpaAcuan.total)}
@@ -836,19 +856,19 @@ export default function Revenue(props: ModulProps) {
                     </Baris>
                     <Baris>
                       <Td>
-                        Selisih pasangan NTPN (acuan terpasang − pembayaran
-                        terpasang)
+                        NTPN pair difference (matched reference − matched
+                        payment)
                         <div className="text-xs text-[#0d2569]/60">
                           {jembatan.pasangan.selisih === 0
-                            ? 'Semua pasangan sama jumlah.'
+                            ? 'All pairs match in amount.'
                             : jembatan.pasangan.selisih < 0
-                              ? 'Acuan terpasang lebih kecil dari pembayaran terpasang — pembayaran terpecah di Sheet 3 (pokok + denda).'
-                              : 'Acuan terpasang lebih besar dari pembayaran terpasang.'}
+                              ? 'Matched reference is smaller than matched payment — payment split in Sheet 3 (principal + late fee).'
+                              : 'Matched reference is larger than matched payment.'}
                         </div>
                       </Td>
                       <Td>
-                        {jembatan.pasangan.jumlahBarisAcuan} baris acuan ·{' '}
-                        {jembatan.pasangan.jumlahPembayaran} pembayaran
+                        {jembatan.pasangan.jumlahBarisAcuan} reference rows ·{' '}
+                        {jembatan.pasangan.jumlahPembayaran} payments
                       </Td>
                       <Td kanan>
                         {formatRupiah(jembatan.pasangan.selisih)}
@@ -857,7 +877,7 @@ export default function Revenue(props: ModulProps) {
                   </tbody>
                   <tfoot>
                     <Baris className="bg-[#2573e2]/5 font-semibold">
-                      <Td colSpan={2}>Selisih (terjelaskan)</Td>
+                      <Td colSpan={2}>Difference (explained)</Td>
                       <Td kanan tebal>
                         {formatRupiah(jembatan.selisih)}
                       </Td>
@@ -866,13 +886,13 @@ export default function Revenue(props: ModulProps) {
                 </Tabel>
                 {jembatan.sisaTakTerjelaskan === 0 ? (
                   <p className="mt-3 text-xs text-[#0d2569]/60">
-                    Selisih terjelaskan seluruhnya — sisa tak terjelaskan
+                    Difference fully explained — unexplained remainder
                     Rp0.
                   </p>
                 ) : (
                   <div className="mt-3">
                     <Peringatan
-                      teks={`Sisa selisih ${formatRupiah(jembatan.sisaTakTerjelaskan)} belum terjelaskan oleh rincian di atas — perlu konfirmasi ke Keuangan.`}
+                      teks={`Remaining difference of ${formatRupiah(jembatan.sisaTakTerjelaskan)} is not explained by the details above — confirmation from Finance is needed.`}
                     />
                   </div>
                 )}
@@ -887,47 +907,47 @@ export default function Revenue(props: ModulProps) {
                     key={`${b.kodeAcuan}/${b.kodeTagihan}`}
                     className="mt-3 text-xs text-[#0d2569]/60"
                   >
-                    Pasangan beda kode akun: {b.jumlahBaris} baris dicatat
-                    sebagai {b.kodeAcuan} ({uraianKodeAkun(b.kodeAcuan)}) di
-                    Sheet 3 padahal tagihannya {b.kodeTagihan} (
-                    {uraianKodeAkun(b.kodeTagihan)}) —{' '}
-                    {formatRupiah(b.totalAcuan)}. Ini selisih per kode akun,
-                    total tidak berubah; klasifikasi menunggu konfirmasi
-                    Keuangan.
+                    Account-code mismatch pair: {b.jumlahBaris} rows recorded
+                    as {b.kodeAcuan} ({labelUraianKodeAkun(uraianKodeAkun(b.kodeAcuan))}) in
+                    Sheet 3 although the invoice is {b.kodeTagihan} (
+                    {labelUraianKodeAkun(uraianKodeAkun(b.kodeTagihan))}) —{' '}
+                    {formatRupiah(b.totalAcuan)}. This is a per-account-code
+                    difference; the total is unchanged; classification awaits
+                    confirmation from Finance.
                   </p>
                 ))}
                 {jembatan.dendaTertanam.jumlahBaris > 0 && (
                   <p className="mt-3 text-xs text-[#0d2569]/60">
-                    Denda tertanam {formatRupiah(jembatan.dendaTertanam.total)}{' '}
-                    ({jembatan.dendaTertanam.jumlahBaris} baris acuan 425839)
-                    sudah termasuk dalam pembayaran tagihan — dicatat sebagai
-                    425839 di Sheet 3, tidak ditambahkan lagi ke piutang.
+                    Embedded late fee {formatRupiah(jembatan.dendaTertanam.total)}{' '}
+                    ({jembatan.dendaTertanam.jumlahBaris} reference rows 425839)
+                    is already included in the invoice payment — recorded as
+                    425839 in Sheet 3, not added again to receivables.
                   </p>
                 )}
               </Kartu>
             )}
 
           <Kartu>
-            <JudulBagian>Penerimaan Acuan Keuangan (Read-Only)</JudulBagian>
+            <JudulBagian>Finance Reference Receipts (Read-Only)</JudulBagian>
             {data.penerimaanAcuan.length === 0 && (
               <p className="mt-3 text-sm text-[#0d2569]/70">
-                Data acuan Keuangan belum diimpor — Sheet 3 (DATA PNBP 2026)
-                belum terbaca karena batas konektor saat impor 14/11/2026.
-                Rekonsiliasi terhadap acuan Keuangan belum dapat dilakukan
-                sampai data itu diimpor.
+                Finance reference data has not been imported yet — Sheet 3 (DATA PNBP 2026)
+                could not be read because of the connector limit during the 14/11/2026
+                import. Reconciliation against the Finance reference cannot be done
+                until that data is imported.
               </p>
             )}
             <Tabel>
               <thead>
                 <tr>
                   <Th>ID</Th>
-                  <Th>Periode</Th>
-                  <Th>Kode Akun</Th>
-                  <Th>Uraian</Th>
-                  <Th>Penyetor</Th>
-                  <Th>Tanggal Setor</Th>
-                  <Th kanan>Jumlah</Th>
-                  <Th>Status Rekonsiliasi</Th>
+                  <Th>Period</Th>
+                  <Th>Account Code</Th>
+                  <Th>Description</Th>
+                  <Th>Depositor</Th>
+                  <Th>Deposit Date</Th>
+                  <Th kanan>Amount</Th>
+                  <Th>Reconciliation Status</Th>
                 </tr>
               </thead>
               <tbody>
@@ -957,7 +977,7 @@ export default function Revenue(props: ModulProps) {
                       <Td>{formatTanggal(a.tanggalSetor)}</Td>
                       <Td kanan>{formatRupiah(a.jumlah)}</Td>
                       <Td>
-                        <StatusBadge status={statusRekon} />
+                        <StatusBadge status={labelStatusRekon(statusRekon)} />
                       </Td>
                     </Baris>
                   );
@@ -967,16 +987,16 @@ export default function Revenue(props: ModulProps) {
           </Kartu>
 
           <Kartu>
-            <JudulBagian>Rekonsiliasi per Tagihan</JudulBagian>
+            <JudulBagian>Reconciliation per Invoice</JudulBagian>
             <Tabel>
               <thead>
                 <tr>
-                  <Th>Nomor</Th>
-                  <Th>Uraian</Th>
-                  <Th kanan>Nilai Tagihan</Th>
-                  <Th kanan>Dibayar (Terverifikasi)</Th>
-                  <Th kanan>Sisa</Th>
-                  <Th>Status Rekonsiliasi</Th>
+                  <Th>Number</Th>
+                  <Th>Description</Th>
+                  <Th kanan>Invoice Amount</Th>
+                  <Th kanan>Paid (Verified)</Th>
+                  <Th kanan>Balance</Th>
+                  <Th>Reconciliation Status</Th>
                 </tr>
               </thead>
               <tbody>
@@ -998,7 +1018,7 @@ export default function Revenue(props: ModulProps) {
                         {formatRupiah(sisaTagihan(t, data.pembayaran))}
                       </Td>
                       <Td>
-                        <StatusBadge status={statusRekon} />
+                        <StatusBadge status={labelStatusRekon(statusRekon)} />
                       </Td>
                     </Baris>
                   );
@@ -1008,23 +1028,23 @@ export default function Revenue(props: ModulProps) {
           </Kartu>
 
           <Kartu>
-            <JudulBagian>Total Kontrol per Kode Akun</JudulBagian>
+            <JudulBagian>Control Totals per Account Code</JudulBagian>
             <Tabel>
               <thead>
                 <tr>
-                  <Th>Kode Akun</Th>
-                  <Th>Uraian</Th>
-                  <Th kanan>Tagihan</Th>
-                  <Th kanan>Pembayaran</Th>
-                  <Th kanan>Acuan Keuangan</Th>
-                  <Th kanan>Selisih</Th>
+                  <Th>Account Code</Th>
+                  <Th>Description</Th>
+                  <Th kanan>Invoices</Th>
+                  <Th kanan>Payments</Th>
+                  <Th kanan>Finance Reference</Th>
+                  <Th kanan>Difference</Th>
                 </tr>
               </thead>
               <tbody>
                 {perKodeAkun.map((r) => (
                   <Baris key={r.kodeAkun}>
                     <Td>{r.kodeAkun}</Td>
-                    <Td>{uraianKodeAkun(r.kodeAkun)}</Td>
+                    <Td>{labelUraianKodeAkun(uraianKodeAkun(r.kodeAkun))}</Td>
                     <Td kanan>{formatRupiah(r.tagihan)}</Td>
                     <Td kanan>{formatRupiah(r.pembayaran)}</Td>
                     <Td kanan>{formatRupiah(r.acuan)}</Td>

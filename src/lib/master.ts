@@ -14,7 +14,7 @@ export const SATKER_PILOT: SatkerRef = { kode: '41', nama: 'PALEMBANG' };
  * label status fase ditulis. Dipakai label di UI (mis. halaman login) agar
  * tidak kedaluwarsa saat fase berikutnya selesai: cukup ubah konstanta ini.
  */
-export const FASE_TERBANGUN = 'Fase A, Fase B, dan Fase C';
+export const FASE_TERBANGUN = 'Phase A, Phase B, and Phase C';
 
 export interface KodeAkun {
   kode: string;

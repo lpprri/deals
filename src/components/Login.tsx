@@ -107,10 +107,10 @@ export default function Login({
         <div className="w-full max-w-md">
           <img src="/logo-rri.svg" alt="Logo RRI" className="h-12 w-auto" />
           <h1 className="mt-6 text-4xl font-bold text-[#0d2569]">
-            Selamat Datang Kembali
+            Welcome Back
           </h1>
           <p className="mt-2 text-sm text-[#0d2569]/70">
-            Masukkan kredensial Anda untuk mengakses akun
+            Enter your credentials to access your account
           </p>
 
           {isFirebaseConfigured ? (
@@ -124,10 +124,10 @@ export default function Login({
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     className={inputDalam}
-                    placeholder="alamat email Anda"
+                    placeholder="your email address"
                   />
                 </Kolom>
-                <Kolom label="Kata sandi">
+                <Kolom label="Password">
                   <input
                     type="password"
                     required
@@ -135,7 +135,7 @@ export default function Login({
                     value={kataSandi}
                     onChange={(e) => setKataSandi(e.target.value)}
                     className={inputDalam}
-                    placeholder="Kata sandi"
+                    placeholder="Password"
                   />
                 </Kolom>
                 {pesanError && (
@@ -148,27 +148,27 @@ export default function Login({
                   disabled={sedangMasuk}
                   className="w-full rounded-md bg-[#2573e2] px-4 py-3 text-sm font-bold text-white hover:bg-[#0d2569] disabled:opacity-60"
                 >
-                  {sedangMasuk ? 'Memeriksa…' : 'Masuk'}
+                  {sedangMasuk ? 'Checking…' : 'Sign in'}
                 </button>
               </form>
               <div className="mt-6 space-y-2">
                 <TautanPublik
                   onClick={onBukaLacak}
-                  teks="Lacak kerja sama (tanpa login)"
+                  teks="Track partnership (no sign-in)"
                 />
                 <TautanPublik
                   onClick={onBukaAjukan}
-                  teks="Ajukan permohonan kerja sama"
+                  teks="Submit a partnership request"
                 />
               </div>
             </>
           ) : (
             <>
               <div className="mt-8">
-                <Peringatan teks="Mode contoh — masuk sebagai Operator (Contoh). Di produksi login memakai Firebase Auth; profil dummy ini hanya untuk pembangunan." />
+                <Peringatan teks="Sample mode — sign in as Operator (Sample). In production, sign-in uses Firebase Auth; this dummy profile is only for development." />
               </div>
               <p className="mt-6 text-sm font-semibold text-[#0d2569]">
-                Masuk sebagai (Contoh):
+                Sign in as (Sample):
               </p>
               <div className="mt-3">
                 <button
@@ -190,17 +190,17 @@ export default function Login({
                 </button>
               </div>
               <p className="mt-6 text-center text-xs text-[#0d2569]/60">
-                Tanpa kata sandi — mode contoh hanya untuk pembangunan{' '}
+                No password — sample mode is for development only{' '}
                 {FASE_TERBANGUN}.
               </p>
               <div className="mt-4 space-y-2">
                 <TautanPublik
                   onClick={onBukaLacak}
-                  teks="Lacak kerja sama (tanpa login)"
+                  teks="Track partnership (no sign-in)"
                 />
                 <TautanPublik
                   onClick={onBukaAjukan}
-                  teks="Ajukan permohonan kerja sama"
+                  teks="Submit a partnership request"
                 />
               </div>
             </>

@@ -26,6 +26,20 @@ import {
   JUMLAH_SP,
 } from '../lib/satker';
 import {
+  labelJenisDokumen,
+  labelJenisKlien,
+  labelJenisPnBP,
+  labelKategoriLayanan,
+  labelStatusKontrak,
+  labelStatusOrder,
+  labelStatusPersetujuan,
+  labelStatusTask,
+  labelSumberProspek,
+  labelTahapPengajuan,
+  labelTahapPipeline,
+  labelUraianKodeAkun,
+} from '../lib/labels';
+import {
   Baris,
   JudulBagian,
   Kartu,
@@ -36,7 +50,16 @@ import {
   TombolUtama,
 } from '../components/ui';
 
-function DaftarNilai({ judul, nilai }: { judul: string; nilai: string[] }) {
+function DaftarNilai({
+  judul,
+  nilai,
+  label,
+}: {
+  judul: string;
+  nilai: string[];
+  /** Pemeta label Inggris untuk nilai tersimpan (opsional; tanpa label, nilai tampil apa adanya). */
+  label?: (nilai: string) => string;
+}) {
   return (
     <Kartu>
       <JudulBagian>{judul}</JudulBagian>
@@ -46,13 +69,23 @@ function DaftarNilai({ judul, nilai }: { judul: string; nilai: string[] }) {
             key={n}
             className="rounded-md border border-[#2573e2]/20 bg-[#2573e2]/5 px-3 py-2 text-sm text-[#0d2569]"
           >
-            {n}
+            {label ? label(n) : n}
           </li>
         ))}
       </ul>
     </Kartu>
   );
 }
+
+/**
+ * Label Inggris untuk tipe satker tersimpan ('KANTOR_PUSAT' / 'SATKER' /
+ * 'SP'). Belum ada di labels.ts; laporkan ke koordinator untuk konsolidasi.
+ */
+const LABEL_TIPE_SATKER: Record<string, string> = {
+  KANTOR_PUSAT: 'Head Office',
+  SATKER: 'Satker',
+  SP: 'Sub-Station',
+};
 
 export interface HasilMigrasiUI {
   tanggal: string;
@@ -76,7 +109,7 @@ function formatTanggalIso(iso: string): string {
   const d = new Date(iso);
   return Number.isNaN(d.getTime())
     ? iso
-    : d.toLocaleString('id-ID', { dateStyle: 'medium', timeStyle: 'short' });
+    : d.toLocaleString('en-GB', { dateStyle: 'medium', timeStyle: 'short' });
 }
 
 /** Bagian "Migrasi ke Firestore" — migrasi satu kali data contoh. */
@@ -104,7 +137,7 @@ function BagianMigrasi({
       setHasil(r);
     } catch (e) {
       setGalat(
-        e instanceof Error ? e.message : 'Migrasi gagal. Coba lagi.',
+        e instanceof Error ? e.message : 'Migration failed. Try again.',
       );
     } finally {
       setProses(false);
@@ -113,34 +146,34 @@ function BagianMigrasi({
 
   return (
     <Kartu>
-      <JudulBagian>Migrasi ke Firestore</JudulBagian>
+      <JudulBagian>Migrate to Firestore</JudulBagian>
       {statusMigrasi === 'tidak-tersedia' ? (
         <p className="mt-2 text-sm text-[#0d2569]/70">
-          Migrasi memerlukan konfigurasi Firebase. Lengkapi dulu enam variabel
-          VITE_FIREBASE_* di Vercel lalu redeploy, kemudian kembali ke halaman
-          ini.
+          Migration requires Firebase configuration. First complete the six
+          VITE_FIREBASE_* variables in Vercel, then redeploy, and return to
+          this page.
         </p>
       ) : sudah ? (
         <p className="mt-2 text-sm text-[#0d2569]/70">
-          Sudah dimigrasi pada{' '}
+          Already migrated on{' '}
           {hasil
             ? formatTanggalIso(hasil.tanggal)
             : tanggalMigrasi
               ? formatTanggalIso(tanggalMigrasi)
-              : 'tanggal tercatat'}
-          . Migrasi hanya bisa dilakukan sekali.
+              : 'the recorded date'}
+          . Migration can only be done once.
         </p>
       ) : (
         <>
           <p className="mt-2 text-sm text-[#0d2569]/70">
-            Menulis seluruh data contoh (klien, kontrak, tagihan, pembayaran,
-            sewa, pengajuan, dan data Fase B) ke Firestore, beserta profil
-            operator. Migrasi hanya bisa dilakukan sekali — setelah berhasil,
-            tombol ini tidak aktif lagi.
+            Writes all sample data (clients, contracts, invoices, payments,
+            leases, submissions, and Phase B data) to Firestore, along with
+            the operator profile. Migration can only be done once — after it
+            succeeds, this button is disabled.
           </p>
           <div className="mt-3">
             <TombolUtama onClick={tanganiMigrasi} disabled={proses || !onMigrasi}>
-              {proses ? 'Memigrasi data…' : 'Migrasi data contoh ke Firestore'}
+              {proses ? 'Migrating data…' : 'Migrate sample data to Firestore'}
             </TombolUtama>
           </div>
         </>
@@ -155,13 +188,13 @@ function BagianMigrasi({
       {hasil && (
         <div className="mt-3">
           <p className="text-sm font-semibold text-[#0d2569]">
-            Migrasi berhasil pada {formatTanggalIso(hasil.tanggal)}.
+            Migration succeeded on {formatTanggalIso(hasil.tanggal)}.
           </p>
           <Tabel>
             <thead>
               <tr>
-                <Th>Koleksi</Th>
-                <Th kanan>Jumlah dokumen</Th>
+                <Th>Collection</Th>
+                <Th kanan>Document count</Th>
               </tr>
             </thead>
             <tbody>
@@ -184,9 +217,9 @@ export default function MasterPage(props: MasterPageProps) {
   return (
     <div className="space-y-6">
       <p className="text-sm text-[#0d2569]/70">
-        Master data adalah sumber kebenaran tunggal aplikasi (satu kode akun =
-        satu klasifikasi). Halaman ini hanya menampilkan master — perubahan
-        dilakukan oleh Operator.
+        Master data is the application&apos;s single source of truth (one
+        account code = one classification). This page only displays master
+        data — changes are made by the Operator.
       </p>
 
       <BagianMigrasi
@@ -195,26 +228,26 @@ export default function MasterPage(props: MasterPageProps) {
         tanggalMigrasi={tanggalMigrasi}
       />
 
-      <Peringatan teks="Master hanya diubah Operator; nilai yang sudah dipakai transaksi tidak dapat dihapus, hanya dinonaktifkan." />
+      <Peringatan teks="Master data is only changed by the Operator; values already used by transactions cannot be deleted, only deactivated." />
 
       {/* Kode Akun */}
       <Kartu>
-        <JudulBagian>Kode Akun</JudulBagian>
+        <JudulBagian>Account Codes</JudulBagian>
         <div className="mt-3">
           <Tabel>
             <thead>
               <tr>
-                <Th>Kode</Th>
-                <Th>Uraian</Th>
-                <Th>Jenis PNBP</Th>
+                <Th>Code</Th>
+                <Th>Description</Th>
+                <Th>PNBP Type</Th>
               </tr>
             </thead>
             <tbody>
               {MASTER_KODE_AKUN.map((k) => (
                 <Baris key={k.kode}>
                   <Td tebal>{k.kode}</Td>
-                  <Td>{k.uraian}</Td>
-                  <Td>{k.jenisPnBP}</Td>
+                  <Td>{labelUraianKodeAkun(k.uraian)}</Td>
+                  <Td>{labelJenisPnBP(k.jenisPnBP)}</Td>
                 </Baris>
               ))}
             </tbody>
@@ -224,22 +257,22 @@ export default function MasterPage(props: MasterPageProps) {
 
       {/* Kategori Layanan */}
       <Kartu>
-        <JudulBagian>Kategori Layanan</JudulBagian>
+        <JudulBagian>Service Categories</JudulBagian>
         <div className="mt-3">
           <Tabel>
             <thead>
               <tr>
-                <Th>Nama</Th>
-                <Th>Kode Akun</Th>
-                <Th>Jenis PNBP</Th>
+                <Th>Name</Th>
+                <Th>Account Code</Th>
+                <Th>PNBP Type</Th>
               </tr>
             </thead>
             <tbody>
               {MASTER_KATEGORI_LAYANAN.map((k) => (
                 <Baris key={k.nama}>
-                  <Td>{k.nama}</Td>
+                  <Td>{labelKategoriLayanan(k.nama)}</Td>
                   <Td tebal>{k.kodeAkun}</Td>
-                  <Td>{k.jenisPnBP}</Td>
+                  <Td>{labelJenisPnBP(k.jenisPnBP)}</Td>
                 </Baris>
               ))}
             </tbody>
@@ -249,44 +282,74 @@ export default function MasterPage(props: MasterPageProps) {
 
       {/* Daftar nilai master */}
       <div className="grid gap-6 md:grid-cols-2">
-        <DaftarNilai judul="Programa" nilai={MASTER_PROGRAMA} />
-        <DaftarNilai judul="Jenis Klien" nilai={MASTER_JENIS_KLIEN} />
-        <DaftarNilai judul="Jenis Dokumen" nilai={MASTER_JENIS_DOKUMEN} />
-        <DaftarNilai judul="Status Kontrak" nilai={MASTER_STATUS_KONTRAK} />
-        <DaftarNilai judul="Tahap Pengajuan" nilai={MASTER_TAHAP_PENGAJUAN} />
+        <DaftarNilai judul="Programs" nilai={MASTER_PROGRAMA} />
         <DaftarNilai
-          judul="Tahap Pipeline (draf — menunggu Q-11)"
+          judul="Client Types"
+          nilai={MASTER_JENIS_KLIEN}
+          label={labelJenisKlien}
+        />
+        <DaftarNilai
+          judul="Document Types"
+          nilai={MASTER_JENIS_DOKUMEN}
+          label={labelJenisDokumen}
+        />
+        <DaftarNilai
+          judul="Contract Statuses"
+          nilai={MASTER_STATUS_KONTRAK}
+          label={labelStatusKontrak}
+        />
+        <DaftarNilai
+          judul="Submission Stages"
+          nilai={MASTER_TAHAP_PENGAJUAN}
+          label={labelTahapPengajuan}
+        />
+        <DaftarNilai
+          judul="Pipeline Stages"
           nilai={MASTER_TAHAP_PIPELINE}
+          label={labelTahapPipeline}
         />
-        <DaftarNilai judul="Sumber Prospek" nilai={MASTER_SUMBER_PROSPEK} />
         <DaftarNilai
-          judul="Status Quotation"
-          nilai={MASTER_STATUS_QUOTATION}
+          judul="Prospect Sources"
+          nilai={MASTER_SUMBER_PROSPEK}
+          label={labelSumberProspek}
         />
-        <DaftarNilai judul="Status Order" nilai={MASTER_STATUS_ORDER} />
-        <DaftarNilai judul="Status Tugas" nilai={MASTER_STATUS_TASK} />
+        <DaftarNilai
+          judul="Quotation Statuses"
+          nilai={MASTER_STATUS_QUOTATION}
+          label={labelStatusPersetujuan}
+        />
+        <DaftarNilai
+          judul="Order Statuses"
+          nilai={MASTER_STATUS_ORDER}
+          label={labelStatusOrder}
+        />
+        <DaftarNilai
+          judul="Task Statuses"
+          nilai={MASTER_STATUS_TASK}
+          label={labelStatusTask}
+        />
       </div>
 
       {/* Daftar Satker */}
       <Kartu>
-        <JudulBagian>Daftar Satker (Master Nasional)</JudulBagian>
+        <JudulBagian>Satker List (National Master)</JudulBagian>
         <p className="mt-2 text-sm text-[#0d2569]/70">
-          {JUMLAH_SATKER_BERNOMOR} satker bernomor + {JUMLAH_SP} sub-stasiun
-          = {DAFTAR_SATKER.length} entri. Satker pilot Fase A:{' '}
+          {JUMLAH_SATKER_BERNOMOR} numbered satker + {JUMLAH_SP} sub-stations
+          = {DAFTAR_SATKER.length} entries. Phase A pilot satker:{' '}
           <strong className="text-[#0d2569]">
-            {SATKER_PILOT.nama} (kode {SATKER_PILOT.kode})
+            {SATKER_PILOT.nama} (code {SATKER_PILOT.kode})
           </strong>
-          . Ejaan nama mengikuti spreadsheet sumber &ldquo;LAPORAN PNBP
-          2026&rdquo; dan menunggu verifikasi kantor pusat.
+          . Name spellings follow the source spreadsheet &ldquo;LAPORAN PNBP
+          2026&rdquo; and await verification by head office.
         </p>
         <div className="mt-3 max-h-96 overflow-auto rounded-md border border-[#2573e2]/20">
           <table className="w-full text-sm">
             <thead>
               <tr>
                 <Th className="sticky top-0 bg-white pl-3">No</Th>
-                <Th className="sticky top-0 bg-white">Nama Satker</Th>
-                <Th className="sticky top-0 bg-white">Tipe</Th>
-                <Th className="sticky top-0 bg-white">Satker Induk</Th>
+                <Th className="sticky top-0 bg-white">Satker Name</Th>
+                <Th className="sticky top-0 bg-white">Type</Th>
+                <Th className="sticky top-0 bg-white">Parent Satker</Th>
               </tr>
             </thead>
             <tbody>
@@ -297,11 +360,11 @@ export default function MasterPage(props: MasterPageProps) {
                     {s.nama}
                     {s.nama === SATKER_PILOT.nama && (
                       <span className="ml-2 rounded bg-[#2573e2]/10 px-2 py-0.5 text-xs font-semibold text-[#0d2569]">
-                        Satker pilot
+                        Pilot satker
                       </span>
                     )}
                   </Td>
-                  <Td>{s.tipe}</Td>
+                  <Td>{LABEL_TIPE_SATKER[s.tipe] ?? s.tipe}</Td>
                   <Td>{s.induk ?? '—'}</Td>
                 </Baris>
               ))}

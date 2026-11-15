@@ -12,6 +12,17 @@ import {
   MASTER_STATUS_KONTRAK,
   uraianKodeAkun,
 } from '../lib/master';
+import {
+  labelJenisDokumen,
+  labelJenisKlien,
+  labelJenisPnBP,
+  labelKategoriLayanan,
+  labelStatusDokumen,
+  labelStatusKlien,
+  labelStatusKontrak,
+  labelStatusTagihan,
+  labelUraianKodeAkun,
+} from '../lib/labels';
 import { sisaTagihan, statusTagihan } from '../lib/derive';
 import { formatRupiah, formatTanggal, normalisasiNama } from '../lib/format';
 import { bolehAksi } from '../lib/permissions';
@@ -98,9 +109,9 @@ export default function Deals(props: ModulProps) {
     <div className="space-y-4">
       <TabBar
         tabs={[
-          { id: 'klien', label: 'Klien' },
-          { id: 'kontrak', label: 'Kontrak / PKS' },
-          { id: 'dokumen', label: 'Dokumen' },
+          { id: 'klien', label: 'Clients' },
+          { id: 'kontrak', label: 'Contracts / PKS' },
+          { id: 'dokumen', label: 'Documents' },
         ]}
         aktif={tab}
         onPilih={(id) => setTab(id as TabId)}
@@ -192,10 +203,10 @@ function TabKlien({
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <JudulBagian>Klien</JudulBagian>
+        <JudulBagian>Clients</JudulBagian>
         {bolehTambah && (
           <TombolUtama onClick={() => onTampilForm(true)}>
-            + Tambah Klien
+            + Add Client
           </TombolUtama>
         )}
       </div>
@@ -211,21 +222,21 @@ function TabKlien({
 
       {cari.trim() !== '' && (
         <p className="text-sm text-[#0d2569]/70">
-          Hasil pencarian &ldquo;{cari.trim()}&rdquo;: {klienTersaring.length} klien
+          Search results for &ldquo;{cari.trim()}&rdquo;: {klienTersaring.length} clients
         </p>
       )}
 
       {klienTersaring.length === 0 ? (
-        <PesanKosong teks="Belum ada klien yang cocok." />
+        <PesanKosong teks="No matching clients yet." />
       ) : (
         <Kartu>
           <Tabel>
             <thead>
               <tr>
-                <Th>Nama</Th>
-                <Th>Jenis</Th>
-                <Th>Kontak</Th>
-                <Th>Telepon</Th>
+                <Th>Name</Th>
+                <Th>Type</Th>
+                <Th>Contact</Th>
+                <Th>Phone</Th>
                 <Th>Status</Th>
               </tr>
             </thead>
@@ -233,14 +244,14 @@ function TabKlien({
               {klienTersaring.map((k) => (
                 <Baris key={k.id} onClick={() => onPilihKlien(k.id)}>
                   <Td tebal>{k.nama}</Td>
-                  <Td>{k.jenis}</Td>
+                  <Td>{labelJenisKlien(k.jenis)}</Td>
                   <Td>
                     {k.kontakNama}
                     {k.kontakJabatan ? ` — ${k.kontakJabatan}` : ''}
                   </Td>
                   <Td>{k.telepon}</Td>
                   <Td>
-                    <StatusBadge status={k.status} />
+                    <StatusBadge status={labelStatusKlien(k.status)} />
                   </Td>
                 </Baris>
               ))}
@@ -272,21 +283,21 @@ function DetailKlien({
 
   return (
     <div className="space-y-4">
-      <TombolSekunder onClick={onKembali}>&larr; Kembali ke daftar</TombolSekunder>
+      <TombolSekunder onClick={onKembali}>&larr; Back to list</TombolSekunder>
       <JudulBagian>{klien.nama}</JudulBagian>
 
       <div className="grid gap-4 md:grid-cols-2">
         <Kartu>
-          <JudulBagian>Data Klien</JudulBagian>
+          <JudulBagian>Client Details</JudulBagian>
           <dl className="mt-3 space-y-2 text-sm">
             <div className="flex justify-between gap-4">
-              <dt className="text-[#0d2569]/60">Jenis</dt>
-              <dd className="font-semibold text-[#0d2569]">{klien.jenis}</dd>
+              <dt className="text-[#0d2569]/60">Type</dt>
+              <dd className="font-semibold text-[#0d2569]">{labelJenisKlien(klien.jenis)}</dd>
             </div>
             <div className="flex justify-between gap-4">
               <dt className="text-[#0d2569]/60">Status</dt>
               <dd>
-                <StatusBadge status={klien.status} />
+                <StatusBadge status={labelStatusKlien(klien.status)} />
               </dd>
             </div>
             <div className="flex justify-between gap-4">
@@ -296,7 +307,7 @@ function DetailKlien({
               </dd>
             </div>
             <div className="flex justify-between gap-4">
-              <dt className="text-[#0d2569]/60">Alamat</dt>
+              <dt className="text-[#0d2569]/60">Address</dt>
               <dd className="text-right text-[#0d2569]">{klien.alamat}</dd>
             </div>
             <div className="flex justify-between gap-4">
@@ -305,7 +316,7 @@ function DetailKlien({
             </div>
             {klien.catatan && (
               <div className="flex justify-between gap-4">
-                <dt className="text-[#0d2569]/60">Catatan</dt>
+                <dt className="text-[#0d2569]/60">Notes</dt>
                 <dd className="text-right text-[#0d2569]">{klien.catatan}</dd>
               </div>
             )}
@@ -313,18 +324,18 @@ function DetailKlien({
         </Kartu>
 
         <Kartu>
-          <JudulBagian>Kontak</JudulBagian>
+          <JudulBagian>Contact</JudulBagian>
           <dl className="mt-3 space-y-2 text-sm">
             <div className="flex justify-between gap-4">
-              <dt className="text-[#0d2569]/60">Nama kontak</dt>
+              <dt className="text-[#0d2569]/60">Contact name</dt>
               <dd className="font-semibold text-[#0d2569]">{klien.kontakNama}</dd>
             </div>
             <div className="flex justify-between gap-4">
-              <dt className="text-[#0d2569]/60">Jabatan</dt>
+              <dt className="text-[#0d2569]/60">Position</dt>
               <dd className="text-[#0d2569]">{klien.kontakJabatan || '-'}</dd>
             </div>
             <div className="flex justify-between gap-4">
-              <dt className="text-[#0d2569]/60">Telepon</dt>
+              <dt className="text-[#0d2569]/60">Phone</dt>
               <dd className="text-[#0d2569]">{klien.telepon}</dd>
             </div>
             <div className="flex justify-between gap-4">
@@ -333,17 +344,17 @@ function DetailKlien({
             </div>
           </dl>
           <p className="mt-4 border-t border-[#2573e2]/10 pt-3 text-sm">
-            <span className="text-[#0d2569]/60">Piutang terbuka: </span>
+            <span className="text-[#0d2569]/60">Open receivables: </span>
             <strong className="text-[#0d2569]">{formatRupiah(piutangTerbuka)}</strong>
           </p>
         </Kartu>
       </div>
 
       <Kartu>
-        <JudulBagian>Kontrak klien ini</JudulBagian>
+        <JudulBagian>This client&apos;s contracts</JudulBagian>
         {kontrakKlien.length === 0 ? (
           <p className="mt-2 text-sm text-[#0d2569]/70">
-            Klien ini belum memiliki kontrak.
+            This client has no contracts yet.
           </p>
         ) : (
           <ul className="mt-3 text-sm">
@@ -354,10 +365,10 @@ function DetailKlien({
               >
                 <span className="font-semibold text-[#0d2569]">{k.nomorPks}</span>
                 <span className="text-[#0d2569]/70">
-                  {k.kategoriLayanan} — {k.jenisPnBP}
+                  {labelKategoriLayanan(k.kategoriLayanan)} — {labelJenisPnBP(k.jenisPnBP)}
                 </span>
                 <span className="text-[#0d2569]">{formatRupiah(k.nilaiKontrak)}</span>
-                <StatusBadge status={k.status} />
+                <StatusBadge status={labelStatusKontrak(k.status)} />
               </ItemDaftar>
             ))}
           </ul>
@@ -365,10 +376,10 @@ function DetailKlien({
       </Kartu>
 
       <Kartu>
-        <JudulBagian>Dokumen terkait</JudulBagian>
+        <JudulBagian>Related documents</JudulBagian>
         {dokumenTerkait.length === 0 ? (
           <p className="mt-2 text-sm text-[#0d2569]/70">
-            Belum ada dokumen terkait klien ini.
+            No documents related to this client yet.
           </p>
         ) : (
           <ul className="mt-3 text-sm">
@@ -377,9 +388,9 @@ function DetailKlien({
                 key={d.id}
                 className="flex flex-wrap items-center justify-between gap-2"
               >
-                <span className="text-[#0d2569]">{d.jenisDokumen}</span>
+                <span className="text-[#0d2569]">{labelJenisDokumen(d.jenisDokumen)}</span>
                 <span className="text-[#0d2569]/70">{d.kontrakId}</span>
-                <StatusBadge status={d.status} />
+                <StatusBadge status={labelStatusDokumen(d.status)} />
               </ItemDaftar>
             ))}
           </ul>
@@ -426,11 +437,11 @@ function FormKlien({
 
   const simpan = () => {
     if (form.nama.trim() === '') {
-      setError('Nama wajib diisi.');
+      setError('Name is required.');
       return;
     }
     if (form.telepon.trim() === '') {
-      setError('Telepon wajib diisi.');
+      setError('Phone is required.');
       return;
     }
     const hasil = actions.tambahKlien({
@@ -447,19 +458,19 @@ function FormKlien({
 
   return (
     <Kartu>
-      <JudulBagian>Tambah Klien</JudulBagian>
+      <JudulBagian>Add Client</JudulBagian>
       <div className="mt-4 grid gap-4 md:grid-cols-2">
         <div>
-          <Label>Nama *</Label>
+          <Label>Name *</Label>
           <input
             className={inputClass}
             value={form.nama}
             onChange={(e) => ubah('nama', e.target.value)}
-            placeholder="Nama klien"
+            placeholder="Client name"
           />
         </div>
         <div>
-          <Label>Jenis</Label>
+          <Label>Type</Label>
           <select
             className={inputClass}
             value={form.jenis}
@@ -467,45 +478,45 @@ function FormKlien({
           >
             {MASTER_JENIS_KLIEN.map((j) => (
               <option key={j} value={j}>
-                {j}
+                {labelJenisKlien(j)}
               </option>
             ))}
           </select>
         </div>
         <div className="md:col-span-2">
-          <Label>Alamat</Label>
+          <Label>Address</Label>
           <input
             className={inputClass}
             value={form.alamat}
             onChange={(e) => ubah('alamat', e.target.value)}
-            placeholder="Alamat klien"
+            placeholder="Client address"
           />
         </div>
         <div>
-          <Label>Nama kontak</Label>
+          <Label>Contact name</Label>
           <input
             className={inputClass}
             value={form.kontakNama}
             onChange={(e) => ubah('kontakNama', e.target.value)}
-            placeholder="Nama penanggung jawab di klien"
+            placeholder="Name of the person in charge at the client"
           />
         </div>
         <div>
-          <Label>Jabatan kontak</Label>
+          <Label>Contact position</Label>
           <input
             className={inputClass}
             value={form.kontakJabatan}
             onChange={(e) => ubah('kontakJabatan', e.target.value)}
-            placeholder="Jabatan"
+            placeholder="Position"
           />
         </div>
         <div>
-          <Label>Telepon *</Label>
+          <Label>Phone *</Label>
           <input
             className={inputClass}
             value={form.telepon}
             onChange={(e) => ubah('telepon', e.target.value)}
-            placeholder="Nomor telepon"
+            placeholder="Phone number"
           />
         </div>
         <div>
@@ -515,7 +526,7 @@ function FormKlien({
             type="email"
             value={form.email}
             onChange={(e) => ubah('email', e.target.value)}
-            placeholder="email@contoh.id"
+            placeholder="email@example.com"
           />
         </div>
         <div>
@@ -524,23 +535,23 @@ function FormKlien({
             className={inputClass}
             value={form.npwp}
             onChange={(e) => ubah('npwp', e.target.value)}
-            placeholder="NPWP (opsional)"
+            placeholder="NPWP (optional)"
           />
         </div>
         <div>
-          <Label>Catatan</Label>
+          <Label>Notes</Label>
           <input
             className={inputClass}
             value={form.catatan}
             onChange={(e) => ubah('catatan', e.target.value)}
-            placeholder="Catatan (opsional)"
+            placeholder="Notes (optional)"
           />
         </div>
       </div>
 
       {namaMirip && (
         <div className="mt-4">
-          <Peringatan teks="Nama mirip dengan klien yang sudah ada. Periksa kembali sebelum menyimpan — simpan tetap diizinkan bila memang klien yang berbeda." />
+          <Peringatan teks="A similar name already exists. Please double-check before saving — saving is still allowed if this is indeed a different client." />
         </div>
       )}
       {error !== '' && (
@@ -549,8 +560,8 @@ function FormKlien({
         </p>
       )}
       <div className="mt-4 flex gap-2">
-        <TombolUtama onClick={simpan}>Simpan Klien</TombolUtama>
-        <TombolSekunder onClick={onBatal}>Batal</TombolSekunder>
+        <TombolUtama onClick={simpan}>Save Client</TombolUtama>
+        <TombolSekunder onClick={onBatal}>Cancel</TombolSekunder>
       </div>
     </Kartu>
   );
@@ -608,17 +619,17 @@ function TabKontrak({
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <JudulBagian>Kontrak / PKS</JudulBagian>
+        <JudulBagian>Contracts / PKS</JudulBagian>
         {bolehTambah && (
           <TombolUtama onClick={() => onTampilForm(true)}>
-            + Tambah Kontrak
+            + Add Contract
           </TombolUtama>
         )}
       </div>
 
       <div className="flex flex-wrap gap-4">
         <div>
-          <Label>Jenis PNBP</Label>
+          <Label>PNBP Type</Label>
           <select
             className={inputClass}
             value={filterPnBP}
@@ -626,9 +637,9 @@ function TabKontrak({
               onFilterPnBP(e.target.value as 'Semua' | 'Fungsional' | 'Umum')
             }
           >
-            <option value="Semua">Semua</option>
-            <option value="Fungsional">Fungsional</option>
-            <option value="Umum">Umum</option>
+            <option value="Semua">All</option>
+            <option value="Fungsional">Functional</option>
+            <option value="Umum">General</option>
           </select>
         </div>
         <div>
@@ -638,10 +649,10 @@ function TabKontrak({
             value={filterStatus}
             onChange={(e) => onFilterStatus(e.target.value)}
           >
-            <option value="Semua">Semua</option>
+            <option value="Semua">All</option>
             {MASTER_STATUS_KONTRAK.map((s) => (
               <option key={s} value={s}>
-                {s}
+                {labelStatusKontrak(s)}
               </option>
             ))}
           </select>
@@ -658,19 +669,19 @@ function TabKontrak({
       )}
 
       {kontrakTersaring.length === 0 ? (
-        <PesanKosong teks="Belum ada kontrak yang cocok." />
+        <PesanKosong teks="No matching contracts yet." />
       ) : (
         <Kartu>
           <Tabel>
             <thead>
               <tr>
-                <Th>Nomor PKS</Th>
-                <Th>Klien</Th>
-                <Th>Jenis PNBP</Th>
-                <Th>Kategori Layanan</Th>
-                <Th>Kode Akun</Th>
-                <Th kanan>Nilai</Th>
-                <Th>Tanggal Selesai</Th>
+                <Th>PKS Number</Th>
+                <Th>Client</Th>
+                <Th>PNBP Type</Th>
+                <Th>Service Category</Th>
+                <Th>Account Code</Th>
+                <Th kanan>Amount</Th>
+                <Th>End Date</Th>
                 <Th>Status</Th>
               </tr>
             </thead>
@@ -679,13 +690,13 @@ function TabKontrak({
                 <Baris key={k.id} onClick={() => onPilihKontrak(k.id)}>
                   <Td tebal>{k.nomorPks}</Td>
                   <Td>{namaKlien(data, k.klienId)}</Td>
-                  <Td>{k.jenisPnBP}</Td>
-                  <Td>{k.kategoriLayanan}</Td>
+                  <Td>{labelJenisPnBP(k.jenisPnBP)}</Td>
+                  <Td>{labelKategoriLayanan(k.kategoriLayanan)}</Td>
                   <Td>{kodeAkunKontrak(k)}</Td>
                   <Td kanan>{formatRupiah(k.nilaiKontrak)}</Td>
                   <Td>{formatTanggal(k.tanggalSelesai)}</Td>
                   <Td>
-                    <StatusBadge status={k.status} />
+                    <StatusBadge status={labelStatusKontrak(k.status)} />
                   </Td>
                 </Baris>
               ))}
@@ -723,44 +734,44 @@ function DetailKontrak({
 
   return (
     <div className="space-y-4">
-      <TombolSekunder onClick={onKembali}>&larr; Kembali ke daftar</TombolSekunder>
+      <TombolSekunder onClick={onKembali}>&larr; Back to list</TombolSekunder>
       <JudulBagian>{kontrak.nomorPks}</JudulBagian>
 
       <Kartu>
         <dl className="grid gap-2 text-sm md:grid-cols-2">
           <div className="flex justify-between gap-4">
-            <dt className="text-[#0d2569]/60">Klien</dt>
+            <dt className="text-[#0d2569]/60">Client</dt>
             <dd className="text-right font-semibold text-[#0d2569]">
               {klien?.nama ?? kontrak.klienId}
             </dd>
           </div>
           <div className="flex justify-between gap-4">
-            <dt className="text-[#0d2569]/60">Jenis PNBP</dt>
-            <dd className="text-[#0d2569]">{kontrak.jenisPnBP}</dd>
+            <dt className="text-[#0d2569]/60">PNBP Type</dt>
+            <dd className="text-[#0d2569]">{labelJenisPnBP(kontrak.jenisPnBP)}</dd>
           </div>
           <div className="flex justify-between gap-4">
-            <dt className="text-[#0d2569]/60">Kategori layanan</dt>
-            <dd className="text-right text-[#0d2569]">{kontrak.kategoriLayanan}</dd>
+            <dt className="text-[#0d2569]/60">Service category</dt>
+            <dd className="text-right text-[#0d2569]">{labelKategoriLayanan(kontrak.kategoriLayanan)}</dd>
           </div>
           <div className="flex justify-between gap-4">
-            <dt className="text-[#0d2569]/60">Kode akun</dt>
+            <dt className="text-[#0d2569]/60">Account code</dt>
             <dd className="text-[#0d2569]">
-              {kodeAkunKontrak(kontrak)} — {uraianKodeAkun(kodeAkunKontrak(kontrak))}
+              {kodeAkunKontrak(kontrak)} — {labelUraianKodeAkun(uraianKodeAkun(kodeAkunKontrak(kontrak)))}
             </dd>
           </div>
           <div className="flex justify-between gap-4">
-            <dt className="text-[#0d2569]/60">Programa</dt>
+            <dt className="text-[#0d2569]/60">Programme</dt>
             <dd className="text-[#0d2569]">{kontrak.programa ?? '-'}</dd>
           </div>
           <div className="flex justify-between gap-4">
-            <dt className="text-[#0d2569]/60">Periode</dt>
+            <dt className="text-[#0d2569]/60">Period</dt>
             <dd className="text-[#0d2569]">
               {formatTanggal(kontrak.tanggalMulai)} –{' '}
               {formatTanggal(kontrak.tanggalSelesai)}
             </dd>
           </div>
           <div className="flex justify-between gap-4">
-            <dt className="text-[#0d2569]/60">Nilai kontrak</dt>
+            <dt className="text-[#0d2569]/60">Contract value</dt>
             <dd className="font-semibold text-[#0d2569]">
               {formatRupiah(kontrak.nilaiKontrak)}
             </dd>
@@ -768,25 +779,25 @@ function DetailKontrak({
           <div className="flex justify-between gap-4">
             <dt className="text-[#0d2569]/60">Status</dt>
             <dd>
-              <StatusBadge status={kontrak.status} />
+              <StatusBadge status={labelStatusKontrak(kontrak.status)} />
             </dd>
           </div>
           <div className="flex justify-between gap-4">
-            <dt className="text-[#0d2569]/60">Penanggung jawab</dt>
+            <dt className="text-[#0d2569]/60">Person in charge</dt>
             <dd className="text-[#0d2569]">{kontrak.penanggungJawab}</dd>
           </div>
           <div className="flex justify-between gap-4">
-            <dt className="text-[#0d2569]/60">Operator penutup</dt>
+            <dt className="text-[#0d2569]/60">Closing operator</dt>
             <dd className="text-[#0d2569]">
-              {kontrak.operatorPenutup ?? '— belum ditentukan'}
+              {kontrak.operatorPenutup ?? '— not yet assigned'}
             </dd>
           </div>
           <div className="flex justify-between gap-4">
-            <dt className="text-[#0d2569]/60">Tanggal tanda tangan</dt>
+            <dt className="text-[#0d2569]/60">Signing date</dt>
             <dd className="text-[#0d2569]">
               {kontrak.tanggalTandaTangan
                 ? formatTanggal(kontrak.tanggalTandaTangan)
-                : '— (dipakai tanggal mulai)'}
+                : '— (start date used)'}
             </dd>
           </div>
           <div className="flex justify-between gap-4">
@@ -797,15 +808,15 @@ function DetailKontrak({
           </div>
           {kontrak.catatan && (
             <div className="flex justify-between gap-4 md:col-span-2">
-              <dt className="text-[#0d2569]/60">Catatan</dt>
+              <dt className="text-[#0d2569]/60">Notes</dt>
               <dd className="text-right text-[#0d2569]">{kontrak.catatan}</dd>
             </div>
           )}
           {sewa && (
             <div className="flex justify-between gap-4 md:col-span-2">
-              <dt className="text-[#0d2569]/60">Sewa terkait</dt>
+              <dt className="text-[#0d2569]/60">Related lease</dt>
               <dd className="text-right text-[#0d2569]">
-                {sewa.aset} — perjanjian {sewa.nomorPerjanjian} (
+                {sewa.aset} — agreement {sewa.nomorPerjanjian} (
                 {formatRupiah(sewa.nilaiSewa)})
               </dd>
             </div>
@@ -814,24 +825,24 @@ function DetailKontrak({
       </Kartu>
 
       <Kartu>
-        <JudulBagian>Atribusi Employee Rank</JudulBagian>
+        <JudulBagian>Employee Rank Attribution</JudulBagian>
         <p className="mt-1 text-xs text-[#0d2569]/70">
-          Operator penutup dan tanggal tanda tangan menentukan Employee Rank
-          (Q-09). Kontrak impor yang belum punya operator penutup tidak masuk
-          ranking sampai ditugaskan di sini.
+          The closing operator and signing date determine Employee Rank
+          (Q-09). Imported contracts without a closing operator are not
+          included in the ranking until assigned here.
         </p>
         <div className="mt-3 grid gap-4 md:grid-cols-2">
           <div>
-            <Label>Operator penutup</Label>
+            <Label>Closing operator</Label>
             <input
               className={inputClass}
               value={operatorPenutup}
               onChange={(e) => setOperatorPenutup(e.target.value)}
-              placeholder="Nama staf Layanan yang menutup kontrak"
+              placeholder="Name of the Service staff member who closed the contract"
             />
           </div>
           <div>
-            <Label>Tanggal tanda tangan</Label>
+            <Label>Signing date</Label>
             <input
               className={inputClass}
               type="date"
@@ -851,26 +862,26 @@ function DetailKontrak({
                 tanggalTandaTangan,
               });
               setPesanAtribusi(
-                hasil !== null ? hasil : 'Atribusi kontrak tersimpan.',
+                hasil !== null ? hasil : 'Contract attribution saved.',
               );
             }}
           >
-            Simpan Atribusi
+            Save Attribution
           </TombolUtama>
         </div>
       </Kartu>
 
       <Kartu>
-        <JudulBagian>Layanan (snapshot kontrak)</JudulBagian>
+        <JudulBagian>Services (contract snapshot)</JudulBagian>
         <div className="mt-3">
           <Tabel>
             <thead>
               <tr>
-                <Th>Nama</Th>
-                <Th>Kode Akun</Th>
-                <Th>Satuan</Th>
-                <Th kanan>Tarif</Th>
-                <Th kanan>Jumlah</Th>
+                <Th>Name</Th>
+                <Th>Account Code</Th>
+                <Th>Unit</Th>
+                <Th kanan>Rate</Th>
+                <Th kanan>Quantity</Th>
                 <Th kanan>Subtotal</Th>
               </tr>
             </thead>
@@ -887,7 +898,7 @@ function DetailKontrak({
               ))}
               <Baris className="bg-[#2573e2]/5 font-semibold">
                 <Td colSpan={5} tebal>
-                  Total (= nilai kontrak)
+                  Total (= contract value)
                 </Td>
                 <Td kanan tebal>{formatRupiah(kontrak.nilaiKontrak)}</Td>
               </Baris>
@@ -897,22 +908,22 @@ function DetailKontrak({
       </Kartu>
 
       <Kartu>
-        <JudulBagian>Tagihan kontrak ini</JudulBagian>
+        <JudulBagian>Invoices for this contract</JudulBagian>
         {tagihanKontrak.length === 0 ? (
           <p className="mt-2 text-sm text-[#0d2569]/70">
-            Belum ada tagihan untuk kontrak ini.
+            No invoices yet for this contract.
           </p>
         ) : (
           <div className="mt-3">
             <Tabel>
               <thead>
                 <tr>
-                  <Th>Nomor</Th>
-                  <Th>Uraian</Th>
-                  <Th kanan>Nilai</Th>
-                  <Th>Jatuh Tempo</Th>
+                  <Th>Number</Th>
+                  <Th>Description</Th>
+                  <Th kanan>Amount</Th>
+                  <Th>Due Date</Th>
                   <Th>Status</Th>
-                  <Th kanan>Sisa</Th>
+                  <Th kanan>Balance</Th>
                 </tr>
               </thead>
               <tbody>
@@ -924,7 +935,7 @@ function DetailKontrak({
                     <Td>{formatTanggal(t.tanggalJatuhTempo)}</Td>
                     <Td>
                       <StatusBadge
-                        status={statusTagihan(t, data.pembayaran)}
+                        status={labelStatusTagihan(statusTagihan(t, data.pembayaran))}
                       />
                     </Td>
                     <Td kanan>
@@ -981,7 +992,7 @@ function FormKontrak({
 
   const simpan = () => {
     if (nomorPks.trim() === '') {
-      setError('Nomor PKS wajib diisi.');
+      setError('PKS number is required.');
       return;
     }
     if (
@@ -989,38 +1000,38 @@ function FormKontrak({
         (k) => k.nomorPks.trim().toLowerCase() === nomorPks.trim().toLowerCase(),
       )
     ) {
-      setError('Nomor PKS sudah dipakai oleh kontrak lain.');
+      setError('PKS number is already used by another contract.');
       return;
     }
     if (klienId === '') {
-      setError('Klien wajib dipilih.');
+      setError('A client must be selected.');
       return;
     }
     if (tanggalMulai === '') {
-      setError('Tanggal mulai wajib diisi.');
+      setError('Start date is required.');
       return;
     }
     if (tanggalSelesai === '') {
-      setError('Tanggal selesai wajib diisi.');
+      setError('End date is required.');
       return;
     }
     if (tanggalSelesai < tanggalMulai) {
-      setError('Tanggal selesai tidak boleh sebelum tanggal mulai.');
+      setError('End date must not be before the start date.');
       return;
     }
     if (penanggungJawab.trim() === '') {
-      setError('Penanggung jawab wajib diisi.');
+      setError('Person in charge is required.');
       return;
     }
     for (let i = 0; i < baris.length; i += 1) {
       const tarif = Number(baris[i].tarif);
       const jumlah = Number(baris[i].jumlah);
       if (!(tarif > 0)) {
-        setError(`Tarif pada baris layanan ${i + 1} harus lebih dari 0.`);
+        setError(`Rate on service row ${i + 1} must be more than 0.`);
         return;
       }
       if (!(jumlah > 0)) {
-        setError(`Jumlah pada baris layanan ${i + 1} harus lebih dari 0.`);
+        setError(`Quantity on service row ${i + 1} must be more than 0.`);
         return;
       }
     }
@@ -1055,10 +1066,10 @@ function FormKontrak({
 
   return (
     <Kartu>
-      <JudulBagian>Tambah Kontrak</JudulBagian>
+      <JudulBagian>Add Contract</JudulBagian>
       <div className="mt-4 grid gap-4 md:grid-cols-2">
         <div>
-          <Label>Nomor PKS *</Label>
+          <Label>PKS Number *</Label>
           <input
             className={inputClass}
             value={nomorPks}
@@ -1067,7 +1078,7 @@ function FormKontrak({
           />
         </div>
         <div>
-          <Label>Klien *</Label>
+          <Label>Client *</Label>
           <select
             className={inputClass}
             value={klienId}
@@ -1075,13 +1086,13 @@ function FormKontrak({
           >
             {data.klien.map((k) => (
               <option key={k.id} value={k.id}>
-                {k.nama}
+                {labelKategoriLayanan(k.nama)}
               </option>
             ))}
           </select>
         </div>
         <div>
-          <Label>Kategori layanan *</Label>
+          <Label>Service category *</Label>
           <select
             className={inputClass}
             value={kategoriLayanan}
@@ -1089,21 +1100,21 @@ function FormKontrak({
           >
             {MASTER_KATEGORI_LAYANAN.map((k) => (
               <option key={k.nama} value={k.nama}>
-                {k.nama}
+                {labelKategoriLayanan(k.nama)}
               </option>
             ))}
           </select>
           <p className="mt-1 text-xs text-[#0d2569]/70">
-            Kode akun: {kategoriTerpilih?.kodeAkun ?? '-'} (
+            Account code: {kategoriTerpilih?.kodeAkun ?? '-'} (
             {kategoriTerpilih
-              ? uraianKodeAkun(kategoriTerpilih.kodeAkun)
+              ? labelUraianKodeAkun(uraianKodeAkun(kategoriTerpilih.kodeAkun))
               : '-'}
-            ) — Jenis PNBP: {kategoriTerpilih?.jenisPnBP ?? '-'} (terisi otomatis
-            dari kategori)
+            ) — PNBP type: {kategoriTerpilih ? labelJenisPnBP(kategoriTerpilih.jenisPnBP) : '-'} (filled automatically
+            from the category)
           </p>
         </div>
         <div>
-          <Label>Programa</Label>
+          <Label>Programme</Label>
           <select
             className={inputClass}
             value={programa}
@@ -1117,7 +1128,7 @@ function FormKontrak({
           </select>
         </div>
         <div>
-          <Label>Tanggal mulai *</Label>
+          <Label>Start date *</Label>
           <input
             className={inputClass}
             type="date"
@@ -1126,7 +1137,7 @@ function FormKontrak({
           />
         </div>
         <div>
-          <Label>Tanggal selesai *</Label>
+          <Label>End date *</Label>
           <input
             className={inputClass}
             type="date"
@@ -1135,7 +1146,7 @@ function FormKontrak({
           />
         </div>
         <div>
-          <Label>Tanggal tanda tangan</Label>
+          <Label>Signing date</Label>
           <input
             className={inputClass}
             type="date"
@@ -1143,47 +1154,47 @@ function FormKontrak({
             onChange={(e) => setTanggalTandaTangan(e.target.value)}
           />
           <p className="mt-1 text-xs text-[#0d2569]/70">
-            Acuan periode Employee Rank (Q-09). Kosongkan bila belum tahu —
-            dipakai tanggal mulai.
+            Reference period for Employee Rank (Q-09). Leave blank if unknown —
+            the start date will be used.
           </p>
         </div>
         <div>
-          <Label>Penanggung jawab *</Label>
+          <Label>Person in charge *</Label>
           <input
             className={inputClass}
             value={penanggungJawab}
             onChange={(e) => setPenanggungJawab(e.target.value)}
-            placeholder="Nama penanggung jawab"
+            placeholder="Name of the person in charge"
           />
           <p className="mt-1 text-xs text-[#0d2569]/70">
-            PIC klien (bukan operator).
+            Client PIC (not an operator).
           </p>
         </div>
         <div>
-          <Label>Operator penutup</Label>
+          <Label>Closing operator</Label>
           <input
             className={inputClass}
             value={operatorPenutup}
             onChange={(e) => setOperatorPenutup(e.target.value)}
-            placeholder="Kosongkan = operator yang login"
+            placeholder="Leave blank = the signed-in operator"
           />
           <p className="mt-1 text-xs text-[#0d2569]/70">
-            Staf Layanan yang menutup kontrak ini — acuan Employee Rank.
+            Service staff who closed this contract — reference for Employee Rank.
           </p>
         </div>
         <div>
-          <Label>Catatan</Label>
+          <Label>Notes</Label>
           <input
             className={inputClass}
             value={catatan}
             onChange={(e) => setCatatan(e.target.value)}
-            placeholder="Catatan (opsional)"
+            placeholder="Notes (optional)"
           />
         </div>
       </div>
 
       <div className="mt-6">
-        <JudulBagian>Baris layanan</JudulBagian>
+        <JudulBagian>Service rows</JudulBagian>
         <div className="mt-3 space-y-3">
           {baris.map((b, idx) => {
             const kat = kategoriDariNama(b.kategori);
@@ -1194,7 +1205,7 @@ function FormKontrak({
                 className="grid gap-3 rounded-md border border-[#2573e2]/20 p-3 md:grid-cols-5"
               >
                 <div className="md:col-span-2">
-                  <Label>Kategori</Label>
+                  <Label>Category</Label>
                   <select
                     className={inputClass}
                     value={b.kategori}
@@ -1202,25 +1213,25 @@ function FormKontrak({
                   >
                     {MASTER_KATEGORI_LAYANAN.map((k) => (
                       <option key={k.nama} value={k.nama}>
-                        {k.nama}
+                        {labelKategoriLayanan(k.nama)}
                       </option>
                     ))}
                   </select>
                   <p className="mt-1 text-xs text-[#0d2569]/70">
-                    Kode akun {kat?.kodeAkun ?? '-'} — {kat?.jenisPnBP ?? '-'}
+                    Account code {kat?.kodeAkun ?? '-'} — {kat ? labelJenisPnBP(kat.jenisPnBP) : '-'}
                   </p>
                 </div>
                 <div>
-                  <Label>Satuan</Label>
+                  <Label>Unit</Label>
                   <input
                     className={inputClass}
                     value={b.satuan}
                     onChange={(e) => ubahBaris(idx, 'satuan', e.target.value)}
-                    placeholder="Termin / Paket"
+                    placeholder="Term / Package"
                   />
                 </div>
                 <div>
-                  <Label>Tarif (Rp)</Label>
+                  <Label>Rate (Rp)</Label>
                   <input
                     className={inputClass}
                     type="number"
@@ -1230,7 +1241,7 @@ function FormKontrak({
                   />
                 </div>
                 <div>
-                  <Label>Jumlah</Label>
+                  <Label>Quantity</Label>
                   <input
                     className={inputClass}
                     type="number"
@@ -1249,7 +1260,7 @@ function FormKontrak({
                         setBaris((rows) => rows.filter((_, i) => i !== idx))
                       }
                     >
-                      Hapus baris
+                      Remove row
                     </TombolSekunder>
                   </div>
                 )}
@@ -1261,10 +1272,10 @@ function FormKontrak({
           <TombolSekunder
             onClick={() => setBaris((rows) => [...rows, { ...BARIS_LAYANAN_AWAL }])}
           >
-            + Tambah baris layanan
+            + Add service row
           </TombolSekunder>
           <p className="text-sm text-[#0d2569]">
-            Nilai kontrak (jumlah subtotal, tidak bisa diedit manual):{' '}
+            Contract value (sum of subtotals, cannot be edited manually):{' '}
             <strong>{formatRupiah(nilaiKontrak)}</strong>
           </p>
         </div>
@@ -1276,8 +1287,8 @@ function FormKontrak({
         </p>
       )}
       <div className="mt-4 flex gap-2">
-        <TombolUtama onClick={simpan}>Simpan Kontrak</TombolUtama>
-        <TombolSekunder onClick={onBatal}>Batal</TombolSekunder>
+        <TombolUtama onClick={simpan}>Save Contract</TombolUtama>
+        <TombolSekunder onClick={onBatal}>Cancel</TombolSekunder>
       </div>
     </Kartu>
   );
@@ -1325,13 +1336,13 @@ function TabDokumen({
   };
 
   if (!kontrak) {
-    return <PesanKosong teks="Belum ada kontrak untuk menampilkan dokumen." />;
+    return <PesanKosong teks="No contracts yet to show documents for." />;
   }
 
   return (
     <div className="space-y-4">
       <div>
-        <Label>Pilih kontrak</Label>
+        <Label>Choose contract</Label>
         <select
           className={`${inputClass} max-w-md`}
           value={kontrakDokumenId}
@@ -1348,11 +1359,11 @@ function TabDokumen({
       <Kartu>
         <div className="flex flex-wrap items-center justify-between gap-2">
           <JudulBagian>
-            Checklist dokumen — {kontrak.nomorPks}
+            Document checklist — {kontrak.nomorPks}
           </JudulBagian>
           <p className="text-sm font-semibold text-[#0d2569]">
-            Kelengkapan: {persen}% ({jumlahAda} dari {berlaku.length} dokumen
-            yang berlaku)
+            Completeness: {persen}% ({jumlahAda} of {berlaku.length} applicable
+            documents)
           </p>
         </div>
         <ul className="mt-4">
@@ -1362,18 +1373,18 @@ function TabDokumen({
               className="flex flex-wrap items-center justify-between gap-2"
             >
               <div>
-                <p className="text-sm font-semibold text-[#0d2569]">{jenis}</p>
+                <p className="text-sm font-semibold text-[#0d2569]">{labelJenisDokumen(jenis)}</p>
                 {baris?.catatan && (
                   <p className="text-xs text-[#0d2569]/70">{baris.catatan}</p>
                 )}
                 {!baris && (
                   <p className="text-xs text-[#0d2569]/70">
-                    Belum ada baris dokumen untuk jenis ini.
+                    No document row exists for this type yet.
                   </p>
                 )}
               </div>
               <div className="flex items-center gap-2">
-                <StatusBadge status={status} />
+                <StatusBadge status={labelStatusDokumen(status)} />
                 {bolehUbah && baris && (
                   <div className="flex gap-1">
                     {(['Ada', 'Belum Ada', 'Tidak Berlaku'] as StatusDokumen[]).map(
@@ -1389,7 +1400,7 @@ function TabDokumen({
                               : 'border-[#2573e2] bg-white text-[#0d2569]'
                           }`}
                         >
-                          {s}
+                          {labelStatusDokumen(s)}
                         </button>
                       ),
                     )}
@@ -1402,15 +1413,15 @@ function TabDokumen({
       </Kartu>
 
       <Kartu>
-        <JudulBagian>Daftar kekurangan</JudulBagian>
+        <JudulBagian>Missing items</JudulBagian>
         {kekurangan.length === 0 ? (
           <p className="mt-2 text-sm text-[#0d2569]/70">
-            Tidak ada kekurangan — semua dokumen yang berlaku sudah ada.
+            No missing items — all applicable documents are available.
           </p>
         ) : (
           <ul className="mt-3 list-disc space-y-1 pl-5 text-sm text-[#0d2569]">
             {kekurangan.map((k) => (
-              <li key={k.jenis}>{k.jenis} — Belum Ada</li>
+              <li key={k.jenis}>{labelJenisDokumen(k.jenis)} — Not yet available</li>
             ))}
           </ul>
         )}

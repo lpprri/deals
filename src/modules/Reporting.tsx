@@ -17,6 +17,23 @@ import {
 } from '../lib/derive';
 import { formatRupiah, formatPeriode, formatAngka, periodeDariTanggal } from '../lib/format';
 import { jenisPnBPDariKodeAkun, uraianKodeAkun } from '../lib/master';
+import {
+  labelJenisPnBP,
+  labelStatusTagihan,
+  labelUmurPiutang,
+  labelUraianKodeAkun,
+} from '../lib/labels';
+
+
+/** Status laporan (Draft / Diverifikasi / Terkunci — belum ada di labels.ts, pemetaan lokal). */
+const PETA_STATUS_LAPORAN: Record<string, string> = {
+  Draft: 'Draft',
+  Diverifikasi: 'Verified',
+  Terkunci: 'Locked',
+};
+function labelStatusLaporan(status: string): string {
+  return PETA_STATUS_LAPORAN[status] ?? status;
+}
 import { bolehAksi } from '../lib/permissions';
 import {
   Baris,
@@ -38,15 +55,15 @@ type JenisLaporan = 'bulanan' | 'piutang' | 'kantor-pusat';
 type StatusLaporan = 'Draft' | 'Diverifikasi' | 'Terkunci';
 
 const TABS: { id: JenisLaporan; label: string }[] = [
-  { id: 'bulanan', label: 'Bulanan PNBP' },
-  { id: 'piutang', label: 'Piutang & Penyetoran' },
-  { id: 'kantor-pusat', label: 'Kantor Pusat' },
+  { id: 'bulanan', label: 'Monthly PNBP' },
+  { id: 'piutang', label: 'Receivables & Deposits' },
+  { id: 'kantor-pusat', label: 'Head Office' },
 ];
 
 const NAMA_FILE: Record<JenisLaporan, string> = {
-  bulanan: 'bulanan-pnbp',
-  piutang: 'piutang-penyetoran',
-  'kantor-pusat': 'kantor-pusat',
+  bulanan: 'monthly-pnbp',
+  piutang: 'receivables-deposits',
+  'kantor-pusat': 'head-office',
 };
 
 const PERIODE_2026: string[] = Array.from(
@@ -312,25 +329,25 @@ export default function Reporting(props: ModulProps) {
     .reduce((s, k) => s + k.nilaiKontrak, 0);
 
   const eksporCsv = () => {
-    const namaFile = `laporan-${NAMA_FILE[jenis]}-${periode}.csv`;
+    const namaFile = `report-${NAMA_FILE[jenis]}-${periode}.csv`;
     if (jenis === 'bulanan') {
       const kepala = [
-        'Bagian',
-        'Nomor PKS',
-        'Klien',
-        'Jenis PNBP',
-        'Kode Akun',
-        'Nilai Tagihan Periode',
-        'Pembayaran Periode',
-        'Sisa',
+        'Section',
+        'PKS Number',
+        'Client',
+        'PNBP Type',
+        'Account Code',
+        'Invoice Amount in Period',
+        'Payments in Period',
+        'Balance',
       ];
       const isi: string[][] = [kepala];
       barisFungsional.forEach((b) =>
         isi.push([
-          'Fungsional',
+          'Functional',
           b.nomorPks,
           b.klien,
-          b.jenisPnBP,
+          labelJenisPnBP(b.jenisPnBP),
           b.kodeAkun,
           String(b.nilaiTagihan),
           String(b.pembayaran),
@@ -339,10 +356,10 @@ export default function Reporting(props: ModulProps) {
       );
       barisUmum.forEach((b) =>
         isi.push([
-          'Umum',
+          'General',
           b.nomorPks,
           b.klien,
-          b.jenisPnBP,
+          labelJenisPnBP(b.jenisPnBP),
           b.kodeAkun,
           String(b.nilaiTagihan),
           String(b.pembayaran),
@@ -350,7 +367,7 @@ export default function Reporting(props: ModulProps) {
         ]),
       );
       isi.push([
-        'Rekapitulasi',
+        'Recapitulation',
         '',
         '',
         '',
@@ -363,14 +380,14 @@ export default function Reporting(props: ModulProps) {
     } else if (jenis === 'piutang') {
       const isi: string[][] = [
         [
-          'Nomor Tagihan',
-          'Kontrak',
-          'Uraian',
-          'Nilai',
-          'Dibayar Terverifikasi',
-          'Sisa',
+          'Invoice Number',
+          'Contract',
+          'Description',
+          'Amount',
+          'Verified Paid',
+          'Balance',
           'Status',
-          'Umur Piutang',
+          'Receivables Age',
         ],
       ];
       barisPiutang.forEach((b) =>
@@ -381,8 +398,8 @@ export default function Reporting(props: ModulProps) {
           String(b.nilai),
           String(b.dibayar),
           String(b.sisa),
-          b.status,
-          b.umur,
+          labelStatusTagihan(b.status),
+          labelUmurPiutang(b.umur),
         ]),
       );
       isi.push([
@@ -398,7 +415,7 @@ export default function Reporting(props: ModulProps) {
       unduhCsv(namaFile, isi);
     } else {
       const isi: string[][] = [
-        ['Satker', 'QTY', 'PNBP Fungsional', 'PNBP Umum', 'Sisa Piutang'],
+        ['Satker', 'QTY', 'Functional PNBP', 'General PNBP', 'Outstanding Receivables'],
       ];
       barisSatker.forEach((b) =>
         isi.push([
@@ -432,10 +449,10 @@ export default function Reporting(props: ModulProps) {
 
   const judulLaporan =
     jenis === 'bulanan'
-      ? 'Laporan Bulanan PNBP'
+      ? 'Monthly PNBP Report'
       : jenis === 'piutang'
-        ? 'Laporan Piutang & Penyetoran'
-        : 'Laporan Kantor Pusat';
+        ? 'Receivables & Deposits Report'
+        : 'Head Office Report';
 
   return (
     <div className="space-y-4">
@@ -444,7 +461,7 @@ export default function Reporting(props: ModulProps) {
       <Kartu>
         <div className="flex flex-wrap items-end gap-4">
           <div>
-            <Label>Periode Laporan</Label>
+            <Label>Report Period</Label>
             <select
               value={periode}
               onChange={(e) => pilihPeriode(e.target.value)}
@@ -458,67 +475,67 @@ export default function Reporting(props: ModulProps) {
             </select>
           </div>
           <div>
-            <Label>Status Laporan</Label>
+            <Label>Report Status</Label>
             <div className="pb-1">
-              <StatusBadge status={status} />
+              <StatusBadge status={labelStatusLaporan(status)} />
             </div>
           </div>
           <div className="flex flex-wrap gap-2">
             {status === 'Draft' && bolehAksi(user.peran, 'verifikasiLaporan') && (
-              <TombolUtama onClick={verifikasiLaporan}>Verifikasi Laporan</TombolUtama>
+              <TombolUtama onClick={verifikasiLaporan}>Verify Report</TombolUtama>
             )}
             {status === 'Diverifikasi' && bolehAksi(user.peran, 'kunciLaporan') && (
-              <TombolUtama onClick={kunciLaporan}>Kunci Laporan</TombolUtama>
+              <TombolUtama onClick={kunciLaporan}>Lock Report</TombolUtama>
             )}
           </div>
         </div>
         <p className="mt-3 text-sm text-[#0d2569]">
-          {judulLaporan} — {formatPeriode(periode)}. Laporan disusun otomatis dari
-          data; tidak ada isian manual.
+          {judulLaporan} — {formatPeriode(periode)}. The report is compiled automatically
+          from data; there is no manual entry.
         </p>
         {verifikasiInfo && (
           <p className="mt-1 text-xs text-[#0d2569]/60">
-            Diverifikasi oleh {verifikasiInfo}
+            Verified by {verifikasiInfo}
           </p>
         )}
         {kunciInfo && (
           <p className="mt-1 text-xs text-[#0d2569]/60">
-            Dikunci oleh {kunciInfo}
+            Locked by {kunciInfo}
           </p>
         )}
         {status === 'Terkunci' && (
           <div className="mt-3">
-            <Peringatan teks="Snapshot terkunci untuk pengiriman (batas isi tanggal 10, kumpul file tanggal 11). Koreksi setelah terkunci membuat versi baru; versi ini tetap tersimpan." />
+            <Peringatan teks="Locked snapshot for submission (fill by the 10th, file submission by the 11th). Corrections after locking create a new version; this version remains saved." />
           </div>
         )}
       </Kartu>
 
       {/* TOTAL KONTROL — dihitung dari baris-baris laporan yang sama */}
       <Kartu>
-        <JudulBagian>Total Kontrol — {judulLaporan}</JudulBagian>
+        <JudulBagian>Control Totals — {judulLaporan}</JudulBagian>
         {jenis === 'bulanan' && (
           <>
             <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
-              <StatCard label="QTY (Jumlah PKS)" nilai={String(totalBulanan.qty)} />
-              <StatCard label="Nilai Kontrak" nilai={formatRupiah(totalBulanan.nilaiKontrak)} />
-              <StatCard label="Total Tagihan" nilai={formatRupiah(totalBulanan.nilaiTagihan)} />
-              <StatCard label="Total Pembayaran" nilai={formatRupiah(totalBulanan.pembayaran)} />
-              <StatCard label="Sisa Piutang" nilai={formatRupiah(totalBulanan.sisa)} />
+              <StatCard label="QTY (Number of PKS)" nilai={String(totalBulanan.qty)} />
+              <StatCard label="Contract Value" nilai={formatRupiah(totalBulanan.nilaiKontrak)} />
+              <StatCard label="Total Invoices" nilai={formatRupiah(totalBulanan.nilaiTagihan)} />
+              <StatCard label="Total Payments" nilai={formatRupiah(totalBulanan.pembayaran)} />
+              <StatCard label="Outstanding Receivables" nilai={formatRupiah(totalBulanan.sisa)} />
             </div>
             <Tabel>
               <thead>
                 <tr>
-                  <Th>Kode Akun</Th>
-                  <Th>Uraian</Th>
-                  <Th kanan>Tagihan</Th>
-                  <Th kanan>Pembayaran</Th>
+                  <Th>Account Code</Th>
+                  <Th>Description</Th>
+                  <Th kanan>Invoices</Th>
+                  <Th kanan>Payments</Th>
                 </tr>
               </thead>
               <tbody>
                 {perKodeAkunDariBaris(barisBulanan).map((r) => (
                   <Baris key={r.kodeAkun}>
                     <Td>{r.kodeAkun}</Td>
-                    <Td>{uraianKodeAkun(r.kodeAkun)}</Td>
+                    <Td>{labelUraianKodeAkun(uraianKodeAkun(r.kodeAkun))}</Td>
                     <Td kanan>{formatRupiah(r.tagihan)}</Td>
                     <Td kanan>{formatRupiah(r.pembayaran)}</Td>
                   </Baris>
@@ -526,7 +543,7 @@ export default function Reporting(props: ModulProps) {
                 {barisBulanan.length === 0 && (
                   <Baris>
                     <Td colSpan={4}>
-                      Tidak ada tagihan terbit pada periode ini — semua nilai 0.
+                      No invoices were issued in this period — all values are 0.
                     </Td>
                   </Baris>
                 )}
@@ -534,7 +551,7 @@ export default function Reporting(props: ModulProps) {
             </Tabel>
             {!rekapCocok && (
               <div className="mt-3">
-                <Peringatan teks="Selisih terdeteksi: total Rekapitulasi tidak sama dengan Fungsional + Umum. Periksa baris laporan di bawah." />
+                <Peringatan teks="Difference detected: the Recapitulation total does not equal Functional + General. Check the report rows below." />
               </div>
             )}
           </>
@@ -543,21 +560,21 @@ export default function Reporting(props: ModulProps) {
           <>
             <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
               <StatCard
-                label="QTY (Jumlah PKS)"
+                label="QTY (Number of PKS)"
                 nilai={String(new Set(data.tagihan.map((t) => t.kontrakId)).size)}
               />
-              <StatCard label="Nilai Kontrak" nilai={formatRupiah(nilaiKontrakPiutang)} />
-              <StatCard label="Total Tagihan" nilai={formatRupiah(totalPiutang.nilai)} />
-              <StatCard label="Total Pembayaran" nilai={formatRupiah(totalPiutang.dibayar)} />
-              <StatCard label="Sisa Piutang" nilai={formatRupiah(totalPiutang.sisa)} />
+              <StatCard label="Contract Value" nilai={formatRupiah(nilaiKontrakPiutang)} />
+              <StatCard label="Total Invoices" nilai={formatRupiah(totalPiutang.nilai)} />
+              <StatCard label="Total Payments" nilai={formatRupiah(totalPiutang.dibayar)} />
+              <StatCard label="Outstanding Receivables" nilai={formatRupiah(totalPiutang.sisa)} />
             </div>
             <Tabel>
               <thead>
                 <tr>
-                  <Th>Kode Akun</Th>
-                  <Th>Uraian</Th>
-                  <Th kanan>Tagihan</Th>
-                  <Th kanan>Pembayaran</Th>
+                  <Th>Account Code</Th>
+                  <Th>Description</Th>
+                  <Th kanan>Invoices</Th>
+                  <Th kanan>Payments</Th>
                 </tr>
               </thead>
               <tbody>
@@ -570,7 +587,7 @@ export default function Reporting(props: ModulProps) {
                 ).map((r) => (
                   <Baris key={r.kodeAkun}>
                     <Td>{r.kodeAkun}</Td>
-                    <Td>{uraianKodeAkun(r.kodeAkun)}</Td>
+                    <Td>{labelUraianKodeAkun(uraianKodeAkun(r.kodeAkun))}</Td>
                     <Td kanan>{formatRupiah(r.tagihan)}</Td>
                     <Td kanan>{formatRupiah(r.pembayaran)}</Td>
                   </Baris>
@@ -578,17 +595,17 @@ export default function Reporting(props: ModulProps) {
               </tbody>
             </Tabel>
             <p className="mt-3 text-sm text-[#0d2569]">
-              Sisa piutang laporan: {formatRupiah(totalPiutang.sisa)} — sisa piutang
-              operasional: {formatRupiah(kontrol.sisaPiutang)} —{' '}
+              Report outstanding receivables: {formatRupiah(totalPiutang.sisa)} — operational
+              outstanding receivables: {formatRupiah(kontrol.sisaPiutang)} —{' '}
               {piutangCocok ? (
-                <span className="font-semibold">Cocok</span>
+                <span className="font-semibold">Match</span>
               ) : (
-                <span className="font-semibold">Tidak cocok — periksa baris laporan.</span>
+                <span className="font-semibold">Do not match — check the report rows.</span>
               )}
             </p>
             {!piutangCocok && (
               <div className="mt-3">
-                <Peringatan teks="Selisih terdeteksi: total sisa piutang laporan tidak sama dengan sisa piutang operasional." />
+                <Peringatan teks="Difference detected: the report total outstanding receivables do not equal the operational outstanding receivables." />
               </div>
             )}
           </>
@@ -596,22 +613,22 @@ export default function Reporting(props: ModulProps) {
         {jenis === 'kantor-pusat' && (
           <>
             <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
-              <StatCard label="QTY (Jumlah PKS)" nilai={String(totalSatker.qty)} />
-              <StatCard label="Nilai Kontrak" nilai={formatRupiah(nilaiKontrakHq)} />
+              <StatCard label="QTY (Number of PKS)" nilai={String(totalSatker.qty)} />
+              <StatCard label="Contract Value" nilai={formatRupiah(nilaiKontrakHq)} />
               <StatCard
-                label="Total Tagihan"
+                label="Total Invoices"
                 nilai={formatRupiah(totalSatker.fungsional + totalSatker.umum)}
               />
-              <StatCard label="Total Pembayaran" nilai={formatRupiah(pembayaranPeriodeHq)} />
-              <StatCard label="Sisa Piutang" nilai={formatRupiah(totalSatker.sisa)} />
+              <StatCard label="Total Payments" nilai={formatRupiah(pembayaranPeriodeHq)} />
+              <StatCard label="Outstanding Receivables" nilai={formatRupiah(totalSatker.sisa)} />
             </div>
             <Tabel>
               <thead>
                 <tr>
-                  <Th>Kode Akun</Th>
-                  <Th>Uraian</Th>
-                  <Th kanan>Tagihan</Th>
-                  <Th kanan>Pembayaran</Th>
+                  <Th>Account Code</Th>
+                  <Th>Description</Th>
+                  <Th kanan>Invoices</Th>
+                  <Th kanan>Payments</Th>
                 </tr>
               </thead>
               <tbody>
@@ -631,7 +648,7 @@ export default function Reporting(props: ModulProps) {
                 ).map((r) => (
                   <Baris key={r.kodeAkun}>
                     <Td>{r.kodeAkun}</Td>
-                    <Td>{uraianKodeAkun(r.kodeAkun)}</Td>
+                    <Td>{labelUraianKodeAkun(uraianKodeAkun(r.kodeAkun))}</Td>
                     <Td kanan>{formatRupiah(r.tagihan)}</Td>
                     <Td kanan>{formatRupiah(r.pembayaran)}</Td>
                   </Baris>
@@ -639,7 +656,7 @@ export default function Reporting(props: ModulProps) {
                 {tagihanPeriode.length === 0 && (
                   <Baris>
                     <Td colSpan={4}>
-                      Tidak ada tagihan terbit pada periode ini — semua nilai 0.
+                      No invoices were issued in this period — all values are 0.
                     </Td>
                   </Baris>
                 )}
@@ -650,10 +667,10 @@ export default function Reporting(props: ModulProps) {
       </Kartu>
 
       <div className="flex flex-wrap items-center gap-3">
-        <TombolUtama onClick={eksporCsv}>Ekspor CSV</TombolUtama>
+        <TombolUtama onClick={eksporCsv}>Export CSV</TombolUtama>
         <p className="text-xs text-[#0d2569]/60">
-          File: laporan-{NAMA_FILE[jenis]}-{periode}.csv — angka mentah tanpa Rp dan
-          tanpa pemisah ribuan.
+          File: report-{NAMA_FILE[jenis]}-{periode}.csv — raw numbers without Rp and
+          without thousand separators.
         </p>
       </div>
 
@@ -663,26 +680,26 @@ export default function Reporting(props: ModulProps) {
           <Tabel>
             <thead>
               <tr>
-                <Th>Nomor PKS</Th>
-                <Th>Klien</Th>
-                <Th>Jenis PNBP</Th>
-                <Th>Kode Akun</Th>
-                <Th kanan>Nilai Tagihan Periode</Th>
-                <Th kanan>Pembayaran Periode</Th>
-                <Th kanan>Sisa</Th>
+                <Th>PKS Number</Th>
+                <Th>Client</Th>
+                <Th>PNBP Type</Th>
+                <Th>Account Code</Th>
+                <Th kanan>Invoice Amount in Period</Th>
+                <Th kanan>Payments in Period</Th>
+                <Th kanan>Balance</Th>
               </tr>
             </thead>
             <tbody>
               <Baris className="bg-[#2573e2]/5">
                 <Td colSpan={7} tebal>
-                  Fungsional
+                  Functional
                 </Td>
               </Baris>
               {barisFungsional.map((b) => (
                 <Baris key={b.kontrakId}>
                   <Td>{b.nomorPks}</Td>
                   <Td>{b.klien}</Td>
-                  <Td>{b.jenisPnBP}</Td>
+                  <Td>{labelJenisPnBP(b.jenisPnBP)}</Td>
                   <Td>{b.kodeAkun}</Td>
                   <Td kanan>{formatRupiah(b.nilaiTagihan)}</Td>
                   <Td kanan>{formatRupiah(b.pembayaran)}</Td>
@@ -692,20 +709,20 @@ export default function Reporting(props: ModulProps) {
               {barisFungsional.length === 0 && (
                 <Baris>
                   <Td colSpan={7}>
-                    Tidak ada tagihan Fungsional pada periode ini — 0.
+                    No Functional invoices in this period — 0.
                   </Td>
                 </Baris>
               )}
               <Baris className="bg-[#2573e2]/5">
                 <Td colSpan={7} tebal>
-                  Umum
+                  General
                 </Td>
               </Baris>
               {barisUmum.map((b) => (
                 <Baris key={b.kontrakId}>
                   <Td>{b.nomorPks}</Td>
                   <Td>{b.klien}</Td>
-                  <Td>{b.jenisPnBP}</Td>
+                  <Td>{labelJenisPnBP(b.jenisPnBP)}</Td>
                   <Td>{b.kodeAkun}</Td>
                   <Td kanan>{formatRupiah(b.nilaiTagihan)}</Td>
                   <Td kanan>{formatRupiah(b.pembayaran)}</Td>
@@ -715,7 +732,7 @@ export default function Reporting(props: ModulProps) {
               {barisUmum.length === 0 && (
                 <Baris>
                   <Td colSpan={7}>
-                    Tidak ada tagihan Umum pada periode ini — 0.
+                    No General invoices in this period — 0.
                   </Td>
                 </Baris>
               )}
@@ -723,7 +740,7 @@ export default function Reporting(props: ModulProps) {
             <tfoot>
               <Baris className="bg-[#2573e2]/5 font-semibold">
                 <Td colSpan={4}>
-                  Rekapitulasi
+                  Recapitulation
                 </Td>
                 <Td kanan tebal>{formatRupiah(rekapBulanan.nilaiTagihan)}</Td>
                 <Td kanan tebal>{formatRupiah(rekapBulanan.pembayaran)}</Td>
@@ -732,9 +749,9 @@ export default function Reporting(props: ModulProps) {
             </tfoot>
           </Tabel>
           <p className="mt-3 text-xs text-[#0d2569]/60">
-            Rekapitulasi = Fungsional + Umum, dihitung dari baris-baris di atas.
-            Pembayaran periode hanya menghitung pembayaran terverifikasi yang
-            tanggal bayarnya pada periode ini.
+            Recapitulation = Functional + General, calculated from the rows above.
+            Period payments count only verified payments whose payment date falls in
+            this period.
           </p>
         </Kartu>
       )}
@@ -745,14 +762,14 @@ export default function Reporting(props: ModulProps) {
           <Tabel>
             <thead>
               <tr>
-                <Th>Nomor Tagihan</Th>
-                <Th>Kontrak</Th>
-                <Th>Uraian</Th>
-                <Th kanan>Nilai</Th>
-                <Th kanan>Dibayar (Terverifikasi)</Th>
-                <Th kanan>Sisa</Th>
+                <Th>Invoice Number</Th>
+                <Th>Contract</Th>
+                <Th>Description</Th>
+                <Th kanan>Amount</Th>
+                <Th kanan>Paid (Verified)</Th>
+                <Th kanan>Balance</Th>
                 <Th>Status</Th>
-                <Th>Umur Piutang</Th>
+                <Th>Receivables Age</Th>
               </tr>
             </thead>
             <tbody>
@@ -765,9 +782,9 @@ export default function Reporting(props: ModulProps) {
                   <Td kanan>{formatRupiah(b.dibayar)}</Td>
                   <Td kanan>{formatRupiah(b.sisa)}</Td>
                   <Td>
-                    <StatusBadge status={b.status} />
+                    <StatusBadge status={labelStatusTagihan(b.status)} />
                   </Td>
-                  <Td>{b.umur}</Td>
+                  <Td>{labelUmurPiutang(b.umur)}</Td>
                 </Baris>
               ))}
             </tbody>
@@ -784,9 +801,9 @@ export default function Reporting(props: ModulProps) {
             </tfoot>
           </Tabel>
           <p className="mt-3 text-xs text-[#0d2569]/60">
-            Laporan ini menampilkan seluruh tagihan; total sisa piutang dihitung
-            dengan fungsi derive yang sama dengan total operasional, sehingga
-            keduanya cocok.
+            This report shows all invoices; total outstanding receivables are
+            calculated with the same derive function as the operational total, so
+            the two match.
           </p>
         </Kartu>
       )}
@@ -795,16 +812,16 @@ export default function Reporting(props: ModulProps) {
         <Kartu>
           <JudulBagian>{judulLaporan} — {formatPeriode(periode)}</JudulBagian>
           <p className="mt-1 text-xs text-[#0d2569]/60">
-            Format kantor pusat: satu baris per satker. Sel tanpa nilai diisi 0.
+            Head office format: one row per satker. Cells without a value are filled with 0.
           </p>
           <Tabel>
             <thead>
               <tr>
                 <Th>Satker</Th>
                 <Th kanan>QTY</Th>
-                <Th kanan>PNBP Fungsional</Th>
-                <Th kanan>PNBP Umum</Th>
-                <Th kanan>Sisa Piutang</Th>
+                <Th kanan>Functional PNBP</Th>
+                <Th kanan>General PNBP</Th>
+                <Th kanan>Outstanding Receivables</Th>
               </tr>
             </thead>
             <tbody>
@@ -838,10 +855,10 @@ export default function Reporting(props: ModulProps) {
             </tfoot>
           </Tabel>
           <p className="mt-3 text-xs text-[#0d2569]/60">
-            QTY = jumlah PKS yang diterbitkan pada bulan ini (tanggal terbit
-            tagihan; bukan jumlah siaran). PNBP Fungsional/Umum = nilai
-            tagihan kode 425531/425131 yang terbit pada periode ini. Sisa
-            Piutang = sisa tagihan yang terbit pada periode ini.
+            QTY = number of PKS issued this month (invoice issue date; not the
+            number of broadcasts). Functional/General PNBP = invoice amounts for
+            codes 425531/425131 issued in this period. Outstanding Receivables =
+            balance of invoices issued in this period.
           </p>
         </Kartu>
       )}

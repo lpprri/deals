@@ -40,6 +40,15 @@ import type {
 } from '../lib/types';
 import { formatRupiah, formatTanggal } from '../lib/format';
 import {
+  labelJenisDokumen,
+  labelJenisPnBP,
+  labelKategoriLayanan,
+  labelMetodePembayaran,
+  labelStatusDokumen,
+  labelStatusKontrak,
+  labelStatusVerifikasi,
+} from '../lib/labels';
+import {
   Baris,
   JudulBagian,
   Kartu,
@@ -77,7 +86,20 @@ interface PeristiwaTimeline {
 }
 
 const PESAN_TIDAK_DITEMUKAN =
-  'Nomor tidak ditemukan. Periksa kembali nomor PKS atau nomor tagihan Anda, atau hubungi Operator (Layanan & Pengembangan Usaha).';
+  'Number not found. Please check your PKS or invoice number again, or contact the Operator (Layanan & Pengembangan Usaha).';
+
+/** Label Inggris untuk status yang tampil di timeline (nilai tersimpan). */
+function labelStatusTimeline(status: string): string {
+  for (const fn of [
+    labelStatusKontrak,
+    labelStatusVerifikasi,
+    labelStatusDokumen,
+  ]) {
+    const mapped = fn(status);
+    if (mapped !== status) return mapped;
+  }
+  return status;
+}
 
 /** Normalisasi kode: buang spasi ujung dan abaikan huruf besar/kecil. */
 function normalisasiKode(kode: string): string {
@@ -138,7 +160,7 @@ export default function Lacak({ data, onKembali }: LacakProps) {
     e.preventDefault();
     if (kode.trim() === '') {
       setHasil(null);
-      setPesan('Masukkan nomor PKS atau nomor tagihan terlebih dahulu.');
+      setPesan('Enter your PKS or invoice number first.');
       return;
     }
     const ditemukan = cariKerjaSama(data, kode);
@@ -171,21 +193,21 @@ export default function Lacak({ data, onKembali }: LacakProps) {
     ? [
         {
           tanggal: kontrak.tanggalTandaTangan ?? kontrak.tanggalMulai,
-          label: `Kontrak ${kontrak.nomorPks} ditandatangani`,
-          detail: `${kontrak.kategoriLayanan} — ${formatRupiah(kontrak.nilaiKontrak)}`,
+          label: `Contract ${kontrak.nomorPks} signed`,
+          detail: `${labelKategoriLayanan(kontrak.kategoriLayanan)} — ${formatRupiah(kontrak.nilaiKontrak)}`,
           status: kontrak.status,
         },
         ...tagihan.map((t) => ({
           tanggal: t.tanggalTerbit,
-          label: `Invoice / billing ${t.nomor} diterbitkan`,
-          detail: `${t.uraian} — ${formatRupiah(t.nilai)} • jatuh tempo ${formatTanggal(t.tanggalJatuhTempo)}`,
+          label: `Invoice / billing ${t.nomor} issued`,
+          detail: `${t.uraian} — ${formatRupiah(t.nilai)} • due ${formatTanggal(t.tanggalJatuhTempo)}`,
         })),
         ...pembayaranTerverifikasi.map((p) => {
           const tagihanTerkait = tagihan.find((t) => t.id === p.tagihanId);
           return {
             tanggal: p.tanggalBayar,
-            label: 'Pembayaran terverifikasi',
-            detail: `${formatRupiah(p.jumlah)} • ${p.metode}${tagihanTerkait ? ` • untuk ${tagihanTerkait.nomor}` : ''}`,
+            label: 'Verified payment',
+            detail: `${formatRupiah(p.jumlah)} • ${labelMetodePembayaran(p.metode)}${tagihanTerkait ? ` • for ${tagihanTerkait.nomor}` : ''}`,
             status: 'Terverifikasi',
           };
         }),
@@ -193,8 +215,8 @@ export default function Lacak({ data, onKembali }: LacakProps) {
           .filter((d) => d.status === 'Ada' && d.tanggalUnggah)
           .map((d) => ({
             tanggal: d.tanggalUnggah as string,
-            label: `${d.jenisDokumen} diterbitkan`,
-            detail: `Kontrak ${kontrak.nomorPks}`,
+            label: `${labelJenisDokumen(d.jenisDokumen)} issued`,
+            detail: `Contract ${kontrak.nomorPks}`,
             status: 'Ada',
           })),
       ].sort((a, b) => (a.tanggal < b.tanggal ? 1 : -1))
@@ -217,15 +239,15 @@ export default function Lacak({ data, onKembali }: LacakProps) {
         <img src="/logo-rri.svg" alt="Logo RRI" className="h-9 w-auto" />
         <div>
           <h1 className="text-xl font-bold text-[#0d2569]">
-            Lacak Kerja Sama
+            Track Partnership
           </h1>
           <p className="text-sm text-[#0d2569]/70">
-            Lacak status kerja sama Anda dengan nomor PKS atau nomor tagihan —
-            tanpa login.
+            Track your partnership status with your PKS or invoice number —
+            no sign-in required.
           </p>
         </div>
         <div className="ml-auto">
-          <TombolSekunder onClick={onKembali}>Kembali ke Masuk</TombolSekunder>
+          <TombolSekunder onClick={onKembali}>Back to Sign in</TombolSekunder>
         </div>
       </header>
 
@@ -233,17 +255,17 @@ export default function Lacak({ data, onKembali }: LacakProps) {
         <Kartu>
           <form onSubmit={lacak} className="grid gap-4 md:grid-cols-[1fr_auto]">
             <div>
-              <Label>Nomor PKS atau nomor tagihan</Label>
+              <Label>PKS or invoice number</Label>
               <input
                 className={inputClass}
                 value={kode}
                 onChange={(e) => setKode(e.target.value)}
-                placeholder="Contoh: 0603/PKS/RRI.PLB/01/2026"
+                placeholder="Example: 0603/PKS/RRI.PLB/01/2026"
                 autoComplete="off"
               />
             </div>
             <div className="flex items-end">
-              <TombolUtama type="submit">Lacak</TombolUtama>
+              <TombolUtama type="submit">Track</TombolUtama>
             </div>
           </form>
           {pesan !== null && (
@@ -256,11 +278,11 @@ export default function Lacak({ data, onKembali }: LacakProps) {
         {kontrak && (
           <>
             <Kartu>
-              <JudulBagian>Ringkasan kerja sama</JudulBagian>
+              <JudulBagian>Partnership summary</JudulBagian>
               <dl className="mt-3 grid gap-3 text-sm md:grid-cols-2">
                 <div>
                   <dt className="text-xs font-semibold text-[#0d2569]/60">
-                    Klien
+                    Client
                   </dt>
                   <dd className="font-semibold text-[#0d2569]">
                     {klien?.nama ?? '-'}
@@ -268,7 +290,7 @@ export default function Lacak({ data, onKembali }: LacakProps) {
                 </div>
                 <div>
                   <dt className="text-xs font-semibold text-[#0d2569]/60">
-                    Nomor PKS
+                    PKS Number
                   </dt>
                   <dd className="font-semibold text-[#0d2569]">
                     {kontrak.nomorPks}
@@ -276,7 +298,7 @@ export default function Lacak({ data, onKembali }: LacakProps) {
                 </div>
                 <div>
                   <dt className="text-xs font-semibold text-[#0d2569]/60">
-                    Status kontrak
+                    Contract status
                   </dt>
                   <dd className="mt-0.5">
                     <StatusBadge status={kontrak.status} />
@@ -284,7 +306,7 @@ export default function Lacak({ data, onKembali }: LacakProps) {
                 </div>
                 <div>
                   <dt className="text-xs font-semibold text-[#0d2569]/60">
-                    Nilai kontrak
+                    Contract value
                   </dt>
                   <dd className="font-semibold text-[#0d2569]">
                     {formatRupiah(kontrak.nilaiKontrak)}
@@ -292,7 +314,7 @@ export default function Lacak({ data, onKembali }: LacakProps) {
                 </div>
                 <div>
                   <dt className="text-xs font-semibold text-[#0d2569]/60">
-                    Periode
+                    Period
                   </dt>
                   <dd className="text-[#0d2569]">
                     {formatTanggal(kontrak.tanggalMulai)} —{' '}
@@ -301,11 +323,11 @@ export default function Lacak({ data, onKembali }: LacakProps) {
                 </div>
                 <div>
                   <dt className="text-xs font-semibold text-[#0d2569]/60">
-                    Layanan
+                    Service
                   </dt>
                   <dd className="text-[#0d2569]">
-                    {kontrak.kategoriLayanan}
-                    {kontrak.jenisPnBP ? ` • PNBP ${kontrak.jenisPnBP}` : ''}
+                    {labelKategoriLayanan(kontrak.kategoriLayanan)}
+                    {kontrak.jenisPnBP ? ` • PNBP ${labelJenisPnBP(kontrak.jenisPnBP)}` : ''}
                   </dd>
                 </div>
               </dl>
@@ -313,32 +335,32 @@ export default function Lacak({ data, onKembali }: LacakProps) {
 
             <div className="grid gap-4 md:grid-cols-4">
               <StatCard
-                label="Nilai kontrak"
+                label="Contract value"
                 nilai={formatRupiah(kontrak.nilaiKontrak)}
-                keterangan={`Kontrak ${kontrak.nomorPks}`}
+                keterangan={`Contract ${kontrak.nomorPks}`}
               />
               <StatCard
-                label="Total tagihan"
+                label="Total invoices"
                 nilai={formatRupiah(totalTagihan)}
-                keterangan={`${tagihan.length} invoice / billing diterbitkan`}
+                keterangan={`${tagihan.length} invoices / billings issued`}
               />
               <StatCard
-                label="Pembayaran terverifikasi"
+                label="Verified payments"
                 nilai={formatRupiah(totalPembayaranTerverifikasi)}
-                keterangan={`${pembayaranTerverifikasi.length} pembayaran terverifikasi`}
+                keterangan={`${pembayaranTerverifikasi.length} verified payments`}
               />
               <StatCard
-                label="Sisa piutang"
+                label="Outstanding receivables"
                 nilai={formatRupiah(sisaPiutang)}
-                keterangan="Total tagihan dikurangi pembayaran terverifikasi"
+                keterangan="Total invoices minus verified payments"
               />
             </div>
 
             <Kartu>
-              <JudulBagian>Timeline kerja sama</JudulBagian>
+              <JudulBagian>Partnership timeline</JudulBagian>
               {peristiwa.length === 0 ? (
                 <p className="mt-3">
-                  <PesanKosong teks="Belum ada peristiwa kerja sama untuk nomor ini." />
+                  <PesanKosong teks="No partnership events for this number yet." />
                 </p>
               ) : (
                 <ul className="mt-3 space-y-3">
@@ -357,7 +379,7 @@ export default function Lacak({ data, onKembali }: LacakProps) {
                         <p className="text-sm text-[#0d2569]/70">{p.detail}</p>
                         <p className="mt-1 text-xs text-[#0d2569]/60">
                           {formatTanggal(p.tanggal)}
-                          {p.status ? ` • ${p.status}` : ''}
+                          {p.status ? ` • ${labelStatusTimeline(p.status)}` : ''}
                         </p>
                       </div>
                     </li>
@@ -367,8 +389,8 @@ export default function Lacak({ data, onKembali }: LacakProps) {
               {dokumenMenunggu.length > 0 && (
                 <div className="mt-4">
                   <Peringatan
-                    teks={`Menunggu diterbitkan: ${dokumenMenunggu
-                      .map((d) => `${d.jenisDokumen} (kontrak ${kontrak.nomorPks})`)
+                    teks={`Awaiting issuance: ${dokumenMenunggu
+                      .map((d) => `${labelJenisDokumen(d.jenisDokumen)} (contract ${kontrak.nomorPks})`)
                       .join('; ')}.`}
                   />
                 </div>
@@ -376,25 +398,25 @@ export default function Lacak({ data, onKembali }: LacakProps) {
             </Kartu>
 
             <Kartu>
-              <JudulBagian>Dokumen kerja sama</JudulBagian>
+              <JudulBagian>Partnership documents</JudulBagian>
               {dokumen.length === 0 ? (
                 <p className="mt-3">
-                  <PesanKosong teks="Belum ada dokumen untuk nomor ini." />
+                  <PesanKosong teks="No documents for this number yet." />
                 </p>
               ) : (
                 <Tabel>
                   <thead>
                     <tr>
-                      <Th>Jenis dokumen</Th>
-                      <Th>Kontrak</Th>
+                      <Th>Document type</Th>
+                      <Th>Contract</Th>
                       <Th>Status</Th>
-                      <Th>Tanggal unggah</Th>
+                      <Th>Upload date</Th>
                     </tr>
                   </thead>
                   <tbody>
                     {dokumen.map((d) => (
                       <Baris key={d.id}>
-                        <Td>{d.jenisDokumen}</Td>
+                        <Td>{labelJenisDokumen(d.jenisDokumen)}</Td>
                         <Td>{kontrak.nomorPks}</Td>
                         <Td>
                           <StatusBadge status={d.status} />
