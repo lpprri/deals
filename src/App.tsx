@@ -75,6 +75,7 @@ import Notifikasi from './components/Notifikasi';
 import { DAFTAR_JENIS_PENGAJUAN_KLIEN, type JenisPengajuanKlien } from './lib/types';
 import { bolehAksi, LABEL_PERAN } from './lib/permissions';
 import { formatRupiah, formatTanggal, hariIniIso } from './lib/format';
+import { LOGO_DEALS_DATA_URI } from './lib/logoDeals';
 import {
   labelJabatan,
   labelKategoriLayanan,
@@ -2519,9 +2520,7 @@ export default function App() {
       <header className="flex shrink-0 items-center gap-4 border-b border-[#2573e2]/15 bg-white px-6 py-3">
         <div className="flex shrink-0 items-center gap-3">
           <img src="/logo-rri.svg" alt="Logo RRI" className="h-9 w-auto" />
-          <span className="text-lg font-bold leading-tight text-[#0d2569]">
-            Partnership LPP RRI
-          </span>
+          <img src={LOGO_DEALS_DATA_URI} alt="Deals" className="h-9 w-auto" />
         </div>
         <div className="ml-auto flex shrink-0 items-center gap-3">
           <Notifikasi data={data} onNavigasi={(m) => setActive(m)} />
