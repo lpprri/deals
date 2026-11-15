@@ -197,7 +197,9 @@ interface NavItem {
    * sebagai item di panel tambahan di samping sidebar (klik induknya).
    * Nama induk TIDAK dicantumkan lagi di dalam panelnya sendiri
    * (perbaikan 15/11/2026 19:16 WIB): panel hanya berisi sub-item.
-   * Saat ini: 'umpanBalik' di panel 'reports'.
+   * Saat ini: 'dashboard' dan 'umpanBalik' di panel 'reports'
+   * (urutan panel: Dashboard, lalu Feedback Survey; PR #42,
+   * 15/11/2026 — Dashboard masuk ke dalam Reports).
    * 'sewa' TIDAK punya induk (dihapus dari panel 'deals' 15/11/2026,
    * PR #40 — panel DEALS sudah hilang; 'sewa' juga TIDAK tampil di
    * sidebar, seperti 'deals' dan 'pengajuan': modul + datanya tetap
@@ -338,6 +340,20 @@ const MODULES: NavItem[] = [
       'New Submissions (new partnership / new lease): Received → Under review → Awaiting documents → Approved/Rejected → Converted to contract.',
   },
   {
+    id: 'dashboard',
+    label: 'Dashboard',
+    icon: LayoutDashboard,
+    phase: 'A',
+    // Sub-item panel REPORTS (15/11/2026, PR #42, diminta pengguna
+    // "masukkan dashboard ke dalam Reports"): Dashboard tidak tampil
+    // di sidebar utama (cluster 4 tersisa Revenue, Reports); panel
+    // REPORTS berisi Dashboard lalu Feedback Survey. Modul + data
+    // tetap utuh; tampilan awal saat login tetap Dashboard.
+    induk: 'reporting',
+    description:
+      'Period summary, Revenue Analytics, head office report deadlines (fill in by the 10th, submit by the 11th). Employee Rank & Satker Rank (Leaderboard of the Year / of the Month) per contract signing date period.',
+  },
+  {
     id: 'umpanBalik',
     label: 'Feedback Survey',
     icon: ClipboardCheck,
@@ -361,14 +377,6 @@ const MODULES: NavItem[] = [
     phase: 'A',
     description:
       'Satker Reports: PNBP Report, Receivables & Deposits Report, Service Support Report, Memorandum of Understanding Report, Media Partner Report.',
-  },
-  {
-    id: 'dashboard',
-    label: 'Dashboard',
-    icon: LayoutDashboard,
-    phase: 'A',
-    description:
-      'Period summary, Revenue Analytics, head office report deadlines (fill in by the 10th, submit by the 11th). Employee Rank & Satker Rank (Leaderboard of the Year / of the Month) per contract signing date period.',
   },
   {
     id: 'todo',
@@ -419,7 +427,10 @@ const MODULES: NavItem[] = [
     dihapus dari sidebar, Sewa naik jadi menu utama di posisi Deals;
     KOREKSI pengguna 20:59 WIB — promosi Sewa DIBATALKAN, Lease/BMN
     juga dihapus dari sidebar, urutan AKHIR cluster 3: Sales,
-    Campaign, Prospect, Offer, Order, Clients, Meeting):
+    Campaign, Prospect, Offer, Order, Clients, Meeting; PR #42,
+    diminta pengguna 15/11/2026 21:46 WIB — Dashboard masuk ke
+    panel REPORTS (sub-navigasi di bawah Reports); cluster 4
+    tersisa Revenue, Reports):
     item nav utama dibagi ke cluster yang dipisah garis tipis, tanpa
     label kelompok (kecuali ADMIN yang sudah punya label). Urutan
     cluster = urutan tampil di sidebar; urutan di dalam cluster
@@ -428,7 +439,7 @@ const CLUSTER_SIDEBAR: ModuleId[][] = [
   ['home'],
   ['kontrak', 'mou', 'komitmen', 'approvement'],
   ['sales', 'marketing', 'prospek', 'offer', 'order', 'klien', 'meeting'],
-  ['revenue', 'reporting', 'dashboard'],
+  ['revenue', 'reporting'],
   ['todo', 'service'],
 ];
 
