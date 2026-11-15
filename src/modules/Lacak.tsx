@@ -86,7 +86,7 @@ interface PeristiwaTimeline {
 }
 
 const PESAN_TIDAK_DITEMUKAN =
-  'Number not found. Please check your PKS or invoice number again, or contact the Operator (Layanan & Pengembangan Usaha).';
+  'Number not found. Please check your PKS or invoice number again, or contact the Operator (Service & Business Development).';
 
 /** Label Inggris untuk status yang tampil di timeline (nilai tersimpan). */
 function labelStatusTimeline(status: string): string {

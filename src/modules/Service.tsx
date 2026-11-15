@@ -17,7 +17,7 @@ import {
   TUJUAN_TIKET,
 } from '../lib/master';
 import { formatTanggal, hariIniIso } from '../lib/format';
-import { labelKategoriTiket, labelStatusTiket } from '../lib/labels';
+import { labelKategoriTiket, labelStatusTiket, labelTujuanTiket } from '../lib/labels';
 
 /**
  * Tampilan Inggris untuk pertanyaan survei (nilai master di master.ts
@@ -128,7 +128,7 @@ function HelpDesk({
   return (
     <div className="space-y-4">
       <Peringatan
-        teks={`Direct consultation via the app to ${TUJUAN_TIKET}. The PIC varies depending on the type of consultation — the PIC name per category has not been determined yet, so tickets are recorded per category and answered as saved follow-ups.`}
+        teks={`Direct consultation via the app to ${labelTujuanTiket(TUJUAN_TIKET)}. The PIC varies depending on the type of consultation — the PIC name per category has not been determined yet, so tickets are recorded per category and answered as saved follow-ups.`}
       />
 
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
@@ -280,7 +280,7 @@ function FormTiket({
     <Kartu>
       <JudulBagian>Create Consultation Ticket</JudulBagian>
       <p className="mt-1 text-sm text-[#0d2569]/70">
-        Addressed to: {TUJUAN_TIKET} · Created by: {user.nama} · Date:{' '}
+        Addressed to: {labelTujuanTiket(TUJUAN_TIKET)} · Created by: {user.nama} · Date:{' '}
         {formatTanggal(hariIniIso())}
       </p>
       <div className="mt-4 grid gap-4 md:grid-cols-2">

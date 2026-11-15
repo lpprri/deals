@@ -9,7 +9,7 @@ import { MASTER_STATUS_TASK } from '../lib/master';
 import { DUMMY_USERS } from '../lib/dummyUsers';
 import { formatTanggal, hariIniIso } from '../lib/format';
 import { bolehAksi } from '../lib/permissions';
-import { labelStatusTask } from '../lib/labels';
+import { labelJabatan, labelStatusTask } from '../lib/labels';
 import {
   Baris,
   ItemDaftar,
@@ -596,7 +596,7 @@ function FormDisposisi({
           >
             {DUMMY_USERS.map((u) => (
               <option key={u.nama} value={u.nama}>
-                {u.nama} — {u.jabatan}
+                {u.nama} — {labelJabatan(u.jabatan)}
               </option>
             ))}
           </select>

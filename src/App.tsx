@@ -56,6 +56,8 @@ import { DAFTAR_JENIS_PENGAJUAN_KLIEN } from './lib/types';
 import { bolehAksi, LABEL_PERAN } from './lib/permissions';
 import { formatRupiah, formatTanggal, hariIniIso } from './lib/format';
 import {
+  labelJabatan,
+  labelKategoriLayanan,
   labelStatusOrder,
   labelStatusPersetujuan,
   labelTahapPipeline,
@@ -606,7 +608,7 @@ export default function App() {
         if (l.jumlah <= 0) return `Service quantity on line ${i + 1} must be more than 0.`;
       }
       const kategori = MASTER_KATEGORI_LAYANAN.find((k) => k.nama === input.kategoriLayanan);
-      if (!kategori) return `Service category "${input.kategoriLayanan}" is not recognised.`;
+      if (!kategori) return `Service category "${labelKategoriLayanan(input.kategoriLayanan)}" is not recognised.`;
       const layanan: LayananKontrak[] = input.layanan.map((l, i) => {
         const kat = MASTER_KATEGORI_LAYANAN.find((k) => k.nama === l.kategori);
         return {
@@ -2182,7 +2184,7 @@ export default function App() {
             <Settings size={14} /> {penggunaAktif.nama}
           </p>
           <p className="mt-1">{LABEL_PERAN[penggunaAktif.peran]}</p>
-          <p>{penggunaAktif.jabatan}</p>
+          <p>{labelJabatan(penggunaAktif.jabatan)}</p>
           <button
             onClick={tanganiKeluar}
             className="mt-3 flex items-center gap-2 rounded-md border border-white/30 px-3 py-1.5 text-xs font-semibold text-white hover:bg-white/10"
