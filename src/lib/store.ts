@@ -86,7 +86,11 @@ export interface PengajuanInput {
   nilaiPerkiraan?: number;
 }
 
-export interface PengajuanKlienInput {
+export interface PengajuanPublikInput {
+  namaPemohon: string;
+  namaInstitusi: string;
+  kontakEmail: string;
+  kontakTelepon?: string;
   jenis: JenisPengajuanKlien;
   judul: string;
   uraian: string;
@@ -232,15 +236,17 @@ export interface StoreActions {
   tambahPengajuan: (input: PengajuanInput) => string | null;
   ubahTahapPengajuan: (pengajuan: Pengajuan, tahap: TahapPengajuan, alasan?: string) => void;
   konversiPengajuan: (pengajuan: Pengajuan) => string | null;
-  // Fase C — Client Order Portal (Q-10). Approval Operator TIDAK membuat
+  // Fase C — Form submission publik (REVISI KOREKSI 2026-11-15: klien
+  // TIDAK punya akun/login; submission berasal dari form publik tanpa
+  // akun, status awal 'Menunggu'). Approval Operator TIDAK membuat
   // entitas order kedua: submission yang disetujui menjadi Prospect baru
   // lewat alur Sales yang sudah ada (prospect → quotation → order →
   // kontrak); submission menautkannya lewat `prospectId`.
-  /** PIC klien membuat submission (status awal 'Menunggu'). */
-  tambahPengajuanKlien: (input: PengajuanKlienInput) => string | null;
   /**
    * Operator menyetujui submission: status 'Disetujui' + Prospect baru
    * (tahap 'Prospek Baru', sumber 'Pengajuan') + tautan `prospectId`.
+   * Bila submission berasal dari calon klien yang belum tercatat
+   * (klienId kosong), dibuatkan Klien baru dari data submission.
    */
   setujuiPengajuanKlien: (
     submission: PengajuanKlien,

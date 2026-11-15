@@ -1,9 +1,7 @@
-// Matriks hak akses — 1 role Operator + peran Klien (Fase C, Q-10).
+// Matriks hak akses — hanya 1 role Operator.
 // Operator (Staf Layanan & Pengembangan Usaha) dengan akses penuh,
-// termasuk migrasi/master/konfigurasi. Klien (PIC) HANYA boleh membuat
-// submission portal miliknya sendiri — SEMUA aksi operator ditolak untuk
-// klien (matriks di bawah sengaja tidak memberi klien satu pun aksi
-// operator; penegakan di Firestore Rules, bukan hanya di matriks ini).
+// termasuk migrasi/master/konfigurasi. KOREKSI 2026-11-15: peran Klien
+// dihapus; setujui/tolak submission publik hanya Operator.
 // Catatan: data Keuangan (`penerimaanAcuan`) tetap read-only sebagai acuan
 // dan perubahan sensitif tetap tercatat di audit — penegakan read-only itu
 // ada di Firestore Rules, bukan di matriks ini.
@@ -33,9 +31,8 @@ export type Aksi =
   | 'kelolaTask'
   | 'tambahDisposisi'
   | 'tutupDisposisi'
-  // Fase C — Client Order Portal (Q-10). 'buatPengajuanKlien' HANYA untuk
-  // klien (PIC membuat submission miliknya); setujui/tolak HANYA Operator.
-  | 'buatPengajuanKlien'
+  // Fase C — antrean approval submission publik. Setujui/tolak HANYA
+  // Operator; submission publik dibuat tanpa login (bukan aksi peran).
   | 'setujuiPengajuanKlien'
   | 'tolakPengajuanKlien';
 
@@ -67,9 +64,7 @@ const IZIN: Record<Aksi, Role[]> = Object.fromEntries(
   SEMUA_AKSI.map((aksi) => [aksi, ['operator'] as Role[]]),
 ) as Record<Aksi, Role[]>;
 
-// Pengecualian Fase C: hanya PIC klien yang boleh membuat submission
-// portal; hanya Operator yang boleh menyetujui/menolaknya.
-IZIN.buatPengajuanKlien = ['klien'];
+// Setujui/tolak submission publik: hanya Operator.
 IZIN.setujuiPengajuanKlien = ['operator'];
 IZIN.tolakPengajuanKlien = ['operator'];
 
@@ -79,5 +74,4 @@ export function bolehAksi(peran: Role, aksi: Aksi): boolean {
 
 export const LABEL_PERAN: Record<Role, string> = {
   operator: 'Operator',
-  klien: 'Klien (PIC)',
 };

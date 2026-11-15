@@ -192,24 +192,26 @@ export interface Pengajuan {
 }
 
 // ---------------------------------------------------------------------------
-// Entitas Fase C — Client Order Portal (PRD v2.0 Final Bab 7.8; Q-10
-// terjawab 15/11/2026: PIC tiap klien DAFTAR SENDIRI, lalu membuat
-// pengajuan / media order / permohonan sewa; setelah approval Operator,
-// PIC melihat timeline kerja sama kliennya sendiri).
+// Entitas Fase C — Submission publik (PRD v2.0 Final Bab 7.8; Q-10
+// terjawab 15/11/2026).
+//
+// REVISI per KOREKSI 2026-11-15: PIC klien TIDAK lagi daftar/masuk —
+// tidak ada akun klien. Submission berasal dari FORM PUBLIK tanpa akun
+// ("Ajukan Permohonan Kerja Sama"); approval tetap oleh OPERATOR.
+// Satu submission yang disetujui tetap menjadi SATU Prospect baru lewat
+// alur Sales yang sudah ada (tanpa entitas order kedua).
 //
 // ASUMSI YANG DITETAPKAN (bukan tebakan diam-diam):
 // - Yang memberi approval adalah OPERATOR (satu-satunya peran yang bisa
 //   menyetujui dari dalam aplikasi).
-// - Submission portal yang disetujui TIDAK menjadi entitas order kedua:
-//   ia menjadi Prospect baru lewat alur Sales yang sudah ada (prospect →
+// - Submission yang disetujui TIDAK menjadi entitas order kedua: ia
+//   menjadi Prospect baru lewat alur Sales yang sudah ada (prospect →
 //   quotation → order → kontrak), dan submission menautkannya lewat
 //   `prospectId`. Tidak ada duplikasi total order/kontrak.
-// - Satu akun PIC terikat ke SATU klien (`klienId` di profil pengguna).
+// - Submission publik dari calon klien yang belum tercatat punya
+//   `klienId` KOSONG (''); Klien baru dibuatkan Operator saat menyetujui.
 
-/** Status approval akun PIC klien (disetujui Operator sebelum bisa masuk). */
-export type StatusApprovalKlien = 'Menunggu' | 'Disetujui' | 'Ditolak';
-
-/** Jenis submission yang bisa dibuat PIC klien dari portal (Q-10). */
+/** Jenis submission yang bisa dibuat dari form publik (Q-10). */
 export type JenisPengajuanKlien =
   | 'Pengajuan Kerja Sama'
   | 'Media Order'
@@ -221,19 +223,23 @@ export const DAFTAR_JENIS_PENGAJUAN_KLIEN: JenisPengajuanKlien[] = [
   'Permohonan Sewa',
 ];
 
-/** Status antrean approval submission portal klien. */
+/** Status antrean approval submission publik. */
 export type StatusPengajuanKlien = 'Menunggu' | 'Disetujui' | 'Ditolak';
 
 export interface PengajuanKlien {
   id: string;
-  /** Klien yang diwakili PIC pembuat submission. */
+  /** Klien asal submission — KOSONG ('') bila submission publik dari calon klien yang belum tercatat; diisi saat Operator menyetujui (dibuatkan Klien baru). */
   klienId: string;
+  /** Nama institusi pemohon (submission publik). */
+  namaInstitusi?: string;
+  /** Telepon pemohon (submission publik, opsional). */
+  telepon?: string;
   jenis: JenisPengajuanKlien;
   judul: string;
   uraian: string;
-  /** Nama PIC pembuat (diambil dari profil pengguna saat submit). */
+  /** Nama pemohon (PIC / pengaju). */
   namaPic: string;
-  /** Email PIC pembuat (diambil dari akun Auth saat submit). */
+  /** Email kontak pemohon (untuk submission publik). */
   dibuatOleh: string;
   tanggalBuat: string; // 'yyyy-mm-dd'
   nilaiPerkiraan?: number;
