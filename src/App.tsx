@@ -7,7 +7,7 @@
 // setiap aksi menulis audit trail. Bila Firestore sudah dimigrasi, aksi
 // tulis juga disimpan ke Firestore; bila belum, perubahan session-only.
 
-import { useEffect, useState } from 'react';
+import { Fragment, useEffect, useState } from 'react';
 import { onAuthStateChanged } from 'firebase/auth';
 import { doc, getDoc } from 'firebase/firestore';
 import {
@@ -276,7 +276,7 @@ const MODULES: NavItem[] = [
   },
   {
     id: 'reporting',
-    label: 'Reporting',
+    label: 'Reports',
     icon: FileText,
     phase: 'A',
     description:
@@ -321,6 +321,20 @@ const MODULES: NavItem[] = [
     description:
       'Centralised master data (account codes, services, programs, client types, document types, statuses, satker list) and dummy users.',
   },
+];
+
+/** Cluster sidebar (PR #36, disetujui pengguna 15/11/2026 19:37 WIB,
+    dikoreksi 19:37 WIB — Dashboard di cluster Revenue/Reports):
+    item nav utama dibagi ke cluster yang dipisah garis tipis, tanpa
+    label kelompok (kecuali ADMIN yang sudah punya label). Urutan
+    cluster = urutan tampil di sidebar; urutan di dalam cluster
+    mengikuti MODULES. */
+const CLUSTER_SIDEBAR: ModuleId[][] = [
+  ['home'],
+  ['marketing', 'kontrak', 'mou', 'komitmen', 'approvement'],
+  ['sales', 'deals'],
+  ['revenue', 'reporting', 'dashboard'],
+  ['todo', 'service'],
 ];
 
 /** ID berikutnya dengan awalan yang sama (mis. KLN-01 -> KLN-02). */
@@ -2302,6 +2316,12 @@ export default function App() {
   // Daftar utama sidebar: hanya item tanpa induk (sub-item tampil di
   // panel tambahan di samping sidebar, lihat panel di bawah).
   const navUtama = MODULES.filter((m) => m.phase !== 'Admin' && !m.induk);
+  /** Nav utama dikelompokkan per CLUSTER_SIDEBAR (PR #36): urutan
+      cluster = urutan tampil; urutan di dalam cluster mengikuti
+      MODULES (navUtama). */
+  const navUtamaCluster: NavItem[][] = CLUSTER_SIDEBAR.map((ids) =>
+    navUtama.filter((m) => ids.includes(m.id)),
+  );
   const navAdmin = MODULES.filter((m) => m.phase === 'Admin').filter((m) =>
     m.id === 'audit'
       ? bolehAksi(penggunaAktif.peran, 'lihatAudit')
@@ -2350,6 +2370,52 @@ export default function App() {
     setActive(id);
     setPanelTerbuka(panelUntukTampilan(id));
   };
+
+  /** Tombol satu item nav utama sidebar (dipakai per cluster di bawah). */
+  const tombolNavUtama = (m: NavItem) => {
+    const ItemIcon = m.icon;
+    const anak = MODULES.filter((c) => c.induk === m.id);
+    // Induk ikut ter-highlight saat sub-item-nya yang aktif.
+    const isActive = m.id === active || anak.some((c) => c.id === active);
+    return (
+      <button
+        key={m.id}
+        title={sidebarCiut ? m.label : undefined}
+        onClick={() => tanganiKlikNav(m)}
+        className={`flex w-full items-center gap-3 rounded-md py-2 text-left text-sm ${
+          sidebarCiut ? 'justify-center px-0' : 'px-3'
+        } ${
+          isActive
+            ? 'bg-[#2573e2]/10 font-semibold text-[#2573e2]'
+            : 'text-[#0d2569]/70 hover:bg-[#2573e2]/5 hover:text-[#0d2569]'
+        }`}
+      >
+        <ItemIcon size={18} className="shrink-0" />
+        {!sidebarCiut && m.label}
+        {!sidebarCiut && m.phase === 'C' && (
+          <span className="ml-auto shrink-0 rounded bg-[#2573e2]/10 px-1.5 py-0.5 text-[10px] text-[#2573e2]">
+            Phase {m.phase}
+          </span>
+        )}
+      </button>
+    );
+  };
+
+  /** Garis pemisah antar cluster sidebar (PR #36): abu muda, tanpa
+      label — selebar sidebar di mode terbuka, garis pendek di tengah
+      rel di mode terlipat. Bukan scrollbar; `.scrollbar-tersembunyi`
+      tidak diubah. */
+  const garisCluster = (key: string) => (
+    <div
+      key={key}
+      aria-hidden="true"
+      className={
+        sidebarCiut
+          ? 'mx-auto my-2 w-8 border-t border-slate-200'
+          : 'my-2 border-t border-slate-200'
+      }
+    />
+  );
 
   return (
     <div className="flex h-full flex-col">
@@ -2410,41 +2476,20 @@ export default function App() {
         <nav className="scrollbar-tersembunyi min-h-0 flex-1 space-y-1 overflow-y-auto px-3 pb-4 pt-2">
           {/* Home kini modul biasa pertama di MODULES (koreksi pengguna
               15/11/2026): klik Home membuka tampilan Home kosong di
-              dalam aplikasi, BUKAN keluar ke landing page. */}
-          {navUtama.map((m) => {
-            const ItemIcon = m.icon;
-            const anak = MODULES.filter((c) => c.induk === m.id);
-            // Induk ikut ter-highlight saat sub-item-nya yang aktif.
-            const isActive = m.id === active || anak.some((c) => c.id === active);
-            return (
-              <button
-                key={m.id}
-                title={sidebarCiut ? m.label : undefined}
-                onClick={() => tanganiKlikNav(m)}
-                className={`flex w-full items-center gap-3 rounded-md py-2 text-left text-sm ${
-                  sidebarCiut ? 'justify-center px-0' : 'px-3'
-                } ${
-                  isActive
-                    ? 'bg-[#2573e2]/10 font-semibold text-[#2573e2]'
-                    : 'text-[#0d2569]/70 hover:bg-[#2573e2]/5 hover:text-[#0d2569]'
-                }`}
-              >
-                <ItemIcon size={18} className="shrink-0" />
-                {!sidebarCiut && m.label}
-                {!sidebarCiut && m.phase === 'C' && (
-                  <span className="ml-auto shrink-0 rounded bg-[#2573e2]/10 px-1.5 py-0.5 text-[10px] text-[#2573e2]">
-                    Phase {m.phase}
-                  </span>
-                )}
-              </button>
-            );
-          })}
+              dalam aplikasi, BUKAN keluar ke landing page. Nav utama
+              dirender per cluster (PR #36) dengan garis pemisah tipis
+              antar cluster — tanpa label kelompok. */}
+          {navUtamaCluster.map((cluster, i) => (
+            <Fragment key={`cluster-${i}`}>
+              {i > 0 && garisCluster(`garis-${i}`)}
+              {cluster.map((m) => tombolNavUtama(m))}
+            </Fragment>
+          ))}
           {navAdmin.length > 0 && (
             <>
-              {sidebarCiut ? (
-                <div className="h-3" aria-hidden="true" />
-              ) : (
-                <p className="px-3 pb-1 pt-4 text-[10px] font-semibold uppercase tracking-wide text-[#0d2569]/45">
+              {garisCluster('garis-admin')}
+              {!sidebarCiut && (
+                <p className="px-3 pb-1 pt-2 text-[10px] font-semibold uppercase tracking-wide text-[#0d2569]/45">
                   Admin
                 </p>
               )}

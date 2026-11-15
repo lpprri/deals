@@ -1,4 +1,4 @@
-// Modul Reporting — PRD v2.0 Final Bab 7.6.
+// Modul Reports (dulu "Reporting", rename label 15/11/2026 19:38 WIB) — PRD v2.0 Final Bab 7.6.
 // Laporan OTOMATIS: tidak ada form input isi; pengguna memilih jenis
 // laporan dan periode, sistem menyusun dari data.
 // TOTAL KONTROL wajib tampil di atas tabel laporan dan dihitung dari
