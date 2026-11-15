@@ -19,13 +19,17 @@ import {
   ChevronRight,
   Database,
   FilePlus2,
+  FileSignature,
   FileText,
   Handshake,
+  HeartHandshake,
   Home,
   LayoutDashboard,
   LogOut,
   Megaphone,
+  ScrollText,
   ShieldCheck,
+  Stamp,
   Wallet,
   X,
 } from 'lucide-react';
@@ -136,10 +140,22 @@ import Todo from './modules/Todo';
 import Service from './modules/Service';
 import AuditPage from './modules/AuditPage';
 import MasterPage from './modules/MasterPage';
+import HomePage from './modules/Home';
+import {
+  MenuApprovement,
+  MenuKomitmen,
+  MenuKontrak,
+  MenuMoU,
+} from './modules/KerjaSama';
 
 type ModuleId =
+  | 'home'
   | 'dashboard'
   | 'marketing'
+  | 'kontrak'
+  | 'mou'
+  | 'komitmen'
+  | 'approvement'
   | 'sales'
   | 'deals'
   | 'sewa'
@@ -160,22 +176,23 @@ interface NavItem {
   /**
    * Induk sub-item (keputusan pengguna 15/11/2026, diubah 15/11/2026):
    * item dengan `induk` TIDAK tampil di daftar utama sidebar — hanya
-   * sebagai item di panel tambahan di samping sidebar (klik induknya),
-   * bersama item induk itu sendiri. Saat ini: 'sewa' di panel 'deals',
-   * 'pengajuan' di panel 'sales'. Id tetap dipakai untuk `active` dan
-   * render konten.
+   * sebagai item di panel tambahan di samping sidebar (klik induknya).
+   * Nama induk TIDAK dicantumkan lagi di dalam panelnya sendiri
+   * (perbaikan 15/11/2026 19:16 WIB): panel hanya berisi sub-item.
+   * Saat ini: 'sewa' di panel 'deals', 'pengajuan' di panel 'sales'.
+   * Id tetap dipakai untuk `active` dan render konten.
    */
   induk?: ModuleId;
 }
 
 const MODULES: NavItem[] = [
   {
-    id: 'dashboard',
-    label: 'Dashboard',
-    icon: LayoutDashboard,
+    id: 'home',
+    label: 'Home',
+    icon: Home,
     phase: 'A',
     description:
-      'Period summary, Revenue Analytics, head office report deadlines (fill in by the 10th, submit by the 11th). Employee Rank & Satker Rank (Leaderboard of the Year / of the Month) per contract signing date period.',
+      'Home page inside the admin app — intentionally empty for now (correction 15/11/2026: not the landing page, not a sign-out).',
   },
   {
     id: 'marketing',
@@ -183,6 +200,37 @@ const MODULES: NavItem[] = [
     icon: Megaphone,
     phase: 'B',
     description: 'Events and Advertisement.',
+  },
+  {
+    id: 'kontrak',
+    label: 'Contract',
+    icon: FileSignature,
+    phase: 'A',
+    description:
+      'PNBP contracts — the same contract list as Deals (Contracts / PKS).',
+  },
+  {
+    id: 'mou',
+    label: 'Memorandum of Understanding',
+    icon: ScrollText,
+    phase: 'A',
+    description:
+      'Memorandum of Understanding (Nota Kesepahaman) supporting broadcast programmes.',
+  },
+  {
+    id: 'komitmen',
+    label: 'Commitment',
+    icon: HeartHandshake,
+    phase: 'A',
+    description:
+      'Service-support cooperation documents for RRI events & programmes.',
+  },
+  {
+    id: 'approvement',
+    label: 'Approvement',
+    icon: Stamp,
+    phase: 'A',
+    description: 'Media partner documents.',
   },
   {
     id: 'sales',
@@ -235,15 +283,23 @@ const MODULES: NavItem[] = [
       'Satker Reports: PNBP Report, Receivables & Deposits Report, Service Support Report, Memorandum of Understanding Report, Media Partner Report.',
   },
   {
+    id: 'dashboard',
+    label: 'Dashboard',
+    icon: LayoutDashboard,
+    phase: 'A',
+    description:
+      'Period summary, Revenue Analytics, head office report deadlines (fill in by the 10th, submit by the 11th). Employee Rank & Satker Rank (Leaderboard of the Year / of the Month) per contract signing date period.',
+  },
+  {
     id: 'todo',
-    label: 'To-Do List',
+    label: 'Task',
     icon: CheckSquare,
     phase: 'B',
     description: 'Individual Tasks and Dispositions.',
   },
   {
     id: 'service',
-    label: 'Service',
+    label: 'Resources',
     icon: BarChart3,
     phase: 'C',
     description:
@@ -2255,20 +2311,32 @@ export default function App() {
   const Icon = current.icon;
   const propsModul = { data, user: penggunaAktif, actions, cari };
 
-  /** Panel tambahan yang sedang terbuka: modul induk + item-itemnya
-      (halaman utama modul, lalu sub-item-nya). */
+  /** Panel tambahan yang sedang terbuka: HANYA sub-item induknya
+      (perbaikan 15/11/2026 19:16 WIB — nama induk tidak dicantumkan
+      lagi di dalam panelnya sendiri; judul panel sudah memuatnya). */
   const panelInduk = MODULES.find((m) => m.id === panelTerbuka);
   const panelItem: NavItem[] = panelInduk
-    ? [panelInduk, ...MODULES.filter((c) => c.induk === panelInduk.id)]
+    ? MODULES.filter((c) => c.induk === panelInduk.id)
     : [];
 
-  /** Klik item nav utama: punya sub-item -> buka/tutup panel tambahan
-      (tanpa navigasi — navigasi lewat item di dalam panel); tanpa
-      sub-item -> navigasi langsung dan panel tertutup. */
+  /** Klik item nav utama (perbaikan 15/11/2026 19:16 WIB): induk yang
+      punya sub-item NAVIGASI ke halaman induk itu SEKALIGUS membuka
+      panel-nya (sebelumnya hanya membuka panel, konten tertahan di
+      halaman sebelumnya); klik kedua pada induk yang sedang aktif =
+      tutup panel saja, tetap di halaman induk. Tanpa sub-item ->
+      navigasi langsung dan panel tertutup. */
   const tanganiKlikNav = (m: NavItem) => {
     const anak = MODULES.filter((c) => c.induk === m.id);
     if (anak.length > 0) {
-      setPanelTerbuka((terbuka) => (terbuka === m.id ? null : m.id));
+      if (active === m.id) {
+        // Sudah di halaman induk: alihkan panel saja. `active` tidak
+        // berubah, jadi efek auto-open di atas tidak jalan dan panel
+        // yang ditutup manual tidak terbuka kembali.
+        setPanelTerbuka((terbuka) => (terbuka === m.id ? null : m.id));
+        return;
+      }
+      setActive(m.id);
+      setPanelTerbuka(m.id);
       return;
     }
     setActive(m.id);
@@ -2340,23 +2408,9 @@ export default function App() {
           </button>
         </div>
         <nav className="scrollbar-tersembunyi min-h-0 flex-1 space-y-1 overflow-y-auto px-3 pb-4 pt-2">
-          {/* Home — halaman depan publik (Beranda). Bukan modul: klik =
-              keluar ke landing page (sama seperti Sign out); tombol Login
-              di landing page kembali ke dashboard. Tidak punya sub-item
-              atau panel; tidak pernah berstatus aktif. */}
-          <button
-            title={sidebarCiut ? 'Home' : undefined}
-            onClick={() => {
-              setPanelTerbuka(null);
-              void tanganiKeluar();
-            }}
-            className={`flex w-full items-center gap-3 rounded-md py-2 text-left text-sm ${
-              sidebarCiut ? 'justify-center px-0' : 'px-3'
-            } text-[#0d2569]/70 hover:bg-[#2573e2]/5 hover:text-[#0d2569]`}
-          >
-            <Home size={18} className="shrink-0" />
-            {!sidebarCiut && 'Home'}
-          </button>
+          {/* Home kini modul biasa pertama di MODULES (koreksi pengguna
+              15/11/2026): klik Home membuka tampilan Home kosong di
+              dalam aplikasi, BUKAN keluar ke landing page. */}
           {navUtama.map((m) => {
             const ItemIcon = m.icon;
             const anak = MODULES.filter((c) => c.induk === m.id);
@@ -2447,9 +2501,10 @@ export default function App() {
       </aside>
 
       {/* Panel tambahan sub-navigasi (gaya Qontak): kolom kedua di antara
-          sidebar dan konten — judul kapital + halaman utama modul dan
-          sub-item-nya. In-flow (flex), jadi konten bergeser, bukan
-          tertutup panel. Tampil di mode terbuka maupun terlipat. */}
+          sidebar dan konten — judul kapital + sub-item-nya saja (nama
+          induk tidak dicantumkan lagi di dalam panel). In-flow (flex),
+          jadi konten bergeser, bukan tertutup panel. Tampil di mode
+          terbuka maupun terlipat. */}
       {panelInduk && panelItem.length > 0 && (
         <div
           data-panel
@@ -2543,7 +2598,12 @@ export default function App() {
           )}
 
           <div className="mt-6">
+            {active === 'home' && <HomePage />}
             {active === 'dashboard' && <Dashboard {...propsModul} />}
+            {active === 'kontrak' && <MenuKontrak {...propsModul} />}
+            {active === 'mou' && <MenuMoU {...propsModul} />}
+            {active === 'komitmen' && <MenuKomitmen {...propsModul} />}
+            {active === 'approvement' && <MenuApprovement {...propsModul} />}
             {active === 'deals' && <Deals {...propsModul} />}
             {active === 'sewa' && <Sewa {...propsModul} />}
             {active === 'pengajuan' && <Pengajuan {...propsModul} />}
