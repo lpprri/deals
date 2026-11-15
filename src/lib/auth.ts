@@ -2,13 +2,8 @@
 // KEPUTUSAN PENGGUNA 14/11/2026 21:29 WIB: hanya ada 1 role — Operator
 // (Staf Layanan & Pengembangan Usaha). Akun Auth Operator dibuat pengguna
 // di Firebase console; file ini TIDAK membuat akun Auth Operator.
-// FASE C — Client Order Portal (Q-10, 15/11/2026): peran kedua 'klien'
-// (PIC dari tiap klien). Berbeda dengan Operator, akun PIC dibuat SENDIRI
-// lewat pendaftaran di aplikasi (self-service) dan berstatus 'Menunggu'
-// sampai disetujui Operator — PIC belum bisa masuk dashboard sebelum
-// disetujui. Jadi SATU-SATUNYA pembuatan akun Auth di file ini adalah
-// pendaftaran PIC klien (daftarSebagaiKlien); akun Operator tetap hanya
-// dari console.
+// KOREKSI 2026-11-15: peran klien dihapus — klien tidak punya
+// login/akun; hanya Operator.
 // Profil peran disimpan di Firestore: dokumen `users/{uid}`.
 // Bootstrap: bila `users/{uid}` belum ada, profil diambil dari dokumen
 // `userProfiles/{email}` (key = email huruf kecil) yang di-seed oleh
@@ -23,7 +18,6 @@
 // aturan lain.
 
 import {
-  createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
   signOut,
   type User,
@@ -31,19 +25,15 @@ import {
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { auth, db, isFirebaseConfigured } from './firebaseApp';
 import { SATKER_PILOT } from './master';
-import type { SatkerRef, StatusApprovalKlien } from './types';
+import type { SatkerRef } from './types';
 
 export interface AppUser {
   uid: string;
   email: string;
   nama: string;
   jabatan: string;
-  peran: 'operator' | 'klien';
+  peran: 'operator';
   satker: SatkerRef;
-  /** Klien yang diwakili — hanya untuk peran 'klien'. */
-  klienId?: string;
-  /** Status approval akun PIC — hanya untuk peran 'klien'. */
-  statusApproval?: StatusApprovalKlien;
 }
 
 function pastikanTerkonfigurasi(): void {
@@ -56,84 +46,13 @@ function pastikanTerkonfigurasi(): void {
 
 function bacaAppUser(uid: string, data: Record<string, unknown>): AppUser {
   const satker = data.satker as SatkerRef | undefined;
-  const peran = data.peran === 'klien' ? 'klien' : 'operator';
-  const statusApproval = data.statusApproval as StatusApprovalKlien | undefined;
   return {
     uid,
     email: String(data.email ?? ''),
     nama: String(data.nama ?? ''),
     jabatan: String(data.jabatan ?? ''),
-    peran,
+    peran: 'operator',
     satker: satker ?? SATKER_PILOT,
-    klienId:
-      peran === 'klien' && typeof data.klienId === 'string'
-        ? data.klienId
-        : undefined,
-    statusApproval:
-      peran === 'klien' &&
-      (statusApproval === 'Menunggu' ||
-        statusApproval === 'Disetujui' ||
-        statusApproval === 'Ditolak')
-        ? statusApproval
-        : undefined,
-  };
-}
-
-/**
- * Pendaftaran PIC klien (self-service, Q-10). Membuat akun Auth lalu
- * profil `users/{uid}` dengan peran 'klien' dan statusApproval
- * 'Menunggu'. Akun BARU ini TIDAK bisa masuk dashboard sebelum Operator
- * menyetujuinya (App menampilkan layar "menunggu approval").
- * Satker profil memakai SATKER_PILOT: pendaftaran memilih klien dari
- * daftar klien satker pilot, dan seluruh klien nyata saat ini adalah
- * Palembang. Saat cakupan nasional dibuka, satker profil sebaiknya
- * disalin dari record klien oleh Operator saat approval — jangan
- * mengandalkan konstanta ini untuk satker lain.
- */
-export interface PendaftaranKlienInput {
-  email: string;
-  kataSandi: string;
-  namaPic: string;
-  klienId: string;
-}
-
-export async function daftarSebagaiKlien(
-  input: PendaftaranKlienInput,
-): Promise<AppUser> {
-  pastikanTerkonfigurasi();
-  const email = input.email.trim().toLowerCase();
-  const namaPic = input.namaPic.trim();
-  if (!email || !namaPic || !input.klienId) {
-    throw new Error('Email, nama PIC, dan klien wajib diisi.');
-  }
-  if (input.kataSandi.length < 6) {
-    throw new Error('Kata sandi minimal 6 karakter.');
-  }
-  const kredensial = await createUserWithEmailAndPassword(
-    auth!,
-    email,
-    input.kataSandi,
-  );
-  const pengguna: User = kredensial.user;
-  await setDoc(doc(db!, 'users', pengguna.uid), {
-    email,
-    nama: namaPic,
-    jabatan: 'PIC Klien',
-    peran: 'klien',
-    klienId: input.klienId,
-    statusApproval: 'Menunggu',
-    satker: SATKER_PILOT,
-    dibuatPada: new Date().toISOString(),
-  });
-  return {
-    uid: pengguna.uid,
-    email,
-    nama: namaPic,
-    jabatan: 'PIC Klien',
-    peran: 'klien',
-    satker: SATKER_PILOT,
-    klienId: input.klienId,
-    statusApproval: 'Menunggu',
   };
 }
 
@@ -185,11 +104,8 @@ export async function bootstrapProfil(
 /**
  * Masuk dengan email + kata sandi. Setelah sign-in, dokumen `users/{uid}`
  * dibaca; bila belum ada, dijalankan bootstrap dari `userProfiles/{email}`
- * lalu dibaca lagi. Bila tetap tidak ada atau perannya bukan operator
- * maupun klien, sesi ditutup dan dilempar Error.
- * Akun klien berstatus 'Menunggu'/'Ditolak' TETAP dikembalikan (bukan
- * error): App yang menampilkan layar "menunggu approval" / "ditolak"
- * dan menahan akses dashboard sampai statusnya 'Disetujui'.
+ * lalu dibaca lagi. Bila tetap tidak ada atau perannya bukan operator,
+ * sesi ditutup dan dilempar Error.
  */
 export async function masukDenganEmail(
   email: string,
@@ -209,13 +125,10 @@ export async function masukDenganEmail(
     snap = await getDoc(doc(db!, 'users', pengguna.uid));
   }
 
-  if (
-    !snap.exists() ||
-    (snap.data().peran !== 'operator' && snap.data().peran !== 'klien')
-  ) {
+  if (!snap.exists() || snap.data().peran !== 'operator') {
     await signOut(auth!);
     throw new Error(
-      'Akun belum diberi peran Operator atau Klien — hubungi operator aplikasi.',
+      'Akun belum diberi peran Operator — hubungi operator aplikasi.',
     );
   }
 

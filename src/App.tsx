@@ -28,16 +28,14 @@ import {
 } from 'lucide-react';
 import { auth, db, isFirebaseConfigured } from './lib/firebaseApp';
 import {
-  daftarSebagaiKlien,
   keluar,
   masukDenganEmail,
-  type PendaftaranKlienInput,
 } from './lib/auth';
 import { EMAIL_OPERATOR_USULAN, jalankanMigrasi } from './lib/migrasi';
 import {
   cekSudahDimigrasi,
+  kirimPengajuanPublik as kirimPengajuanPublikKeFirestore,
   muatDariFirestore,
-  muatDataKlien,
   simpanDokumen,
   tulisAudit,
 } from './lib/firestoreStore';
@@ -97,7 +95,7 @@ import type {
   OrderInput,
   PembayaranInput,
   PengajuanInput,
-  PengajuanKlienInput,
+  PengajuanPublikInput,
   ProspectInput,
   QuotationInput,
   StoreActions,
@@ -106,11 +104,12 @@ import type {
   UmpanBalikInput,
 } from './lib/store';
 import Login from './components/Login';
+import Lacak from './modules/Lacak';
+import Ajukan from './modules/Ajukan';
 import Dashboard from './modules/Dashboard';
 import Deals from './modules/Deals';
 import Sewa from './modules/Sewa';
 import Pengajuan from './modules/Pengajuan';
-import Portal, { LayarMenungguApproval } from './modules/Portal';
 import Revenue from './modules/Revenue';
 import Reporting from './modules/Reporting';
 import Sales from './modules/Sales';
@@ -228,7 +227,7 @@ const MODULES: NavItem[] = [
     icon: BarChart3,
     phase: 'C',
     description:
-      'Client Order Portal, Feedback Survey, Help-Desk ke PIC kantor pusat, Knowledge Base (Regulasi, SOP).',
+      'Feedback Survey, Help-Desk ke PIC kantor pusat, Knowledge Base (Regulasi, SOP).',
   },
   {
     id: 'audit',
@@ -317,6 +316,8 @@ export default function App() {
   const [tanggalMigrasi, setTanggalMigrasi] = useState<string | undefined>(undefined);
   const [galatMuat, setGalatMuat] = useState<string | null>(null);
   const [peringatanSimpan, setPeringatanSimpan] = useState<string | null>(null);
+  /** Halaman publik tanpa login (lacak/ajukan) saat belum masuk. */
+  const [halamanPublik, setHalamanPublik] = useState<'login' | 'lacak' | 'ajukan'>('login');
 
   // Pulihkan sesi Auth yang sudah masuk (bila Firebase terkonfigurasi).
   useEffect(() => {
@@ -325,22 +326,13 @@ export default function App() {
       if (!fbUser || !db) return;
       try {
         const snap = await getDoc(doc(db, 'users', fbUser.uid));
-        if (
-          snap.exists() &&
-          (snap.data().peran === 'operator' || snap.data().peran === 'klien')
-        ) {
+        if (snap.exists() && snap.data().peran === 'operator') {
           const d = snap.data();
-          const peran = d.peran === 'klien' ? 'klien' : 'operator';
           setUser({
             nama: String(d.nama ?? ''),
             jabatan: String(d.jabatan ?? ''),
-            peran,
+            peran: 'operator',
             email: String(d.email ?? fbUser.email ?? ''),
-            klienId: peran === 'klien' ? String(d.klienId ?? '') : undefined,
-            statusApproval:
-              peran === 'klien'
-                ? (d.statusApproval as 'Menunggu' | 'Disetujui' | 'Ditolak')
-                : undefined,
             satker: d.satker as { kode: string; nama: string } | undefined,
           });
           setAuthEmail(fbUser.email ?? null);
@@ -353,9 +345,7 @@ export default function App() {
   }, []);
 
   // Muat data dari Firestore setelah login, bila sudah dimigrasi.
-  // Pengguna klien memuat HANYA data kliennya sendiri (muatDataKlien) —
-  // muatDariFirestore() memakai query Operator dan ditolak aturan untuk
-  // klien.
+  // Hanya Operator yang login; data selalu dimuat penuh dari Firestore.
   useEffect(() => {
     if (!user || !isFirebaseConfigured || !db) return;
     let batal = false;
@@ -367,14 +357,7 @@ export default function App() {
           setModeData('belum-dimigrasi');
           return;
         }
-        const dariFirestore =
-          user.peran === 'klien' && user.klienId
-            ? await muatDataKlien(
-                db,
-                user.satker?.kode ?? SATKER_PILOT.kode,
-                user.klienId,
-              )
-            : await muatDariFirestore(db, SATKER_PILOT.kode);
+        const dariFirestore = await muatDariFirestore(db, SATKER_PILOT.kode);
         if (batal) return;
         if (dariFirestore) {
           setData(dariFirestore);
@@ -394,7 +377,88 @@ export default function App() {
     };
   }, [user]);
 
+  /**
+   * Kirim submission publik dari form "Ajukan" (REVISI KOREKSI 2026-11-15:
+   * tanpa login/akun; menggantikan tambahPengajuanKlien khusus PIC).
+   * Didefinisikan SEBELUM cabang `if (!user)` karena dipakai halaman
+   * publik saat belum login. Submission masuk koleksi pengajuanKlien
+   * dengan status selalu 'Menunggu' dan klienId kosong; audit TIDAK
+   * ditulis di sini (audit hanya sesi Operator; dicatat saat Operator
+   * memproses). Bila mode Firestore aktif, tulis juga ke Firestore;
+   * bila tulis itu gagal, kembalikan pesan error (jangan menelan
+   * diam-diam). Di luar mode Firestore, submission hanya tersimpan di
+   * sesi ini — sama seperti aksi lain sebelum migrasi.
+   */
+  const kirimPengajuanPublik = async (
+    input: PengajuanPublikInput,
+  ): Promise<string | null> => {
+    if (!DAFTAR_JENIS_PENGAJUAN_KLIEN.includes(input.jenis)) {
+      return `Jenis permohonan "${input.jenis}" tidak dikenal.`;
+    }
+    if (!input.namaPemohon.trim()) return 'Nama pemohon wajib diisi.';
+    if (!input.namaInstitusi.trim()) return 'Nama institusi wajib diisi.';
+    if (!input.kontakEmail.trim()) return 'Email kontak wajib diisi.';
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(input.kontakEmail.trim())) {
+      return 'Email kontak tidak valid.';
+    }
+    if (!input.judul.trim()) return 'Judul permohonan wajib diisi.';
+    if (!input.uraian.trim()) return 'Detail permohonan wajib diisi.';
+    if (
+      input.nilaiPerkiraan !== undefined &&
+      !(input.nilaiPerkiraan >= 0)
+    ) {
+      return 'Nilai perkiraan harus berupa angka 0 atau lebih.';
+    }
+    const id = idBerikutnya('PKL-', data.pengajuanKlien.map((s) => s.id));
+    const submission: PengajuanKlien = {
+      id,
+      klienId: '',
+      jenis: input.jenis,
+      judul: input.judul.trim(),
+      uraian: input.uraian.trim(),
+      namaPic: input.namaPemohon.trim(),
+      dibuatOleh: input.kontakEmail.trim(),
+      namaInstitusi: input.namaInstitusi.trim(),
+      telepon: input.kontakTelepon?.trim() || undefined,
+      tanggalBuat: hariIniIso(),
+      nilaiPerkiraan: input.nilaiPerkiraan,
+      status: 'Menunggu',
+      satker: SATKER_PILOT,
+    };
+    setData((d) => ({
+      ...d,
+      pengajuanKlien: [...d.pengajuanKlien, submission],
+    }));
+    // Tulis ke Firestore bila terkonfigurasi. SENGAJA memakai
+    // isFirebaseConfigured (bukan modeData === 'firestore'): modeData
+    // baru menjadi 'firestore' SETELAH Operator login + muat data,
+    // sedangkan pengunjung publik tidak pernah login — gate modeData
+    // akan membuat submission publik tidak pernah sampai ke Firestore
+    // di aplikasi live (hanya session-only lalu hilang saat reload).
+    // Aturan publik pengajuanKlien mengizinkan create tanpa login.
+    if (isFirebaseConfigured && db) {
+      try {
+        await kirimPengajuanPublikKeFirestore(db, submission);
+      } catch (e) {
+        console.error('Gagal menyimpan submission publik ke Firestore:', e);
+        return 'Permohonan tercatat lokal, tetapi gagal tersimpan di Firestore — hubungi Operator.';
+      }
+    }
+    return null;
+  };
+
   if (!user) {
+    if (halamanPublik === 'lacak') {
+      return <Lacak data={data} onKembali={() => setHalamanPublik('login')} />;
+    }
+    if (halamanPublik === 'ajukan') {
+      return (
+        <Ajukan
+          onKirim={kirimPengajuanPublik}
+          onKembali={() => setHalamanPublik('login')}
+        />
+      );
+    }
     return (
       <Login
         onLoginAuth={async (email, kataSandi) => {
@@ -405,8 +469,6 @@ export default function App() {
               jabatan: appUser.jabatan,
               peran: appUser.peran,
               email: appUser.email,
-              klienId: appUser.klienId,
-              statusApproval: appUser.statusApproval,
               satker: appUser.satker,
             });
             setAuthEmail(appUser.email);
@@ -430,38 +492,8 @@ export default function App() {
           }
         }}
         onLoginDummy={setUser}
-        onDaftarKlien={async (input: PendaftaranKlienInput) => {
-          try {
-            const appUser = await daftarSebagaiKlien(input);
-            setUser({
-              nama: appUser.nama,
-              jabatan: appUser.jabatan,
-              peran: 'klien',
-              email: appUser.email,
-              klienId: appUser.klienId,
-              statusApproval: appUser.statusApproval,
-              satker: appUser.satker,
-            });
-            setAuthEmail(appUser.email);
-            return null;
-          } catch (e) {
-            const kode = (e as { code?: string }).code;
-            if (kode === 'auth/email-already-in-use') {
-              return 'Email sudah terdaftar — masuk dengan akun tersebut.';
-            }
-            if (kode === 'auth/invalid-email') {
-              return 'Format email tidak valid.';
-            }
-            if (kode === 'auth/weak-password') {
-              return 'Kata sandi minimal 6 karakter.';
-            }
-            if (kode === 'auth/network-request-failed') {
-              return 'Tidak ada koneksi jaringan.';
-            }
-            return e instanceof Error ? e.message : 'Gagal mendaftar. Coba lagi.';
-          }
-        }}
-        daftarKlien={data.klien.map((k) => ({ id: k.id, nama: k.nama }))}
+        onBukaLacak={() => setHalamanPublik('lacak')}
+        onBukaAjukan={() => setHalamanPublik('ajukan')}
       />
     );
   }
@@ -479,6 +511,7 @@ export default function App() {
     );
     setSudahDimigrasi(false);
     setTanggalMigrasi(undefined);
+    setHalamanPublik('login');
     setActive('dashboard');
   };
 
@@ -496,10 +529,9 @@ export default function App() {
       ...d,
       audit: [entri, ...d.audit],
     }));
-    // Tulis audit ke Firestore HANYA untuk Operator: aturan Firestore
-    // membatasi create audit untuk Operator (klien tidak boleh menulis
-    // audit). Entri audit klien tetap tercatat di state lokal sesi itu;
-    // jejak permanennya dilengkapi entri approval Operator.
+    // Tulis audit ke Firestore HANYA untuk Operator: audit hanya
+    // ditulis dari sesi Operator; submission publik tidak menulis
+    // audit (audit dicatat saat Operator memprosesnya).
     if (modeData === 'firestore' && db && penggunaAktif.peran === 'operator') {
       tulisAudit(db, entri).catch((e) => {
         console.error('Gagal menulis audit ke Firestore:', e);
@@ -940,47 +972,15 @@ export default function App() {
       return null;
     },
 
-    // --- Aksi Fase C — Client Order Portal (Q-10) ---
-    // ASUMSI YANG DITETAPKAN: approval dilakukan OPERATOR. Submission
-    // yang disetujui TIDAK menjadi entitas order kedua — ia menjadi
-    // Prospect baru lewat alur Sales yang sudah ada (prospect →
-    // quotation → order → kontrak); submission menautkannya lewat
-    // `prospectId`. Tidak ada duplikasi total order/kontrak.
-    tambahPengajuanKlien: (input: PengajuanKlienInput) => {
-      if (penggunaAktif.peran !== 'klien' || !penggunaAktif.klienId) {
-        return 'Hanya PIC klien yang bisa membuat pengajuan portal.';
-      }
-      if (!DAFTAR_JENIS_PENGAJUAN_KLIEN.includes(input.jenis)) {
-        return `Jenis pengajuan "${input.jenis}" tidak dikenal.`;
-      }
-      if (!input.judul.trim()) return 'Judul wajib diisi.';
-      if (!input.uraian.trim()) return 'Uraian wajib diisi.';
-      const id = idBerikutnya('PKL-', data.pengajuanKlien.map((s) => s.id));
-      const submission: PengajuanKlien = {
-        id,
-        klienId: penggunaAktif.klienId,
-        jenis: input.jenis,
-        judul: input.judul.trim(),
-        uraian: input.uraian.trim(),
-        namaPic: penggunaAktif.nama,
-        dibuatOleh: penggunaAktif.email ?? penggunaAktif.nama,
-        tanggalBuat: hariIniIso(),
-        nilaiPerkiraan: input.nilaiPerkiraan,
-        status: 'Menunggu',
-        satker: penggunaAktif.satker ?? SATKER_PILOT,
-      };
-      setData((d) => ({ ...d, pengajuanKlien: [...d.pengajuanKlien, submission] }));
-      simpanKeFirestore('pengajuanKlien', id, submission);
-      tambahAudit(
-        'Pengajuan portal dicatat',
-        'Pengajuan Klien',
-        id,
-        '—',
-        `${submission.jenis} — ${submission.judul} — Menunggu`,
-      );
-      return null;
-    },
-
+    // --- Aksi Fase C — Form submission publik (REVISI KOREKSI 2026-11-15) ---
+    // Submission berasal dari form publik tanpa akun (lihat
+    // kirimPengajuanPublik di atas); aksi tambahPengajuanKlien khusus PIC
+    // login sudah dihapus. Approval dilakukan OPERATOR. Submission yang
+    // disetujui TIDAK menjadi entitas order kedua — ia menjadi Prospect
+    // baru lewat alur Sales yang sudah ada (prospect → quotation → order
+    // → kontrak); submission menautkannya lewat `prospectId`. Bila
+    // submission berasal dari calon klien yang belum tercatat (klienId
+    // kosong), Operator menyetujui sekaligus dibuatkan Klien baru.
     setujuiPengajuanKlien: (submission: PengajuanKlien, catatan?: string) => {
       if (penggunaAktif.peran !== 'operator') {
         return 'Hanya Operator yang bisa menyetujui submission portal.';
@@ -988,8 +988,33 @@ export default function App() {
       if (submission.status !== 'Menunggu') {
         return 'Submission ini sudah diproses sebelumnya.';
       }
-      const klien = data.klien.find((k) => k.id === submission.klienId);
-      if (!klien) return 'Klien asal submission tidak ditemukan.';
+      // REVISI KOREKSI 2026-11-15: submission publik dari calon klien
+      // yang belum tercatat punya klienId kosong — buatkan Klien baru
+      // dari submission (pola konversiPengajuan) sebelum membuat
+      // Prospect. Bila klienId ada dan ditemukan, perilaku lama tetap.
+      let klien = submission.klienId
+        ? data.klien.find((k) => k.id === submission.klienId)
+        : undefined;
+      let klienBaru: Klien | null = null;
+      if (!klien) {
+        const id = idBerikutnya('KLN-', data.klien.map((k) => k.id));
+        klienBaru = {
+          id,
+          nama: submission.namaInstitusi ?? submission.namaPic,
+          jenis: 'Swasta',
+          alamat: '—',
+          kontakNama: submission.namaPic,
+          kontakJabatan: '—',
+          telepon: submission.telepon ?? '',
+          email: submission.dibuatOleh,
+          status: 'Aktif',
+          catatan: `Klien dibuat otomatis dari submission publik ${submission.id}. Lengkapi datanya.`,
+          satker: submission.satker,
+          dibuatOleh: penggunaAktif.nama,
+          dibuatPada: hariIniIso(),
+        };
+        klien = klienBaru;
+      }
       const kategoriNama =
         submission.jenis === 'Permohonan Sewa'
           ? 'Sewa Lahan / BMN'
@@ -1011,12 +1036,12 @@ export default function App() {
         tahap: 'Prospek Baru',
         penanggungJawab: penggunaAktif.nama,
         nilaiPerkiraan: submission.nilaiPerkiraan ?? 0,
-        catatan: `Berasal dari submission portal klien ${submission.id} (${submission.jenis}) — disetujui Operator.`,
+        catatan: `Berasal dari submission publik ${submission.id} (${submission.jenis}) — disetujui Operator.`,
         klienId: klien.id,
         riwayat: [
           {
             tanggal: hariIniIso(),
-            catatan: `Prospek dibuat dari submission portal klien ${submission.id} yang disetujui.`,
+            catatan: `Prospek dibuat dari submission publik ${submission.id} yang disetujui.`,
             oleh: penggunaAktif.nama,
           },
         ],
@@ -1024,17 +1049,20 @@ export default function App() {
       };
       const terbaru: PengajuanKlien = {
         ...submission,
+        klienId: klien.id,
         status: 'Disetujui',
         catatanOperator: catatan?.trim() || undefined,
         prospectId: idProspect,
       };
       setData((d) => ({
         ...d,
+        klien: klienBaru ? [...d.klien, klienBaru] : d.klien,
         prospect: [...d.prospect, prospect],
         pengajuanKlien: d.pengajuanKlien.map((s) =>
           s.id === submission.id ? terbaru : s,
         ),
       }));
+      if (klienBaru) simpanKeFirestore('klien', klienBaru.id, klienBaru);
       simpanKeFirestore('prospect', idProspect, prospect);
       simpanKeFirestore('pengajuanKlien', submission.id, terbaru);
       tambahAudit(
@@ -2056,25 +2084,6 @@ export default function App() {
   const current = MODULES.find((m) => m.id === active) ?? MODULES[0];
   const Icon = current.icon;
   const propsModul = { data, user: penggunaAktif, actions, cari };
-
-  // Fase C — Client Order Portal (Q-10): pengguna klien TIDAK masuk
-  // shell operator (tanpa sidebar/nav modul). Akun yang belum disetujui
-  // Operator hanya melihat layar "menunggu approval" / "ditolak".
-  if (penggunaAktif.peran === 'klien') {
-    if (penggunaAktif.statusApproval !== 'Disetujui') {
-      return (
-        <LayarMenungguApproval user={penggunaAktif} onKeluar={tanganiKeluar} />
-      );
-    }
-    return (
-      <Portal
-        data={data}
-        user={penggunaAktif}
-        actions={actions}
-        onKeluar={tanganiKeluar}
-      />
-    );
-  }
 
   return (
     <div className="flex h-full">

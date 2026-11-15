@@ -51,8 +51,9 @@ export default function Pengajuan(props: ModulProps) {
   const [filterTahap, setFilterTahap] = useState<string>('Semua');
   const [pengajuanIdTerpilih, setPengajuanIdTerpilih] = useState<string | null>(null);
   const [tampilForm, setTampilForm] = useState(false);
-  // Fase C — Client Order Portal (Q-10): tab antrean approval submission
-  // PIC klien, di dalam modul Pengajuan (bukan modul/sidebar baru).
+  // Antrean approval pengajuan publik: tab di dalam modul Pengajuan
+  // (bukan modul/sidebar baru). KOREKSI 2026-11-15: submission dibuat
+  // lewat form publik tanpa login/akun klien.
   const [tabAktif, setTabAktif] = useState<string>('pengajuan');
   const jumlahMenungguPortal = data.pengajuanKlien.filter(
     (s) => s.status === 'Menunggu',
@@ -102,8 +103,8 @@ export default function Pengajuan(props: ModulProps) {
             id: 'portal',
             label:
               jumlahMenungguPortal > 0
-                ? `Portal Klien (${jumlahMenungguPortal} menunggu)`
-                : 'Portal Klien',
+                ? `Pengajuan Publik (${jumlahMenungguPortal} menunggu)`
+                : 'Pengajuan Publik',
           },
         ]}
         aktif={tabAktif}
@@ -183,7 +184,7 @@ export default function Pengajuan(props: ModulProps) {
 }
 
 /**
- * Antrean approval submission portal klien (Fase C, Q-10).
+ * Antrean approval pengajuan publik.
  * Approval dilakukan OPERATOR. Submission yang disetujui menjadi Prospect
  * baru lewat alur Sales yang sudah ada (bukan entitas order kedua);
  * yang ditolak menyimpan status + catatan, dan keduanya tercatat di
@@ -243,7 +244,8 @@ function AntreanPortalKlien({ data, user, actions, cari }: ModulProps) {
   if (terpilih) {
     const namaKlien =
       data.klien.find((k) => k.id === terpilih.klienId)?.nama ??
-      terpilih.klienId;
+      terpilih.namaInstitusi ??
+      '-';
     return (
       <div className="space-y-4">
         <TombolSekunder onClick={() => setTerpilihId(null)}>
@@ -370,7 +372,7 @@ function AntreanPortalKlien({ data, user, actions, cari }: ModulProps) {
         </select>
       </div>
       {daftar.length === 0 ? (
-        <PesanKosong teks="Belum ada submission portal klien yang cocok." />
+        <PesanKosong teks="Belum ada pengajuan publik yang cocok." />
       ) : (
         <Kartu>
           <Tabel>
@@ -397,7 +399,8 @@ function AntreanPortalKlien({ data, user, actions, cari }: ModulProps) {
                   <Td>{s.judul}</Td>
                   <Td>
                     {data.klien.find((k) => k.id === s.klienId)?.nama ??
-                      s.klienId}
+                      s.namaInstitusi ??
+                      '-'}
                   </Td>
                   <Td>{s.namaPic}</Td>
                   <Td>{formatTanggal(s.tanggalBuat)}</Td>

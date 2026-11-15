@@ -5,25 +5,20 @@
 // Rizky Ramadhan) dinyatakan TIDAK BERLAKU, dan peran Admin Nasional
 // (PRD v2.1) TIDAK DIPAKAI tahap ini. Profil di bawah ini hanya untuk
 // mode contoh dan WAJIB diganti akun Firebase Auth produksi.
-// FASE C — Client Order Portal (Q-10, 15/11/2026): peran kedua 'klien'
-// (PIC dari tiap klien, daftar sendiri, wajib disetujui Operator).
-// DummyUser dipakai sebagai tipe pengguna sesi aplikasi (operator maupun
-// klien); field klien hanya terisi untuk peran 'klien'.
+// KOREKSI 2026-11-15: peran klien dihapus — klien tidak punya
+// login/akun; hanya Operator. DummyUser dipakai sebagai tipe pengguna
+// sesi aplikasi (operator saja).
 
-import type { SatkerRef, StatusApprovalKlien } from './types';
+import type { SatkerRef } from './types';
 
-export type Role = 'operator' | 'klien';
+export type Role = 'operator';
 
 export interface DummyUser {
   nama: string;
   jabatan: string;
   peran: Role;
-  /** Email akun Auth (operator maupun PIC klien). */
+  /** Email akun Auth (operator). */
   email?: string;
-  /** Klien yang diwakili — hanya untuk peran 'klien'. */
-  klienId?: string;
-  /** Status approval akun PIC — hanya untuk peran 'klien'. */
-  statusApproval?: StatusApprovalKlien;
   /** Satker pengguna (dari profil Firestore). */
   satker?: SatkerRef;
 }

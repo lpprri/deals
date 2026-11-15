@@ -54,7 +54,7 @@ import {
   where,
 } from 'firebase/firestore';
 import type { Firestore } from 'firebase/firestore';
-import type { AppData, AuditEntry } from './types';
+import type { AppData, AuditEntry, PengajuanKlien } from './types';
 
 /** Nama koleksi Firestore untuk tiap kunci AppData (nama kunci = nama koleksi). */
 export const KOLEKSI: Record<keyof AppData, string> = {
@@ -210,124 +210,6 @@ export async function muatDariFirestore(
 }
 
 /**
- * Muat data milik SATU klien untuk Client Order Portal (Fase C, Q-10).
- * Dipakai App saat pengguna login adalah klien — muatDariFirestore()
- * TIDAK bisa dipakai klien karena query-nya dibatasi aturan Operator.
- * Hanya memakai SATU filter `where` per query supaya tidak butuh
- * composite index di console: kontrak & pengajuanKlien difilter
- * `klienId`, tagihan/dokumen difilter `kontrakId`, pembayaran difilter
- * `tagihanId` (operator `in`, dipotong per 30 — batas Firestore).
- * Koleksi lain dikembalikan kosong; portal hanya memakai irisan ini.
- * `dokumen` dibaca tanpa filter satker (tidak punya field satker) tapi
- * tetap hanya dokumen dari kontrak klien itu (lewat kontrakId).
- */
-export async function muatDataKlien(
-  db: Firestore,
-  satkerKode: string,
-  klienId: string,
-): Promise<AppData> {
-  if (!(await cekSudahDimigrasi(db))) {
-    throw new Error('Data belum dimigrasi ke Firestore.');
-  }
-  const kosong: AppData = {
-    klien: [],
-    kontrak: [],
-    dokumen: [],
-    tagihan: [],
-    pembayaran: [],
-    denda: [],
-    sewa: [],
-    pengajuan: [],
-    pengajuanKlien: [],
-    penerimaanAcuan: [],
-    audit: [],
-    prospect: [],
-    quotation: [],
-    order: [],
-    meeting: [],
-    event: [],
-    advertisement: [],
-    task: [],
-    tiket: [],
-    umpanBalik: [],
-    artikelKB: [],
-  };
-  const potong30 = <T,>(daftar: T[]): T[][] => {
-    const hasil: T[][] = [];
-    for (let i = 0; i < daftar.length; i += 30) hasil.push(daftar.slice(i, i + 30));
-    return hasil;
-  };
-  const klienSnap = await getDoc(doc(db, KOLEKSI.klien, kodeIdDokumen(klienId)));
-  if (klienSnap.exists()) {
-    kosong.klien = [
-      normalisasiEntitas('klien', klienSnap.id, klienSnap.data(), satkerKode),
-    ];
-  }
-  const kontrakSnap = await getDocs(
-    query(collection(db, KOLEKSI.kontrak), where('klienId', '==', klienId)),
-  );
-  kosong.kontrak = kontrakSnap.docs.map((d) =>
-    normalisasiEntitas('kontrak', d.id, d.data() as Record<string, unknown>, satkerKode),
-  );
-  const kontrakIds = kosong.kontrak.map((k) => k.id);
-  const tagihan: AppData['tagihan'] = [];
-  for (const potong of potong30(kontrakIds)) {
-    if (potong.length === 0) continue;
-    const snap = await getDocs(
-      query(collection(db, KOLEKSI.tagihan), where('kontrakId', 'in', potong)),
-    );
-    tagihan.push(
-      ...snap.docs.map((d) =>
-        normalisasiEntitas('tagihan', d.id, d.data() as Record<string, unknown>, satkerKode),
-      ),
-    );
-  }
-  kosong.tagihan = tagihan;
-  const dokumen: AppData['dokumen'] = [];
-  for (const potong of potong30(kontrakIds)) {
-    if (potong.length === 0) continue;
-    const snap = await getDocs(
-      query(collection(db, KOLEKSI.dokumen), where('kontrakId', 'in', potong)),
-    );
-    dokumen.push(
-      ...snap.docs.map((d) =>
-        normalisasiEntitas('dokumen', d.id, d.data() as Record<string, unknown>, satkerKode),
-      ),
-    );
-  }
-  kosong.dokumen = dokumen;
-  const tagihanIds = tagihan.map((t) => t.id);
-  const pembayaran: AppData['pembayaran'] = [];
-  for (const potong of potong30(tagihanIds)) {
-    if (potong.length === 0) continue;
-    const snap = await getDocs(
-      query(collection(db, KOLEKSI.pembayaran), where('tagihanId', 'in', potong)),
-    );
-    pembayaran.push(
-      ...snap.docs.map((d) =>
-        normalisasiEntitas('pembayaran', d.id, d.data() as Record<string, unknown>, satkerKode),
-      ),
-    );
-  }
-  kosong.pembayaran = pembayaran;
-  const pengajuanKlienSnap = await getDocs(
-    query(
-      collection(db, KOLEKSI.pengajuanKlien),
-      where('klienId', '==', klienId),
-    ),
-  );
-  kosong.pengajuanKlien = pengajuanKlienSnap.docs.map((d) =>
-    normalisasiEntitas(
-      'pengajuanKlien',
-      d.id,
-      d.data() as Record<string, unknown>,
-      satkerKode,
-    ),
-  );
-  return kosong;
-}
-
-/**
  * Tulis (buat/ubah, overwrite penuh) satu dokumen entitas.
  * `id` adalah id ENTITAS (mis. nomor PKS kontrak) — peng-encode-an ke id
  * dokumen dilakukan di sini. Dipakai pemanggil SETELAH `setData` berhasil
@@ -342,6 +224,21 @@ export async function simpanDokumen(
   await setDoc(
     doc(db, koleksi, kodeIdDokumen(id)),
     bersihkanUndefined(data) as Record<string, unknown>,
+  );
+}
+
+/**
+ * Tulis satu submission publik ke Firestore (REVISI KOREKSI 2026-11-15:
+ * dipakai kirim publik tanpa login; aturan Firestore mengizinkan create
+ * publik tervalidasi untuk koleksi ini). Pola sama dengan simpanDokumen.
+ */
+export async function kirimPengajuanPublik(
+  db: Firestore,
+  submission: PengajuanKlien,
+): Promise<void> {
+  await setDoc(
+    doc(db, KOLEKSI.pengajuanKlien, submission.id),
+    bersihkanUndefined(submission),
   );
 }
 
