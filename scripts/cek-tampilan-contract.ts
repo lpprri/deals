@@ -1,11 +1,14 @@
 // Cek tampilan baru tabel Contract (PR tampilan-baru-contract + PR
-// contract-signing-date + PR filter-contract-status): 9 kolom — No.,
+// contract-signing-date + PR filter-contract-status + PR
+// remaining-days-contract): 10 kolom — No.,
 // Contract & Reference Number (gabungan, keputusan pengguna 16/11/2026
 // 13:35 WIB), Contract Title, Signing Date (= Creation Date per keputusan
 // pengguna 16/11/2026, dari tanggalTandaTangan dengan fallback
 // tanggalMulai), Client, Service Type, Service Detail (nama layanan,
 // gabung "; " — header diganti dari "Service / BMN Detail" per keputusan
-// pengguna 16/11/2026 13:58 WIB), Contract Period, Contract Value; nomor
+// pengguna 16/11/2026 13:58 WIB), Contract Period, Remaining Days
+// (hitung mundur sampai tanggalSelesai, "Completed" bila status Selesai —
+// keputusan pengguna 16/11/2026 15:29 WIB), Contract Value; nomor
 // urut "No." mengikuti urutan tampil sesudah filter + sort (keputusan
 // pengguna 16/11/2026 13:31 WIB), filter Client Type + PNBP Type +
 // Payment Status + Cooperation Status (keputusan pengguna 16/11/2026
@@ -14,12 +17,14 @@
 import * as fs from 'node:fs';
 import { DATA_NYATA } from '../src/lib/seedNyata';
 import { dibayarTerverifikasi, hitungTotalKontrol } from '../src/lib/derive';
+import { selisihHari } from '../src/lib/format';
 import {
   detailLayananKontrak,
   jenisKlienYangAda,
   judulKontrak,
   labelArahUrutKontrak,
   nomorReferensiKontrak,
+  sisaHariKerjaSama,
   statusKerjaSamaKontrak,
   statusPembayaranKontrak,
   tanggalPenandatangananKontrak,
@@ -568,6 +573,92 @@ cek(
   ).length === 2,
 );
 
+// ---------- kolom Remaining Days (keputusan pengguna 16/11/2026 15:29 WIB) ----------
+// Aturan (helper sisaHariKerjaSama, hari ini = 2026-11-16): status
+// 'Selesai' → "Completed"; selain itu hitung mundur hari kalender dari
+// hari ini sampai tanggalSelesai ("1 day" bila 1, "N days" bila lain).
+// AUDIT (seed, per 2026-11-16): 15 kontrak non-Selesai, semuanya berakhir
+// di masa depan — TIDAK ADA yang tanggal akhirnya sudah lewat (selisih
+// terkecil 1 hari: 10227 berakhir 17/11/2026; terbesar 807 hari:
+// 1051/1052/1053 berakhir 31/01/2029).
+const sisaHari = (nomor: string) => sisaHariKerjaSama(cari(nomor), HARI_INI);
+cek(
+  'remaining days 027 Darojad = "592 days" (sampai 30/06/2028)',
+  sisaHari('027/RRI.PLB/PKS.U/06/2025') === '592 days',
+  sisaHari('027/RRI.PLB/PKS.U/06/2025'),
+);
+cek(
+  'remaining days 016 VGreen = "643 days" (sampai 20/08/2028)',
+  sisaHari('016/PKS/DIR.LPU/06/2025') === '643 days',
+  sisaHari('016/PKS/DIR.LPU/06/2025'),
+);
+cek(
+  'remaining days 1051 = "807 days" (sampai 31/01/2029)',
+  sisaHari('1051/PKS/RRI.PLB/02/2026') === '807 days',
+  sisaHari('1051/PKS/RRI.PLB/02/2026'),
+);
+cek(
+  'remaining days 1052 = "807 days" (sampai 31/01/2029)',
+  sisaHari('1052/PKS/RRI.PLB/02/2026') === '807 days',
+  sisaHari('1052/PKS/RRI.PLB/02/2026'),
+);
+cek(
+  'remaining days 1053 = "807 days" (sampai 31/01/2029)',
+  sisaHari('1053/PKS/RRI.PLB/02/2026') === '807 days',
+  sisaHari('1053/PKS/RRI.PLB/02/2026'),
+);
+cek(
+  'remaining days 0603 = "Completed" (status Selesai)',
+  sisaHari('0603/PKS/RRI.PLB/01/2026') === 'Completed',
+);
+cek(
+  'remaining days Taspen 001 = "Completed" (status Selesai)',
+  sisaHari('001/PKS/DIR.LPU/01/2026') === 'Completed',
+);
+cek(
+  'remaining days Samdini 10828 = "304 days" (sampai 16/09/2027)',
+  sisaHari('10828/PKS/RRI.PLB/10/2026') === '304 days',
+  sisaHari('10828/PKS/RRI.PLB/10/2026'),
+);
+cek(
+  'remaining days 10227 = "1 day" (tunggal, berakhir 17/11/2026)',
+  sisaHari('10227/PKS/RRI.PLB/10/2026') === '1 day',
+  sisaHari('10227/PKS/RRI.PLB/10/2026'),
+);
+cek(
+  '"Completed" untuk semua 27 kontrak Selesai',
+  kontrak
+    .filter((k) => k.status === 'Selesai')
+    .every((k) => sisaHariKerjaSama(k, HARI_INI) === 'Completed'),
+);
+cek(
+  '15 kontrak non-Selesai semuanya berformat "N days"/"1 day" dengan N >= 1',
+  kontrak
+    .filter((k) => k.status !== 'Selesai')
+    .every((k) => /^(1 day|[1-9][0-9]* days)$/.test(sisaHariKerjaSama(k, HARI_INI))),
+);
+cek(
+  'audit: TIDAK ADA kontrak non-Selesai yang tanggal akhirnya sudah lewat per 2026-11-16',
+  kontrak.filter((k) => k.status !== 'Selesai' && k.tanggalSelesai < HARI_INI)
+    .length === 0,
+);
+cek(
+  'selisih terkecil non-Selesai = 1 hari (10227)',
+  Math.min(
+    ...kontrak
+      .filter((k) => k.status !== 'Selesai')
+      .map((k) => selisihHari(HARI_INI, k.tanggalSelesai)),
+  ) === 1,
+);
+cek(
+  'selisih terbesar non-Selesai = 807 hari (1051/1052/1053)',
+  Math.max(
+    ...kontrak
+      .filter((k) => k.status !== 'Selesai')
+      .map((k) => selisihHari(HARI_INI, k.tanggalSelesai)),
+  ) === 807,
+);
+
 // ---------- kolom gabungan Contract & Reference Number ----------
 cek(
   'sel gabungan 0603: baris 1 nomorPks + baris 2 referensi',
@@ -624,7 +715,7 @@ const akhir = deals.indexOf('function DetailKontrak', awal);
 const tabKontrak = deals.slice(awal, akhir);
 const header = [...tabKontrak.matchAll(/<Th[^>]*>([^<]+)<\/Th>/g)].map((m) => m[1]);
 cek(
-  'urutan 9 header kolom (No. paling kiri, nomor+referensi gabung)',
+  'urutan 10 header kolom (No. paling kiri, Remaining Days sesudah Contract Period, Contract Value tetap terakhir)',
   JSON.stringify(header) ===
     JSON.stringify([
       'No.',
@@ -635,9 +726,19 @@ cek(
       'Service Type',
       'Service Detail',
       'Contract Period',
+      'Remaining Days',
       'Contract Value',
     ]),
   JSON.stringify(header),
+);
+cek('header "Remaining Days" 1x', header.filter((h) => h === 'Remaining Days').length === 1);
+cek(
+  'header "Contract Value" tetap terakhir',
+  header[header.length - 1] === 'Contract Value',
+);
+cek(
+  'sel Remaining Days pakai helper sisaHariKerjaSama',
+  tabKontrak.includes('sisaHariKerjaSama(k)'),
 );
 cek(
   'header gabungan "Contract & Reference Number" 1x',

@@ -29,6 +29,7 @@ import {
   judulKontrak,
   labelArahUrutKontrak,
   nomorReferensiKontrak,
+  sisaHariKerjaSama,
   statusKerjaSamaKontrak,
   statusPembayaranKontrak,
   tanggalPenandatangananKontrak,
@@ -650,10 +651,11 @@ export function TabKontrak({
     );
   }
 
-  // Kolom baru (keputusan pengguna 16/11/2026): 8 kolom di bawah, tanpa
+  // Kolom baru (keputusan pengguna 16/11/2026): 10 kolom di bawah, tanpa
   // kolom kode akun dan tanpa Status. Filter: Client Type + PNBP Type +
   // Payment Status + Cooperation Status (keputusan pengguna 16/11/2026
-  // 13:56 WIB).
+  // 13:56 WIB). Kolom "Remaining Days" di samping Contract Period
+  // (keputusan pengguna 16/11/2026 15:29 WIB).
   const jenisKlien = (k: Kontrak): string | undefined =>
     data.klien.find((kl) => kl.id === k.klienId)?.jenis;
   const kontrakTersaring = urutkanKontrak(
@@ -795,6 +797,7 @@ export function TabKontrak({
                 <Th>Service Type</Th>
                 <Th>Service Detail</Th>
                 <Th>Contract Period</Th>
+                <Th>Remaining Days</Th>
                 <Th kanan>Contract Value</Th>
               </tr>
             </thead>
@@ -836,6 +839,12 @@ export function TabKontrak({
                   <Td>
                     {formatTanggal(k.tanggalMulai)} – {formatTanggal(k.tanggalSelesai)}
                   </Td>
+                  {/*
+                    Sisa hari kerja sama — hitung mundur sampai tanggal
+                    akhir (keputusan pengguna 16/11/2026 15:29 WIB);
+                    kontrak yang sudah selesai tertulis "Completed".
+                  */}
+                  <Td>{sisaHariKerjaSama(k)}</Td>
                   <Td kanan>{formatRupiah(k.nilaiKontrak)}</Td>
                 </Baris>
               ))}
