@@ -29,9 +29,13 @@ import {
   judulKontrak,
   labelArahUrutKontrak,
   nomorReferensiKontrak,
+  statusKerjaSamaKontrak,
+  statusPembayaranKontrak,
   tanggalPenandatangananKontrak,
   urutkanKontrak,
   type ArahUrutKontrak,
+  type FilterStatusKerjaSama,
+  type FilterStatusPembayaran,
   type KunciUrutKontrak,
 } from '../lib/kontrakTampilan';
 import { formatRupiah, formatTanggal, normalisasiNama } from '../lib/format';
@@ -91,6 +95,10 @@ export default function Deals(props: ModulProps) {
 
   const [filterPnBP, setFilterPnBP] = useState<'Semua' | 'Fungsional' | 'Umum'>('Semua');
   const [filterJenisKlien, setFilterJenisKlien] = useState<string>('Semua');
+  const [filterStatusPembayaran, setFilterStatusPembayaran] =
+    useState<FilterStatusPembayaran>('Semua');
+  const [filterStatusKerjaSama, setFilterStatusKerjaSama] =
+    useState<FilterStatusKerjaSama>('Semua');
   const [urutKunciKontrak, setUrutKunciKontrak] =
     useState<KunciUrutKontrak>('tandaTangan');
   const [urutArahKontrak, setUrutArahKontrak] =
@@ -151,6 +159,10 @@ export default function Deals(props: ModulProps) {
           onFilterPnBP={setFilterPnBP}
           filterJenisKlien={filterJenisKlien}
           onFilterJenisKlien={setFilterJenisKlien}
+          filterStatusPembayaran={filterStatusPembayaran}
+          onFilterStatusPembayaran={setFilterStatusPembayaran}
+          filterStatusKerjaSama={filterStatusKerjaSama}
+          onFilterStatusKerjaSama={setFilterStatusKerjaSama}
           urutKunci={urutKunciKontrak}
           onUrutKunci={setUrutKunciKontrak}
           urutArah={urutArahKontrak}
@@ -595,6 +607,10 @@ export function TabKontrak({
   onFilterPnBP,
   filterJenisKlien,
   onFilterJenisKlien,
+  filterStatusPembayaran,
+  onFilterStatusPembayaran,
+  filterStatusKerjaSama,
+  onFilterStatusKerjaSama,
   urutKunci,
   onUrutKunci,
   urutArah,
@@ -612,6 +628,10 @@ export function TabKontrak({
   onFilterPnBP: (v: 'Semua' | 'Fungsional' | 'Umum') => void;
   filterJenisKlien: string;
   onFilterJenisKlien: (v: string) => void;
+  filterStatusPembayaran: FilterStatusPembayaran;
+  onFilterStatusPembayaran: (v: FilterStatusPembayaran) => void;
+  filterStatusKerjaSama: FilterStatusKerjaSama;
+  onFilterStatusKerjaSama: (v: FilterStatusKerjaSama) => void;
   urutKunci: KunciUrutKontrak;
   onUrutKunci: (v: KunciUrutKontrak) => void;
   urutArah: ArahUrutKontrak;
@@ -631,7 +651,9 @@ export function TabKontrak({
   }
 
   // Kolom baru (keputusan pengguna 16/11/2026): 8 kolom di bawah, tanpa
-  // kolom kode akun dan tanpa Status. Filter: Client Type + PNBP Type.
+  // kolom kode akun dan tanpa Status. Filter: Client Type + PNBP Type +
+  // Payment Status + Cooperation Status (keputusan pengguna 16/11/2026
+  // 13:56 WIB).
   const jenisKlien = (k: Kontrak): string | undefined =>
     data.klien.find((kl) => kl.id === k.klienId)?.jenis;
   const kontrakTersaring = urutkanKontrak(
@@ -639,6 +661,11 @@ export function TabKontrak({
       (k) =>
         (filterPnBP === 'Semua' || k.jenisPnBP === filterPnBP) &&
         (filterJenisKlien === 'Semua' || jenisKlien(k) === filterJenisKlien) &&
+        (filterStatusPembayaran === 'Semua' ||
+          statusPembayaranKontrak(k, data.tagihan, data.pembayaran) ===
+            filterStatusPembayaran) &&
+        (filterStatusKerjaSama === 'Semua' ||
+          statusKerjaSamaKontrak(k) === filterStatusKerjaSama) &&
         cocokCari(
           `${k.nomorPks} ${namaKlien(data, k.klienId)} ${k.kategoriLayanan} ${judulKontrak(k) ?? ''} ${nomorReferensiKontrak(k) ?? ''}`,
         ),
@@ -689,6 +716,39 @@ export function TabKontrak({
           </select>
         </div>
         <div>
+          <Label>Payment Status</Label>
+          <select
+            className={inputClass}
+            value={filterStatusPembayaran}
+            onChange={(e) =>
+              onFilterStatusPembayaran(
+                e.target.value as FilterStatusPembayaran,
+              )
+            }
+          >
+            <option value="Semua">All</option>
+            <option value="Unpaid">Unpaid</option>
+            <option value="Paid">Paid</option>
+            <option value="Partially-Paid">Partially-Paid</option>
+            <option value="Overdue">Overdue</option>
+          </select>
+        </div>
+        <div>
+          <Label>Cooperation Status</Label>
+          <select
+            className={inputClass}
+            value={filterStatusKerjaSama}
+            onChange={(e) =>
+              onFilterStatusKerjaSama(e.target.value as FilterStatusKerjaSama)
+            }
+          >
+            <option value="Semua">All</option>
+            <option value="Completed">Completed</option>
+            <option value="On-Going">On-Going</option>
+            <option value="Upcoming">Upcoming</option>
+          </select>
+        </div>
+        <div>
           <Label>Sort by</Label>
           <select
             className={inputClass}
@@ -733,7 +793,7 @@ export function TabKontrak({
                 <Th>Signing Date</Th>
                 <Th>Client</Th>
                 <Th>Service Type</Th>
-                <Th>Service / BMN Detail</Th>
+                <Th>Service Detail</Th>
                 <Th>Contract Period</Th>
                 <Th kanan>Contract Value</Th>
               </tr>

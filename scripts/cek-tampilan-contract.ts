@@ -1,22 +1,27 @@
 // Cek tampilan baru tabel Contract (PR tampilan-baru-contract + PR
-// contract-signing-date): 9 kolom — No., Contract & Reference Number
-// (gabungan, keputusan pengguna 16/11/2026 13:35 WIB), Contract Title,
-// Signing Date (= Creation Date per keputusan pengguna 16/11/2026, dari
-// tanggalTandaTangan dengan fallback tanggalMulai), Client, Service Type,
-// Service / BMN Detail (nama layanan, gabung "; "), Contract Period,
-// Contract Value; nomor urut "No." mengikuti urutan tampil sesudah
-// filter + sort (keputusan pengguna 16/11/2026 13:31 WIB), filter Client
-// Type + PNBP Type, sort 3 kunci, tanpa Account Code dan tanpa Status di
+// contract-signing-date + PR filter-contract-status): 9 kolom — No.,
+// Contract & Reference Number (gabungan, keputusan pengguna 16/11/2026
+// 13:35 WIB), Contract Title, Signing Date (= Creation Date per keputusan
+// pengguna 16/11/2026, dari tanggalTandaTangan dengan fallback
+// tanggalMulai), Client, Service Type, Service Detail (nama layanan,
+// gabung "; " — header diganti dari "Service / BMN Detail" per keputusan
+// pengguna 16/11/2026 13:58 WIB), Contract Period, Contract Value; nomor
+// urut "No." mengikuti urutan tampil sesudah filter + sort (keputusan
+// pengguna 16/11/2026 13:31 WIB), filter Client Type + PNBP Type +
+// Payment Status + Cooperation Status (keputusan pengguna 16/11/2026
+// 13:56 WIB), sort 3 kunci, tanpa Account Code dan tanpa Status di
 // tabel; total kontrol tidak berubah.
 import * as fs from 'node:fs';
 import { DATA_NYATA } from '../src/lib/seedNyata';
-import { hitungTotalKontrol } from '../src/lib/derive';
+import { dibayarTerverifikasi, hitungTotalKontrol } from '../src/lib/derive';
 import {
   detailLayananKontrak,
   jenisKlienYangAda,
   judulKontrak,
   labelArahUrutKontrak,
   nomorReferensiKontrak,
+  statusKerjaSamaKontrak,
+  statusPembayaranKontrak,
   tanggalPenandatangananKontrak,
   urutkanKontrak,
 } from '../src/lib/kontrakTampilan';
@@ -143,7 +148,7 @@ cek(
     ]),
 );
 
-// ---------- kolom Service / BMN Detail (nama layanan, gabung "; ") ----------
+// ---------- kolom Service Detail (nama layanan, gabung "; ") ----------
 cek(
   'detail 001 Taspen = "Ad-Lib / Jingle"',
   detailLayananKontrak(cari('001/PKS/DIR.LPU/01/2026')) === 'Ad-Lib / Jingle',
@@ -179,6 +184,251 @@ cek(
   'detail tanpa layanan = undefined',
   detailLayananKontrak({ ...cari('0603/PKS/RRI.PLB/01/2026'), layanan: [] }) ===
     undefined,
+);
+
+// ---------- filter Payment Status (keputusan pengguna 16/11/2026 13:56 WIB) ----------
+// Aturan (helper statusPembayaranKontrak, hari ini = 2026-11-16):
+// Overdue = ada tagihan lewat jatuh tempo DAN masih bersisa (precedence
+// atas Unpaid/Partially-Paid); Paid = tidak ada sisa di semua tagihan;
+// Partially-Paid = ada pembayaran terverifikasi tapi masih bersisa (dan
+// tidak overdue); Unpaid = belum ada pembayaran terverifikasi sama sekali
+// (dan tidak overdue). Hanya pembayaran Terverifikasi yang dihitung.
+const HARI_INI = '2026-11-16';
+const statusBayar = (nomor: string) =>
+  statusPembayaranKontrak(
+    cari(nomor),
+    DATA_NYATA.tagihan,
+    DATA_NYATA.pembayaran,
+    HARI_INI,
+  );
+const hitungBayar = (s: string) =>
+  kontrak.filter(
+    (k) =>
+      statusPembayaranKontrak(
+        k,
+        DATA_NYATA.tagihan,
+        DATA_NYATA.pembayaran,
+        HARI_INI,
+      ) === s,
+  ).length;
+cek('payment status 0603 = Paid', statusBayar('0603/PKS/RRI.PLB/01/2026') === 'Paid');
+cek(
+  'payment status Taspen 001 = Paid',
+  statusBayar('001/PKS/DIR.LPU/01/2026') === 'Paid',
+);
+cek(
+  'payment status 1744 = Overdue (sebagian + lewat jatuh tempo)',
+  statusBayar('1744/PKS/RRI.PLB/03/2026') === 'Overdue',
+);
+cek(
+  'payment status 2919 = Overdue',
+  statusBayar('2919/PKS/RRI.PLB/04/2026') === 'Overdue',
+);
+cek(
+  'payment status 7054 = Overdue (sebagian + lewat jatuh tempo)',
+  statusBayar('7054/PKS/RRI.PLB/07/2026') === 'Overdue',
+);
+cek(
+  'payment status 018 = Unpaid (jatuh tempo 2026-12-31)',
+  statusBayar('018/PKS/DIR.LPU/08/2026') === 'Unpaid',
+);
+cek(
+  'payment status 10227 = Unpaid',
+  statusBayar('10227/PKS/RRI.PLB/10/2026') === 'Unpaid',
+);
+cek(
+  'payment status 11290 = Unpaid (jatuh tempo 2026-11-27)',
+  statusBayar('11290/PKS/RRI.PLB/10/2026') === 'Unpaid',
+);
+cek('payment status Paid = 33', hitungBayar('Paid') === 33, `${hitungBayar('Paid')}`);
+cek('payment status Overdue = 6', hitungBayar('Overdue') === 6, `${hitungBayar('Overdue')}`);
+cek('payment status Unpaid = 3', hitungBayar('Unpaid') === 3, `${hitungBayar('Unpaid')}`);
+cek(
+  'payment status Partially-Paid = 0 (jujur: 6 kontrak bayar-sebagian semuanya Overdue)',
+  hitungBayar('Partially-Paid') === 0,
+  `${hitungBayar('Partially-Paid')}`,
+);
+// Precedence: 6 kontrak yang dibayar sebagian (menurut jumlah) semuanya Overdue.
+const bayarSebagian = kontrak.filter((k) => {
+  const tg = DATA_NYATA.tagihan.filter((t) => t.kontrakId === k.id);
+  const total = tg.reduce(
+    (s, t) => s + dibayarTerverifikasi(t.id, DATA_NYATA.pembayaran),
+    0,
+  );
+  const nilai = tg.reduce((s, t) => s + t.nilai, 0);
+  return total > 0 && total < nilai;
+});
+cek(
+  '6 kontrak bayar-sebagian semuanya Overdue (precedence)',
+  bayarSebagian.length === 6 &&
+    bayarSebagian.every(
+      (k) =>
+        statusPembayaranKontrak(
+          k,
+          DATA_NYATA.tagihan,
+          DATA_NYATA.pembayaran,
+          HARI_INI,
+        ) === 'Overdue',
+    ),
+  `${bayarSebagian.length}`,
+);
+// Kategori saling lepas: jumlah keempatnya = 42.
+cek(
+  'payment status saling lepas (33+6+3+0 = 42)',
+  hitungBayar('Paid') +
+    hitungBayar('Overdue') +
+    hitungBayar('Unpaid') +
+    hitungBayar('Partially-Paid') ===
+    42,
+);
+// Kebenaran filter + nomor urut sesudah filter baru.
+const overdueNilaiDesc = urutkanKontrak(
+  kontrak.filter(
+    (k) =>
+      statusPembayaranKontrak(
+        k,
+        DATA_NYATA.tagihan,
+        DATA_NYATA.pembayaran,
+        HARI_INI,
+      ) === 'Overdue',
+  ),
+  'nilai',
+  'turun',
+);
+cek('filter Overdue = 6 baris', overdueNilaiDesc.length === 6, `${overdueNilaiDesc.length}`);
+cek(
+  'filter Overdue + sort nilai desc pertama 1744',
+  overdueNilaiDesc[0].nomorPks === '1744/PKS/RRI.PLB/03/2026',
+  overdueNilaiDesc[0].nomorPks,
+);
+cek(
+  'filter Overdue + sort nilai desc terakhir 2920',
+  overdueNilaiDesc[5].nomorPks === '2920/PKS/RRI.PLB/04/2026',
+  overdueNilaiDesc[5].nomorPks,
+);
+// Kombinasi dengan filter lama (PNBP Type).
+cek(
+  'filter gabungan Fungsional + Paid = 19',
+  kontrak.filter(
+    (k) =>
+      k.jenisPnBP === 'Fungsional' &&
+      statusPembayaranKontrak(
+        k,
+        DATA_NYATA.tagihan,
+        DATA_NYATA.pembayaran,
+        HARI_INI,
+      ) === 'Paid',
+  ).length === 19,
+);
+cek(
+  'filter gabungan Fungsional + Overdue = 3',
+  kontrak.filter(
+    (k) =>
+      k.jenisPnBP === 'Fungsional' &&
+      statusPembayaranKontrak(
+        k,
+        DATA_NYATA.tagihan,
+        DATA_NYATA.pembayaran,
+        HARI_INI,
+      ) === 'Overdue',
+  ).length === 3,
+);
+
+// ---------- filter Cooperation Status (keputusan pengguna 16/11/2026 13:56 WIB) ----------
+// Aturan (helper statusKerjaSamaKontrak): status 'Selesai' → Completed;
+// tanggalMulai > hari ini → Upcoming; selain itu On-Going. Status yang
+// ada di seed hanya 'Aktif' dan 'Selesai' (tidak ada 'Draft'/'Dibatalkan').
+const statusKerja = (nomor: string) =>
+  statusKerjaSamaKontrak(cari(nomor), HARI_INI);
+const hitungKerja = (s: string) =>
+  kontrak.filter((k) => statusKerjaSamaKontrak(k, HARI_INI) === s).length;
+cek(
+  'cooperation status 027 Darojad = On-Going (Aktif, sampai 30/06/2028)',
+  statusKerja('027/RRI.PLB/PKS.U/06/2025') === 'On-Going',
+);
+cek(
+  'cooperation status 016 VGreen = On-Going (Aktif, sampai 20/08/2028)',
+  statusKerja('016/PKS/DIR.LPU/06/2025') === 'On-Going',
+);
+cek(
+  'cooperation status 0603 = Completed',
+  statusKerja('0603/PKS/RRI.PLB/01/2026') === 'Completed',
+);
+cek(
+  'cooperation status 11290 = Completed (kontrak 1 hari, status Selesai)',
+  statusKerja('11290/PKS/RRI.PLB/10/2026') === 'Completed',
+);
+cek(
+  'cooperation status Samdini 10828 = On-Going',
+  statusKerja('10828/PKS/RRI.PLB/10/2026') === 'On-Going',
+);
+cek(
+  'cooperation status 018 = On-Going',
+  statusKerja('018/PKS/DIR.LPU/08/2026') === 'On-Going',
+);
+cek(
+  'cooperation status 10227 = On-Going',
+  statusKerja('10227/PKS/RRI.PLB/10/2026') === 'On-Going',
+);
+cek('cooperation status Completed = 27', hitungKerja('Completed') === 27, `${hitungKerja('Completed')}`);
+cek('cooperation status On-Going = 15', hitungKerja('On-Going') === 15, `${hitungKerja('On-Going')}`);
+cek(
+  'cooperation status Upcoming = 0 (jujur: tanggalMulai terbaru 2026-10-30)',
+  hitungKerja('Upcoming') === 0,
+  `${hitungKerja('Upcoming')}`,
+);
+cek(
+  'cooperation status saling lepas (27+15+0 = 42)',
+  hitungKerja('Completed') + hitungKerja('On-Going') + hitungKerja('Upcoming') === 42,
+);
+// Kombinasi kedua filter baru.
+cek(
+  'filter gabungan Paid + Completed = 20',
+  kontrak.filter(
+    (k) =>
+      statusPembayaranKontrak(
+        k,
+        DATA_NYATA.tagihan,
+        DATA_NYATA.pembayaran,
+        HARI_INI,
+      ) === 'Paid' && statusKerjaSamaKontrak(k, HARI_INI) === 'Completed',
+  ).length === 20,
+);
+cek(
+  'filter gabungan Overdue + Completed = 6',
+  kontrak.filter(
+    (k) =>
+      statusPembayaranKontrak(
+        k,
+        DATA_NYATA.tagihan,
+        DATA_NYATA.pembayaran,
+        HARI_INI,
+      ) === 'Overdue' && statusKerjaSamaKontrak(k, HARI_INI) === 'Completed',
+  ).length === 6,
+);
+cek(
+  'filter gabungan Overdue + On-Going = 0',
+  kontrak.filter(
+    (k) =>
+      statusPembayaranKontrak(
+        k,
+        DATA_NYATA.tagihan,
+        DATA_NYATA.pembayaran,
+        HARI_INI,
+      ) === 'Overdue' && statusKerjaSamaKontrak(k, HARI_INI) === 'On-Going',
+  ).length === 0,
+);
+cek(
+  'filter gabungan Unpaid + On-Going = 2',
+  kontrak.filter(
+    (k) =>
+      statusPembayaranKontrak(
+        k,
+        DATA_NYATA.tagihan,
+        DATA_NYATA.pembayaran,
+        HARI_INI,
+      ) === 'Unpaid' && statusKerjaSamaKontrak(k, HARI_INI) === 'On-Going',
+  ).length === 2,
 );
 
 // ---------- kolom gabungan Contract & Reference Number ----------
@@ -246,7 +496,7 @@ cek(
       'Signing Date',
       'Client',
       'Service Type',
-      'Service / BMN Detail',
+      'Service Detail',
       'Contract Period',
       'Contract Value',
     ]),
@@ -292,14 +542,50 @@ cek(
 );
 cek('filter Client Type ada', tabKontrak.includes('<Label>Client Type</Label>'));
 cek('filter PNBP Type ada', tabKontrak.includes('<Label>PNBP Type</Label>'));
+cek('filter Payment Status ada', tabKontrak.includes('<Label>Payment Status</Label>'));
+cek('filter Cooperation Status ada', tabKontrak.includes('<Label>Cooperation Status</Label>'));
+cek(
+  'opsi filter Payment Status 4',
+  ['Unpaid', 'Paid', 'Partially-Paid', 'Overdue'].every((o) =>
+    tabKontrak.includes(`value="${o}">${o}`),
+  ),
+);
+cek(
+  'opsi filter Cooperation Status 3',
+  ['Completed', 'On-Going', 'Upcoming'].every((o) =>
+    tabKontrak.includes(`value="${o}">${o}`),
+  ),
+);
+cek(
+  'kontrakTersaring pakai statusPembayaranKontrak',
+  tabKontrak.includes('statusPembayaranKontrak(k, data.tagihan, data.pembayaran)'),
+);
+cek(
+  'kontrakTersaring pakai statusKerjaSamaKontrak',
+  tabKontrak.includes('statusKerjaSamaKontrak(k)'),
+);
+cek('"Service / BMN Detail" 0x di TabKontrak', !tabKontrak.includes('Service / BMN Detail'));
+cek('header "Service Detail" ada di TabKontrak', tabKontrak.includes('<Th>Service Detail</Th>'));
 cek('kontrol Sort by ada', tabKontrak.includes('<Label>Sort by</Label>'));
 cek('kontrol Order ada', tabKontrak.includes('<Label>Order</Label>'));
 cek('opsi sort Signing Date', tabKontrak.includes('value="tandaTangan">Signing Date'));
 cek('opsi sort End Date', tabKontrak.includes('value="selesai">End Date'));
 cek('opsi sort Contract Value', tabKontrak.includes('value="nilai">Contract Value'));
 cek('"Account Code" 0x di DetailKontrak', !deals.slice(akhir, deals.indexOf('function FormKontrak', akhir)).includes('Account code'));
-cek('filterStatus 0x di Deals.tsx', !deals.includes('filterStatus'));
-cek('filterStatus 0x di KerjaSama.tsx', !kerjaSama.includes('filterStatus'));
+// Filter Status LAMA (kolom Status, PR #54) tetap tidak ada — asersi
+// dipersempit ke pengenal lamanya, karena nama filter baru
+// (filterStatusPembayaran / filterStatusKerjaSama) mengandung substring
+// 'filterStatus'.
+cek(
+  'filterStatus lama 0x di Deals.tsx',
+  !deals.includes('[filterStatus, setFilterStatus]') &&
+    !deals.includes('filterStatus={filterStatus}'),
+);
+cek(
+  'filterStatus lama 0x di KerjaSama.tsx',
+  !kerjaSama.includes('[filterStatus, setFilterStatus]') &&
+    !kerjaSama.includes('filterStatus={filterStatus}'),
+);
 cek('MASTER_STATUS_KONTRAK 0x di Deals.tsx', !deals.includes('MASTER_STATUS_KONTRAK'));
 
 // ---------- total kontrol tidak berubah ----------

@@ -21,6 +21,8 @@ import type { ModulProps } from '../lib/store';
 import { PesanKosong } from '../components/ui';
 import type {
   ArahUrutKontrak,
+  FilterStatusKerjaSama,
+  FilterStatusPembayaran,
   KunciUrutKontrak,
 } from '../lib/kontrakTampilan';
 
@@ -52,6 +54,10 @@ function DaftarKontrakKategori({
   const [tampilForm, setTampilForm] = useState(false);
   const [filterPnBP, setFilterPnBP] = useState<'Semua' | 'Fungsional' | 'Umum'>('Semua');
   const [filterJenisKlien, setFilterJenisKlien] = useState<string>('Semua');
+  const [filterStatusPembayaran, setFilterStatusPembayaran] =
+    useState<FilterStatusPembayaran>('Semua');
+  const [filterStatusKerjaSama, setFilterStatusKerjaSama] =
+    useState<FilterStatusKerjaSama>('Semua');
   const [urutKunci, setUrutKunci] = useState<KunciUrutKontrak>('tandaTangan');
   const [urutArah, setUrutArah] = useState<ArahUrutKontrak>('turun');
 
@@ -93,6 +99,10 @@ function DaftarKontrakKategori({
       onFilterPnBP={setFilterPnBP}
       filterJenisKlien={filterJenisKlien}
       onFilterJenisKlien={setFilterJenisKlien}
+      filterStatusPembayaran={filterStatusPembayaran}
+      onFilterStatusPembayaran={setFilterStatusPembayaran}
+      filterStatusKerjaSama={filterStatusKerjaSama}
+      onFilterStatusKerjaSama={setFilterStatusKerjaSama}
       urutKunci={urutKunci}
       onUrutKunci={setUrutKunci}
       urutArah={urutArah}
