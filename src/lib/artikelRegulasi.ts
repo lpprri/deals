@@ -16,9 +16,10 @@ const OLEH = 'Operator Layanan & Pengembangan Usaha';
 const PADA = '2026-11-16';
 
 /**
- * Tautan berkas PDF satu regulasi, dari daftar kanonis dokumen (PR #50).
+ * Tautan berkas PDF satu regulasi, dari daftar kanonis dokumen (PR #50;
+ * PR #51: tautan kini preview Google Drive, bukan /dokumen/<nama-berkas>).
  * Dipakai di bawah saat mengekspor ARTIKEL_REGULASI — tiap artikel
- * membawa tautan unduhnya sendiri (`tautan`).
+ * membawa tautan preview-nya sendiri (`tautan`).
  */
 function tautanDokumen(judul: string): string | undefined {
   const d = DOKUMEN_REGULASI.find((x) => x.judul === judul);

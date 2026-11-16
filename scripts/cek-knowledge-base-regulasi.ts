@@ -1,14 +1,15 @@
 // Verifikasi Knowledge Base regulasi + FAQ + Document (PR #49, 16/11/2026;
 // PR #50: tab Document digabung ke Knowledge Base — tombol Download di
-// sisi kanan tabel KB, tanpa kolom ID, terbaru paling atas):
+// sisi kanan tabel KB, tanpa kolom ID, terbaru paling atas; PR #51:
+// tombol jadi "View" — membuka preview Google Drive, bukan /dokumen/):
 // - 9 artikel regulasi (id stabil, judul/kategori/ringkasan/isi benar,
 //   tanpa duplikat) ada di daftar kanonis DAN di seed mode contoh.
 // - 25 entri FAQ bersumber regulasi (id FAQ-01..FAQ-25, pertanyaan /
 //   jawaban / sumber terisi, tanpa duplikat) ada di daftar kanonis DAN
 //   di seed mode contoh.
-// - 9 entri Document (nama/halaman/ukuran benar, tautan /dokumen/...,
-//   ukuran cocok dengan berkas asli di ~/workspace/user/files/) — daftar
-//   kanonis berkas tetap ada sebagai sumber tautan unduh artikel KB.
+// - 9 entri Document (nama/halaman/ukuran benar, tautan preview Google
+//   Drive, ukuran cocok dengan berkas asli di ~/workspace/user/files/)
+//   — daftar kanonis berkas tetap ada sebagai sumber tautan artikel KB.
 // - 6 total kontrol tidak berubah.
 // - Invarian perbaikan idBerikutnya (PR #49): jangkar ^(\d+) tidak
 //   mengubah id berikutnya untuk semua skema id yang sudah ada, dan id
@@ -26,6 +27,8 @@ import {
   DOKUMEN_REGULASI,
   tautanUnduhArtikel,
   urlDokumenRegulasi,
+  urlLihatDrive,
+  urlUnduhDrive,
 } from '../src/lib/dokumenRegulasi';
 import { hitungTotalKontrol } from '../src/lib/derive';
 
@@ -142,6 +145,46 @@ cek(
 );
 
 // ---------- Tautan unduh artikel + tanggal tidak dikarang (PR #50) ----------
+// Tautan preview Google Drive (webViewLink) per artikel — disalin persis
+// dari ~/workspace/dokumen-regulasi-drive.md (PR #51).
+const TAUTAN_LIHAT_HARAP = new Map([
+  [
+    'PMK 115/PMK.03/2021',
+    'https://drive.google.com/file/d/17mLmWqjyWzgK5wh7GcWW2kyFmt5olGQs/view?usp=drivesdk',
+  ],
+  [
+    'PP 5/2015',
+    'https://drive.google.com/file/d/1ZEXSEy-FKEcCGE5D7V27G0UDi_g6dBjT/view?usp=drivesdk',
+  ],
+  [
+    'PP 68/2020',
+    'https://drive.google.com/file/d/1aB-zvEo2WRidLjwaGM4RcrUy1EefGadW/view?usp=drivesdk',
+  ],
+  [
+    'Perdirut RRI 1/2023',
+    'https://drive.google.com/file/d/1igH8Leo4E2qOtnXBO7cmF0KknIYiPbT-/view?usp=drivesdk',
+  ],
+  [
+    'Perdirut RRI 5/2023',
+    'https://drive.google.com/file/d/118jqKJ1SjW56fImM9QBXnRekfFiExUx9/view?usp=drivesdk',
+  ],
+  [
+    'Perdirut RRI 11/2023',
+    'https://drive.google.com/file/d/1k176UfoWp9FTrlRvXpBO5HfrOi3W0-6D/view?usp=drivesdk',
+  ],
+  [
+    'Pedoman LPU 2019',
+    'https://drive.google.com/file/d/1H8WCzkZFi2Zv9CmE-R2UWR-QHdomdXB2/view?usp=drivesdk',
+  ],
+  [
+    'Pedoman LPU 2023',
+    'https://drive.google.com/file/d/1xi0WeLdA-0IyyZc42jcRpeNBMkbsSRRm/view?usp=drivesdk',
+  ],
+  [
+    'Juknis PNBP Perdirut 13/2025',
+    'https://drive.google.com/file/d/1jwqBV2ECzyXZA_XaTD0Gey8qs0SBLl1a/view?usp=drivesdk',
+  ],
+]);
 const berkasUntukJudul = new Map(
   DOKUMEN_REGULASI.map((d) => [d.judul, d.berkas]),
 );
@@ -149,10 +192,11 @@ cek(
   'tautanArtikelRegulasi',
   ARTIKEL_REGULASI.every(
     (a) =>
+      a.tautan === TAUTAN_LIHAT_HARAP.get(a.judul) &&
       a.tautan ===
-      urlDokumenRegulasi(berkasUntukJudul.get(a.judul) ?? ''),
+        urlDokumenRegulasi(berkasUntukJudul.get(a.judul) ?? ''),
   ),
-  'tiap artikel membawa tautan /dokumen/<nama-berkas>',
+  'tiap artikel membawa tautan preview Google Drive-nya',
 );
 cek(
   'tanggalBerlakuTidakDikarang',
@@ -217,7 +261,7 @@ cek(
 cek(
   'fallbackTautanUnduh',
   tautanUnduhArtikel({ judul: 'PP 68/2020' }) ===
-    '/dokumen/PP%2068-2020.pdf' &&
+    'https://drive.google.com/file/d/1aB-zvEo2WRidLjwaGM4RcrUy1EefGadW/view?usp=drivesdk' &&
     tautanUnduhArtikel({
       judul: 'PP 68/2020',
       tautan: 'https://contoh.test/x.pdf',
@@ -293,14 +337,37 @@ cek(
   ),
   'ukuran sesuai stat',
 );
+// ID Drive per berkas — disalin persis dari
+// ~/workspace/dokumen-regulasi-drive.md (PR #51).
+const DRIVE_ID_HARAP = new Map([
+  ['PMK 115-PMK.03-2021.pdf', '17mLmWqjyWzgK5wh7GcWW2kyFmt5olGQs'],
+  ['PP 5-2015.pdf', '1ZEXSEy-FKEcCGE5D7V27G0UDi_g6dBjT'],
+  ['PP 68-2020.pdf', '1aB-zvEo2WRidLjwaGM4RcrUy1EefGadW'],
+  ['Perdirut RRI 1-2023.pdf', '1igH8Leo4E2qOtnXBO7cmF0KknIYiPbT-'],
+  ['Perdirut RRI 5-2023.pdf', '118jqKJ1SjW56fImM9QBXnRekfFiExUx9'],
+  ['Perdirut RRI 11-2023.pdf', '1k176UfoWp9FTrlRvXpBO5HfrOi3W0-6D'],
+  ['Pedoman LPU 2019.pdf', '1H8WCzkZFi2Zv9CmE-R2UWR-QHdomdXB2'],
+  ['Pedoman LPU 2023.pdf', '1xi0WeLdA-0IyyZc42jcRpeNBMkbsSRRm'],
+  ['Juknis PNBP Perdirut 13-2025.pdf', '1jwqBV2ECzyXZA_XaTD0Gey8qs0SBLl1a'],
+]);
+cek(
+  'driveIdDokumen',
+  DOKUMEN_REGULASI.every(
+    (d) => d.driveId === DRIVE_ID_HARAP.get(d.berkas),
+  ),
+  'ID Drive per berkas sesuai daftar',
+);
 cek(
   'tautanDokumen',
   DOKUMEN_REGULASI.every(
     (d) =>
+      urlDokumenRegulasi(d.berkas) === urlLihatDrive(d.driveId) &&
       urlDokumenRegulasi(d.berkas) ===
-      `/dokumen/${encodeURIComponent(d.berkas)}`,
+        `https://drive.google.com/file/d/${d.driveId}/view?usp=drivesdk` &&
+      urlUnduhDrive(d.driveId) ===
+        `https://drive.google.com/uc?id=${d.driveId}&export=download`,
   ),
-  'tautan /dokumen/<nama-berkas>',
+  'tautan preview Drive (webViewLink); unduh langsung hanya fallback',
 );
 // Ukuran cocok dengan berkas asli di ~/workspace/user/files/.
 const dirDokumen = join(process.cwd(), '..', 'user', 'files');
@@ -389,22 +456,33 @@ const awalKb = sumberService.indexOf('function KnowledgeBase(');
 const akhirKb = sumberService.indexOf('function FormArtikelKB(');
 const sumberKb = sumberService.slice(awalKb, akhirKb);
 cek(
-  'tabelKbTanpaKolomId',
+  'tabelKbKolomView',
   awalKb >= 0 &&
     akhirKb > awalKb &&
     !sumberKb.includes('<Th>ID</Th>') &&
-    sumberKb.includes('<Th>Download</Th>') &&
-    sumberKb.indexOf('<Th>Download</Th>') >
+    sumberKb.includes('<Th>View</Th>') &&
+    !sumberKb.includes('<Th>Download</Th>') &&
+    sumberKb.indexOf('<Th>View</Th>') >
       sumberKb.indexOf('<Th>Summary</Th>') &&
     sumberKb.includes('artikelTerurut.map') &&
-    sumberKb.includes('tautanUnduhArtikel(a)'),
-  'tanpa kolom ID; Download paling kanan; daftar terurut; tautan per baris',
+    sumberKb.includes('tautanUnduhArtikel(a)') &&
+    />\s*View\s*<\/a>/.test(sumberKb) &&
+    !/>\s*Download\s*<\/a>/.test(sumberKb),
+  'tanpa kolom ID; View paling kanan; daftar terurut; tautan per baris',
 );
 cek(
-  'peringatanUnduh404',
-  sumberKb.includes('public/dokumen/') &&
-    sumberKb.includes('shows a 404'),
-  'peringatan jujur 404 di tab KB',
+  'keteranganDriveKb',
+  sumberKb.includes('Google Drive') &&
+    sumberKb.includes('preview') &&
+    !sumberKb.includes('public/dokumen/') &&
+    !sumberKb.includes('shows a 404'),
+  'keterangan Drive: View membuka preview; unduh di dalam preview',
+);
+cek(
+  'detailBukaPreview',
+  sumberKb.includes('Open document') &&
+    sumberKb.includes('target="_blank"'),
+  'kartu detail membuka preview Drive di tab baru',
 );
 
 console.log(`\n${lolos}/${total} asersi lolos.`);
