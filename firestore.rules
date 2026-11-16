@@ -51,7 +51,9 @@ service cloud.firestore {
     // baru, satker dicek dari data yang dikirim; saat mengubah, dicek dari
     // data lama DAN data baru (tidak boleh pindah satker). Tiket &
     // umpanBalik (Fase C) memakai aturan yang sama di blok tersendiri di
-    // bawah, jadi total koleksi bersatker menjadi 16.
+    // bawah, jadi total koleksi bersatker menjadi 16. Chat antar
+    // operator (Fase C, PR #45) memakai aturan yang sama di blok
+    // tersendiri juga, jadi total koleksi bersatker menjadi 17.
     match /{koleksi}/{id} {
       allow read: if koleksi in [
           'klien', 'kontrak', 'tagihan', 'pembayaran', 'denda',
@@ -123,6 +125,24 @@ service cloud.firestore {
       allow delete: if adalahOperator() && satkerMilikPemanggil(resource.data);
     }
     match /umpanBalik/{id} {
+      allow read: if adalahOperator() && satkerMilikPemanggil(resource.data);
+      allow create: if adalahOperator()
+        && satkerMilikPemanggil(request.resource.data);
+      allow update: if adalahOperator()
+        && satkerMilikPemanggil(resource.data)
+        && satkerMilikPemanggil(request.resource.data);
+      allow delete: if adalahOperator() && satkerMilikPemanggil(resource.data);
+    }
+
+    // ---------- Chat antar operator 1-to-1: bersatker (Fase C, PR #45) ----------
+    // Pesan chat milik satker pemanggil — aturan sama seperti koleksi
+    // bersatker lain (dibuat di blok umum di atas, tapi ditulis terpisah
+    // di sini agar mudah dibaca per modul). Pesan TIDAK menulis audit;
+    // aturan ini hanya mengatur koleksi `pesan` itu sendiri.
+    // PERHATIAN: file ini saja BELUM mengaktifkan aturan apa pun —
+    // tempel ulang seluruh isi file ini di Firebase console ->
+    // Firestore Database -> Rules -> Publish (lihat catatan di atas).
+    match /pesan/{id} {
       allow read: if adalahOperator() && satkerMilikPemanggil(resource.data);
       allow create: if adalahOperator()
         && satkerMilikPemanggil(request.resource.data);

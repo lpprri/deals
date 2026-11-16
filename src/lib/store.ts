@@ -216,6 +216,14 @@ export interface ArtikelKBInput {
   tautan?: string;
 }
 
+// --- Input Fase C — Chat antar operator 1-to-1 (PR #45) ---
+
+export interface PesanInput {
+  /** Kunci alamat penerima (email Auth asli atau kunci internal turunan nama). */
+  penerimaEmail: string;
+  isi: string;
+}
+
 export interface StoreActions {
   tambahKlien: (input: KlienInput) => string | null;
   tambahKontrak: (input: KontrakInput) => string | null;
@@ -303,6 +311,15 @@ export interface StoreActions {
   tambahUmpanBalik: (input: UmpanBalikInput) => string | null;
   /** Tambah entri Regulasi & SOP ke Knowledge Base (nasional, tanpa satker). */
   tambahArtikelKB: (input: ArtikelKBInput) => string | null;
+  // Fase C — Chat antar operator 1-to-1 (PR #45, 16/11/2026).
+  /**
+   * Kirim pesan ke satu operator. Pesan TIDAK menulis entri audit:
+   * chat bersifat percakapan, bukan transaksi (seperti submission
+   * publik yang juga tanpa audit).
+   */
+  kirimPesan: (input: PesanInput) => string | null;
+  /** Tandai semua pesan belum dibaca di satu percakapan sebagai dibaca. */
+  tandaiPesanDibaca: (idPercakapan: string) => void;
 }
 
 export interface ModulProps {

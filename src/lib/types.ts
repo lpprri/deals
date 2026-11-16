@@ -486,6 +486,31 @@ export interface ArtikelKB {
   // TIDAK punya field satker: Regulasi & SOP bersifat nasional.
 }
 
+// Fase C — Chat antar operator 1-to-1 (PR #45, 16/11/2026).
+export interface Pesan {
+  id: string; // 'PSN-01', dst.
+  /** Id percakapan 1-to-1 — lihat idPercakapan() di lib/pesan.ts. */
+  idPercakapan: string;
+  /**
+   * Pengirim: `email` = alamat Auth asli bila ada, bila tidak kunci
+   * alamat internal turunan nama (lihat kunciAlamatOperator di
+   * lib/pesan.ts — BUKAN alamat email sungguhan).
+   */
+  pengirim: { email: string; nama: string };
+  /** Penerima: hanya kunci alamat yang sama seperti pengirim. */
+  penerima: { email: string };
+  isi: string;
+  /**
+   * Waktu kirim, string ISO LENGKAP (tanggal + jam) — pengecualian dari
+   * aturan 'yyyy-mm-dd' di atas, supaya urutan pesan dalam satu hari
+   * terjaga. Ditampilkan lewat formatWaktuPesan() di lib/pesan.ts.
+   */
+  tanggal: string;
+  /** Sudah dibaca penerima. */
+  dibaca: boolean;
+  satker: SatkerRef;
+}
+
 export interface AppData {
   klien: Klien[];
   kontrak: Kontrak[];
@@ -510,4 +535,7 @@ export interface AppData {
   tiket: Tiket[];
   umpanBalik: UmpanBalik[];
   artikelKB: ArtikelKB[];
+  // Fase C — Chat antar operator 1-to-1 (PR #45): mulai kosong, tanpa
+  // pesan contoh.
+  pesan: Pesan[];
 }
