@@ -106,11 +106,14 @@ cek(
 );
 
 // ---------- kolom No. (nomor urut tampil, sesudah filter + sort) ----------
-// CATATAN: jumlah pasti kontrak Fungsional TIDAK diasersi — klasifikasi
-// Umum↔Fungsional sedang dikoreksi terpisah (Adlibs) sehingga hitungannya
-// bisa berubah; yang diasersi adalah perilaku sort + nomor urut, yang
-// tidak bergantung pada hitungan itu.
+// Hitungan Fungsional = 23 adalah yang benar untuk seed cabang ini
+// (base main 6f41cbb). Kopi lokal bersama saat ini memuat koreksi Adlibs
+// PR #56 yang belum merge (25 Fungsional), sehingga asersi ini
+// DIHARAPKAN gagal bila dijalankan terhadap seed lokal bersama — itu
+// efek silang yang diketahui, BUKAN cacat PR ini. Urutan merge: PR #55
+// dulu, lalu PR #56 di-rebase dan asersi ini diperbarui menjadi 25 di sana.
 const fungsional = kontrak.filter((k) => k.jenisPnBP === 'Fungsional');
+cek('filter Fungsional = 23 kontrak', fungsional.length === 23, `${fungsional.length}`);
 const fungNilaiDesc = urutkanKontrak(fungsional, 'nilai', 'turun');
 cek(
   'sort nilai desc terurut menurun sesudah filter Fungsional',
