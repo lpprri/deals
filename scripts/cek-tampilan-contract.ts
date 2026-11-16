@@ -12,8 +12,10 @@
 // urut "No." mengikuti urutan tampil sesudah filter + sort (keputusan
 // pengguna 16/11/2026 13:31 WIB), filter Client Type + PNBP Type +
 // Payment Status + Cooperation Status (keputusan pengguna 16/11/2026
-// 13:56 WIB), sort 3 kunci, tanpa Account Code dan tanpa Status di
-// tabel; total kontrol tidak berubah.
+// 13:56 WIB), sort 4 kunci (Signing Date / End Date / Contract Value /
+// Remaining Days — opsi ke-4 keputusan pengguna 16/11/2026 15:37 WIB),
+// tanpa Account Code dan tanpa Status di tabel; total kontrol tidak
+// berubah.
 import * as fs from 'node:fs';
 import { DATA_NYATA } from '../src/lib/seedNyata';
 import { dibayarTerverifikasi, hitungTotalKontrol } from '../src/lib/derive';
@@ -695,6 +697,24 @@ const selesaiAsc = urutkanKontrak(kontrak, 'selesai', 'naik');
 cek('sort selesai asc pertama 0603', selesaiAsc[0].nomorPks === '0603/PKS/RRI.PLB/01/2026', selesaiAsc[0].nomorPks);
 const selesaiDesc = urutkanKontrak(kontrak, 'selesai', 'turun');
 cek('sort selesai desc pertama 1051 (seri 2029, tie-break nomor)', selesaiDesc[0].nomorPks === '1051/PKS/RRI.PLB/02/2026', selesaiDesc[0].nomorPks);
+// ---------- sort Remaining Days (keputusan pengguna 16/11/2026 15:37 WIB) ----------
+// Kunci = sisa hari sampai tanggalSelesai; kontrak Selesai ("Completed")
+// SELALU paling akhir di kedua arah. Hari ini = 2026-11-16.
+const sisaNaik = urutkanKontrak(kontrak, 'sisaHari', 'naik', HARI_INI);
+cek('sort sisaHari naik pertama 10227 (1 day)', sisaNaik[0].nomorPks === '10227/PKS/RRI.PLB/10/2026', sisaNaik[0].nomorPks);
+cek('sort sisaHari naik 15 pertama non-Selesai', sisaNaik.slice(0, 15).every((x) => x.status !== 'Selesai'));
+cek('sort sisaHari naik 15 pertama terurut naik', sisaNaik.slice(0, 15).every((x, i, arr) => i === 0 || selisihHari(HARI_INI, arr[i - 1].tanggalSelesai) <= selisihHari(HARI_INI, x.tanggalSelesai)));
+cek('sort sisaHari naik 27 terakhir semua Selesai', sisaNaik.slice(15).every((x) => x.status === 'Selesai'));
+cek('sort sisaHari naik terakhir salah satu Completed', sisaNaik[sisaNaik.length - 1].status === 'Selesai', sisaNaik[sisaNaik.length - 1].nomorPks);
+const sisaTurun = urutkanKontrak(kontrak, 'sisaHari', 'turun', HARI_INI);
+cek('sort sisaHari turun pertama 1051 (807 days, seri tie-break nomor)', sisaTurun[0].nomorPks === '1051/PKS/RRI.PLB/02/2026', sisaTurun[0].nomorPks);
+cek('sort sisaHari turun 3 pertama 1051, 1052, 1053', JSON.stringify(sisaTurun.slice(0, 3).map((x) => x.nomorPks)) === JSON.stringify(['1051/PKS/RRI.PLB/02/2026', '1052/PKS/RRI.PLB/02/2026', '1053/PKS/RRI.PLB/02/2026']));
+cek('sort sisaHari turun 15 pertama non-Selesai', sisaTurun.slice(0, 15).every((x) => x.status !== 'Selesai'));
+cek('sort sisaHari turun 15 pertama terurut turun', sisaTurun.slice(0, 15).every((x, i, arr) => i === 0 || selisihHari(HARI_INI, arr[i - 1].tanggalSelesai) >= selisihHari(HARI_INI, x.tanggalSelesai)));
+cek('sort sisaHari turun 27 terakhir semua Selesai', sisaTurun.slice(15).every((x) => x.status === 'Selesai'));
+cek('sort sisaHari turun terakhir salah satu Completed', sisaTurun[sisaTurun.length - 1].status === 'Selesai', sisaTurun[sisaTurun.length - 1].nomorPks);
+cek('label arah sisaHari naik', labelArahUrutKontrak('sisaHari', 'naik') === 'Fewest first');
+cek('label arah sisaHari turun', labelArahUrutKontrak('sisaHari', 'turun') === 'Most first');
 const sebelum = kontrak.map((k) => k.id).join(',');
 urutkanKontrak(kontrak, 'nilai', 'turun');
 cek('sort tidak mengubah data asli', kontrak.map((k) => k.id).join(',') === sebelum);
@@ -809,6 +829,7 @@ cek('kontrol Order ada', tabKontrak.includes('<Label>Order</Label>'));
 cek('opsi sort Signing Date', tabKontrak.includes('value="tandaTangan">Signing Date'));
 cek('opsi sort End Date', tabKontrak.includes('value="selesai">End Date'));
 cek('opsi sort Contract Value', tabKontrak.includes('value="nilai">Contract Value'));
+cek('opsi sort Remaining Days', tabKontrak.includes('value="sisaHari">Remaining Days'));
 cek('"Account Code" 0x di DetailKontrak', !deals.slice(akhir, deals.indexOf('function FormKontrak', akhir)).includes('Account code'));
 // Filter Status LAMA (kolom Status, PR #54) tetap tidak ada — asersi
 // dipersempit ke pengenal lamanya, karena nama filter baru
