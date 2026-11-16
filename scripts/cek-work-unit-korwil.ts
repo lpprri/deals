@@ -1,14 +1,17 @@
-// Verifikasi Work Unit + Korwil (PR #44, src/lib/satker.ts).
+// Verifikasi Work Unit + Korwil (PR #46, src/lib/satker.ts).
 // Asersi: total entri DAFTAR_SATKER = 69; 0 entri bertipe SP; jumlah per
-// Korwil SESUAI tabel penetapan user 2026-11-16 (termasuk keanggotaan
-// persis per nomor); tepat 4 entri tanpa Korwil dan namanya persis
-// KANTOR PUSAT, SANGGAU, LANGGUR, PUSLITBANGDIKLAT; nomor 1–69 lengkap
-// tanpa lompatan; statistik landing tetap 69 (hitung seperti Beranda:
-// filter no !== null).
-// CATATAN: Korwil III, IX, XIII hanya 2 anggota — BUKAN 3/3/4 — karena
-// 4 nama dari daftar user tidak cocok dengan entri bernomor mana pun
-// (Tual, Entikong, Stasiun Siaran Luar Negeri, Pusat Pemberitaan) dan
-// sengaja tidak dipetakan, bukan karena datanya hilang.
+// Korwil SESUAI tabel penetapan dari DAFTAR TERBARU situs Pitching Hub
+// Direktorat LPU (halaman ARSIP PU), dibaca 2026-11-16 (termasuk
+// keanggotaan persis per nomor); tepat 22 entri tanpa Korwil dan namanya
+// persis sesuai daftar TANPA_KORWIL; nomor 1–69 lengkap tanpa lompatan;
+// statistik landing tetap 69 (hitung seperti Beranda: filter no !== null).
+// CATATAN: 10 Korwil anggotanya berkurang dibanding daftar hub karena
+// 22 nama hub tidak cocok dengan entri bernomor mana pun (nama-nama itu
+// adalah sub-stasiun: Singkil, Tapaktuan, Sabang, Solok, Tanjung Balai
+// Karimun, Natuna, Sungai Penuh, Bungo, Lubuklinggau, Prabumulih, Curup,
+// Mukomuko, Kotabumi, Metro, Liwa, Pringsewu, Ruteng, Ketapang, Entikong,
+// Singkawang, Balikpapan, Tanjung Selor) dan sengaja tidak dipetakan,
+// bukan karena datanya hilang. Korwil V, VI, VII, VIII hanya 1 anggota.
 // Keluar bukan-nol bila ada asersi gagal.
 import { DAFTAR_SATKER, JUMLAH_SATKER_BERNOMOR } from '../src/lib/satker';
 
@@ -18,27 +21,32 @@ const cek = (nama: string, lolos: boolean, detail = '') => {
   if (!lolos) gagal += 1;
 };
 
-// Tabel penetapan Korwil per daftar user 2026-11-16 (nomor entri).
+// Tabel penetapan Korwil per daftar hub terbaru 2026-11-16 (nomor entri).
 const HARAPAN: Record<string, number[]> = {
-  'Korwil I — Jayapura': [23, 10, 37, 35, 65, 49, 12],
-  'Korwil II — Manokwari': [32, 53, 18],
-  'Korwil III — Ambon': [2, 62],
-  'Korwil IV — Makassar': [29, 25, 42, 63, 68],
-  'Korwil V — Manado': [31, 19, 58],
-  'Korwil VI — Kupang': [26, 16, 3],
-  'Korwil VII — Denpasar': [15, 51, 33],
-  'Korwil VIII — Banjarmasin': [7, 47, 40, 61, 38],
-  'Korwil IX — Pontianak': [44, 52],
-  'Korwil X — Surabaya': [56, 30, 24, 54, 28],
-  'Korwil XI — Yogyakarta': [66, 48, 57, 45],
-  'Korwil XII — Bandung': [6, 14, 11],
-  'Korwil XIII — Jakarta': [21, 67],
-  'Korwil XIV — Palembang': [41, 5, 22, 9, 55],
-  'Korwil XV — Pekanbaru': [43, 39, 60, 13, 8, 46],
-  'Korwil XVI — Medan': [34, 50, 20],
-  'Korwil XVII — Banda Aceh': [4, 27, 36, 59],
+  'Korwil I — Banda Aceh': [4, 27, 36, 59],
+  'Korwil II — Medan': [20, 34, 50],
+  'Korwil III — Padang': [13, 39],
+  'Korwil IV — Pekanbaru': [8, 43, 60],
+  'Korwil V — Jambi': [22],
+  'Korwil VI — Palembang': [41],
+  'Korwil VII — Bengkulu': [9],
+  'Korwil VIII — Bandar Lampung': [5],
+  'Korwil IX — Jakarta': [6, 11, 21],
+  'Korwil X — Yogyakarta': [28, 45, 48, 57, 66],
+  'Korwil XI — Surabaya': [24, 30, 54, 56],
+  'Korwil XII — Denpasar': [15, 33, 51],
+  'Korwil XIII — Kupang': [3, 16, 26],
+  'Korwil XIV — Pontianak': [44, 52],
+  'Korwil XV — Banjarmasin': [7, 40, 47, 61],
+  'Korwil XVI — Makassar': [25, 29, 68],
+  'Korwil XVII — Manado': [19, 31, 42, 62],
 };
-const TANPA_KORWIL = ['KANTOR PUSAT', 'SANGGAU', 'LANGGUR', 'PUSLITBANGDIKLAT'];
+const TANPA_KORWIL = [
+  'KANTOR PUSAT', 'AMBON', 'BIAK', 'BOVENDIGOEL', 'CIREBON', 'SANGGAU',
+  'FAK FAK', 'JAYAPURA', 'MANOKWARI', 'MERAUKE', 'NABIRE', 'NUNUKAN',
+  'RANAI', 'SERUI', 'SORONG', 'SUNGAILIAT', 'TAHUNA', 'TOLI TOLI',
+  'LANGGUR', 'WAMENA', 'BANTEN', 'PUSLITBANGDIKLAT',
+];
 
 // --- Total & sub-stasiun. ---
 cek('total entri DAFTAR_SATKER = 69', DAFTAR_SATKER.length === 69, `${DAFTAR_SATKER.length} entri`);
@@ -94,16 +102,16 @@ cek(
   ),
 );
 cek(
-  'total ber-Korwil = 65',
-  DAFTAR_SATKER.filter((s) => s.korwil !== undefined).length === 65,
+  'total ber-Korwil = 47',
+  DAFTAR_SATKER.filter((s) => s.korwil !== undefined).length === 47,
   `${DAFTAR_SATKER.filter((s) => s.korwil !== undefined).length}`,
 );
 
 // --- Entri tanpa Korwil. ---
 const tanpaKorwil = DAFTAR_SATKER.filter((s) => s.korwil === undefined);
-cek('tepat 4 entri tanpa Korwil', tanpaKorwil.length === 4, `${tanpaKorwil.length}`);
+cek('tepat 22 entri tanpa Korwil', tanpaKorwil.length === 22, `${tanpaKorwil.length}`);
 cek(
-  'nama tanpa Korwil persis KANTOR PUSAT, SANGGAU, LANGGUR, PUSLITBANGDIKLAT',
+  'nama tanpa Korwil persis 22 nama TANPA_KORWIL',
   tanpaKorwil.length === TANPA_KORWIL.length &&
     [...tanpaKorwil.map((s) => s.nama)].sort().join('|') ===
       [...TANPA_KORWIL].sort().join('|'),
