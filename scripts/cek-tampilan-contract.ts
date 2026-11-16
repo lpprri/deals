@@ -106,14 +106,10 @@ cek(
 );
 
 // ---------- kolom No. (nomor urut tampil, sesudah filter + sort) ----------
-// Hitungan Fungsional = 23 adalah yang benar untuk seed cabang ini
-// (base main 6f41cbb). Kopi lokal bersama saat ini memuat koreksi Adlibs
-// PR #56 yang belum merge (25 Fungsional), sehingga asersi ini
-// DIHARAPKAN gagal bila dijalankan terhadap seed lokal bersama — itu
-// efek silang yang diketahui, BUKAN cacat PR ini. Urutan merge: PR #55
-// dulu, lalu PR #56 di-rebase dan asersi ini diperbarui menjadi 25 di sana.
+// Hitungan Fungsional = 25 sesudah koreksi Adlibs PR #56 (Taspen 001 +
+// BI 5592 pindah ke Fungsional; dulu 23).
 const fungsional = kontrak.filter((k) => k.jenisPnBP === 'Fungsional');
-cek('filter Fungsional = 23 kontrak', fungsional.length === 23, `${fungsional.length}`);
+cek('filter Fungsional = 25 kontrak', fungsional.length === 25, `${fungsional.length}`);
 const fungNilaiDesc = urutkanKontrak(fungsional, 'nilai', 'turun');
 cek(
   'sort nilai desc terurut menurun sesudah filter Fungsional',
@@ -127,8 +123,9 @@ cek(
   fungNilaiDesc[0].nomorPks,
 );
 cek(
-  'nomor terakhir sesudah filter Fungsional + sort nilai = 1158 (Rp180.000)',
-  fungNilaiDesc[fungNilaiDesc.length - 1].nomorPks === '1158/PKS/RRI.PLB/10/2026' &&
+  'nomor 25 (terakhir) sesudah filter Fungsional + sort nilai = 1158 (Rp180.000)',
+  fungNilaiDesc.length === 25 &&
+    fungNilaiDesc[fungNilaiDesc.length - 1].nomorPks === '1158/PKS/RRI.PLB/10/2026' &&
     fungNilaiDesc[fungNilaiDesc.length - 1].nilaiKontrak === 180000,
   fungNilaiDesc[fungNilaiDesc.length - 1].nomorPks,
 );
