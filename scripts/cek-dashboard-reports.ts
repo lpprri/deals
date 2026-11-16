@@ -1,13 +1,16 @@
 // Verifikasi Dashboard masuk ke panel REPORTS (PR #42, src/App.tsx).
-// Asersi: entri 'dashboard' punya induk 'reporting' dan muncul SEBELUM
-// 'umpanBalik' di MODULES (urutan panel REPORTS: Dashboard, lalu
-// Feedback Survey); simulasi aturan yang sama dengan kode (navUtama =
-// tanpa induk & bukan Admin; panel = anak-anak induk; panelUntukTampilan
-// = induk bila ada, dirinya bila punya anak, null bila tidak ada);
-// cluster 4 CLUSTER_SIDEBAR = ['revenue', 'reporting', 'service']
-// (tanpa dashboard; 'service' pindah ke cluster 4 di PR #45, 16/11/2026);
-// tampilan awal login tetap 'dashboard'; cabang render
-// Dashboard tetap ada; logika panel generik tidak berubah.
+// Asersi: entri 'dashboard' punya induk 'reporting'; 'umpanBalik'
+// TIDAK lagi punya induk (PR #47, 16/11/2026 — Feedback Survey
+// keluar dari panel REPORTS menjadi navigasi top-level 'Feedback' di
+// cluster 4 paling bawah, label MODULES jadi 'Feedback'); panel
+// REPORTS kini hanya berisi Dashboard; simulasi aturan yang sama
+// dengan kode (navUtama = tanpa induk & bukan Admin; panel =
+// anak-anak induk; panelUntukTampilan = induk bila ada, dirinya bila
+// punya anak, null bila tidak ada); cluster 4 CLUSTER_SIDEBAR =
+// ['revenue', 'reporting', 'service', 'umpanBalik'] (tanpa dashboard;
+// 'service' pindah ke cluster 4 di PR #45, 'umpanBalik' di PR #47);
+// tampilan awal login tetap 'dashboard'; cabang render Dashboard
+// tetap ada; logika panel generik tidak berubah.
 // CATATAN: asersi bentuk cluster di sini diperbarui di PR #45 —
 // sebelumnya cluster 4 = ['revenue', 'reporting'] dan cluster 3
 // masih memuat 'sales' (sudah dihapus PR #43); skrip ini sudah GAGAL
@@ -32,7 +35,7 @@ const blokModules = sumber.slice(
   sumber.indexOf('const MODULES: NavItem[] = ['),
   sumber.indexOf('];', sumber.indexOf('const MODULES: NavItem[] = [')),
 );
-type Entri = { id: string; induk?: string; phase: string };
+type Entri = { id: string; label: string; induk?: string; phase: string };
 const entri: Entri[] = [];
 const polaId = /id: '(\w+)'/g;
 let m: RegExpExecArray | null;
@@ -40,12 +43,12 @@ while ((m = polaId.exec(blokModules)) !== null) {
   const mulai = m.index;
   const akhir = blokModules.indexOf("id: '", mulai + 1);
   const potong = blokModules.slice(mulai, akhir === -1 ? undefined : akhir);
+  const label = potong.match(/label: '([^']+)'/)?.[1] ?? '';
   const induk = potong.match(/induk: '(\w+)'/)?.[1];
   const phase = potong.match(/phase: '(\w+)'/)?.[1] ?? '';
-  entri.push({ id: m[1], induk, phase });
+  entri.push({ id: m[1], label, induk, phase });
 }
 const cari = (id: string) => entri.find((e) => e.id === id);
-const indeks = (id: string) => entri.findIndex((e) => e.id === id);
 
 // --- Simulasi aturan yang sama dengan kode di App.tsx. ---
 const navUtama = entri.filter((e) => e.phase !== 'Admin' && !e.induk);
@@ -68,15 +71,18 @@ cek(
   cari('dashboard')?.induk === 'reporting',
 );
 cek(
-  "entri 'umpanBalik' tetap punya induk 'reporting'",
-  cari('umpanBalik')?.induk === 'reporting',
+  "entri 'umpanBalik' TIDAK lagi punya induk (PR #47 — keluar dari panel REPORTS)",
+  cari('umpanBalik')?.induk === undefined,
+  `induk=${cari('umpanBalik')?.induk ?? '—'}`,
 );
 cek(
-  "urutan MODULES: 'dashboard' sebelum 'umpanBalik'",
-  indeks('dashboard') !== -1 &&
-    indeks('umpanBalik') !== -1 &&
-    indeks('dashboard') < indeks('umpanBalik'),
-  `dashboard@${indeks('dashboard')}, umpanBalik@${indeks('umpanBalik')}`,
+  "label entri 'umpanBalik' = 'Feedback' (PR #47)",
+  cari('umpanBalik')?.label === 'Feedback',
+  `label=${cari('umpanBalik')?.label ?? '—'}`,
+);
+cek(
+  "entri 'umpanBalik' ada tepat 1×",
+  entri.filter((e) => e.id === 'umpanBalik').length === 1,
 );
 
 // --- Asersi perilaku panel (simulasi). ---
@@ -85,8 +91,8 @@ cek(
   panelUntukTampilan('dashboard') === 'reporting',
 );
 cek(
-  "panelUntukTampilan('umpanBalik') = 'reporting'",
-  panelUntukTampilan('umpanBalik') === 'reporting',
+  "panelUntukTampilan('umpanBalik') = null (top-level, tanpa sub-item)",
+  panelUntukTampilan('umpanBalik') === null,
 );
 cek(
   "panelUntukTampilan('reporting') = 'reporting' (induk punya anak)",
@@ -97,14 +103,17 @@ cek(
   panelUntukTampilan('revenue') === null,
 );
 cek(
-  "anak panel REPORTS berurutan Dashboard, Feedback Survey",
-  JSON.stringify(anakPanel('reporting')) ===
-    JSON.stringify(['dashboard', 'umpanBalik']),
+  "anak panel REPORTS hanya Dashboard (PR #47 — Feedback Survey keluar)",
+  JSON.stringify(anakPanel('reporting')) === JSON.stringify(['dashboard']),
   anakPanel('reporting').join(', '),
 );
 cek(
   "navUtama TIDAK lagi memuat 'dashboard'",
   !navUtama.some((e) => e.id === 'dashboard'),
+);
+cek(
+  "navUtama kini memuat 'umpanBalik' (PR #47 — navigasi top-level)",
+  navUtama.some((e) => e.id === 'umpanBalik'),
 );
 cek(
   "navUtama tetap memuat 'reporting' dan 'revenue'",
@@ -129,9 +138,9 @@ const barisCluster = blokCluster
   .filter((baris) => baris.startsWith('['))
   .map((baris) => [...baris.matchAll(/'(\w+)'/g)].map((b) => b[1]));
 cek(
-  'cluster 4 = Revenue, Reports, Resources (tanpa Dashboard)',
+  'cluster 4 = Revenue, Reports, Resources, Feedback (tanpa Dashboard)',
   JSON.stringify(barisCluster[3]) ===
-    JSON.stringify(['revenue', 'reporting', 'service']),
+    JSON.stringify(['revenue', 'reporting', 'service', 'umpanBalik']),
   (barisCluster[3] ?? []).join(', '),
 );
 cek(

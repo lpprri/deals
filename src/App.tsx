@@ -203,9 +203,11 @@ interface NavItem {
    * sebagai item di panel tambahan di samping sidebar (klik induknya).
    * Nama induk TIDAK dicantumkan lagi di dalam panelnya sendiri
    * (perbaikan 15/11/2026 19:16 WIB): panel hanya berisi sub-item.
-   * Saat ini: 'dashboard' dan 'umpanBalik' di panel 'reports'
-   * (urutan panel: Dashboard, lalu Feedback Survey; PR #42,
-   * 15/11/2026 — Dashboard masuk ke dalam Reports).
+   * Saat ini: hanya 'dashboard' di panel 'reports' (PR #42,
+   * 15/11/2026 — Dashboard masuk ke dalam Reports); 'umpanBalik'
+   * PINDAH ke navigasi top-level 'Feedback' di cluster 4 (PR #47,
+   * 16/11/2026 — diminta pengguna "pindahkan Feedback Survey ini
+   * menjadi Navigasi baru dengan nama Feedback").
    * 'sewa' TIDAK punya induk (dihapus dari panel 'deals' 15/11/2026,
    * PR #40 — panel DEALS sudah hilang; 'sewa' juga TIDAK tampil di
    * sidebar, seperti 'deals' dan 'pengajuan': modul + datanya tetap
@@ -356,19 +358,25 @@ const MODULES: NavItem[] = [
     phase: 'A',
     // Sub-item panel REPORTS (15/11/2026, PR #42, diminta pengguna
     // "masukkan dashboard ke dalam Reports"): Dashboard tidak tampil
-    // di sidebar utama (cluster 4 tersisa Revenue, Reports); panel
-    // REPORTS berisi Dashboard lalu Feedback Survey. Modul + data
-    // tetap utuh; tampilan awal saat login tetap Dashboard.
+    // di sidebar utama; panel REPORTS kini hanya berisi Dashboard
+    // (Feedback Survey pindah ke navigasi top-level 'Feedback' di
+    // cluster 4, PR #47, 16/11/2026). Modul + data tetap utuh;
+    // tampilan awal saat login tetap Dashboard.
     induk: 'reporting',
     description:
       'Period summary, Revenue Analytics, head office report deadlines (fill in by the 10th, submit by the 11th). Employee Rank & Satker Rank (Leaderboard of the Year / of the Month) per contract signing date period.',
   },
   {
     id: 'umpanBalik',
-    label: 'Feedback Survey',
+    label: 'Feedback',
     icon: ClipboardCheck,
     phase: 'C',
-    induk: 'reporting',
+    // Navigasi top-level (16/11/2026, PR #47, diminta pengguna
+    // "pindahkan Feedback Survey ini menjadi Navigasi baru dengan
+    // nama Feedback"): TIDAK lagi punya induk — dikeluarkan dari
+    // panel REPORTS (panel kini hanya Dashboard) dan masuk
+    // CLUSTER_SIDEBAR cluster 4 paling bawah (setelah Resources).
+    // Isi/komponen/data survei TIDAK berubah.
     description:
       'Client satisfaction survey per contract (scale 1–5) — the same Feedback Survey as Resources before 15/11/2026.',
   },
@@ -456,10 +464,14 @@ const MODULES: NavItem[] = [
     ditambahkan di bawah Task (chat 1-to-1 antar operator); PR #45
     juga, diminta pengguna 16/11/2026 08:13 WIB — Resources pindah
     dari cluster 5 ke cluster 4 (Revenue, Reports, Resources);
-    cluster 5 HILANG seluruhnya. Struktur AKHIR: cluster 1 Home,
+    cluster 5 HILANG seluruhnya. PR #47,
+    diminta pengguna 16/11/2026 08:54 WIB — Feedback Survey
+    keluar dari panel REPORTS menjadi navigasi top-level 'Feedback'
+    di paling bawah cluster 4 (setelah Resources); panel REPORTS
+    kini hanya berisi Dashboard. Struktur AKHIR: cluster 1 Home,
     Task, Chat; cluster 2 Contract, MoU, Commitment, Approvement;
     cluster 3 Campaign, Prospect, Offer, Order, Clients, Meeting;
-    cluster 4 Revenue, Reports, Resources:
+    cluster 4 Revenue, Reports, Resources, Feedback:
     item nav utama dibagi ke cluster yang dipisah garis tipis, tanpa
     label kelompok (kecuali ADMIN yang sudah punya label). Urutan
     cluster = urutan tampil di sidebar; urutan di dalam cluster
@@ -468,7 +480,7 @@ const CLUSTER_SIDEBAR: ModuleId[][] = [
   ['home', 'todo', 'chat'],
   ['kontrak', 'mou', 'komitmen', 'approvement'],
   ['marketing', 'prospek', 'offer', 'order', 'klien', 'meeting'],
-  ['revenue', 'reporting', 'service'],
+  ['revenue', 'reporting', 'service', 'umpanBalik'],
 ];
 
 /** ID berikutnya dengan awalan yang sama (mis. KLN-01 -> KLN-02). */
