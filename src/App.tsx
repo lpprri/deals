@@ -30,6 +30,7 @@ import {
   LayoutDashboard,
   LogOut,
   Megaphone,
+  MessageSquare,
   ScrollText,
   ShieldCheck,
   Stamp,
@@ -71,6 +72,7 @@ import {
   ringkasanDistribusi,
 } from './lib/derive';
 import { buatEntriAudit } from './lib/audit';
+import { idPercakapan, kunciAlamatOperator } from './lib/pesan';
 import Notifikasi from './components/Notifikasi';
 import { DAFTAR_JENIS_PENGAJUAN_KLIEN, type JenisPengajuanKlien } from './lib/types';
 import { bolehAksi, LABEL_PERAN } from './lib/permissions';
@@ -97,6 +99,7 @@ import type {
   Order,
   Pengajuan as PengajuanData,
   PengajuanKlien,
+  Pesan,
   Prospect,
   Quotation,
   QuotationLayanan,
@@ -124,6 +127,7 @@ import type {
   PembayaranInput,
   PengajuanInput,
   PengajuanPublikInput,
+  PesanInput,
   ProspectInput,
   QuotationInput,
   StoreActions,
@@ -144,6 +148,7 @@ import Reporting from './modules/Reporting';
 import Sales from './modules/Sales';
 import Marketing from './modules/Marketing';
 import Todo from './modules/Todo';
+import Chat from './modules/Chat';
 import Service from './modules/Service';
 import AuditPage from './modules/AuditPage';
 import MasterPage from './modules/MasterPage';
@@ -181,6 +186,7 @@ type ModuleId =
   | 'revenue'
   | 'reporting'
   | 'todo'
+  | 'chat'
   | 'service'
   | 'audit'
   | 'master';
@@ -390,6 +396,13 @@ const MODULES: NavItem[] = [
     description: 'Individual Tasks and Dispositions.',
   },
   {
+    id: 'chat',
+    label: 'Chat',
+    icon: MessageSquare,
+    phase: 'C',
+    description: 'Messages between operators (1-to-1).',
+  },
+  {
     id: 'service',
     label: 'Resources',
     icon: BarChart3,
@@ -437,17 +450,25 @@ const MODULES: NavItem[] = [
     tersisa Revenue, Reports; PR #43,
     diminta pengguna 16/11/2026 07:52 WIB — Sales dihapus dari
     sidebar; urutan AKHIR cluster 3: Campaign, Prospect, Offer,
-    Order, Clients, Meeting (modul Sales tetap utuh):
+    Order, Clients, Meeting (modul Sales tetap utuh); PR #45,
+    diminta pengguna 16/11/2026 08:10 WIB — Task pindah dari
+    cluster 5 ke cluster 1, tepat di bawah Home; menu Chat baru
+    ditambahkan di bawah Task (chat 1-to-1 antar operator); PR #45
+    juga, diminta pengguna 16/11/2026 08:13 WIB — Resources pindah
+    dari cluster 5 ke cluster 4 (Revenue, Reports, Resources);
+    cluster 5 HILANG seluruhnya. Struktur AKHIR: cluster 1 Home,
+    Task, Chat; cluster 2 Contract, MoU, Commitment, Approvement;
+    cluster 3 Campaign, Prospect, Offer, Order, Clients, Meeting;
+    cluster 4 Revenue, Reports, Resources:
     item nav utama dibagi ke cluster yang dipisah garis tipis, tanpa
     label kelompok (kecuali ADMIN yang sudah punya label). Urutan
     cluster = urutan tampil di sidebar; urutan di dalam cluster
     mengikuti MODULES. */
 const CLUSTER_SIDEBAR: ModuleId[][] = [
-  ['home'],
+  ['home', 'todo', 'chat'],
   ['kontrak', 'mou', 'komitmen', 'approvement'],
   ['marketing', 'prospek', 'offer', 'order', 'klien', 'meeting'],
-  ['revenue', 'reporting'],
-  ['todo', 'service'],
+  ['revenue', 'reporting', 'service'],
 ];
 
 /** ID berikutnya dengan awalan yang sama (mis. KLN-01 -> KLN-02). */
@@ -2407,6 +2428,60 @@ export default function App() {
       );
       return null;
     },
+
+    // Fase C — Chat antar operator 1-to-1 (PR #45, 16/11/2026).
+    // Pesan TIDAK menulis entri audit: chat bersifat percakapan,
+    // bukan transaksi (seperti submission publik yang juga tanpa audit).
+    kirimPesan: (input: PesanInput) => {
+      if (!input.penerimaEmail.trim()) return 'Recipient is required.';
+      if (!input.isi.trim()) return 'Message content is required.';
+      const kunciSaya = kunciAlamatOperator(
+        penggunaAktif.nama,
+        penggunaAktif.email,
+      );
+      const kunciPenerima = input.penerimaEmail.trim().toLowerCase();
+      if (kunciPenerima === kunciSaya) {
+        return 'You cannot send a message to yourself.';
+      }
+      const id = idBerikutnya('PSN-', data.pesan.map((p) => p.id));
+      const pesan: Pesan = {
+        id,
+        idPercakapan: idPercakapan(kunciSaya, kunciPenerima),
+        pengirim: { email: kunciSaya, nama: penggunaAktif.nama },
+        penerima: { email: kunciPenerima },
+        isi: input.isi.trim(),
+        tanggal: new Date().toISOString(),
+        dibaca: false,
+        satker: SATKER_PILOT,
+      };
+      setData((d) => ({ ...d, pesan: [...d.pesan, pesan] }));
+      simpanKeFirestore('pesan', id, pesan);
+      return null;
+    },
+
+    tandaiPesanDibaca: (idPercakapanTarget: string) => {
+      const kunciSaya = kunciAlamatOperator(
+        penggunaAktif.nama,
+        penggunaAktif.email,
+      );
+      const belumDibaca = data.pesan.filter(
+        (p) =>
+          p.idPercakapan === idPercakapanTarget &&
+          p.penerima.email === kunciSaya &&
+          !p.dibaca,
+      );
+      if (belumDibaca.length === 0) return;
+      const sudahDibaca = new Set(belumDibaca.map((p) => p.id));
+      setData((d) => ({
+        ...d,
+        pesan: d.pesan.map((p) =>
+          sudahDibaca.has(p.id) ? { ...p, dibaca: true } : p,
+        ),
+      }));
+      for (const p of belumDibaca) {
+        simpanKeFirestore('pesan', p.id, { ...p, dibaca: true });
+      }
+    },
   };
 
   /** Jalankan migrasi satu kali (dari halaman Master & Pengguna). */
@@ -2484,6 +2559,17 @@ export default function App() {
     setPanelTerbuka(panelUntukTampilan(id));
   };
 
+  /** Jumlah pesan chat belum dibaca (PR #45): penerima = saya dan
+      belum dibaca. Dipakai lencana di tombol nav Chat (terbuka
+      maupun terlipat). */
+  const kunciAlamatSaya = kunciAlamatOperator(
+    penggunaAktif.nama,
+    penggunaAktif.email,
+  );
+  const belumDibacaChat = data.pesan.filter(
+    (p) => p.penerima.email === kunciAlamatSaya && !p.dibaca,
+  ).length;
+
   /** Tombol satu item nav utama sidebar (dipakai per cluster di bawah). */
   const tombolNavUtama = (m: NavItem) => {
     const ItemIcon = m.icon;
@@ -2495,7 +2581,7 @@ export default function App() {
         key={m.id}
         title={sidebarCiut ? m.label : undefined}
         onClick={() => tanganiKlikNav(m)}
-        className={`flex w-full items-center gap-3 rounded-md py-2 text-left text-sm ${
+        className={`relative flex w-full items-center gap-3 rounded-md py-2 text-left text-sm ${
           sidebarCiut ? 'justify-center px-0' : 'px-3'
         } ${
           isActive
@@ -2505,11 +2591,23 @@ export default function App() {
       >
         <ItemIcon size={18} className="shrink-0" />
         {!sidebarCiut && m.label}
-        {!sidebarCiut && m.phase === 'C' && (
-          <span className="ml-auto shrink-0 rounded bg-[#2573e2]/10 px-1.5 py-0.5 text-[10px] text-[#2573e2]">
-            Phase {m.phase}
+        {!sidebarCiut && m.id === 'chat' && belumDibacaChat > 0 && (
+          <span className="ml-auto shrink-0 rounded-full bg-[#2573e2] px-1.5 py-0.5 text-[10px] font-bold text-white">
+            {belumDibacaChat}
           </span>
         )}
+        {sidebarCiut && m.id === 'chat' && belumDibacaChat > 0 && (
+          <span className="absolute right-1 top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-[#2573e2] px-1 text-[10px] font-bold text-white">
+            {belumDibacaChat}
+          </span>
+        )}
+        {!sidebarCiut &&
+          m.phase === 'C' &&
+          !(m.id === 'chat' && belumDibacaChat > 0) && (
+            <span className="ml-auto shrink-0 rounded bg-[#2573e2]/10 px-1.5 py-0.5 text-[10px] text-[#2573e2]">
+              Phase {m.phase}
+            </span>
+          )}
       </button>
     );
   };
@@ -2774,6 +2872,7 @@ export default function App() {
             {active === 'meeting' && <MenuMeeting {...propsModul} />}
             {active === 'umpanBalik' && <MenuUmpanBalik {...propsModul} />}
             {active === 'todo' && <Todo {...propsModul} />}
+            {active === 'chat' && <Chat {...propsModul} />}
             {active === 'audit' && <AuditPage {...propsModul} />}
             {active === 'master' && (
               <MasterPage

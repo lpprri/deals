@@ -6647,4 +6647,6 @@ export const DATA_NYATA: AppData = {
   tiket: [],
   umpanBalik: [],
   artikelKB: [],
+  // Fase C — Chat antar operator (PR #45): tanpa pesan contoh.
+  pesan: [],
 };

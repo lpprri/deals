@@ -4,9 +4,14 @@
 // Feedback Survey); simulasi aturan yang sama dengan kode (navUtama =
 // tanpa induk & bukan Admin; panel = anak-anak induk; panelUntukTampilan
 // = induk bila ada, dirinya bila punya anak, null bila tidak ada);
-// cluster 4 CLUSTER_SIDEBAR = ['revenue', 'reporting'] (tanpa
-// dashboard); tampilan awal login tetap 'dashboard'; cabang render
+// cluster 4 CLUSTER_SIDEBAR = ['revenue', 'reporting', 'service']
+// (tanpa dashboard; 'service' pindah ke cluster 4 di PR #45, 16/11/2026);
+// tampilan awal login tetap 'dashboard'; cabang render
 // Dashboard tetap ada; logika panel generik tidak berubah.
+// CATATAN: asersi bentuk cluster di sini diperbarui di PR #45 —
+// sebelumnya cluster 4 = ['revenue', 'reporting'] dan cluster 3
+// masih memuat 'sales' (sudah dihapus PR #43); skrip ini sudah GAGAL
+// 1 asersi di main b7ba624 sebelum PR #45 karena itu.
 // Skrip ini membaca src/App.tsx sebagai teks (MODULES tidak diekspor).
 // Keluar bukan-nol bila ada asersi gagal.
 import { readFileSync } from 'node:fs';
@@ -124,23 +129,25 @@ const barisCluster = blokCluster
   .filter((baris) => baris.startsWith('['))
   .map((baris) => [...baris.matchAll(/'(\w+)'/g)].map((b) => b[1]));
 cek(
-  'cluster 4 = Revenue, Reports (tanpa Dashboard)',
-  JSON.stringify(barisCluster[3]) === JSON.stringify(['revenue', 'reporting']),
+  'cluster 4 = Revenue, Reports, Resources (tanpa Dashboard)',
+  JSON.stringify(barisCluster[3]) ===
+    JSON.stringify(['revenue', 'reporting', 'service']),
   (barisCluster[3] ?? []).join(', '),
 );
 cek(
-  "cluster lain tidak berubah (cluster 1 Home; cluster 3 Sales…Meeting)",
-  JSON.stringify(barisCluster[0]) === JSON.stringify(['home']) &&
+  'cluster lain tidak berubah (cluster 1 Home, Task, Chat; cluster 3 Campaign…Meeting tanpa Sales)',
+  JSON.stringify(barisCluster[0]) ===
+    JSON.stringify(['home', 'todo', 'chat']) &&
     JSON.stringify(barisCluster[2]) ===
       JSON.stringify([
-        'sales',
         'marketing',
         'prospek',
         'offer',
         'order',
         'klien',
         'meeting',
-      ]),
+      ]) &&
+    barisCluster.length === 4,
 );
 
 // --- Asersi tampilan awal + render + logika generik tak berubah. ---

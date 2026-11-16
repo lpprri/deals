@@ -79,6 +79,10 @@ export const KOLEKSI: Record<keyof AppData, string> = {
   tiket: 'tiket',
   umpanBalik: 'umpanBalik',
   artikelKB: 'artikelKB',
+  // Fase C — Chat antar operator 1-to-1 (PR #45). Punya field `satker`,
+  // jadi muatDariFirestore() memfilternya per satker seperti koleksi
+  // bersatker lain (generik atas KOLEKSI — tanpa kode khusus).
+  pesan: 'pesan',
 };
 
 /** Kunci AppData yang entitasnya TIDAK punya field `satker`. */
