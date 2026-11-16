@@ -39,7 +39,21 @@ import {
   type FilterStatusPembayaran,
   type KunciUrutKontrak,
 } from '../lib/kontrakTampilan';
-import { formatRupiah, formatTanggal, normalisasiNama } from '../lib/format';
+import { formatRupiah, formatTanggal, hariIniIso, normalisasiNama } from '../lib/format';
+import {
+  JENDELA_WAKTU_SIAR,
+  SUMBER_JENDELA_WAKTU_SIAR,
+  formatPersenRealisasi,
+  kodeBillingKontrak,
+  piutangRealisasi,
+  pisahBuktiSetor,
+  realisasiKontrak,
+  realisasiLayanan,
+  sisaKontrakRealisasi,
+  sisaPiutangRealisasi,
+  totalDendaKontrak,
+  totalPembayaranKontrak,
+} from '../lib/realisasi';
 import { bolehAksi } from '../lib/permissions';
 import {
   Baris,
@@ -84,7 +98,7 @@ const BARIS_LAYANAN_AWAL: BarisLayananForm = {
 };
 
 export default function Deals(props: ModulProps) {
-  const { data, user, actions, cari } = props;
+  const { data, user, actions, cari, onNavigasiKlien } = props;
   const [tab, setTab] = useState<TabId>('klien');
 
   // Detail dipilih berdasarkan id supaya tampilan selalu membaca data terbaru.
@@ -168,6 +182,7 @@ export default function Deals(props: ModulProps) {
           onUrutKunci={setUrutKunciKontrak}
           urutArah={urutArahKontrak}
           onUrutArah={setUrutArahKontrak}
+          onNavigasiKlien={onNavigasiKlien}
         />
       )}
 
@@ -616,6 +631,7 @@ export function TabKontrak({
   onUrutKunci,
   urutArah,
   onUrutArah,
+  onNavigasiKlien,
 }: {
   data: ModulProps['data'];
   user: ModulProps['user'];
@@ -637,6 +653,7 @@ export function TabKontrak({
   onUrutKunci: (v: KunciUrutKontrak) => void;
   urutArah: ArahUrutKontrak;
   onUrutArah: (v: ArahUrutKontrak) => void;
+  onNavigasiKlien?: (klienId: string) => void;
 }) {
   const bolehTambah = bolehAksi(user.peran, 'tambahKontrak');
 
@@ -647,6 +664,7 @@ export function TabKontrak({
         kontrak={kontrakTerpilih}
         actions={actions}
         onKembali={() => onPilihKontrak(null)}
+        onNavigasiKlien={onNavigasiKlien}
       />
     );
   }
@@ -862,14 +880,20 @@ function DetailKontrak({
   kontrak,
   actions,
   onKembali,
+  onNavigasiKlien,
 }: {
   data: ModulProps['data'];
   kontrak: Kontrak;
   actions: ModulProps['actions'];
   onKembali: () => void;
+  onNavigasiKlien?: (klienId: string) => void;
 }) {
   const klien = data.klien.find((k) => k.id === kontrak.klienId);
   const tagihanKontrak = data.tagihan.filter((t) => t.kontrakId === kontrak.id);
+  const pembayaranKontrak = data.pembayaran
+    .filter((p) => tagihanKontrak.some((t) => t.id === p.tagihanId))
+    .sort((a, b) => (a.tanggalBayar < b.tanggalBayar ? -1 : 1));
+  const dokumenKontrak = data.dokumen.filter((d) => d.kontrakId === kontrak.id);
   const sewa = kontrak.sewaId
     ? data.sewa.find((s) => s.id === kontrak.sewaId)
     : undefined;
@@ -881,17 +905,85 @@ function DetailKontrak({
   );
   const [pesanAtribusi, setPesanAtribusi] = useState('');
 
+  // Angka Revenue (draft pengguna 16/11/2026) — lihat lib/realisasi.ts.
+  const hariIni = hariIniIso();
+  const realisasi = realisasiKontrak(kontrak, hariIni);
+  const totalDenda = totalDendaKontrak(kontrak, data.tagihan, data.denda);
+  const nilaiPlusDenda = kontrak.nilaiKontrak + totalDenda;
+  const piutang = piutangRealisasi(kontrak, data.tagihan, data.denda, hariIni);
+  const sisaKontrak = sisaKontrakRealisasi(
+    kontrak,
+    data.tagihan,
+    data.denda,
+    hariIni,
+  );
+  const totalDibayar = totalPembayaranKontrak(
+    kontrak,
+    data.tagihan,
+    data.pembayaran,
+  );
+  const sisaPiutang = sisaPiutangRealisasi(
+    kontrak,
+    data.tagihan,
+    data.denda,
+    data.pembayaran,
+    hariIni,
+  );
+  const sisaTagihanTotal = tagihanKontrak.reduce(
+    (s, t) => s + sisaTagihan(t, data.pembayaran),
+    0,
+  );
+  const kodeBilling = kodeBillingKontrak(pembayaranKontrak);
+  const kwitansi = dokumenKontrak.find(
+    (d) => d.jenisDokumen === 'Kwitansi Pembayaran',
+  );
+  const jatuhTempo = tagihanKontrak[0]?.tanggalJatuhTempo;
+  const jendelaWaktu = JENDELA_WAKTU_SIAR.find(
+    (j) => j.programa === kontrak.programa,
+  );
+  const programaLayanan = [
+    ...new Set(
+      kontrak.layanan
+        .map((l) => l.programa)
+        .filter((p): p is string => Boolean(p)),
+    ),
+  ];
+  const kontakNama = klien?.kontakNama ?? '';
+  const kontakTelepon = klien?.telepon ?? '';
+
   return (
     <div className="space-y-4">
       <TombolSekunder onClick={onKembali}>&larr; Back to list</TombolSekunder>
       <JudulBagian>{kontrak.nomorPks}</JudulBagian>
 
+      {/* ---- 1. Detail Kerja Sama (draft pengguna 16/11/2026) ---- */}
       <Kartu>
-        <dl className="grid gap-2 text-sm md:grid-cols-2">
+        <JudulBagian>Partnership Details</JudulBagian>
+        <dl className="mt-3 grid gap-2 text-sm md:grid-cols-2">
           <div className="flex justify-between gap-4">
-            <dt className="text-[#0d2569]/60">Client</dt>
+            <dt className="text-[#0d2569]/60">Contract Number</dt>
             <dd className="text-right font-semibold text-[#0d2569]">
-              {klien?.nama ?? kontrak.klienId}
+              {kontrak.nomorPks}
+            </dd>
+          </div>
+          <div className="flex justify-between gap-4">
+            <dt className="text-[#0d2569]/60">Reference Number</dt>
+            <dd className="text-right text-[#0d2569]">
+              {nomorReferensiKontrak(kontrak)}
+            </dd>
+          </div>
+          <div className="flex justify-between gap-4 md:col-span-2">
+            <dt className="text-[#0d2569]/60">Contract Title</dt>
+            <dd className="text-right text-[#0d2569]">
+              {judulKontrak(kontrak)}
+            </dd>
+          </div>
+          <div className="flex justify-between gap-4">
+            <dt className="text-[#0d2569]/60">Signing Date</dt>
+            <dd className="text-[#0d2569]">
+              {kontrak.tanggalTandaTangan
+                ? formatTanggal(kontrak.tanggalTandaTangan)
+                : `${formatTanggal(kontrak.tanggalMulai)} (start date)`}
             </dd>
           </div>
           <div className="flex justify-between gap-4">
@@ -899,24 +991,10 @@ function DetailKontrak({
             <dd className="text-[#0d2569]">{labelJenisPnBP(kontrak.jenisPnBP)}</dd>
           </div>
           <div className="flex justify-between gap-4">
-            <dt className="text-[#0d2569]/60">Service category</dt>
-            <dd className="text-right text-[#0d2569]">{labelKategoriLayanan(kontrak.kategoriLayanan)}</dd>
-          </div>
-          <div className="flex justify-between gap-4">
-            <dt className="text-[#0d2569]/60">Programme</dt>
-            <dd className="text-[#0d2569]">{kontrak.programa ?? '-'}</dd>
-          </div>
-          <div className="flex justify-between gap-4">
-            <dt className="text-[#0d2569]/60">Period</dt>
+            <dt className="text-[#0d2569]/60">Cooperation Period</dt>
             <dd className="text-[#0d2569]">
               {formatTanggal(kontrak.tanggalMulai)} –{' '}
               {formatTanggal(kontrak.tanggalSelesai)}
-            </dd>
-          </div>
-          <div className="flex justify-between gap-4">
-            <dt className="text-[#0d2569]/60">Contract value</dt>
-            <dd className="font-semibold text-[#0d2569]">
-              {formatRupiah(kontrak.nilaiKontrak)}
             </dd>
           </div>
           <div className="flex justify-between gap-4">
@@ -926,21 +1004,35 @@ function DetailKontrak({
             </dd>
           </div>
           <div className="flex justify-between gap-4">
-            <dt className="text-[#0d2569]/60">Person in charge</dt>
-            <dd className="text-[#0d2569]">{kontrak.penanggungJawab}</dd>
+            <dt className="text-[#0d2569]/60">Contact Person</dt>
+            <dd className="text-right text-[#0d2569]">
+              {kontakNama !== '' ? kontakNama : kontrak.penanggungJawab}
+              <span className="block text-xs text-[#0d2569]/60">
+                {kontakTelepon !== '' ? kontakTelepon : '— no phone number'}
+              </span>
+            </dd>
           </div>
           <div className="flex justify-between gap-4">
-            <dt className="text-[#0d2569]/60">Closing operator</dt>
+            <dt className="text-[#0d2569]/60">Signatory</dt>
+            <dd className="text-right text-[#0d2569]">
+              {kontrak.penandatanganNama ?? '— not yet recorded'}
+              {kontrak.penandatanganJabatan && (
+                <span className="block text-xs text-[#0d2569]/60">
+                  {kontrak.penandatanganJabatan}
+                </span>
+              )}
+            </dd>
+          </div>
+          <div className="flex justify-between gap-4">
+            <dt className="text-[#0d2569]/60">Closing Operator</dt>
             <dd className="text-[#0d2569]">
               {kontrak.operatorPenutup ?? '— not yet assigned'}
             </dd>
           </div>
           <div className="flex justify-between gap-4">
-            <dt className="text-[#0d2569]/60">Signing date</dt>
+            <dt className="text-[#0d2569]/60">Due Date</dt>
             <dd className="text-[#0d2569]">
-              {kontrak.tanggalTandaTangan
-                ? formatTanggal(kontrak.tanggalTandaTangan)
-                : '— (start date used)'}
+              {jatuhTempo ? formatTanggal(jatuhTempo) : '— no invoice yet'}
             </dd>
           </div>
           <div className="flex justify-between gap-4">
@@ -953,15 +1045,6 @@ function DetailKontrak({
             <div className="flex justify-between gap-4 md:col-span-2">
               <dt className="text-[#0d2569]/60">Notes</dt>
               <dd className="text-right text-[#0d2569]">{kontrak.catatan}</dd>
-            </div>
-          )}
-          {sewa && (
-            <div className="flex justify-between gap-4 md:col-span-2">
-              <dt className="text-[#0d2569]/60">Related lease</dt>
-              <dd className="text-right text-[#0d2569]">
-                {sewa.aset} — agreement {sewa.nomorPerjanjian} (
-                {formatRupiah(sewa.nilaiSewa)})
-              </dd>
             </div>
           )}
         </dl>
@@ -1014,18 +1097,119 @@ function DetailKontrak({
         </div>
       </Kartu>
 
+      {/* ---- 2. Client ---- */}
       <Kartu>
-        <JudulBagian>Services (contract snapshot)</JudulBagian>
-        <div className="mt-3">
+        <JudulBagian>Client</JudulBagian>
+        <dl className="mt-3 grid gap-2 text-sm md:grid-cols-2">
+          <div className="flex justify-between gap-4">
+            <dt className="text-[#0d2569]/60">Name</dt>
+            <dd className="text-right font-semibold">
+              {klien && onNavigasiKlien ? (
+                <button
+                  type="button"
+                  className="text-[#2573e2] underline hover:text-[#0d2569]"
+                  onClick={() => onNavigasiKlien(klien.id)}
+                >
+                  {klien.nama}
+                </button>
+              ) : (
+                <span className="text-[#0d2569]">
+                  {klien?.nama ?? kontrak.klienId}
+                </span>
+              )}
+            </dd>
+          </div>
+          <div className="flex justify-between gap-4">
+            <dt className="text-[#0d2569]/60">Client Type</dt>
+            <dd className="text-[#0d2569]">
+              {klien ? labelJenisKlien(klien.jenis) : '—'}
+            </dd>
+          </div>
+          <div className="flex justify-between gap-4 md:col-span-2">
+            <dt className="text-[#0d2569]/60">Address</dt>
+            <dd className="text-right text-[#0d2569]">
+              {klien?.alamat && klien.alamat !== '' ? klien.alamat : '—'}
+            </dd>
+          </div>
+        </dl>
+      </Kartu>
+
+      {/* ---- 3. Revenue ---- */}
+      <Kartu>
+        <JudulBagian>Revenue</JudulBagian>
+
+        <h3 className="mt-4 text-sm font-semibold text-[#0d2569]">
+          Documents
+        </h3>
+        <div className="mt-2">
           <Tabel>
             <thead>
               <tr>
-                <Th>Name</Th>
+                <Th>Document</Th>
+                <Th>Details</Th>
+                <Th>Status</Th>
+              </tr>
+            </thead>
+            <tbody>
+              {tagihanKontrak.map((t) => (
+                <Baris key={t.id}>
+                  <Td>Invoice</Td>
+                  <Td tebal>{t.nomor}</Td>
+                  <Td>
+                    <StatusBadge
+                      status={labelStatusTagihan(statusTagihan(t, data.pembayaran))}
+                    />
+                  </Td>
+                </Baris>
+              ))}
+              {tagihanKontrak.length === 0 && (
+                <Baris>
+                  <Td>Invoice</Td>
+                  <Td>—</Td>
+                  <Td>— no invoice yet</Td>
+                </Baris>
+              )}
+              <Baris>
+                <Td>Billing</Td>
+                <Td tebal>{kodeBilling ?? '—'}</Td>
+                <Td>
+                  {kodeBilling
+                    ? 'Payment code (recorded as NTB on the payment)'
+                    : '— no billing code recorded yet'}
+                </Td>
+              </Baris>
+              <Baris>
+                <Td>Receipt</Td>
+                <Td>{kwitansi ? kwitansi.id : '—'}</Td>
+                <Td>
+                  {kwitansi
+                    ? labelStatusDokumen(kwitansi.status)
+                    : '— not recorded'}
+                </Td>
+              </Baris>
+            </tbody>
+          </Tabel>
+        </div>
+        <p className="mt-2 text-xs text-[#0d2569]/70">
+          Billing is the payment code (valid for 7 days). In the source
+          files the same 15-digit code is recorded in the payment&apos;s NTB
+          field.
+        </p>
+
+        <h3 className="mt-5 text-sm font-semibold text-[#0d2569]">
+          Contract Value
+        </h3>
+        <div className="mt-2">
+          <Tabel>
+            <thead>
+              <tr>
+                <Th>Service</Th>
                 <Th>Account Code</Th>
+                <Th>Quantity</Th>
                 <Th>Unit</Th>
                 <Th kanan>Rate</Th>
-                <Th kanan>Quantity</Th>
                 <Th kanan>Subtotal</Th>
+                <Th kanan>Realisation</Th>
               </tr>
             </thead>
             <tbody>
@@ -1033,31 +1217,129 @@ function DetailKontrak({
                 <Baris key={l.id}>
                   <Td>{l.namaLayanan}</Td>
                   <Td>{l.kodeAkun}</Td>
+                  <Td kanan>{l.jumlah}</Td>
                   <Td>{l.satuan}</Td>
                   <Td kanan>{formatRupiah(l.tarif)}</Td>
-                  <Td kanan>{l.jumlah}</Td>
                   <Td kanan>{formatRupiah(l.subtotal)}</Td>
+                  <Td kanan>
+                    {formatPersenRealisasi(
+                      realisasiLayanan(l, kontrak, hariIni),
+                    )}
+                  </Td>
                 </Baris>
               ))}
               <Baris className="bg-[#2573e2]/5 font-semibold">
-                <Td colSpan={5} tebal>
-                  Total (= contract value)
+                <Td colSpan={6} tebal>
+                  Total Nominal Contract
                 </Td>
                 <Td kanan tebal>{formatRupiah(kontrak.nilaiKontrak)}</Td>
+              </Baris>
+              <Baris>
+                <Td colSpan={6}>Late Fees</Td>
+                <Td kanan>{formatRupiah(totalDenda)}</Td>
+              </Baris>
+              <Baris className="font-semibold">
+                <Td colSpan={6} tebal>
+                  Contract Value + Late Fees
+                </Td>
+                <Td kanan tebal>{formatRupiah(nilaiPlusDenda)}</Td>
+              </Baris>
+              <Baris>
+                <Td colSpan={6}>Realisation</Td>
+                <Td kanan>{formatPersenRealisasi(realisasi)}</Td>
+              </Baris>
+              <Baris className="bg-[#2573e2]/5 font-semibold">
+                <Td colSpan={6} tebal>
+                  Receivables (realisation)
+                </Td>
+                <Td kanan tebal>{formatRupiah(piutang)}</Td>
               </Baris>
             </tbody>
           </Tabel>
         </div>
-      </Kartu>
+        <p className="mt-2 text-xs text-[#0d2569]/70">
+          Receivables here = (Contract Value + Late Fees) × Realisation.
+          This is different from the outstanding invoice balance below —
+          see &ldquo;Outstanding invoice balance&rdquo;.
+        </p>
 
-      <Kartu>
-        <JudulBagian>Invoices for this contract</JudulBagian>
+        <h3 className="mt-5 text-sm font-semibold text-[#0d2569]">
+          Payments
+        </h3>
+        {pembayaranKontrak.length === 0 ? (
+          <p className="mt-2 text-sm text-[#0d2569]/70">
+            No payments yet for this contract.
+          </p>
+        ) : (
+          <div className="mt-2">
+            <Tabel>
+              <thead>
+                <tr>
+                  <Th>NTB</Th>
+                  <Th>NTPN</Th>
+                  <Th>Payment Date</Th>
+                  <Th kanan>Amount</Th>
+                </tr>
+              </thead>
+              <tbody>
+                {pembayaranKontrak.map((p) => {
+                  const bukti = pisahBuktiSetor(p.buktiSetor);
+                  return (
+                    <Baris key={p.id}>
+                      <Td>{bukti.ntb ?? '—'}</Td>
+                      <Td>{bukti.ntpn ?? '—'}</Td>
+                      <Td>{formatTanggal(p.tanggalBayar)}</Td>
+                      <Td kanan>{formatRupiah(p.jumlah)}</Td>
+                    </Baris>
+                  );
+                })}
+              </tbody>
+            </Tabel>
+          </div>
+        )}
+        <dl className="mt-3 grid gap-2 text-sm md:grid-cols-2">
+          <div className="flex justify-between gap-4">
+            <dt className="text-[#0d2569]/60">Total Payments</dt>
+            <dd className="font-semibold text-[#0d2569]">
+              {formatRupiah(totalDibayar)}
+            </dd>
+          </div>
+          <div className="flex justify-between gap-4">
+            <dt className="text-[#0d2569]/60">
+              Outstanding Receivables (realisation)
+            </dt>
+            <dd className="font-semibold text-[#0d2569]">
+              {formatRupiah(sisaPiutang)}
+            </dd>
+          </div>
+          <div className="flex justify-between gap-4">
+            <dt className="text-[#0d2569]/60">Remaining Contract</dt>
+            <dd className="font-semibold text-[#0d2569]">
+              {formatRupiah(sisaKontrak)}
+            </dd>
+          </div>
+          <div className="flex justify-between gap-4">
+            <dt className="text-[#0d2569]/60">Outstanding invoice balance</dt>
+            <dd className="text-[#0d2569]">
+              {formatRupiah(sisaTagihanTotal)}
+            </dd>
+          </div>
+        </dl>
+        <p className="mt-2 text-xs text-[#0d2569]/70">
+          Outstanding Receivables (realisation) = Receivables (realisation)
+          − Total Payments. Outstanding invoice balance = Σ invoices −
+          payments (the previous receivables figure).
+        </p>
+
+        <h3 className="mt-5 text-sm font-semibold text-[#0d2569]">
+          Invoices for this contract
+        </h3>
         {tagihanKontrak.length === 0 ? (
           <p className="mt-2 text-sm text-[#0d2569]/70">
             No invoices yet for this contract.
           </p>
         ) : (
-          <div className="mt-3">
+          <div className="mt-2">
             <Tabel>
               <thead>
                 <tr>
@@ -1088,6 +1370,130 @@ function DetailKontrak({
                 ))}
               </tbody>
             </Tabel>
+          </div>
+        )}
+      </Kartu>
+
+      {/* ---- 4. Spesial Detail (tergantung jenis PNBP) ---- */}
+      <Kartu>
+        <JudulBagian>Special Details</JudulBagian>
+        {kontrak.jenisPnBP === 'Umum' ? (
+          <dl className="mt-3 grid gap-2 text-sm md:grid-cols-2">
+            <div className="flex justify-between gap-4">
+              <dt className="text-[#0d2569]/60">Service category</dt>
+              <dd className="text-right text-[#0d2569]">
+                {labelKategoriLayanan(kontrak.kategoriLayanan)}
+              </dd>
+            </div>
+            <div className="flex justify-between gap-4">
+              <dt className="text-[#0d2569]/60">Asset Type</dt>
+              <dd className="text-[#0d2569]">{kontrak.jenisBmn ?? '—'}</dd>
+            </div>
+            <div className="flex justify-between gap-4">
+              <dt className="text-[#0d2569]/60">Asset Location</dt>
+              <dd className="text-right text-[#0d2569]">
+                {kontrak.lokasiBmn ?? '—'}
+              </dd>
+            </div>
+            <div className="flex justify-between gap-4">
+              <dt className="text-[#0d2569]/60">Size</dt>
+              <dd className="text-[#0d2569]">{kontrak.ukuranBmn ?? '—'}</dd>
+            </div>
+            <div className="flex justify-between gap-4">
+              <dt className="text-[#0d2569]/60">Area</dt>
+              <dd className="text-[#0d2569]">{kontrak.luasBmn ?? '—'}</dd>
+            </div>
+            <div className="flex justify-between gap-4">
+              <dt className="text-[#0d2569]/60">
+                KPKNL Approval Letter No.
+              </dt>
+              <dd className="text-[#0d2569]">{kontrak.dasarNilai ?? '—'}</dd>
+            </div>
+            {sewa && (
+              <div className="flex justify-between gap-4 md:col-span-2">
+                <dt className="text-[#0d2569]/60">Related lease</dt>
+                <dd className="text-right text-[#0d2569]">
+                  {sewa.aset} — agreement {sewa.nomorPerjanjian} (
+                  {formatRupiah(sewa.nilaiSewa)})
+                </dd>
+              </div>
+            )}
+          </dl>
+        ) : (
+          <div>
+            <dl className="mt-3 grid gap-2 text-sm md:grid-cols-2">
+              <div className="flex justify-between gap-4">
+                <dt className="text-[#0d2569]/60">Service category</dt>
+                <dd className="text-right text-[#0d2569]">
+                  {labelKategoriLayanan(kontrak.kategoriLayanan)}
+                </dd>
+              </div>
+              <div className="flex justify-between gap-4">
+                <dt className="text-[#0d2569]/60">Programme</dt>
+                <dd className="text-[#0d2569]">
+                  {(kontrak.programa ?? programaLayanan.join(', ')) || '—'}
+                </dd>
+              </div>
+              <div className="flex justify-between gap-4 md:col-span-2">
+                <dt className="text-[#0d2569]/60">Service Detail</dt>
+                <dd className="text-right text-[#0d2569]">
+                  {detailLayananKontrak(kontrak)}
+                </dd>
+              </div>
+            </dl>
+            <h3 className="mt-4 text-sm font-semibold text-[#0d2569]">Time</h3>
+            <div className="mt-2">
+              <Tabel>
+                <thead>
+                  <tr>
+                    <Th>Service</Th>
+                    <Th>Programme</Th>
+                    <Th>Time</Th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {kontrak.layanan.map((l) => (
+                    <Baris key={l.id}>
+                      <Td>{l.namaLayanan}</Td>
+                      <Td>{l.programa ?? '—'}</Td>
+                      <Td>{l.jenisWaktu ?? '—'}</Td>
+                    </Baris>
+                  ))}
+                </tbody>
+              </Tabel>
+            </div>
+            {jendelaWaktu ? (
+              <div className="mt-3">
+                <p className="text-xs font-semibold text-[#0d2569]">
+                  Reference — {jendelaWaktu.programa} ({SUMBER_JENDELA_WAKTU_SIAR})
+                </p>
+                <dl className="mt-2 grid gap-2 text-sm md:grid-cols-2">
+                  <div className="flex justify-between gap-4">
+                    <dt className="text-[#0d2569]/60">Prime Time (WIB)</dt>
+                    <dd className="text-right text-[#0d2569]">
+                      {jendelaWaktu.prime.join(', ')}
+                    </dd>
+                  </div>
+                  <div className="flex justify-between gap-4">
+                    <dt className="text-[#0d2569]/60">Regular Time (WIB)</dt>
+                    <dd className="text-right text-[#0d2569]">
+                      {jendelaWaktu.regular.join(', ')}
+                    </dd>
+                  </div>
+                </dl>
+                <p className="mt-2 text-xs text-[#0d2569]/70">
+                  The decree covers Programme 1, 2 and 4 only (no Programme
+                  3). The windows above are copied as printed, including
+                  overlaps.
+                </p>
+              </div>
+            ) : (
+              <p className="mt-3 text-xs text-[#0d2569]/70">
+                No Prime/Regular time windows are defined for this programme
+                in {SUMBER_JENDELA_WAKTU_SIAR} (it covers Programme 1, 2 and
+                4 only).
+              </p>
+            )}
           </div>
         )}
       </Kartu>
@@ -1572,3 +1978,4 @@ function TabDokumen({
     </div>
   );
 }
+

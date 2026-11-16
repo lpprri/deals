@@ -33,6 +33,19 @@ export interface LayananKontrak {
   jumlah: number;
   subtotal: number;
   programa?: string;
+  /**
+   * Realisasi kerja sama per layanan, fraksi 0–1, dari kolom
+   * "Realisasi Kerja Sama" file sumber (proporsi yang sudah tayang /
+   * dilaksanakan). Bila kosong, realisasi dihitung dari aturan fallback
+   * (lihat realisasiLayanan di lib/realisasi.ts).
+   */
+  realisasi?: number;
+  /**
+   * Jenis waktu siaran per layanan, persis dari kolom "Jenis Waktu"
+   * file sumber ("Prime Time" / "Regular Time"). Hanya ada pada layanan
+   * siaran; layanan sewa/digital tidak punya nilai ini.
+   */
+  jenisWaktu?: string;
 }
 
 export interface Klien {
@@ -68,6 +81,27 @@ export interface Kontrak {
   sewaId?: string;
   /** PIC klien (bukan operator RRI) — nama penanggung jawab di sisi klien/mitra. */
   penanggungJawab: string;
+  /**
+   * Penandatangan kontrak dari kolom "Nama Penandatangan" file sumber
+   * (format sumber: "nama\njabatan"). Bila sumber tidak mencatat jabatan
+   * (mis. klien perorangan), penandatanganJabatan kosong — bukan ditebak.
+   * Kontrak 018/PKS/DIR.LPU/08/2026 tidak punya penandatangan di sumber.
+   */
+  penandatanganNama?: string;
+  penandatanganJabatan?: string;
+  /**
+   * Detail BMN/aset kontrak sewa (PNBP Umum), dari file sumber per kontrak:
+   * jenisBmn = kolom "Detail BMN" (mis. "Lahan", "Aula"),
+   * lokasiBmn = "Lokasi BMN", ukuranBmn = "Ukuran BMN",
+   * luasBmn = "Luas BMN", dasarNilai = "Dasar Nilai" yaitu nomor surat
+   * persetujuan KPKNL (mis. "S-476/MK/KNL.0402/2025"). Kontrak Fungsional
+   * tidak punya field ini.
+   */
+  jenisBmn?: string;
+  lokasiBmn?: string;
+  ukuranBmn?: string;
+  luasBmn?: string;
+  dasarNilai?: string;
   /**
    * Operator Staf Layanan & Pengembangan Usaha yang menutup kontrak ini
    * (Q-09; keputusan pengguna 2026-11-15). Acuan Employee Rank — BUKAN

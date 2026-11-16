@@ -81,3 +81,27 @@ adalah konstanta `TANGGAL_IMPOR = '2026-11-14'` — bukan tanggal berjalan.
 - Nomor PKS ganda `2036/PKS/RRI.PLB/03/2026` untuk 2 kontrak (id
   `…#010` / `…#011`); Samdini tertulis "Lunas" padahal tanpa NTB/NTPN.
 - Selisih Rp1 denda Mila (Rp1.897.030 vs sisa tagihan Rp1.897.029).
+
+## Impor field Detail Kontrak (16/11/2026)
+
+Skrip `impor-detail-kontrak.py` (Python + openpyxl) mengimpor field baru
+untuk halaman Detail Kontrak dari file yang dikirim pengguna 16/11/2026
+(`Kerja_Sama_PNBP_2026.xlsx` + versi rapinya):
+
+```sh
+# dari root repo
+python3 scripts/impor-data-nyata/impor-detail-kontrak.py --ekstrak  # xlsx -> data/detail-kontrak-2026-11-16.json
+python3 scripts/impor-data-nyata/impor-detail-kontrak.py --patch    # JSON -> patch src/lib/seedNyata.ts
+```
+
+Field yang diimpor (opsional di `src/lib/types.ts`): `Kontrak`
+`penandatanganNama`/`penandatanganJabatan` (41/42 — 018 kosong di sumber),
+`jenisBmn`/`lokasiBmn`/`ukuranBmn`/`luasBmn`/`dasarNilai` (17 kontrak sewa
+Umum); `LayananKontrak` `realisasi` (44/48 — layanan Siaran Langsung
+5390/5391 kosong di sumber) dan `jenisWaktu` ("Prime Time" 28 layanan,
+"Regular Time" 0). `--patch` memverifikasi dulu kecocokan tiap layanan
+file vs seed (urutan + satuan/tarif/jumlah/subtotal, toleransi Rp1) dan
+HANYA menambah baris — tidak ada nilai lama yang diubah. Kode billing
+TIDAK diimpor sebagai field: angka 15 digit di kolom NTB file adalah
+KODE BILLING yang sama dengan spreadsheet Finance (sudah tersimpan di
+`Pembayaran.buktiSetor`, dipisah saat tampil — lihat `lib/realisasi.ts`).

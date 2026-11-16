@@ -629,6 +629,8 @@ export const DATA_NYATA: AppData = {
     "nilaiKontrak": 270000,
     "status": "Selesai",
     "penanggungJawab": "Ilham Juliando — K3 dan Keamanan PLN UPT Palembang",
+    "penandatanganNama": "Ilham Juliando",
+    "penandatanganJabatan": "K3 dan Keamanan PLN UPT Palembang",
     "operatorPenutup": "Dessi Maya Sari",
     "tanggalTandaTangan": "2026-01-19",
     "catatan": "Judul: Spot Iklan Edukasi Bahaya & Manfaat Listrik | No. Referensi: 001/RRI.PLB/PKS.F/01/2026 | Keterangan sumber: Pembayaran Tepat Waktu",
@@ -647,6 +649,8 @@ export const DATA_NYATA: AppData = {
         "tarif": 45000,
         "jumlah": 6,
         "subtotal": 270000,
+        "realisasi": 1.0,
+        "jenisWaktu": "Prime Time",
         "programa": "Programa 1"
       }
     ]
@@ -663,6 +667,8 @@ export const DATA_NYATA: AppData = {
     "nilaiKontrak": 1550000,
     "status": "Selesai",
     "penanggungJawab": "Henra — Corporate Secretary",
+    "penandatanganNama": "Henra",
+    "penandatanganJabatan": "Corporate Secretary",
     "operatorPenutup": "Nadya Pratita",
     "tanggalTandaTangan": "2026-01-20",
     "catatan": "Judul: Adlibs Waspada Penipuan Mengatasnamakan PT Taspen | Keterangan sumber: Terlambang Melakukan Pembayaran | Tidak Dikenakan Denda",
@@ -681,6 +687,8 @@ export const DATA_NYATA: AppData = {
         "tarif": 50000,
         "jumlah": 31,
         "subtotal": 1550000,
+        "realisasi": 1.0,
+        "jenisWaktu": "Prime Time",
         "programa": "Programa 1"
       }
     ]
@@ -696,6 +704,12 @@ export const DATA_NYATA: AppData = {
     "nilaiKontrak": 19365000,
     "status": "Aktif",
     "penanggungJawab": "Aminul Khair",
+    "penandatanganNama": "Aminul Khair",
+    "jenisBmn": "Lahan",
+    "lokasiBmn": "Pemancar RRI Palembang di Indralaya",
+    "ukuranBmn": "4 m x 20 m",
+    "luasBmn": "80m2",
+    "dasarNilai": "S-476/MK/KNL.0402/2025",
     "operatorPenutup": "Nadya Pratita",
     "tanggalTandaTangan": "2026-02-01",
     "catatan": "Judul: Sewa Menyewa Lahan di Lokasi Pemancar LPP RRI Palembang | No. Referensi: 002/RRI.PLB/PKS.U/01/2026 | BMN: Lahan | Lokasi: Pemancar RRI Palembang di Indralaya | Tujuan: Toko Listrik | Luas: 80m2 | Dasar Nilai: S-476/MK/KNL.0402/2025 | Realisasi kerja sama: 33% (per sumber) | Keterangan sumber: Pembayaran Tepat Waktu | Catatan sewa sumber: Sewa Menyewa Lahan di Lokasi Pemancar LPP RRI Palembang Nama Klien: Aminul Khair Tujuan Penggunaan BMN: Toko Listrik Ukuran BMN: 4m x 20m = 80m2 Periode Kerja Sama: 1 Februari 2026 s.d. 31 Januari 2029 Nilai Kerja Sama: 3 Tahun x 6455000",
@@ -713,7 +727,8 @@ export const DATA_NYATA: AppData = {
         "satuan": "Tahun",
         "tarif": 6455000,
         "jumlah": 3,
-        "subtotal": 19365000
+        "subtotal": 19365000,
+        "realisasi": 0.333333333333333,
       }
     ]
   },
@@ -728,6 +743,12 @@ export const DATA_NYATA: AppData = {
     "nilaiKontrak": 19365000,
     "status": "Aktif",
     "penanggungJawab": "Meily Oktarina",
+    "penandatanganNama": "Meily Oktarina",
+    "jenisBmn": "Lahan",
+    "lokasiBmn": "Pemancar RRI Palembang di Indralaya",
+    "ukuranBmn": "4 m x 20 m",
+    "luasBmn": "80m2",
+    "dasarNilai": "S-476/MK/KNL.0402/2025",
     "operatorPenutup": "Ja\'far",
     "tanggalTandaTangan": "2026-02-01",
     "catatan": "Judul: Sewa Menyewa Lahan di Lokasi Pemancar LPP RRI Palembang | No. Referensi: 003/RRI.PLB/PKS.U/01/2026 | BMN: Lahan | Lokasi: Pemancar RRI Palembang di Indralaya | Tujuan: Toko Perlengkapan Bayi | Luas: 80m2 | Dasar Nilai: S-476/MK/KNL.0402/2025 | Realisasi kerja sama: 33% (per sumber) | Keterangan sumber: Pembayaran Tepat Waktu | Catatan sewa sumber: Sewa Menyewa Lahan di Lokasi Pemancar LPP RRI Palembang Nama Klien: Meily Oktarina Tujuan Penggunaan BMN: Toko Perlengkapan Bayi Ukuran BMN: 4m x 20m = 80m2 Periode Kerja Sama: 1 Februari 2026 s.d. 31 Januari 2029 Nilai Kerja Sama: 3 Tahun x 6455000",
@@ -745,7 +766,8 @@ export const DATA_NYATA: AppData = {
         "satuan": "Tahun",
         "tarif": 6455000,
         "jumlah": 3,
-        "subtotal": 19365000
+        "subtotal": 19365000,
+        "realisasi": 0.333333333333333,
       }
     ]
   },
@@ -760,6 +782,12 @@ export const DATA_NYATA: AppData = {
     "nilaiKontrak": 16944000,
     "status": "Aktif",
     "penanggungJawab": "Dierga Salomon Riezki, S.STP",
+    "penandatanganNama": "Dierga Salomon Riezki, S.STP",
+    "jenisBmn": "Lahan",
+    "lokasiBmn": "Pemancar RRI Palembang di Indralaya",
+    "ukuranBmn": "3.5 m x 20 m",
+    "luasBmn": "70m2",
+    "dasarNilai": "S-476/MK/KNL.0402/2025",
     "operatorPenutup": "Nadya Pratita",
     "tanggalTandaTangan": "2026-02-01",
     "catatan": "Judul: Sewa Menyewa Lahan di Lokasi Pemancar LPP RRI Palembang | No. Referensi: 004/RRI.PLB/PKS.U/01/2026 | BMN: Lahan | Lokasi: Pemancar RRI Palembang di Indralaya | Tujuan: Rental Play Station | Luas: 70m2 | Dasar Nilai: S-476/MK/KNL.0402/2025 | Realisasi kerja sama: 33% (per sumber) | Keterangan sumber: Pembayaran Tepat Waktu | Catatan sewa sumber: Sewa Menyewa Lahan di Lokasi Pemancar LPP RRI Palembang Nama Klien: Dierga Salomon Riezki, S.STP Tujuan Penggunaan BMN: Rental Play Station Ukuran BMN: 3,5m x 20m = 70m2 Periode Kerja Sama: 1 Februari 2026 s.d. 31 Januari 2029 Nilai Kerja Sama: 3 Tahun x 5648000",
@@ -777,7 +805,8 @@ export const DATA_NYATA: AppData = {
         "satuan": "Tahun",
         "tarif": 5648000,
         "jumlah": 3,
-        "subtotal": 16944000
+        "subtotal": 16944000,
+        "realisasi": 0.333333333333333,
       }
     ]
   },
@@ -792,6 +821,12 @@ export const DATA_NYATA: AppData = {
     "nilaiKontrak": 9019000,
     "status": "Aktif",
     "penanggungJawab": "Abdul Rozak Rusdy",
+    "penandatanganNama": "Abdul Rozak Rusdy",
+    "jenisBmn": "Lahan",
+    "lokasiBmn": "Pemancar RRI Palembang di Indralaya",
+    "ukuranBmn": "100 m x 173 m",
+    "luasBmn": "17300m2",
+    "dasarNilai": "S-477/MK/KNL.0402/2025",
     "operatorPenutup": "Nadya Pratita",
     "tanggalTandaTangan": "2026-02-01",
     "catatan": "Judul: Sewa Menyewa Lahan di Lokasi Pemancar LPP RRI Palembang | No. Referensi: 005/RRI.PLB/PKS.U/02/2026 | BMN: Lahan | Lokasi: Pemancar RRI Palembang di Indralaya | Tujuan: Berkebun, Beternak Kambing & Ayam dan Kolam Pancing | Luas: 17300m2 | Dasar Nilai: S-477/MK/KNL.0402/2025 | Keterangan sumber: Terlambang Melakukan Pembayaran | SPn-1 | Catatan sewa sumber: Sewa Menyewa Lahan di Lokasi Pemancar LPP RRI Palembang Nama Klien: Abdul Rozak Rusdy Tujuan Penggunaan BMN: Berkebun, Beternak Kambing & Ayam dan Kolam Pancing Ukuran BMN: 100m x 173m = 17300m2 Periode Kerja Sama: 1 Februari 2026 s.d. 31 Januari 2027 Nilai Kerja Sama: 1 Tahun x 9019000",
@@ -809,7 +844,8 @@ export const DATA_NYATA: AppData = {
         "satuan": "Tahun",
         "tarif": 9019000,
         "jumlah": 1,
-        "subtotal": 9019000
+        "subtotal": 9019000,
+        "realisasi": 1.0,
       }
     ]
   },
@@ -824,6 +860,12 @@ export const DATA_NYATA: AppData = {
     "nilaiKontrak": 6536000,
     "status": "Aktif",
     "penanggungJawab": "Assef Hidayat",
+    "penandatanganNama": "Assef Hidayat",
+    "jenisBmn": "Lahan",
+    "lokasiBmn": "Pemancar RRI Palembang di Indralaya",
+    "ukuranBmn": "5 m x 20 m",
+    "luasBmn": "100m2",
+    "dasarNilai": "S-477/MK/KNL.0402/2025",
     "operatorPenutup": "A. Kadir Kurniawan",
     "tanggalTandaTangan": "2026-02-11",
     "catatan": "Judul: Sewa Menyewa Lahan di Lokasi Pemancar LPP RRI Palembang | No. Referensi: 006/RRI.PLB/PKS.U/02/2026 | BMN: Lahan | Lokasi: Pemancar RRI Palembang di Indralaya | Tujuan: Warung  Sarapan Pagi & Es Teh | Luas: 100m2 | Dasar Nilai: S-477/MK/KNL.0402/2025 | Keterangan sumber: Pembayaran Tepat Waktu | Catatan sewa sumber: Sewa Menyewa Lahan di Lokasi Pemancar LPP RRI Palembang Nama Klien: Assef Hidayat Tujuan Penggunaan BMN: Warung  Sarapan Pagi & Es Teh Ukuran BMN: 5m x 20m = 100m2 Periode Kerja Sama: 11 Februari 2026 s.d. 10 Februari 2027 Nilai Kerja Sama: 1 Tahun x 6536000",
@@ -841,7 +883,8 @@ export const DATA_NYATA: AppData = {
         "satuan": "Tahun",
         "tarif": 6536000,
         "jumlah": 1,
-        "subtotal": 6536000
+        "subtotal": 6536000,
+        "realisasi": 1.0,
       }
     ]
   },
@@ -857,6 +900,8 @@ export const DATA_NYATA: AppData = {
     "nilaiKontrak": 15000000,
     "status": "Selesai",
     "penanggungJawab": "Haryati Alfat — Kepala Bidang Pengelola Komunikasi Publik",
+    "penandatanganNama": "Haryati Alfat",
+    "penandatanganJabatan": "Kepala Bidang Pengelola Komunikasi Publik",
     "operatorPenutup": "A. Kadir Kurniawan",
     "tanggalTandaTangan": "2026-02-19",
     "catatan": "Judul: Greeting Ramadan & Idul Fitri 1447 H Wali Kota & Wakil Wali Kota Palembang | No. Referensi: 007/RRI.PLB/PKS.F/02/2026 | Keterangan sumber: Terlambang Melakukan Pembayaran | SPn-3",
@@ -875,6 +920,8 @@ export const DATA_NYATA: AppData = {
         "tarif": 100000,
         "jumlah": 150,
         "subtotal": 15000000,
+        "realisasi": 1.0,
+        "jenisWaktu": "Prime Time",
         "programa": "Programa 1"
       }
     ]
@@ -891,6 +938,8 @@ export const DATA_NYATA: AppData = {
     "nilaiKontrak": 5000000,
     "status": "Selesai",
     "penanggungJawab": "Titin Yariyanti, S.Pd., M.Si — Kepala Bidang Informasi Komunikasi Publik",
+    "penandatanganNama": "Titin Yariyanti, S.Pd., M.Si",
+    "penandatanganJabatan": "Kepala Bidang Informasi Komunikasi Publik",
     "operatorPenutup": "Ja\'far",
     "tanggalTandaTangan": "2026-02-19",
     "catatan": "Judul: Greeting Ramadan & Idul Fitri 1447 H Bupati Banyuasin | No. Referensi: 008/RRI.PLB/PKS.F/02/2026 | Keterangan sumber: Terlambang Melakukan Pembayaran | SPn-3",
@@ -909,6 +958,8 @@ export const DATA_NYATA: AppData = {
         "tarif": 100000,
         "jumlah": 50,
         "subtotal": 5000000,
+        "realisasi": 1.0,
+        "jenisWaktu": "Prime Time",
         "programa": "Programa 1"
       }
     ]
@@ -925,6 +976,8 @@ export const DATA_NYATA: AppData = {
     "nilaiKontrak": 3000000,
     "status": "Selesai",
     "penanggungJawab": "Jerry Rinoldy, S.T., M.T — Kepala Bidang Komunikasi Publik",
+    "penandatanganNama": "Jerry Rinoldy, S.T., M.T",
+    "penandatanganJabatan": "Kepala Bidang Komunikasi Publik",
     "operatorPenutup": "Dessi Maya Sari",
     "tanggalTandaTangan": "2026-02-19",
     "catatan": "Judul: Greeting Ramadan & Idul Fitri 1447 H Bupati Musi Banyuasin | No. Referensi: 009/RRI.PLB/PKS.F/02/2026 | Keterangan sumber: Pembayaran Tepat Waktu",
@@ -943,6 +996,8 @@ export const DATA_NYATA: AppData = {
         "tarif": 100000,
         "jumlah": 30,
         "subtotal": 3000000,
+        "realisasi": 1.0,
+        "jenisWaktu": "Prime Time",
         "programa": "Programa 1"
       }
     ]
@@ -959,6 +1014,8 @@ export const DATA_NYATA: AppData = {
     "nilaiKontrak": 7500000,
     "status": "Selesai",
     "penanggungJawab": "Tommy Andika — Pengelola Bisnis Dana Jasa & Tresury Komersial & Institusi Syariah",
+    "penandatanganNama": "Tommy Andika",
+    "penandatanganJabatan": "Pengelola Bisnis Dana Jasa & Tresury Komersial & Institusi Syariah",
     "operatorPenutup": "Meliyana",
     "tanggalTandaTangan": "2026-02-19",
     "catatan": "Judul: Greeting Ramadan & Idul Fitri 1447 H Direktur Utama Bank Sumsel Babel | No. Referensi: 010/RRI.PLB/PKS.F/02/2026 | Keterangan sumber: Terlambang Melakukan Pembayaran | SPn-2",
@@ -977,6 +1034,8 @@ export const DATA_NYATA: AppData = {
         "tarif": 100000,
         "jumlah": 75,
         "subtotal": 7500000,
+        "realisasi": 1.0,
+        "jenisWaktu": "Prime Time",
         "programa": "Programa 1"
       }
     ]
@@ -993,6 +1052,8 @@ export const DATA_NYATA: AppData = {
     "nilaiKontrak": 6200000,
     "status": "Selesai",
     "penanggungJawab": "Yossie N. — Kepala Unit Kehumasan",
+    "penandatanganNama": "Yossie N.",
+    "penandatanganJabatan": "Kepala Unit Kehumasan",
     "operatorPenutup": "A. Kadir Kurniawan",
     "tanggalTandaTangan": "2026-02-25",
     "catatan": "Judul: Greeting Ramadan & Idul Fitri 1447 H Kepala Kantor Perwakilan Bank Indonesia Provinsi Sumatera Selatan | No. Referensi: 011/RRI.PLB/PKS.F/02/2026 | Keterangan sumber: Terlambang Melakukan Pembayaran | SPn-1",
@@ -1011,6 +1072,8 @@ export const DATA_NYATA: AppData = {
         "tarif": 100000,
         "jumlah": 62,
         "subtotal": 6200000,
+        "realisasi": 1.0,
+        "jenisWaktu": "Prime Time",
         "programa": "Programa 1"
       }
     ]
@@ -1027,6 +1090,8 @@ export const DATA_NYATA: AppData = {
     "nilaiKontrak": 4050000,
     "status": "Selesai",
     "penanggungJawab": "Sahbani — Pejabat Pembuat Komitmen",
+    "penandatanganNama": "Sahbani",
+    "penandatanganJabatan": "Pejabat Pembuat Komitmen",
     "operatorPenutup": "Meliyana",
     "tanggalTandaTangan": "2026-03-11",
     "catatan": "Judul: Spot Iklan Layanan Masyarakat Edukasi Larangan Penggunaan Produk Ilegal | No. Referensi: 012/RRI.PLB/PKS.F/03/2026 | Keterangan sumber: Pembayaran Tepat Waktu",
@@ -1045,6 +1110,8 @@ export const DATA_NYATA: AppData = {
         "tarif": 45000,
         "jumlah": 90,
         "subtotal": 4050000,
+        "realisasi": 1.0,
+        "jenisWaktu": "Prime Time",
         "programa": "Programa 1"
       }
     ]
@@ -1061,6 +1128,8 @@ export const DATA_NYATA: AppData = {
     "nilaiKontrak": 1500000,
     "status": "Selesai",
     "penanggungJawab": "Zakiah, S.E, M.M — Kepala Dinas",
+    "penandatanganNama": "Zakiah, S.E, M.M",
+    "penandatanganJabatan": "Kepala Dinas",
     "operatorPenutup": "A. Kadir Kurniawan",
     "tanggalTandaTangan": "2026-03-20",
     "catatan": "Judul: Greeting Idul Fitri 1447 H Bupati Ogan Komering Ulu Selatan | No. Referensi: 013/RRI.PLB/PKS.F/03/2026 | Keterangan sumber: Terlambang Melakukan Pembayaran | SPn-1",
@@ -1079,6 +1148,8 @@ export const DATA_NYATA: AppData = {
         "tarif": 100000,
         "jumlah": 15,
         "subtotal": 1500000,
+        "realisasi": 1.0,
+        "jenisWaktu": "Prime Time",
         "programa": "Programa 1"
       }
     ]
@@ -1095,6 +1166,8 @@ export const DATA_NYATA: AppData = {
     "nilaiKontrak": 1000000,
     "status": "Selesai",
     "penanggungJawab": "Andi Amijaya — Branch Manager",
+    "penandatanganNama": "Andi Amijaya",
+    "penandatanganJabatan": "Branch Manager",
     "operatorPenutup": "Dessi Maya Sari",
     "tanggalTandaTangan": "2026-03-20",
     "catatan": "Judul: Greeting Idul Fitri 1447 H Kepala Cabang Bank Syariah Indonesia KCP Kenten 2 Palembang | No. Referensi: 014/RRI.PLB/PKS.F/03/2026 | Keterangan sumber: Terlambang Melakukan Pembayaran | SPn-1",
@@ -1113,6 +1186,8 @@ export const DATA_NYATA: AppData = {
         "tarif": 100000,
         "jumlah": 10,
         "subtotal": 1000000,
+        "realisasi": 1.0,
+        "jenisWaktu": "Prime Time",
         "programa": "Programa 1"
       }
     ]
@@ -1129,6 +1204,8 @@ export const DATA_NYATA: AppData = {
     "nilaiKontrak": 2000000,
     "status": "Selesai",
     "penanggungJawab": "Amalia Fatmasari — Kepala Seksi Bimbingan Penyuluhan dan Pengelolaan Dokumen",
+    "penandatanganNama": "Amalia Fatmasari",
+    "penandatanganJabatan": "Kepala Seksi Bimbingan Penyuluhan dan Pengelolaan Dokumen",
     "operatorPenutup": "Ja\'far",
     "tanggalTandaTangan": "2026-04-20",
     "catatan": "Judul: Dialog Interaktif \"SPT Tahunan PPh: Relaksasi, Perpanjangan Jangka Waktu Pelaporan dan NPPN\" | No. Referensi: 015/RRI.PLB/PKS.F/04/2026 | Keterangan sumber: Pembayaran Tepat Waktu",
@@ -1147,6 +1224,8 @@ export const DATA_NYATA: AppData = {
         "tarif": 2000000,
         "jumlah": 1,
         "subtotal": 2000000,
+        "realisasi": 1.0,
+        "jenisWaktu": "Prime Time",
         "programa": "Programa 1"
       }
     ]
@@ -1163,6 +1242,8 @@ export const DATA_NYATA: AppData = {
     "nilaiKontrak": 270000,
     "status": "Selesai",
     "penanggungJawab": "Ilham Juliando — K3 dan Keamanan",
+    "penandatanganNama": "Ilham Juliando",
+    "penandatanganJabatan": "K3 dan Keamanan",
     "operatorPenutup": "A. Kadir Kurniawan",
     "tanggalTandaTangan": "2026-04-27",
     "catatan": "Judul: Spot Iklan Edukasi Bahaya & Manfaat Listrik | No. Referensi: 016/RRI.PLB/PKS.F/04/2026 | Keterangan sumber: Pembayaran Tepat Waktu",
@@ -1181,6 +1262,8 @@ export const DATA_NYATA: AppData = {
         "tarif": 45000,
         "jumlah": 6,
         "subtotal": 270000,
+        "realisasi": 1.0,
+        "jenisWaktu": "Prime Time",
         "programa": "Programa 1"
       }
     ]
@@ -1196,6 +1279,12 @@ export const DATA_NYATA: AppData = {
     "nilaiKontrak": 5320000,
     "status": "Aktif",
     "penanggungJawab": "Arip",
+    "penandatanganNama": "Arip",
+    "jenisBmn": "Lahan",
+    "lokasiBmn": "Pemancar RRI Palembang di Indralaya",
+    "ukuranBmn": "4.5 m x 20 m",
+    "luasBmn": "90m2",
+    "dasarNilai": "S-66/MK/KNL.0402/2026",
     "operatorPenutup": "Ja\'far",
     "tanggalTandaTangan": "2026-05-22",
     "catatan": "Judul: Sewa Menyewa Lahan di Lokasi Pemancar LPP RRI Palembang | No. Referensi: 017/RRI.PLB/PKS.F/05/2026 | BMN: Lahan | Lokasi: Pemancar RRI Palembang di Indralaya | Tujuan: Layanan Jasa Keuangan BRILink & Agen Mandiri | Luas: 90m2 | Dasar Nilai: S-66/MK/KNL.0402/2026 | Keterangan sumber: Pembayaran Tepat Waktu",
@@ -1213,7 +1302,8 @@ export const DATA_NYATA: AppData = {
         "satuan": "Tahun",
         "tarif": 5320000,
         "jumlah": 1,
-        "subtotal": 5320000
+        "subtotal": 5320000,
+        "realisasi": 1.0,
       }
     ]
   },
@@ -1229,6 +1319,8 @@ export const DATA_NYATA: AppData = {
     "nilaiKontrak": 200000,
     "status": "Selesai",
     "penanggungJawab": "Yusheni — Account Executive",
+    "penandatanganNama": "Yusheni",
+    "penandatanganJabatan": "Account Executive",
     "operatorPenutup": "Ja\'far",
     "tanggalTandaTangan": "2026-05-23",
     "catatan": "Judul: Reels Instagram Promosi PT. Chery Sales Indonesia | No. Referensi: 018/RRI.PLB/PKS.F/05/2026 | Keterangan sumber: Pembayaran Tepat Waktu",
@@ -1247,6 +1339,7 @@ export const DATA_NYATA: AppData = {
         "tarif": 200000,
         "jumlah": 1,
         "subtotal": 200000,
+        "realisasi": 1.0,
         "programa": "@rri.palembang"
       }
     ]
@@ -1263,6 +1356,8 @@ export const DATA_NYATA: AppData = {
     "nilaiKontrak": 4050000,
     "status": "Selesai",
     "penanggungJawab": "M. Joni Rusli — Ketua",
+    "penandatanganNama": "M. Joni Rusli",
+    "penandatanganJabatan": "Ketua",
     "operatorPenutup": "Dessi Maya Sari",
     "tanggalTandaTangan": "2026-05-26",
     "catatan": "Judul: Spot Iklan Sosialisasi Penerimaan Santri & Mahasiswa Baru Ponpes Al-Ittifaqiah Indralaya | No. Referensi: 019/RRI.PLB/PKS.F/05/2026 | Keterangan sumber: Pembayaran Tepat Waktu",
@@ -1281,6 +1376,8 @@ export const DATA_NYATA: AppData = {
         "tarif": 45000,
         "jumlah": 90,
         "subtotal": 4050000,
+        "realisasi": 1.0,
+        "jenisWaktu": "Prime Time",
         "programa": "Programa 1"
       }
     ]
@@ -1297,6 +1394,8 @@ export const DATA_NYATA: AppData = {
     "nilaiKontrak": 990000,
     "status": "Selesai",
     "penanggungJawab": "Uus Firdaus — Marketing Manager",
+    "penandatanganNama": "Uus Firdaus",
+    "penandatanganJabatan": "Marketing Manager",
     "operatorPenutup": "Meliyana",
     "tanggalTandaTangan": "2026-06-01",
     "catatan": "Judul: Spot Iklan Promosi Alfamart | No. Referensi: 020/RRI.PLB/PKS.F/05/2026 | Keterangan sumber: Pembayaran Tepat Waktu",
@@ -1315,6 +1414,8 @@ export const DATA_NYATA: AppData = {
         "tarif": 45000,
         "jumlah": 22,
         "subtotal": 990000,
+        "realisasi": 1.0,
+        "jenisWaktu": "Prime Time",
         "programa": "Programa 1"
       }
     ]
@@ -1330,6 +1431,13 @@ export const DATA_NYATA: AppData = {
     "nilaiKontrak": 3056000,
     "status": "Selesai",
     "penanggungJawab": "Dr. Jalaluddin, MPSA — Direktur ASMA",
+    "penandatanganNama": "Dr. Jalaluddin, MPSA",
+    "penandatanganJabatan": "Direktur ASMA",
+    "jenisBmn": "Aula",
+    "lokasiBmn": "Kantor RRI Palembang",
+    "ukuranBmn": "10 m x 29.94 m",
+    "luasBmn": "299,4m2",
+    "dasarNilai": "S-81/MK.6/KNL.0402/2025",
     "operatorPenutup": "Ja\'far",
     "tanggalTandaTangan": "2026-06-14",
     "catatan": "Judul: Sewa Menyewa Fasilitas Aula LPP RRI Palembang | No. Referensi: 021/RRI.PLB/PKS.U/06/2026 | BMN: Aula | Lokasi: Kantor RRI Palembang | Tujuan: Penyelenggaraan Kegiatan Olimpiade Mental Aritmatika dan Wisuda ASMA | Luas: 299,4m2 | Dasar Nilai: S-81/MK.6/KNL.0402/2025 | Keterangan sumber: Pembayaran Tepat Waktu",
@@ -1347,7 +1455,8 @@ export const DATA_NYATA: AppData = {
         "satuan": "Hari",
         "tarif": 3056000,
         "jumlah": 1,
-        "subtotal": 3056000
+        "subtotal": 3056000,
+        "realisasi": 1.0,
       }
     ]
   },
@@ -1363,6 +1472,8 @@ export const DATA_NYATA: AppData = {
     "nilaiKontrak": 3500000,
     "status": "Selesai",
     "penanggungJawab": "Evin Melliniya Angel Putri, S.STP — Ketua Tim Humas Protokol dan Publikasi",
+    "penandatanganNama": "Evin Melliniya Angel Putri, S.STP",
+    "penandatanganJabatan": "Ketua Tim Humas Protokol dan Publikasi",
     "operatorPenutup": "Ja\'far",
     "tanggalTandaTangan": "2026-06-16",
     "catatan": "Judul: Greeting & Siaran Langsung HUT Kota Palembang | No. Referensi: 022/RRI.PLB/PKS.F/06/2026 | Keterangan sumber: Pembayaran Tepat Waktu",
@@ -1381,6 +1492,8 @@ export const DATA_NYATA: AppData = {
         "tarif": 100000,
         "jumlah": 5,
         "subtotal": 500000,
+        "realisasi": 1.0,
+        "jenisWaktu": "Prime Time",
         "programa": "Programa 1"
       },
       {
@@ -1393,6 +1506,7 @@ export const DATA_NYATA: AppData = {
         "tarif": 2000000,
         "jumlah": 1,
         "subtotal": 2000000,
+        "jenisWaktu": "Prime Time",
         "programa": "Programa 1"
       },
       {
@@ -1421,6 +1535,8 @@ export const DATA_NYATA: AppData = {
     "nilaiKontrak": 3500000,
     "status": "Selesai",
     "penanggungJawab": "Ericka Lestari Dewi A. — Lead Field Relations Support Medco E&P Indonesia",
+    "penandatanganNama": "Ericka Lestari Dewi A.",
+    "penandatanganJabatan": "Lead Field Relations Support Medco E&P Indonesia",
     "operatorPenutup": "A. Kadir Kurniawan",
     "tanggalTandaTangan": "2026-06-16",
     "catatan": "Judul: Adlibs & Dialog Interaktif Goes to Campus Ngobrol Seputar Gas: Integritas dalam Industri Hulu Migas | No. Referensi: 023/RRI.PLB/PKS.F/06/2026 | Keterangan sumber: Pembayaran Tepat Waktu",
@@ -1439,6 +1555,8 @@ export const DATA_NYATA: AppData = {
         "tarif": 50000,
         "jumlah": 10,
         "subtotal": 500000,
+        "realisasi": 1.0,
+        "jenisWaktu": "Prime Time",
         "programa": "Programa 2"
       },
       {
@@ -1451,6 +1569,7 @@ export const DATA_NYATA: AppData = {
         "tarif": 2000000,
         "jumlah": 1,
         "subtotal": 2000000,
+        "jenisWaktu": "Prime Time",
         "programa": "Programa 2"
       },
       {
@@ -1479,6 +1598,8 @@ export const DATA_NYATA: AppData = {
     "nilaiKontrak": 4050000,
     "status": "Selesai",
     "penanggungJawab": "Sahbani — Pejabat Pembuat Komitmen",
+    "penandatanganNama": "Sahbani",
+    "penandatanganJabatan": "Pejabat Pembuat Komitmen",
     "operatorPenutup": "Meliyana",
     "tanggalTandaTangan": "2026-06-18",
     "catatan": "Judul: Spot Iklan Layanan Masyarakat Himbauan Waspada Penipuan Mengatasnamakan Bea Cukai | No. Referensi: 024/RRI.PLB/PKS.F/06/2026 | Keterangan sumber: Pembayaran Tepat Waktu",
@@ -1497,6 +1618,8 @@ export const DATA_NYATA: AppData = {
         "tarif": 45000,
         "jumlah": 90,
         "subtotal": 4050000,
+        "realisasi": 1.0,
+        "jenisWaktu": "Prime Time",
         "programa": "Programa 1"
       }
     ]
@@ -1513,6 +1636,8 @@ export const DATA_NYATA: AppData = {
     "nilaiKontrak": 2000000,
     "status": "Selesai",
     "penanggungJawab": "Yossie N. — Kepala Unit Kehumasan",
+    "penandatanganNama": "Yossie N.",
+    "penandatanganJabatan": "Kepala Unit Kehumasan",
     "operatorPenutup": "A. Kadir Kurniawan",
     "tanggalTandaTangan": "2026-06-19",
     "catatan": "Judul: Dialog Interaktif GEMILANG PALEMBANG RAYA X DIGITAL KITO GALO 7th TAHUN 2026: “Transaksi Digital Inklusif, Wujudkan Ekonomi Sumsel yang Produktif” | No. Referensi: 025/RRI.PLB/PKS.F/06/2026 | Keterangan sumber: Pembayaran Tepat Waktu",
@@ -1531,6 +1656,8 @@ export const DATA_NYATA: AppData = {
         "tarif": 2000000,
         "jumlah": 1,
         "subtotal": 2000000,
+        "realisasi": 1.0,
+        "jenisWaktu": "Prime Time",
         "programa": "Programa 2"
       }
     ]
@@ -1547,6 +1674,8 @@ export const DATA_NYATA: AppData = {
     "nilaiKontrak": 1000000,
     "status": "Selesai",
     "penanggungJawab": "Theodora Stefany — Asistent Manajer",
+    "penandatanganNama": "Theodora Stefany",
+    "penandatanganJabatan": "Asistent Manajer",
     "operatorPenutup": "Meliyana",
     "tanggalTandaTangan": "2026-06-19",
     "catatan": "Judul: Adlibs Event Digital Kito Galo 7th X Gemilang Palembang Raya 2026 | No. Referensi: 026/RRI.PLB/PKS.F/06/2026 | Keterangan sumber: Pembayaran Tepat Waktu",
@@ -1565,6 +1694,8 @@ export const DATA_NYATA: AppData = {
         "tarif": 50000,
         "jumlah": 20,
         "subtotal": 1000000,
+        "realisasi": 1.0,
+        "jenisWaktu": "Prime Time",
         "programa": "Programa 2"
       }
     ]
@@ -1581,6 +1712,8 @@ export const DATA_NYATA: AppData = {
     "nilaiKontrak": 2000000,
     "status": "Selesai",
     "penanggungJawab": "Andi Ina Sarinah — TA Kabid Kowani dan PIM",
+    "penandatanganNama": "Andi Ina Sarinah",
+    "penandatanganJabatan": "TA Kabid Kowani dan PIM",
     "operatorPenutup": "Nadya Pratita",
     "tanggalTandaTangan": "2026-07-18",
     "catatan": "Judul: Dialog Interaktif \"Parade Kebaya Songket: Pesona Perempuan Indonesia\" | No. Referensi: 027/RRI.PLB/PKS.F/07/2026 | Keterangan sumber: Keterlambatan Pembayaran | SPn-1",
@@ -1599,6 +1732,8 @@ export const DATA_NYATA: AppData = {
         "tarif": 2000000,
         "jumlah": 1,
         "subtotal": 2000000,
+        "realisasi": 1.0,
+        "jenisWaktu": "Prime Time",
         "programa": "Programa 1"
       }
     ]
@@ -1614,6 +1749,12 @@ export const DATA_NYATA: AppData = {
     "nilaiKontrak": 6536000,
     "status": "Aktif",
     "penanggungJawab": "Faridah Hanum",
+    "penandatanganNama": "Faridah Hanum",
+    "jenisBmn": "Lahan",
+    "lokasiBmn": "Pemancar RRI Palembang di Indralaya",
+    "ukuranBmn": "5 m x 20 m",
+    "luasBmn": "100m2",
+    "dasarNilai": "S-187/MK/KNL.0402/2026",
     "operatorPenutup": "Meliyana",
     "tanggalTandaTangan": "2026-08-01",
     "catatan": "Judul: Sewa Menyewa Lahan di Lokasi Pemancar LPP RRI Palembang | No. Referensi: 028/RRI.PLB/PKS.U/07/2026 | BMN: Lahan | Lokasi: Pemancar RRI Palembang di Indralaya | Tujuan: Barbershop | Luas: 100m2 | Dasar Nilai: S-187/MK/KNL.0402/2026 | Keterangan sumber: Pembayaran Tepat Waktu",
@@ -1631,7 +1772,8 @@ export const DATA_NYATA: AppData = {
         "satuan": "Tahun",
         "tarif": 6536000,
         "jumlah": 1,
-        "subtotal": 6536000
+        "subtotal": 6536000,
+        "realisasi": 1.0,
       }
     ]
   },
@@ -1646,6 +1788,12 @@ export const DATA_NYATA: AppData = {
     "nilaiKontrak": 6000000,
     "status": "Selesai",
     "penanggungJawab": "Fisol Jailani",
+    "penandatanganNama": "Fisol Jailani",
+    "jenisBmn": "Lahan",
+    "lokasiBmn": "Pemancar RRI Palembang di Indralaya",
+    "ukuranBmn": "15 m x 14 m",
+    "luasBmn": "210m2",
+    "dasarNilai": "S-187/MK/KNL.0402/2026",
     "operatorPenutup": "Dessi Maya Sari",
     "tanggalTandaTangan": "2026-02-01",
     "catatan": "Judul: Sewa Menyewa Lahan di Lokasi Pemancar LPP RRI Palembang | No. Referensi: 029/RRI.PLB/PKS.U/07/2026 | BMN: Lahan | Lokasi: Pemancar RRI Palembang di Indralaya | Tujuan: Depot Gas & Air Minum | Luas: 210m2 | Dasar Nilai: S-187/MK/KNL.0402/2026 | Keterangan sumber: Keterlambatan Pembayaran | SPn-6",
@@ -1663,7 +1811,8 @@ export const DATA_NYATA: AppData = {
         "satuan": "Tahun",
         "tarif": 12000000,
         "jumlah": 0.5,
-        "subtotal": 6000000
+        "subtotal": 6000000,
+        "realisasi": 1.0,
       }
     ]
   },
@@ -1678,6 +1827,12 @@ export const DATA_NYATA: AppData = {
     "nilaiKontrak": 12000000,
     "status": "Aktif",
     "penanggungJawab": "Fisol Jailani",
+    "penandatanganNama": "Fisol Jailani",
+    "jenisBmn": "Lahan",
+    "lokasiBmn": "Pemancar RRI Palembang di Indralaya",
+    "ukuranBmn": "15 m x 14 m",
+    "luasBmn": "210m2",
+    "dasarNilai": "S-187/MK/KNL.0402/2026",
     "operatorPenutup": "Dessi Maya Sari",
     "tanggalTandaTangan": "2026-08-01",
     "catatan": "Judul: Sewa Menyewa Lahan di Lokasi Pemancar LPP RRI Palembang | No. Referensi: 030/RRI.PLB/PKS.U/07/2026 | BMN: Lahan | Lokasi: Pemancar RRI Palembang di Indralaya | Tujuan: Depot Gas & Air Minum | Luas: 210m2 | Dasar Nilai: S-187/MK/KNL.0402/2026 | Keterangan sumber: Pembayaran Tepat Waktu",
@@ -1695,7 +1850,8 @@ export const DATA_NYATA: AppData = {
         "satuan": "Tahun",
         "tarif": 12000000,
         "jumlah": 1,
-        "subtotal": 12000000
+        "subtotal": 12000000,
+        "realisasi": 1.0,
       }
     ]
   },
@@ -1710,6 +1866,12 @@ export const DATA_NYATA: AppData = {
     "nilaiKontrak": 7904292,
     "status": "Selesai",
     "penanggungJawab": "Mila Agustina",
+    "penandatanganNama": "Mila Agustina",
+    "jenisBmn": "Lahan",
+    "lokasiBmn": "Pemancar RRI Palembang di Indralaya",
+    "ukuranBmn": "25 m x 17 m",
+    "luasBmn": "425m2",
+    "dasarNilai": "S-187/MK/KNL.0402/2026",
     "operatorPenutup": "Nadya Pratita",
     "tanggalTandaTangan": "2026-02-01",
     "catatan": "Judul: Sewa Menyewa Lahan di Lokasi Pemancar LPP RRI Palembang | No. Referensi: 031/RRI.PLB/PKS.U/07/2026 | BMN: Lahan | Lokasi: Pemancar RRI Palembang di Indralaya | Tujuan: Warung Makan & Rental Play Station | Luas: 425m2 | Dasar Nilai: S-187/MK/KNL.0402/2026 | Keterangan sumber: Keterlambatan Pembayaran | SPn-6",
@@ -1727,7 +1889,8 @@ export const DATA_NYATA: AppData = {
         "satuan": "Tahun",
         "tarif": 15808583,
         "jumlah": 0.5,
-        "subtotal": 7904292
+        "subtotal": 7904292,
+        "realisasi": 1.0,
       }
     ]
   },
@@ -1742,6 +1905,12 @@ export const DATA_NYATA: AppData = {
     "nilaiKontrak": 15808583,
     "status": "Aktif",
     "penanggungJawab": "Mila Agustina",
+    "penandatanganNama": "Mila Agustina",
+    "jenisBmn": "Lahan",
+    "lokasiBmn": "Pemancar RRI Palembang di Indralaya",
+    "ukuranBmn": "25 m x 17 m",
+    "luasBmn": "425m2",
+    "dasarNilai": "S-187/MK/KNL.0402/2026",
     "operatorPenutup": "Ja\'far",
     "tanggalTandaTangan": "2026-08-01",
     "catatan": "Judul: Sewa Menyewa Lahan di Lokasi Pemancar LPP RRI Palembang | No. Referensi: 032/RRI.PLB/PKS.U/07/2026 | BMN: Lahan | Lokasi: Pemancar RRI Palembang di Indralaya | Tujuan: Warung Makan & Rental Play Station | Luas: 425m2 | Dasar Nilai: S-187/MK/KNL.0402/2026 | Keterangan sumber: Pembayaran Tepat Waktu",
@@ -1759,7 +1928,8 @@ export const DATA_NYATA: AppData = {
         "satuan": "Tahun",
         "tarif": 15808583,
         "jumlah": 1,
-        "subtotal": 15808583
+        "subtotal": 15808583,
+        "realisasi": 1.0,
       }
     ]
   },
@@ -1774,6 +1944,12 @@ export const DATA_NYATA: AppData = {
     "nilaiKontrak": 4116000,
     "status": "Selesai",
     "penanggungJawab": "Herman Sawiran",
+    "penandatanganNama": "Herman Sawiran",
+    "jenisBmn": "Lahan",
+    "lokasiBmn": "Pemancar RRI Palembang di Indralaya",
+    "ukuranBmn": "10 m x 15 m",
+    "luasBmn": "150m2",
+    "dasarNilai": "S-187/MK/KNL.0402/2026",
     "operatorPenutup": "Ja\'far",
     "tanggalTandaTangan": "2026-02-01",
     "catatan": "Judul: Sewa Menyewa Lahan di Lokasi Pemancar LPP RRI Palembang | No. Referensi: 033/RRI.PLB/PKS.U/07/2026 | BMN: Lahan | Lokasi: Pemancar RRI Palembang di Indralaya | Tujuan: Bengkel Motor & Stan Minuman | Luas: 150m2 | Dasar Nilai: S-187/MK/KNL.0402/2026 | Keterangan sumber: Keterlambatan Pembayaran | SPn-6",
@@ -1791,7 +1967,8 @@ export const DATA_NYATA: AppData = {
         "satuan": "Tahun",
         "tarif": 8232000,
         "jumlah": 0.5,
-        "subtotal": 4116000
+        "subtotal": 4116000,
+        "realisasi": 1.0,
       }
     ]
   },
@@ -1806,6 +1983,12 @@ export const DATA_NYATA: AppData = {
     "nilaiKontrak": 8232000,
     "status": "Aktif",
     "penanggungJawab": "Herman Sawiran",
+    "penandatanganNama": "Herman Sawiran",
+    "jenisBmn": "Lahan",
+    "lokasiBmn": "Pemancar RRI Palembang di Indralaya",
+    "ukuranBmn": "10 m x 15 m",
+    "luasBmn": "150m2",
+    "dasarNilai": "S-187/MK/KNL.0402/2026",
     "operatorPenutup": "Dessi Maya Sari",
     "tanggalTandaTangan": "2026-08-01",
     "catatan": "Judul: Sewa Menyewa Lahan di Lokasi Pemancar LPP RRI Palembang | No. Referensi: 034/RRI.PLB/PKS.U/07/2026 | BMN: Lahan | Lokasi: Pemancar RRI Palembang di Indralaya | Tujuan: Bengkel Motor & Stan Minuman | Luas: 150m2 | Dasar Nilai: S-187/MK/KNL.0402/2026 | Keterangan sumber: Pembayaran Tepat Waktu",
@@ -1823,7 +2006,8 @@ export const DATA_NYATA: AppData = {
         "satuan": "Tahun",
         "tarif": 8232000,
         "jumlah": 1,
-        "subtotal": 8232000
+        "subtotal": 8232000,
+        "realisasi": 1.0,
       }
     ]
   },
@@ -1857,6 +2041,8 @@ export const DATA_NYATA: AppData = {
         "tarif": 45000,
         "jumlah": 95,
         "subtotal": 4275000,
+        "realisasi": 0.610526315789474,
+        "jenisWaktu": "Prime Time",
         "programa": "Programa 1"
       },
       {
@@ -1869,6 +2055,8 @@ export const DATA_NYATA: AppData = {
         "tarif": 750000,
         "jumlah": 4,
         "subtotal": 3000000,
+        "realisasi": 0.5,
+        "jenisWaktu": "Prime Time",
         "programa": "Programa 1"
       },
       {
@@ -1881,6 +2069,8 @@ export const DATA_NYATA: AppData = {
         "tarif": 350000,
         "jumlah": 2,
         "subtotal": 700000,
+        "realisasi": 0.0,
+        "jenisWaktu": "Prime Time",
         "programa": "Programa 1"
       }
     ]
@@ -1897,6 +2087,8 @@ export const DATA_NYATA: AppData = {
     "nilaiKontrak": 180000,
     "status": "Selesai",
     "penanggungJawab": "Ilham Juliando — K3 dan Keamanan",
+    "penandatanganNama": "Ilham Juliando",
+    "penandatanganJabatan": "K3 dan Keamanan",
     "operatorPenutup": "Dessi Maya Sari",
     "tanggalTandaTangan": "2026-09-22",
     "catatan": "Judul: Spot Iklan Edukasi Bahaya & Manfaat Listrik | No. Referensi: 035/RRI.PLB/PKS.F/09/2026 | Keterangan sumber: Pembayaran Tepat Waktu",
@@ -1915,6 +2107,8 @@ export const DATA_NYATA: AppData = {
         "tarif": 45000,
         "jumlah": 4,
         "subtotal": 180000,
+        "realisasi": 1.0,
+        "jenisWaktu": "Prime Time",
         "programa": "Programa 1"
       }
     ]
@@ -1931,6 +2125,8 @@ export const DATA_NYATA: AppData = {
     "nilaiKontrak": 4995000,
     "status": "Aktif",
     "penanggungJawab": "Marwan Hidayat, SE — Penyuluh Narkoba Ahli Madya",
+    "penandatanganNama": "Marwan Hidayat, SE",
+    "penandatanganJabatan": "Penyuluh Narkoba Ahli Madya",
     "operatorPenutup": "Nadya Pratita",
     "tanggalTandaTangan": "2026-10-12",
     "catatan": "Judul: Spot  Iklan Layanan Masyarakat Re-Link (Rehabilitasi Keliling) & Pindang (Pelayanan Aplikasi) | No. Referensi: 036/RRI.PLB/PKS.F/10/2026 | Realisasi kerja sama: 54% (per sumber) | Keterangan sumber: Belum Jatuh Tempo",
@@ -1949,6 +2145,8 @@ export const DATA_NYATA: AppData = {
         "tarif": 45000,
         "jumlah": 111,
         "subtotal": 4995000,
+        "realisasi": 0.540540540540541,
+        "jenisWaktu": "Prime Time",
         "programa": "Programa 1"
       }
     ]
@@ -1964,6 +2162,12 @@ export const DATA_NYATA: AppData = {
     "nilaiKontrak": 132704000,
     "status": "Aktif",
     "penanggungJawab": "Samdini",
+    "penandatanganNama": "Samdini",
+    "jenisBmn": "Lahan",
+    "lokasiBmn": "Pemancar RRI Palembang di Indralaya",
+    "ukuranBmn": "465 m x 1000 m",
+    "luasBmn": "465000m2",
+    "dasarNilai": "S-292/MK/KNL.0402/2026",
     "operatorPenutup": "Meliyana",
     "tanggalTandaTangan": "2026-09-17",
     "catatan": "Judul: Sewa Menyewa Lahan di Lokasi Pemancar LPP RRI Palembang | No. Referensi: 037/RRI.PLB/PKS.U/10/2026 | BMN: Lahan | Lokasi: Pemancar RRI Palembang di Indralaya | Tujuan: Perkebunan & Pertanian | Luas: 465000m2 | Dasar Nilai: S-292/MK/KNL.0402/2026 | Keterangan sumber: Keterlambatan Pembayaran Karena Alasan Administratif",
@@ -1981,7 +2185,8 @@ export const DATA_NYATA: AppData = {
         "satuan": "Tahun",
         "tarif": 132704000,
         "jumlah": 1,
-        "subtotal": 132704000
+        "subtotal": 132704000,
+        "realisasi": 1.0,
       }
     ]
   },
@@ -1997,6 +2202,8 @@ export const DATA_NYATA: AppData = {
     "nilaiKontrak": 2000000,
     "status": "Selesai",
     "penanggungJawab": "Amalia Fatmasari — Kepala Seksi Bimbingan Penyuluhan dan Pengelolaan Dokumen",
+    "penandatanganNama": "Amalia Fatmasari",
+    "penandatanganJabatan": "Kepala Seksi Bimbingan Penyuluhan dan Pengelolaan Dokumen",
     "operatorPenutup": "Meliyana",
     "tanggalTandaTangan": "2026-10-30",
     "catatan": "Judul: Dialog Interaktif \"Bebas Sanksi Pajak Lewat Program Pengurangan Sanksi Administrasi (PSA) : Waktunya Kepatuhan Sukarela\" | No. Referensi: 038/RRI.PLB/PKS.F/10/2026 | Keterangan sumber: Belum Jatuh Tempo",
@@ -2015,6 +2222,8 @@ export const DATA_NYATA: AppData = {
         "tarif": 2000000,
         "jumlah": 1,
         "subtotal": 2000000,
+        "realisasi": 1.0,
+        "jenisWaktu": "Prime Time",
         "programa": "Programa 1"
       }
     ]
@@ -2030,6 +2239,12 @@ export const DATA_NYATA: AppData = {
     "nilaiKontrak": 33738750,
     "status": "Aktif",
     "penanggungJawab": "Darojad",
+    "penandatanganNama": "Darojad",
+    "jenisBmn": "Lahan",
+    "lokasiBmn": "Pemancar RRI Palembang di Indralaya",
+    "ukuranBmn": "10 m x 15 m",
+    "luasBmn": "150m2",
+    "dasarNilai": "S-99/MK/KNL.0402/2025",
     "operatorPenutup": "A. Kadir Kurniawan",
     "tanggalTandaTangan": "2025-07-01",
     "catatan": "Judul: Sewa Menyewa Lahan di Lokasi Pemancar LPP RRI Palembang | BMN: Lahan | Lokasi: Pemancar RRI Palembang di Indralaya | Tujuan: Toko Kelontong,\nJasa Pengiriman\ndan Warung\nPempek | Luas: 150m2 | Dasar Nilai: S-99/MK/KNL.0402/2025 | Realisasi kerja sama: 67% (per sumber) | Keterangan sumber: Pembayaran Tepat Waktu | Sisa kontrak tahun sebelumnya (2025); pembayaran 2026 tercatat sebagai angsuran tahun berjalan.",
@@ -2047,7 +2262,8 @@ export const DATA_NYATA: AppData = {
         "satuan": "Tahun",
         "tarif": 11246250,
         "jumlah": 3,
-        "subtotal": 33738750
+        "subtotal": 33738750,
+        "realisasi": 0.666666666666667,
       }
     ]
   },
@@ -2062,6 +2278,12 @@ export const DATA_NYATA: AppData = {
     "nilaiKontrak": 51438750,
     "status": "Aktif",
     "penanggungJawab": "Loura Hardjaloka",
+    "penandatanganNama": "Loura Hardjaloka",
+    "jenisBmn": "Lahan",
+    "lokasiBmn": "Pemancar RRI Palembang di Indralaya",
+    "ukuranBmn": "2.5 m x 5 m",
+    "luasBmn": "12,5m2",
+    "dasarNilai": "S-103/MK/KNL.0402/2025",
     "operatorPenutup": "Nadya Pratita",
     "tanggalTandaTangan": "2025-08-20",
     "catatan": "Judul: Sewa Menyewa Lahan di Lokasi Kantor LPP RRI Palembang | BMN: Lahan | Lokasi: Pemancar RRI Palembang di Indralaya | Tujuan: Stasiun Pengisian Bahan Bakar Listrik | Luas: 12,5m2 | Dasar Nilai: S-103/MK/KNL.0402/2025 | Realisasi kerja sama: 67% (per sumber) | Keterangan sumber: Pembayaran Tepat Waktu | Sisa kontrak tahun sebelumnya (2025); pembayaran 2026 tercatat sebagai angsuran tahun berjalan.",
@@ -2079,7 +2301,8 @@ export const DATA_NYATA: AppData = {
         "satuan": "Tahun",
         "tarif": 17146250,
         "jumlah": 3,
-        "subtotal": 51438750
+        "subtotal": 51438750,
+        "realisasi": 0.666666666666667,
       }
     ]
   }

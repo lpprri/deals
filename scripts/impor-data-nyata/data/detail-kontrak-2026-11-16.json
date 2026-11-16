@@ -1,0 +1,1032 @@
+{
+ "order": [
+  "0603/PKS/RRI.PLB/01/2026",
+  "001/PKS/DIR.LPU/01/2026",
+  "1051/PKS/RRI.PLB/02/2026",
+  "1052/PKS/RRI.PLB/02/2026",
+  "1053/PKS/RRI.PLB/02/2026",
+  "1494/PKS/RRI.PLB/02/2026",
+  "1497/PKS/RRI.PLB/02/2026",
+  "1744/PKS/RRI.PLB/03/2026",
+  "1745/PKS/RRI.PLB/03/2026",
+  "1746/PKS/RRI.PLB/03/2026",
+  "2036/PKS/RRI.PLB/03/2026#010",
+  "2036/PKS/RRI.PLB/03/2026#011",
+  "2605/PKS/RRI.PLB/04/2026",
+  "2919/PKS/RRI.PLB/04/2026",
+  "2920/PKS/RRI.PLB/04/2026",
+  "3669/PKS/RRI.PLB/04/2026",
+  "3981/PKS/RRI.PLB/05/2026",
+  "4720/PKS/RRI.PLB/06/2026",
+  "4747/PKS/RRI.PLB/06/2026",
+  "4842/PKS/RRI.PLB/06/2026",
+  "4873/PKS/RRI.PLB/06/2026",
+  "5350/PKS/RRI.PLB/06/2026",
+  "5390/PKS/RRI.PLB/06/2026",
+  "5391/PKS/RRI.PLB/06/2026",
+  "5483/PKS/RRI.PLB/06/2026",
+  "5484/PKS/RRI.PLB/06/2026",
+  "5592/PKS/RRI.PLB/06/2026",
+  "6593/PKS/RRI.PLB/07/2026",
+  "7051/PKS/RRI.PLB/07/2026",
+  "7052/PKS/RRI.PLB/07/2026",
+  "7053/PKS/RRI.PLB/07/2026",
+  "7054/PKS/RRI.PLB/07/2026",
+  "7055/PKS/RRI.PLB/07/2026",
+  "7060/PKS/RRI.PLB/07/2026",
+  "7061/PKS/RRI.PLB/07/2026",
+  "018/PKS/DIR.LPU/08/2026",
+  "1158/PKS/RRI.PLB/10/2026",
+  "10227/PKS/RRI.PLB/10/2026",
+  "10828/PKS/RRI.PLB/10/2026",
+  "11290/PKS/RRI.PLB/10/2026",
+  "027/RRI.PLB/PKS.U/06/2025",
+  "016/PKS/DIR.LPU/06/2025"
+ ],
+ "data": {
+  "0603/PKS/RRI.PLB/01/2026": {
+   "nomorPks": "0603/PKS/RRI.PLB/01/2026",
+   "penandatanganNama": "Ilham Juliando",
+   "penandatanganJabatan": "K3 dan Keamanan PLN UPT Palembang",
+   "layanan": [
+    {
+     "detail": "Siaran Iklan (Spot)",
+     "programa": "Programa 1",
+     "jenisWaktu": "Prime Time",
+     "kuantiti": 6,
+     "satuan": "Menit",
+     "tarif": 45000,
+     "subtotal": 270000,
+     "realisasi": 1
+    }
+   ],
+   "jenisBmn": null,
+   "lokasiBmn": null,
+   "ukuranBmn": null,
+   "luasBmn": null,
+   "dasarNilai": null
+  },
+  "001/PKS/DIR.LPU/01/2026": {
+   "nomorPks": "001/PKS/DIR.LPU/01/2026",
+   "penandatanganNama": "Henra",
+   "penandatanganJabatan": "Corporate Secretary",
+   "layanan": [
+    {
+     "detail": "Adlibs",
+     "programa": "Programa 1",
+     "jenisWaktu": "Prime Time",
+     "kuantiti": 31,
+     "satuan": "Menit",
+     "tarif": 50000,
+     "subtotal": 1550000,
+     "realisasi": 1
+    }
+   ],
+   "jenisBmn": null,
+   "lokasiBmn": null,
+   "ukuranBmn": null,
+   "luasBmn": null,
+   "dasarNilai": null
+  },
+  "1051/PKS/RRI.PLB/02/2026": {
+   "nomorPks": "1051/PKS/RRI.PLB/02/2026",
+   "penandatanganNama": "Aminul Khair",
+   "penandatanganJabatan": null,
+   "layanan": [
+    {
+     "detail": "-",
+     "programa": null,
+     "jenisWaktu": null,
+     "kuantiti": 3,
+     "satuan": "Tahun",
+     "tarif": 6455000,
+     "subtotal": 19365000,
+     "realisasi": 0.333333333333333
+    }
+   ],
+   "jenisBmn": "Lahan",
+   "lokasiBmn": "Pemancar RRI Palembang di Indralaya",
+   "ukuranBmn": "4 m x 20 m",
+   "luasBmn": "80m2",
+   "dasarNilai": "S-476/MK/KNL.0402/2025"
+  },
+  "1052/PKS/RRI.PLB/02/2026": {
+   "nomorPks": "1052/PKS/RRI.PLB/02/2026",
+   "penandatanganNama": "Meily Oktarina",
+   "penandatanganJabatan": null,
+   "layanan": [
+    {
+     "detail": "-",
+     "programa": null,
+     "jenisWaktu": null,
+     "kuantiti": 3,
+     "satuan": "Tahun",
+     "tarif": 6455000,
+     "subtotal": 19365000,
+     "realisasi": 0.333333333333333
+    }
+   ],
+   "jenisBmn": "Lahan",
+   "lokasiBmn": "Pemancar RRI Palembang di Indralaya",
+   "ukuranBmn": "4 m x 20 m",
+   "luasBmn": "80m2",
+   "dasarNilai": "S-476/MK/KNL.0402/2025"
+  },
+  "1053/PKS/RRI.PLB/02/2026": {
+   "nomorPks": "1053/PKS/RRI.PLB/02/2026",
+   "penandatanganNama": "Dierga Salomon Riezki, S.STP",
+   "penandatanganJabatan": null,
+   "layanan": [
+    {
+     "detail": "-",
+     "programa": null,
+     "jenisWaktu": null,
+     "kuantiti": 3,
+     "satuan": "Tahun",
+     "tarif": 5648000,
+     "subtotal": 16944000,
+     "realisasi": 0.333333333333333
+    }
+   ],
+   "jenisBmn": "Lahan",
+   "lokasiBmn": "Pemancar RRI Palembang di Indralaya",
+   "ukuranBmn": "3.5 m x 20 m",
+   "luasBmn": "70m2",
+   "dasarNilai": "S-476/MK/KNL.0402/2025"
+  },
+  "1494/PKS/RRI.PLB/02/2026": {
+   "nomorPks": "1494/PKS/RRI.PLB/02/2026",
+   "penandatanganNama": "Abdul Rozak Rusdy",
+   "penandatanganJabatan": null,
+   "layanan": [
+    {
+     "detail": "-",
+     "programa": null,
+     "jenisWaktu": null,
+     "kuantiti": 1,
+     "satuan": "Tahun",
+     "tarif": 9019000,
+     "subtotal": 9019000,
+     "realisasi": 1
+    }
+   ],
+   "jenisBmn": "Lahan",
+   "lokasiBmn": "Pemancar RRI Palembang di Indralaya",
+   "ukuranBmn": "100 m x 173 m",
+   "luasBmn": "17300m2",
+   "dasarNilai": "S-477/MK/KNL.0402/2025"
+  },
+  "1497/PKS/RRI.PLB/02/2026": {
+   "nomorPks": "1497/PKS/RRI.PLB/02/2026",
+   "penandatanganNama": "Assef Hidayat",
+   "penandatanganJabatan": null,
+   "layanan": [
+    {
+     "detail": "-",
+     "programa": null,
+     "jenisWaktu": null,
+     "kuantiti": 1,
+     "satuan": "Tahun",
+     "tarif": 6536000,
+     "subtotal": 6536000,
+     "realisasi": 1
+    }
+   ],
+   "jenisBmn": "Lahan",
+   "lokasiBmn": "Pemancar RRI Palembang di Indralaya",
+   "ukuranBmn": "5 m x 20 m",
+   "luasBmn": "100m2",
+   "dasarNilai": "S-477/MK/KNL.0402/2025"
+  },
+  "1744/PKS/RRI.PLB/03/2026": {
+   "nomorPks": "1744/PKS/RRI.PLB/03/2026",
+   "penandatanganNama": "Haryati Alfat",
+   "penandatanganJabatan": "Kepala Bidang Pengelola Komunikasi Publik",
+   "layanan": [
+    {
+     "detail": "Greeting / Tanda Waktu (Time Signal)",
+     "programa": "Programa 1",
+     "jenisWaktu": "Prime Time",
+     "kuantiti": 150,
+     "satuan": "Menit",
+     "tarif": 100000,
+     "subtotal": 15000000,
+     "realisasi": 1
+    }
+   ],
+   "jenisBmn": null,
+   "lokasiBmn": null,
+   "ukuranBmn": null,
+   "luasBmn": null,
+   "dasarNilai": null
+  },
+  "1745/PKS/RRI.PLB/03/2026": {
+   "nomorPks": "1745/PKS/RRI.PLB/03/2026",
+   "penandatanganNama": "Titin Yariyanti, S.Pd., M.Si",
+   "penandatanganJabatan": "Kepala Bidang Informasi Komunikasi Publik",
+   "layanan": [
+    {
+     "detail": "Greeting / Tanda Waktu (Time Signal)",
+     "programa": "Programa 1",
+     "jenisWaktu": "Prime Time",
+     "kuantiti": 50,
+     "satuan": "Menit",
+     "tarif": 100000,
+     "subtotal": 5000000,
+     "realisasi": 1
+    }
+   ],
+   "jenisBmn": null,
+   "lokasiBmn": null,
+   "ukuranBmn": null,
+   "luasBmn": null,
+   "dasarNilai": null
+  },
+  "1746/PKS/RRI.PLB/03/2026": {
+   "nomorPks": "1746/PKS/RRI.PLB/03/2026",
+   "penandatanganNama": "Jerry Rinoldy, S.T., M.T",
+   "penandatanganJabatan": "Kepala Bidang Komunikasi Publik",
+   "layanan": [
+    {
+     "detail": "Greeting / Tanda Waktu (Time Signal)",
+     "programa": "Programa 1",
+     "jenisWaktu": "Prime Time",
+     "kuantiti": 30,
+     "satuan": "Menit",
+     "tarif": 100000,
+     "subtotal": 3000000,
+     "realisasi": 1
+    }
+   ],
+   "jenisBmn": null,
+   "lokasiBmn": null,
+   "ukuranBmn": null,
+   "luasBmn": null,
+   "dasarNilai": null
+  },
+  "2036/PKS/RRI.PLB/03/2026#010": {
+   "nomorPks": "2036/PKS/RRI.PLB/03/2026",
+   "penandatanganNama": "Tommy Andika",
+   "penandatanganJabatan": "Pengelola Bisnis Dana Jasa & Tresury Komersial & Institusi Syariah",
+   "layanan": [
+    {
+     "detail": "Greeting / Tanda Waktu (Time Signal)",
+     "programa": "Programa 1",
+     "jenisWaktu": "Prime Time",
+     "kuantiti": 75,
+     "satuan": "Menit",
+     "tarif": 100000,
+     "subtotal": 7500000,
+     "realisasi": 1
+    }
+   ],
+   "jenisBmn": null,
+   "lokasiBmn": null,
+   "ukuranBmn": null,
+   "luasBmn": null,
+   "dasarNilai": null
+  },
+  "2036/PKS/RRI.PLB/03/2026#011": {
+   "nomorPks": "2036/PKS/RRI.PLB/03/2026",
+   "penandatanganNama": "Yossie N.",
+   "penandatanganJabatan": "Kepala Unit Kehumasan",
+   "layanan": [
+    {
+     "detail": "Greeting / Tanda Waktu (Time Signal)",
+     "programa": "Programa 1",
+     "jenisWaktu": "Prime Time",
+     "kuantiti": 62,
+     "satuan": "Menit",
+     "tarif": 100000,
+     "subtotal": 6200000,
+     "realisasi": 1
+    }
+   ],
+   "jenisBmn": null,
+   "lokasiBmn": null,
+   "ukuranBmn": null,
+   "luasBmn": null,
+   "dasarNilai": null
+  },
+  "2605/PKS/RRI.PLB/04/2026": {
+   "nomorPks": "2605/PKS/RRI.PLB/04/2026",
+   "penandatanganNama": "Sahbani",
+   "penandatanganJabatan": "Pejabat Pembuat Komitmen",
+   "layanan": [
+    {
+     "detail": "Siaran Iklan (Spot)",
+     "programa": "Programa 1",
+     "jenisWaktu": "Prime Time",
+     "kuantiti": 90,
+     "satuan": "Menit",
+     "tarif": 45000,
+     "subtotal": 4050000,
+     "realisasi": 1
+    }
+   ],
+   "jenisBmn": null,
+   "lokasiBmn": null,
+   "ukuranBmn": null,
+   "luasBmn": null,
+   "dasarNilai": null
+  },
+  "2919/PKS/RRI.PLB/04/2026": {
+   "nomorPks": "2919/PKS/RRI.PLB/04/2026",
+   "penandatanganNama": "Zakiah, S.E, M.M",
+   "penandatanganJabatan": "Kepala Dinas",
+   "layanan": [
+    {
+     "detail": "Greeting / Tanda Waktu (Time Signal)",
+     "programa": "Programa 1",
+     "jenisWaktu": "Prime Time",
+     "kuantiti": 15,
+     "satuan": "Menit",
+     "tarif": 100000,
+     "subtotal": 1500000,
+     "realisasi": 1
+    }
+   ],
+   "jenisBmn": null,
+   "lokasiBmn": null,
+   "ukuranBmn": null,
+   "luasBmn": null,
+   "dasarNilai": null
+  },
+  "2920/PKS/RRI.PLB/04/2026": {
+   "nomorPks": "2920/PKS/RRI.PLB/04/2026",
+   "penandatanganNama": "Andi Amijaya",
+   "penandatanganJabatan": "Branch Manager",
+   "layanan": [
+    {
+     "detail": "Greeting / Tanda Waktu (Time Signal)",
+     "programa": "Programa 1",
+     "jenisWaktu": "Prime Time",
+     "kuantiti": 10,
+     "satuan": "Menit",
+     "tarif": 100000,
+     "subtotal": 1000000,
+     "realisasi": 1
+    }
+   ],
+   "jenisBmn": null,
+   "lokasiBmn": null,
+   "ukuranBmn": null,
+   "luasBmn": null,
+   "dasarNilai": null
+  },
+  "3669/PKS/RRI.PLB/04/2026": {
+   "nomorPks": "3669/PKS/RRI.PLB/04/2026",
+   "penandatanganNama": "Amalia Fatmasari",
+   "penandatanganJabatan": "Kepala Seksi Bimbingan Penyuluhan dan Pengelolaan Dokumen",
+   "layanan": [
+    {
+     "detail": "Dialog Interaktif Dalam Studio",
+     "programa": "Programa 1",
+     "jenisWaktu": "Prime Time",
+     "kuantiti": 1,
+     "satuan": "Jam",
+     "tarif": 2000000,
+     "subtotal": 2000000,
+     "realisasi": 1
+    }
+   ],
+   "jenisBmn": null,
+   "lokasiBmn": null,
+   "ukuranBmn": null,
+   "luasBmn": null,
+   "dasarNilai": null
+  },
+  "3981/PKS/RRI.PLB/05/2026": {
+   "nomorPks": "3981/PKS/RRI.PLB/05/2026",
+   "penandatanganNama": "Ilham Juliando",
+   "penandatanganJabatan": "K3 dan Keamanan",
+   "layanan": [
+    {
+     "detail": "Siaran Iklan (Spot)",
+     "programa": "Programa 1",
+     "jenisWaktu": "Prime Time",
+     "kuantiti": 6,
+     "satuan": "Menit",
+     "tarif": 45000,
+     "subtotal": 270000,
+     "realisasi": 1
+    }
+   ],
+   "jenisBmn": null,
+   "lokasiBmn": null,
+   "ukuranBmn": null,
+   "luasBmn": null,
+   "dasarNilai": null
+  },
+  "4720/PKS/RRI.PLB/06/2026": {
+   "nomorPks": "4720/PKS/RRI.PLB/06/2026",
+   "penandatanganNama": "Arip",
+   "penandatanganJabatan": null,
+   "layanan": [
+    {
+     "detail": "-",
+     "programa": null,
+     "jenisWaktu": null,
+     "kuantiti": 1,
+     "satuan": "Tahun",
+     "tarif": 5320000,
+     "subtotal": 5320000,
+     "realisasi": 1
+    }
+   ],
+   "jenisBmn": "Lahan",
+   "lokasiBmn": "Pemancar RRI Palembang di Indralaya",
+   "ukuranBmn": "4.5 m x 20 m",
+   "luasBmn": "90m2",
+   "dasarNilai": "S-66/MK/KNL.0402/2026"
+  },
+  "4747/PKS/RRI.PLB/06/2026": {
+   "nomorPks": "4747/PKS/RRI.PLB/06/2026",
+   "penandatanganNama": "Yusheni",
+   "penandatanganJabatan": "Account Executive",
+   "layanan": [
+    {
+     "detail": "Instagram Reels",
+     "programa": "@rri.palembang",
+     "jenisWaktu": null,
+     "kuantiti": 1,
+     "satuan": "Periode",
+     "tarif": 200000,
+     "subtotal": 200000,
+     "realisasi": 1
+    }
+   ],
+   "jenisBmn": null,
+   "lokasiBmn": null,
+   "ukuranBmn": null,
+   "luasBmn": null,
+   "dasarNilai": null
+  },
+  "4842/PKS/RRI.PLB/06/2026": {
+   "nomorPks": "4842/PKS/RRI.PLB/06/2026",
+   "penandatanganNama": "M. Joni Rusli",
+   "penandatanganJabatan": "Ketua",
+   "layanan": [
+    {
+     "detail": "Siaran Iklan (Spot)",
+     "programa": "Programa 1",
+     "jenisWaktu": "Prime Time",
+     "kuantiti": 90,
+     "satuan": "Menit",
+     "tarif": 45000,
+     "subtotal": 4050000,
+     "realisasi": 1
+    }
+   ],
+   "jenisBmn": null,
+   "lokasiBmn": null,
+   "ukuranBmn": null,
+   "luasBmn": null,
+   "dasarNilai": null
+  },
+  "4873/PKS/RRI.PLB/06/2026": {
+   "nomorPks": "4873/PKS/RRI.PLB/06/2026",
+   "penandatanganNama": "Uus Firdaus",
+   "penandatanganJabatan": "Marketing Manager",
+   "layanan": [
+    {
+     "detail": "Siaran Iklan (Spot)",
+     "programa": "Programa 1",
+     "jenisWaktu": "Prime Time",
+     "kuantiti": 22,
+     "satuan": "Menit",
+     "tarif": 45000,
+     "subtotal": 990000,
+     "realisasi": 1
+    }
+   ],
+   "jenisBmn": null,
+   "lokasiBmn": null,
+   "ukuranBmn": null,
+   "luasBmn": null,
+   "dasarNilai": null
+  },
+  "5350/PKS/RRI.PLB/06/2026": {
+   "nomorPks": "5350/PKS/RRI.PLB/06/2026",
+   "penandatanganNama": "Dr. Jalaluddin, MPSA",
+   "penandatanganJabatan": "Direktur ASMA",
+   "layanan": [
+    {
+     "detail": "-",
+     "programa": null,
+     "jenisWaktu": null,
+     "kuantiti": 1,
+     "satuan": "Hari",
+     "tarif": 3056000,
+     "subtotal": 3056000,
+     "realisasi": 1
+    }
+   ],
+   "jenisBmn": "Aula",
+   "lokasiBmn": "Kantor RRI Palembang",
+   "ukuranBmn": "10 m x 29.94 m",
+   "luasBmn": "299,4m2",
+   "dasarNilai": "S-81/MK.6/KNL.0402/2025"
+  },
+  "5390/PKS/RRI.PLB/06/2026": {
+   "nomorPks": "5390/PKS/RRI.PLB/06/2026",
+   "penandatanganNama": "Evin Melliniya Angel Putri, S.STP",
+   "penandatanganJabatan": "Ketua Tim Humas Protokol dan Publikasi",
+   "layanan": [
+    {
+     "detail": "Greeting / Tanda Waktu (Time Signal)",
+     "programa": "Programa 1",
+     "jenisWaktu": "Prime Time",
+     "kuantiti": 5,
+     "satuan": "Menit",
+     "tarif": 100000,
+     "subtotal": 500000,
+     "realisasi": 1
+    },
+    {
+     "detail": "Siaran Langsung",
+     "programa": "Programa 1",
+     "jenisWaktu": "Prime Time",
+     "kuantiti": 1,
+     "satuan": "Jam",
+     "tarif": 2000000,
+     "subtotal": 2000000,
+     "realisasi": null
+    },
+    {
+     "detail": "Siaran Langsung YouTube",
+     "programa": "RRI Palembang",
+     "jenisWaktu": null,
+     "kuantiti": 1,
+     "satuan": "Jam",
+     "tarif": 1000000,
+     "subtotal": 1000000,
+     "realisasi": null
+    }
+   ],
+   "jenisBmn": null,
+   "lokasiBmn": null,
+   "ukuranBmn": null,
+   "luasBmn": null,
+   "dasarNilai": null
+  },
+  "5391/PKS/RRI.PLB/06/2026": {
+   "nomorPks": "5391/PKS/RRI.PLB/06/2026",
+   "penandatanganNama": "Ericka Lestari Dewi A.",
+   "penandatanganJabatan": "Lead Field Relations Support Medco E&P Indonesia",
+   "layanan": [
+    {
+     "detail": "Adlibs",
+     "programa": "Programa 2",
+     "jenisWaktu": "Prime Time",
+     "kuantiti": 10,
+     "satuan": "Menit",
+     "tarif": 50000,
+     "subtotal": 500000,
+     "realisasi": 1
+    },
+    {
+     "detail": "Dialog Interaktif Luar Studio",
+     "programa": "Programa 2",
+     "jenisWaktu": "Prime Time",
+     "kuantiti": 1,
+     "satuan": "Jam",
+     "tarif": 2000000,
+     "subtotal": 2000000,
+     "realisasi": null
+    },
+    {
+     "detail": "Siaran Langsung YouTube",
+     "programa": "RRI Palembang",
+     "jenisWaktu": null,
+     "kuantiti": 1,
+     "satuan": "Jam",
+     "tarif": 1000000,
+     "subtotal": 1000000,
+     "realisasi": null
+    }
+   ],
+   "jenisBmn": null,
+   "lokasiBmn": null,
+   "ukuranBmn": null,
+   "luasBmn": null,
+   "dasarNilai": null
+  },
+  "5483/PKS/RRI.PLB/06/2026": {
+   "nomorPks": "5483/PKS/RRI.PLB/06/2026",
+   "penandatanganNama": "Sahbani",
+   "penandatanganJabatan": "Pejabat Pembuat Komitmen",
+   "layanan": [
+    {
+     "detail": "Siaran Iklan (Spot)",
+     "programa": "Programa 1",
+     "jenisWaktu": "Prime Time",
+     "kuantiti": 90,
+     "satuan": "Menit",
+     "tarif": 45000,
+     "subtotal": 4050000,
+     "realisasi": 1
+    }
+   ],
+   "jenisBmn": null,
+   "lokasiBmn": null,
+   "ukuranBmn": null,
+   "luasBmn": null,
+   "dasarNilai": null
+  },
+  "5484/PKS/RRI.PLB/06/2026": {
+   "nomorPks": "5484/PKS/RRI.PLB/06/2026",
+   "penandatanganNama": "Yossie N.",
+   "penandatanganJabatan": "Kepala Unit Kehumasan",
+   "layanan": [
+    {
+     "detail": "Dialog Interaktif Dalam Studio",
+     "programa": "Programa 2",
+     "jenisWaktu": "Prime Time",
+     "kuantiti": 1,
+     "satuan": "Jam",
+     "tarif": 2000000,
+     "subtotal": 2000000,
+     "realisasi": 1
+    }
+   ],
+   "jenisBmn": null,
+   "lokasiBmn": null,
+   "ukuranBmn": null,
+   "luasBmn": null,
+   "dasarNilai": null
+  },
+  "5592/PKS/RRI.PLB/06/2026": {
+   "nomorPks": "5592/PKS/RRI.PLB/06/2026",
+   "penandatanganNama": "Theodora Stefany",
+   "penandatanganJabatan": "Asistent Manajer",
+   "layanan": [
+    {
+     "detail": "Adlibs",
+     "programa": "Programa 2",
+     "jenisWaktu": "Prime Time",
+     "kuantiti": 20,
+     "satuan": "Menit",
+     "tarif": 50000,
+     "subtotal": 1000000,
+     "realisasi": 1
+    }
+   ],
+   "jenisBmn": null,
+   "lokasiBmn": null,
+   "ukuranBmn": null,
+   "luasBmn": null,
+   "dasarNilai": null
+  },
+  "6593/PKS/RRI.PLB/07/2026": {
+   "nomorPks": "6593/PKS/RRI.PLB/07/2026",
+   "penandatanganNama": "Andi Ina Sarinah",
+   "penandatanganJabatan": "TA Kabid Kowani dan PIM",
+   "layanan": [
+    {
+     "detail": "Dialog Interaktif Dalam Studio",
+     "programa": "Programa 1",
+     "jenisWaktu": "Prime Time",
+     "kuantiti": 1,
+     "satuan": "Jam",
+     "tarif": 2000000,
+     "subtotal": 2000000,
+     "realisasi": 1
+    }
+   ],
+   "jenisBmn": null,
+   "lokasiBmn": null,
+   "ukuranBmn": null,
+   "luasBmn": null,
+   "dasarNilai": null
+  },
+  "7051/PKS/RRI.PLB/07/2026": {
+   "nomorPks": "7051/PKS/RRI.PLB/07/2026",
+   "penandatanganNama": "Faridah Hanum",
+   "penandatanganJabatan": null,
+   "layanan": [
+    {
+     "detail": "-",
+     "programa": null,
+     "jenisWaktu": null,
+     "kuantiti": 1,
+     "satuan": "Tahun",
+     "tarif": 6536000,
+     "subtotal": 6536000,
+     "realisasi": 1
+    }
+   ],
+   "jenisBmn": "Lahan",
+   "lokasiBmn": "Pemancar RRI Palembang di Indralaya",
+   "ukuranBmn": "5 m x 20 m",
+   "luasBmn": "100m2",
+   "dasarNilai": "S-187/MK/KNL.0402/2026"
+  },
+  "7052/PKS/RRI.PLB/07/2026": {
+   "nomorPks": "7052/PKS/RRI.PLB/07/2026",
+   "penandatanganNama": "Fisol Jailani",
+   "penandatanganJabatan": null,
+   "layanan": [
+    {
+     "detail": "-",
+     "programa": null,
+     "jenisWaktu": null,
+     "kuantiti": 0.5,
+     "satuan": "Tahun",
+     "tarif": 12000000,
+     "subtotal": 6000000,
+     "realisasi": 1
+    }
+   ],
+   "jenisBmn": "Lahan",
+   "lokasiBmn": "Pemancar RRI Palembang di Indralaya",
+   "ukuranBmn": "15 m x 14 m",
+   "luasBmn": "210m2",
+   "dasarNilai": "S-187/MK/KNL.0402/2026"
+  },
+  "7053/PKS/RRI.PLB/07/2026": {
+   "nomorPks": "7053/PKS/RRI.PLB/07/2026",
+   "penandatanganNama": "Fisol Jailani",
+   "penandatanganJabatan": null,
+   "layanan": [
+    {
+     "detail": "-",
+     "programa": null,
+     "jenisWaktu": null,
+     "kuantiti": 1,
+     "satuan": "Tahun",
+     "tarif": 12000000,
+     "subtotal": 12000000,
+     "realisasi": 1
+    }
+   ],
+   "jenisBmn": "Lahan",
+   "lokasiBmn": "Pemancar RRI Palembang di Indralaya",
+   "ukuranBmn": "15 m x 14 m",
+   "luasBmn": "210m2",
+   "dasarNilai": "S-187/MK/KNL.0402/2026"
+  },
+  "7054/PKS/RRI.PLB/07/2026": {
+   "nomorPks": "7054/PKS/RRI.PLB/07/2026",
+   "penandatanganNama": "Mila Agustina",
+   "penandatanganJabatan": null,
+   "layanan": [
+    {
+     "detail": "-",
+     "programa": null,
+     "jenisWaktu": null,
+     "kuantiti": 0.5,
+     "satuan": "Tahun",
+     "tarif": 15808583,
+     "subtotal": 7904291.5,
+     "realisasi": 1
+    }
+   ],
+   "jenisBmn": "Lahan",
+   "lokasiBmn": "Pemancar RRI Palembang di Indralaya",
+   "ukuranBmn": "25 m x 17 m",
+   "luasBmn": "425m2",
+   "dasarNilai": "S-187/MK/KNL.0402/2026"
+  },
+  "7055/PKS/RRI.PLB/07/2026": {
+   "nomorPks": "7055/PKS/RRI.PLB/07/2026",
+   "penandatanganNama": "Mila Agustina",
+   "penandatanganJabatan": null,
+   "layanan": [
+    {
+     "detail": "-",
+     "programa": null,
+     "jenisWaktu": null,
+     "kuantiti": 1,
+     "satuan": "Tahun",
+     "tarif": 15808583,
+     "subtotal": 15808583,
+     "realisasi": 1
+    }
+   ],
+   "jenisBmn": "Lahan",
+   "lokasiBmn": "Pemancar RRI Palembang di Indralaya",
+   "ukuranBmn": "25 m x 17 m",
+   "luasBmn": "425m2",
+   "dasarNilai": "S-187/MK/KNL.0402/2026"
+  },
+  "7060/PKS/RRI.PLB/07/2026": {
+   "nomorPks": "7060/PKS/RRI.PLB/07/2026",
+   "penandatanganNama": "Herman Sawiran",
+   "penandatanganJabatan": null,
+   "layanan": [
+    {
+     "detail": "-",
+     "programa": null,
+     "jenisWaktu": null,
+     "kuantiti": 0.5,
+     "satuan": "Tahun",
+     "tarif": 8232000,
+     "subtotal": 4116000,
+     "realisasi": 1
+    }
+   ],
+   "jenisBmn": "Lahan",
+   "lokasiBmn": "Pemancar RRI Palembang di Indralaya",
+   "ukuranBmn": "10 m x 15 m",
+   "luasBmn": "150m2",
+   "dasarNilai": "S-187/MK/KNL.0402/2026"
+  },
+  "7061/PKS/RRI.PLB/07/2026": {
+   "nomorPks": "7061/PKS/RRI.PLB/07/2026",
+   "penandatanganNama": "Herman Sawiran",
+   "penandatanganJabatan": null,
+   "layanan": [
+    {
+     "detail": "-",
+     "programa": null,
+     "jenisWaktu": null,
+     "kuantiti": 1,
+     "satuan": "Tahun",
+     "tarif": 8232000,
+     "subtotal": 8232000,
+     "realisasi": 1
+    }
+   ],
+   "jenisBmn": "Lahan",
+   "lokasiBmn": "Pemancar RRI Palembang di Indralaya",
+   "ukuranBmn": "10 m x 15 m",
+   "luasBmn": "150m2",
+   "dasarNilai": "S-187/MK/KNL.0402/2026"
+  },
+  "018/PKS/DIR.LPU/08/2026": {
+   "nomorPks": "018/PKS/DIR.LPU/08/2026",
+   "penandatanganNama": null,
+   "penandatanganJabatan": null,
+   "layanan": [
+    {
+     "detail": "Siaran Iklan (Spot)",
+     "programa": "Programa 1",
+     "jenisWaktu": "Prime Time",
+     "kuantiti": 95,
+     "satuan": "Menit",
+     "tarif": 45000,
+     "subtotal": 4275000,
+     "realisasi": 0.610526315789474
+    },
+    {
+     "detail": "Sandiwara Radio / Majalah Udara",
+     "programa": "Programa 1",
+     "jenisWaktu": "Prime Time",
+     "kuantiti": 4,
+     "satuan": "10 Menit",
+     "tarif": 750000,
+     "subtotal": 3000000,
+     "realisasi": 0.5
+    },
+    {
+     "detail": "Feauture",
+     "programa": "Programa 1",
+     "jenisWaktu": "Prime Time",
+     "kuantiti": 2,
+     "satuan": "7 Menit",
+     "tarif": 350000,
+     "subtotal": 700000,
+     "realisasi": 0
+    }
+   ],
+   "jenisBmn": null,
+   "lokasiBmn": null,
+   "ukuranBmn": null,
+   "luasBmn": null,
+   "dasarNilai": null
+  },
+  "1158/PKS/RRI.PLB/10/2026": {
+   "nomorPks": "1158/PKS/RRI.PLB/10/2026",
+   "penandatanganNama": "Ilham Juliando",
+   "penandatanganJabatan": "K3 dan Keamanan",
+   "layanan": [
+    {
+     "detail": "Siaran Iklan (Spot)",
+     "programa": "Programa 1",
+     "jenisWaktu": "Prime Time",
+     "kuantiti": 4,
+     "satuan": "Menit",
+     "tarif": 45000,
+     "subtotal": 180000,
+     "realisasi": 1
+    }
+   ],
+   "jenisBmn": null,
+   "lokasiBmn": null,
+   "ukuranBmn": null,
+   "luasBmn": null,
+   "dasarNilai": null
+  },
+  "10227/PKS/RRI.PLB/10/2026": {
+   "nomorPks": "10227/PKS/RRI.PLB/10/2026",
+   "penandatanganNama": "Marwan Hidayat, SE",
+   "penandatanganJabatan": "Penyuluh Narkoba Ahli Madya",
+   "layanan": [
+    {
+     "detail": "Siaran Iklan (Spot)",
+     "programa": "Programa 1",
+     "jenisWaktu": "Prime Time",
+     "kuantiti": 111,
+     "satuan": "Menit",
+     "tarif": 45000,
+     "subtotal": 4995000,
+     "realisasi": 0.540540540540541
+    }
+   ],
+   "jenisBmn": null,
+   "lokasiBmn": null,
+   "ukuranBmn": null,
+   "luasBmn": null,
+   "dasarNilai": null
+  },
+  "10828/PKS/RRI.PLB/10/2026": {
+   "nomorPks": "10828/PKS/RRI.PLB/10/2026",
+   "penandatanganNama": "Samdini",
+   "penandatanganJabatan": null,
+   "layanan": [
+    {
+     "detail": "-",
+     "programa": null,
+     "jenisWaktu": null,
+     "kuantiti": 1,
+     "satuan": "Tahun",
+     "tarif": 132704000,
+     "subtotal": 132704000,
+     "realisasi": 1
+    }
+   ],
+   "jenisBmn": "Lahan",
+   "lokasiBmn": "Pemancar RRI Palembang di Indralaya",
+   "ukuranBmn": "465 m x 1000 m",
+   "luasBmn": "465000m2",
+   "dasarNilai": "S-292/MK/KNL.0402/2026"
+  },
+  "11290/PKS/RRI.PLB/10/2026": {
+   "nomorPks": "11290/PKS/RRI.PLB/10/2026",
+   "penandatanganNama": "Amalia Fatmasari",
+   "penandatanganJabatan": "Kepala Seksi Bimbingan Penyuluhan dan Pengelolaan Dokumen",
+   "layanan": [
+    {
+     "detail": "Dialog Interaktif Dalam Studio",
+     "programa": "Programa 1",
+     "jenisWaktu": "Prime Time",
+     "kuantiti": 1,
+     "satuan": "Jam",
+     "tarif": 2000000,
+     "subtotal": 2000000,
+     "realisasi": 1
+    }
+   ],
+   "jenisBmn": null,
+   "lokasiBmn": null,
+   "ukuranBmn": null,
+   "luasBmn": null,
+   "dasarNilai": null
+  },
+  "027/RRI.PLB/PKS.U/06/2025": {
+   "nomorPks": "027/RRI.PLB/PKS.U/06/2025",
+   "penandatanganNama": "Darojad",
+   "penandatanganJabatan": null,
+   "layanan": [
+    {
+     "detail": "-",
+     "programa": null,
+     "jenisWaktu": null,
+     "kuantiti": 3,
+     "satuan": "Tahun",
+     "tarif": 11246250,
+     "subtotal": 33738750,
+     "realisasi": 0.666666666666667
+    }
+   ],
+   "jenisBmn": "Lahan",
+   "lokasiBmn": "Pemancar RRI Palembang di Indralaya",
+   "ukuranBmn": "10 m x 15 m",
+   "luasBmn": "150m2",
+   "dasarNilai": "S-99/MK/KNL.0402/2025"
+  },
+  "016/PKS/DIR.LPU/06/2025": {
+   "nomorPks": "016/PKS/DIR.LPU/06/2025",
+   "penandatanganNama": "Loura Hardjaloka",
+   "penandatanganJabatan": null,
+   "layanan": [
+    {
+     "detail": "-",
+     "programa": null,
+     "jenisWaktu": null,
+     "kuantiti": 3,
+     "satuan": "Tahun",
+     "tarif": 17146250,
+     "subtotal": 51438750,
+     "realisasi": 0.666666666666667
+    }
+   ],
+   "jenisBmn": "Lahan",
+   "lokasiBmn": "Pemancar RRI Palembang di Indralaya",
+   "ukuranBmn": "2.5 m x 5 m",
+   "luasBmn": "12,5m2",
+   "dasarNilai": "S-103/MK/KNL.0402/2025"
+  }
+ }
+}

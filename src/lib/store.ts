@@ -340,6 +340,14 @@ export interface ModulProps {
   actions: StoreActions;
   /** Kata kunci pencarian global dari top bar. */
   cari: string;
+  /**
+   * Klien yang harus terpilih saat menu Clients dibuka dari Detail
+   * Kontrak (nama klien bisa diklik, keputusan draft 16/11/2026).
+   * Diatur App.tsx; MenuKlien menyelaraskan pilihan lokalnya.
+   */
+  klienIdTerpilihLuar?: string | null;
+  /** Navigasi ke menu Clients dengan klien tertentu terpilih. */
+  onNavigasiKlien?: (klienId: string) => void;
 }
 
 export type {
