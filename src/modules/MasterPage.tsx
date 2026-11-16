@@ -38,6 +38,14 @@ import {
   labelTahapPipeline,
   labelUraianKodeAkun,
 } from '../lib/labels';
+import { formatRupiah } from '../lib/format';
+import { KOLEKSI_REMIGRASI } from '../lib/remigrasiRencana';
+import type {
+  HasilRemigrasi,
+  KemajuanRemigrasi,
+  TahapRemigrasi,
+} from '../lib/remigrasi';
+import type { PratinjauRemigrasi } from '../lib/remigrasiRencana';
 import {
   Baris,
   JudulBagian,
@@ -92,6 +100,24 @@ export interface MasterPageProps extends ModulProps {
   statusMigrasi?: 'belum' | 'sudah' | 'tidak-tersedia';
   /** Tanggal migrasi (bila diketahui dari luar sesi ini). */
   tanggalMigrasi?: string;
+  /**
+   * Dipanggil saat tombol pratinjau re-migrasi diklik. Hanya membaca
+   * data live — TIDAK menulis apa pun. Halaman ini TIDAK memanggil
+   * Firebase langsung.
+   */
+  onPratinjauRemigrasi?: () => Promise<PratinjauRemigrasi>;
+  /**
+   * Dipanggil saat tombol jalankan re-migrasi diklik, dengan callback
+   * progres per tahap/koleksi. Koordinator menyambungkannya ke
+   * `jalankanRemigrasi` (src/lib/remigrasi.ts).
+   */
+  onRemigrasi?: (
+    onKemajuan?: (k: KemajuanRemigrasi) => void,
+  ) => Promise<HasilRemigrasi>;
+  /** Status re-migrasi dari Firestore (dokumen meta/migrasi-kontrak-2026). */
+  statusRemigrasi?: 'belum' | 'sudah' | 'tidak-tersedia';
+  /** Tanggal re-migrasi (bila diketahui dari luar sesi ini). */
+  tanggalRemigrasi?: string;
 }
 
 function formatTanggalIso(iso: string): string {
@@ -201,8 +227,280 @@ function BagianMigrasi({
   );
 }
 
+const LABEL_TAHAP: Record<TahapRemigrasi, string> = {
+  guard: 'Checking re-migration status…',
+  'baca-live': 'Reading live data…',
+  prakondisi: 'Checking preconditions…',
+  hapus: 'Deleting old documents…',
+  tulis: 'Writing new documents…',
+  verifikasi: 'Verifying the new data…',
+  audit: 'Writing the audit record…',
+  selesai: 'Done.',
+};
+
+/** Tabel sebelum vs sesudah (hitungan + total kontrol) — dipakai pratinjau & hasil. */
+function TabelSebelumSesudah({
+  sebelum,
+  sesudah,
+}: {
+  sebelum: PratinjauRemigrasi['sebelum'];
+  sesudah: PratinjauRemigrasi['sesudah'];
+}) {
+  return (
+    <Tabel>
+      <thead>
+        <tr>
+          <Th>Item</Th>
+          <Th kanan>Before (live)</Th>
+          <Th kanan>After (new seed)</Th>
+        </tr>
+      </thead>
+      <tbody>
+        {KOLEKSI_REMIGRASI.map((koleksi) => (
+          <Baris key={koleksi}>
+            <Td>{koleksi}</Td>
+            <Td kanan>{sebelum.hitungan[koleksi]}</Td>
+            <Td kanan>{sesudah.hitungan[koleksi]}</Td>
+          </Baris>
+        ))}
+        <Baris>
+          <Td>Contract value</Td>
+          <Td kanan>{formatRupiah(sebelum.total.nilaiKontrak)}</Td>
+          <Td kanan>{formatRupiah(sesudah.total.nilaiKontrak)}</Td>
+        </Baris>
+        <Baris>
+          <Td>Verified payments</Td>
+          <Td kanan>{formatRupiah(sebelum.total.totalPembayaranTerverifikasi)}</Td>
+          <Td kanan>{formatRupiah(sesudah.total.totalPembayaranTerverifikasi)}</Td>
+        </Baris>
+        <Baris>
+          <Td>Outstanding receivables</Td>
+          <Td kanan>{formatRupiah(sebelum.total.sisaPiutang)}</Td>
+          <Td kanan>{formatRupiah(sesudah.total.sisaPiutang)}</Td>
+        </Baris>
+        <Baris>
+          <Td>Total fines</Td>
+          <Td kanan>{formatRupiah(sebelum.total.totalDenda)}</Td>
+          <Td kanan>{formatRupiah(sesudah.total.totalDenda)}</Td>
+        </Baris>
+      </tbody>
+    </Tabel>
+  );
+}
+
+/**
+ * Bagian "Re-migrate Contract Data 2026" — menyamakan data live Firestore
+ * dengan seed pasca-PR #52 (40 kontrak 2026 dari file baru pengguna).
+ * Hanya 5 koleksi yang diganti (klien, kontrak, tagihan, pembayaran,
+ * denda); koleksi lain TIDAK disentuh. Sekali jalan, dengan pratinjau
+ * dan prakondisi sebelum menghapus apa pun.
+ */
+function BagianRemigrasi({
+  onPratinjauRemigrasi,
+  onRemigrasi,
+  statusRemigrasi,
+  tanggalRemigrasi,
+}: {
+  onPratinjauRemigrasi?: () => Promise<PratinjauRemigrasi>;
+  onRemigrasi?: (
+    onKemajuan?: (k: KemajuanRemigrasi) => void,
+  ) => Promise<HasilRemigrasi>;
+  statusRemigrasi: 'belum' | 'sudah' | 'tidak-tersedia';
+  tanggalRemigrasi?: string;
+}) {
+  const [pratinjau, setPratinjau] = useState<PratinjauRemigrasi | null>(null);
+  const [memuatPratinjau, setMemuatPratinjau] = useState(false);
+  const [setuju, setSetuju] = useState(false);
+  const [proses, setProses] = useState(false);
+  const [kemajuan, setKemajuan] = useState<KemajuanRemigrasi | null>(null);
+  const [riwayat, setRiwayat] = useState<KemajuanRemigrasi[]>([]);
+  const [hasil, setHasil] = useState<HasilRemigrasi | null>(null);
+  const [galat, setGalat] = useState<string | null>(null);
+
+  const sudah = statusRemigrasi === 'sudah' || hasil !== null;
+
+  // Koleksi selesai pada suatu tahap: ada laporan tahap itu untuk
+  // koleksi tersebut dengan hitungan selesai melewati indeksnya.
+  const koleksiSelesai = (tahap: 'hapus' | 'tulis', koleksi: string) => {
+    const indeks = KOLEKSI_REMIGRASI.indexOf(
+      koleksi as (typeof KOLEKSI_REMIGRASI)[number],
+    );
+    return riwayat.some(
+      (k) => k.tahap === tahap && k.koleksi === koleksi && k.selesai > indeks,
+    );
+  };
+
+  async function tanganiPratinjau() {
+    if (!onPratinjauRemigrasi || memuatPratinjau || sudah) return;
+    setMemuatPratinjau(true);
+    setGalat(null);
+    try {
+      setPratinjau(await onPratinjauRemigrasi());
+    } catch (e) {
+      setGalat(
+        e instanceof Error
+          ? e.message
+          : 'Failed to load the preview. Try again.',
+      );
+    } finally {
+      setMemuatPratinjau(false);
+    }
+  }
+
+  async function tanganiRemigrasi() {
+    if (!onRemigrasi || proses || sudah || !setuju) return;
+    setProses(true);
+    setGalat(null);
+    setRiwayat([]);
+    try {
+      const r = await onRemigrasi((k) => {
+        setKemajuan(k);
+        setRiwayat((lama) => [...lama, k]);
+      });
+      setHasil(r);
+    } catch (e) {
+      setGalat(
+        e instanceof Error ? e.message : 'Re-migration failed. Try again.',
+      );
+    } finally {
+      setProses(false);
+    }
+  }
+
+  return (
+    <Kartu>
+      <JudulBagian>Re-migrate Contract Data 2026</JudulBagian>
+      {statusRemigrasi === 'tidak-tersedia' ? (
+        <p className="mt-2 text-sm text-[#0d2569]/70">
+          Re-migration only works on live Firestore data. Open this page
+          after signing in while the app is in Firestore mode — in sample
+          mode the data already comes from the new seed.
+        </p>
+      ) : sudah ? (
+        <p className="mt-2 text-sm text-[#0d2569]/70">
+          Already re-migrated on{' '}
+          {hasil
+            ? formatTanggalIso(hasil.tanggal)
+            : tanggalRemigrasi
+              ? formatTanggalIso(tanggalRemigrasi)
+              : 'the recorded date'}
+          . Re-migration can only be done once.
+        </p>
+      ) : (
+        <>
+          <p className="mt-2 text-sm text-[#0d2569]/70">
+            Replaces the live Firestore data for clients, contracts,
+            invoices, payments, and fines (5 collections) with the new seed
+            from PR #52 — 40 contracts of 2026 from the new file, keeping
+            the 2 contracts of 2025 (Darojad, PT VGreen). Operator
+            attribution is carried over from the live data. Other
+            collections (leases, submissions, reference receipts, documents,
+            and the rest) are NOT touched. Before deleting anything, the
+            preview shows the before/after numbers and preconditions are
+            checked; re-migration can only be done once.
+          </p>
+          <div className="mt-3">
+            <TombolUtama
+              onClick={tanganiPratinjau}
+              disabled={memuatPratinjau || proses || !onPratinjauRemigrasi}
+            >
+              {memuatPratinjau ? 'Loading preview…' : 'Show preview (no changes yet)'}
+            </TombolUtama>
+          </div>
+        </>
+      )}
+
+      {pratinjau && !hasil && (
+        <div className="mt-3">
+          <TabelSebelumSesudah
+            sebelum={pratinjau.sebelum}
+            sesudah={pratinjau.sesudah}
+          />
+          <label className="mt-3 flex items-start gap-2 text-sm text-[#0d2569]">
+            <input
+              type="checkbox"
+              checked={setuju}
+              onChange={(e) => setSetuju(e.target.checked)}
+              disabled={proses}
+              className="mt-0.5"
+            />
+            <span>
+              I understand this deletes 172 live documents and writes 174
+              new ones. This cannot be undone from the app — the old data
+              can only be restored from the code history (seed before PR
+              #52).
+            </span>
+          </label>
+          <div className="mt-3">
+            <TombolUtama
+              onClick={tanganiRemigrasi}
+              disabled={proses || !setuju || !onRemigrasi}
+            >
+              {proses ? 'Re-migrating…' : 'Run re-migration'}
+            </TombolUtama>
+          </div>
+        </div>
+      )}
+
+      {(proses || kemajuan) && !hasil && (
+        <div className="mt-3">
+          <p className="text-sm font-semibold text-[#0d2569]">
+            {kemajuan ? LABEL_TAHAP[kemajuan.tahap] : 'Starting…'}
+            {kemajuan?.koleksi ? ` — ${kemajuan.koleksi}` : ''}
+            {kemajuan && (kemajuan.tahap === 'hapus' || kemajuan.tahap === 'tulis')
+              ? ` (${kemajuan.selesai}/${kemajuan.total})`
+              : ''}
+          </p>
+          <ul className="mt-2 space-y-1">
+            {KOLEKSI_REMIGRASI.map((koleksi) => (
+              <li key={koleksi} className="text-sm text-[#0d2569]/70">
+                {koleksi}: delete{' '}
+                {koleksiSelesai('hapus', koleksi) ? 'done' : 'pending'} · write{' '}
+                {koleksiSelesai('tulis', koleksi) ? 'done' : 'pending'}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
+      {galat && (
+        <div className="mt-3">
+          <Peringatan teks={galat} />
+          {kemajuan && (
+            <p className="mt-2 text-sm text-[#0d2569]/70">
+              Stopped at: {LABEL_TAHAP[kemajuan.tahap]}
+              {kemajuan.koleksi ? ` — ${kemajuan.koleksi}` : ''}. Do not run
+              it again — report this to Digi with the message above.
+            </p>
+          )}
+        </div>
+      )}
+
+      {hasil && (
+        <div className="mt-3">
+          <p className="text-sm font-semibold text-[#0d2569]">
+            Re-migration succeeded on {formatTanggalIso(hasil.tanggal)}.
+            Verify the Dashboard totals in Firestore mode.
+          </p>
+          <div className="mt-2">
+            <TabelSebelumSesudah sebelum={hasil.sebelum} sesudah={hasil.sesudah} />
+          </div>
+        </div>
+      )}
+    </Kartu>
+  );
+}
+
 export default function MasterPage(props: MasterPageProps) {
-  const { onMigrasi, statusMigrasi = 'tidak-tersedia', tanggalMigrasi } = props;
+  const {
+    onMigrasi,
+    statusMigrasi = 'tidak-tersedia',
+    tanggalMigrasi,
+    onPratinjauRemigrasi,
+    onRemigrasi,
+    statusRemigrasi = 'tidak-tersedia',
+    tanggalRemigrasi,
+  } = props;
   return (
     <div className="space-y-6">
       <p className="text-sm text-[#0d2569]/70">
@@ -215,6 +513,13 @@ export default function MasterPage(props: MasterPageProps) {
         onMigrasi={onMigrasi}
         statusMigrasi={statusMigrasi}
         tanggalMigrasi={tanggalMigrasi}
+      />
+
+      <BagianRemigrasi
+        onPratinjauRemigrasi={onPratinjauRemigrasi}
+        onRemigrasi={onRemigrasi}
+        statusRemigrasi={statusRemigrasi}
+        tanggalRemigrasi={tanggalRemigrasi}
       />
 
       <Peringatan teks="Master data is only changed by the Operator; values already used by transactions cannot be deleted, only deactivated." />

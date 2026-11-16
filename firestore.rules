@@ -183,6 +183,19 @@ service cloud.firestore {
       allow update, delete: if false;
     }
 
+    // ---------- Penanda re-migrasi kontrak 2026: hanya boleh dibuat sekali ----------
+    // Re-migrasi data kontrak (src/lib/remigrasi.ts, PR #53) mengganti
+    // 5 koleksi (klien, kontrak, tagihan, pembayaran, denda) dengan seed
+    // pasca-PR #52. Penanda ini dibuat sekali; bila sudah ada, create
+    // ditolak. Terpisah dari `meta/migrasi` — migrasi pertama tetap
+    // tidak bisa jalan dua kali.
+    match /meta/migrasi-kontrak-2026 {
+      allow read: if adalahOperator();
+      allow create: if adalahOperator()
+        && !exists(/databases/$(database)/documents/meta/migrasi-kontrak-2026);
+      allow update, delete: if false;
+    }
+
     // ---------- Profil pengguna (koleksi users) ----------
     // Pengguna hanya boleh membaca dokumennya sendiri. Saat login pertama,
     // pengguna membuat dokumennya sendiri sebagai Operator (akun Auth
