@@ -47,6 +47,16 @@ import {
 } from './lib/auth';
 import { EMAIL_OPERATOR_USULAN, jalankanMigrasi } from './lib/migrasi';
 import {
+  bacaStatusRemigrasi,
+  jalankanRemigrasi,
+  pratinjauRemigrasi,
+} from './lib/remigrasi';
+import type {
+  HasilRemigrasi,
+  KemajuanRemigrasi,
+} from './lib/remigrasi';
+import type { PratinjauRemigrasi } from './lib/remigrasiRencana';
+import {
   cekSudahDimigrasi,
   kirimPengajuanPublik as kirimPengajuanPublikKeFirestore,
   muatDariFirestore,
@@ -632,6 +642,9 @@ export default function App() {
   const [authEmail, setAuthEmail] = useState<string | null>(null);
   const [sudahDimigrasi, setSudahDimigrasi] = useState(false);
   const [tanggalMigrasi, setTanggalMigrasi] = useState<string | undefined>(undefined);
+  /** Status re-migrasi data kontrak 2026 (PR #53) — guard terpisah dari migrasi pertama. */
+  const [sudahRemigrasi, setSudahRemigrasi] = useState(false);
+  const [tanggalRemigrasi, setTanggalRemigrasi] = useState<string | undefined>(undefined);
   const [galatMuat, setGalatMuat] = useState<string | null>(null);
   const [peringatanSimpan, setPeringatanSimpan] = useState<string | null>(null);
   /** Halaman publik tanpa login (lacak/ajukan) saat belum masuk. */
@@ -698,6 +711,10 @@ export default function App() {
           setData(dariFirestore);
           setModeData('firestore');
           setSudahDimigrasi(true);
+          const statusRemigrasi = await bacaStatusRemigrasi(db);
+          if (batal) return;
+          setSudahRemigrasi(statusRemigrasi.sudah);
+          setTanggalRemigrasi(statusRemigrasi.tanggal);
         }
       } catch (e) {
         if (!batal) {
@@ -876,6 +893,8 @@ export default function App() {
     );
     setSudahDimigrasi(false);
     setTanggalMigrasi(undefined);
+    setSudahRemigrasi(false);
+    setTanggalRemigrasi(undefined);
     setHalamanPublik('beranda');
     setActive('dashboard');
   };
@@ -2584,6 +2603,34 @@ export default function App() {
     return hasil;
   };
 
+  /** Pratinjau re-migrasi (dari halaman Master & Pengguna) — tanpa menulis apa pun. */
+  const tanganiPratinjauRemigrasi = async (): Promise<PratinjauRemigrasi> => {
+    if (!db) {
+      throw new Error('Firebase is not yet configured.');
+    }
+    return pratinjauRemigrasi(db, SATKER_PILOT.kode);
+  };
+
+  /** Jalankan re-migrasi data kontrak 2026 (dari halaman Master & Pengguna). */
+  const tanganiRemigrasi = async (
+    onKemajuan?: (k: KemajuanRemigrasi) => void,
+  ): Promise<HasilRemigrasi> => {
+    if (!db) {
+      throw new Error('Firebase is not yet configured.');
+    }
+    const hasil = await jalankanRemigrasi(
+      db,
+      penggunaAktif,
+      SATKER_PILOT.kode,
+      onKemajuan,
+    );
+    setSudahRemigrasi(true);
+    setTanggalRemigrasi(hasil.tanggal);
+    const dariFirestore = await muatDariFirestore(db, SATKER_PILOT.kode);
+    if (dariFirestore) setData(dariFirestore);
+    return hasil;
+  };
+
   // Daftar utama sidebar: hanya item tanpa induk (sub-item tampil di
   // panel tambahan di samping sidebar, lihat panel di bawah).
   const navUtama = MODULES.filter((m) => m.phase !== 'Admin' && !m.induk);
@@ -2969,6 +3016,16 @@ export default function App() {
                     : 'tidak-tersedia'
                 }
                 tanggalMigrasi={tanggalMigrasi}
+                onPratinjauRemigrasi={tanganiPratinjauRemigrasi}
+                onRemigrasi={tanganiRemigrasi}
+                statusRemigrasi={
+                  modeData === 'firestore'
+                    ? sudahRemigrasi
+                      ? 'sudah'
+                      : 'belum'
+                    : 'tidak-tersedia'
+                }
+                tanggalRemigrasi={tanggalRemigrasi}
               />
             )}
             {active === 'service' && <Service {...propsModul} />}
