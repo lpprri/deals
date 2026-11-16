@@ -19,6 +19,10 @@ import { useState } from 'react';
 import { TabKontrak } from './Deals';
 import type { ModulProps } from '../lib/store';
 import { PesanKosong } from '../components/ui';
+import type {
+  ArahUrutKontrak,
+  KunciUrutKontrak,
+} from '../lib/kontrakTampilan';
 
 interface PropsKategori extends ModulProps {
   /**
@@ -43,11 +47,13 @@ function DaftarKontrakKategori({
   penjelasanKosong,
 }: PropsKategori) {
   // State lokal sama seperti Deals (tab kontrak): pilihan, form,
-  // dan filter — supaya TabKontrak dipakai ulang apa adanya.
+  // filter, dan sort — supaya TabKontrak dipakai ulang apa adanya.
   const [kontrakIdTerpilih, setKontrakIdTerpilih] = useState<string | null>(null);
   const [tampilForm, setTampilForm] = useState(false);
   const [filterPnBP, setFilterPnBP] = useState<'Semua' | 'Fungsional' | 'Umum'>('Semua');
-  const [filterStatus, setFilterStatus] = useState<string>('Semua');
+  const [filterJenisKlien, setFilterJenisKlien] = useState<string>('Semua');
+  const [urutKunci, setUrutKunci] = useState<KunciUrutKontrak>('tandaTangan');
+  const [urutArah, setUrutArah] = useState<ArahUrutKontrak>('turun');
 
   const kataKunci = cari.trim().toLowerCase();
   const cocokCari = (teks: string) =>
@@ -85,8 +91,12 @@ function DaftarKontrakKategori({
       onTampilForm={setTampilForm}
       filterPnBP={filterPnBP}
       onFilterPnBP={setFilterPnBP}
-      filterStatus={filterStatus}
-      onFilterStatus={setFilterStatus}
+      filterJenisKlien={filterJenisKlien}
+      onFilterJenisKlien={setFilterJenisKlien}
+      urutKunci={urutKunci}
+      onUrutKunci={setUrutKunci}
+      urutArah={urutArah}
+      onUrutArah={setUrutArah}
     />
   );
 }

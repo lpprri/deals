@@ -9,7 +9,6 @@ import {
   MASTER_JENIS_KLIEN,
   MASTER_KATEGORI_LAYANAN,
   MASTER_PROGRAMA,
-  MASTER_STATUS_KONTRAK,
   uraianKodeAkun,
 } from '../lib/master';
 import {
@@ -24,6 +23,15 @@ import {
   labelUraianKodeAkun,
 } from '../lib/labels';
 import { sisaTagihan, statusTagihan } from '../lib/derive';
+import {
+  jenisKlienYangAda,
+  judulKontrak,
+  labelArahUrutKontrak,
+  nomorReferensiKontrak,
+  urutkanKontrak,
+  type ArahUrutKontrak,
+  type KunciUrutKontrak,
+} from '../lib/kontrakTampilan';
 import { formatRupiah, formatTanggal, normalisasiNama } from '../lib/format';
 import { bolehAksi } from '../lib/permissions';
 import {
@@ -46,14 +54,6 @@ import {
 
 function kategoriDariNama(nama: string) {
   return MASTER_KATEGORI_LAYANAN.find((k) => k.nama === nama);
-}
-
-function kodeAkunKontrak(kontrak: Kontrak): string {
-  return (
-    kategoriDariNama(kontrak.kategoriLayanan)?.kodeAkun ??
-    kontrak.layanan[0]?.kodeAkun ??
-    '-'
-  );
 }
 
 function namaKlien(data: ModulProps['data'], klienId: string): string {
@@ -88,7 +88,11 @@ export default function Deals(props: ModulProps) {
   const [tampilFormKontrak, setTampilFormKontrak] = useState(false);
 
   const [filterPnBP, setFilterPnBP] = useState<'Semua' | 'Fungsional' | 'Umum'>('Semua');
-  const [filterStatusKontrak, setFilterStatusKontrak] = useState<string>('Semua');
+  const [filterJenisKlien, setFilterJenisKlien] = useState<string>('Semua');
+  const [urutKunciKontrak, setUrutKunciKontrak] =
+    useState<KunciUrutKontrak>('tandaTangan');
+  const [urutArahKontrak, setUrutArahKontrak] =
+    useState<ArahUrutKontrak>('turun');
 
   const [kontrakDokumenId, setKontrakDokumenId] = useState<string>(
     data.kontrak[0]?.id ?? '',
@@ -143,8 +147,12 @@ export default function Deals(props: ModulProps) {
           onTampilForm={setTampilFormKontrak}
           filterPnBP={filterPnBP}
           onFilterPnBP={setFilterPnBP}
-          filterStatus={filterStatusKontrak}
-          onFilterStatus={setFilterStatusKontrak}
+          filterJenisKlien={filterJenisKlien}
+          onFilterJenisKlien={setFilterJenisKlien}
+          urutKunci={urutKunciKontrak}
+          onUrutKunci={setUrutKunciKontrak}
+          urutArah={urutArahKontrak}
+          onUrutArah={setUrutArahKontrak}
         />
       )}
 
@@ -583,8 +591,12 @@ export function TabKontrak({
   onTampilForm,
   filterPnBP,
   onFilterPnBP,
-  filterStatus,
-  onFilterStatus,
+  filterJenisKlien,
+  onFilterJenisKlien,
+  urutKunci,
+  onUrutKunci,
+  urutArah,
+  onUrutArah,
 }: {
   data: ModulProps['data'];
   user: ModulProps['user'];
@@ -596,8 +608,12 @@ export function TabKontrak({
   onTampilForm: (tampil: boolean) => void;
   filterPnBP: 'Semua' | 'Fungsional' | 'Umum';
   onFilterPnBP: (v: 'Semua' | 'Fungsional' | 'Umum') => void;
-  filterStatus: string;
-  onFilterStatus: (v: string) => void;
+  filterJenisKlien: string;
+  onFilterJenisKlien: (v: string) => void;
+  urutKunci: KunciUrutKontrak;
+  onUrutKunci: (v: KunciUrutKontrak) => void;
+  urutArah: ArahUrutKontrak;
+  onUrutArah: (v: ArahUrutKontrak) => void;
 }) {
   const bolehTambah = bolehAksi(user.peran, 'tambahKontrak');
 
@@ -612,11 +628,21 @@ export function TabKontrak({
     );
   }
 
-  const kontrakTersaring = data.kontrak.filter(
-    (k) =>
-      (filterPnBP === 'Semua' || k.jenisPnBP === filterPnBP) &&
-      (filterStatus === 'Semua' || k.status === filterStatus) &&
-      cocokCari(`${k.nomorPks} ${namaKlien(data, k.klienId)} ${k.kategoriLayanan}`),
+  // Kolom baru (keputusan pengguna 16/11/2026): 8 kolom di bawah, tanpa
+  // kolom kode akun dan tanpa Status. Filter: Client Type + PNBP Type.
+  const jenisKlien = (k: Kontrak): string | undefined =>
+    data.klien.find((kl) => kl.id === k.klienId)?.jenis;
+  const kontrakTersaring = urutkanKontrak(
+    data.kontrak.filter(
+      (k) =>
+        (filterPnBP === 'Semua' || k.jenisPnBP === filterPnBP) &&
+        (filterJenisKlien === 'Semua' || jenisKlien(k) === filterJenisKlien) &&
+        cocokCari(
+          `${k.nomorPks} ${namaKlien(data, k.klienId)} ${k.kategoriLayanan} ${judulKontrak(k) ?? ''} ${nomorReferensiKontrak(k) ?? ''}`,
+        ),
+    ),
+    urutKunci,
+    urutArah,
   );
 
   return (
@@ -632,6 +658,21 @@ export function TabKontrak({
 
       <div className="flex flex-wrap gap-4">
         <div>
+          <Label>Client Type</Label>
+          <select
+            className={inputClass}
+            value={filterJenisKlien}
+            onChange={(e) => onFilterJenisKlien(e.target.value)}
+          >
+            <option value="Semua">All</option>
+            {jenisKlienYangAda(data.klien).map((j) => (
+              <option key={j} value={j}>
+                {labelJenisKlien(j)}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div>
           <Label>PNBP Type</Label>
           <select
             className={inputClass}
@@ -646,19 +687,25 @@ export function TabKontrak({
           </select>
         </div>
         <div>
-          <Label>Status</Label>
+          <Label>Sort by</Label>
           <select
             className={inputClass}
-            value={filterStatus}
-            onChange={(e) => onFilterStatus(e.target.value)}
+            value={urutKunci}
+            onChange={(e) => onUrutKunci(e.target.value as KunciUrutKontrak)}
           >
-            <option value="Semua">All</option>
-            {MASTER_STATUS_KONTRAK.map((s) => (
-              <option key={s} value={s}>
-                {labelStatusKontrak(s)}
-              </option>
-            ))}
+            <option value="tandaTangan">Signing Date</option>
+            <option value="selesai">End Date</option>
+            <option value="nilai">Contract Value</option>
           </select>
+        </div>
+        <div>
+          <Label>Order</Label>
+          <TombolSekunder
+            onClick={() => onUrutArah(urutArah === 'turun' ? 'naik' : 'turun')}
+          >
+            {urutArah === 'turun' ? '↓ ' : '↑ '}
+            {labelArahUrutKontrak(urutKunci, urutArah)}
+          </TombolSekunder>
         </div>
       </div>
 
@@ -678,29 +725,36 @@ export function TabKontrak({
           <Tabel>
             <thead>
               <tr>
-                <Th>PKS Number</Th>
+                <Th>Contract Number</Th>
+                <Th>Reference Number</Th>
+                <Th>Contract Title</Th>
+                <Th>Creation Date</Th>
                 <Th>Client</Th>
-                <Th>PNBP Type</Th>
-                <Th>Service Category</Th>
-                <Th>Account Code</Th>
-                <Th kanan>Amount</Th>
-                <Th>End Date</Th>
-                <Th>Status</Th>
+                <Th>Service Type</Th>
+                <Th>Contract Period</Th>
+                <Th kanan>Contract Value</Th>
               </tr>
             </thead>
             <tbody>
               {kontrakTersaring.map((k) => (
                 <Baris key={k.id} onClick={() => onPilihKontrak(k.id)}>
                   <Td tebal>{k.nomorPks}</Td>
+                  <Td>{nomorReferensiKontrak(k) ?? '—'}</Td>
+                  <Td>{judulKontrak(k) ?? '—'}</Td>
+                  {/*
+                    Creation Date ("Tanggal Kontrak" di file) TIDAK ada
+                    sebagai field di app — tampil "—" dengan jujur.
+                    tanggalTandaTangan TIDAK BOLEH dipakai di sini: nilainya
+                    == tanggalMulai di 42/42 kontrak dan berbeda dari file
+                    pada 33/40 kontrak (audit 16/11/2026).
+                  */}
+                  <Td>—</Td>
                   <Td>{namaKlien(data, k.klienId)}</Td>
-                  <Td>{labelJenisPnBP(k.jenisPnBP)}</Td>
                   <Td>{labelKategoriLayanan(k.kategoriLayanan)}</Td>
-                  <Td>{kodeAkunKontrak(k)}</Td>
-                  <Td kanan>{formatRupiah(k.nilaiKontrak)}</Td>
-                  <Td>{formatTanggal(k.tanggalSelesai)}</Td>
                   <Td>
-                    <StatusBadge status={labelStatusKontrak(k.status)} />
+                    {formatTanggal(k.tanggalMulai)} – {formatTanggal(k.tanggalSelesai)}
                   </Td>
+                  <Td kanan>{formatRupiah(k.nilaiKontrak)}</Td>
                 </Baris>
               ))}
             </tbody>
@@ -755,12 +809,6 @@ function DetailKontrak({
           <div className="flex justify-between gap-4">
             <dt className="text-[#0d2569]/60">Service category</dt>
             <dd className="text-right text-[#0d2569]">{labelKategoriLayanan(kontrak.kategoriLayanan)}</dd>
-          </div>
-          <div className="flex justify-between gap-4">
-            <dt className="text-[#0d2569]/60">Account code</dt>
-            <dd className="text-[#0d2569]">
-              {kodeAkunKontrak(kontrak)} — {labelUraianKodeAkun(uraianKodeAkun(kodeAkunKontrak(kontrak)))}
-            </dd>
           </div>
           <div className="flex justify-between gap-4">
             <dt className="text-[#0d2569]/60">Programme</dt>
