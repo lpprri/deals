@@ -23,7 +23,6 @@ import {
 import {
   DAFTAR_SATKER,
   JUMLAH_SATKER_BERNOMOR,
-  JUMLAH_SP,
 } from '../lib/satker';
 import {
   labelJenisDokumen,
@@ -76,16 +75,6 @@ function DaftarNilai({
     </Kartu>
   );
 }
-
-/**
- * Label Inggris untuk tipe satker tersimpan ('KANTOR_PUSAT' / 'SATKER' /
- * 'SP'). Belum ada di labels.ts; laporkan ke koordinator untuk konsolidasi.
- */
-const LABEL_TIPE_SATKER: Record<string, string> = {
-  KANTOR_PUSAT: 'Head Office',
-  SATKER: 'Satker',
-  SP: 'Sub-Station',
-};
 
 export interface HasilMigrasiUI {
   tanggal: string;
@@ -332,10 +321,9 @@ export default function MasterPage(props: MasterPageProps) {
 
       {/* Daftar Satker */}
       <Kartu>
-        <JudulBagian>Satker List (National Master)</JudulBagian>
+        <JudulBagian>Work Unit</JudulBagian>
         <p className="mt-2 text-sm text-[#0d2569]/70">
-          {JUMLAH_SATKER_BERNOMOR} numbered satker + {JUMLAH_SP} sub-stations
-          = {DAFTAR_SATKER.length} entries. Phase A pilot satker:{' '}
+          {JUMLAH_SATKER_BERNOMOR} work units. Phase A pilot satker:{' '}
           <strong className="text-[#0d2569]">
             {SATKER_PILOT.nama} (code {SATKER_PILOT.kode})
           </strong>
@@ -348,13 +336,12 @@ export default function MasterPage(props: MasterPageProps) {
               <tr>
                 <Th className="sticky top-0 bg-white pl-3">No</Th>
                 <Th className="sticky top-0 bg-white">Satker Name</Th>
-                <Th className="sticky top-0 bg-white">Type</Th>
-                <Th className="sticky top-0 bg-white">Parent Satker</Th>
+                <Th className="sticky top-0 bg-white">Regional Coordinator</Th>
               </tr>
             </thead>
             <tbody>
               {DAFTAR_SATKER.map((s) => (
-                <Baris key={`${s.nama}-${s.induk ?? ''}`}>
+                <Baris key={`${s.no}-${s.nama}`}>
                   <Td className="pl-3">{s.no ?? '—'}</Td>
                   <Td tebal>
                     {s.nama}
@@ -364,8 +351,7 @@ export default function MasterPage(props: MasterPageProps) {
                       </span>
                     )}
                   </Td>
-                  <Td>{LABEL_TIPE_SATKER[s.tipe] ?? s.tipe}</Td>
-                  <Td>{s.induk ?? '—'}</Td>
+                  <Td>{s.korwil ?? '—'}</Td>
                 </Baris>
               ))}
             </tbody>
