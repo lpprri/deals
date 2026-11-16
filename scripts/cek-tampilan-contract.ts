@@ -1,6 +1,8 @@
-// Cek tampilan baru tabel Contract (PR tampilan-baru-contract):
-// 8 kolom, filter Client Type + PNBP Type, sort 3 kunci, tanpa Account Code
-// dan tanpa Status di tabel; total kontrol tidak berubah.
+// Cek tampilan baru tabel Contract (PR tampilan-baru-contract + PR
+// contract-signing-date): 8 kolom, kolom ke-4 "Signing Date" (= Creation
+// Date per keputusan pengguna 16/11/2026, dari tanggalTandaTangan dengan
+// fallback tanggalMulai), filter Client Type + PNBP Type, sort 3 kunci,
+// tanpa Account Code dan tanpa Status di tabel; total kontrol tidak berubah.
 import * as fs from 'node:fs';
 import { DATA_NYATA } from '../src/lib/seedNyata';
 import { hitungTotalKontrol } from '../src/lib/derive';
@@ -9,6 +11,7 @@ import {
   judulKontrak,
   labelArahUrutKontrak,
   nomorReferensiKontrak,
+  tanggalPenandatangananKontrak,
   urutkanKontrak,
 } from '../src/lib/kontrakTampilan';
 
@@ -68,6 +71,34 @@ cek(
   judulKontrak(cari('027/RRI.PLB/PKS.U/06/2025')) !== undefined,
 );
 
+// ---------- kolom Signing Date = Creation Date (keputusan 16/11/2026) ----------
+cek(
+  'signing date terisi 42/42',
+  kontrak.every((k) => tanggalPenandatangananKontrak(k) !== ''),
+);
+cek(
+  'signing date = ttd ?? mulai di 42/42',
+  kontrak.every(
+    (k) => tanggalPenandatangananKontrak(k) === (k.tanggalTandaTangan ?? k.tanggalMulai),
+  ),
+);
+cek(
+  'signing date 0603 = 2026-01-19',
+  tanggalPenandatangananKontrak(cari('0603/PKS/RRI.PLB/01/2026')) === '2026-01-19',
+);
+cek(
+  'signing date Samdini 10828 = 2026-09-17',
+  tanggalPenandatangananKontrak(cari('10828/PKS/RRI.PLB/10/2026')) === '2026-09-17',
+);
+cek(
+  'signing date 11290 = 2026-10-30',
+  tanggalPenandatangananKontrak(cari('11290/PKS/RRI.PLB/10/2026')) === '2026-10-30',
+);
+cek(
+  'signing date Taspen 001 = 2026-01-20',
+  tanggalPenandatangananKontrak(cari('001/PKS/DIR.LPU/01/2026')) === '2026-01-20',
+);
+
 // ---------- opsi filter Jenis Klien ----------
 cek(
   'jenis klien di data = 5 master',
@@ -118,7 +149,7 @@ cek(
       'Contract Number',
       'Reference Number',
       'Contract Title',
-      'Creation Date',
+      'Signing Date',
       'Client',
       'Service Type',
       'Contract Period',
@@ -131,7 +162,12 @@ cek('"Account code" 0x di TabKontrak', !tabKontrak.includes('Account code'));
 cek('kolom Status lama 0x di TabKontrak', !tabKontrak.includes('<Th>Status</Th>'));
 cek('kolom PKS Number lama 0x di TabKontrak', !tabKontrak.includes('<Th>PKS Number</Th>'));
 cek('kolom End Date lama 0x di TabKontrak', !tabKontrak.includes('<Th>End Date</Th>'));
-cek('sel Creation Date "—"', tabKontrak.includes('<Td>—</Td>'));
+cek('"Creation Date" 0x di TabKontrak', !tabKontrak.includes('Creation Date'));
+cek('header Signing Date ada di TabKontrak', tabKontrak.includes('<Th>Signing Date</Th>'));
+cek(
+  'sel Signing Date pakai helper tanggalPenandatangananKontrak',
+  tabKontrak.includes('tanggalPenandatangananKontrak(k)'),
+);
 cek('filter Client Type ada', tabKontrak.includes('<Label>Client Type</Label>'));
 cek('filter PNBP Type ada', tabKontrak.includes('<Label>PNBP Type</Label>'));
 cek('kontrol Sort by ada', tabKontrak.includes('<Label>Sort by</Label>'));

@@ -28,6 +28,7 @@ import {
   judulKontrak,
   labelArahUrutKontrak,
   nomorReferensiKontrak,
+  tanggalPenandatangananKontrak,
   urutkanKontrak,
   type ArahUrutKontrak,
   type KunciUrutKontrak,
@@ -728,7 +729,7 @@ export function TabKontrak({
                 <Th>Contract Number</Th>
                 <Th>Reference Number</Th>
                 <Th>Contract Title</Th>
-                <Th>Creation Date</Th>
+                <Th>Signing Date</Th>
                 <Th>Client</Th>
                 <Th>Service Type</Th>
                 <Th>Contract Period</Th>
@@ -742,13 +743,13 @@ export function TabKontrak({
                   <Td>{nomorReferensiKontrak(k) ?? '—'}</Td>
                   <Td>{judulKontrak(k) ?? '—'}</Td>
                   {/*
-                    Creation Date ("Tanggal Kontrak" di file) TIDAK ada
-                    sebagai field di app — tampil "—" dengan jujur.
-                    tanggalTandaTangan TIDAK BOLEH dipakai di sini: nilainya
-                    == tanggalMulai di 42/42 kontrak dan berbeda dari file
-                    pada 33/40 kontrak (audit 16/11/2026).
+                    Kolom tanggal penandatanganan — per keputusan pengguna
+                    16/11/2026 13:29 WIB, kolom ini menggantikan kolom
+                    tanggal pembuatan: tanggalTandaTangan, fallback
+                    tanggalMulai — pola yang sama dengan kunci sort
+                    'tandaTangan' (tanggalAcuanKontrak).
                   */}
-                  <Td>—</Td>
+                  <Td>{formatTanggal(tanggalPenandatangananKontrak(k))}</Td>
                   <Td>{namaKlien(data, k.klienId)}</Td>
                   <Td>{labelKategoriLayanan(k.kategoriLayanan)}</Td>
                   <Td>
