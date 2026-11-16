@@ -760,6 +760,7 @@ export function TabKontrak({
             <option value="tandaTangan">Signing Date</option>
             <option value="selesai">End Date</option>
             <option value="nilai">Contract Value</option>
+            <option value="sisaHari">Remaining Days</option>
           </select>
         </div>
         <div>

@@ -214,7 +214,7 @@ export function jenisKlienYangAda(klien: Klien[]): string[] {
 }
 
 /** Kunci sort tabel Contract. */
-export type KunciUrutKontrak = 'tandaTangan' | 'selesai' | 'nilai';
+export type KunciUrutKontrak = 'tandaTangan' | 'selesai' | 'nilai' | 'sisaHari';
 
 /** Arah sort: 'turun' = descending (terbaru / terbesar dulu). */
 export type ArahUrutKontrak = 'naik' | 'turun';
@@ -226,6 +226,7 @@ export function labelArahUrutKontrak(
 ): string {
   if (kunci === 'nilai') return arah === 'turun' ? 'Highest first' : 'Lowest first';
   if (kunci === 'selesai') return arah === 'turun' ? 'Latest end first' : 'Earliest end first';
+  if (kunci === 'sisaHari') return arah === 'turun' ? 'Most first' : 'Fewest first';
   return arah === 'turun' ? 'Newest first' : 'Oldest first';
 }
 
@@ -241,18 +242,41 @@ function nilaiKunci(kontrak: Kontrak, kunci: KunciUrutKontrak): string | number 
  * Urutkan kontrak (salinan baru, data asli tidak diubah). Pembanding
  * sekunder nomorPks supaya urutan deterministik bila nilai kunci sama
  * (mis. dua kontrak 2036 bertanggal sama).
+ *
+ * Kunci 'sisaHari' (keputusan pengguna 16/11/2026 15:37 WIB): kunci
+ * sort = jumlah hari tersisa sampai tanggalSelesai (selisihHari dari
+ * hari ini); kontrak berstatus 'Selesai' ("Completed") SELALU paling
+ * akhir, apapun arahnya — mereka sudah selesai, bukan yang paling
+ * mendesak maupun paling lama. Jadi ascending = sisa hari terkecil
+ * dulu (10227 "1 day" pertama), descending = sisa hari terbesar dulu
+ * (1051/1052/1053 "807 days" pertama, seri — tie-break nomorPks).
+ * "Hari ini" default = tanggal sistem (hariIniIso); skrip cek memakai
+ * '2026-11-16' eksplisit supaya deterministik. Call-site live
+ * (TabKontrak) tidak mengoper hariIni — sama seperti kolom Remaining
+ * Days yang juga memakai tanggal sistem.
  */
 export function urutkanKontrak(
   kontrak: Kontrak[],
   kunci: KunciUrutKontrak,
   arah: ArahUrutKontrak,
+  hariIni: string = hariIniIso(),
 ): Kontrak[] {
   const pengali = arah === 'turun' ? -1 : 1;
   return [...kontrak].sort((a, b) => {
-    const na = nilaiKunci(a, kunci);
-    const nb = nilaiKunci(b, kunci);
-    if (na < nb) return -1 * pengali;
-    if (na > nb) return 1 * pengali;
+    if (kunci === 'sisaHari') {
+      const selesaiA = a.status === 'Selesai' ? 1 : 0;
+      const selesaiB = b.status === 'Selesai' ? 1 : 0;
+      if (selesaiA !== selesaiB) return selesaiA - selesaiB;
+      const na = selisihHari(hariIni, a.tanggalSelesai);
+      const nb = selisihHari(hariIni, b.tanggalSelesai);
+      if (na < nb) return -1 * pengali;
+      if (na > nb) return 1 * pengali;
+    } else {
+      const na = nilaiKunci(a, kunci);
+      const nb = nilaiKunci(b, kunci);
+      if (na < nb) return -1 * pengali;
+      if (na > nb) return 1 * pengali;
+    }
     if (a.nomorPks < b.nomorPks) return -1;
     if (a.nomorPks > b.nomorPks) return 1;
     return 0;
