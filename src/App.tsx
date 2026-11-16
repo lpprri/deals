@@ -304,6 +304,16 @@ const MODULES: NavItem[] = [
     description: 'Events and Advertisement.',
   },
   {
+    id: 'klien',
+    label: 'Clients',
+    icon: Users,
+    phase: 'A',
+    // Pindah ke setelah Campaign (PR #48, diminta pengguna
+    // 16/11/2026 — urutan cluster 3: Campaign, Clients, Prospect,
+    // Offer, Order; urutan tampil mengikuti urutan MODULES).
+    description: 'Client list — the same client list as Deals (Clients tab).',
+  },
+  {
     id: 'prospek',
     label: 'Prospect',
     icon: UserPlus,
@@ -325,20 +335,6 @@ const MODULES: NavItem[] = [
     icon: ClipboardList,
     phase: 'B',
     description: 'Order list — the same Order tab as Sales (ORD-01 …).',
-  },
-  {
-    id: 'klien',
-    label: 'Clients',
-    icon: Users,
-    phase: 'A',
-    description: 'Client list — the same client list as Deals (Clients tab).',
-  },
-  {
-    id: 'meeting',
-    label: 'Meeting',
-    icon: CalendarDays,
-    phase: 'B',
-    description: 'Meeting Schedule (MTG-01 …).',
   },
   {
     id: 'pengajuan',
@@ -367,20 +363,6 @@ const MODULES: NavItem[] = [
       'Period summary, Revenue Analytics, head office report deadlines (fill in by the 10th, submit by the 11th). Employee Rank & Satker Rank (Leaderboard of the Year / of the Month) per contract signing date period.',
   },
   {
-    id: 'umpanBalik',
-    label: 'Feedback',
-    icon: ClipboardCheck,
-    phase: 'C',
-    // Navigasi top-level (16/11/2026, PR #47, diminta pengguna
-    // "pindahkan Feedback Survey ini menjadi Navigasi baru dengan
-    // nama Feedback"): TIDAK lagi punya induk — dikeluarkan dari
-    // panel REPORTS (panel kini hanya Dashboard) dan masuk
-    // CLUSTER_SIDEBAR cluster 4 paling bawah (setelah Resources).
-    // Isi/komponen/data survei TIDAK berubah.
-    description:
-      'Client satisfaction survey per contract (scale 1–5) — the same Feedback Survey as Resources before 15/11/2026.',
-  },
-  {
     id: 'revenue',
     label: 'Revenue',
     icon: Wallet,
@@ -397,6 +379,23 @@ const MODULES: NavItem[] = [
       'Satker Reports: PNBP Report, Receivables & Deposits Report, Service Support Report, Memorandum of Understanding Report, Media Partner Report.',
   },
   {
+    id: 'umpanBalik',
+    label: 'Feedback',
+    icon: ClipboardCheck,
+    phase: 'C',
+    // Navigasi top-level (16/11/2026, PR #47, diminta pengguna
+    // "pindahkan Feedback Survey ini menjadi Navigasi baru dengan
+    // nama Feedback"): TIDAK lagi punya induk — dikeluarkan dari
+    // panel REPORTS (panel kini hanya Dashboard) dan masuk
+    // CLUSTER_SIDEBAR cluster 4 di antara Reports dan Resources
+    // (PR #48, koreksi pengguna 16/11/2026 — semula paling bawah
+    // setelah Resources di PR #47, ternyata tampil paling atas
+    // karena urutan tampil mengikuti urutan MODULES, bukan
+    // CLUSTER_SIDEBAR). Isi/komponen/data survei TIDAK berubah.
+    description:
+      'Client satisfaction survey per contract (scale 1–5) — the same Feedback Survey as Resources before 15/11/2026.',
+  },
+  {
     id: 'todo',
     label: 'Task',
     icon: CheckSquare,
@@ -409,6 +408,16 @@ const MODULES: NavItem[] = [
     icon: MessageSquare,
     phase: 'C',
     description: 'Messages between operators (1-to-1).',
+  },
+  {
+    id: 'meeting',
+    label: 'Meeting',
+    icon: CalendarDays,
+    phase: 'B',
+    // Pindah ke cluster 1 paling bawah, di bawah Chat (PR #48,
+    // diminta pengguna 16/11/2026 — urutan tampil mengikuti urutan
+    // MODULES, jadi entri ini diletakkan tepat setelah 'chat').
+    description: 'Meeting Schedule (MTG-01 …).',
   },
   {
     id: 'service',
@@ -467,20 +476,28 @@ const MODULES: NavItem[] = [
     cluster 5 HILANG seluruhnya. PR #47,
     diminta pengguna 16/11/2026 08:54 WIB — Feedback Survey
     keluar dari panel REPORTS menjadi navigasi top-level 'Feedback'
-    di paling bawah cluster 4 (setelah Resources); panel REPORTS
-    kini hanya berisi Dashboard. Struktur AKHIR: cluster 1 Home,
-    Task, Chat; cluster 2 Contract, MoU, Commitment, Approvement;
-    cluster 3 Campaign, Prospect, Offer, Order, Clients, Meeting;
-    cluster 4 Revenue, Reports, Resources, Feedback:
+    di cluster 4; panel REPORTS kini hanya berisi Dashboard.
+    PR #48, koreksi pengguna 16/11/2026 09:05 WIB — Feedback
+    ternyata tampil PALING ATAS cluster 4 (bukan paling bawah)
+    karena urutan tampil mengikuti urutan MODULES, bukan
+    CLUSTER_SIDEBAR; Feedback dipindah ke antara Reports dan
+    Resources. PR #48 juga, diminta pengguna 16/11/2026 09:06 WIB
+    — Meeting pindah dari cluster 3 ke bawah cluster 1 (di bawah
+    Chat). PR #48 juga, diminta pengguna 16/11/2026 09:08 WIB
+    — urutan cluster 3: Campaign, Clients, Prospect, Offer, Order.
+    Struktur AKHIR: cluster 1 Home, Task, Chat, Meeting;
+    cluster 2 Contract, MoU, Commitment, Approvement;
+    cluster 3 Campaign, Clients, Prospect, Offer, Order;
+    cluster 4 Revenue, Reports, Feedback, Resources:
     item nav utama dibagi ke cluster yang dipisah garis tipis, tanpa
     label kelompok (kecuali ADMIN yang sudah punya label). Urutan
     cluster = urutan tampil di sidebar; urutan di dalam cluster
     mengikuti MODULES. */
 const CLUSTER_SIDEBAR: ModuleId[][] = [
-  ['home', 'todo', 'chat'],
+  ['home', 'todo', 'chat', 'meeting'],
   ['kontrak', 'mou', 'komitmen', 'approvement'],
-  ['marketing', 'prospek', 'offer', 'order', 'klien', 'meeting'],
-  ['revenue', 'reporting', 'service', 'umpanBalik'],
+  ['marketing', 'klien', 'prospek', 'offer', 'order'],
+  ['revenue', 'reporting', 'umpanBalik', 'service'],
 ];
 
 /** ID berikutnya dengan awalan yang sama (mis. KLN-01 -> KLN-02). */

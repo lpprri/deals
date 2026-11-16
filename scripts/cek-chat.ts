@@ -1,9 +1,13 @@
 // Verifikasi Chat antar operator 1-to-1 + penataan ulang sidebar
 // (PR #45, src/App.tsx + src/modules/Chat.tsx + src/lib/pesan.ts).
-// Asersi: cluster 1 = Home, Task, Chat; cluster 2 tidak berubah;
-// cluster 3 tidak berubah; cluster 4 = Revenue, Reports, Resources,
-// Feedback ('umpanBalik' pindah ke cluster 4 paling bawah, PR #47,
-// 16/11/2026); TIDAK ADA cluster 5 (CLUSTER_SIDEBAR hanya berisi
+// Asersi: cluster 1 = Home, Task, Chat, Meeting (Meeting pindah
+// dari cluster 3 ke bawah cluster 1, PR #48, 16/11/2026); cluster 2
+// tidak berubah; cluster 3 = Campaign, Clients, Prospect, Offer,
+// Order (tanpa Meeting); cluster 4 = Revenue, Reports, Feedback,
+// Resources ('umpanBalik' di antara Reports dan Resources, PR #48 —
+// PR #47 salah menaruhnya paling bawah karena urutan tampil
+// mengikuti urutan MODULES, bukan CLUSTER_SIDEBAR); TIDAK ADA
+// cluster 5 (CLUSTER_SIDEBAR hanya berisi
 // 4 cluster); modul `chat` terdaftar di MODULES tepat setelah `todo`
 // + cabang render ada; `pesan` kosong di seed (tanpa pesan contoh); helper `idPercakapan`
 // deterministik (urutan argumen tidak berpengaruh; pasangan berbeda ->
@@ -50,11 +54,12 @@ const barisCluster = blokCluster
 
 // --- Asersi CLUSTER_SIDEBAR (PR #45: Task + Chat ke cluster 1,
 // Resources ke cluster 4, cluster 5 hilang; PR #47: 'umpanBalik'
-// ke cluster 4 paling bawah). ---
+// ke cluster 4; PR #48: Feedback di antara Reports dan Resources,
+// Meeting dari cluster 3 ke cluster 1 paling bawah). ---
 cek(
-  'cluster 1 = Home, Task, Chat (berurutan)',
+  'cluster 1 = Home, Task, Chat, Meeting (berurutan)',
   JSON.stringify(barisCluster[0]) ===
-    JSON.stringify(['home', 'todo', 'chat']),
+    JSON.stringify(['home', 'todo', 'chat', 'meeting']),
   (barisCluster[0] ?? []).join(', '),
 );
 cek(
@@ -64,22 +69,15 @@ cek(
   (barisCluster[1] ?? []).join(', '),
 );
 cek(
-  'cluster 3 tidak berubah (Campaign, Prospect, Offer, Order, Clients, Meeting)',
+  'cluster 3 = Campaign, Clients, Prospect, Offer, Order (tanpa Meeting)',
   JSON.stringify(barisCluster[2]) ===
-    JSON.stringify([
-      'marketing',
-      'prospek',
-      'offer',
-      'order',
-      'klien',
-      'meeting',
-    ]),
+    JSON.stringify(['marketing', 'klien', 'prospek', 'offer', 'order']),
   (barisCluster[2] ?? []).join(', '),
 );
 cek(
-  'cluster 4 = Revenue, Reports, Resources, Feedback (berurutan)',
+  'cluster 4 = Revenue, Reports, Feedback, Resources (berurutan)',
   JSON.stringify(barisCluster[3]) ===
-    JSON.stringify(['revenue', 'reporting', 'service', 'umpanBalik']),
+    JSON.stringify(['revenue', 'reporting', 'umpanBalik', 'service']),
   (barisCluster[3] ?? []).join(', '),
 );
 cek(

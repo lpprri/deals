@@ -2,13 +2,15 @@
 // Asersi: entri 'dashboard' punya induk 'reporting'; 'umpanBalik'
 // TIDAK lagi punya induk (PR #47, 16/11/2026 — Feedback Survey
 // keluar dari panel REPORTS menjadi navigasi top-level 'Feedback' di
-// cluster 4 paling bawah, label MODULES jadi 'Feedback'); panel
+// cluster 4; PR #48 — Feedback di antara Reports dan Resources,
+// Meeting pindah ke cluster 1 paling bawah); panel
 // REPORTS kini hanya berisi Dashboard; simulasi aturan yang sama
 // dengan kode (navUtama = tanpa induk & bukan Admin; panel =
 // anak-anak induk; panelUntukTampilan = induk bila ada, dirinya bila
 // punya anak, null bila tidak ada); cluster 4 CLUSTER_SIDEBAR =
-// ['revenue', 'reporting', 'service', 'umpanBalik'] (tanpa dashboard;
-// 'service' pindah ke cluster 4 di PR #45, 'umpanBalik' di PR #47);
+// ['revenue', 'reporting', 'umpanBalik', 'service'] (tanpa dashboard;
+// 'service' pindah ke cluster 4 di PR #45, 'umpanBalik' di PR #47,
+// Feedback di antara Reports dan Resources di PR #48);
 // tampilan awal login tetap 'dashboard'; cabang render Dashboard
 // tetap ada; logika panel generik tidak berubah.
 // CATATAN: asersi bentuk cluster di sini diperbarui di PR #45 —
@@ -138,24 +140,17 @@ const barisCluster = blokCluster
   .filter((baris) => baris.startsWith('['))
   .map((baris) => [...baris.matchAll(/'(\w+)'/g)].map((b) => b[1]));
 cek(
-  'cluster 4 = Revenue, Reports, Resources, Feedback (tanpa Dashboard)',
+  'cluster 4 = Revenue, Reports, Feedback, Resources (tanpa Dashboard)',
   JSON.stringify(barisCluster[3]) ===
-    JSON.stringify(['revenue', 'reporting', 'service', 'umpanBalik']),
+    JSON.stringify(['revenue', 'reporting', 'umpanBalik', 'service']),
   (barisCluster[3] ?? []).join(', '),
 );
 cek(
-  'cluster lain tidak berubah (cluster 1 Home, Task, Chat; cluster 3 Campaign…Meeting tanpa Sales)',
+  'cluster lain sesuai PR #48 (cluster 1 Home, Task, Chat, Meeting; cluster 3 Campaign, Clients, Prospect, Offer, Order)',
   JSON.stringify(barisCluster[0]) ===
-    JSON.stringify(['home', 'todo', 'chat']) &&
+    JSON.stringify(['home', 'todo', 'chat', 'meeting']) &&
     JSON.stringify(barisCluster[2]) ===
-      JSON.stringify([
-        'marketing',
-        'prospek',
-        'offer',
-        'order',
-        'klien',
-        'meeting',
-      ]) &&
+      JSON.stringify(['marketing', 'klien', 'prospek', 'offer', 'order']) &&
     barisCluster.length === 4,
 );
 

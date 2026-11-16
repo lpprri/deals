@@ -1,6 +1,6 @@
 // Verifikasi Sales dihapus dari navigasi sidebar (PR #43, src/App.tsx).
 // Asersi: 'sales' TIDAK ada di CLUSTER_SIDEBAR mana pun (cluster 3 =
-// Campaign, Prospect, Offer, Order, Clients, Meeting); cluster lain
+// Campaign, Clients, Prospect, Offer, Order); cluster lain
 // tidak berubah; entri MODULES 'sales' + cabang render tetap ada;
 // semua komponen Sales yang dipakai ulang tetap diekspor dan dipakai
 // (TabProspek, TabOrder, TabMeeting, TabAnalytics, FormQuotation);
@@ -10,7 +10,11 @@
 // Home, Task, Chat; cluster 4 kini Revenue, Reports, Resources;
 // cluster 5 hilang. CATATAN PR #47 (16/11/2026): cluster 4 kini
 // Revenue, Reports, Resources, Feedback ('umpanBalik' pindah ke
-// cluster 4 paling bawah). Asersi "cluster lain" di bawah mengikuti
+// cluster 4). CATATAN PR #48 (16/11/2026): cluster 4 kini Revenue,
+// Reports, Feedback, Resources; cluster 1 kini Home, Task, Chat,
+// Meeting; cluster 3 kini Campaign, Clients, Prospect, Offer, Order
+// (Meeting pindah ke cluster 1; Clients naik ke setelah Campaign).
+// Asersi "cluster lain" di bawah mengikuti
 // bentuk AKHIR itu; inti skrip ini (Sales tidak di sidebar) tidak
 // berubah.
 // Skrip ini membaca berkas sebagai teks. Keluar bukan-nol bila ada
@@ -45,15 +49,14 @@ const barisCluster = blokCluster
 
 // --- Asersi CLUSTER_SIDEBAR. ---
 cek(
-  "cluster 3 = Campaign, Prospect, Offer, Order, Clients, Meeting (tanpa Sales)",
+  "cluster 3 = Campaign, Clients, Prospect, Offer, Order (tanpa Sales/Meeting)",
   JSON.stringify(barisCluster[2]) ===
     JSON.stringify([
       'marketing',
+      'klien',
       'prospek',
       'offer',
       'order',
-      'klien',
-      'meeting',
     ]),
   (barisCluster[2] ?? []).join(', '),
 );
@@ -62,13 +65,13 @@ cek(
   !barisCluster.some((c) => c.includes('sales')),
 );
 cek(
-  'cluster lain tidak berubah (1 Home/Task/Chat; 2 Contract/MoU/Commitment/Approvement; 4 Revenue/Reports/Resources/Feedback; tanpa cluster 5)',
+  'cluster lain sesuai PR #48 (1 Home/Task/Chat/Meeting; 2 Contract/MoU/Commitment/Approvement; 4 Revenue/Reports/Feedback/Resources; tanpa cluster 5)',
   JSON.stringify(barisCluster[0]) ===
-    JSON.stringify(['home', 'todo', 'chat']) &&
+    JSON.stringify(['home', 'todo', 'chat', 'meeting']) &&
     JSON.stringify(barisCluster[1]) ===
       JSON.stringify(['kontrak', 'mou', 'komitmen', 'approvement']) &&
     JSON.stringify(barisCluster[3]) ===
-      JSON.stringify(['revenue', 'reporting', 'service', 'umpanBalik']) &&
+      JSON.stringify(['revenue', 'reporting', 'umpanBalik', 'service']) &&
     barisCluster.length === 4,
   barisCluster.map((c) => c.join(',')).join(' | '),
 );
