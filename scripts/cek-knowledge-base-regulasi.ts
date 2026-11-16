@@ -10,7 +10,7 @@
 // - Invarian perbaikan idBerikutnya (PR #49): jangkar ^(\d+) tidak
 //   mengubah id berikutnya untuk semua skema id yang sudah ada, dan id
 //   KB manual berikutnya adalah 'KB-01' (bukan 'KB-2024').
-import { statSync } from 'node:fs';
+import { statSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { DATA_NYATA } from '../src/lib/seedNyata';
 import { ARTIKEL_REGULASI } from '../src/lib/artikelRegulasi';
@@ -266,6 +266,16 @@ cek(
   'idKbManualBerikutnya',
   berikut('KB-', true, semuaId) === 'KB-01',
   `berikut('KB-') = ${berikut('KB-', true, semuaId)} (bukan KB-2024)`,
+);
+
+// ---------- Judul tab browser (PR #49, lipatan 09:42 WIB) ----------
+// index.html <title> "RRI Deals" (bukan lagi "Partnership LPP RRI").
+const judulTab = readFileSync(join(process.cwd(), 'index.html'), 'utf8');
+cek(
+  'judulTabRriDeals',
+  judulTab.includes('<title>RRI Deals</title>') &&
+    !judulTab.includes('<title>Partnership LPP RRI</title>'),
+  'index.html <title> = RRI Deals',
 );
 
 console.log(`\n${lolos}/${total} asersi lolos.`);
