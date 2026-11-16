@@ -24,10 +24,12 @@ import {
 } from '../lib/labels';
 import { sisaTagihan, statusTagihan } from '../lib/derive';
 import {
+  detailLayananKontrak,
   jenisKlienYangAda,
   judulKontrak,
   labelArahUrutKontrak,
   nomorReferensiKontrak,
+  tanggalPenandatangananKontrak,
   urutkanKontrak,
   type ArahUrutKontrak,
   type KunciUrutKontrak,
@@ -725,32 +727,52 @@ export function TabKontrak({
           <Tabel>
             <thead>
               <tr>
-                <Th>Contract Number</Th>
-                <Th>Reference Number</Th>
+                <Th>No.</Th>
+                <Th>Contract &amp; Reference Number</Th>
                 <Th>Contract Title</Th>
-                <Th>Creation Date</Th>
+                <Th>Signing Date</Th>
                 <Th>Client</Th>
                 <Th>Service Type</Th>
+                <Th>Service / BMN Detail</Th>
                 <Th>Contract Period</Th>
                 <Th kanan>Contract Value</Th>
               </tr>
             </thead>
             <tbody>
-              {kontrakTersaring.map((k) => (
+              {kontrakTersaring.map((k, indeks) => (
                 <Baris key={k.id} onClick={() => onPilihKontrak(k.id)}>
-                  <Td tebal>{k.nomorPks}</Td>
-                  <Td>{nomorReferensiKontrak(k) ?? '—'}</Td>
+                  {/*
+                    Nomor urut tampil — indeks baris sesudah filter +
+                    sort (kontrakTersaring), jadi nomor 1 selalu baris
+                    pertama yang terlihat dan tetap 1..N berurutan
+                    sesudah filter. (Keputusan pengguna 16/11/2026
+                    13:31 WIB.)
+                  */}
+                  <Td>{indeks + 1}</Td>
+                  {/*
+                    Nomor kontrak + nomor referensi digabung dalam satu
+                    kolom (keputusan pengguna 16/11/2026 13:35 WIB):
+                    nomor kontrak tebal di baris pertama, nomor referensi
+                    lebih kecil di baris kedua; "—" bila tanpa referensi.
+                  */}
+                  <Td>
+                    <div className="font-semibold">{k.nomorPks}</div>
+                    <div className="text-xs text-[#0d2569]/70">
+                      {nomorReferensiKontrak(k) ?? '—'}
+                    </div>
+                  </Td>
                   <Td>{judulKontrak(k) ?? '—'}</Td>
                   {/*
-                    Creation Date ("Tanggal Kontrak" di file) TIDAK ada
-                    sebagai field di app — tampil "—" dengan jujur.
-                    tanggalTandaTangan TIDAK BOLEH dipakai di sini: nilainya
-                    == tanggalMulai di 42/42 kontrak dan berbeda dari file
-                    pada 33/40 kontrak (audit 16/11/2026).
+                    Kolom tanggal penandatanganan — per keputusan pengguna
+                    16/11/2026 13:29 WIB, kolom ini menggantikan kolom
+                    tanggal pembuatan: tanggalTandaTangan, fallback
+                    tanggalMulai — pola yang sama dengan kunci sort
+                    'tandaTangan' (tanggalAcuanKontrak).
                   */}
-                  <Td>—</Td>
+                  <Td>{formatTanggal(tanggalPenandatangananKontrak(k))}</Td>
                   <Td>{namaKlien(data, k.klienId)}</Td>
                   <Td>{labelKategoriLayanan(k.kategoriLayanan)}</Td>
+                  <Td>{detailLayananKontrak(k) ?? '—'}</Td>
                   <Td>
                     {formatTanggal(k.tanggalMulai)} – {formatTanggal(k.tanggalSelesai)}
                   </Td>

@@ -12,11 +12,15 @@
 //   Komdigi, 027 Darojad 2025, 016 VGreen 2025; file menulis '-' / tanpa
 //   baris) menampilkan "—".
 // - "Tanggal Pembuatan Kontrak" (kolom "Tanggal Kontrak" di file) TIDAK
-//   tersimpan sebagai field di app. Pengganti terdekat, tanggalTandaTangan,
-//   TIDAK BOLEH dipakai: nilainya == tanggalMulai di 42/42 kontrak dan
-//   berbeda dari file pada 33/40 kontrak. Kolom Creation Date menampilkan
-//   "—" sampai tanggal itu diimpor sebagai field tersendiri (tindak lanjut,
-//   butuh update data mode live — BUKAN bagian PR ini).
+//   tersimpan sebagai field di app. Keputusan pengguna 16/11/2026
+//   13:29 WIB: kolom Creation Date DIGANTI menjadi Signing Date —
+//   "Creation Date sama dengan Signing Date" — jadi impor "Tanggal
+//   Kontrak" dari file TIDAK diperlukan. Kolom menampilkan
+//   tanggalTandaTangan (fallback tanggalMulai, pola yang sama dengan
+//   tanggalAcuanKontrak yang dipakai sort Signing Date); terisi 42/42
+//   kontrak seed. Catatan: tanggalTandaTangan == tanggalMulai di 42/42
+//   kontrak dan berbeda dari file pada 33/40 kontrak — itu data yang
+//   tersimpan, bukan karangan.
 // - Jenis Klien di data: 5 nilai, persis MASTER_JENIS_KLIEN
 //   (Pemerintah, BUMN/BUMD, Swasta, Perorangan, Lembaga/Organisasi).
 
@@ -47,6 +51,32 @@ export function judulKontrak(kontrak: Kontrak): string | undefined {
 /** Nomor referensi kontrak — diparsing dari `catatan` ("No. Referensi: ..."). */
 export function nomorReferensiKontrak(kontrak: Kontrak): string | undefined {
   return segmenCatatan(kontrak.catatan, 'No. Referensi');
+}
+
+/**
+ * Detail layanan / BMN — nama-nama layanan kontrak, digabung "; " bila
+ * lebih dari satu (39 kontrak punya 1 layanan, 3 kontrak punya 3).
+ * Nama diambil apa adanya dari data: 16 kontrak sewa menampilkan teks
+ * generik yang sama "Sewa Lahan / BMN" — itu isi sumber, bukan karangan.
+ * undefined bila kontrak tidak punya layanan.
+ */
+export function detailLayananKontrak(kontrak: Kontrak): string | undefined {
+  const nama = (kontrak.layanan ?? [])
+    .map((l) => l.namaLayanan)
+    .filter((n) => n !== '');
+  return nama.length === 0 ? undefined : nama.join('; ');
+}
+
+/**
+ * Tanggal penandatanganan kontrak untuk kolom Signing Date — keputusan
+ * pengguna 16/11/2026 13:29 WIB (Creation Date = Signing Date).
+ * Sama dengan tanggalAcuanKontrak: tanggalTandaTangan bila ada, bila
+ * belum diisi memakai tanggalMulai sebagai fallback — pola yang sama
+ * dengan kunci sort 'tandaTangan', supaya kolom dan sort tidak pernah
+ * berbeda nilainya.
+ */
+export function tanggalPenandatangananKontrak(kontrak: Kontrak): string {
+  return tanggalAcuanKontrak(kontrak);
 }
 
 /**
