@@ -20,8 +20,8 @@ const jumlah = (xs: { nilai: number }[]) => xs.reduce((s, x) => s + x.nilai, 0);
 
 const semua = ringkasanAnalytics(DATA_NYATA, FILTER_ANALYTICS_KOSONG);
 cek('tanpa filter: nilaiKontrak', semua.nilaiKontrak === 441863375, `Rp${semua.nilaiKontrak.toLocaleString('id-ID')}`);
-cek('tanpa filter: pembayaran terverifikasi', semua.pembayaranTerverifikasi === 229405255, `Rp${semua.pembayaranTerverifikasi.toLocaleString('id-ID')}`);
-cek('tanpa filter: sisa piutang', semua.sisaPiutang === 149662949, `Rp${semua.sisaPiutang.toLocaleString('id-ID')}`);
+cek('tanpa filter: pembayaran terverifikasi', semua.pembayaranTerverifikasi === 362329255, `Rp${semua.pembayaranTerverifikasi.toLocaleString('id-ID')}`);
+cek('tanpa filter: sisa piutang', semua.sisaPiutang === 14084869, `Rp${semua.sisaPiutang.toLocaleString('id-ID')}`);
 cek('tanpa filter: jumlah kontrak', semua.jumlahKontrak === 42, `${semua.jumlahKontrak}`);
 cek('tanpa filter: jumlah klien', semua.jumlahKlien === 33, `${semua.jumlahKlien}`);
 cek('perKategori dijumlahkan ke total', jumlah(semua.perKategori) === semua.nilaiKontrak, `${semua.perKategori.map((b) => `${b.label}=${b.jumlah}`).join(', ')}`);

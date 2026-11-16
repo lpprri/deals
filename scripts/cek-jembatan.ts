@@ -13,12 +13,12 @@ const cek = (nama: string, aktual: number, harap: number) => {
     console.log(`OK ${nama}: ${aktual}`);
   }
 };
-cek('selisih', j.selisih, 28185113);
+cek('selisih', j.selisih, -104738887); // PR #52: pembayaran terverifikasi kini melebihi acuan Jan-Sep (3 pembayaran Okt 2026)
 cek('selisih==kontrol', j.selisih, kontrol.selisihRekonsiliasi);
 cek('acuanTanpaPembayaran.total', j.acuanTanpaPembayaran.total, 56577613);
 cek('acuanTanpaPembayaran.baris', j.acuanTanpaPembayaran.jumlahBaris, 21);
-cek('pembayaranTanpaAcuan.total', j.pembayaranTanpaAcuan.total, 28392500);
-cek('pembayaranTanpaAcuan.baris', j.pembayaranTanpaAcuan.jumlahBaris, 2);
+cek('pembayaranTanpaAcuan.total', j.pembayaranTanpaAcuan.total, 161316500); // PR #52: 2x 2025 (28.392.500) + 3x Okt 2026 (132.924.000)
+cek('pembayaranTanpaAcuan.baris', j.pembayaranTanpaAcuan.jumlahBaris, 5);
 cek('sisaTakTerjelaskan', j.sisaTakTerjelaskan, 0);
 cek('pasangan.jumlahBarisAcuan', j.pasangan.jumlahBarisAcuan, 40);
 cek('pasangan.jumlahPembayaran', j.pasangan.jumlahPembayaran, 40);
