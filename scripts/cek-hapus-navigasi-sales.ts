@@ -8,8 +8,11 @@
 // onNavigasi 'sales', tanpa notifikasi bermodul 'sales').
 // CATATAN PR #45 (16/11/2026): bentuk cluster berubah — cluster 1 kini
 // Home, Task, Chat; cluster 4 kini Revenue, Reports, Resources;
-// cluster 5 hilang. Asersi "cluster lain" di bawah mengikuti bentuk
-// AKHIR itu; inti skrip ini (Sales tidak di sidebar) tidak berubah.
+// cluster 5 hilang. CATATAN PR #47 (16/11/2026): cluster 4 kini
+// Revenue, Reports, Resources, Feedback ('umpanBalik' pindah ke
+// cluster 4 paling bawah). Asersi "cluster lain" di bawah mengikuti
+// bentuk AKHIR itu; inti skrip ini (Sales tidak di sidebar) tidak
+// berubah.
 // Skrip ini membaca berkas sebagai teks. Keluar bukan-nol bila ada
 // asersi gagal.
 import { readFileSync } from 'node:fs';
@@ -59,13 +62,13 @@ cek(
   !barisCluster.some((c) => c.includes('sales')),
 );
 cek(
-  'cluster lain tidak berubah (1 Home/Task/Chat; 2 Contract/MoU/Commitment/Approvement; 4 Revenue/Reports/Resources; tanpa cluster 5)',
+  'cluster lain tidak berubah (1 Home/Task/Chat; 2 Contract/MoU/Commitment/Approvement; 4 Revenue/Reports/Resources/Feedback; tanpa cluster 5)',
   JSON.stringify(barisCluster[0]) ===
     JSON.stringify(['home', 'todo', 'chat']) &&
     JSON.stringify(barisCluster[1]) ===
       JSON.stringify(['kontrak', 'mou', 'komitmen', 'approvement']) &&
     JSON.stringify(barisCluster[3]) ===
-      JSON.stringify(['revenue', 'reporting', 'service']) &&
+      JSON.stringify(['revenue', 'reporting', 'service', 'umpanBalik']) &&
     barisCluster.length === 4,
   barisCluster.map((c) => c.join(',')).join(' | '),
 );

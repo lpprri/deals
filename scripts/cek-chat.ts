@@ -1,10 +1,11 @@
 // Verifikasi Chat antar operator 1-to-1 + penataan ulang sidebar
 // (PR #45, src/App.tsx + src/modules/Chat.tsx + src/lib/pesan.ts).
 // Asersi: cluster 1 = Home, Task, Chat; cluster 2 tidak berubah;
-// cluster 3 tidak berubah; cluster 4 = Revenue, Reports, Resources;
-// TIDAK ADA cluster 5 (CLUSTER_SIDEBAR hanya berisi 4 cluster); modul
-// `chat` terdaftar di MODULES tepat setelah `todo` + cabang render ada;
-// `pesan` kosong di seed (tanpa pesan contoh); helper `idPercakapan`
+// cluster 3 tidak berubah; cluster 4 = Revenue, Reports, Resources,
+// Feedback ('umpanBalik' pindah ke cluster 4 paling bawah, PR #47,
+// 16/11/2026); TIDAK ADA cluster 5 (CLUSTER_SIDEBAR hanya berisi
+// 4 cluster); modul `chat` terdaftar di MODULES tepat setelah `todo`
+// + cabang render ada; `pesan` kosong di seed (tanpa pesan contoh); helper `idPercakapan`
 // deterministik (urutan argumen tidak berpengaruh; pasangan berbeda ->
 // id berbeda); blok `match /pesan/` ada di firestore.rules.
 // Skrip ini membaca berkas sebagai teks, kecuali helper pesan dan seed
@@ -48,7 +49,8 @@ const barisCluster = blokCluster
   .map((baris) => [...baris.matchAll(/'(\w+)'/g)].map((b) => b[1]));
 
 // --- Asersi CLUSTER_SIDEBAR (PR #45: Task + Chat ke cluster 1,
-// Resources ke cluster 4, cluster 5 hilang). ---
+// Resources ke cluster 4, cluster 5 hilang; PR #47: 'umpanBalik'
+// ke cluster 4 paling bawah). ---
 cek(
   'cluster 1 = Home, Task, Chat (berurutan)',
   JSON.stringify(barisCluster[0]) ===
@@ -75,9 +77,9 @@ cek(
   (barisCluster[2] ?? []).join(', '),
 );
 cek(
-  'cluster 4 = Revenue, Reports, Resources (berurutan)',
+  'cluster 4 = Revenue, Reports, Resources, Feedback (berurutan)',
   JSON.stringify(barisCluster[3]) ===
-    JSON.stringify(['revenue', 'reporting', 'service']),
+    JSON.stringify(['revenue', 'reporting', 'service', 'umpanBalik']),
   (barisCluster[3] ?? []).join(', '),
 );
 cek(
