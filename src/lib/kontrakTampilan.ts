@@ -27,7 +27,7 @@
 import type { Denda, Klien, Kontrak, Pembayaran, Tagihan } from './types';
 import { MASTER_JENIS_KLIEN } from './master';
 import { dibayarTerverifikasi, tanggalAcuanKontrak } from './derive';
-import { hariIniIso } from './format';
+import { hariIniIso, selisihHari } from './format';
 
 /** Ambil satu segmen "Kunci: nilai" dari teks catatan ("A | B | C"). */
 function segmenCatatan(catatan: string | undefined, kunci: string): string | undefined {
@@ -169,6 +169,32 @@ export function statusKerjaSamaKontrak(
   if (kontrak.status === 'Selesai') return 'Completed';
   if (kontrak.tanggalMulai > hariIni) return 'Upcoming';
   return 'On-Going';
+}
+
+/**
+ * Sisa hari kerja sama untuk kolom "Remaining Days" (keputusan pengguna
+ * 16/11/2026 15:29 WIB): hitung mundur hari kalender dari hari ini
+ * sampai tanggalSelesai; kontrak berstatus 'Selesai' menampilkan
+ * "Completed" (bukan angka).
+ *
+ * AUDIT (seed, per 2026-11-16): 15 kontrak non-Selesai, semuanya berakhir
+ * di masa depan — selisih terkecil 1 hari (10227, berakhir 17/11/2026),
+ * terbesar 807 hari (1051/1052/1053, berakhir 31/01/2029). TIDAK ADA
+ * kontrak non-Selesai yang tanggal akhirnya sudah lewat, jadi cabang
+ * selisih <= 0 tidak terjadi di data saat ini (diasersikan di skrip cek).
+ * Bila suatu saat terjadi di data live (tanggal akhir lewat tetapi status
+ * belum diubah ke 'Selesai'), angkanya ditampilkan apa adanya ("-5 days",
+ * "0 days") supaya ketidakcocokan itu terlihat, bukan disembunyikan.
+ * Tunggal vs jamak: "1 day", selain itu "N days".
+ */
+export function sisaHariKerjaSama(
+  kontrak: Kontrak,
+  hariIni: string = hariIniIso(),
+): string {
+  if (kontrak.status === 'Selesai') return 'Completed';
+  const sisa = selisihHari(hariIni, kontrak.tanggalSelesai);
+  if (sisa === 1) return '1 day';
+  return `${sisa} days`;
 }
 
 /** Nilai filter Payment Status di dropdown (Semua = tanpa filter). */
