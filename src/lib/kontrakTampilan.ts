@@ -24,13 +24,9 @@
 // - Jenis Klien di data: 5 nilai, persis MASTER_JENIS_KLIEN
 //   (Pemerintah, BUMN/BUMD, Swasta, Perorangan, Lembaga/Organisasi).
 
-import type { Klien, Kontrak, Pembayaran, Tagihan } from './types';
+import type { Denda, Klien, Kontrak, Pembayaran, Tagihan } from './types';
 import { MASTER_JENIS_KLIEN } from './master';
-import {
-  dibayarTerverifikasi,
-  sisaTagihan,
-  tanggalAcuanKontrak,
-} from './derive';
+import { dibayarTerverifikasi, tanggalAcuanKontrak } from './derive';
 import { hariIniIso } from './format';
 
 /** Ambil satu segmen "Kunci: nilai" dari teks catatan ("A | B | C"). */
@@ -85,22 +81,45 @@ export function tanggalPenandatangananKontrak(kontrak: Kontrak): string {
 }
 
 /**
- * Status pembayaran per kontrak — diturunkan dari tagihan + pembayaran
- * TERVERIFIKASI (keputusan pengguna 16/11/2026: filter Payment Status).
- * Kategori saling lepas: satu kontrak tepat satu kategori.
- * - Overdue: ada tagihan yang sudah lewat tanggal jatuh tempo DAN masih
- *   bersisa — precedence atas Unpaid/Partially-Paid (tagihan yang sudah
- *   dibayar sebagian tapi lewat jatuh tempo tetap Overdue).
- * - Paid: tidak ada sisa di semua tagihan. Kontrak tanpa tagihan — tidak
- *   ada di seed (42 kontrak = 42 tagihan) — dihitung Paid karena tidak
- *   ada yang ditagih.
- * - Partially-Paid: sudah ada pembayaran terverifikasi tetapi masih
- *   bersisa (dan tidak overdue).
- * - Unpaid: belum ada pembayaran terverifikasi sama sekali (dan tidak
- *   overdue).
+ * Status pembayaran per kontrak — diturunkan dari NILAI KONTRAK + DENDA
+ * (keputusan pengguna 16/11/2026 15:13–15:15 WIB, mengoreksi precedence
+ * PR #58). Pembandingnya adalah nilaiKontrak + total denda kontrak,
+ * BUKAN nilai tagihan.
+ *
+ * FAKTA DATA (audit 16/11/2026 terhadap seed): denda SUDAH tertanam di
+ * tagihan.nilai, TETAPI Σ tagihan.nilai == nilaiKontrak + total denda
+ * hanya di 34/42 kontrak — 7 kontrak punya tagihan yang nilainya memang
+ * lebih kecil dari nilai kontrak (5 sewa multi-tahun: 1051/1052/1053
+ * tagihan tahun pertama, 016/027 tagihan 2/3 nilai; plus 018 dan 10227
+ * yang Piutang di file lebih kecil dari nilai kontrak), dan 7054
+ * selisih Rp1 pembulatan impor (tagihan Rp9.801.321 vs nilaiKontrak +
+ * denda Rp9.801.322 — selisih yang sudah diketahui: nilaiKontrak 7054
+ * Rp7.904.292 vs file Rp7.904.291,5). Justru karena itu rumus di sini
+ * memakai nilaiKontrak + denda secara harfiah seperti kata pengguna —
+ * bukan Σ tagihan.nilai — supaya klasifikasi tetap benar: memakai
+ * Σ tagihan sebagai pembanding akan membuat ketujuh kontrak itu tetap
+ * Paid. Total denda = Σ Denda.jumlah atas tagihan kontrak itu dengan
+ * status selain 'Dihapus' (konvensi yang sama dengan totalDenda di
+ * derive.ts; denda 'Dibayar' tetap dihitung karena pembayarannya juga
+ * masuk ke total pembayaran terverifikasi).
+ *
+ * Kategori saling lepas (aturan baru, tanpa precedence):
+ * - Paid: total pembayaran Terverifikasi >= nilaiKontrak + total denda.
+ * - Partially-Paid: ada pembayaran Terverifikasi (> 0) tetapi totalnya
+ *   < nilaiKontrak + total denda — tidak peduli sudah lewat jatuh tempo
+ *   atau belum. Inilah yang membuat kontrak sewa multi-tahun yang
+ *   tagihannya baru tahun pertama (1051/1052/1053, 016, 027) masuk ke
+ *   sini: baru dibayar 1 tahun dari nilai kontrak 3 tahun.
+ * - Overdue: TIDAK ADA pembayaran sama sekali (0) DAN ada tagihan yang
+ *   sudah lewat tanggal jatuh tempo.
+ * - Unpaid: TIDAK ADA pembayaran sama sekali (0) DAN belum ada tagihan
+ *   yang lewat jatuh tempo.
  * "Hari ini" default = tanggal sistem (hariIniIso); skrip cek memakai
  * '2026-11-16' eksplisit supaya deterministik. Hanya pembayaran
- * Terverifikasi yang dihitung — sama dengan sisaTagihan di derive.ts.
+ * Terverifikasi yang dihitung.
+ * Catatan pinggir: kontrak tanpa tagihan (tidak ada di seed) dengan
+ * nilaiKontrak > 0 dan tanpa pembayaran dihitung Unpaid — tidak ada
+ * tanggal jatuh tempo yang bisa dilewati.
  */
 export type StatusPembayaranKontrak =
   | 'Unpaid'
@@ -112,20 +131,24 @@ export function statusPembayaranKontrak(
   kontrak: Kontrak,
   tagihan: Tagihan[],
   pembayaran: Pembayaran[],
+  denda: Denda[],
   hariIni: string = hariIniIso(),
 ): StatusPembayaranKontrak {
   const tagihanKontrak = tagihan.filter((t) => t.kontrakId === kontrak.id);
-  const adaSisaLewatJatuhTempo = tagihanKontrak.some(
-    (t) => sisaTagihan(t, pembayaran) > 0 && hariIni > t.tanggalJatuhTempo,
-  );
-  if (adaSisaLewatJatuhTempo) return 'Overdue';
-  if (tagihanKontrak.every((t) => sisaTagihan(t, pembayaran) === 0))
-    return 'Paid';
+  const idTagihan = new Set(tagihanKontrak.map((t) => t.id));
+  const totalDenda = denda
+    .filter((d) => idTagihan.has(d.tagihanId) && d.status !== 'Dihapus')
+    .reduce((s, d) => s + d.jumlah, 0);
   const totalDibayar = tagihanKontrak.reduce(
     (s, t) => s + dibayarTerverifikasi(t.id, pembayaran),
     0,
   );
-  return totalDibayar > 0 ? 'Partially-Paid' : 'Unpaid';
+  if (totalDibayar >= kontrak.nilaiKontrak + totalDenda) return 'Paid';
+  if (totalDibayar > 0) return 'Partially-Paid';
+  const adaLewatJatuhTempo = tagihanKontrak.some(
+    (t) => hariIni > t.tanggalJatuhTempo,
+  );
+  return adaLewatJatuhTempo ? 'Overdue' : 'Unpaid';
 }
 
 /**

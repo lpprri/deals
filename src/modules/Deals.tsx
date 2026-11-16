@@ -662,7 +662,7 @@ export function TabKontrak({
         (filterPnBP === 'Semua' || k.jenisPnBP === filterPnBP) &&
         (filterJenisKlien === 'Semua' || jenisKlien(k) === filterJenisKlien) &&
         (filterStatusPembayaran === 'Semua' ||
-          statusPembayaranKontrak(k, data.tagihan, data.pembayaran) ===
+          statusPembayaranKontrak(k, data.tagihan, data.pembayaran, data.denda) ===
             filterStatusPembayaran) &&
         (filterStatusKerjaSama === 'Semua' ||
           statusKerjaSamaKontrak(k) === filterStatusKerjaSama) &&

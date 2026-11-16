@@ -186,19 +186,25 @@ cek(
     undefined,
 );
 
-// ---------- filter Payment Status (keputusan pengguna 16/11/2026 13:56 WIB) ----------
-// Aturan (helper statusPembayaranKontrak, hari ini = 2026-11-16):
-// Overdue = ada tagihan lewat jatuh tempo DAN masih bersisa (precedence
-// atas Unpaid/Partially-Paid); Paid = tidak ada sisa di semua tagihan;
-// Partially-Paid = ada pembayaran terverifikasi tapi masih bersisa (dan
-// tidak overdue); Unpaid = belum ada pembayaran terverifikasi sama sekali
-// (dan tidak overdue). Hanya pembayaran Terverifikasi yang dihitung.
+// ---------- filter Payment Status (keputusan pengguna 16/11/2026 13:56 WIB,
+// DIKOREKSI pengguna 16/11/2026 15:13–15:15 WIB — membalik precedence PR #58) ----------
+// Aturan BARU (helper statusPembayaranKontrak, hari ini = 2026-11-16);
+// pembandingnya NILAI KONTRAK + DENDA, bukan nilai tagihan:
+// Paid = dibayar Terverifikasi >= nilaiKontrak + total denda;
+// Partially-Paid = 0 < dibayar < nilaiKontrak + total denda (tidak peduli
+// sudah lewat jatuh tempo atau belum — 6 kontrak bayar-sebagian yang dulu
+// Overdue kini Partially-Paid, ditambah 5 kontrak sewa multi-tahun yang
+// tagihannya baru tahun pertama: 1051/1052/1053, 016, 027);
+// Overdue = dibayar 0 DAN ada tagihan lewat jatuh tempo;
+// Unpaid = dibayar 0 DAN belum ada tagihan lewat jatuh tempo.
+// Hanya pembayaran Terverifikasi yang dihitung.
 const HARI_INI = '2026-11-16';
 const statusBayar = (nomor: string) =>
   statusPembayaranKontrak(
     cari(nomor),
     DATA_NYATA.tagihan,
     DATA_NYATA.pembayaran,
+    DATA_NYATA.denda,
     HARI_INI,
   );
 const hitungBayar = (s: string) =>
@@ -208,6 +214,7 @@ const hitungBayar = (s: string) =>
         k,
         DATA_NYATA.tagihan,
         DATA_NYATA.pembayaran,
+        DATA_NYATA.denda,
         HARI_INI,
       ) === s,
   ).length;
@@ -217,16 +224,48 @@ cek(
   statusBayar('001/PKS/DIR.LPU/01/2026') === 'Paid',
 );
 cek(
-  'payment status 1744 = Overdue (sebagian + lewat jatuh tempo)',
-  statusBayar('1744/PKS/RRI.PLB/03/2026') === 'Overdue',
+  'payment status 1744 = Partially-Paid (dibayar 15.000.000 dari 15.000.000 + denda 900.000)',
+  statusBayar('1744/PKS/RRI.PLB/03/2026') === 'Partially-Paid',
 );
 cek(
-  'payment status 2919 = Overdue',
-  statusBayar('2919/PKS/RRI.PLB/04/2026') === 'Overdue',
+  'payment status 2919 = Partially-Paid (dibayar 1.500.000 dari 1.500.000 + denda 30.000)',
+  statusBayar('2919/PKS/RRI.PLB/04/2026') === 'Partially-Paid',
 );
 cek(
-  'payment status 7054 = Overdue (sebagian + lewat jatuh tempo)',
-  statusBayar('7054/PKS/RRI.PLB/07/2026') === 'Overdue',
+  'payment status 2920 = Partially-Paid (dibayar 1.000.000 dari 1.000.000 + denda 20.000)',
+  statusBayar('2920/PKS/RRI.PLB/04/2026') === 'Partially-Paid',
+);
+cek(
+  'payment status 7052 = Partially-Paid (dibayar 6.000.000 dari 6.000.000 + denda 1.440.000)',
+  statusBayar('7052/PKS/RRI.PLB/07/2026') === 'Partially-Paid',
+);
+cek(
+  'payment status 7054 = Partially-Paid (dibayar 7.904.292 dari 7.904.292 + denda 1.897.030)',
+  statusBayar('7054/PKS/RRI.PLB/07/2026') === 'Partially-Paid',
+);
+cek(
+  'payment status 7060 = Partially-Paid (dibayar 4.116.000 dari 4.116.000 + denda 987.840)',
+  statusBayar('7060/PKS/RRI.PLB/07/2026') === 'Partially-Paid',
+);
+cek(
+  'payment status 1051 = Partially-Paid (sewa 3 tahun, baru dibayar 1 tahun: 6.455.000 dari 19.365.000)',
+  statusBayar('1051/PKS/RRI.PLB/02/2026') === 'Partially-Paid',
+);
+cek(
+  'payment status 1052 = Partially-Paid (sewa 3 tahun, baru dibayar 1 tahun: 6.455.000 dari 19.365.000)',
+  statusBayar('1052/PKS/RRI.PLB/02/2026') === 'Partially-Paid',
+);
+cek(
+  'payment status 1053 = Partially-Paid (sewa 3 tahun, baru dibayar 1 tahun: 5.648.000 dari 16.944.000)',
+  statusBayar('1053/PKS/RRI.PLB/02/2026') === 'Partially-Paid',
+);
+cek(
+  'payment status 016 VGreen = Partially-Paid (dibayar 34.292.500 dari 51.438.750)',
+  statusBayar('016/PKS/DIR.LPU/06/2025') === 'Partially-Paid',
+);
+cek(
+  'payment status 027 Darojad = Partially-Paid (dibayar 22.492.500 dari 33.738.750)',
+  statusBayar('027/RRI.PLB/PKS.U/06/2025') === 'Partially-Paid',
 );
 cek(
   'payment status 018 = Unpaid (jatuh tempo 2026-12-31)',
@@ -240,71 +279,150 @@ cek(
   'payment status 11290 = Unpaid (jatuh tempo 2026-11-27)',
   statusBayar('11290/PKS/RRI.PLB/10/2026') === 'Unpaid',
 );
-cek('payment status Paid = 33', hitungBayar('Paid') === 33, `${hitungBayar('Paid')}`);
-cek('payment status Overdue = 6', hitungBayar('Overdue') === 6, `${hitungBayar('Overdue')}`);
-cek('payment status Unpaid = 3', hitungBayar('Unpaid') === 3, `${hitungBayar('Unpaid')}`);
+cek('payment status Paid = 28', hitungBayar('Paid') === 28, `${hitungBayar('Paid')}`);
 cek(
-  'payment status Partially-Paid = 0 (jujur: 6 kontrak bayar-sebagian semuanya Overdue)',
-  hitungBayar('Partially-Paid') === 0,
+  'payment status Partially-Paid = 11 (6 bayar-sebagian + denda + 5 sewa multi-tahun)',
+  hitungBayar('Partially-Paid') === 11,
   `${hitungBayar('Partially-Paid')}`,
 );
-// Precedence: 6 kontrak yang dibayar sebagian (menurut jumlah) semuanya Overdue.
+cek('payment status Unpaid = 3', hitungBayar('Unpaid') === 3, `${hitungBayar('Unpaid')}`);
+cek(
+  'payment status Overdue = 0 (jujur: 3 kontrak tanpa pembayaran semuanya belum jatuh tempo)',
+  hitungBayar('Overdue') === 0,
+  `${hitungBayar('Overdue')}`,
+);
+// Denda tertanam di tagihan.nilai, TETAPI Σ tagihan == nilaiKontrak +
+// total denda hanya di 34/42 kontrak: 7 kontrak punya tagihan yang
+// nilainya memang lebih kecil dari nilai kontrak (5 sewa multi-tahun —
+// 1051/1052/1053 tagihan tahun pertama, 016/027 tagihan 2/3 nilai —
+// plus 018 dan 10227 yang Piutang di file lebih kecil dari nilai
+// kontrak), dan 7054 selisih Rp1 pembulatan impor. Justru karena itu
+// rumus helper memakai nilaiKontrak + denda secara harfiah (bukan
+// Σ tagihan): memakai Σ tagihan sebagai pembanding akan membuat
+// ketujuh kontrak itu tetap Paid.
+const dendaKontrak = (k: (typeof kontrak)[number]) => {
+  const idTagihan = new Set(
+    DATA_NYATA.tagihan.filter((t) => t.kontrakId === k.id).map((t) => t.id),
+  );
+  return DATA_NYATA.denda
+    .filter((d) => idTagihan.has(d.tagihanId) && d.status !== 'Dihapus')
+    .reduce((s, d) => s + d.jumlah, 0);
+};
+const cocokTarget = kontrak.filter((k) => {
+  const totalTagihan = DATA_NYATA.tagihan
+    .filter((t) => t.kontrakId === k.id)
+    .reduce((s, t) => s + t.nilai, 0);
+  return totalTagihan === k.nilaiKontrak + dendaKontrak(k);
+}).length;
+cek(
+  'Σ tagihan == nilaiKontrak + denda di 34/42 kontrak',
+  cocokTarget === 34,
+  `${cocokTarget}`,
+);
+cek(
+  '8 pengecualian Σ tagihan < nilaiKontrak + denda: 1051, 1052, 1053, 018, 10227, 027, 016, 7054',
+  JSON.stringify(
+    kontrak
+      .filter((k) => {
+        const totalTagihan = DATA_NYATA.tagihan
+          .filter((t) => t.kontrakId === k.id)
+          .reduce((s, t) => s + t.nilai, 0);
+        return totalTagihan !== k.nilaiKontrak + dendaKontrak(k);
+      })
+      .map((k) => k.nomorPks.split('/')[0])
+      .sort(),
+  ) === JSON.stringify(['016', '018', '027', '10227', '1051', '1052', '1053', '7054']),
+);
+cek(
+  '7054 satu-satunya selisih Rp1 (tagihan 9.801.321 vs nilaiKontrak + denda 9.801.322)',
+  DATA_NYATA.tagihan
+    .filter((t) => t.kontrakId === cari('7054/PKS/RRI.PLB/07/2026').id)
+    .reduce((s, t) => s + t.nilai, 0) -
+    (cari('7054/PKS/RRI.PLB/07/2026').nilaiKontrak +
+      dendaKontrak(cari('7054/PKS/RRI.PLB/07/2026'))) ===
+    -1,
+);
+// 11 kontrak yang dibayar sebagian (menurut nilai kontrak + denda)
+// semuanya Partially-Paid — tidak ada lagi yang masuk Overdue.
 const bayarSebagian = kontrak.filter((k) => {
   const tg = DATA_NYATA.tagihan.filter((t) => t.kontrakId === k.id);
   const total = tg.reduce(
     (s, t) => s + dibayarTerverifikasi(t.id, DATA_NYATA.pembayaran),
     0,
   );
-  const nilai = tg.reduce((s, t) => s + t.nilai, 0);
-  return total > 0 && total < nilai;
+  return total > 0 && total < k.nilaiKontrak + dendaKontrak(k);
 });
 cek(
-  '6 kontrak bayar-sebagian semuanya Overdue (precedence)',
-  bayarSebagian.length === 6 &&
+  '11 kontrak bayar-sebagian (vs nilaiKontrak + denda) semuanya Partially-Paid',
+  bayarSebagian.length === 11 &&
     bayarSebagian.every(
       (k) =>
         statusPembayaranKontrak(
           k,
           DATA_NYATA.tagihan,
           DATA_NYATA.pembayaran,
+          DATA_NYATA.denda,
           HARI_INI,
-        ) === 'Overdue',
+        ) === 'Partially-Paid',
     ),
   `${bayarSebagian.length}`,
 );
 // Kategori saling lepas: jumlah keempatnya = 42.
 cek(
-  'payment status saling lepas (33+6+3+0 = 42)',
+  'payment status saling lepas (28+11+3+0 = 42)',
   hitungBayar('Paid') +
-    hitungBayar('Overdue') +
+    hitungBayar('Partially-Paid') +
     hitungBayar('Unpaid') +
-    hitungBayar('Partially-Paid') ===
+    hitungBayar('Overdue') ===
     42,
 );
 // Kebenaran filter + nomor urut sesudah filter baru.
-const overdueNilaiDesc = urutkanKontrak(
+const sebagianNilaiDesc = urutkanKontrak(
   kontrak.filter(
     (k) =>
       statusPembayaranKontrak(
         k,
         DATA_NYATA.tagihan,
         DATA_NYATA.pembayaran,
+        DATA_NYATA.denda,
         HARI_INI,
-      ) === 'Overdue',
+      ) === 'Partially-Paid',
   ),
   'nilai',
   'turun',
 );
-cek('filter Overdue = 6 baris', overdueNilaiDesc.length === 6, `${overdueNilaiDesc.length}`);
 cek(
-  'filter Overdue + sort nilai desc pertama 1744',
-  overdueNilaiDesc[0].nomorPks === '1744/PKS/RRI.PLB/03/2026',
-  overdueNilaiDesc[0].nomorPks,
+  'filter Partially-Paid = 11 baris',
+  sebagianNilaiDesc.length === 11,
+  `${sebagianNilaiDesc.length}`,
 );
 cek(
-  'filter Overdue + sort nilai desc terakhir 2920',
-  overdueNilaiDesc[5].nomorPks === '2920/PKS/RRI.PLB/04/2026',
-  overdueNilaiDesc[5].nomorPks,
+  'filter Partially-Paid + sort nilai desc pertama 016 VGreen',
+  sebagianNilaiDesc[0].nomorPks === '016/PKS/DIR.LPU/06/2025',
+  sebagianNilaiDesc[0].nomorPks,
+);
+cek(
+  'filter Partially-Paid + sort nilai desc terakhir 2920',
+  sebagianNilaiDesc[10].nomorPks === '2920/PKS/RRI.PLB/04/2026',
+  sebagianNilaiDesc[10].nomorPks,
+);
+cek(
+  'filter Partially-Paid + sort nilai desc urutan 016, 027, 1051, 1052, 1053',
+  JSON.stringify(sebagianNilaiDesc.slice(0, 5).map((k) => k.nomorPks.split('/')[0])) ===
+    JSON.stringify(['016', '027', '1051', '1052', '1053']),
+);
+cek(
+  'filter Overdue = 0 baris (jujur: tidak ada kontrak nol-pembayaran yang lewat jatuh tempo)',
+  kontrak.filter(
+    (k) =>
+      statusPembayaranKontrak(
+        k,
+        DATA_NYATA.tagihan,
+        DATA_NYATA.pembayaran,
+        DATA_NYATA.denda,
+        HARI_INI,
+      ) === 'Overdue',
+  ).length === 0,
 );
 // Kombinasi dengan filter lama (PNBP Type).
 cek(
@@ -316,12 +434,13 @@ cek(
         k,
         DATA_NYATA.tagihan,
         DATA_NYATA.pembayaran,
+        DATA_NYATA.denda,
         HARI_INI,
       ) === 'Paid',
   ).length === 19,
 );
 cek(
-  'filter gabungan Fungsional + Overdue = 3',
+  'filter gabungan Fungsional + Partially-Paid = 3 (1744, 2919, 2920)',
   kontrak.filter(
     (k) =>
       k.jenisPnBP === 'Fungsional' &&
@@ -329,8 +448,9 @@ cek(
         k,
         DATA_NYATA.tagihan,
         DATA_NYATA.pembayaran,
+        DATA_NYATA.denda,
         HARI_INI,
-      ) === 'Overdue',
+      ) === 'Partially-Paid',
   ).length === 3,
 );
 
@@ -390,21 +510,36 @@ cek(
         k,
         DATA_NYATA.tagihan,
         DATA_NYATA.pembayaran,
+        DATA_NYATA.denda,
         HARI_INI,
       ) === 'Paid' && statusKerjaSamaKontrak(k, HARI_INI) === 'Completed',
   ).length === 20,
 );
 cek(
-  'filter gabungan Overdue + Completed = 6',
+  'filter gabungan Partially-Paid + Completed = 6 (1744, 2919, 2920, 7052, 7054, 7060)',
   kontrak.filter(
     (k) =>
       statusPembayaranKontrak(
         k,
         DATA_NYATA.tagihan,
         DATA_NYATA.pembayaran,
+        DATA_NYATA.denda,
         HARI_INI,
-      ) === 'Overdue' && statusKerjaSamaKontrak(k, HARI_INI) === 'Completed',
+      ) === 'Partially-Paid' && statusKerjaSamaKontrak(k, HARI_INI) === 'Completed',
   ).length === 6,
+);
+cek(
+  'filter gabungan Partially-Paid + On-Going = 5 (1051, 1052, 1053, 016, 027)',
+  kontrak.filter(
+    (k) =>
+      statusPembayaranKontrak(
+        k,
+        DATA_NYATA.tagihan,
+        DATA_NYATA.pembayaran,
+        DATA_NYATA.denda,
+        HARI_INI,
+      ) === 'Partially-Paid' && statusKerjaSamaKontrak(k, HARI_INI) === 'On-Going',
+  ).length === 5,
 );
 cek(
   'filter gabungan Overdue + On-Going = 0',
@@ -414,6 +549,7 @@ cek(
         k,
         DATA_NYATA.tagihan,
         DATA_NYATA.pembayaran,
+        DATA_NYATA.denda,
         HARI_INI,
       ) === 'Overdue' && statusKerjaSamaKontrak(k, HARI_INI) === 'On-Going',
   ).length === 0,
@@ -426,6 +562,7 @@ cek(
         k,
         DATA_NYATA.tagihan,
         DATA_NYATA.pembayaran,
+        DATA_NYATA.denda,
         HARI_INI,
       ) === 'Unpaid' && statusKerjaSamaKontrak(k, HARI_INI) === 'On-Going',
   ).length === 2,
@@ -558,7 +695,7 @@ cek(
 );
 cek(
   'kontrakTersaring pakai statusPembayaranKontrak',
-  tabKontrak.includes('statusPembayaranKontrak(k, data.tagihan, data.pembayaran)'),
+  tabKontrak.includes('statusPembayaranKontrak(k, data.tagihan, data.pembayaran, data.denda)'),
 );
 cek(
   'kontrakTersaring pakai statusKerjaSamaKontrak',
