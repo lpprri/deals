@@ -1,7 +1,8 @@
 // Modul Service (PRD v2.0 Final Bab 7.8; Q-12 terjawab 15/11/2026).
 // Tiga tab: Help-Desk (tiket konsultasi ke Direktorat Layanan &
 // Pengembangan Usaha), Knowledge Base (Regulasi & SOP nasional —
-// tombol unduh dokumen lengkap di sisi kanan tabel), dan FAQ
+// tombol View (preview Google Drive) dokumen lengkap di sisi kanan
+// tabel), dan FAQ
 // (tanya-jawab bersumber regulasi, PR #49). Tab Document (PR #49)
 // digabung ke dalam Knowledge Base (PR #50, 16/11/2026).
 // Tab Feedback Survey PINDAH ke sub-navigasi Reports (keputusan
@@ -793,7 +794,7 @@ function KnowledgeBase({
   return (
     <div className="space-y-4">
       <Peringatan teks="The Regulations & SOP list is national — read by all work units. Only add documents whose number and content have been verified; do not write regulation numbers from memory." />
-      <Peringatan teks="Download links point to the repository folder public/dokumen/. The files are uploaded there separately via the GitHub web UI — until then, a download link shows a 404." />
+      <Peringatan teks="Full regulation documents are stored on Google Drive — the View button opens a preview; download the file from the download button inside the preview." />
 
       {kurangRegulasi.length > 0 && (
         <Kartu>
@@ -902,7 +903,7 @@ function KnowledgeBase({
                 <Th>Category</Th>
                 <Th>Effective Since</Th>
                 <Th>Summary</Th>
-                <Th>Download</Th>
+                <Th>View</Th>
               </tr>
             </thead>
             <tbody>
@@ -919,11 +920,12 @@ function KnowledgeBase({
                       {tautan ? (
                         <a
                           href={tautan}
-                          download
+                          target="_blank"
+                          rel="noreferrer"
                           onClick={(e) => e.stopPropagation()}
                           className="font-semibold text-[#2573e2] underline"
                         >
-                          Download
+                          View
                         </a>
                       ) : (
                         '-'
