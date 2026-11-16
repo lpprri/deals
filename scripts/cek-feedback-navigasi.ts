@@ -186,8 +186,8 @@ cek(
   panelUntukTampilan('reporting') === 'reporting',
 );
 cek(
-  "tampilan awal login tetap 'dashboard' (panel REPORTS auto-open)",
-  app.includes("useState<ModuleId>('dashboard')") &&
+  "tampilan awal login 'home' (PR #59 — bukan lagi 'dashboard'; efek auto-open panel tetap ada, tapi Home tanpa panel)",
+  app.includes("useState<ModuleId>('home')") &&
     app.includes('const induk = panelUntukTampilan(active);') &&
     app.includes('if (induk) setPanelTerbuka(induk);'),
 );

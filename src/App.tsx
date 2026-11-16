@@ -570,7 +570,7 @@ function buatChecklistDokumen(kontrakId: string, dokumenLama: DokumenItem[]): Do
 export default function App() {
   const [user, setUser] = useState<DummyUser | null>(null);
   const [data, setData] = useState<AppData>(DATA_NYATA);
-  const [active, setActive] = useState<ModuleId>('dashboard');
+  const [active, setActive] = useState<ModuleId>('home');
   /** Sidebar bisa dilipat ke rel ikon saja — status disimpan di localStorage
       (pola sama seperti 'rri-bahasa-landing' di Beranda.tsx). */
   const [sidebarCiut, setSidebarCiut] = useState<boolean>(() => {
@@ -896,7 +896,7 @@ export default function App() {
     setSudahRemigrasi(false);
     setTanggalRemigrasi(undefined);
     setHalamanPublik('beranda');
-    setActive('dashboard');
+    setActive('home');
   };
 
   const tambahAudit = (

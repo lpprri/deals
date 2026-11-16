@@ -11,7 +11,9 @@
 // ['revenue', 'reporting', 'umpanBalik', 'service'] (tanpa dashboard;
 // 'service' pindah ke cluster 4 di PR #45, 'umpanBalik' di PR #47,
 // Feedback di antara Reports dan Resources di PR #48);
-// tampilan awal login tetap 'dashboard'; cabang render Dashboard
+// tampilan awal login 'home' (PR #59, 16/11/2026 — bukan lagi 'dashboard';
+// Home tidak punya sub-navigasi, jadi tidak ada panel yang terbuka
+// otomatis saat login); cabang render Dashboard
 // tetap ada; logika panel generik tidak berubah.
 // CATATAN: asersi bentuk cluster di sini diperbarui di PR #45 —
 // sebelumnya cluster 4 = ['revenue', 'reporting'] dan cluster 3
@@ -105,6 +107,10 @@ cek(
   panelUntukTampilan('revenue') === null,
 );
 cek(
+  "panelUntukTampilan('home') = null (Home tanpa sub-navigasi — tidak ada panel auto-open saat login)",
+  panelUntukTampilan('home') === null,
+);
+cek(
   "anak panel REPORTS hanya Dashboard (PR #47 — Feedback Survey keluar)",
   JSON.stringify(anakPanel('reporting')) === JSON.stringify(['dashboard']),
   anakPanel('reporting').join(', '),
@@ -156,8 +162,12 @@ cek(
 
 // --- Asersi tampilan awal + render + logika generik tak berubah. ---
 cek(
-  "tampilan awal login tetap 'dashboard'",
-  sumber.includes("useState<ModuleId>('dashboard')"),
+  "tampilan awal login 'home' (PR #59 — bukan lagi 'dashboard')",
+  sumber.includes("useState<ModuleId>('home')"),
+);
+cek(
+  "keluar (tanganiKeluar) mengembalikan tampilan ke 'home' (login berikutnya juga Home)",
+  sumber.includes("setActive('home')"),
 );
 cek(
   'cabang render Dashboard tetap ada',
