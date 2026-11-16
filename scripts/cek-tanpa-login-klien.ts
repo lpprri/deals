@@ -1,5 +1,7 @@
 // Verifikasi tindak lanjut "tanpa login klien" (KOREKSI 2026-11-15):
-// - 6 total kontrol dari DATA_NYATA harus sama persis (tidak berubah).
+// - 6 total kontrol dari DATA_NYATA (nilai baru per PR #52, 2026-11-16:
+//   tagihan/pembayaran/piutang/denda berubah karena penggantian data
+//   kontrak; nilai kontrak + PKS aktif + acuan TIDAK berubah).
 // - Lookup Lacak: nomor PKS nyata -> kontrak benar; nomor tagihan nyata
 //   -> kontrak yang sama; nomor salah -> tidak ditemukan; pencocokan
 //   tidak case-sensitive.
@@ -17,10 +19,10 @@ const cek = (nama: string, aktual: number, harap: number) => {
   } else console.log(`OK ${nama}: ${aktual}`);
 };
 cek('nilaiKontrak', k.nilaiKontrak, 441863375);
-cek('totalTagihan', k.totalTagihan, 379068204);
-cek('totalPembayaranTerverifikasi', k.totalPembayaranTerverifikasi, 229405255);
-cek('sisaPiutang', k.sisaPiutang, 149662949);
-cek('totalDenda', k.totalDenda, 8873330);
+cek('totalTagihan', k.totalTagihan, 376414124);
+cek('totalPembayaranTerverifikasi', k.totalPembayaranTerverifikasi, 362329255);
+cek('sisaPiutang', k.sisaPiutang, 14084869);
+cek('totalDenda', k.totalDenda, 6219250);
 cek('totalPenerimaanAcuan', k.totalPenerimaanAcuan, 257590368);
 console.log('pengajuanKlien di seed:', DATA_NYATA.pengajuanKlien.length);
 if (DATA_NYATA.pengajuanKlien.length !== 0) {

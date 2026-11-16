@@ -1,7 +1,8 @@
 // Data NYATA Palembang — hasil impor spreadsheet (PRD v2.0 Final Bab 12.3).
 // Dibuat OTOMATIS oleh scripts/impor-data-nyata/impor.mjs dari snapshot
 // ./data/ — JANGAN diubah manual; ubah sumbernya lalu jalankan ulang skrip.
-// Tanggal impor: 2026-11-14. Satker: PALEMBANG (pilot).
+// Tanggal impor: 2026-11-14; penggantian data kontrak 2026-11-16.
+// Satker: PALEMBANG (pilot).
 //
 // ISI:
 // - Klien/kontrak/tagihan/pembayaran/denda/dokumen/pengajuan: NYATA, dari
@@ -30,7 +31,17 @@
 // ANGKA KUNCI (dihitung ulang dari data ini — lihat laporan-rekonsiliasi):
 // - Nilai kontrak 2026: Rp356.685.875 (Jan–Sep Rp216.986.875 + Okt
 //   Rp139.699.000) + sisa kontrak 2025 Rp85.177.500.
-// - Total tagihan Rp379.068.204; total pembayaran Rp229.405.255.
+// - Total tagihan Rp376.414.124; total pembayaran Rp362.329.255;
+//   sisa piutang Rp14.084.869; denda Rp6.219.250 (per 2026-11-16).
+// - PENGGANTIAN DATA KONTRAK 2026-11-16 (PR #52): 40 kontrak 2026
+//   diganti dgn file Kerja_Sama_PNBP_2026.xlsx (Summary); 2 kontrak
+//   2025 (Darojad, PT VGreen) dipertahankan karena kerja sama masih
+//   berjalan. Perubahan bersih: +3 pembayaran (Samdini Rp132.704.000,
+//   1158 Rp180.000, denda 6593 Rp40.000); denda Samdini DND-013
+//   Rp2.654.080 dihapus (file: denda 0, Lunas, bukti NTB/NTPN);
+//   DND-009 (6593) lunas; jatuh tempo 10227/11290 ikut file.
+//   File pengganti TIDAK membawa snapshot baru di ./data/ — sumber
+//   pengganti adalah xlsx di atas; snapshot lama tetap arsip impor awal.
 
 import type { AppData } from './types';
 import { SATKER_PILOT } from './master';
@@ -39,7 +50,7 @@ import { FAQ_REGULASI } from './faqRegulasi';
 
 const S = SATKER_PILOT;
 
-export const TANGGAL_IMPOR = '2026-11-14';
+export const TANGGAL_IMPOR = '2026-11-16';
 
 export const DATA_NYATA: AppData = {
   klien: [
@@ -1888,7 +1899,7 @@ export const DATA_NYATA: AppData = {
     "penanggungJawab": "Ilham Juliando — K3 dan Keamanan",
     "operatorPenutup": "Dessi Maya Sari",
     "tanggalTandaTangan": "2026-09-22",
-    "catatan": "Judul: Spot Iklan Edukasi Bahaya & Manfaat Listrik | No. Referensi: 035/RRI.PLB/PKS.F/09/2026 | Keterangan sumber: Belum Jatuh Tempo",
+    "catatan": "Judul: Spot Iklan Edukasi Bahaya & Manfaat Listrik | No. Referensi: 035/RRI.PLB/PKS.F/09/2026 | Keterangan sumber: Pembayaran Tepat Waktu",
     "satker": {
       "kode": "41",
       "nama": "PALEMBANG"
@@ -1988,7 +1999,7 @@ export const DATA_NYATA: AppData = {
     "penanggungJawab": "Amalia Fatmasari — Kepala Seksi Bimbingan Penyuluhan dan Pengelolaan Dokumen",
     "operatorPenutup": "Meliyana",
     "tanggalTandaTangan": "2026-10-30",
-    "catatan": "Judul: Dialog Interaktif \"Bebas Sanksi Pajak Lewat Program Pengurangan Sanksi Administrasi (PSA) : Waktunya Kepatuhan Sukarela\" | No. Referensi: 038/RRI.PLB/PKS.F/10/2026",
+    "catatan": "Judul: Dialog Interaktif \"Bebas Sanksi Pajak Lewat Program Pengurangan Sanksi Administrasi (PSA) : Waktunya Kepatuhan Sukarela\" | No. Referensi: 038/RRI.PLB/PKS.F/10/2026 | Keterangan sumber: Belum Jatuh Tempo",
     "satker": {
       "kode": "41",
       "nama": "PALEMBANG"
@@ -3259,7 +3270,7 @@ export const DATA_NYATA: AppData = {
     "uraian": "Tagihan Siaran Iklan (Spot) — 10227/PKS/RRI.PLB/10/2026",
     "nilai": 2700000,
     "tanggalTerbit": "2026-10-12",
-    "tanggalJatuhTempo": "2026-11-17",
+    "tanggalJatuhTempo": "2026-12-15",
     "kodeAkun": "425531",
     "satker": {
       "kode": "41",
@@ -3271,7 +3282,7 @@ export const DATA_NYATA: AppData = {
     "nomor": "037/RRI.PLB/PKS.U/10/2026",
     "kontrakId": "10828/PKS/RRI.PLB/10/2026",
     "uraian": "Tagihan Sewa Lahan / BMN — 10828/PKS/RRI.PLB/10/2026",
-    "nilai": 135358080,
+    "nilai": 132704000,
     "tanggalTerbit": "2026-10-16",
     "tanggalJatuhTempo": "2026-09-16",
     "kodeAkun": "425131",
@@ -3287,7 +3298,7 @@ export const DATA_NYATA: AppData = {
     "uraian": "Tagihan Dialog Interaktif Dalam Studio — 11290/PKS/RRI.PLB/10/2026",
     "nilai": 2000000,
     "tanggalTerbit": "2026-10-29",
-    "tanggalJatuhTempo": "2026-10-30",
+    "tanggalJatuhTempo": "2026-11-27",
     "kodeAkun": "425531",
     "satker": {
       "kode": "41",
@@ -3911,6 +3922,48 @@ export const DATA_NYATA: AppData = {
       "kode": "41",
       "nama": "PALEMBANG"
     }
+  },
+  {
+    "id": "BYR-043",
+    "tagihanId": "TGH-035-RRI-PLB-PKS-F-09-2026",
+    "tanggalBayar": "2026-10-07",
+    "jumlah": 180000,
+    "metode": "Transfer Bank",
+    "buktiSetor": "NTB 820261007582400 / NTPN 8182F2G50CNOFP60",
+    "penyetor": "PT PLN (Persero) UPT Palembang",
+    "statusVerifikasi": "Terverifikasi",
+    "satker": {
+      "kode": "41",
+      "nama": "PALEMBANG"
+    }
+  },
+  {
+    "id": "BYR-044",
+    "tagihanId": "TGH-027-RRI-PLB-PKS-F-07-2026",
+    "tanggalBayar": "2026-10-13",
+    "jumlah": 40000,
+    "metode": "Transfer Bank",
+    "buktiSetor": "NTB 820261012368839 / NTPN 9C09D7QLVC67FRE7",
+    "penyetor": "Perempuan Indonesia Maju (PIM)",
+    "statusVerifikasi": "Terverifikasi",
+    "satker": {
+      "kode": "41",
+      "nama": "PALEMBANG"
+    }
+  },
+  {
+    "id": "BYR-045",
+    "tagihanId": "TGH-037-RRI-PLB-PKS-U-10-2026",
+    "tanggalBayar": "2026-10-16",
+    "jumlah": 132704000,
+    "metode": "Transfer Bank",
+    "buktiSetor": "NTB 820261012367367 / NTPN A6EBE7QLVC67FQ07",
+    "penyetor": "Samdini",
+    "statusVerifikasi": "Terverifikasi",
+    "satker": {
+      "kode": "41",
+      "nama": "PALEMBANG"
+    }
   }
 ],
   denda: [
@@ -4015,7 +4068,7 @@ export const DATA_NYATA: AppData = {
     "tagihanId": "TGH-027-RRI-PLB-PKS-F-07-2026",
     "dasar": "Terlambat 31 hari (jatuh tempo 2026-08-14, dibayar 2026-09-14); Keterlambatan Pembayaran | SPn-1",
     "jumlah": 40000,
-    "status": "Ditagihkan",
+    "status": "Dibayar",
     "kodeAkun": "425839",
     "satker": {
       "kode": "41",
@@ -4051,18 +4104,6 @@ export const DATA_NYATA: AppData = {
     "tagihanId": "TGH-033-RRI-PLB-PKS-U-07-2026",
     "dasar": "Terlambat 181 hari (jatuh tempo 2026-01-31, dibayar 2026-07-31); Keterlambatan Pembayaran | SPn-6",
     "jumlah": 987840,
-    "status": "Ditagihkan",
-    "kodeAkun": "425839",
-    "satker": {
-      "kode": "41",
-      "nama": "PALEMBANG"
-    }
-  },
-  {
-    "id": "DND-013",
-    "tagihanId": "TGH-037-RRI-PLB-PKS-U-10-2026",
-    "dasar": "Terlambat -46281 hari (jatuh tempo 2026-09-16, dibayar belum dibayar); Keterlambatan Pembayaran Karena Alasan Administratif",
-    "jumlah": 2654080,
     "status": "Ditagihkan",
     "kodeAkun": "425839",
     "satker": {

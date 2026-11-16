@@ -47,18 +47,18 @@ const cek = (nama: string, ok: boolean, detail = '') => {
 const cekAngka = (nama: string, aktual: number, harap: number) =>
   cek(nama, aktual === harap, `${aktual} (harap ${harap})`);
 
-// ---------- 6 total kontrol (tidak berubah) ----------
+// ---------- 6 total kontrol (nilai baru per PR #52) ----------
 const k = hitungTotalKontrol(DATA_NYATA);
 cekAngka('jumlahPksAktif', k.jumlahPks, 15);
 cekAngka('nilaiKontrak', k.nilaiKontrak, 441863375);
-cekAngka('totalTagihan', k.totalTagihan, 379068204);
+cekAngka('totalTagihan', k.totalTagihan, 376414124);
 cekAngka(
   'totalPembayaranTerverifikasi',
   k.totalPembayaranTerverifikasi,
-  229405255,
+  362329255,
 );
-cekAngka('sisaPiutang', k.sisaPiutang, 149662949);
-cekAngka('totalDenda', k.totalDenda, 8873330);
+cekAngka('sisaPiutang', k.sisaPiutang, 14084869);
+cekAngka('totalDenda', k.totalDenda, 6219250);
 cekAngka('totalPenerimaanAcuan', k.totalPenerimaanAcuan, 257590368);
 
 // ---------- 9 artikel regulasi ----------

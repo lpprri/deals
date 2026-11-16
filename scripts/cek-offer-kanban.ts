@@ -83,17 +83,17 @@ cekNilai(
   62000000,
 );
 
-// 5. Enam total kontrol tidak berubah.
+// 5. Enam total kontrol (nilai baru per PR #52 untuk 4 total).
 const k = hitungTotalKontrol(DATA_NYATA);
 cekNilai('nilaiKontrak', k.nilaiKontrak, 441863375);
-cekNilai('totalTagihan', k.totalTagihan, 379068204);
+cekNilai('totalTagihan', k.totalTagihan, 376414124);
 cekNilai(
   'totalPembayaranTerverifikasi',
   k.totalPembayaranTerverifikasi,
-  229405255,
+  362329255,
 );
-cekNilai('sisaPiutang', k.sisaPiutang, 149662949);
-cekNilai('totalDenda', k.totalDenda, 8873330);
+cekNilai('sisaPiutang', k.sisaPiutang, 14084869);
+cekNilai('totalDenda', k.totalDenda, 6219250);
 cekNilai('jumlahPks aktif', k.jumlahPks, 15);
 
 if (gagal > 0) {
