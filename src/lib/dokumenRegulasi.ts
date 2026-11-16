@@ -85,3 +85,19 @@ export const DOKUMEN_REGULASI: DokumenRegulasi[] = [
     ukuranByte: 2654753,
   },
 ];
+
+/**
+ * Tautan unduh satu artikel KB (PR #50, 16/11/2026): pakai `tautan` artikel
+ * bila ada; bila tidak ada — mis. artikel regulasi yang sudah di-seed ke
+ * Firestore sebelum PR #50, saat tautan belum tersimpan di data — cari
+ * berkasnya dari daftar kanonis lewat judul. Mengembalikan undefined bila
+ * tidak ada berkas yang cocok (tombol Download tidak tampil).
+ */
+export function tautanUnduhArtikel(a: {
+  judul: string;
+  tautan?: string;
+}): string | undefined {
+  if (a.tautan) return a.tautan;
+  const d = DOKUMEN_REGULASI.find((x) => x.judul === a.judul);
+  return d ? urlDokumenRegulasi(d.berkas) : undefined;
+}

@@ -10,12 +10,23 @@
 // halaman mana saja yang diperiksa.
 
 import type { ArtikelKB } from './types';
+import { DOKUMEN_REGULASI, urlDokumenRegulasi } from './dokumenRegulasi';
 
 const OLEH = 'Operator Layanan & Pengembangan Usaha';
 const PADA = '2026-11-16';
 
+/**
+ * Tautan berkas PDF satu regulasi, dari daftar kanonis dokumen (PR #50).
+ * Dipakai di bawah saat mengekspor ARTIKEL_REGULASI — tiap artikel
+ * membawa tautan unduhnya sendiri (`tautan`).
+ */
+function tautanDokumen(judul: string): string | undefined {
+  const d = DOKUMEN_REGULASI.find((x) => x.judul === judul);
+  return d ? urlDokumenRegulasi(d.berkas) : undefined;
+}
+
 /** 9 regulasi terverifikasi — judul = nama regulasi, kategori 'Regulasi'. */
-export const ARTIKEL_REGULASI: ArtikelKB[] = [
+const ARTIKEL_REGULASI_DASAR: ArtikelKB[] = [
   {
     id: 'KB-PMK-115-2021',
     judul: 'PMK 115/PMK.03/2021',
@@ -220,3 +231,48 @@ Catatan keterbatasan: lapisan teks tersedia (hasil OCR, ada salah ketik). Yang d
     dibuatPada: PADA,
   },
 ];
+
+/**
+ * Daftar kanonis yang dipakai seed mode contoh dan aksi seed mode live:
+ * sama dengan ARTIKEL_REGULASI_DASAR, ditambah tautan unduh berkas PDF
+ * tiap regulasi (`tautan`, PR #50) — dicari dari daftar kanonis dokumen
+ * lewat judul; artikel yang tidak punya berkas cocok tetap tanpa tautan.
+ */
+export const ARTIKEL_REGULASI: ArtikelKB[] = ARTIKEL_REGULASI_DASAR.map(
+  (a) => ({ ...a, tautan: a.tautan ?? tautanDokumen(a.judul) }),
+);
+
+/**
+ * Urutan tampil Knowledge Base — terbaru paling atas (PR #50, 16/11/2026).
+ * Kunci urut satu artikel: `tanggalBerlaku` bila ada; bila tidak ada,
+ * 1 Januari dari tahun yang tertulis pada judul (mis. "Perdirut RRI
+ * 11/2023" -> 2023); bila tidak ada keduanya, paling bawah. Seri
+ * mempertahankan urutan asal (sort stabil). Tahun dari judul HANYA
+ * dipakai sebagai kunci urut — kolom "Effective Since" tetap "-"
+ * bila tanggalBerlaku kosong; tidak ada tanggal yang dikarang
+ * untuk ditampilkan.
+ */
+export function kunciUrutArtikelKB(a: ArtikelKB): string | null {
+  if (a.tanggalBerlaku) return a.tanggalBerlaku;
+  const tahun = a.judul.match(/\b(?:19|20)\d{2}\b/g);
+  if (!tahun) return null;
+  return `${tahun[tahun.length - 1]}-01-01`;
+}
+
+/** Daftar artikel diurutkan terbaru-paling-atas (lihat kunciUrutArtikelKB). */
+export function urutkanArtikelKBBaruDulu<T extends ArtikelKB>(
+  daftar: readonly T[],
+): T[] {
+  return [...daftar]
+    .map((a, i) => ({ a, i }))
+    .sort((x, y) => {
+      const kx = kunciUrutArtikelKB(x.a);
+      const ky = kunciUrutArtikelKB(y.a);
+      if (kx === null && ky === null) return x.i - y.i;
+      if (kx === null) return 1;
+      if (ky === null) return -1;
+      if (kx !== ky) return kx < ky ? 1 : -1;
+      return x.i - y.i;
+    })
+    .map(({ a }) => a);
+}
