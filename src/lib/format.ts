@@ -10,6 +10,13 @@ export function formatAngka(nilai: number): string {
   return nilai.toLocaleString('id-ID');
 }
 
+/** Ukuran berkas: 701139 -> '685 KB', 7031454 -> '6,7 MB' (PR #49, tab Document). */
+export function formatUkuranBerkas(byte: number): string {
+  if (byte < 1024) return `${byte} B`;
+  if (byte < 1024 * 1024) return `${Math.round(byte / 1024)} KB`;
+  return `${(byte / (1024 * 1024)).toLocaleString('id-ID', { maximumFractionDigits: 1 })} MB`;
+}
+
 /** '2026-02-05' -> '05/02/2026'. Mengembalikan '-' bila kosong/tidak valid. */
 export function formatTanggal(iso: string | undefined): string {
   if (!iso) return '-';

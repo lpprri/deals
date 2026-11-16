@@ -310,6 +310,17 @@ export function labelKategoriTiket(kategori: string): string {
   );
 }
 
+/** Tampilan Inggris untuk kategori dokumen Knowledge Base (nilai tersimpan tetap Indonesia). */
+export function labelKategoriKB(kategori: string): string {
+  return petakan(
+    {
+      Regulasi: 'Regulation',
+      SOP: 'SOP',
+    },
+    kategori,
+  );
+}
+
 /** Sumber prospek (master): Pengajuan / Kunjungan / Referensi / Event / Media Sosial / Telepon / Lainnya. */
 export function labelSumberProspek(sumber: string): string {
   return petakan(

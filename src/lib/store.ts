@@ -210,6 +210,7 @@ export interface UmpanBalikInput {
 export interface ArtikelKBInput {
   judul: string;
   nomor?: string;
+  kategori?: string;
   tanggalBerlaku?: string;
   ringkasan: string;
   isi?: string;
@@ -311,6 +312,17 @@ export interface StoreActions {
   tambahUmpanBalik: (input: UmpanBalikInput) => string | null;
   /** Tambah entri Regulasi & SOP ke Knowledge Base (nasional, tanpa satker). */
   tambahArtikelKB: (input: ArtikelKBInput) => string | null;
+  /**
+   * Tambah artikel regulasi yang belum ada dari daftar kanonis
+   * (PR #49, ARTIKEL_REGULASI) — idempotent, tanpa duplikasi.
+   * Mengembalikan jumlah yang ditambah dan yang sudah ada.
+   */
+  seedArtikelKBRegulasi: () => { ditambah: number; sudahAda: number };
+  /**
+   * Tambah entri FAQ yang belum ada dari daftar kanonis (PR #49,
+   * FAQ_REGULASI) — idempotent, tanpa duplikasi.
+   */
+  seedFaqRegulasi: () => { ditambah: number; sudahAda: number };
   // Fase C — Chat antar operator 1-to-1 (PR #45, 16/11/2026).
   /**
    * Kirim pesan ke satu operator. Pesan TIDAK menulis entri audit:

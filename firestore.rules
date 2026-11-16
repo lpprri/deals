@@ -160,6 +160,12 @@ service cloud.firestore {
       allow read, create, update, delete: if adalahOperator();
     }
 
+    // ---------- FAQ Resources: nasional, tanpa field satker (PR #49) ----------
+    // Sama seperti artikelKB: dibaca Operator mana pun, ditulis Operator.
+    match /faq/{id} {
+      allow read, create, update, delete: if adalahOperator();
+    }
+
     // ---------- Audit: hanya tambah (append-only) ----------
     // Entri audit tidak boleh diubah atau dihapus setelah ditulis.
     match /audit/{id} {

@@ -54,6 +54,8 @@ import {
   tulisAudit,
 } from './lib/firestoreStore';
 import { DATA_NYATA, TANGGAL_IMPOR } from './lib/seedNyata';
+import { ARTIKEL_REGULASI } from './lib/artikelRegulasi';
+import { FAQ_REGULASI } from './lib/faqRegulasi';
 import type { DummyUser } from './lib/dummyUsers';
 import {
   MASTER_KATEGORI_LAYANAN,
@@ -506,7 +508,10 @@ function idBerikutnya(awalan: string, daftarId: string[]): string {
   let lebar = 2;
   for (const id of daftarId) {
     if (!id.startsWith(awalan)) continue;
-    const cocok = id.slice(awalan.length).match(/(\d+)/);
+    // Hanya angka DI AWAL sisa id yang dihitung (PR #49): id tetap seperti
+    // 'KB-PMK-115-2021' mengandung angka di tengah ('115', '2021') — tanpa
+    // jangkar, id manual berikutnya akan salah menjadi 'KB-2024'.
+    const cocok = id.slice(awalan.length).match(/^(\d+)/);
     if (!cocok) continue;
     maks = Math.max(maks, Number(cocok[1]));
     lebar = Math.max(lebar, cocok[1].length);
@@ -2439,6 +2444,7 @@ export default function App() {
         id,
         judul: input.judul.trim(),
         nomor: input.nomor?.trim() || undefined,
+        kategori: input.kategori?.trim() || undefined,
         tanggalBerlaku: input.tanggalBerlaku || undefined,
         ringkasan: input.ringkasan.trim(),
         isi: input.isi?.trim() || undefined,
@@ -2456,6 +2462,54 @@ export default function App() {
         artikel.judul,
       );
       return null;
+    },
+
+    // PR #49 — Seed daftar kanonis regulasi & FAQ (16/11/2026).
+    // Idempotent: hanya yang id-nya belum ada yang ditambah (tanpa
+    // duplikasi bila dijalankan berulang). Satu entri audit per operasi.
+    // Dipakai tombol di tab Knowledge Base / FAQ — di mode contoh semua
+    // sudah ada lewat seed (tombol tersembunyi), di mode live Firestore
+    // tombol muncul bila ada yang belum ada.
+    seedArtikelKBRegulasi: () => {
+      const hilang = ARTIKEL_REGULASI.filter(
+        (a) => !data.artikelKB.some((x) => x.id === a.id),
+      );
+      if (hilang.length === 0)
+        return { ditambah: 0, sudahAda: ARTIKEL_REGULASI.length };
+      setData((d) => ({ ...d, artikelKB: [...d.artikelKB, ...hilang] }));
+      hilang.forEach((a) => simpanKeFirestore('artikelKB', a.id, a));
+      tambahAudit(
+        'Artikel regulasi Knowledge Base ditambahkan',
+        'Knowledge Base',
+        `${hilang.length} artikel`,
+        '—',
+        hilang.map((a) => a.judul).join('; '),
+      );
+      return {
+        ditambah: hilang.length,
+        sudahAda: ARTIKEL_REGULASI.length - hilang.length,
+      };
+    },
+
+    seedFaqRegulasi: () => {
+      const hilang = FAQ_REGULASI.filter(
+        (f) => !data.faq.some((x) => x.id === f.id),
+      );
+      if (hilang.length === 0)
+        return { ditambah: 0, sudahAda: FAQ_REGULASI.length };
+      setData((d) => ({ ...d, faq: [...d.faq, ...hilang] }));
+      hilang.forEach((f) => simpanKeFirestore('faq', f.id, f));
+      tambahAudit(
+        'Entri FAQ Resources ditambahkan',
+        'FAQ',
+        `${hilang.length} entri`,
+        '—',
+        hilang.map((f) => f.pertanyaan).join('; '),
+      );
+      return {
+        ditambah: hilang.length,
+        sudahAda: FAQ_REGULASI.length - hilang.length,
+      };
     },
 
     // Fase C — Chat antar operator 1-to-1 (PR #45, 16/11/2026).

@@ -79,6 +79,8 @@ export const KOLEKSI: Record<keyof AppData, string> = {
   tiket: 'tiket',
   umpanBalik: 'umpanBalik',
   artikelKB: 'artikelKB',
+  // PR #49 — FAQ Resources, nasional seperti artikelKB.
+  faq: 'faq',
   // Fase C — Chat antar operator 1-to-1 (PR #45). Punya field `satker`,
   // jadi muatDariFirestore() memfilternya per satker seperti koleksi
   // bersatker lain (generik atas KOLEKSI — tanpa kode khusus).
@@ -91,6 +93,8 @@ export const KUNCI_TANPA_SATKER: ReadonlySet<keyof AppData> = new Set([
   'audit',
   // Fase C — Service: artikel Knowledge Base bersifat nasional.
   'artikelKB',
+  // PR #49 — FAQ Resources bersifat nasional seperti artikelKB.
+  'faq',
 ]);
 
 /**

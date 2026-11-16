@@ -476,6 +476,8 @@ export interface ArtikelKB {
   judul: string;
   /** Nomor regulasi/dokumen bila ada — kosong bila tidak tercantum. */
   nomor?: string;
+  /** Kategori dokumen — 'Regulasi' atau 'SOP' (MASTER_KATEGORI_KB). */
+  kategori?: string;
   tanggalBerlaku?: string; // 'yyyy-mm-dd'
   ringkasan: string;
   isi?: string;
@@ -484,6 +486,16 @@ export interface ArtikelKB {
   dibuatOleh: string;
   dibuatPada: string; // 'yyyy-mm-dd'
   // TIDAK punya field satker: Regulasi & SOP bersifat nasional.
+}
+
+/** Entri FAQ Resources — tanya-jawab yang jawabannya bersumber dari regulasi yang diimpor (PR #49). */
+export interface FaqItem {
+  id: string; // 'FAQ-01', dst.
+  pertanyaan: string;
+  jawaban: string;
+  /** Sumber jawaban — nama regulasi + pasal/bagian bila terbaca. */
+  sumber: string;
+  // TIDAK punya field satker: FAQ bersifat nasional seperti artikelKB.
 }
 
 // Fase C — Chat antar operator 1-to-1 (PR #45, 16/11/2026).
@@ -535,6 +547,8 @@ export interface AppData {
   tiket: Tiket[];
   umpanBalik: UmpanBalik[];
   artikelKB: ArtikelKB[];
+  // PR #49 — FAQ Resources (tanya-jawab bersumber regulasi, nasional).
+  faq: FaqItem[];
   // Fase C — Chat antar operator 1-to-1 (PR #45): mulai kosong, tanpa
   // pesan contoh.
   pesan: Pesan[];

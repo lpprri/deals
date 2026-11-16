@@ -1,6 +1,8 @@
 // Modul Service (PRD v2.0 Final Bab 7.8; Q-12 terjawab 15/11/2026).
-// Dua tab: Help-Desk (tiket konsultasi ke Direktorat Layanan &
-// Pengembangan Usaha) dan Knowledge Base (Regulasi & SOP nasional).
+// Empat tab: Help-Desk (tiket konsultasi ke Direktorat Layanan &
+// Pengembangan Usaha), Knowledge Base (Regulasi & SOP nasional),
+// FAQ (tanya-jawab bersumber regulasi, PR #49), dan Document (dokumen
+// lengkap yang bisa diunduh, PR #49).
 // Tab Feedback Survey PINDAH ke sub-navigasi Reports (keputusan
 // pengguna 15/11/2026 20:15 WIB, PR #38) — komponennya (TabUmpanBalik)
 // tetap diekspor dari file ini dan dipakai ulang oleh modul UmpanBalik.
@@ -13,13 +15,22 @@ import { useState } from 'react';
 import type { StatusTiket, Tiket } from '../lib/types';
 import type { ArtikelKBInput, ModulProps, TiketInput, UmpanBalikInput } from '../lib/store';
 import {
+  MASTER_KATEGORI_KB,
   MASTER_KATEGORI_TIKET,
   MASTER_PERTANYAAN_SURVEI,
   MASTER_STATUS_TIKET,
   TUJUAN_TIKET,
 } from '../lib/master';
-import { formatTanggal, hariIniIso } from '../lib/format';
-import { labelKategoriTiket, labelStatusTiket, labelTujuanTiket } from '../lib/labels';
+import { formatAngka, formatTanggal, formatUkuranBerkas, hariIniIso } from '../lib/format';
+import { DOKUMEN_REGULASI, urlDokumenRegulasi } from '../lib/dokumenRegulasi';
+import { ARTIKEL_REGULASI } from '../lib/artikelRegulasi';
+import { FAQ_REGULASI } from '../lib/faqRegulasi';
+import {
+  labelKategoriKB,
+  labelKategoriTiket,
+  labelStatusTiket,
+  labelTujuanTiket,
+} from '../lib/labels';
 
 /**
  * Tampilan Inggris untuk pertanyaan survei (nilai master di master.ts
@@ -63,14 +74,20 @@ export default function Service(props: ModulProps) {
         tabs={[
           { id: 'helpdesk', label: 'Help-Desk' },
           { id: 'kb', label: 'Knowledge Base' },
+          { id: 'faq', label: 'FAQ' },
+          { id: 'document', label: 'Document' },
         ]}
         aktif={tab}
         onPilih={setTab}
       />
       {tab === 'helpdesk' ? (
         <HelpDesk data={data} user={user} actions={actions} cari={cari} />
-      ) : (
+      ) : tab === 'kb' ? (
         <KnowledgeBase data={data} user={user} actions={actions} cari={cari} />
+      ) : tab === 'faq' ? (
+        <Faq data={data} actions={actions} cari={cari} />
+      ) : (
+        <Dokumen />
       )}
     </div>
   );
@@ -758,16 +775,46 @@ function KnowledgeBase({
   const artikel = data.artikelKB.filter(
     (a) =>
       kataKunci === '' ||
-      `${a.id} ${a.judul} ${a.nomor ?? ''} ${a.ringkasan} ${a.isi ?? ''}`
+      `${a.id} ${a.judul} ${a.nomor ?? ''} ${a.kategori ?? ''} ${a.ringkasan} ${a.isi ?? ''}`
         .toLowerCase()
         .includes(kataKunci),
   );
   const artikelTerpilih =
     data.artikelKB.find((a) => a.id === artikelTerpilihId) ?? null;
+  // PR #49 — seed satu-kali artikel regulasi (mode live Firestore).
+  // Di mode contoh semuanya sudah ada lewat seed (kartu tersembunyi).
+  const kurangRegulasi = ARTIKEL_REGULASI.filter(
+    (a) => !data.artikelKB.some((x) => x.id === a.id),
+  );
 
   return (
     <div className="space-y-4">
       <Peringatan teks="The Regulations & SOP list is national — read by all work units. Only add documents whose number and content have been verified; do not write regulation numbers from memory." />
+
+      {kurangRegulasi.length > 0 && (
+        <Kartu>
+          <p className="text-sm text-[#0d2569]">
+            {kurangRegulasi.length} of {ARTIKEL_REGULASI.length} verified
+            regulations are missing from this workspace (in live mode, before
+            seeding). Add the missing ones below — already-present articles
+            are never duplicated.
+          </p>
+          <div className="mt-3">
+            <TombolUtama
+              onClick={() => {
+                const hasil = actions.seedArtikelKBRegulasi();
+                setPesan(
+                  hasil.ditambah > 0
+                    ? `Added ${hasil.ditambah} verified regulation(s) to the Knowledge Base.`
+                    : 'All 9 verified regulations are already present.',
+                );
+              }}
+            >
+              Add missing regulations ({kurangRegulasi.length})
+            </TombolUtama>
+          </div>
+        </Kartu>
+      )}
 
       <div className="max-w-md">
         <Label>Search documents</Label>
@@ -804,6 +851,9 @@ function KnowledgeBase({
               <p className="text-sm font-bold text-[#0d2569]">{artikelTerpilih.judul}</p>
               <p className="mt-1 text-sm text-[#0d2569]/70">
                 {artikelTerpilih.nomor ? `Number: ${artikelTerpilih.nomor} · ` : ''}
+                {artikelTerpilih.kategori
+                  ? `Category: ${labelKategoriKB(artikelTerpilih.kategori)} · `
+                  : ''}
                 {artikelTerpilih.tanggalBerlaku
                   ? `Effective since: ${formatTanggal(artikelTerpilih.tanggalBerlaku)} · `
                   : ''}
@@ -846,6 +896,7 @@ function KnowledgeBase({
                 <Th>ID</Th>
                 <Th>Title</Th>
                 <Th>Number</Th>
+                <Th>Category</Th>
                 <Th>Effective Since</Th>
                 <Th>Summary</Th>
               </tr>
@@ -856,6 +907,7 @@ function KnowledgeBase({
                   <Td tebal>{a.id}</Td>
                   <Td>{a.judul}</Td>
                   <Td>{a.nomor ?? '-'}</Td>
+                  <Td>{a.kategori ? labelKategoriKB(a.kategori) : '-'}</Td>
                   <Td>{formatTanggal(a.tanggalBerlaku)}</Td>
                   <Td>{a.ringkasan}</Td>
                 </Baris>
@@ -888,6 +940,7 @@ function FormArtikelKB({
   const [form, setForm] = useState<ArtikelKBInput>({
     judul: '',
     nomor: '',
+    kategori: MASTER_KATEGORI_KB[0],
     tanggalBerlaku: '',
     ringkasan: '',
     isi: '',
@@ -899,6 +952,7 @@ function FormArtikelKB({
     const hasil = actions.tambahArtikelKB({
       judul: form.judul.trim(),
       nomor: form.nomor?.trim() === '' ? undefined : form.nomor?.trim(),
+      kategori: form.kategori?.trim() === '' ? undefined : form.kategori?.trim(),
       tanggalBerlaku:
         form.tanggalBerlaku === '' ? undefined : form.tanggalBerlaku,
       ringkasan: form.ringkasan.trim(),
@@ -937,6 +991,20 @@ function FormArtikelKB({
             onChange={(e) => setForm((f) => ({ ...f, nomor: e.target.value }))}
             placeholder="Fill in only if verified"
           />
+        </div>
+        <div>
+          <Label>Category</Label>
+          <select
+            className={inputClass}
+            value={form.kategori ?? MASTER_KATEGORI_KB[0]}
+            onChange={(e) => setForm((f) => ({ ...f, kategori: e.target.value }))}
+          >
+            {MASTER_KATEGORI_KB.map((k) => (
+              <option key={k} value={k}>
+                {labelKategoriKB(k)}
+              </option>
+            ))}
+          </select>
         </div>
         <div>
           <Label>Effective date (optional)</Label>
@@ -988,5 +1056,165 @@ function FormArtikelKB({
         <TombolSekunder onClick={onBatal}>Cancel</TombolSekunder>
       </div>
     </Kartu>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// FAQ — tanya-jawab bersumber regulasi (PR #49, 16/11/2026).
+// Hanya pertanyaan yang jawabannya benar-benar ada di 9 dokumen regulasi
+// yang diimpor; tiap jawaban mencantumkan sumbernya. Isi Bahasa Indonesia
+// (konten turunan regulasi, seperti artikel KB); label UI Inggris.
+
+function Faq({
+  data,
+  actions,
+  cari,
+}: {
+  data: ModulProps['data'];
+  actions: ModulProps['actions'];
+  cari: string;
+}) {
+  const [pencarian, setPencarian] = useState('');
+  const [terbukaId, setTerbukaId] = useState<string | null>(null);
+  const [pesan, setPesan] = useState('');
+
+  const kataKunci = `${cari} ${pencarian}`.trim().toLowerCase();
+  const entri = data.faq.filter(
+    (f) =>
+      kataKunci === '' ||
+      `${f.id} ${f.pertanyaan} ${f.jawaban} ${f.sumber}`
+        .toLowerCase()
+        .includes(kataKunci),
+  );
+  // PR #49 — seed satu-kali entri FAQ (mode live Firestore).
+  // Di mode contoh semuanya sudah ada lewat seed (kartu tersembunyi).
+  const kurangFaq = FAQ_REGULASI.filter(
+    (f) => !data.faq.some((x) => x.id === f.id),
+  );
+
+  return (
+    <div className="space-y-4">
+      <Peringatan teks="Answers are taken from the verified regulations in the Knowledge Base — each answer cites its source. Questions whose answers are not in the documents are not listed here." />
+
+      {kurangFaq.length > 0 && (
+        <Kartu>
+          <p className="text-sm text-[#0d2569]">
+            {kurangFaq.length} of {FAQ_REGULASI.length} FAQ entries are
+            missing from this workspace (in live mode, before seeding). Add
+            the missing ones below — already-present entries are never
+            duplicated.
+          </p>
+          <div className="mt-3">
+            <TombolUtama
+              onClick={() => {
+                const hasil = actions.seedFaqRegulasi();
+                setPesan(
+                  hasil.ditambah > 0
+                    ? `Added ${hasil.ditambah} FAQ entr${hasil.ditambah === 1 ? 'y' : 'ies'} to the FAQ.`
+                    : 'All FAQ entries are already present.',
+                );
+              }}
+            >
+              Add missing FAQ entries ({kurangFaq.length})
+            </TombolUtama>
+          </div>
+        </Kartu>
+      )}
+
+      <div className="max-w-md">
+        <Label>Search questions</Label>
+        <input
+          className={inputClass}
+          value={pencarian}
+          onChange={(e) => setPencarian(e.target.value)}
+          placeholder="Search by question, answer, or source"
+        />
+      </div>
+
+      {entri.length === 0 ? (
+        <PesanKosong teks="No frequently asked questions yet." />
+      ) : (
+        <div className="space-y-3">
+          {entri.map((f) => (
+            <Kartu key={f.id}>
+              <button
+                type="button"
+                onClick={() =>
+                  setTerbukaId((t) => (t === f.id ? null : f.id))
+                }
+                className="w-full text-left"
+              >
+                <p className="text-sm font-bold text-[#0d2569]">
+                  {f.pertanyaan}
+                </p>
+              </button>
+              {terbukaId === f.id && (
+                <>
+                  <p className="mt-2 whitespace-pre-line text-sm text-[#0d2569]">
+                    {f.jawaban}
+                  </p>
+                  <p className="mt-2 text-sm text-[#0d2569]/70">
+                    Source: {f.sumber}
+                  </p>
+                </>
+              )}
+            </Kartu>
+          ))}
+        </div>
+      )}
+
+      {pesan !== '' && (
+        <p className="rounded-md border border-[#2573e2]/40 bg-[#2573e2]/5 px-3 py-2 text-sm font-semibold text-[#0d2569]">
+          {pesan}
+        </p>
+      )}
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Document — dokumen lengkap yang bisa diunduh (PR #49, 16/11/2026).
+// Berkas PDF ada di folder `public/dokumen/` repo (diunggah pengguna lewat
+// GitHub web UI — snapshot push hanya menerima file teks); tautan menunjuk
+// ke `/dokumen/<nama-berkas>` dan baru berfungsi setelah berkas diunggah.
+
+function Dokumen() {
+  return (
+    <div className="space-y-4">
+      <Peringatan teks="Full documents (PDF) are downloaded from the repository folder public/dokumen/. The files are uploaded there separately via the GitHub web UI — until then, a download link shows a 404." />
+
+      <Kartu>
+        <Tabel>
+          <thead>
+            <tr>
+              <Th>Document</Th>
+              <Th>File</Th>
+              <Th>Pages</Th>
+              <Th>Size</Th>
+              <Th>Download</Th>
+            </tr>
+          </thead>
+          <tbody>
+            {DOKUMEN_REGULASI.map((d) => (
+              <Baris key={d.berkas}>
+                <Td tebal>{d.judul}</Td>
+                <Td>{d.berkas}</Td>
+                <Td>{formatAngka(d.halaman)}</Td>
+                <Td>{formatUkuranBerkas(d.ukuranByte)}</Td>
+                <Td>
+                  <a
+                    href={urlDokumenRegulasi(d.berkas)}
+                    download={d.berkas}
+                    className="font-semibold text-[#2573e2] underline"
+                  >
+                    Download
+                  </a>
+                </Td>
+              </Baris>
+            ))}
+          </tbody>
+        </Tabel>
+      </Kartu>
+    </div>
   );
 }
