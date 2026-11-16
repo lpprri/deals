@@ -24,9 +24,14 @@
 // - Jenis Klien di data: 5 nilai, persis MASTER_JENIS_KLIEN
 //   (Pemerintah, BUMN/BUMD, Swasta, Perorangan, Lembaga/Organisasi).
 
-import type { Klien, Kontrak } from './types';
+import type { Klien, Kontrak, Pembayaran, Tagihan } from './types';
 import { MASTER_JENIS_KLIEN } from './master';
-import { tanggalAcuanKontrak } from './derive';
+import {
+  dibayarTerverifikasi,
+  sisaTagihan,
+  tanggalAcuanKontrak,
+} from './derive';
+import { hariIniIso } from './format';
 
 /** Ambil satu segmen "Kunci: nilai" dari teks catatan ("A | B | C"). */
 function segmenCatatan(catatan: string | undefined, kunci: string): string | undefined {
@@ -78,6 +83,75 @@ export function detailLayananKontrak(kontrak: Kontrak): string | undefined {
 export function tanggalPenandatangananKontrak(kontrak: Kontrak): string {
   return tanggalAcuanKontrak(kontrak);
 }
+
+/**
+ * Status pembayaran per kontrak — diturunkan dari tagihan + pembayaran
+ * TERVERIFIKASI (keputusan pengguna 16/11/2026: filter Payment Status).
+ * Kategori saling lepas: satu kontrak tepat satu kategori.
+ * - Overdue: ada tagihan yang sudah lewat tanggal jatuh tempo DAN masih
+ *   bersisa — precedence atas Unpaid/Partially-Paid (tagihan yang sudah
+ *   dibayar sebagian tapi lewat jatuh tempo tetap Overdue).
+ * - Paid: tidak ada sisa di semua tagihan. Kontrak tanpa tagihan — tidak
+ *   ada di seed (42 kontrak = 42 tagihan) — dihitung Paid karena tidak
+ *   ada yang ditagih.
+ * - Partially-Paid: sudah ada pembayaran terverifikasi tetapi masih
+ *   bersisa (dan tidak overdue).
+ * - Unpaid: belum ada pembayaran terverifikasi sama sekali (dan tidak
+ *   overdue).
+ * "Hari ini" default = tanggal sistem (hariIniIso); skrip cek memakai
+ * '2026-11-16' eksplisit supaya deterministik. Hanya pembayaran
+ * Terverifikasi yang dihitung — sama dengan sisaTagihan di derive.ts.
+ */
+export type StatusPembayaranKontrak =
+  | 'Unpaid'
+  | 'Paid'
+  | 'Partially-Paid'
+  | 'Overdue';
+
+export function statusPembayaranKontrak(
+  kontrak: Kontrak,
+  tagihan: Tagihan[],
+  pembayaran: Pembayaran[],
+  hariIni: string = hariIniIso(),
+): StatusPembayaranKontrak {
+  const tagihanKontrak = tagihan.filter((t) => t.kontrakId === kontrak.id);
+  const adaSisaLewatJatuhTempo = tagihanKontrak.some(
+    (t) => sisaTagihan(t, pembayaran) > 0 && hariIni > t.tanggalJatuhTempo,
+  );
+  if (adaSisaLewatJatuhTempo) return 'Overdue';
+  if (tagihanKontrak.every((t) => sisaTagihan(t, pembayaran) === 0))
+    return 'Paid';
+  const totalDibayar = tagihanKontrak.reduce(
+    (s, t) => s + dibayarTerverifikasi(t.id, pembayaran),
+    0,
+  );
+  return totalDibayar > 0 ? 'Partially-Paid' : 'Unpaid';
+}
+
+/**
+ * Status kerja sama per kontrak (keputusan pengguna 16/11/2026: filter
+ * Cooperation Status):
+ * - Completed: status tersimpan 'Selesai'.
+ * - Upcoming: tanggalMulai masih di masa depan (belum ada di seed —
+ *   tanggalMulai terbaru 2026-10-30, jadi 0 Upcoming — hasil jujur).
+ * - On-Going: selain itu (status 'Aktif' di seed; fallback untuk 'Draft' /
+ *   'Dibatalkan' bila suatu saat muncul — keduanya tidak ada di seed).
+ */
+export type StatusKerjaSamaKontrak = 'Completed' | 'On-Going' | 'Upcoming';
+
+export function statusKerjaSamaKontrak(
+  kontrak: Kontrak,
+  hariIni: string = hariIniIso(),
+): StatusKerjaSamaKontrak {
+  if (kontrak.status === 'Selesai') return 'Completed';
+  if (kontrak.tanggalMulai > hariIni) return 'Upcoming';
+  return 'On-Going';
+}
+
+/** Nilai filter Payment Status di dropdown (Semua = tanpa filter). */
+export type FilterStatusPembayaran = 'Semua' | StatusPembayaranKontrak;
+/** Nilai filter Cooperation Status di dropdown (Semua = tanpa filter). */
+export type FilterStatusKerjaSama = 'Semua' | StatusKerjaSamaKontrak;
 
 /**
  * Jenis klien yang benar-benar ada di data, dalam urutan master; nilai di
