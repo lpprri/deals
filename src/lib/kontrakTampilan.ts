@@ -54,6 +54,20 @@ export function nomorReferensiKontrak(kontrak: Kontrak): string | undefined {
 }
 
 /**
+ * Detail layanan / BMN — nama-nama layanan kontrak, digabung "; " bila
+ * lebih dari satu (39 kontrak punya 1 layanan, 3 kontrak punya 3).
+ * Nama diambil apa adanya dari data: 16 kontrak sewa menampilkan teks
+ * generik yang sama "Sewa Lahan / BMN" — itu isi sumber, bukan karangan.
+ * undefined bila kontrak tidak punya layanan.
+ */
+export function detailLayananKontrak(kontrak: Kontrak): string | undefined {
+  const nama = (kontrak.layanan ?? [])
+    .map((l) => l.namaLayanan)
+    .filter((n) => n !== '');
+  return nama.length === 0 ? undefined : nama.join('; ');
+}
+
+/**
  * Tanggal penandatanganan kontrak untuk kolom Signing Date — keputusan
  * pengguna 16/11/2026 13:29 WIB (Creation Date = Signing Date).
  * Sama dengan tanggalAcuanKontrak: tanggalTandaTangan bila ada, bila

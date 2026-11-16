@@ -1,12 +1,18 @@
 // Cek tampilan baru tabel Contract (PR tampilan-baru-contract + PR
-// contract-signing-date): 8 kolom, kolom ke-4 "Signing Date" (= Creation
-// Date per keputusan pengguna 16/11/2026, dari tanggalTandaTangan dengan
-// fallback tanggalMulai), filter Client Type + PNBP Type, sort 3 kunci,
-// tanpa Account Code dan tanpa Status di tabel; total kontrol tidak berubah.
+// contract-signing-date): 9 kolom — No., Contract & Reference Number
+// (gabungan, keputusan pengguna 16/11/2026 13:35 WIB), Contract Title,
+// Signing Date (= Creation Date per keputusan pengguna 16/11/2026, dari
+// tanggalTandaTangan dengan fallback tanggalMulai), Client, Service Type,
+// Service / BMN Detail (nama layanan, gabung "; "), Contract Period,
+// Contract Value; nomor urut "No." mengikuti urutan tampil sesudah
+// filter + sort (keputusan pengguna 16/11/2026 13:31 WIB), filter Client
+// Type + PNBP Type, sort 3 kunci, tanpa Account Code dan tanpa Status di
+// tabel; total kontrol tidak berubah.
 import * as fs from 'node:fs';
 import { DATA_NYATA } from '../src/lib/seedNyata';
 import { hitungTotalKontrol } from '../src/lib/derive';
 import {
+  detailLayananKontrak,
   jenisKlienYangAda,
   judulKontrak,
   labelArahUrutKontrak,
@@ -99,6 +105,94 @@ cek(
   tanggalPenandatangananKontrak(cari('001/PKS/DIR.LPU/01/2026')) === '2026-01-20',
 );
 
+// ---------- kolom No. (nomor urut tampil, sesudah filter + sort) ----------
+// CATATAN: jumlah pasti kontrak Fungsional TIDAK diasersi — klasifikasi
+// Umum↔Fungsional sedang dikoreksi terpisah (Adlibs) sehingga hitungannya
+// bisa berubah; yang diasersi adalah perilaku sort + nomor urut, yang
+// tidak bergantung pada hitungan itu.
+const fungsional = kontrak.filter((k) => k.jenisPnBP === 'Fungsional');
+const fungNilaiDesc = urutkanKontrak(fungsional, 'nilai', 'turun');
+cek(
+  'sort nilai desc terurut menurun sesudah filter Fungsional',
+  fungNilaiDesc.every(
+    (k, i) => i === 0 || fungNilaiDesc[i - 1].nilaiKontrak >= k.nilaiKontrak,
+  ),
+);
+cek(
+  'nomor 1 sesudah filter Fungsional + sort nilai = 1744',
+  fungNilaiDesc[0].nomorPks === '1744/PKS/RRI.PLB/03/2026',
+  fungNilaiDesc[0].nomorPks,
+);
+cek(
+  'nomor terakhir sesudah filter Fungsional + sort nilai = 1158 (Rp180.000)',
+  fungNilaiDesc[fungNilaiDesc.length - 1].nomorPks === '1158/PKS/RRI.PLB/10/2026' &&
+    fungNilaiDesc[fungNilaiDesc.length - 1].nilaiKontrak === 180000,
+  fungNilaiDesc[fungNilaiDesc.length - 1].nomorPks,
+);
+cek(
+  'nomor 1..3 sort default (ttd desc) = 11290, 10227, 1158',
+  JSON.stringify(
+    urutkanKontrak(kontrak, 'tandaTangan', 'turun')
+      .slice(0, 3)
+      .map((k) => k.nomorPks),
+  ) ===
+    JSON.stringify([
+      '11290/PKS/RRI.PLB/10/2026',
+      '10227/PKS/RRI.PLB/10/2026',
+      '1158/PKS/RRI.PLB/10/2026',
+    ]),
+);
+
+// ---------- kolom Service / BMN Detail (nama layanan, gabung "; ") ----------
+cek(
+  'detail 001 Taspen = "Ad-Lib / Jingle"',
+  detailLayananKontrak(cari('001/PKS/DIR.LPU/01/2026')) === 'Ad-Lib / Jingle',
+);
+cek(
+  'detail Samdini 10828 = "Sewa Lahan / BMN"',
+  detailLayananKontrak(cari('10828/PKS/RRI.PLB/10/2026')) === 'Sewa Lahan / BMN',
+);
+cek(
+  'detail 018 multi-layanan digabung "; "',
+  detailLayananKontrak(cari('018/PKS/DIR.LPU/08/2026')) ===
+    'Siaran Iklan (Spot); Sandiwara Radio / Majalah Udara; Feauture',
+);
+cek(
+  'detail 0603 = "Siaran Iklan (Spot)"',
+  detailLayananKontrak(cari('0603/PKS/RRI.PLB/01/2026')) === 'Siaran Iklan (Spot)',
+);
+cek(
+  'detail 11290 = "Dialog Interaktif Dalam Studio"',
+  detailLayananKontrak(cari('11290/PKS/RRI.PLB/10/2026')) ===
+    'Dialog Interaktif Dalam Studio',
+);
+cek(
+  '39 kontrak 1 layanan, 3 kontrak 3 layanan',
+  kontrak.filter((k) => (k.layanan ?? []).length === 1).length === 39 &&
+    kontrak.filter((k) => (k.layanan ?? []).length === 3).length === 3,
+);
+cek(
+  '16 kontrak sewa tampil teks generik "Sewa Lahan / BMN"',
+  kontrak.filter((k) => detailLayananKontrak(k) === 'Sewa Lahan / BMN').length === 16,
+);
+cek(
+  'detail tanpa layanan = undefined',
+  detailLayananKontrak({ ...cari('0603/PKS/RRI.PLB/01/2026'), layanan: [] }) ===
+    undefined,
+);
+
+// ---------- kolom gabungan Contract & Reference Number ----------
+cek(
+  'sel gabungan 0603: baris 1 nomorPks + baris 2 referensi',
+  cari('0603/PKS/RRI.PLB/01/2026').nomorPks === '0603/PKS/RRI.PLB/01/2026' &&
+    nomorReferensiKontrak(cari('0603/PKS/RRI.PLB/01/2026')) ===
+      '001/RRI.PLB/PKS.F/01/2026',
+);
+cek(
+  'sel gabungan 001 Taspen: baris 2 "—" (tanpa referensi)',
+  nomorReferensiKontrak(cari('001/PKS/DIR.LPU/01/2026')) === undefined,
+);
+
 // ---------- opsi filter Jenis Klien ----------
 cek(
   'jenis klien di data = 5 master',
@@ -143,19 +237,47 @@ const akhir = deals.indexOf('function DetailKontrak', awal);
 const tabKontrak = deals.slice(awal, akhir);
 const header = [...tabKontrak.matchAll(/<Th[^>]*>([^<]+)<\/Th>/g)].map((m) => m[1]);
 cek(
-  'urutan 8 header kolom',
+  'urutan 9 header kolom (No. paling kiri, nomor+referensi gabung)',
   JSON.stringify(header) ===
     JSON.stringify([
-      'Contract Number',
-      'Reference Number',
+      'No.',
+      'Contract &amp; Reference Number',
       'Contract Title',
       'Signing Date',
       'Client',
       'Service Type',
+      'Service / BMN Detail',
       'Contract Period',
       'Contract Value',
     ]),
   JSON.stringify(header),
+);
+cek(
+  'header gabungan "Contract & Reference Number" 1x',
+  (tabKontrak.match(/<Th>Contract &amp; Reference Number<\/Th>/g) ?? []).length === 1,
+);
+cek(
+  'header "Contract Number" terpisah 0x',
+  !tabKontrak.includes('<Th>Contract Number</Th>'),
+);
+cek(
+  'header "Reference Number" terpisah 0x',
+  !tabKontrak.includes('<Th>Reference Number</Th>'),
+);
+cek(
+  'sel gabungan: nomorPks tebal + referensi kecil di bawahnya',
+  tabKontrak.includes('<div className="font-semibold">{k.nomorPks}</div>') &&
+    tabKontrak.includes('nomorReferensiKontrak(k) ??'),
+);
+cek(
+  'sel detail pakai helper detailLayananKontrak',
+  tabKontrak.includes('detailLayananKontrak(k)'),
+);
+cek('header pertama "No."', header[0] === 'No.');
+cek(
+  'sel No. = indeks + 1 dari kontrakTersaring',
+  tabKontrak.includes('kontrakTersaring.map((k, indeks)') &&
+    tabKontrak.includes('{indeks + 1}'),
 );
 cek('"Account Code" 0x di TabKontrak', !tabKontrak.includes('Account Code'));
 cek('"Account code" 0x di TabKontrak', !tabKontrak.includes('Account code'));
