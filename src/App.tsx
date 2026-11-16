@@ -258,6 +258,10 @@ const MODULES: NavItem[] = [
     label: 'Sales',
     icon: Briefcase,
     phase: 'B',
+    // TIDAK tampil di sidebar (16/11/2026, PR #43): dihapus dari
+    // CLUSTER_SIDEBAR atas instruksi pengguna "buang navigasi sales".
+    // Modul + semua tab/komponen + datanya tetap utuh, dipakai ulang
+    // menu Prospect, Offer, Order, Meeting.
     description: 'Pipeline, Quotation.',
   },
   {
@@ -430,7 +434,10 @@ const MODULES: NavItem[] = [
     Campaign, Prospect, Offer, Order, Clients, Meeting; PR #42,
     diminta pengguna 15/11/2026 21:46 WIB — Dashboard masuk ke
     panel REPORTS (sub-navigasi di bawah Reports); cluster 4
-    tersisa Revenue, Reports):
+    tersisa Revenue, Reports; PR #43,
+    diminta pengguna 16/11/2026 07:52 WIB — Sales dihapus dari
+    sidebar; urutan AKHIR cluster 3: Campaign, Prospect, Offer,
+    Order, Clients, Meeting (modul Sales tetap utuh):
     item nav utama dibagi ke cluster yang dipisah garis tipis, tanpa
     label kelompok (kecuali ADMIN yang sudah punya label). Urutan
     cluster = urutan tampil di sidebar; urutan di dalam cluster
@@ -438,7 +445,7 @@ const MODULES: NavItem[] = [
 const CLUSTER_SIDEBAR: ModuleId[][] = [
   ['home'],
   ['kontrak', 'mou', 'komitmen', 'approvement'],
-  ['sales', 'marketing', 'prospek', 'offer', 'order', 'klien', 'meeting'],
+  ['marketing', 'prospek', 'offer', 'order', 'klien', 'meeting'],
   ['revenue', 'reporting'],
   ['todo', 'service'],
 ];
