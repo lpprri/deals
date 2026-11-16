@@ -704,6 +704,8 @@ export const DATA_CONTOH: AppData = {
   tiket: [],
   umpanBalik: [],
   artikelKB: [],
+  // PR #49 — FAQ Resources: data contoh belum punya FAQ.
+  faq: [],
   // Fase C — Chat antar operator (PR #45): tanpa pesan contoh.
   pesan: [],
 };

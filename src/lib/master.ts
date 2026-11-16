@@ -205,6 +205,9 @@ export const MASTER_KATEGORI_TIKET: string[] = [
 
 export const MASTER_STATUS_TIKET: string[] = ['Terbuka', 'Dijawab', 'Ditutup'];
 
+/** Kategori dokumen Knowledge Base — 9 regulasi yang diimpor 16/11/2026 berkategori 'Regulasi'. */
+export const MASTER_KATEGORI_KB: string[] = ['Regulasi', 'SOP'];
+
 /** Pertanyaan survei kepuasan klien — skala 1–5 untuk tiap pertanyaan. */
 export const MASTER_PERTANYAAN_SURVEI: string[] = [
   'Kemudahan proses kerja sama',

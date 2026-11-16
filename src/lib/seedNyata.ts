@@ -34,6 +34,8 @@
 
 import type { AppData } from './types';
 import { SATKER_PILOT } from './master';
+import { ARTIKEL_REGULASI } from './artikelRegulasi';
+import { FAQ_REGULASI } from './faqRegulasi';
 
 const S = SATKER_PILOT;
 
@@ -6646,7 +6648,9 @@ export const DATA_NYATA: AppData = {
   // Fase C — Service (PRD Bab 7.8): koleksi baru, mulai kosong.
   tiket: [],
   umpanBalik: [],
-  artikelKB: [],
+  // PR #49 — 9 artikel regulasi + FAQ bersumber regulasi (daftar kanonis).
+  artikelKB: ARTIKEL_REGULASI,
+  faq: FAQ_REGULASI,
   // Fase C — Chat antar operator (PR #45): tanpa pesan contoh.
   pesan: [],
 };
