@@ -1,11 +1,14 @@
-// Verifikasi Knowledge Base regulasi + FAQ + Document (PR #49, 16/11/2026):
+// Verifikasi Knowledge Base regulasi + FAQ + Document (PR #49, 16/11/2026;
+// PR #50: tab Document digabung ke Knowledge Base — tombol Download di
+// sisi kanan tabel KB, tanpa kolom ID, terbaru paling atas):
 // - 9 artikel regulasi (id stabil, judul/kategori/ringkasan/isi benar,
 //   tanpa duplikat) ada di daftar kanonis DAN di seed mode contoh.
 // - 25 entri FAQ bersumber regulasi (id FAQ-01..FAQ-25, pertanyaan /
 //   jawaban / sumber terisi, tanpa duplikat) ada di daftar kanonis DAN
 //   di seed mode contoh.
 // - 9 entri Document (nama/halaman/ukuran benar, tautan /dokumen/...,
-//   ukuran cocok dengan berkas asli di ~/workspace/user/files/).
+//   ukuran cocok dengan berkas asli di ~/workspace/user/files/) — daftar
+//   kanonis berkas tetap ada sebagai sumber tautan unduh artikel KB.
 // - 6 total kontrol tidak berubah.
 // - Invarian perbaikan idBerikutnya (PR #49): jangkar ^(\d+) tidak
 //   mengubah id berikutnya untuk semua skema id yang sudah ada, dan id
@@ -13,10 +16,15 @@
 import { statSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { DATA_NYATA } from '../src/lib/seedNyata';
-import { ARTIKEL_REGULASI } from '../src/lib/artikelRegulasi';
+import {
+  ARTIKEL_REGULASI,
+  kunciUrutArtikelKB,
+  urutkanArtikelKBBaruDulu,
+} from '../src/lib/artikelRegulasi';
 import { FAQ_REGULASI } from '../src/lib/faqRegulasi';
 import {
   DOKUMEN_REGULASI,
+  tautanUnduhArtikel,
   urlDokumenRegulasi,
 } from '../src/lib/dokumenRegulasi';
 import { hitungTotalKontrol } from '../src/lib/derive';
@@ -133,6 +141,91 @@ cek(
   `${DATA_NYATA.artikelKB.length} artikel di seed`,
 );
 
+// ---------- Tautan unduh artikel + tanggal tidak dikarang (PR #50) ----------
+const berkasUntukJudul = new Map(
+  DOKUMEN_REGULASI.map((d) => [d.judul, d.berkas]),
+);
+cek(
+  'tautanArtikelRegulasi',
+  ARTIKEL_REGULASI.every(
+    (a) =>
+      a.tautan ===
+      urlDokumenRegulasi(berkasUntukJudul.get(a.judul) ?? ''),
+  ),
+  'tiap artikel membawa tautan /dokumen/<nama-berkas>',
+);
+cek(
+  'tanggalBerlakuTidakDikarang',
+  [
+    'KB-PP-5-2015',
+    'KB-PP-68-2020',
+    'KB-PERDIRUT-5-2023',
+    'KB-PERDIRUT-11-2023',
+    'KB-PEDOMAN-LPU-2019',
+    'KB-PEDOMAN-LPU-2023',
+  ].every((id) => byId.get(id)?.tanggalBerlaku === undefined),
+  '6 artikel tanpa tanggalBerlaku tetap tanpa tanggal (tampil "-")',
+);
+
+// ---------- Urutan KB terbaru-paling-atas (PR #50) ----------
+// Aturan: tanggalBerlaku bila ada; bila tidak ada, 1 Januari dari tahun
+// pada judul; bila tidak ada keduanya, paling bawah. Seri = urutan asal.
+const URUTAN_HARAP = [
+  'KB-JUKNIS-PNBP-13-2025', // 2025-11-26
+  'KB-PERDIRUT-1-2023', // 2023-01-05
+  'KB-PERDIRUT-5-2023', // 2023 (tanpa tanggal)
+  'KB-PERDIRUT-11-2023', // 2023 (tanpa tanggal)
+  'KB-PEDOMAN-LPU-2023', // 2023 (tanpa tanggal)
+  'KB-PMK-115-2021', // 2021-09-01
+  'KB-PP-68-2020', // 2020 (tanpa tanggal)
+  'KB-PEDOMAN-LPU-2019', // 2019 (tanpa tanggal)
+  'KB-PP-5-2015', // 2015 (tanpa tanggal)
+];
+cek(
+  'urutanKbTerbaruDulu',
+  urutkanArtikelKBBaruDulu(ARTIKEL_REGULASI)
+    .map((a) => a.id)
+    .join(',') === URUTAN_HARAP.join(','),
+  urutkanArtikelKBBaruDulu(ARTIKEL_REGULASI).map((a) => a.id).join(','),
+);
+cek(
+  'kunciUrutArtikelKB',
+  kunciUrutArtikelKB({
+    id: 'X',
+    judul: 'Perdirut RRI 11/2023',
+    tanggalBerlaku: '2023-01-05',
+    ringkasan: '',
+    dibuatOleh: '',
+    dibuatPada: '',
+  }) === '2023-01-05' &&
+    kunciUrutArtikelKB({
+      id: 'X',
+      judul: 'Perdirut RRI 11/2023',
+      ringkasan: '',
+      dibuatOleh: '',
+      dibuatPada: '',
+    }) === '2023-01-01' &&
+    kunciUrutArtikelKB({
+      id: 'X',
+      judul: 'Pedoman Tanpa Tahun',
+      ringkasan: '',
+      dibuatOleh: '',
+      dibuatPada: '',
+    }) === null,
+  'tanggalBerlaku didahulukan; tahun judul jadi 1 Jan; tanpa tahun = null',
+);
+cek(
+  'fallbackTautanUnduh',
+  tautanUnduhArtikel({ judul: 'PP 68/2020' }) ===
+    '/dokumen/PP%2068-2020.pdf' &&
+    tautanUnduhArtikel({
+      judul: 'PP 68/2020',
+      tautan: 'https://contoh.test/x.pdf',
+    }) === 'https://contoh.test/x.pdf' &&
+    tautanUnduhArtikel({ judul: 'Tidak ada' }) === undefined,
+  'tautan tersimpan menang; judul cocok ke kanonis; judul asing = undefined',
+);
+
 // ---------- 25 entri FAQ ----------
 cekAngka('jumlahFaq', FAQ_REGULASI.length, 25);
 const ID_FAQ = Array.from({ length: 25 }, (_, i) => `FAQ-${String(i + 1).padStart(2, '0')}`);
@@ -167,6 +260,8 @@ cek(
 );
 
 // ---------- 9 entri Document ----------
+// Daftar kanonis berkas tetap ada (sumber tautan unduh artikel KB);
+// tab Document-nya sudah digabung ke Knowledge Base (PR #50).
 const DOKUMEN_HARAP: [string, number, number][] = [
   ['PMK 115-PMK.03-2021.pdf', 85, 7031454],
   ['PP 5-2015.pdf', 54, 985693],
@@ -276,6 +371,40 @@ cek(
   judulTab.includes('<title>RRI Deals</title>') &&
     !judulTab.includes('<title>Partnership LPP RRI</title>'),
   'index.html <title> = RRI Deals',
+);
+
+// ---------- Tab Document digabung ke KB (PR #50) ----------
+const sumberService = readFileSync(
+  join(process.cwd(), 'src', 'modules', 'Service.tsx'),
+  'utf8',
+);
+cek(
+  'tabDocumentDihapus',
+  !sumberService.includes("{ id: 'document'") &&
+    !sumberService.includes('function Dokumen(') &&
+    !sumberService.includes('DOKUMEN_REGULASI.map'),
+  'tab Document tidak ada; komponen Dokumen dihapus',
+);
+const awalKb = sumberService.indexOf('function KnowledgeBase(');
+const akhirKb = sumberService.indexOf('function FormArtikelKB(');
+const sumberKb = sumberService.slice(awalKb, akhirKb);
+cek(
+  'tabelKbTanpaKolomId',
+  awalKb >= 0 &&
+    akhirKb > awalKb &&
+    !sumberKb.includes('<Th>ID</Th>') &&
+    sumberKb.includes('<Th>Download</Th>') &&
+    sumberKb.indexOf('<Th>Download</Th>') >
+      sumberKb.indexOf('<Th>Summary</Th>') &&
+    sumberKb.includes('artikelTerurut.map') &&
+    sumberKb.includes('tautanUnduhArtikel(a)'),
+  'tanpa kolom ID; Download paling kanan; daftar terurut; tautan per baris',
+);
+cek(
+  'peringatanUnduh404',
+  sumberKb.includes('public/dokumen/') &&
+    sumberKb.includes('shows a 404'),
+  'peringatan jujur 404 di tab KB',
 );
 
 console.log(`\n${lolos}/${total} asersi lolos.`);

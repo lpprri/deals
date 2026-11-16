@@ -1,8 +1,9 @@
 // Modul Service (PRD v2.0 Final Bab 7.8; Q-12 terjawab 15/11/2026).
-// Empat tab: Help-Desk (tiket konsultasi ke Direktorat Layanan &
-// Pengembangan Usaha), Knowledge Base (Regulasi & SOP nasional),
-// FAQ (tanya-jawab bersumber regulasi, PR #49), dan Document (dokumen
-// lengkap yang bisa diunduh, PR #49).
+// Tiga tab: Help-Desk (tiket konsultasi ke Direktorat Layanan &
+// Pengembangan Usaha), Knowledge Base (Regulasi & SOP nasional —
+// tombol unduh dokumen lengkap di sisi kanan tabel), dan FAQ
+// (tanya-jawab bersumber regulasi, PR #49). Tab Document (PR #49)
+// digabung ke dalam Knowledge Base (PR #50, 16/11/2026).
 // Tab Feedback Survey PINDAH ke sub-navigasi Reports (keputusan
 // pengguna 15/11/2026 20:15 WIB, PR #38) — komponennya (TabUmpanBalik)
 // tetap diekspor dari file ini dan dipakai ulang oleh modul UmpanBalik.
@@ -21,9 +22,9 @@ import {
   MASTER_STATUS_TIKET,
   TUJUAN_TIKET,
 } from '../lib/master';
-import { formatAngka, formatTanggal, formatUkuranBerkas, hariIniIso } from '../lib/format';
-import { DOKUMEN_REGULASI, urlDokumenRegulasi } from '../lib/dokumenRegulasi';
-import { ARTIKEL_REGULASI } from '../lib/artikelRegulasi';
+import { formatTanggal, hariIniIso } from '../lib/format';
+import { tautanUnduhArtikel } from '../lib/dokumenRegulasi';
+import { ARTIKEL_REGULASI, urutkanArtikelKBBaruDulu } from '../lib/artikelRegulasi';
 import { FAQ_REGULASI } from '../lib/faqRegulasi';
 import {
   labelKategoriKB,
@@ -75,7 +76,6 @@ export default function Service(props: ModulProps) {
           { id: 'helpdesk', label: 'Help-Desk' },
           { id: 'kb', label: 'Knowledge Base' },
           { id: 'faq', label: 'FAQ' },
-          { id: 'document', label: 'Document' },
         ]}
         aktif={tab}
         onPilih={setTab}
@@ -86,9 +86,7 @@ export default function Service(props: ModulProps) {
         <KnowledgeBase data={data} user={user} actions={actions} cari={cari} />
       ) : tab === 'faq' ? (
         <Faq data={data} actions={actions} cari={cari} />
-      ) : (
-        <Dokumen />
-      )}
+      ) : null}
     </div>
   );
 }
@@ -779,8 +777,13 @@ function KnowledgeBase({
         .toLowerCase()
         .includes(kataKunci),
   );
+  // Terbaru paling atas (PR #50) — lihat urutkanArtikelKBBaruDulu.
+  const artikelTerurut = urutkanArtikelKBBaruDulu(artikel);
   const artikelTerpilih =
     data.artikelKB.find((a) => a.id === artikelTerpilihId) ?? null;
+  const tautanTerpilih = artikelTerpilih
+    ? tautanUnduhArtikel(artikelTerpilih)
+    : undefined;
   // PR #49 — seed satu-kali artikel regulasi (mode live Firestore).
   // Di mode contoh semuanya sudah ada lewat seed (kartu tersembunyi).
   const kurangRegulasi = ARTIKEL_REGULASI.filter(
@@ -790,6 +793,7 @@ function KnowledgeBase({
   return (
     <div className="space-y-4">
       <Peringatan teks="The Regulations & SOP list is national — read by all work units. Only add documents whose number and content have been verified; do not write regulation numbers from memory." />
+      <Peringatan teks="Download links point to the repository folder public/dokumen/. The files are uploaded there separately via the GitHub web UI — until then, a download link shows a 404." />
 
       {kurangRegulasi.length > 0 && (
         <Kartu>
@@ -871,10 +875,10 @@ function KnowledgeBase({
               {artikelTerpilih.isi}
             </p>
           )}
-          {artikelTerpilih.tautan && (
+          {tautanTerpilih && (
             <p className="mt-3 text-sm">
               <a
-                href={artikelTerpilih.tautan}
+                href={tautanTerpilih}
                 target="_blank"
                 rel="noreferrer"
                 className="font-semibold text-[#2573e2] underline"
@@ -893,25 +897,41 @@ function KnowledgeBase({
           <Tabel>
             <thead>
               <tr>
-                <Th>ID</Th>
                 <Th>Title</Th>
                 <Th>Number</Th>
                 <Th>Category</Th>
                 <Th>Effective Since</Th>
                 <Th>Summary</Th>
+                <Th>Download</Th>
               </tr>
             </thead>
             <tbody>
-              {artikel.map((a) => (
-                <Baris key={a.id} onClick={() => setArtikelTerpilihId(a.id)}>
-                  <Td tebal>{a.id}</Td>
-                  <Td>{a.judul}</Td>
-                  <Td>{a.nomor ?? '-'}</Td>
-                  <Td>{a.kategori ? labelKategoriKB(a.kategori) : '-'}</Td>
-                  <Td>{formatTanggal(a.tanggalBerlaku)}</Td>
-                  <Td>{a.ringkasan}</Td>
-                </Baris>
-              ))}
+              {artikelTerurut.map((a) => {
+                const tautan = tautanUnduhArtikel(a);
+                return (
+                  <Baris key={a.id} onClick={() => setArtikelTerpilihId(a.id)}>
+                    <Td>{a.judul}</Td>
+                    <Td>{a.nomor ?? '-'}</Td>
+                    <Td>{a.kategori ? labelKategoriKB(a.kategori) : '-'}</Td>
+                    <Td>{formatTanggal(a.tanggalBerlaku)}</Td>
+                    <Td>{a.ringkasan}</Td>
+                    <Td>
+                      {tautan ? (
+                        <a
+                          href={tautan}
+                          download
+                          onClick={(e) => e.stopPropagation()}
+                          className="font-semibold text-[#2573e2] underline"
+                        >
+                          Download
+                        </a>
+                      ) : (
+                        '-'
+                      )}
+                    </Td>
+                  </Baris>
+                );
+              })}
             </tbody>
           </Tabel>
         </Kartu>
@@ -1168,53 +1188,6 @@ function Faq({
           {pesan}
         </p>
       )}
-    </div>
-  );
-}
-
-// ---------------------------------------------------------------------------
-// Document — dokumen lengkap yang bisa diunduh (PR #49, 16/11/2026).
-// Berkas PDF ada di folder `public/dokumen/` repo (diunggah pengguna lewat
-// GitHub web UI — snapshot push hanya menerima file teks); tautan menunjuk
-// ke `/dokumen/<nama-berkas>` dan baru berfungsi setelah berkas diunggah.
-
-function Dokumen() {
-  return (
-    <div className="space-y-4">
-      <Peringatan teks="Full documents (PDF) are downloaded from the repository folder public/dokumen/. The files are uploaded there separately via the GitHub web UI — until then, a download link shows a 404." />
-
-      <Kartu>
-        <Tabel>
-          <thead>
-            <tr>
-              <Th>Document</Th>
-              <Th>File</Th>
-              <Th>Pages</Th>
-              <Th>Size</Th>
-              <Th>Download</Th>
-            </tr>
-          </thead>
-          <tbody>
-            {DOKUMEN_REGULASI.map((d) => (
-              <Baris key={d.berkas}>
-                <Td tebal>{d.judul}</Td>
-                <Td>{d.berkas}</Td>
-                <Td>{formatAngka(d.halaman)}</Td>
-                <Td>{formatUkuranBerkas(d.ukuranByte)}</Td>
-                <Td>
-                  <a
-                    href={urlDokumenRegulasi(d.berkas)}
-                    download={d.berkas}
-                    className="font-semibold text-[#2573e2] underline"
-                  >
-                    Download
-                  </a>
-                </Td>
-              </Baris>
-            ))}
-          </tbody>
-        </Tabel>
-      </Kartu>
     </div>
   );
 }
