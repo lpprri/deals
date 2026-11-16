@@ -12,16 +12,29 @@
 // ditambahkan lewat form, menu ini ikut menampilkan karena membaca
 // data.klien yang sama seperti Deals.
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { TabKlien } from './Deals';
 import type { ModulProps } from '../lib/store';
 
 /** Clients — daftar klien yang sama seperti Deals (tab Clients). */
-export function MenuKlien({ data, user, actions, cari }: ModulProps) {
+export function MenuKlien({
+  data,
+  user,
+  actions,
+  cari,
+  klienIdTerpilihLuar,
+}: ModulProps) {
   // State lokal sama seperti Deals (tab klien): pilihan dan form —
   // supaya TabKlien dipakai ulang apa adanya.
   const [klienIdTerpilih, setKlienIdTerpilih] = useState<string | null>(null);
   const [tampilForm, setTampilForm] = useState(false);
+
+  // Dibuka dari Detail Kontrak (nama klien diklik): pilih klien itu.
+  // Hanya berjalan saat nilai luar berubah — pilihan manual pengguna
+  // di daftar tidak ditimpa.
+  useEffect(() => {
+    if (klienIdTerpilihLuar) setKlienIdTerpilih(klienIdTerpilihLuar);
+  }, [klienIdTerpilihLuar]);
 
   const kataKunci = cari.trim().toLowerCase();
   const cocokCari = (teks: string) =>

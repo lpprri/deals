@@ -44,6 +44,7 @@ function DaftarKontrakKategori({
   user,
   actions,
   cari,
+  onNavigasiKlien,
   kategori,
   teksKosong,
   penjelasanKosong,
@@ -107,6 +108,7 @@ function DaftarKontrakKategori({
       onUrutKunci={setUrutKunci}
       urutArah={urutArah}
       onUrutArah={setUrutArah}
+      onNavigasiKlien={onNavigasiKlien}
     />
   );
 }

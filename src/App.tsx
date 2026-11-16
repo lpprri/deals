@@ -571,6 +571,14 @@ export default function App() {
   const [user, setUser] = useState<DummyUser | null>(null);
   const [data, setData] = useState<AppData>(DATA_NYATA);
   const [active, setActive] = useState<ModuleId>('home');
+  /**
+   * Klien yang dipilih dari Detail Kontrak — saat nama klien diklik,
+   * menu Clients dibuka dengan klien ini terpilih (draft 16/11/2026).
+   * null = buka daftar klien seperti biasa.
+   */
+  const [klienTerpilihLuar, setKlienTerpilihLuar] = useState<string | null>(
+    null,
+  );
   /** Sidebar bisa dilipat ke rel ikon saja — status disimpan di localStorage
       (pola sama seperti 'rri-bahasa-landing' di Beranda.tsx). */
   const [sidebarCiut, setSidebarCiut] = useState<boolean>(() => {
@@ -2647,7 +2655,17 @@ export default function App() {
   );
   const current = MODULES.find((m) => m.id === active) ?? MODULES[0];
   const Icon = current.icon;
-  const propsModul = { data, user: penggunaAktif, actions, cari };
+  const propsModul = {
+    data,
+    user: penggunaAktif,
+    actions,
+    cari,
+    klienIdTerpilihLuar: klienTerpilihLuar,
+    onNavigasiKlien: (klienId: string) => {
+      setKlienTerpilihLuar(klienId);
+      setActive('klien');
+    },
+  };
 
   /** Panel tambahan yang sedang terbuka: HANYA sub-item induknya
       (perbaikan 15/11/2026 19:16 WIB — nama induk tidak dicantumkan
