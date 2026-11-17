@@ -1,7 +1,5 @@
 // Verifikasi landing page tiruan template agency "Marklo"
 // (PR landing-marklo-clone, route `/`).
-// (PR landing-samakan-ukuran-marklo, 2026-11-17: skala hero/header/
-// kartu/heading disamakan dengan template Marklo.)
 // Asersi:
 // - Route `/` (belum login, halamanPublik 'beranda') me-render
 //   MarkloLanding dengan tombol Login; Beranda lama TIDAK dipakai di
@@ -15,6 +13,11 @@
 //   marquee logo, accordion FAQ, hover states.
 // - Yang DIPARKIR (penyesuaian RRI belakangan): Lacak, Ajukan,
 //   statistik live, dua bahasa, palet RRI — tidak ada di landing baru.
+//   KECUALI footer: gradien navy RRI + logo putih + kolom "Additional
+//   Service" + header seamless, atas permintaan eksplisit pengguna
+//   2026-11-17 (PR landing-footer-navy-putih). PR ini JUGA me-revert
+//   PR #75: ukuran landing kembali ke PR #74 karena pengguna menilai
+//   ukuran PR #75 kebesaran di zoom 100%.
 // - Jujur: nama/klien/testimoni/angka adalah SAMPLE template
 //   (dinyatakan di data + PR body); booking Next hanya pratinjau,
 //   tidak ada pemesanan yang terkirim; tidak ada hotlink gambar
@@ -90,52 +93,27 @@ cek(
     marklo.includes("gulirKe('process')"),
 );
 cek(
-  'Header: pill outline besar "30 Min Free Consultation" + Login (onLogin)',
-  marklo.includes('30 Min Free Consultation') &&
-    marklo.includes('border-2 border-mk-aksen px-6 py-3 text-base') &&
-    marklo.includes('onClick={onLogin}'),
-);
-cek(
-  'Header: lebih tinggi/besar — logo h-11/sm:h-12, nav text-base, padding py-4/py-5',
-  marklo.includes('className="h-11 w-auto shrink-0 sm:h-12"') &&
-    marklo.includes('gap-8 text-base font-medium') &&
-    marklo.includes('px-4 py-4 sm:px-6 sm:py-5'),
-);
-cek(
-  'Header: tombol Login lebih besar (px-5 py-3 text-base)',
-  marklo.includes('border-2 border-black px-5 py-3 text-base font-semibold'),
+  'Header: tombol Book a Free Call + Login (onLogin)',
+  marklo.includes('Book a Free Call') && marklo.includes('onClick={onLogin}'),
 );
 cek(
   'Header: brand RRI Deals (logo RRI + Deals, apa adanya)',
   marklo.includes('LOGO_RRI_LANDING_DATA_URI') &&
     marklo.includes('LOGO_DEALS_DATA_URI'),
 );
+cek(
+  'Header: seamless tanpa garis bawah — tidak ada border-b/divider di bawah header',
+  marklo.includes('className="sticky top-0 z-50 bg-white/90 backdrop-blur"') &&
+    !marklo
+      .slice(marklo.indexOf('function Header('), marklo.indexOf('</header>'))
+      .includes('border-b border-slate-200'),
+);
 
 // --- 4. Hero. ---
 cek(
-  'Hero: H1 display besar rata kiri — clamp 3rem/8.5vw/7.5rem, baris 1 vermilion, baris 2 abu-abu',
-  marklo.includes('text-left text-[clamp(3rem,8.5vw,7.5rem)]') &&
-    marklo.includes('<span className="block text-mk-aksen">Grow smarter with</span>') &&
-    marklo.includes('<span className="block text-slate-300">our marketing.</span>'),
-);
-cek(
-  'Hero: layout asimetris dua kolom — kiri H1+rating (col-span-7), kanan subcopy+tombol (col-span-5), items-end',
-  marklo.includes('lg:grid-cols-12') &&
-    marklo.includes('lg:col-span-7') &&
-    marklo.includes('lg:col-span-5') &&
-    marklo.includes('lg:items-end') &&
-    marklo.indexOf('Grow smarter with') < marklo.indexOf('We help ambitious brands'),
-);
-cek(
-  'Hero: H1 lama (tengah, hitam, text-5xl/6xl/7xl) sudah tidak ada',
-  !marklo.includes('text-5xl font-extrabold leading-[1.05] tracking-tight text-black sm:text-6xl lg:text-7xl') &&
-    !marklo.includes('mx-auto max-w-7xl px-4 pb-16 pt-14 text-center sm:px-6 lg:pt-20'),
-);
-cek(
-  'Hero: rating lebih besar — avatar h-10, bintang h-5, angka 4.9 text-3xl',
-  marklo.includes('flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br') &&
-    marklo.includes('<BintangLima className="h-5 w-5" />') &&
-    marklo.includes('text-3xl font-extrabold text-black'),
+  'Hero: H1 raksasa "Grow smarter with our marketing."',
+  marklo.includes('Grow <span className="text-slate-300">smarter</span> with our') &&
+    marklo.includes('marketing.'),
 );
 cek(
   'Hero: tombol primer "Book a Free Call" + outline "Our Services"',
@@ -170,12 +148,6 @@ cek(
     marklo.includes('Next campaign') &&
     marklo.includes('setInterval(() => gulirKartu(1), 5000)') &&
     marklo.includes('snap-x snap-mandatory'),
-);
-cek(
-  'Carousel: kartu lebih besar — lebar 520px/560px, visual h-80, inisial text-9xl',
-  marklo.includes('sm:w-[520px] lg:w-[560px]') &&
-    marklo.includes('relative flex h-80 items-center justify-center') &&
-    marklo.includes('text-9xl font-extrabold text-white/70'),
 );
 
 // --- 6. Pernyataan / About. ---
@@ -313,7 +285,7 @@ cek(
   dataMarklo.includes("nama: 'Gabriel Ross'") &&
     dataMarklo.includes("nama: 'Daniel Lee'") &&
     dataMarklo.includes('unggulan: true') &&
-    marklo.includes('bg-mk-aksen p-8 text-white'),
+    marklo.includes('bg-mk-aksen p-7 text-white'),
 );
 
 // --- 14. FAQ. ---
@@ -336,10 +308,16 @@ cek(
 );
 
 // --- 15. Footer gelap. ---
+// Substring footer saja untuk asersi urutan kolom — komentar header
+// berkas juga menyebut 'Additional Service', jadi indexOf global salah.
+const footerMarklo = marklo.slice(
+  marklo.indexOf('/* ================= Footer ================= */'),
+);
 cek(
-  'Footer: gradien gelap maroon-ke-hitam + tepi atas bergelombang (SVG)',
-  marklo.includes('from-[#3a0d0d] to-black') &&
-    marklo.includes('viewBox="0 0 1440 70"'),
+  'Footer: gradien navy RRI (#0D2569) ke navy gelap + tepi atas bergelombang (SVG) — maroon hilang',
+  marklo.includes('from-[#0D2569] to-[#04122e]') &&
+    marklo.includes('viewBox="0 0 1440 70"') &&
+    !marklo.includes('#3a0d0d'),
 );
 cek(
   'Footer: mark 4 kelopak + Back to top + Navigation + Socials + Contact + "Book 30 Min Free Call"',
@@ -349,6 +327,18 @@ cek(
     marklo.includes('Contact') &&
     marklo.includes('Book 30 Min Free Call') &&
     marklo.includes('rounded-full bg-[#f6d9e8]'),
+);
+cek(
+  'Footer: logo RRI + Deals putih (filter brightness(0) invert(1) di kedua img footer; logo header tanpa filter)',
+  (marklo.match(/\[filter:brightness\(0\)_invert\(1\)\]/g) || []).length === 2 &&
+    marklo.includes('className="h-9 w-auto shrink-0"'),
+);
+cek(
+  'Footer: kolom "Additional Service" di antara Navigation dan Contact — link Book a Room + Rent a Space ke booking',
+  footerMarklo.indexOf('Navigation') < footerMarklo.indexOf('Additional Service') &&
+    footerMarklo.indexOf('Additional Service') < footerMarklo.indexOf('LPP RRI Head Office') &&
+    footerMarklo.includes('Book a Room') &&
+    footerMarklo.includes('Rent a Space'),
 );
 cek(
   'Footer: kontak RRI dari landing saat ini (alamat HQ, telepon/email bertanda sample, jam layanan)',
@@ -429,34 +419,6 @@ cek(
 cek(
   'Gambar: visual kartu memakai gradien CSS + inisial (bukan <img> eksternal)',
   marklo.includes('bg-gradient-to-br') && !marklo.includes('<img src="http'),
-);
-
-// --- 19. Skala Marklo (PR landing-samakan-ukuran-marklo). ---
-cek(
-  'Skala: heading section text-4xl/sm:text-5xl/lg:text-6xl + pernyataan lg:text-7xl',
-  marklo.includes('text-4xl font-extrabold leading-tight tracking-tight text-black sm:text-5xl lg:text-6xl') &&
-    marklo.includes('text-4xl font-extrabold leading-tight tracking-tight text-black sm:text-6xl lg:text-7xl'),
-);
-cek(
-  'Skala: padding section lebih lega — py-20 sm:py-28 di 8 section',
-  (marklo.match(/py-20 sm:py-28/g) || []).length === 8,
-);
-cek(
-  'Skala: angka statistik text-5xl/sm:text-6xl + kartu stat p-8',
-  marklo.includes('text-5xl font-extrabold tracking-tight text-black sm:text-6xl') &&
-    marklo.includes('bg-slate-50 p-8 text-center'),
-);
-cek(
-  'Skala: kartu section p-8 + judul kartu text-2xl + tombol text-base px-7',
-  marklo.includes('bg-white p-8 shadow-lg') &&
-    marklo.includes('text-2xl font-extrabold text-black') &&
-    marklo.includes('px-7 py-3.5 text-base font-semibold'),
-);
-cek(
-  'Skala: footer lebih besar — grid py-16/sm:py-20, logo h-12, mark h-20',
-  marklo.includes('py-16 sm:px-6 md:grid-cols-4 sm:py-20') &&
-    marklo.includes('className="h-12 w-auto shrink-0"') &&
-    marklo.includes('relative block h-20 w-20'),
 );
 
 if (gagal > 0) {

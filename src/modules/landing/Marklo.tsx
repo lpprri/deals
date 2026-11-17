@@ -1,7 +1,11 @@
 // Landing page publik — tiruan template agency "Marklo"
 // (PR landing-marklo-clone, 2026-11-17).
-// (PR landing-samakan-ukuran-marklo, 2026-11-17: skala hero/header/
-// kartu/heading disamakan dengan template Marklo.)
+// (PR landing-footer-navy-putih, 2026-11-17: footer gradien navy RRI
+// #0D2569 (bukan maroon), logo RRI + Deals di footer dibuat putih,
+// kolom "Additional Service", header seamless tanpa garis bawah.
+// PR ini JUGA me-revert PR #75 (ukuran landing kembali ke PR #74)
+// karena pengguna menilai ukuran PR #75 kebesaran di zoom 100% —
+// permintaan ukuran PR #75 berasal dari tampilan zoom-out.)
 //
 // Tiruan visual SESETIA MUNGKIN dari template Marklo; penyesuaian RRI
 // (palet, Lacak, Ajukan, statistik live, dua bahasa) DIPARKIR ke
@@ -10,7 +14,9 @@
 //   - Nama orang/klien/kampanye/testimoni/angka: DATA CONTOH dari
 //     template (src/lib/landingMarklo.ts) — BUKAN data RRI.
 //   - Brand header/footer tetap "RRI Deals" (logo/wordmark RRI apa
-//     adanya, tidak diwarnai ulang); tombol Login/Operator tetap ada.
+//     adanya, tidak diwarnai ulang) — KECUALI logo di footer yang
+//     dibuat putih atas permintaan eksplisit pengguna 2026-11-17
+//     (filter brightness(0) invert(1), hanya di footer).
 //   - Kontak footer memakai data kontak landing saat ini; telepon dan
 //     email bertanda (contoh) karena memang placeholder di sana.
 //   - Kartu booking hanya pratinjau lokal: tombol Next menampilkan
@@ -135,7 +141,7 @@ function useCountUp(target: number, aktif: boolean, durasi = 1600) {
 /** Label section berbentuk pill outline merah (gaya template). */
 function LabelPill({ children }: { children: ReactNode }) {
   return (
-    <span className="inline-flex items-center rounded-full border border-mk-aksen px-5 py-2 text-sm font-semibold text-mk-aksen">
+    <span className="inline-flex items-center rounded-full border border-mk-aksen px-4 py-1.5 text-sm font-semibold text-mk-aksen">
       {children}
     </span>
   );
@@ -187,8 +193,8 @@ export default function MarkloLanding({ onLogin }: MarkloLandingProps) {
 
 function Header({ onLogin }: { onLogin: () => void }) {
   return (
-    <header className="sticky top-0 z-50 border-b border-slate-200 bg-white/90 backdrop-blur">
-      <div className="mx-auto flex max-w-7xl items-center gap-4 px-4 py-4 sm:px-6 sm:py-5">
+    <header className="sticky top-0 z-50 bg-white/90 backdrop-blur">
+      <div className="mx-auto flex max-w-7xl items-center gap-4 px-4 py-3 sm:px-6">
         <button
           type="button"
           onClick={() => gulirKe('atas')}
@@ -198,17 +204,17 @@ function Header({ onLogin }: { onLogin: () => void }) {
           <img
             src={LOGO_RRI_LANDING_DATA_URI}
             alt="Radio Republik Indonesia"
-            className="h-11 w-auto shrink-0 sm:h-12"
+            className="h-9 w-auto shrink-0"
           />
           <img
             src={LOGO_DEALS_DATA_URI}
             alt="Deals"
-            className="h-11 w-auto shrink-0 sm:h-12"
+            className="h-9 w-auto shrink-0"
           />
         </button>
         <nav
           aria-label="Main navigation"
-          className="ml-auto hidden items-center gap-8 text-base font-medium text-slate-700 md:flex lg:gap-10"
+          className="ml-auto hidden items-center gap-7 text-sm font-medium text-slate-700 md:flex"
         >
           <button type="button" onClick={() => gulirKe('about')} className="hover:text-mk-aksen">
             About
@@ -231,15 +237,14 @@ function Header({ onLogin }: { onLogin: () => void }) {
           <button
             type="button"
             onClick={() => gulirKe('booking')}
-            className="hidden items-center gap-2 rounded-full border-2 border-mk-aksen px-6 py-3 text-base font-semibold text-mk-aksen transition hover:bg-mk-aksen hover:text-white sm:inline-flex"
+            className="hidden rounded-full bg-mk-aksen px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-mk-aksen-gelap sm:inline-flex"
           >
-            30 Min Free Consultation
-            <ArrowRight className="h-5 w-5" aria-hidden="true" />
+            Book a Free Call
           </button>
           <button
             type="button"
             onClick={onLogin}
-            className="rounded-full border-2 border-black px-5 py-3 text-base font-semibold text-black transition hover:bg-black hover:text-white"
+            className="rounded-full border-2 border-black px-4 py-2 text-sm font-semibold text-black transition hover:bg-black hover:text-white"
           >
             Login
           </button>
@@ -255,80 +260,67 @@ function Hero() {
   const rating = useCountUp(4.9, true, 1800);
   return (
     <section id="atas" className="bg-white">
-      <div className="mx-auto max-w-7xl px-4 pb-20 pt-16 sm:px-6 lg:pb-24 lg:pt-24">
-        {/* Hero asimetris ala Marklo: kiri H1 display + rating, kanan
-            subcopy + tombol. Di layar kecil menumpuk (H1 dulu). */}
-        <div className="grid gap-10 lg:grid-cols-12 lg:items-end lg:gap-12">
-          <div className="lg:col-span-7">
-            <Reveal>
-              <h1 className="text-left text-[clamp(3rem,8.5vw,7.5rem)] font-extrabold leading-[0.95] tracking-tight">
-                <span className="block text-mk-aksen">Grow smarter with</span>
-                <span className="block text-slate-300">our marketing.</span>
-              </h1>
-            </Reveal>
-            <Reveal tunda={200}>
-              <div className="mt-10 flex flex-wrap items-center gap-x-5 gap-y-3">
-                <span className="flex -space-x-2">
-                  {[
-                    { inisial: 'GR', gradien: 'from-rose-400 to-orange-300' },
-                    { inisial: 'SM', gradien: 'from-sky-400 to-blue-300' },
-                    { inisial: 'PK', gradien: 'from-violet-400 to-purple-300' },
-                    { inisial: 'DL', gradien: 'from-emerald-400 to-teal-300' },
-                  ].map((a) => (
-                    <span
-                      key={a.inisial}
-                      className={`flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br ${a.gradien} text-sm font-bold text-white ring-2 ring-white`}
-                      aria-hidden="true"
-                    >
-                      {a.inisial}
-                    </span>
-                  ))}
-                </span>
-                <span className="flex items-center gap-2 rounded-full border border-slate-200 px-3 py-1.5">
-                  <BintangLima className="h-5 w-5" />
-                </span>
-                <span className="flex items-baseline gap-1.5">
-                  <span className="text-3xl font-extrabold text-black">
-                    {rating.toFixed(1)}
-                  </span>
-                  <span className="text-sm font-semibold text-slate-400">
-                    / 5.0
-                  </span>
-                </span>
-                <span className="text-sm font-semibold tracking-widest text-slate-400">
-                  TRUSTED BY 500+ BRANDS GLOBALLY
-                </span>
-              </div>
-            </Reveal>
+      <div className="mx-auto max-w-7xl px-4 pb-16 pt-14 text-center sm:px-6 lg:pt-20">
+        <Reveal>
+          <h1 className="mx-auto max-w-4xl text-5xl font-extrabold leading-[1.05] tracking-tight text-black sm:text-6xl lg:text-7xl">
+            Grow <span className="text-slate-300">smarter</span> with our
+            marketing.
+          </h1>
+        </Reveal>
+        <Reveal tunda={120}>
+          <p className="mx-auto mt-6 max-w-2xl text-base leading-relaxed text-slate-500 sm:text-lg">
+            We help ambitious brands grow with data-driven campaigns, creative
+            that converts, and reporting you can actually trust.
+          </p>
+        </Reveal>
+        <Reveal tunda={220}>
+          <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
+            <button
+              type="button"
+              onClick={() => gulirKe('booking')}
+              className="inline-flex items-center gap-2 rounded-full bg-mk-aksen px-6 py-3 text-sm font-semibold text-white shadow-md transition hover:bg-mk-aksen-gelap"
+            >
+              Book a Free Call
+              <ArrowRight className="h-4 w-4" aria-hidden="true" />
+            </button>
+            <button
+              type="button"
+              onClick={() => gulirKe('services')}
+              className="rounded-full border-2 border-black px-6 py-3 text-sm font-semibold text-black transition hover:bg-black hover:text-white"
+            >
+              Our Services
+            </button>
           </div>
-          <div className="lg:col-span-5 lg:pb-2">
-            <Reveal tunda={120}>
-              <p className="text-lg leading-relaxed text-slate-500 sm:text-xl">
-                We help ambitious brands grow with data-driven campaigns,
-                creative that converts, and reporting you can actually trust.
-              </p>
-            </Reveal>
-            <Reveal tunda={220}>
-              <div className="mt-8 flex flex-wrap items-center gap-3">
-                <button
-                  type="button"
-                  onClick={() => gulirKe('booking')}
-                  className="inline-flex items-center gap-2 rounded-full bg-mk-aksen px-7 py-3.5 text-base font-semibold text-white shadow-md transition hover:bg-mk-aksen-gelap"
+        </Reveal>
+        <Reveal tunda={320}>
+          <div className="mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row sm:gap-4">
+            <span className="flex -space-x-2">
+              {[
+                { inisial: 'GR', gradien: 'from-rose-400 to-orange-300' },
+                { inisial: 'SM', gradien: 'from-sky-400 to-blue-300' },
+                { inisial: 'PK', gradien: 'from-violet-400 to-purple-300' },
+                { inisial: 'DL', gradien: 'from-emerald-400 to-teal-300' },
+              ].map((a) => (
+                <span
+                  key={a.inisial}
+                  className={`flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br ${a.gradien} text-xs font-bold text-white ring-2 ring-white`}
+                  aria-hidden="true"
                 >
-                  Book a Free Call
-                  <ArrowRight className="h-5 w-5" aria-hidden="true" />
-                </button>
-                <button
-                  type="button"
-                  onClick={() => gulirKe('services')}
-                  className="rounded-full border-2 border-black px-7 py-3.5 text-base font-semibold text-black transition hover:bg-black hover:text-white"
-                >
-                  Our Services
-                </button>
-              </div>
-            </Reveal>
+                  {a.inisial}
+                </span>
+              ))}
+            </span>
+            <span className="flex items-center gap-2">
+              <BintangLima />
+              <span className="text-sm font-bold text-black">
+                {rating.toFixed(1)}/5.0
+              </span>
+            </span>
+            <span className="text-xs font-semibold tracking-widest text-slate-400">
+              TRUSTED BY 500+ BRANDS GLOBALLY
+            </span>
           </div>
-        </div>
+        </Reveal>
       </div>
     </section>
   );
@@ -343,7 +335,7 @@ function CarouselKampanye() {
     const el = ref.current;
     if (!el) return;
     const kartu = el.querySelector<HTMLElement>('[data-kartu]');
-    const lebar = kartu ? kartu.offsetWidth + 24 : 544;
+    const lebar = kartu ? kartu.offsetWidth + 24 : 360;
     const maks = el.scrollWidth - el.clientWidth;
     let berikut = el.scrollLeft + arah * lebar;
     if (berikut > maks + 4) berikut = 0;
@@ -356,11 +348,11 @@ function CarouselKampanye() {
     return () => window.clearInterval(id);
   }, [jeda, gulirKartu]);
   return (
-    <section id="work" className="bg-white pb-20 sm:pb-24">
+    <section id="work" className="bg-white pb-16">
       <div className="mx-auto max-w-7xl px-4 sm:px-6">
         <Reveal>
           <div className="flex items-end justify-between gap-4">
-            <h2 className="text-3xl font-extrabold tracking-tight text-black sm:text-4xl lg:text-5xl">
+            <h2 className="text-2xl font-extrabold tracking-tight text-black sm:text-3xl">
               Campaigns that delivered.
             </h2>
             <div className="flex shrink-0 gap-2">
@@ -368,7 +360,7 @@ function CarouselKampanye() {
                 type="button"
                 onClick={() => gulirKartu(-1)}
                 aria-label="Previous campaign"
-                className="flex h-12 w-12 items-center justify-center rounded-full border border-slate-300 text-black transition hover:border-black hover:bg-black hover:text-white"
+                className="flex h-10 w-10 items-center justify-center rounded-full border border-slate-300 text-black transition hover:border-black hover:bg-black hover:text-white"
               >
                 <ChevronLeft className="h-5 w-5" aria-hidden="true" />
               </button>
@@ -376,7 +368,7 @@ function CarouselKampanye() {
                 type="button"
                 onClick={() => gulirKartu(1)}
                 aria-label="Next campaign"
-                className="flex h-12 w-12 items-center justify-center rounded-full border border-slate-300 text-black transition hover:border-black hover:text-white"
+                className="flex h-10 w-10 items-center justify-center rounded-full border border-slate-300 text-black transition hover:border-black hover:text-white"
               >
                 <ChevronRight className="h-5 w-5" aria-hidden="true" />
               </button>
@@ -396,22 +388,22 @@ function CarouselKampanye() {
               <article
                 key={k.klien}
                 data-kartu
-                className="w-[85%] shrink-0 snap-start overflow-hidden rounded-[20px] bg-white shadow-lg ring-1 ring-slate-200 transition hover:-translate-y-1 hover:shadow-xl sm:w-[520px] lg:w-[560px]"
+                className="w-[85%] shrink-0 snap-start overflow-hidden rounded-[20px] bg-white shadow-lg ring-1 ring-slate-200 transition hover:-translate-y-1 hover:shadow-xl sm:w-[420px]"
               >
                 <div
-                  className={`relative flex h-80 items-center justify-center bg-gradient-to-br ${k.gradien}`}
+                  className={`relative flex h-60 items-center justify-center bg-gradient-to-br ${k.gradien}`}
                   aria-hidden="true"
                 >
-                  <span className="absolute left-6 top-6 h-20 w-20 rounded-full bg-white/30" />
-                  <span className="absolute bottom-8 right-8 h-32 w-32 rounded-full bg-white/20" />
-                  <span className="text-9xl font-extrabold text-white/70">
+                  <span className="absolute left-6 top-6 h-16 w-16 rounded-full bg-white/30" />
+                  <span className="absolute bottom-8 right-8 h-24 w-24 rounded-full bg-white/20" />
+                  <span className="text-8xl font-extrabold text-white/70">
                     {k.inisial}
                   </span>
                 </div>
-                <div className="flex items-start justify-between gap-4 p-6">
+                <div className="flex items-start justify-between gap-4 p-5">
                   <div>
-                    <h3 className="text-xl font-extrabold text-black">{k.klien}</h3>
-                    <p className="mt-1 text-base leading-relaxed text-slate-500">
+                    <h3 className="text-lg font-extrabold text-black">{k.klien}</h3>
+                    <p className="mt-1 text-sm leading-relaxed text-slate-500">
                       {k.ringkasan}
                     </p>
                   </div>
@@ -432,10 +424,10 @@ function CarouselKampanye() {
 
 function Pernyataan() {
   return (
-    <section id="about" className="bg-white py-20 sm:py-28">
+    <section id="about" className="bg-white py-16 sm:py-20">
       <div className="mx-auto max-w-5xl px-4 text-center sm:px-6">
         <Reveal>
-          <p className="text-4xl font-extrabold leading-tight tracking-tight text-black sm:text-6xl lg:text-7xl">
+          <p className="text-3xl font-extrabold leading-tight tracking-tight text-black sm:text-5xl lg:text-6xl">
             We focus on returns, scaling your brand through{' '}
             <span className="text-slate-300">digital marketing</span> to take
             it to the next level.
@@ -467,7 +459,7 @@ function Statistik() {
     return () => pengamat.disconnect();
   }, []);
   return (
-    <section className="bg-white pb-20 sm:pb-28">
+    <section className="bg-white pb-16 sm:pb-20">
       <div ref={ref} className="mx-auto max-w-7xl px-4 sm:px-6">
         <Reveal>
           <dl className="grid grid-cols-2 gap-6 lg:grid-cols-4">
@@ -477,8 +469,8 @@ function Statistik() {
           </dl>
         </Reveal>
         <Reveal tunda={150}>
-          <div className="mt-16 text-center">
-            <p className="text-base font-bold tracking-wide text-black">
+          <div className="mt-12 text-center">
+            <p className="text-sm font-bold tracking-wide text-black">
               Our Clients in 35+ Countries
             </p>
             <ul className="mt-4 flex flex-wrap items-center justify-center gap-2">
@@ -511,12 +503,12 @@ function StatItem({
     maximumFractionDigits: stat.desimal,
   });
   return (
-    <div className="rounded-[20px] bg-slate-50 p-8 text-center ring-1 ring-slate-200">
-      <dd className="text-5xl font-extrabold tracking-tight text-black sm:text-6xl">
+    <div className="rounded-[20px] bg-slate-50 p-6 text-center ring-1 ring-slate-200">
+      <dd className="text-4xl font-extrabold tracking-tight text-black sm:text-5xl">
         {tampil}
         {stat.akhiran}
       </dd>
-      <dt className="mt-2 text-base font-medium text-slate-500">{stat.label}</dt>
+      <dt className="mt-2 text-sm font-medium text-slate-500">{stat.label}</dt>
       {stat.id === 'klien' && (
         <span className="mt-3 inline-flex items-center justify-center gap-2">
           <span className="flex -space-x-1.5">
@@ -543,25 +535,25 @@ function StatItem({
 
 function Proses() {
   return (
-    <section id="process" className="bg-white py-20 sm:py-28">
+    <section id="process" className="bg-white py-16 sm:py-20">
       <div className="mx-auto max-w-7xl px-4 text-center sm:px-6">
         <Reveal>
           <LabelPill>Process</LabelPill>
-          <h2 className="mx-auto mt-5 max-w-3xl text-4xl font-extrabold leading-tight tracking-tight text-black sm:text-5xl lg:text-6xl">
+          <h2 className="mx-auto mt-5 max-w-3xl text-3xl font-extrabold leading-tight tracking-tight text-black sm:text-5xl">
             Our simple 3-step process to skyrocket your business.
           </h2>
         </Reveal>
-        <div className="mt-14 grid gap-6 text-left md:grid-cols-3">
+        <div className="mt-12 grid gap-6 text-left md:grid-cols-3">
           {PROSES_MARKLO.map((langkah, i) => (
             <Reveal key={langkah.nomor} tunda={i * 120}>
-              <article className="h-full rounded-[20px] bg-white p-8 shadow-lg ring-1 ring-slate-200 transition hover:-translate-y-1 hover:shadow-xl">
-                <span className="text-5xl font-extrabold text-mk-aksen">
+              <article className="h-full rounded-[20px] bg-white p-7 shadow-lg ring-1 ring-slate-200 transition hover:-translate-y-1 hover:shadow-xl">
+                <span className="text-4xl font-extrabold text-mk-aksen">
                   {langkah.nomor}
                 </span>
-                <h3 className="mt-4 text-2xl font-extrabold text-black">
+                <h3 className="mt-4 text-xl font-extrabold text-black">
                   {langkah.judul}
                 </h3>
-                <p className="mt-2 text-base leading-relaxed text-slate-500">
+                <p className="mt-2 text-sm leading-relaxed text-slate-500">
                   {langkah.desk}
                 </p>
               </article>
@@ -572,7 +564,7 @@ function Proses() {
           <button
             type="button"
             onClick={() => gulirKe('booking')}
-            className="mt-10 inline-flex items-center gap-2 rounded-full bg-mk-aksen px-7 py-3.5 text-base font-semibold text-white shadow-md transition hover:bg-mk-aksen-gelap"
+            className="mt-10 inline-flex items-center gap-2 rounded-full bg-mk-aksen px-6 py-3 text-sm font-semibold text-white shadow-md transition hover:bg-mk-aksen-gelap"
           >
             Book a Free Consultation
             <ArrowRight className="h-4 w-4" aria-hidden="true" />
@@ -589,11 +581,11 @@ const OFFSET_FUNNEL = ['', 'sm:pl-10', 'sm:pl-20', 'sm:pl-32', 'sm:pl-40'];
 
 function LayananFunnel() {
   return (
-    <section id="services" className="bg-slate-50 py-20 sm:py-28">
+    <section id="services" className="bg-slate-50 py-16 sm:py-20">
       <div className="mx-auto max-w-7xl px-4 text-center sm:px-6">
         <Reveal>
           <LabelPill>Services</LabelPill>
-          <h2 className="mx-auto mt-5 max-w-3xl text-4xl font-extrabold leading-tight tracking-tight text-black sm:text-5xl lg:text-6xl">
+          <h2 className="mx-auto mt-5 max-w-3xl text-3xl font-extrabold leading-tight tracking-tight text-black sm:text-5xl">
             Funnel-focused marketing for predictable, lasting growth.
           </h2>
         </Reveal>
@@ -602,17 +594,17 @@ function LayananFunnel() {
             <div key={tahap.tahap} className={OFFSET_FUNNEL[i]}>
               <Reveal tunda={i * 100}>
                 <article
-                  className={`rounded-[20px] bg-gradient-to-br ${tahap.gradien} p-7 shadow-md ring-1 ring-white transition hover:-translate-y-1 hover:shadow-lg`}
+                  className={`rounded-[20px] bg-gradient-to-br ${tahap.gradien} p-6 shadow-md ring-1 ring-white transition hover:-translate-y-1 hover:shadow-lg`}
                 >
                   <div className="flex items-start justify-between gap-4">
                     <div>
                       <p className="text-xs font-bold uppercase tracking-widest text-slate-500">
                         Step {i + 1}
                       </p>
-                      <h3 className="mt-1 text-2xl font-extrabold text-black">
+                      <h3 className="mt-1 text-xl font-extrabold text-black">
                         {tahap.tahap}
                       </h3>
-                      <p className="mt-1 text-base leading-relaxed text-slate-600">
+                      <p className="mt-1 text-sm leading-relaxed text-slate-600">
                         {tahap.desk}
                       </p>
                     </div>
@@ -624,7 +616,7 @@ function LayananFunnel() {
               </Reveal>
               {i < FUNNEL_MARKLO.length - 1 && (
                 <div
-                  className="mx-auto h-10 w-0 border-l-2 border-dashed border-slate-300"
+                  className="mx-auto h-8 w-0 border-l-2 border-dashed border-slate-300"
                   aria-hidden="true"
                 />
               )}
@@ -633,8 +625,8 @@ function LayananFunnel() {
           <div className={OFFSET_FUNNEL[4]}>
             <Reveal tunda={420}>
               <div className="rounded-[20px] bg-mk-aksen p-6 text-center shadow-lg">
-                <p className="text-5xl font-extrabold text-white">35X</p>
-                <p className="mt-1 text-base font-semibold text-white/90">
+                <p className="text-3xl font-extrabold text-white">35X</p>
+                <p className="mt-1 text-sm font-semibold text-white/90">
                   Client Growth
                 </p>
               </div>
@@ -650,29 +642,29 @@ function LayananFunnel() {
 
 function Perbandingan() {
   return (
-    <section className="bg-white py-20 sm:py-28">
+    <section className="bg-white py-16 sm:py-20">
       <div className="mx-auto max-w-7xl px-4 sm:px-6">
         <Reveal>
           <div className="text-center">
             <LabelPill>Comparison</LabelPill>
-            <h2 className="mx-auto mt-5 max-w-3xl text-4xl font-extrabold leading-tight tracking-tight text-black sm:text-5xl lg:text-6xl">
+            <h2 className="mx-auto mt-5 max-w-3xl text-3xl font-extrabold leading-tight tracking-tight text-black sm:text-5xl">
               But, why would you want to work with us?
             </h2>
           </div>
         </Reveal>
-        <div className="mt-14 grid gap-6 md:grid-cols-2">
+        <div className="mt-12 grid gap-6 md:grid-cols-2">
           <Reveal>
-            <article className="h-full rounded-[20px] bg-white p-8 shadow-lg ring-1 ring-slate-200">
-              <h3 className="text-2xl font-extrabold text-black">
+            <article className="h-full rounded-[20px] bg-white p-7 shadow-lg ring-1 ring-slate-200">
+              <h3 className="text-xl font-extrabold text-black">
                 Other Agencies
               </h3>
               <ul className="mt-5 space-y-4">
                 {PERBANDINGAN_LAIN.map((item) => (
                   <li key={item} className="flex items-start gap-3">
-                    <span className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-pink-100 text-mk-aksen">
+                    <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-pink-100 text-mk-aksen">
                       <X className="h-4 w-4" aria-hidden="true" />
                     </span>
-                    <span className="text-base leading-relaxed text-slate-500">
+                    <span className="text-sm leading-relaxed text-slate-500">
                       {item}
                     </span>
                   </li>
@@ -681,15 +673,15 @@ function Perbandingan() {
             </article>
           </Reveal>
           <Reveal tunda={140}>
-            <article className="h-full rounded-[20px] bg-mk-peach p-8 shadow-lg ring-1 ring-orange-100">
-              <h3 className="text-2xl font-extrabold text-black">Our Agency</h3>
+            <article className="h-full rounded-[20px] bg-mk-peach p-7 shadow-lg ring-1 ring-orange-100">
+              <h3 className="text-xl font-extrabold text-black">Our Agency</h3>
               <ul className="mt-5 space-y-4">
                 {PERBANDINGAN_KAMI.map((item) => (
                   <li key={item} className="flex items-start gap-3">
-                    <span className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-mk-aksen text-white">
+                    <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-mk-aksen text-white">
                       <Check className="h-4 w-4" aria-hidden="true" />
                     </span>
-                    <span className="text-base font-semibold leading-relaxed text-black">
+                    <span className="text-sm font-semibold leading-relaxed text-black">
                       {item}
                     </span>
                   </li>
@@ -704,7 +696,7 @@ function Perbandingan() {
               {[...LOGO_KLIEN_MARKLO, ...LOGO_KLIEN_MARKLO].map((logo, i) => (
                 <span
                   key={`${logo}-${i}`}
-                  className="whitespace-nowrap text-2xl font-extrabold tracking-tight text-slate-400"
+                  className="whitespace-nowrap text-xl font-extrabold tracking-tight text-slate-400"
                   aria-hidden={i >= LOGO_KLIEN_MARKLO.length}
                 >
                   {logo}
@@ -722,22 +714,22 @@ function Perbandingan() {
 
 function MengapaMarketing() {
   return (
-    <section className="bg-slate-50 py-20 sm:py-28">
+    <section className="bg-slate-50 py-16 sm:py-20">
       <div className="mx-auto max-w-7xl px-4 sm:px-6">
         <Reveal>
           <div className="text-center">
             <LabelPill>Confusion?</LabelPill>
-            <h2 className="mx-auto mt-5 max-w-3xl text-4xl font-extrabold leading-tight tracking-tight text-black sm:text-5xl lg:text-6xl">
+            <h2 className="mx-auto mt-5 max-w-3xl text-3xl font-extrabold leading-tight tracking-tight text-black sm:text-5xl">
               Why do you need Marketing?
             </h2>
           </div>
         </Reveal>
-        <div className="mt-14 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {MANFAAT_MARKLO.map((m, i) => (
             <Reveal key={m.judul} tunda={(i % 3) * 120} className={i === 4 ? 'sm:col-span-2 lg:col-span-1' : ''}>
-              <article className="flex h-full flex-col rounded-[20px] bg-white p-8 shadow-md ring-1 ring-slate-200 transition hover:-translate-y-1 hover:shadow-lg">
-                <h3 className="text-xl font-extrabold text-black">{m.judul}</h3>
-                <p className="mt-2 flex-1 text-base leading-relaxed text-slate-500">
+              <article className="flex h-full flex-col rounded-[20px] bg-white p-7 shadow-md ring-1 ring-slate-200 transition hover:-translate-y-1 hover:shadow-lg">
+                <h3 className="text-lg font-extrabold text-black">{m.judul}</h3>
+                <p className="mt-2 flex-1 text-sm leading-relaxed text-slate-500">
                   {m.desk}
                 </p>
                 {m.tautan && (
@@ -754,8 +746,8 @@ function MengapaMarketing() {
             </Reveal>
           ))}
           <Reveal tunda={240} className="sm:col-span-2 lg:col-span-1">
-            <article className="flex h-full flex-col items-start justify-center rounded-[20px] bg-black p-8 text-white shadow-md">
-              <p className="text-3xl font-extrabold leading-snug">
+            <article className="flex h-full flex-col items-start justify-center rounded-[20px] bg-black p-7 text-white shadow-md">
+              <p className="text-2xl font-extrabold leading-snug">
                 Still not sure where to start?
               </p>
               <p className="mt-2 text-sm leading-relaxed text-white/70">
@@ -764,7 +756,7 @@ function MengapaMarketing() {
               <button
                 type="button"
                 onClick={() => gulirKe('booking')}
-                className="mt-5 inline-flex items-center gap-2 rounded-full bg-mk-aksen px-6 py-3 text-base font-semibold text-white transition hover:bg-mk-aksen-gelap"
+                className="mt-5 inline-flex items-center gap-2 rounded-full bg-mk-aksen px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-mk-aksen-gelap"
               >
                 Book a Free Call
                 <ArrowRight className="h-4 w-4" aria-hidden="true" />
@@ -848,29 +840,29 @@ function BookingKonsultasi() {
   };
 
   return (
-    <section id="booking" className="bg-white py-20 sm:py-28">
+    <section id="booking" className="bg-white py-16 sm:py-20">
       <div className="mx-auto max-w-7xl px-4 sm:px-6">
         <Reveal>
           <div className="text-center">
             <LabelPill>Free Consultation</LabelPill>
-            <h2 className="mx-auto mt-5 max-w-3xl text-4xl font-extrabold leading-tight tracking-tight text-black sm:text-5xl lg:text-6xl">
+            <h2 className="mx-auto mt-5 max-w-3xl text-3xl font-extrabold leading-tight tracking-tight text-black sm:text-5xl">
               Let&apos;s talk about growing your business
             </h2>
-            <p className="mx-auto mt-4 max-w-xl text-lg leading-relaxed text-slate-500">
+            <p className="mx-auto mt-4 max-w-xl text-base leading-relaxed text-slate-500">
               Pick a time that works for you. We will review your funnel and
               show you the fastest path to growth — free, no strings attached.
             </p>
           </div>
         </Reveal>
         <Reveal tunda={150}>
-          <div className="mx-auto mt-12 max-w-6xl overflow-hidden rounded-[20px] bg-white shadow-xl ring-1 ring-slate-200">
+          <div className="mx-auto mt-12 max-w-5xl overflow-hidden rounded-[20px] bg-white shadow-xl ring-1 ring-slate-200">
             <div className="grid md:grid-cols-3">
               {/* Kolom host */}
-              <div className="border-b border-slate-200 p-8 md:border-b-0 md:border-r">
+              <div className="border-b border-slate-200 p-6 md:border-b-0 md:border-r">
                 <span className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-rose-400 to-orange-300 text-lg font-extrabold text-white">
                   M
                 </span>
-                <h3 className="mt-4 text-xl font-extrabold text-black">Marklo</h3>
+                <h3 className="mt-4 text-lg font-extrabold text-black">Marklo</h3>
                 <p className="mt-1 flex items-center gap-2 text-sm text-slate-500">
                   <Clock className="h-4 w-4" aria-hidden="true" />
                   30 Min Meeting
@@ -921,9 +913,9 @@ function BookingKonsultasi() {
                 </div>
               </div>
               {/* Kolom kalender */}
-              <div className="border-b border-slate-200 p-8 md:border-b-0 md:border-r">
+              <div className="border-b border-slate-200 p-6 md:border-b-0 md:border-r">
                 <div className="flex items-center justify-between">
-                  <h3 className="text-lg font-extrabold text-black">
+                  <h3 className="text-base font-extrabold text-black">
                     {NAMA_BULAN[bulan.getMonth()]} {bulan.getFullYear()}
                   </h3>
                   <span className="flex gap-1">
@@ -970,7 +962,7 @@ function BookingKonsultasi() {
                         onClick={() => pilihTanggal(d)}
                         aria-pressed={aktif}
                         aria-label={labelTanggal(kunci)}
-                        className={`flex h-10 items-center justify-center rounded-full text-base font-semibold transition ${
+                        className={`flex h-9 items-center justify-center rounded-full text-sm font-semibold transition ${
                           aktif
                             ? 'bg-mk-aksen text-white shadow'
                             : lewat
@@ -990,8 +982,8 @@ function BookingKonsultasi() {
                 </p>
               </div>
               {/* Kolom slot + Next */}
-              <div className="flex flex-col p-8">
-                <h3 className="text-lg font-extrabold text-black">Available times</h3>
+              <div className="flex flex-col p-6">
+                <h3 className="text-base font-extrabold text-black">Available times</h3>
                 {tanggalDipilih ? (
                   <div className="mt-4 grid grid-cols-3 gap-2">
                     {SLOT_BOOKING_MENIT.map((slot) => {
@@ -1006,7 +998,7 @@ function BookingKonsultasi() {
                             setCatatanTampil(false);
                           }}
                           aria-pressed={aktif}
-                          className={`rounded-lg border px-2 py-2 text-base font-semibold transition ${
+                          className={`rounded-lg border px-2 py-2 text-sm font-semibold transition ${
                             aktif
                               ? 'border-mk-aksen bg-mk-aksen text-white shadow'
                               : 'border-slate-300 text-black hover:border-black'
@@ -1026,7 +1018,7 @@ function BookingKonsultasi() {
                   type="button"
                   disabled={tanggalDipilih === null || slotDipilih === null}
                   onClick={() => setCatatanTampil(true)}
-                  className="mt-auto inline-flex items-center justify-center gap-2 rounded-full bg-mk-aksen px-7 py-3.5 text-base font-semibold text-white shadow-md transition hover:bg-mk-aksen-gelap disabled:cursor-not-allowed disabled:opacity-40"
+                  className="mt-auto inline-flex items-center justify-center gap-2 rounded-full bg-mk-aksen px-6 py-3 text-sm font-semibold text-white shadow-md transition hover:bg-mk-aksen-gelap disabled:cursor-not-allowed disabled:opacity-40"
                 >
                   Next
                   <ArrowRight className="h-4 w-4" aria-hidden="true" />
@@ -1055,36 +1047,36 @@ function Testimoni() {
   const unggulan = TESTIMONI_MARKLO.find((t) => t.unggulan);
   const biasa = TESTIMONI_MARKLO.filter((t) => !t.unggulan);
   return (
-    <section id="testimonials" className="bg-slate-50 py-20 sm:py-28">
+    <section id="testimonials" className="bg-slate-50 py-16 sm:py-20">
       <div className="mx-auto max-w-7xl px-4 sm:px-6">
         <Reveal>
           <div className="text-center">
-            <p className="mx-auto max-w-2xl text-2xl font-semibold italic leading-relaxed text-slate-500 sm:text-3xl">
+            <p className="mx-auto max-w-2xl text-xl font-semibold italic leading-relaxed text-slate-500 sm:text-2xl">
               &ldquo;Growth is not luck. It is a system — and we build it with
               you.&rdquo;
             </p>
-            <p className="mt-5 inline-flex items-center gap-2 rounded-full bg-mk-aksen px-5 py-2 text-base font-bold text-white shadow">
+            <p className="mt-5 inline-flex items-center gap-2 rounded-full bg-mk-aksen px-4 py-1.5 text-sm font-bold text-white shadow">
               <Star className="h-4 w-4 fill-current" aria-hidden="true" />
               #1 Marketing Agency 2025 Award Winner
             </p>
             <div className="mt-8">
               <LabelPill>Testimonial</LabelPill>
-              <h2 className="mx-auto mt-5 max-w-3xl text-4xl font-extrabold leading-tight tracking-tight text-black sm:text-5xl lg:text-6xl">
+              <h2 className="mx-auto mt-5 max-w-3xl text-3xl font-extrabold leading-tight tracking-tight text-black sm:text-5xl">
                 Why everyone&apos;s talking about our service
               </h2>
             </div>
           </div>
         </Reveal>
-        <div className="mt-14 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+        <div className="mt-12 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {unggulan && (
             <Reveal className="md:col-span-2 lg:col-span-1">
-              <article className="flex h-full flex-col rounded-[20px] bg-mk-aksen p-8 text-white shadow-lg">
+              <article className="flex h-full flex-col rounded-[20px] bg-mk-aksen p-7 text-white shadow-lg">
                 <BintangLima pembungkus="text-white" />
-                <p className="mt-4 flex-1 text-lg font-medium leading-relaxed">
+                <p className="mt-4 flex-1 text-base font-medium leading-relaxed">
                   &ldquo;{unggulan.kutipan}&rdquo;
                 </p>
                 <footer className="mt-6 flex items-center gap-3">
-                  <span className="flex h-12 w-12 items-center justify-center rounded-full bg-white/20 text-sm font-extrabold ring-2 ring-white/40">
+                  <span className="flex h-11 w-11 items-center justify-center rounded-full bg-white/20 text-sm font-extrabold ring-2 ring-white/40">
                     {unggulan.inisial}
                   </span>
                   <span>
@@ -1097,14 +1089,14 @@ function Testimoni() {
           )}
           {biasa.map((t, i) => (
             <Reveal key={t.nama} tunda={(i % 3) * 120}>
-              <article className="flex h-full flex-col rounded-[20px] bg-white p-8 shadow-md ring-1 ring-slate-200 transition hover:-translate-y-1 hover:shadow-lg">
+              <article className="flex h-full flex-col rounded-[20px] bg-white p-7 shadow-md ring-1 ring-slate-200 transition hover:-translate-y-1 hover:shadow-lg">
                 <BintangLima />
-                <p className="mt-4 flex-1 text-base leading-relaxed text-slate-600">
+                <p className="mt-4 flex-1 text-sm leading-relaxed text-slate-600">
                   &ldquo;{t.kutipan}&rdquo;
                 </p>
                 <footer className="mt-6 flex items-center gap-3">
                   <span
-                    className={`flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br ${t.gradien} text-sm font-extrabold text-black/70 ring-2 ring-white`}
+                    className={`flex h-11 w-11 items-center justify-center rounded-full bg-gradient-to-br ${t.gradien} text-sm font-extrabold text-black/70 ring-2 ring-white`}
                   >
                     {t.inisial}
                   </span>
@@ -1127,12 +1119,12 @@ function Testimoni() {
 function Faq() {
   const [terbuka, setTerbuka] = useState(0);
   return (
-    <section id="faq" className="bg-white py-20 sm:py-28">
+    <section id="faq" className="bg-white py-16 sm:py-20">
       <div className="mx-auto max-w-3xl px-4 sm:px-6">
         <Reveal>
           <div className="text-center">
             <LabelPill>FAQ</LabelPill>
-            <h2 className="mx-auto mt-5 text-4xl font-extrabold leading-tight tracking-tight text-black sm:text-5xl lg:text-6xl">
+            <h2 className="mx-auto mt-5 text-3xl font-extrabold leading-tight tracking-tight text-black sm:text-5xl">
               No more confusion - just answers
             </h2>
           </div>
@@ -1151,9 +1143,9 @@ function Faq() {
                     type="button"
                     onClick={() => setTerbuka(aktif ? -1 : i)}
                     aria-expanded={aktif}
-                    className="flex w-full items-center justify-between gap-4 p-6 text-left"
+                    className="flex w-full items-center justify-between gap-4 p-5 text-left"
                   >
-                    <span className="text-lg font-extrabold">{item.q}</span>
+                    <span className="text-base font-extrabold">{item.q}</span>
                     <span
                       className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-lg font-bold ${
                         aktif ? 'bg-white/20 text-white' : 'bg-slate-100 text-black'
@@ -1170,7 +1162,7 @@ function Faq() {
                   >
                     <div className="overflow-hidden">
                       <p
-                        className={`px-6 pb-6 text-base leading-relaxed ${
+                        className={`px-5 pb-5 text-sm leading-relaxed ${
                           aktif ? 'text-white/90' : 'text-slate-500'
                         }`}
                       >
@@ -1195,7 +1187,7 @@ function Footer() {
     <footer className="relative bg-white">
       {/* Tepi atas bergelombang (SVG) menuju section gelap */}
       <svg
-        className="block w-full text-[#3a0d0d]"
+        className="block w-full text-[#0D2569]"
         viewBox="0 0 1440 70"
         preserveAspectRatio="none"
         aria-hidden="true"
@@ -1205,28 +1197,33 @@ function Footer() {
           fill="currentColor"
         />
       </svg>
-      <div className="bg-gradient-to-b from-[#3a0d0d] to-black text-white">
-        <div className="mx-auto grid max-w-7xl gap-10 px-4 py-16 sm:px-6 md:grid-cols-4 sm:py-20">
+      <div className="bg-gradient-to-b from-[#0D2569] to-[#04122e] text-white">
+        <div className="mx-auto grid max-w-7xl gap-10 px-4 py-14 sm:px-6 md:grid-cols-5">
           <div className="md:col-span-2">
             {/* Mark lingkaran 4 kelopak pink pucat */}
-            <span className="relative block h-20 w-20" aria-hidden="true">
-              <span className="absolute left-1/2 top-1/2 h-[4.5rem] w-9 -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#f6d9e8]" />
-              <span className="absolute left-1/2 top-1/2 h-9 w-[4.5rem] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#f6d9e8]" />
-              <span className="absolute left-1/2 top-1/2 h-6 w-6 -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#3a0d0d] ring-2 ring-[#f6d9e8]" />
+            <span className="relative block h-16 w-16" aria-hidden="true">
+              <span className="absolute left-1/2 top-1/2 h-14 w-7 -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#f6d9e8]" />
+              <span className="absolute left-1/2 top-1/2 h-7 w-14 -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#f6d9e8]" />
+              <span className="absolute left-1/2 top-1/2 h-5 w-5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#0D2569] ring-2 ring-[#f6d9e8]" />
             </span>
             <div className="mt-5 flex items-center gap-3">
+              {/* Logo dibuat putih khusus footer (permintaan eksplisit
+                  pengguna 2026-11-17): kedua logo PNG berlatar
+                  transparan, jadi filter brightness(0) invert(1)
+                  mengubah semua piksel menjadi putih. Logo di header
+                  dan tempat lain TIDAK memakai filter ini. */}
               <img
                 src={LOGO_RRI_LANDING_DATA_URI}
                 alt="Radio Republik Indonesia"
-                className="h-12 w-auto shrink-0"
+                className="h-10 w-auto shrink-0 [filter:brightness(0)_invert(1)]"
               />
               <img
                 src={LOGO_DEALS_DATA_URI}
                 alt="Deals"
-                className="h-12 w-auto shrink-0"
+                className="h-10 w-auto shrink-0 [filter:brightness(0)_invert(1)]"
               />
             </div>
-            <p className="mt-4 max-w-md text-base leading-relaxed text-white/70">
+            <p className="mt-4 max-w-md text-sm leading-relaxed text-white/70">
               The partnership portal of Lembaga Penyiaran Publik Radio
               Republik Indonesia — advertising, events, programmes, rooms, and
               land, across Indonesia.
@@ -1234,17 +1231,17 @@ function Footer() {
             <button
               type="button"
               onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-              className="mt-6 inline-flex items-center gap-2 rounded-full border border-white/30 px-5 py-3 text-base font-semibold text-white transition hover:bg-white hover:text-black"
+              className="mt-6 inline-flex items-center gap-2 rounded-full border border-white/30 px-4 py-2 text-sm font-semibold text-white transition hover:bg-white hover:text-black"
             >
               <ArrowUp className="h-4 w-4" aria-hidden="true" />
               Back to top
             </button>
           </div>
           <nav aria-label="Footer navigation">
-            <h3 className="text-base font-bold uppercase tracking-widest text-white/50">
+            <h3 className="text-sm font-bold uppercase tracking-widest text-white/50">
               Navigation
             </h3>
-            <ul className="mt-4 space-y-2.5 text-base">
+            <ul className="mt-4 space-y-2.5 text-sm">
               {[
                 { label: 'About', id: 'about' },
                 { label: 'Service', id: 'services' },
@@ -1263,7 +1260,7 @@ function Footer() {
                 </li>
               ))}
             </ul>
-            <h3 className="mt-8 text-base font-bold uppercase tracking-widest text-white/50">
+            <h3 className="mt-8 text-sm font-bold uppercase tracking-widest text-white/50">
               Socials
             </h3>
             <ul className="mt-4 flex gap-2">
@@ -1287,11 +1284,38 @@ function Footer() {
               ))}
             </ul>
           </nav>
+          {/* Kolom Additional Service — di antara Navigation dan
+              Contact (permintaan pengguna 2026-11-17). Untuk sementara
+              kedua link mengarah ke section booking/konsultasi, karena
+              halaman khusus Book a Room / Rent a Space belum ada di
+              landing baru; halaman khusus menyusul pada putaran
+              penyesuaian. */}
           <div>
-            <h3 className="text-base font-bold uppercase tracking-widest text-white/50">
+            <h3 className="text-sm font-bold uppercase tracking-widest text-white/50">
+              Additional Service
+            </h3>
+            <ul className="mt-4 space-y-2.5 text-sm">
+              {[
+                { label: 'Book a Room', id: 'booking' },
+                { label: 'Rent a Space', id: 'booking' },
+              ].map((item) => (
+                <li key={item.label}>
+                  <button
+                    type="button"
+                    onClick={() => gulirKe(item.id)}
+                    className="text-white/80 transition hover:text-white hover:underline"
+                  >
+                    {item.label}
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </div>
+          <div>
+            <h3 className="text-sm font-bold uppercase tracking-widest text-white/50">
               Contact
             </h3>
-            <ul className="mt-4 space-y-3 text-base text-white/80">
+            <ul className="mt-4 space-y-3 text-sm text-white/80">
               <li className="flex items-start gap-2.5">
                 <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-white/50" aria-hidden="true" />
                 LPP RRI Head Office, Jakarta
@@ -1314,7 +1338,7 @@ function Footer() {
             <button
               type="button"
               onClick={() => gulirKe('booking')}
-              className="mt-6 inline-flex items-center gap-2 rounded-full bg-mk-aksen px-6 py-3 text-base font-semibold text-white shadow transition hover:bg-mk-aksen-gelap"
+              className="mt-6 inline-flex items-center gap-2 rounded-full bg-mk-aksen px-5 py-2.5 text-sm font-semibold text-white shadow transition hover:bg-mk-aksen-gelap"
             >
               Book 30 Min Free Call
               <ArrowRight className="h-4 w-4" aria-hidden="true" />
