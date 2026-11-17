@@ -5,8 +5,10 @@
 //
 // Persentase keterpenuhan dokumen (permintaan pengguna 17/11/2026
 // 09:26 WIB) dihitung dari daftar ini juga (kelengkapanDokumen) —
-// tampil di cluster Document dan sebagai kolom "Document Completeness"
-// di tabel Contract.
+// tampil di cluster Document sebagai "Documentation" (keputusan
+// pengguna 17/11/2026 11:22 WIB, dulu "Document Completeness") dan
+// sebagai kolom "Availability Rate" di tabel Contract (keputusan
+// pengguna 17/11/2026 11:41 WIB).
 //
 // Label Bahasa Indonesia Proper Case persis permintaan pengguna —
 // pengecualian dari keputusan UI full-English (seperti kolom Status

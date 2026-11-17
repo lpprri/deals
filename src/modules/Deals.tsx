@@ -1,7 +1,7 @@
 // Modul Deals — Klien, Kontrak / PKS, Dokumen (PRD v2.0 Final Bab 7.4).
 // Palet HANYA 3 warna RRI: Biru #2573E2, Navy #0D2569, Putih #FFFFFF.
 
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import type { Klien, Kontrak, StatusDokumen } from '../lib/types';
 import type { KlienInput, KontrakInput, LayananInput, ModulProps } from '../lib/store';
 import {
@@ -24,6 +24,7 @@ import {
 } from '../lib/labels';
 import { sisaTagihan, statusTagihan } from '../lib/derive';
 import {
+  catatanLuarJudulReferensi,
   detailLayananKontrak,
   jenisKlienYangAda,
   jatuhTempoPembayaranKontrak,
@@ -46,16 +47,25 @@ import {
   SUMBER_JENDELA_WAKTU_SIAR,
   formatPersenRealisasi,
   kodeBillingKontrak,
+  pembayaranTerverifikasiTerakhir,
   piutangRealisasi,
   pisahBuktiSetor,
   realisasiKontrak,
   realisasiLayanan,
+  selisihBayarPiutang,
   sisaKontrakRealisasi,
+  sisaNilaiSetelahBayar,
   sisaPiutangRealisasi,
   totalDendaKontrak,
   totalPembayaranKontrak,
 } from '../lib/realisasi';
 import { daftarDokumenKontrak, kelengkapanDokumen } from '../lib/dokumenKontrak';
+import {
+  CLUSTER_KONTRAK,
+  bacaClusterKontrakTersembunyi,
+  clusterKontrakTerlihat,
+  simpanClusterKontrakTersembunyi,
+} from '../lib/clusterKontrak';
 import { bolehAksi } from '../lib/permissions';
 import {
   Baris,
@@ -659,14 +669,44 @@ export function TabKontrak({
 }) {
   const bolehTambah = bolehAksi(user.peran, 'tambahKontrak');
 
+  // Cluster kolom (keputusan pengguna 17/11/2026 11:41 WIB) — lihat
+  // lib/clusterKontrak.ts. Daftar cluster tersembunyi disimpan di
+  // localStorage (pola yang sama seperti 'rri-sidebar-ciut') supaya
+  // tetap setelah refresh; default: semua cluster tampil. Cluster 1
+  // "Contract" tidak pernah masuk daftar tersembunyi (disaring di lib).
+  const [clusterTersembunyi, setClusterTersembunyi] = useState<string[]>(() =>
+    bacaClusterKontrakTersembunyi(),
+  );
+  const toggleCluster = (idCluster: string) => {
+    setClusterTersembunyi((lama) => {
+      const baru = lama.includes(idCluster)
+        ? lama.filter((x) => x !== idCluster)
+        : [...lama, idCluster];
+      simpanClusterKontrakTersembunyi(baru);
+      return baru;
+    });
+  };
+  const clusterTerlihat = clusterKontrakTerlihat(clusterTersembunyi);
+  const tampilCluster = (idCluster: string) =>
+    !clusterTersembunyi.includes(idCluster);
+  // "View" di Cluster 6 Documents: buka DetailKontrak lalu gulir ke
+  // cluster Document (fokusCluster diteruskan ke DetailKontrak).
+  const [fokusClusterDetail, setFokusClusterDetail] = useState<string | null>(
+    null,
+  );
+
   if (kontrakTerpilih) {
     return (
       <DetailKontrak
         data={data}
         kontrak={kontrakTerpilih}
         actions={actions}
-        onKembali={() => onPilihKontrak(null)}
+        onKembali={() => {
+          onPilihKontrak(null);
+          setFokusClusterDetail(null);
+        }}
         onNavigasiKlien={onNavigasiKlien}
+        fokusCluster={fokusClusterDetail}
       />
     );
   }
@@ -676,27 +716,47 @@ export function TabKontrak({
   // Remaining Days yang memakai default tanggal sistem di helpernya.
   const hariIni = hariIniIso();
 
-  // Kolom baru (keputusan pengguna 16/11/2026): 17 kolom di bawah, tanpa
-  // kolom kode akun dan tanpa Status. Filter: Client Type + PNBP Type +
-  // Payment Status + Cooperation Status (keputusan pengguna 16/11/2026
-  // 13:56 WIB). Kolom "Remaining Days" di samping Contract Period
-  // (keputusan pengguna 16/11/2026 15:29 WIB). Kolom "Payment Status"
-  // sesudah Remaining Days, sebelum Contract Value — kembali ke English
-  // per keputusan pengguna 17/11/2026 08:34 WIB (membatalkan label
-  // Indonesia PR #64); definisi status DIREDEFINISI 17/11/2026
-  // 08:33 WIB (Partially-Paid = dibayar == Piutang realisasi;
-  // ditambah Insufficient Payment). 6 kolom nilai (keputusan pengguna
-  // 17/11/2026 09:04 WIB) — Payment Deadline tetap sesudah Payment
-  // Status; blok nilai DIURUT ULANG per keputusan pengguna 17/11/2026
-  // 09:24 WIB: Contract Value, Fine Value, Total Revenue (header
-  // diganti dari "Total Contract Value + Fine" 09:06 WIB),
-  // Realisation, Receivable Value, Remaining Value (header diganti
-  // dari "Remaining Contract Value" 09:07 WIB) — Remaining Value kini
-  // bukan terakhir: kolom "Document Completeness" (keputusan pengguna
-  // 17/11/2026 09:26 WIB) ditambahkan sebagai kolom terakhir (ke-18).
-  // Nilai-nilainya memakai helper yang SAMA dengan
-  // seksi Revenue di DetailKontrak (lib/realisasi.ts), supaya perilaku
-  // live-nya identik.
+  // Kolom tabel dikelompokkan menjadi 7 cluster (keputusan pengguna
+  // 17/11/2026 11:41 WIB) — lihat CLUSTER_KONTRAK di
+  // lib/clusterKontrak.ts: Contract (selalu tampil), Client Details,
+  // Service Details, Revenue Details, Payment Details, Documents,
+  // Notes — total 32 kolom. Tiap cluster bisa disembunyikan lewat
+  // kotak centang di atas tabel (state di localStorage); baris header
+  // grup menampilkan nama cluster di atas nama kolom. Filter (Client
+  // Type, PNBP Type, Payment Status, Cooperation Status) + Sort by +
+  // Order TIDAK berubah.
+  // Definisi kolom (nilai memakai helper yang SAMA dengan seksi Revenue
+  // di DetailKontrak — lib/realisasi.ts — supaya perilaku live-nya
+  // identik; hariIni = tanggal sistem seperti di DetailKontrak):
+  // - Owner = kontrak.operatorPenutup (atribusi Employee Rank PR #26),
+  //   "—" bila kosong.
+  // - Type = jenis klien; Client = nama klien (KLIK -> Clients dengan
+  //   klien itu terpilih, pola yang sama dengan klik nama klien di
+  //   DetailKontrak PR #63); Address, Signatory =
+  //   kontrak.penandatanganNama, Signatory Title =
+  //   kontrak.penandatanganJabatan, Contact Person = klien.kontakNama
+  //   (fallback kontrak.penanggungJawab, pola DetailKontrak),
+  //   Contact = klien.telepon, Email = klien.email ("—" bila kosong;
+  //   di seed Email kosong untuk semua 42 kontrak).
+  // - Realisation pindah ke Cluster 3 Service Details (dulu di blok
+  //   nilai); Receivable Value = Piutang (realisasi).
+  // - Payment Date / Payment Amount = tanggal + jumlah pembayaran
+  //   Terverifikasi TERAKHIR kontrak itu ("—" bila belum ada).
+  // - Total Payment = Σ pembayaran Terverifikasi ("—" bila 0).
+  // - Remaining Receivable = Total Payment − Receivable Value (RUMUS
+  //   HARFIAH pengguna; NEGATIF bila bayar < Piutang — tampil apa
+  //   adanya, FLAG untuk konfirmasi pengguna).
+  // - Remaining Value = Total Revenue − Receivable Value − Remaining
+  //   Receivable = Total Revenue − Total Payment (RUMUS HARFIAH
+  //   pengguna; REDEFINISI dari Sisa Kontrak PR #67 — HANYA kolom
+  //   tabel ini; DetailKontrak tetap memakai Sisa Kontrak).
+  // - Availability Rate = persentase keterpenuhan dokumen PR #69
+  //   (helper kelengkapanDokumen, daftar yang SAMA dengan tabel
+  //   Document); View = tombol yang membuka DetailKontrak lalu
+  //   menggulir ke cluster Document (upload file DITUNDA pengguna
+  //   09:28 WIB — tidak ada file untuk dibuka).
+  // - Notes = isi kontrak.catatan di luar segmen Judul dan No.
+  //   Referensi ("—" bila kosong).
   const jenisKlien = (k: Kontrak): string | undefined =>
     data.klien.find((kl) => kl.id === k.klienId)?.jenis;
   const kontrakTersaring = urutkanKontrak(
@@ -825,41 +885,127 @@ export function TabKontrak({
         />
       )}
 
+      {/*
+        Kotak centang hide/show cluster kolom (keputusan pengguna
+        17/11/2026 11:41 WIB). Cluster 1 "Contract" selalu tampil —
+        centangnya nonaktif. Default: semua cluster tampil.
+      */}
+      <div className="flex flex-wrap items-center gap-x-4 gap-y-2 rounded-lg border border-[#2573e2]/20 bg-white px-3 py-2 text-sm">
+        <span className="font-semibold text-[#0d2569]">
+          Column Clusters:
+        </span>
+        {CLUSTER_KONTRAK.map((c) => (
+          <label
+            key={c.id}
+            className={`flex cursor-pointer items-center gap-1.5 text-[#0d2569] ${c.selaluTampil ? 'opacity-70' : ''}`}
+          >
+            <input
+              type="checkbox"
+              checked={!clusterTersembunyi.includes(c.id)}
+              disabled={c.selaluTampil}
+              onChange={() => toggleCluster(c.id)}
+              aria-label={`${c.selaluTampil ? 'Always show' : 'Show or hide'} ${c.label} columns`}
+            />
+            {c.label}
+            {c.selaluTampil ? ' (Always Show)' : ''}
+          </label>
+        ))}
+      </div>
+
       {kontrakTersaring.length === 0 ? (
         <PesanKosong teks="No matching contracts yet." />
       ) : (
         <Kartu>
           <Tabel>
             <thead>
+              {/*
+                Baris header grup — nama cluster di atas nama kolom
+                (keputusan pengguna 17/11/2026 11:41 WIB). Hanya cluster
+                yang tampil yang dirender; colSpan = jumlah kolom
+                cluster. Ditulis dengan <th> mentah (bukan <Th>) supaya
+                skrip cek yang mem-parsing <Th> tetap membaca 32 header
+                kolom apa adanya.
+              */}
               <tr>
-                <Th>No.</Th>
-                <Th>Contract &amp; Reference Number</Th>
-                <Th>Contract Title</Th>
-                <Th>Signing Date</Th>
-                <Th>Client</Th>
-                <Th>Service Type</Th>
-                <Th>Service Detail</Th>
-                <Th>Contract Period</Th>
-                <Th>Remaining Days</Th>
-                <Th>Payment Status</Th>
-                <Th>Payment Deadline</Th>
-                <Th kanan>Contract Value</Th>
-                <Th kanan>Fine Value</Th>
-                <Th kanan>Total Revenue</Th>
-                <Th kanan>Realisation</Th>
-                <Th kanan>Receivable Value</Th>
-                <Th kanan>Remaining Value</Th>
-                <Th kanan>Document Completeness</Th>
+                {clusterTerlihat.map((c) => (
+                  <th
+                    key={c.id}
+                    colSpan={c.kolom.length}
+                    className="border-b border-[#2573e2]/20 bg-[#2573e2]/5 py-2.5 pr-3 text-center text-xs font-semibold whitespace-nowrap text-[#0d2569]/60 last:pr-0"
+                  >
+                    {c.label}
+                  </th>
+                ))}
+              </tr>
+              <tr>
+                {tampilCluster('kontrak') && (
+                  <>
+                    <Th>No.</Th>
+                    <Th>Contract &amp; Reference Number</Th>
+                    <Th>Contract Title</Th>
+                    <Th>Signing Date</Th>
+                    <Th>Owner</Th>
+                  </>
+                )}
+                {tampilCluster('klien') && (
+                  <>
+                    <Th>Type</Th>
+                    <Th>Client</Th>
+                    <Th>Address</Th>
+                    <Th>Signatory</Th>
+                    <Th>Signatory Title</Th>
+                    <Th>Contact Person</Th>
+                    <Th>Contact</Th>
+                    <Th>Email</Th>
+                  </>
+                )}
+                {tampilCluster('layanan') && (
+                  <>
+                    <Th>Service Type</Th>
+                    <Th>Service Detail</Th>
+                    <Th>Contract Period</Th>
+                    <Th>Remaining Days</Th>
+                    <Th kanan>Realisation</Th>
+                  </>
+                )}
+                {tampilCluster('revenue') && (
+                  <>
+                    <Th kanan>Contract Value</Th>
+                    <Th kanan>Fine Value</Th>
+                    <Th kanan>Total Revenue</Th>
+                    <Th kanan>Receivable Value</Th>
+                  </>
+                )}
+                {tampilCluster('pembayaran') && (
+                  <>
+                    <Th>Payment Deadline</Th>
+                    <Th>Payment Status</Th>
+                    <Th>Payment Date</Th>
+                    <Th kanan>Payment Amount</Th>
+                    <Th kanan>Total Payment</Th>
+                    <Th kanan>Remaining Receivable</Th>
+                    <Th kanan>Remaining Value</Th>
+                  </>
+                )}
+                {tampilCluster('dokumen') && (
+                  <>
+                    <Th kanan>Availability Rate</Th>
+                    <Th>View</Th>
+                  </>
+                )}
+                {tampilCluster('catatan') && <Th>Notes</Th>}
               </tr>
             </thead>
             <tbody>
               {kontrakTersaring.map((k, indeks) => {
-                // 6 kolom nilai (keputusan pengguna 17/11/2026 09:04 WIB)
-                // — helper yang SAMA dengan seksi Revenue di DetailKontrak
-                // (lib/realisasi.ts + jatuhTempoPembayaranKontrak di
-                // lib/kontrakTampilan.ts), supaya perilaku live-nya
-                // identik; hariIni = tanggal sistem (hariIniIso) seperti
-                // di DetailKontrak.
+                // Nilai-nilai baris — helper yang SAMA dengan seksi
+                // Revenue di DetailKontrak (lib/realisasi.ts), supaya
+                // perilaku live-nya identik; hariIni = tanggal sistem
+                // (hariIniIso) seperti di DetailKontrak.
+                const klien = data.klien.find((kl) => kl.id === k.klienId);
+                const kontakNama = klien?.kontakNama ?? '';
+                const kontakTampil =
+                  kontakNama !== '' ? kontakNama : k.penanggungJawab;
                 const totalDenda = totalDendaKontrak(
                   k,
                   data.tagihan,
@@ -873,18 +1019,43 @@ export function TabKontrak({
                   hariIni,
                 );
                 const realisasi = realisasiKontrak(k, hariIni);
-                const sisaKontrak = sisaKontrakRealisasi(
-                  k,
-                  data.tagihan,
-                  data.denda,
-                  hariIni,
-                );
                 const jatuhTempo = jatuhTempoPembayaranKontrak(
                   k,
                   data.tagihan,
                   data.pembayaran,
                   hariIni,
                 );
+                // Kolom baru Cluster 5 (keputusan pengguna 17/11/2026
+                // 11:41 WIB): pembayaran Terverifikasi terakhir,
+                // total pembayaran, Remaining Receivable (Total Payment
+                // − Receivable Value) dan Remaining Value (REDEFINISI:
+                // Total Revenue − Total Payment).
+                const bayarTerakhir = pembayaranTerverifikasiTerakhir(
+                  k,
+                  data.tagihan,
+                  data.pembayaran,
+                );
+                const totalBayar = totalPembayaranKontrak(
+                  k,
+                  data.tagihan,
+                  data.pembayaran,
+                );
+                const sisaPiutangBaru = selisihBayarPiutang(
+                  k,
+                  data.tagihan,
+                  data.denda,
+                  data.pembayaran,
+                  hariIni,
+                );
+                const sisaNilaiBaru = sisaNilaiSetelahBayar(
+                  k,
+                  data.tagihan,
+                  data.denda,
+                  data.pembayaran,
+                );
+                // Kolom baru Cluster 7: catatan di luar Judul dan No.
+                // Referensi (helper lib/kontrakTampilan.ts).
+                const notes = catatanLuarJudulReferensi(k.catatan);
                 // Keterpenuhan dokumen (keputusan pengguna 17/11/2026
                 // 09:26 WIB) — dari daftar yang SAMA dengan tabel
                 // Document di DetailKontrak (daftarDokumenKontrak),
@@ -908,6 +1079,7 @@ export function TabKontrak({
                       sesudah filter. (Keputusan pengguna 16/11/2026
                       13:31 WIB.)
                     */}
+                    {/* ---- Cluster 1 "Contract" (selalu tampil) ---- */}
                     <Td>{indeks + 1}</Td>
                     {/*
                       Nomor kontrak + nomor referensi digabung dalam satu
@@ -930,50 +1102,145 @@ export function TabKontrak({
                       'tandaTangan' (tanggalAcuanKontrak).
                     */}
                     <Td>{formatTanggal(tanggalPenandatangananKontrak(k))}</Td>
-                    <Td>{namaKlien(data, k.klienId)}</Td>
-                    <Td>{labelKategoriLayanan(k.kategoriLayanan)}</Td>
-                    <Td>{detailLayananKontrak(k) ?? '—'}</Td>
-                    <Td>
-                      {formatTanggal(k.tanggalMulai)} – {formatTanggal(k.tanggalSelesai)}
-                    </Td>
-                    {/*
-                      Sisa hari kerja sama — hitung mundur sampai tanggal
-                      akhir (keputusan pengguna 16/11/2026 15:29 WIB);
-                      kontrak yang sudah selesai tertulis "Completed".
-                    */}
-                    <Td>{sisaHariKerjaSama(k)}</Td>
-                    {/*
-                      Status pembayaran — English (keputusan pengguna
-                      17/11/2026 08:34 WIB; membatalkan label Indonesia
-                      PR #64). Nilainya langsung dari
-                      statusPembayaranKontrak (REDEFINISI 17/11/2026
-                      08:33 WIB: Partially-Paid = dibayar == Piutang
-                      realisasi; ditambah Insufficient Payment).
-                    */}
-                    <Td>
-                      {statusPembayaranKontrak(k, data.tagihan, data.pembayaran, data.denda)}
-                    </Td>
-                    {/*
-                      6 kolom nilai (keputusan pengguna 17/11/2026 09:04 WIB;
-                      DIURUT ULANG 09:24 WIB — Contract Value, Fine Value,
-                      Total Revenue, Realisation, Receivable Value,
-                      Remaining Value): Payment Deadline = jatuh tempo
-                      tagihan tertua yang belum lunas, bila semua lunas
-                      tagihan terakhir, "—" bila tanpa tagihan;
-                      Contract Value = nilaiKontrak; Fine Value = Σ denda
-                      ("—" bila 0); Total Revenue = nilaiKontrak + denda;
-                      Realisation = % realisasi (format sama dengan seksi
-                      Revenue di DetailKontrak); Receivable Value =
-                      Piutang (realisasi); Remaining Value = Sisa Kontrak.
-                    */}
-                    <Td>{jatuhTempo ? formatTanggal(jatuhTempo) : '—'}</Td>
-                    <Td kanan>{formatRupiah(k.nilaiKontrak)}</Td>
-                    <Td kanan>{totalDenda === 0 ? '—' : formatRupiah(totalDenda)}</Td>
-                    <Td kanan>{formatRupiah(nilaiPlusDenda)}</Td>
-                    <Td kanan>{formatPersenRealisasi(realisasi)}</Td>
-                    <Td kanan>{formatRupiah(piutang)}</Td>
-                    <Td kanan>{formatRupiah(sisaKontrak)}</Td>
-                    <Td kanan>{formatPersenRealisasi(kelengkapan.fraksi)}</Td>
+                    <Td>{k.operatorPenutup ?? '—'}</Td>
+                    {/* ---- Cluster 2 "Client Details" (hideable) ---- */}
+                    {tampilCluster('klien') && (
+                      <>
+                        <Td>
+                          {klien ? labelJenisKlien(klien.jenis) : '—'}
+                        </Td>
+                        <Td>
+                          {klien && onNavigasiKlien ? (
+                            <button
+                              type="button"
+                              className="text-left text-[#2573e2] underline hover:text-[#0d2569]"
+                              onClick={(e) => {
+                                // Jangan ikut membuka DetailKontrak
+                                // (klik baris) — tujuannya Clients.
+                                e.stopPropagation();
+                                onNavigasiKlien(klien.id);
+                              }}
+                            >
+                              {klien.nama}
+                            </button>
+                          ) : (
+                            namaKlien(data, k.klienId)
+                          )}
+                        </Td>
+                        <Td>
+                          {klien?.alamat && klien.alamat !== ''
+                            ? klien.alamat
+                            : '—'}
+                        </Td>
+                        <Td>{k.penandatanganNama ?? '—'}</Td>
+                        <Td>{k.penandatanganJabatan ?? '—'}</Td>
+                        <Td>{kontakTampil !== '' ? kontakTampil : '—'}</Td>
+                        <Td>
+                          {klien?.telepon && klien.telepon !== ''
+                            ? klien.telepon
+                            : '—'}
+                        </Td>
+                        <Td>
+                          {klien?.email && klien.email !== ''
+                            ? klien.email
+                            : '—'}
+                        </Td>
+                      </>
+                    )}
+                    {/* ---- Cluster 3 "Service Details" (hideable) ---- */}
+                    {tampilCluster('layanan') && (
+                      <>
+                        <Td>{labelKategoriLayanan(k.kategoriLayanan)}</Td>
+                        <Td>{detailLayananKontrak(k) ?? '—'}</Td>
+                        <Td>
+                          {formatTanggal(k.tanggalMulai)} – {formatTanggal(k.tanggalSelesai)}
+                        </Td>
+                        {/*
+                          Sisa hari kerja sama — hitung mundur sampai tanggal
+                          akhir (keputusan pengguna 16/11/2026 15:29 WIB);
+                          kontrak yang sudah selesai tertulis "Completed".
+                        */}
+                        <Td>{sisaHariKerjaSama(k)}</Td>
+                        <Td kanan>{formatPersenRealisasi(realisasi)}</Td>
+                      </>
+                    )}
+                    {/* ---- Cluster 4 "Revenue Details" (hideable) ---- */}
+                    {tampilCluster('revenue') && (
+                      <>
+                        <Td kanan>{formatRupiah(k.nilaiKontrak)}</Td>
+                        <Td kanan>{totalDenda === 0 ? '—' : formatRupiah(totalDenda)}</Td>
+                        <Td kanan>{formatRupiah(nilaiPlusDenda)}</Td>
+                        <Td kanan>{formatRupiah(piutang)}</Td>
+                      </>
+                    )}
+                    {/* ---- Cluster 5 "Payment Details" (hideable) ---- */}
+                    {tampilCluster('pembayaran') && (
+                      <>
+                        {/*
+                          Payment Deadline = jatuh tempo tagihan tertua
+                          yang belum lunas, bila semua lunas tagihan
+                          terakhir, "—" bila tanpa tagihan.
+                        */}
+                        <Td>{jatuhTempo ? formatTanggal(jatuhTempo) : '—'}</Td>
+                        {/*
+                          Status pembayaran — English (keputusan pengguna
+                          17/11/2026 08:34 WIB; membatalkan label Indonesia
+                          PR #64). Nilainya langsung dari
+                          statusPembayaranKontrak (REDEFINISI 17/11/2026
+                          08:33 WIB: Partially-Paid = dibayar == Piutang
+                          realisasi; ditambah Insufficient Payment).
+                        */}
+                        <Td>
+                          {statusPembayaranKontrak(k, data.tagihan, data.pembayaran, data.denda)}
+                        </Td>
+                        <Td>{bayarTerakhir ? formatTanggal(bayarTerakhir.tanggalBayar) : '—'}</Td>
+                        <Td kanan>{bayarTerakhir ? formatRupiah(bayarTerakhir.jumlah) : '—'}</Td>
+                        <Td kanan>
+                          {totalBayar === 0 ? '—' : formatRupiah(totalBayar)}
+                        </Td>
+                        {/*
+                          Remaining Receivable = Total Payment −
+                          Receivable Value (RUMUS HARFIAH pengguna
+                          17/11/2026 11:41 WIB) — NEGATIF bila bayar <
+                          Piutang; tampil apa adanya ("Rp-900.000").
+                        */}
+                        <Td kanan>{formatRupiah(sisaPiutangBaru)}</Td>
+                        {/*
+                          Remaining Value — REDEFINISI (keputusan pengguna
+                          17/11/2026 11:41 WIB): Total Revenue − Total
+                          Payment (dulu Sisa Kontrak PR #67). Hanya kolom
+                          tabel ini; DetailKontrak tetap memakai Sisa
+                          Kontrak.
+                        */}
+                        <Td kanan>{formatRupiah(sisaNilaiBaru)}</Td>
+                      </>
+                    )}
+                    {/* ---- Cluster 6 "Documents" (hideable) ---- */}
+                    {tampilCluster('dokumen') && (
+                      <>
+                        <Td kanan>{formatPersenRealisasi(kelengkapan.fraksi)}</Td>
+                        <Td>
+                          <button
+                            type="button"
+                            className="text-[#2573e2] underline hover:text-[#0d2569]"
+                            onClick={(e) => {
+                              // Jangan ikut membuka DetailKontrak lewat
+                              // klik baris saja — tandai fokus ke cluster
+                              // Document supaya detail menggulir ke sana.
+                              e.stopPropagation();
+                              setFokusClusterDetail('document');
+                              onPilihKontrak(k.id);
+                            }}
+                          >
+                            View
+                          </button>
+                        </Td>
+                      </>
+                    )}
+                    {/* ---- Cluster 7 "Notes" (hideable) ---- */}
+                    {tampilCluster('catatan') && (
+                      <Td className="max-w-md">{notes ?? '—'}</Td>
+                    )}
                   </Baris>
                 );
               })}
@@ -991,12 +1258,20 @@ function DetailKontrak({
   actions,
   onKembali,
   onNavigasiKlien,
+  fokusCluster,
 }: {
   data: ModulProps['data'];
   kontrak: Kontrak;
   actions: ModulProps['actions'];
   onKembali: () => void;
   onNavigasiKlien?: (klienId: string) => void;
+  /**
+   * Cluster yang dituju saat detail dibuka — 'document' bila dibuka
+   * lewat tombol "View" di Cluster 6 Documents tabel Contract
+   * (keputusan pengguna 17/11/2026 11:41 WIB): detail menggulir ke
+   * cluster Document. null = dibuka biasa (klik baris), tanpa gulir.
+   */
+  fokusCluster?: string | null;
 }) {
   const klien = data.klien.find((k) => k.id === kontrak.klienId);
   const tagihanKontrak = data.tagihan.filter((t) => t.kontrakId === kontrak.id);
@@ -1072,6 +1347,14 @@ function DetailKontrak({
   ];
   const kontakNama = klien?.kontakNama ?? '';
   const kontakTelepon = klien?.telepon ?? '';
+
+  // Gulir ke cluster yang dituju (tombol "View" di tabel Contract).
+  const refDokumen = useRef<HTMLDivElement | null>(null);
+  useEffect(() => {
+    if (fokusCluster === 'document') {
+      refDokumen.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  }, [fokusCluster]);
 
   return (
     <div className="space-y-4">
@@ -1621,14 +1904,15 @@ function DetailKontrak({
       </Kartu>
 
       {/* ---- 5. Document (cluster dokumen, permintaan pengguna 17/11/2026) ---- */}
-      <Kartu>
-        <JudulBagian>Document</JudulBagian>
-        <p className="mt-2 text-sm text-[#0d2569]">
-          Document Completeness:{' '}
-          {formatPersenRealisasi(kelengkapanDokumenCluster.fraksi)} (
-          {kelengkapanDokumenCluster.ada} of {kelengkapanDokumenCluster.total}{' '}
-          documents)
-        </p>
+      <div ref={refDokumen}>
+        <Kartu>
+          <JudulBagian>Document</JudulBagian>
+          <p className="mt-2 text-sm text-[#0d2569]">
+            Documentation:{' '}
+            {formatPersenRealisasi(kelengkapanDokumenCluster.fraksi)} (
+            {kelengkapanDokumenCluster.ada} of {kelengkapanDokumenCluster.total}{' '}
+            documents)
+          </p>
         <div className="mt-2">
           <Tabel>
             <thead>
@@ -1657,7 +1941,8 @@ function DetailKontrak({
           number is on record (see Special Details); the letter file itself
           is not stored in the app.
         </p>
-      </Kartu>
+        </Kartu>
+      </div>
     </div>
   );
 }

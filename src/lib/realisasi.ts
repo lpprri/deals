@@ -169,6 +169,81 @@ export function totalPembayaranKontrak(
     .reduce((s, t) => s + dibayarTerverifikasi(t.id, pembayaran), 0);
 }
 
+/**
+ * Pembayaran Terverifikasi TERAKHIR kontrak itu — tanggalBayar terbaru
+ * (bila tanggal sama, jumlah terbesar dulu supaya deterministik).
+ * undefined bila belum ada pembayaran Terverifikasi (3 kontrak seed:
+ * 018, 10227, 11290 — ketiganya Unpaid). Dipakai kolom Payment Date /
+ * Payment Amount (Cluster 5, keputusan pengguna 17/11/2026 11:41 WIB).
+ */
+export function pembayaranTerverifikasiTerakhir(
+  kontrak: Kontrak,
+  tagihan: Tagihan[],
+  pembayaran: Pembayaran[],
+): Pembayaran | undefined {
+  const idTagihan = new Set(
+    tagihan.filter((t) => t.kontrakId === kontrak.id).map((t) => t.id),
+  );
+  const terverifikasi = pembayaran.filter(
+    (p) => idTagihan.has(p.tagihanId) && p.statusVerifikasi === 'Terverifikasi',
+  );
+  terverifikasi.sort((a, b) =>
+    a.tanggalBayar !== b.tanggalBayar
+      ? a.tanggalBayar < b.tanggalBayar
+        ? 1
+        : -1
+      : b.jumlah - a.jumlah,
+  );
+  return terverifikasi[0];
+}
+
+/**
+ * Remaining Receivable (kolom Cluster 5, keputusan pengguna 17/11/2026
+ * 11:41 WIB — RUMUS HARFIAH): Total Payment − Receivable Value.
+ * NEGATIF bila pembayaran kurang dari Piutang (9/42 kontrak seed —
+ * 6 Insufficient Payment + 3 Unpaid) — tampil apa adanya dengan tanda
+ * minus ("Rp-900.000"). Ini kebalikan tanda dari sisaPiutangRealisasi
+ * (Piutang − Total Payment); keduanya tetap dipakai di tempatnya
+ * masing-masing (sisaPiutangRealisasi di DetailKontrak, selisih ini di
+ * tabel). FLAG untuk konfirmasi pengguna: apakah yang dimaksud memang
+ * selisih ini, atau seharusnya Receivable Value − Total Payment.
+ */
+export function selisihBayarPiutang(
+  kontrak: Kontrak,
+  tagihan: Tagihan[],
+  denda: Denda[],
+  pembayaran: Pembayaran[],
+  hariIni: string,
+): number {
+  return (
+    totalPembayaranKontrak(kontrak, tagihan, pembayaran) -
+    piutangRealisasi(kontrak, tagihan, denda, hariIni)
+  );
+}
+
+/**
+ * Remaining Value (kolom Cluster 5) — REDEFINISI (keputusan pengguna
+ * 17/11/2026 11:41 WIB, RUMUS HARFIAH): Total Revenue − Receivable
+ * Value − Remaining Receivable = Total Revenue − Total Payment.
+ * Menggantikan definisi PR #67 (Sisa Kontrak = Total Revenue −
+ * Piutang) HANYA di kolom tabel ini; seksi Revenue di DetailKontrak
+ * tetap memakai sisaKontrakRealisasi. Karena tidak memakai realisasi,
+ * nilai baru ini identik antara live (fallback) dan seed untuk semua
+ * 42 kontrak.
+ */
+export function sisaNilaiSetelahBayar(
+  kontrak: Kontrak,
+  tagihan: Tagihan[],
+  denda: Denda[],
+  pembayaran: Pembayaran[],
+): number {
+  return (
+    kontrak.nilaiKontrak +
+    totalDendaKontrak(kontrak, tagihan, denda) -
+    totalPembayaranKontrak(kontrak, tagihan, pembayaran)
+  );
+}
+
 // ---------------------------------------------------------------------------
 // Realisasi
 // ---------------------------------------------------------------------------

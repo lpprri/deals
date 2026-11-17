@@ -56,6 +56,27 @@ export function nomorReferensiKontrak(kontrak: Kontrak): string | undefined {
 }
 
 /**
+ * Notes (kolom Cluster 7, keputusan pengguna 17/11/2026 11:41 WIB):
+ * isi `catatan` di luar segmen "Judul:" dan "No. Referensi:" — segmen
+ * lain ("Keterangan sumber:", "BMN:", "SPn-1", dst.) digabung " | "
+ * seperti di sumber. undefined bila tidak ada segmen lain (tidak
+ * terjadi di seed — 42/42 kontrak punya segmen lain).
+ */
+export function catatanLuarJudulReferensi(
+  catatan: string | undefined,
+): string | undefined {
+  if (!catatan) return undefined;
+  const sisa = catatan
+    .split(' | ')
+    .filter(
+      (s) => !s.startsWith('Judul:') && !s.startsWith('No. Referensi:'),
+    )
+    .map((s) => s.replace(/\s+/g, ' ').trim())
+    .filter((s) => s !== '');
+  return sisa.length === 0 ? undefined : sisa.join(' | ');
+}
+
+/**
  * Detail layanan / BMN — nama-nama layanan kontrak, digabung "; " bila
  * lebih dari satu (39 kontrak punya 1 layanan, 3 kontrak punya 3).
  * Nama diambil apa adanya dari data: 16 kontrak sewa menampilkan teks
