@@ -685,13 +685,14 @@ export function TabKontrak({
   // per keputusan pengguna 17/11/2026 08:34 WIB (membatalkan label
   // Indonesia PR #64); definisi status DIREDEFINISI 17/11/2026
   // 08:33 WIB (Partially-Paid = dibayar == Piutang realisasi;
-  // ditambah Insufficient Payment). 6 kolom nilai sesudah Payment
-  // Status, sebelum Contract Value (keputusan pengguna 17/11/2026
-  // 09:04 WIB): Payment Deadline, Fine Value, Total Revenue
-  // (header diganti dari "Total Contract Value + Fine" 09:06 WIB),
-  // Receivable Value, Realisation, Remaining Value (header diganti
-  // dari "Remaining Contract Value" 09:07 WIB) — Contract Value
-  // tetap terakhir. Nilai-nilainya memakai helper yang SAMA dengan
+  // ditambah Insufficient Payment). 6 kolom nilai (keputusan pengguna
+  // 17/11/2026 09:04 WIB) — Payment Deadline tetap sesudah Payment
+  // Status; blok nilai DIURUT ULANG per keputusan pengguna 17/11/2026
+  // 09:24 WIB: Contract Value, Fine Value, Total Revenue (header
+  // diganti dari "Total Contract Value + Fine" 09:06 WIB),
+  // Realisation, Receivable Value, Remaining Value (header diganti
+  // dari "Remaining Contract Value" 09:07 WIB) — Remaining Value kini
+  // terakhir. Nilai-nilainya memakai helper yang SAMA dengan
   // seksi Revenue di DetailKontrak (lib/realisasi.ts), supaya perilaku
   // live-nya identik.
   const jenisKlien = (k: Kontrak): string | undefined =>
@@ -840,12 +841,12 @@ export function TabKontrak({
                 <Th>Remaining Days</Th>
                 <Th>Payment Status</Th>
                 <Th>Payment Deadline</Th>
+                <Th kanan>Contract Value</Th>
                 <Th kanan>Fine Value</Th>
                 <Th kanan>Total Revenue</Th>
-                <Th kanan>Receivable Value</Th>
                 <Th kanan>Realisation</Th>
+                <Th kanan>Receivable Value</Th>
                 <Th kanan>Remaining Value</Th>
-                <Th kanan>Contract Value</Th>
               </tr>
             </thead>
             <tbody>
@@ -936,22 +937,25 @@ export function TabKontrak({
                       {statusPembayaranKontrak(k, data.tagihan, data.pembayaran, data.denda)}
                     </Td>
                     {/*
-                      6 kolom nilai (keputusan pengguna 17/11/2026 09:04 WIB):
-                      Payment Deadline = jatuh tempo tagihan tertua yang
-                      belum lunas, bila semua lunas tagihan terakhir,
-                      "—" bila tanpa tagihan; Fine Value = Σ denda
+                      6 kolom nilai (keputusan pengguna 17/11/2026 09:04 WIB;
+                      DIURUT ULANG 09:24 WIB — Contract Value, Fine Value,
+                      Total Revenue, Realisation, Receivable Value,
+                      Remaining Value): Payment Deadline = jatuh tempo
+                      tagihan tertua yang belum lunas, bila semua lunas
+                      tagihan terakhir, "—" bila tanpa tagihan;
+                      Contract Value = nilaiKontrak; Fine Value = Σ denda
                       ("—" bila 0); Total Revenue = nilaiKontrak + denda;
-                      Receivable Value = Piutang (realisasi); Realisation
-                      = % realisasi (format sama dengan seksi Revenue di
-                      DetailKontrak); Remaining Value = Sisa Kontrak.
+                      Realisation = % realisasi (format sama dengan seksi
+                      Revenue di DetailKontrak); Receivable Value =
+                      Piutang (realisasi); Remaining Value = Sisa Kontrak.
                     */}
                     <Td>{jatuhTempo ? formatTanggal(jatuhTempo) : '—'}</Td>
+                    <Td kanan>{formatRupiah(k.nilaiKontrak)}</Td>
                     <Td kanan>{totalDenda === 0 ? '—' : formatRupiah(totalDenda)}</Td>
                     <Td kanan>{formatRupiah(nilaiPlusDenda)}</Td>
-                    <Td kanan>{formatRupiah(piutang)}</Td>
                     <Td kanan>{formatPersenRealisasi(realisasi)}</Td>
+                    <Td kanan>{formatRupiah(piutang)}</Td>
                     <Td kanan>{formatRupiah(sisaKontrak)}</Td>
-                    <Td kanan>{formatRupiah(k.nilaiKontrak)}</Td>
                   </Baris>
                 );
               })}

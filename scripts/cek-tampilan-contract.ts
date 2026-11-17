@@ -13,11 +13,15 @@
 // kembali ke English per keputusan pengguna 17/11/2026 08:34 WIB —
 // membatalkan label Indonesia PR #64; definisi status DIREDEFINISI
 // 17/11/2026 08:33 WIB: Partially-Paid = dibayar == Piutang realisasi,
-// ditambah Insufficient Payment), Payment Deadline, Fine Value,
-// Total Revenue (header diganti dari "Total Contract Value + Fine"
-// 17/11/2026 09:06 WIB), Receivable Value, Realisation,
-// Remaining Value (header diganti dari "Remaining Contract Value"
-// 17/11/2026 09:07 WIB), Contract Value; nomor
+// ditambah Insufficient Payment), Payment Deadline, Contract Value,
+// Fine Value, Total Revenue (header diganti dari
+// "Total Contract Value + Fine" 17/11/2026 09:06 WIB), Realisation,
+// Receivable Value, Remaining Value (header diganti dari
+// "Remaining Contract Value" 17/11/2026 09:07 WIB); urutan blok nilai
+// DIURUT ULANG per keputusan pengguna 17/11/2026 09:24 WIB — Contract
+// Value pindah ke awal blok (sesudah Payment Deadline), Realisation
+// dan Receivable Value bertukar posisi, Remaining Value kini terakhir;
+// nomor
 // urut "No." mengikuti urutan tampil sesudah filter + sort (keputusan
 // pengguna 16/11/2026 13:31 WIB), filter Client Type + PNBP Type +
 // Payment Status + Cooperation Status (keputusan pengguna 16/11/2026
@@ -955,10 +959,13 @@ cek(
 );
 
 // ---------- 6 kolom nilai baru (keputusan pengguna 17/11/2026 09:04 WIB;
-// header Total Revenue diganti 09:06 WIB, Remaining Value 09:07 WIB) ----------
-// Urutan sesudah Payment Status, sebelum Contract Value (Contract Value
-// tetap terakhir): Payment Deadline, Fine Value, Total Revenue,
-// Receivable Value, Realisation, Remaining Value.
+// header Total Revenue diganti 09:06 WIB, Remaining Value 09:07 WIB;
+// DIURUT ULANG 17/11/2026 09:24 WIB) ----------
+// Urutan blok nilai (Payment Deadline tetap sesudah Payment Status;
+// Contract Value kini awal blok, Realisation dan Receivable Value
+// bertukar posisi, Remaining Value kini terakhir): Payment Deadline,
+// Contract Value, Fine Value, Total Revenue, Realisation,
+// Receivable Value, Remaining Value.
 // Definisi:
 // - Payment Deadline = jatuh tempo tagihan TERTUA yang belum lunas
 //   (statusTagihan bukan 'Lunas'); bila semua lunas, jatuh tempo
@@ -1221,7 +1228,7 @@ const akhir = deals.indexOf('function DetailKontrak', awal);
 const tabKontrak = deals.slice(awal, akhir);
 const header = [...tabKontrak.matchAll(/<Th[^>]*>([^<]+)<\/Th>/g)].map((m) => m[1]);
 cek(
-  'urutan 17 header kolom (No. paling kiri, Remaining Days sesudah Contract Period, Payment Status sesudah Remaining Days, 6 kolom nilai sesudah Payment Status, Contract Value tetap terakhir)',
+  'urutan 17 header kolom (No. paling kiri, Remaining Days sesudah Contract Period, Payment Status sesudah Remaining Days, Payment Deadline sesudah Payment Status, blok nilai Contract Value, Fine Value, Total Revenue, Realisation, Receivable Value, Remaining Value terakhir)',
   JSON.stringify(header) ===
     JSON.stringify([
       'No.',
@@ -1235,12 +1242,12 @@ cek(
       'Remaining Days',
       'Payment Status',
       'Payment Deadline',
+      'Contract Value',
       'Fine Value',
       'Total Revenue',
-      'Receivable Value',
       'Realisation',
+      'Receivable Value',
       'Remaining Value',
-      'Contract Value',
     ]),
   JSON.stringify(header),
 );
@@ -1257,13 +1264,13 @@ cek('header "Receivable Value" 1x', header.filter((h) => h === 'Receivable Value
 cek('header "Realisation" 1x', header.filter((h) => h === 'Realisation').length === 1);
 cek('header "Remaining Value" 1x', header.filter((h) => h === 'Remaining Value').length === 1);
 cek(
-  'urutan 6 kolom nilai: Payment Deadline, Fine Value, Total Revenue, Receivable Value, Realisation, Remaining Value',
-  header.indexOf('Payment Deadline') + 1 === header.indexOf('Fine Value') &&
+  'urutan blok nilai: Payment Deadline, Contract Value, Fine Value, Total Revenue, Realisation, Receivable Value, Remaining Value (terakhir)',
+  header.indexOf('Payment Deadline') + 1 === header.indexOf('Contract Value') &&
+    header.indexOf('Contract Value') + 1 === header.indexOf('Fine Value') &&
     header.indexOf('Fine Value') + 1 === header.indexOf('Total Revenue') &&
-    header.indexOf('Total Revenue') + 1 === header.indexOf('Receivable Value') &&
-    header.indexOf('Receivable Value') + 1 === header.indexOf('Realisation') &&
-    header.indexOf('Realisation') + 1 === header.indexOf('Remaining Value') &&
-    header.indexOf('Remaining Value') + 1 === header.indexOf('Contract Value'),
+    header.indexOf('Total Revenue') + 1 === header.indexOf('Realisation') &&
+    header.indexOf('Realisation') + 1 === header.indexOf('Receivable Value') &&
+    header.indexOf('Receivable Value') + 1 === header.indexOf('Remaining Value'),
 );
 cek(
   'header lama "Total Contract Value + Fine" 0x (diganti "Total Revenue" 09:06 WIB)',
@@ -1326,8 +1333,13 @@ cek(
 cek('header "Status Pembayaran" (Indonesia) 0x di TabKontrak', !tabKontrak.includes('Status Pembayaran'));
 cek('header "Remaining Days" 1x', header.filter((h) => h === 'Remaining Days').length === 1);
 cek(
-  'header "Contract Value" tetap terakhir',
-  header[header.length - 1] === 'Contract Value',
+  'header "Remaining Value" kini terakhir (diurut ulang 17/11/2026 09:24 WIB)',
+  header[header.length - 1] === 'Remaining Value',
+);
+cek(
+  'header "Contract Value" kini awal blok nilai (sesudah Payment Deadline, sebelum Fine Value)',
+  header.indexOf('Contract Value') === header.indexOf('Payment Deadline') + 1 &&
+    header.indexOf('Contract Value') === header.indexOf('Fine Value') - 1,
 );
 cek(
   'sel Remaining Days pakai helper sisaHariKerjaSama',
