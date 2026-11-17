@@ -2031,10 +2031,10 @@ cek('MASTER_STATUS_KONTRAK 0x di Deals.tsx', !deals.includes('MASTER_STATUS_KONT
 
 // ---------- konfigurasi cluster + hide/show (keputusan pengguna 17/11/2026 11:41 WIB) ----------
 cek(
-  'CLUSTER_KONTRAK: 7 cluster, urutan Contract, Client Details, Service Details, Revenue Details, Payment Details, Documents, Notes',
+  'CLUSTER_KONTRAK: 7 cluster, urutan Description, Client Details, Service Details, Revenue Details, Payment Details, Documents, Notes',
   JSON.stringify(CLUSTER_KONTRAK.map((c) => c.label)) ===
     JSON.stringify([
-      'Contract',
+      'Description',
       'Client Details',
       'Service Details',
       'Revenue Details',
@@ -2093,15 +2093,16 @@ cek(
     tabKontrak.includes('{c.label}'),
 );
 cek(
-  'kotak centang cluster di atas tabel: label "Column Clusters:", 1 centang per cluster dari CLUSTER_KONTRAK',
-  tabKontrak.includes('Column Clusters:') &&
+  'kotak centang cluster di atas tabel: label bar "View", 1 centang per cluster dari CLUSTER_KONTRAK; label lama "Column Clusters" sudah tidak ada',
+  tabKontrak.includes('>\n          View\n        </span>') &&
+    !tabKontrak.includes('Column Clusters') &&
     tabKontrak.includes('{CLUSTER_KONTRAK.map((c) => (') &&
     tabKontrak.includes('type="checkbox"'),
 );
 cek(
-  'centang Cluster 1 nonaktif (disabled + "(Always Show)"), centang lain memanggil toggleCluster',
+  'centang Cluster 1 nonaktif (disabled, label "Description" tanpa "(Always Show)"), centang lain memanggil toggleCluster',
   tabKontrak.includes('disabled={c.selaluTampil}') &&
-    tabKontrak.includes('(Always Show)') &&
+    !tabKontrak.includes('(Always Show)') &&
     tabKontrak.includes('onChange={() => toggleCluster(c.id)}'),
 );
 cek(

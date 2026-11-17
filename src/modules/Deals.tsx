@@ -888,12 +888,14 @@ export function TabKontrak({
 
       {/*
         Kotak centang hide/show cluster kolom (keputusan pengguna
-        17/11/2026 11:41 WIB). Cluster 1 "Contract" selalu tampil —
-        centangnya nonaktif. Default: semua cluster tampil.
+        17/11/2026 11:41 WIB; label bar "View" + nama Cluster 1
+        "Description" per keputusan pengguna 17/11/2026 12:20 WIB).
+        Cluster 1 "Description" selalu tampil — centangnya nonaktif.
+        Default: semua cluster tampil.
       */}
       <div className="flex flex-wrap items-center gap-x-4 gap-y-2 rounded-lg border border-[#2573e2]/20 bg-white px-3 py-2 text-sm">
         <span className="font-semibold text-[#0d2569]">
-          Column Clusters:
+          View
         </span>
         {CLUSTER_KONTRAK.map((c) => (
           <label
@@ -908,7 +910,6 @@ export function TabKontrak({
               aria-label={`${c.selaluTampil ? 'Always show' : 'Show or hide'} ${c.label} columns`}
             />
             {c.label}
-            {c.selaluTampil ? ' (Always Show)' : ''}
           </label>
         ))}
       </div>
