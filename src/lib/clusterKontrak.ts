@@ -33,8 +33,9 @@ export interface ClusterKontrak {
 /**
  * Susunan 7 cluster + 32 kolom (keputusan pengguna 17/11/2026 11:41 WIB).
  * Urutan kolom di dalam tiap cluster = urutan tampil; kolom yang sudah
- * ada mempertahankan definisi/nilainya, kecuali Remaining Value
- * (REDEFINISI — lihat sisaNilaiSetelahBayar di lib/realisasi.ts).
+ * ada mempertahankan definisi/nilainya — termasuk Remaining Value
+ * (Sisa Kontrak PR #67; redefinisi 11:41 WIB dibatalkan koreksi
+ * Arahan 3 11:57 WIB — lihat sisaNilaiSetelahBayar di lib/realisasi.ts).
  *
  * Nama cluster 1 "Contract" adalah pilihan Digi — pengguna tidak
  * menamai cluster ini ("(Always Show)"). Nama header kolom dipersingkat

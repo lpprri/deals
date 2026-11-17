@@ -743,13 +743,14 @@ export function TabKontrak({
   // - Payment Date / Payment Amount = tanggal + jumlah pembayaran
   //   Terverifikasi TERAKHIR kontrak itu ("—" bila belum ada).
   // - Total Payment = Σ pembayaran Terverifikasi ("—" bila 0).
-  // - Remaining Receivable = Total Payment − Receivable Value (RUMUS
-  //   HARFIAH pengguna; NEGATIF bila bayar < Piutang — tampil apa
-  //   adanya, FLAG untuk konfirmasi pengguna).
-  // - Remaining Value = Total Revenue − Receivable Value − Remaining
-  //   Receivable = Total Revenue − Total Payment (RUMUS HARFIAH
-  //   pengguna; REDEFINISI dari Sisa Kontrak PR #67 — HANYA kolom
-  //   tabel ini; DetailKontrak tetap memakai Sisa Kontrak).
+  // - Remaining Receivable = Sisa Piutang = Piutang − Total Payment
+  //   (koreksi Arahan 3, pengguna 17/11/2026 11:57 WIB: rumus
+  //   "Total Pembayaran − Piutang" diterapkan dengan urutan dibalik —
+  //   urutan harfiah membuat Sisa Kontrak melebihi nilai kontrak).
+  // - Remaining Value = Sisa Kontrak = Total Revenue − Receivable
+  //   Value − Remaining Receivable = Total Revenue − Piutang
+  //   (REDEFINISI 11:41 WIB DIBATALKAN 11:57 WIB — kembali ke
+  //   definisi PR #67, sama dengan DetailKontrak).
   // - Availability Rate = persentase keterpenuhan dokumen PR #69
   //   (helper kelengkapanDokumen, daftar yang SAMA dengan tabel
   //   Document); View = tombol yang membuka DetailKontrak lalu
@@ -1026,10 +1027,11 @@ export function TabKontrak({
                   hariIni,
                 );
                 // Kolom baru Cluster 5 (keputusan pengguna 17/11/2026
-                // 11:41 WIB): pembayaran Terverifikasi terakhir,
-                // total pembayaran, Remaining Receivable (Total Payment
-                // − Receivable Value) dan Remaining Value (REDEFINISI:
-                // Total Revenue − Total Payment).
+                // 11:41 WIB, dikoreksi Arahan 3 11:57 WIB):
+                // pembayaran Terverifikasi terakhir, total pembayaran,
+                // Remaining Receivable (Piutang − Total Payment) dan
+                // Remaining Value (Total Revenue − Piutang = Sisa
+                // Kontrak PR #67).
                 const bayarTerakhir = pembayaranTerverifikasiTerakhir(
                   k,
                   data.tagihan,
@@ -1052,6 +1054,7 @@ export function TabKontrak({
                   data.tagihan,
                   data.denda,
                   data.pembayaran,
+                  hariIni,
                 );
                 // Kolom baru Cluster 7: catatan di luar Judul dan No.
                 // Referensi (helper lib/kontrakTampilan.ts).
@@ -1199,18 +1202,17 @@ export function TabKontrak({
                           {totalBayar === 0 ? '—' : formatRupiah(totalBayar)}
                         </Td>
                         {/*
-                          Remaining Receivable = Total Payment −
-                          Receivable Value (RUMUS HARFIAH pengguna
-                          17/11/2026 11:41 WIB) — NEGATIF bila bayar <
-                          Piutang; tampil apa adanya ("Rp-900.000").
+                          Remaining Receivable = Sisa Piutang = Piutang
+                          − Total Payment (koreksi Arahan 3, 17/11/2026
+                          11:57 WIB — urutan dibalik dari rumus harfiah
+                          pengguna; tidak ada nilai negatif).
                         */}
                         <Td kanan>{formatRupiah(sisaPiutangBaru)}</Td>
                         {/*
-                          Remaining Value — REDEFINISI (keputusan pengguna
-                          17/11/2026 11:41 WIB): Total Revenue − Total
-                          Payment (dulu Sisa Kontrak PR #67). Hanya kolom
-                          tabel ini; DetailKontrak tetap memakai Sisa
-                          Kontrak.
+                          Remaining Value = Sisa Kontrak = Total Revenue
+                          − Piutang (koreksi Arahan 3, 17/11/2026
+                          11:57 WIB — REDEFINISI 11:41 WIB dibatalkan;
+                          sama dengan DetailKontrak).
                         */}
                         <Td kanan>{formatRupiah(sisaNilaiBaru)}</Td>
                       </>

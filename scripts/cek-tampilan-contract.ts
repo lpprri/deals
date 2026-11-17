@@ -34,11 +34,13 @@
 //   DIREDEFINISI 17/11/2026 08:33 WIB: Partially-Paid = dibayar ==
 //   Piutang realisasi, ditambah Insufficient Payment), Payment Date,
 //   Payment Amount (pembayaran Terverifikasi TERAKHIR), Total Payment
-//   (Σ pembayaran Terverifikasi), Remaining Receivable = Total Payment
-//   − Receivable Value (RUMUS HARFIAH pengguna — NEGATIF bila bayar <
-//   Piutang), Remaining Value = Total Revenue − Total Payment
-//   (REDEFINISI 17/11/2026 11:41 WIB dari Sisa Kontrak PR #67 —
-//   HANYA kolom tabel ini; DetailKontrak tetap memakai Sisa Kontrak).
+//   (Σ pembayaran Terverifikasi), Remaining Receivable = Sisa Piutang
+//   = Piutang − Total Payment (koreksi Arahan 3, pengguna 17/11/2026
+//   11:57 WIB — rumus "Total Pembayaran − Piutang" diterapkan dengan
+//   urutan dibalik; tidak ada nilai negatif), Remaining Value = Sisa
+//   Kontrak = Total Revenue − Piutang (REDEFINISI 11:41 WIB
+//   DIBATALKAN 11:57 WIB — kembali ke definisi PR #67, sama dengan
+//   DetailKontrak).
 // - Cluster 6 "Documents": Availability Rate = persentase keterpenuhan
 //   dokumen PR #69 (dulu kolom "Document Completeness"; label baris di
 //   cluster Document diganti "Documentation" 17/11/2026 11:22 WIB),
@@ -66,6 +68,7 @@ import {
   selisihBayarPiutang,
   sisaKontrakRealisasi,
   sisaNilaiSetelahBayar,
+  sisaPiutangRealisasi,
   totalDendaKontrak,
   totalPembayaranKontrak,
 } from '../src/lib/realisasi';
@@ -1019,12 +1022,12 @@ cek(
 // - Payment Date / Payment Amount = tanggal + jumlah pembayaran
 //   Terverifikasi TERAKHIR ("—" bila belum ada; 3 kontrak seed).
 // - Total Payment = Σ pembayaran Terverifikasi ("—" bila 0).
-// - Remaining Receivable = Total Payment − Receivable Value (RUMUS
-//   HARFIAH pengguna 11:41 WIB) — NEGATIF bila bayar < Piutang
-//   (9/42 kontrak seed; tampil "Rp-900.000").
-// - Remaining Value — REDEFINISI 11:41 WIB: Total Revenue − Total
-//   Payment (dulu Sisa Kontrak = (nilaiKontrak + denda) x (1 - %),
-//   PR #67 — HANYA kolom tabel ini; DetailKontrak tetap Sisa Kontrak).
+// - Remaining Receivable = Sisa Piutang = Piutang − Total Payment
+//   (koreksi Arahan 3, 11:57 WIB — urutan dibalik dari rumus harfiah
+//   pengguna; 9/42 kontrak seed positif, 33 nol, 0 negatif).
+// - Remaining Value = Sisa Kontrak = Total Revenue − Piutang
+//   (REDEFINISI 11:41 WIB DIBATALKAN 11:57 WIB — kembali ke definisi
+//   PR #67, sama dengan DetailKontrak).
 // Semua nilai dihitung pada HARI_INI = 2026-11-16 supaya deterministik.
 const dendaNilai = (nomor: string) =>
   totalDendaKontrak(cari(nomor), DATA_NYATA.tagihan, DATA_NYATA.denda);
@@ -1064,6 +1067,7 @@ const sisaNilaiBaru = (nomor: string) =>
     DATA_NYATA.tagihan,
     DATA_NYATA.denda,
     DATA_NYATA.pembayaran,
+    HARI_INI,
   );
 const deadlineNilai = (nomor: string) =>
   jatuhTempoPembayaranKontrak(
@@ -1302,19 +1306,20 @@ cek(
   ) === 362329255,
 );
 
-// ----- Remaining Receivable (Cluster 5, baru — RUMUS HARFIAH pengguna) -----
-cek('remaining receivable 1744 = -900.000 (bayar 15.000.000 − piutang 15.900.000)', sisaPiutangBaruNilai('1744/PKS/RRI.PLB/03/2026') === -900000);
+// ----- Remaining Receivable (Cluster 5 — Sisa Piutang, koreksi Arahan 3 11:57 WIB) -----
+cek('remaining receivable 1744 = 900.000 (piutang 15.900.000 − bayar 15.000.000)', sisaPiutangBaruNilai('1744/PKS/RRI.PLB/03/2026') === 900000);
 cek('remaining receivable 1051 = 0 (bayar == Piutang)', sisaPiutangBaruNilai('1051/PKS/RRI.PLB/02/2026') === 0);
-cek('remaining receivable 10227 = -2.700.000 (bayar 0 − piutang 2.700.000)', sisaPiutangBaruNilai('10227/PKS/RRI.PLB/10/2026') === -2700000);
-cek('remaining receivable 018 = -4.110.000', sisaPiutangBaruNilai('018/PKS/DIR.LPU/08/2026') === -4110000);
-cek('remaining receivable 7054 = -1.897.030', sisaPiutangBaruNilai('7054/PKS/RRI.PLB/07/2026') === -1897030);
-cek('remaining receivable 7052 = -1.440.000', sisaPiutangBaruNilai('7052/PKS/RRI.PLB/07/2026') === -1440000);
-cek('remaining receivable 7060 = -987.840', sisaPiutangBaruNilai('7060/PKS/RRI.PLB/07/2026') === -987840);
+cek('remaining receivable 10227 = 2.700.000 (piutang 2.700.000 − bayar 0)', sisaPiutangBaruNilai('10227/PKS/RRI.PLB/10/2026') === 2700000);
+cek('remaining receivable 018 = 4.110.000', sisaPiutangBaruNilai('018/PKS/DIR.LPU/08/2026') === 4110000);
+cek('remaining receivable 11290 = 2.000.000', sisaPiutangBaruNilai('11290/PKS/RRI.PLB/10/2026') === 2000000);
+cek('remaining receivable 7054 = 1.897.030', sisaPiutangBaruNilai('7054/PKS/RRI.PLB/07/2026') === 1897030);
+cek('remaining receivable 7052 = 1.440.000', sisaPiutangBaruNilai('7052/PKS/RRI.PLB/07/2026') === 1440000);
+cek('remaining receivable 7060 = 987.840', sisaPiutangBaruNilai('7060/PKS/RRI.PLB/07/2026') === 987840);
 cek(
-  'remaining receivable negatif 9/42 (6 Insufficient Payment + 3 Unpaid); 33 nol; 0 positif',
+  'remaining receivable positif 9/42 (6 Insufficient Payment + 3 Unpaid); 33 nol; 0 negatif',
   kontrak.filter(
     (k) =>
-      selisihBayarPiutang(k, DATA_NYATA.tagihan, DATA_NYATA.denda, DATA_NYATA.pembayaran, HARI_INI) < 0,
+      selisihBayarPiutang(k, DATA_NYATA.tagihan, DATA_NYATA.denda, DATA_NYATA.pembayaran, HARI_INI) > 0,
   ).length === 9 &&
     kontrak.filter(
       (k) =>
@@ -1322,56 +1327,53 @@ cek(
     ).length === 33 &&
     kontrak.filter(
       (k) =>
-        selisihBayarPiutang(k, DATA_NYATA.tagihan, DATA_NYATA.denda, DATA_NYATA.pembayaran, HARI_INI) > 0,
+        selisihBayarPiutang(k, DATA_NYATA.tagihan, DATA_NYATA.denda, DATA_NYATA.pembayaran, HARI_INI) < 0,
     ).length === 0,
 );
 cek(
-  'remaining receivable = −(Piutang − Total Payment) alias kebalikan sisaPiutangRealisasi',
+  'remaining receivable = Piutang − Total Payment alias sama dengan sisaPiutangRealisasi (DetailKontrak)',
   kontrak.every(
     (k) =>
       selisihBayarPiutang(k, DATA_NYATA.tagihan, DATA_NYATA.denda, DATA_NYATA.pembayaran, HARI_INI) ===
-      -(
-        piutangRealisasi(k, DATA_NYATA.tagihan, DATA_NYATA.denda, HARI_INI) -
-        totalPembayaranKontrak(k, DATA_NYATA.tagihan, DATA_NYATA.pembayaran)
-      ),
+      sisaPiutangRealisasi(k, DATA_NYATA.tagihan, DATA_NYATA.denda, DATA_NYATA.pembayaran, HARI_INI),
   ),
 );
 
-// ----- Remaining Value (REDEFINISI 17/11/2026 11:41 WIB) -----
-cek('remaining value (baru) 1051 = 12.910.000 (sama seperti lama — dibayar == Piutang)', sisaNilaiBaru('1051/PKS/RRI.PLB/02/2026') === 12910000);
-cek('remaining value (baru) 1052 = 12.910.000', sisaNilaiBaru('1052/PKS/RRI.PLB/02/2026') === 12910000);
-cek('remaining value (baru) 1053 = 11.296.000', sisaNilaiBaru('1053/PKS/RRI.PLB/02/2026') === 11296000);
-cek('remaining value (baru) 016 = 17.146.250', sisaNilaiBaru('016/PKS/DIR.LPU/06/2025') === 17146250);
-cek('remaining value (baru) 027 = 11.246.250', sisaNilaiBaru('027/RRI.PLB/PKS.U/06/2025') === 11246250);
-cek('remaining value (baru) 1744 = 900.000 (lama 0 — denda belum dibayar)', sisaNilaiBaru('1744/PKS/RRI.PLB/03/2026') === 900000);
-cek('remaining value (baru) 10227 = 4.995.000 (lama 2.295.000 — belum dibayar sama sekali)', sisaNilaiBaru('10227/PKS/RRI.PLB/10/2026') === 4995000);
-cek('remaining value (baru) 018 = 7.975.000 (lama 3.865.000)', sisaNilaiBaru('018/PKS/DIR.LPU/08/2026') === 7975000);
-cek('remaining value (baru) 11290 = 2.000.000 (lama 0)', sisaNilaiBaru('11290/PKS/RRI.PLB/10/2026') === 2000000);
-cek('remaining value (baru) 7054 = 1.897.030 (lama 0)', sisaNilaiBaru('7054/PKS/RRI.PLB/07/2026') === 1897030);
+// ----- Remaining Value (Sisa Kontrak PR #67 — redefinisi 11:41 WIB DIBATALKAN koreksi Arahan 3 11:57 WIB) -----
+cek('remaining value 1051 = 12.910.000', sisaNilaiBaru('1051/PKS/RRI.PLB/02/2026') === 12910000);
+cek('remaining value 1052 = 12.910.000', sisaNilaiBaru('1052/PKS/RRI.PLB/02/2026') === 12910000);
+cek('remaining value 1053 = 11.296.000', sisaNilaiBaru('1053/PKS/RRI.PLB/02/2026') === 11296000);
+cek('remaining value 016 = 17.146.250', sisaNilaiBaru('016/PKS/DIR.LPU/06/2025') === 17146250);
+cek('remaining value 027 = 11.246.250', sisaNilaiBaru('027/RRI.PLB/PKS.U/06/2025') === 11246250);
+cek('remaining value 1744 = 0 (kembali ke lama; denda belum dibayar masuk Sisa Piutang)', sisaNilaiBaru('1744/PKS/RRI.PLB/03/2026') === 0);
+cek('remaining value 10227 = 2.295.000 (kembali ke lama)', sisaNilaiBaru('10227/PKS/RRI.PLB/10/2026') === 2295000);
+cek('remaining value 018 = 3.865.000 (kembali ke lama)', sisaNilaiBaru('018/PKS/DIR.LPU/08/2026') === 3865000);
+cek('remaining value 11290 = 0 (kembali ke lama)', sisaNilaiBaru('11290/PKS/RRI.PLB/10/2026') === 0);
+cek('remaining value 7054 = 0 (kembali ke lama)', sisaNilaiBaru('7054/PKS/RRI.PLB/07/2026') === 0);
 cek(
-  'remaining value (baru) = Total Revenue − Total Payment untuk semua kontrak',
+  'remaining value = Total Revenue − Piutang untuk semua kontrak',
   kontrak.every(
     (k) =>
-      sisaNilaiSetelahBayar(k, DATA_NYATA.tagihan, DATA_NYATA.denda, DATA_NYATA.pembayaran) ===
+      sisaNilaiSetelahBayar(k, DATA_NYATA.tagihan, DATA_NYATA.denda, DATA_NYATA.pembayaran, HARI_INI) ===
       k.nilaiKontrak +
         totalDendaKontrak(k, DATA_NYATA.tagihan, DATA_NYATA.denda) -
-        totalPembayaranKontrak(k, DATA_NYATA.tagihan, DATA_NYATA.pembayaran),
+        piutangRealisasi(k, DATA_NYATA.tagihan, DATA_NYATA.denda, HARI_INI),
   ),
 );
 cek(
-  'remaining value (baru) ≥ 0 untuk semua 42 kontrak (tidak ada yang kelebihan bayar)',
+  'remaining value ≥ 0 untuk semua 42 kontrak (tidak ada yang kelebihan bayar)',
   kontrak.every(
     (k) =>
-      sisaNilaiSetelahBayar(k, DATA_NYATA.tagihan, DATA_NYATA.denda, DATA_NYATA.pembayaran) >= 0,
+      sisaNilaiSetelahBayar(k, DATA_NYATA.tagihan, DATA_NYATA.denda, DATA_NYATA.pembayaran, HARI_INI) >= 0,
   ),
 );
 cek(
-  'redefinisi mengubah 9/42 kontrak (yang bayar ≠ Piutang); 33/42 tidak berubah',
-  kontrak.filter(
+  'remaining value sama dengan Sisa Kontrak PR #67 (sisaKontrakRealisasi) untuk semua 42 kontrak',
+  kontrak.every(
     (k) =>
-      sisaNilaiSetelahBayar(k, DATA_NYATA.tagihan, DATA_NYATA.denda, DATA_NYATA.pembayaran) !==
+      sisaNilaiSetelahBayar(k, DATA_NYATA.tagihan, DATA_NYATA.denda, DATA_NYATA.pembayaran, HARI_INI) ===
       sisaKontrakRealisasi(k, DATA_NYATA.tagihan, DATA_NYATA.denda, HARI_INI),
-  ).length === 9,
+  ),
 );
 
 // ----- Perilaku live -----
@@ -1384,10 +1386,9 @@ cek(
 // hitung ulang: hanya 2/42 kontrak yang nilainya berubah. Payment
 // Deadline, Fine Value, Total Revenue tidak memakai realisasi —
 // nilainya identik live dan seed. Kolom BARU Cluster 5: Remaining
-// Value (baru) = Total Revenue − Total Payment juga tidak memakai
-// realisasi — identik live dan seed untuk semua 42 kontrak;
-// Remaining Receivable memakai Piutang, jadi hanya 018 + 10227 yang
-// berbeda live (sama seperti Piutang).
+// Value = Total Revenue − Piutang dan Remaining Receivable = Piutang
+// − Total Payment SAMA-SAMA memakai Piutang, jadi keduanya berbeda
+// live vs seed hanya untuk 018 + 10227 (sama seperti Piutang).
 const kontrakLive = kontrak.map((k) => ({
   ...k,
   layanan: k.layanan.map((l) => {
@@ -1429,22 +1430,30 @@ cek(
   piutangRealisasi(live10227, DATA_NYATA.tagihan, DATA_NYATA.denda, HARI_INI) === 4856250,
 );
 cek(
-  'live: remaining value (baru) identik seed untuk semua 42 kontrak (tidak memakai realisasi)',
-  kontrak.every((k) => {
+  'live: remaining value identik seed untuk 40/42 kontrak (kecuali 018, 10227 — memakai Piutang)',
+  kontrak.filter((k) => {
     const kl = kontrakLive.find((x) => x.id === k.id)!;
     return (
-      sisaNilaiSetelahBayar(kl, DATA_NYATA.tagihan, DATA_NYATA.denda, DATA_NYATA.pembayaran) ===
-      sisaNilaiSetelahBayar(k, DATA_NYATA.tagihan, DATA_NYATA.denda, DATA_NYATA.pembayaran)
+      sisaNilaiSetelahBayar(kl, DATA_NYATA.tagihan, DATA_NYATA.denda, DATA_NYATA.pembayaran, HARI_INI) !==
+      sisaNilaiSetelahBayar(k, DATA_NYATA.tagihan, DATA_NYATA.denda, DATA_NYATA.pembayaran, HARI_INI)
     );
-  }),
+  }).length === 2,
 );
 cek(
-  'live: 018 remaining receivable -6.187.500 (seed -4.110.000 — piutang live lebih besar)',
-  selisihBayarPiutang(live018, DATA_NYATA.tagihan, DATA_NYATA.denda, DATA_NYATA.pembayaran, HARI_INI) === -6187500,
+  'live: 018 remaining value 1.787.500 (seed 3.865.000 — piutang live lebih besar)',
+  sisaNilaiSetelahBayar(live018, DATA_NYATA.tagihan, DATA_NYATA.denda, DATA_NYATA.pembayaran, HARI_INI) === 1787500,
 );
 cek(
-  'live: 10227 remaining receivable -4.856.250 (seed -2.700.000)',
-  selisihBayarPiutang(live10227, DATA_NYATA.tagihan, DATA_NYATA.denda, DATA_NYATA.pembayaran, HARI_INI) === -4856250,
+  'live: 10227 remaining value 138.750 (seed 2.295.000)',
+  sisaNilaiSetelahBayar(live10227, DATA_NYATA.tagihan, DATA_NYATA.denda, DATA_NYATA.pembayaran, HARI_INI) === 138750,
+);
+cek(
+  'live: 018 remaining receivable 6.187.500 (seed 4.110.000 — piutang live lebih besar)',
+  selisihBayarPiutang(live018, DATA_NYATA.tagihan, DATA_NYATA.denda, DATA_NYATA.pembayaran, HARI_INI) === 6187500,
+);
+cek(
+  'live: 10227 remaining receivable 4.856.250 (seed 2.700.000)',
+  selisihBayarPiutang(live10227, DATA_NYATA.tagihan, DATA_NYATA.denda, DATA_NYATA.pembayaran, HARI_INI) === 4856250,
 );
 
 // ---------- kolom Availability Rate (dulu "Document Completeness", keputusan pengguna 17/11/2026 09:26 WIB + 11:41 WIB) ----------
@@ -1813,13 +1822,13 @@ cek(
     tabKontrak.includes('formatPersenRealisasi(realisasi)'),
 );
 cek(
-  'sel Remaining Value pakai sisaNilaiSetelahBayar (REDEFINISI 11:41 WIB) — BUKAN sisaKontrakRealisasi',
+  'sel Remaining Value pakai sisaNilaiSetelahBayar (Sisa Kontrak PR #67; redefinisi 11:41 WIB DIBATALKAN 11:57 WIB)',
   tabKontrak.includes('const sisaNilaiBaru = sisaNilaiSetelahBayar(') &&
     tabKontrak.includes('formatRupiah(sisaNilaiBaru)') &&
     !tabKontrak.includes('formatRupiah(sisaKontrak)'),
 );
 cek(
-  'sel Remaining Receivable pakai selisihBayarPiutang (Total Payment − Receivable Value)',
+  'sel Remaining Receivable pakai selisihBayarPiutang (Piutang − Total Payment)',
   tabKontrak.includes('const sisaPiutangBaru = selisihBayarPiutang(') &&
     tabKontrak.includes('formatRupiah(sisaPiutangBaru)'),
 );
