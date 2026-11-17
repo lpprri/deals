@@ -19,8 +19,9 @@
 //     (filter brightness(0) invert(1), hanya di footer).
 //   - Kontak footer memakai data RESMI Kantor Pusat RRI (alamat Jl.
 //     Medan Merdeka Barat No. 4–5 + dua nomor telepon tel:, pengguna
-//     2026-11-17); baris email DIHAPUS sementara — menunggu alamat
-//     email resmi dari pengguna, jangan tampilkan email palsu.
+//     2026-11-17); TIDAK ADA baris email sama sekali — pengguna
+//     mengonfirmasi 2026-11-17 16:35 WIB: tidak ada email yang
+//     ditampilkan di footer Contact.
 //   - Kartu booking hanya pratinjau lokal: tombol Next menampilkan
 //     catatan jujur, tidak ada pemesanan yang terkirim.
 //   - Gambar: tidak ada hotlink eksternal — visual kartu memakai
