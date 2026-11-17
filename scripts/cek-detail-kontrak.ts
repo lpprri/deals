@@ -24,7 +24,9 @@ import {
   totalDendaKontrak,
   totalPembayaranKontrak,
 } from '../src/lib/realisasi';
-import type { Kontrak } from '../src/lib/types';
+import { daftarDokumenKontrak } from '../src/lib/dokumenKontrak';
+import { statusPembayaranKontrak } from '../src/lib/kontrakTampilan';
+import type { Kontrak, Tagihan } from '../src/lib/types';
 
 let gagal = 0;
 const cek = (nama: string, lolos: boolean, detail = '') => {
@@ -33,7 +35,7 @@ const cek = (nama: string, lolos: boolean, detail = '') => {
 };
 
 const HARI_INI = '2026-11-16';
-const { kontrak, tagihan, pembayaran, denda } = DATA_NYATA;
+const { kontrak, tagihan, pembayaran, denda, dokumen } = DATA_NYATA;
 const cariKontrak = (id: string): Kontrak => {
   const k = kontrak.find((x) => x.id === id);
   if (!k) throw new Error(`kontrak ${id} tidak ditemukan`);
@@ -421,6 +423,244 @@ const klienSrc = fs.readFileSync('src/modules/Klien.tsx', 'utf-8');
 cek('Klien.tsx menyelaraskan klienIdTerpilihLuar', klienSrc.includes('klienIdTerpilihLuar'));
 const appSrc = fs.readFileSync('src/App.tsx', 'utf-8');
 cek('App.tsx memasang onNavigasiKlien', appSrc.includes('onNavigasiKlien'));
+
+// ---------- cluster Document (permintaan pengguna 17/11/2026) ----------
+const cariItem = (
+  items: ReturnType<typeof daftarDokumenKontrak>,
+  label: string,
+) => items.find((x) => x.label === label);
+
+const dok11290 = daftarDokumenKontrak(
+  k11290,
+  dokumen,
+  tagihan,
+  pembayaran,
+  denda,
+  HARI_INI,
+);
+cek('11290 cluster 7 item (Fungsional, tanpa Surat Penagihan)', dok11290.length === 7, `${dok11290.length}`);
+cek(
+  '11290 urutan label umum + Fungsional',
+  dok11290.map((x) => x.label).join('|') ===
+    'Perjanjian Kerjasama|Invoice Penagihan|Billing Pembayaran|Kwitansi Pembayaran|Nota Penyiaran|Jadwal Siar / Nota Produksi|Bukti Siar',
+);
+cek('11290 Perjanjian Kerjasama Belum Ada', cariItem(dok11290, 'Perjanjian Kerjasama')?.ada === false);
+cek(
+  '11290 Invoice Penagihan Ada (038/RRI.PLB/PKS.F/10/2026)',
+  cariItem(dok11290, 'Invoice Penagihan')?.ada === true &&
+    cariItem(dok11290, 'Invoice Penagihan')?.detail ===
+      '038/RRI.PLB/PKS.F/10/2026',
+);
+cek('11290 Billing Pembayaran Belum Ada (tanpa catatan)', cariItem(dok11290, 'Billing Pembayaran')?.ada === false);
+cek('11290 Kwitansi Pembayaran Belum Ada', cariItem(dok11290, 'Kwitansi Pembayaran')?.ada === false);
+cek('11290 tanpa Surat Penagihan (Unpaid, bukan Overdue)', cariItem(dok11290, 'Surat Penagihan') === undefined);
+cek('11290 Nota Penyiaran Belum Ada', cariItem(dok11290, 'Nota Penyiaran')?.ada === false);
+cek('11290 Jadwal Siar / Nota Produksi Belum Ada', cariItem(dok11290, 'Jadwal Siar / Nota Produksi')?.ada === false);
+cek('11290 Bukti Siar Belum Ada', cariItem(dok11290, 'Bukti Siar')?.ada === false);
+cek(
+  '11290 tanpa item Umum',
+  !dok11290.some(
+    (x) => x.label === 'Permohonan Sewa' || x.label === 'Persetujuan Sewa KPKNL',
+  ),
+);
+
+const k10828 = cariKontrak('10828/PKS/RRI.PLB/10/2026');
+const dok10828 = daftarDokumenKontrak(
+  k10828,
+  dokumen,
+  tagihan,
+  pembayaran,
+  denda,
+  HARI_INI,
+);
+cek('10828 cluster 7 item (Umum, tanpa Surat Penagihan)', dok10828.length === 7, `${dok10828.length}`);
+cek(
+  '10828 urutan label umum + Umum',
+  dok10828.map((x) => x.label).join('|') ===
+    'Perjanjian Kerjasama|Invoice Penagihan|Billing Pembayaran|Kwitansi Pembayaran|Permohonan Sewa|Pemberitahuan Persetujuan Sewa|Persetujuan Sewa KPKNL',
+);
+cek('10828 Permohonan Sewa Ada', cariItem(dok10828, 'Permohonan Sewa')?.ada === true);
+cek(
+  '10828 Persetujuan Sewa KPKNL Belum Ada + nomor S-292 sebagai referensi',
+  cariItem(dok10828, 'Persetujuan Sewa KPKNL')?.ada === false &&
+    cariItem(dok10828, 'Persetujuan Sewa KPKNL')?.detail ===
+      'S-292/MK/KNL.0402/2026',
+);
+cek('10828 Pemberitahuan Persetujuan Sewa Belum Ada', cariItem(dok10828, 'Pemberitahuan Persetujuan Sewa')?.ada === false);
+cek('10828 Perjanjian Kerjasama Belum Ada', cariItem(dok10828, 'Perjanjian Kerjasama')?.ada === false);
+cek('10828 Invoice Penagihan Ada', cariItem(dok10828, 'Invoice Penagihan')?.ada === true);
+cek('10828 tanpa Surat Penagihan (Paid, bukan Overdue)', cariItem(dok10828, 'Surat Penagihan') === undefined);
+cek(
+  '10828 tanpa item Fungsional',
+  !dok10828.some((x) => x.label === 'Nota Penyiaran' || x.label === 'Bukti Siar'),
+);
+
+const dok0603 = daftarDokumenKontrak(
+  k0603,
+  dokumen,
+  tagihan,
+  pembayaran,
+  denda,
+  HARI_INI,
+);
+cek('0603 cluster 7 item', dok0603.length === 7, `${dok0603.length}`);
+cek('0603 Perjanjian Kerjasama Ada', cariItem(dok0603, 'Perjanjian Kerjasama')?.ada === true);
+cek('0603 Billing Pembayaran Ada (catatan dokumen)', cariItem(dok0603, 'Billing Pembayaran')?.ada === true);
+cek('0603 Kwitansi Pembayaran Ada', cariItem(dok0603, 'Kwitansi Pembayaran')?.ada === true);
+cek('0603 Invoice Penagihan Ada', cariItem(dok0603, 'Invoice Penagihan')?.ada === true);
+
+// Hitungan global (seed)
+const hitungAda = (jenis: string) =>
+  dokumen.filter((d) => d.jenisDokumen === jenis && d.status === 'Ada').length;
+cek('PKS (asli) Ada 36/42', hitungAda('PKS (asli)') === 36, `${hitungAda('PKS (asli)')}`);
+cek('Billing Pembayaran Ada 16', hitungAda('Billing Pembayaran') === 16, `${hitungAda('Billing Pembayaran')}`);
+cek('Kwitansi Pembayaran Ada 4', hitungAda('Kwitansi Pembayaran') === 4, `${hitungAda('Kwitansi Pembayaran')}`);
+cek('Permohonan Sewa Ada 14', hitungAda('Permohonan Sewa') === 14, `${hitungAda('Permohonan Sewa')}`);
+cek(
+  'Surat Penagihan Ada 1 (1494, tersembunyi karena bukan Overdue)',
+  hitungAda('Surat Penagihan') === 1,
+  `${hitungAda('Surat Penagihan')}`,
+);
+cek(
+  "Bukti Siaran 0 catatan di seed",
+  dokumen.filter((d) => d.jenisDokumen === 'Bukti Siaran').length === 0,
+);
+cek(
+  'Invoice Penagihan Ada 42/42 (1 tagihan per kontrak)',
+  kontrak.every(
+    (k) =>
+      daftarDokumenKontrak(k, dokumen, tagihan, pembayaran, denda, HARI_INI).find(
+        (x) => x.label === 'Invoice Penagihan',
+      )?.ada === true,
+  ),
+);
+cek(
+  'semua kontrak 7 item (tidak ada Overdue di data nyata)',
+  kontrak.every(
+    (k) =>
+      daftarDokumenKontrak(k, dokumen, tagihan, pembayaran, denda, HARI_INI)
+        .length === 7,
+  ),
+);
+cek(
+  'Persetujuan Sewa KPKNL: 17/17 Umum punya nomor, semua Belum Ada (file tidak disimpan)',
+  kontrak
+    .filter((k) => k.jenisPnBP === 'Umum')
+    .every((k) => {
+      const item = daftarDokumenKontrak(
+        k,
+        dokumen,
+        tagihan,
+        pembayaran,
+        denda,
+        HARI_INI,
+      ).find((x) => x.label === 'Persetujuan Sewa KPKNL');
+      return (
+        item?.ada === false &&
+        item?.detail === k.dasarNilai &&
+        k.dasarNilai !== undefined
+      );
+    }),
+);
+
+// Surat Penagihan kondisional Overdue — kasus sintetis (data nyata: 0 Overdue)
+const kOverdue = sintetis('TES-OVERDUE', 'Fungsional', 'Aktif', '2026-09-01', '2026-10-31', [
+  lay('Menit', 10, 1000000),
+]);
+const tagihanOverdue: Tagihan[] = [
+  ...tagihan,
+  {
+    id: 'TGH-TES-OVERDUE',
+    nomor: 'TES/001',
+    kontrakId: 'TES-OVERDUE',
+    uraian: 'Tes Overdue',
+    nilai: 1000000,
+    tanggalTerbit: '2026-09-01',
+    tanggalJatuhTempo: '2026-10-15',
+    kodeAkun: '425531',
+    satker: satker41,
+  },
+];
+cek(
+  'sintetis Overdue: statusPembayaranKontrak = Overdue',
+  statusPembayaranKontrak(kOverdue, tagihanOverdue, pembayaran, denda, HARI_INI) === 'Overdue',
+);
+const dokOverdue = daftarDokumenKontrak(
+  kOverdue,
+  [
+    ...dokumen,
+    {
+      id: 'DOK-TES-SP',
+      kontrakId: 'TES-OVERDUE',
+      jenisDokumen: 'Surat Penagihan',
+      status: 'Ada',
+    },
+  ],
+  tagihanOverdue,
+  pembayaran,
+  denda,
+  HARI_INI,
+);
+cek('sintetis Overdue: 8 item (Surat Penagihan tampil)', dokOverdue.length === 8, `${dokOverdue.length}`);
+cek('sintetis Overdue: Surat Penagihan Ada', cariItem(dokOverdue, 'Surat Penagihan')?.ada === true);
+const dokOverdueTanpaCatatan = daftarDokumenKontrak(
+  kOverdue,
+  dokumen,
+  tagihanOverdue,
+  pembayaran,
+  denda,
+  HARI_INI,
+);
+cek(
+  'sintetis Overdue tanpa catatan: Surat Penagihan Belum Ada',
+  cariItem(dokOverdueTanpaCatatan, 'Surat Penagihan')?.ada === false,
+);
+
+// ---------- struktur UI cluster Document ----------
+const detailSlice = deals.slice(
+  deals.indexOf('function DetailKontrak'),
+  deals.indexOf('function FormKontrak'),
+);
+cek(
+  'Document cluster ada di DetailKontrak',
+  detailSlice.includes('<JudulBagian>Document</JudulBagian>'),
+);
+cek(
+  'Document sesudah Special Details (paling bawah)',
+  detailSlice.indexOf('<JudulBagian>Document</JudulBagian>') >
+    detailSlice.indexOf('Special Details'),
+);
+cek('DetailKontrak memanggil daftarDokumenKontrak', detailSlice.includes('daftarDokumenKontrak'));
+cek(
+  'catatan jujur: aplikasi tidak menyimpan file dokumen',
+  detailSlice.includes('does not store') &&
+    detailSlice.includes('document files'),
+);
+const docClusterSlice = detailSlice.slice(
+  detailSlice.indexOf('<JudulBagian>Document</JudulBagian>'),
+);
+cek(
+  'cluster Document tanpa tautan/tombol unduh/unggah (hanya kalimat penjelasan)',
+  !docClusterSlice.includes('href=') &&
+    !docClusterSlice.includes('<a ') &&
+    !docClusterSlice.includes('onClick'),
+);
+const dokHelper = fs.readFileSync('src/lib/dokumenKontrak.ts', 'utf-8');
+for (const label of [
+  'Perjanjian Kerjasama',
+  'Invoice Penagihan',
+  'Billing Pembayaran',
+  'Kwitansi Pembayaran',
+  'Surat Penagihan',
+  'Nota Penyiaran',
+  'Jadwal Siar / Nota Produksi',
+  'Bukti Siar',
+  'Permohonan Sewa',
+  'Pemberitahuan Persetujuan Sewa',
+  'Persetujuan Sewa KPKNL',
+]) {
+  cek(`dokumenKontrak.ts memuat label "${label}"`, dokHelper.includes(`'${label}'`));
+}
 
 // ---------- total kontrol tidak berubah ----------
 const k = hitungTotalKontrol(DATA_NYATA);
