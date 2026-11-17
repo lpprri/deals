@@ -22,6 +22,11 @@
 //   (dinyatakan di data + PR body); booking Next hanya pratinjau,
 //   tidak ada pemesanan yang terkirim; tidak ada hotlink gambar
 //   eksternal.
+// - Tombol "Book a Free Call" membuka halaman Meeting di admin (login
+//   dulu bila belum login, lalu mendarat di Meeting); kartu booking
+//   tetap pratinjau lokal dan tidak diubah.
+// - Teks social proof hero: "TRUSTED BY 100+ PARTNERS NATIONALLY"
+//   (avatar, bintang, 4.9/5.0 tidak berubah; teks lama tidak tersisa).
 // Skrip ini membaca berkas sebagai teks. Keluar bukan-nol bila ada
 // asersi gagal.
 import { readFileSync } from 'node:fs';
@@ -51,8 +56,10 @@ cek(
   app.includes("import MarkloLanding from './modules/landing/Marklo';"),
 );
 cek(
-  "App.tsx: beranda me-render <MarkloLanding onLogin={...login} />",
-  app.includes('<MarkloLanding onLogin={() => setHalamanPublik(\'login\')} />'),
+  "App.tsx: beranda me-render <MarkloLanding onLogin + onBookMeeting />",
+  app.includes('<MarkloLanding') &&
+    app.includes("onLogin={() => setHalamanPublik('login')}") &&
+    app.includes('onBookMeeting={bukaMeetingDariLanding}'),
 );
 cek(
   'App.tsx: TIDAK lagi me-render Beranda di route beranda',
@@ -120,8 +127,9 @@ cek(
   marklo.includes('Book a Free Call') && marklo.includes('Our Services'),
 );
 cek(
-  'Hero: social proof bintang 5 + rating 4.9 + "TRUSTED BY 500+ BRANDS GLOBALLY"',
-  marklo.includes('TRUSTED BY 500+ BRANDS GLOBALLY') &&
+  'Hero: social proof bintang 5 + rating 4.9 + "TRUSTED BY 100+ PARTNERS NATIONALLY" (teks lama hilang)',
+  marklo.includes('TRUSTED BY 100+ PARTNERS NATIONALLY') &&
+    !marklo.includes('TRUSTED BY 500+ BRANDS GLOBALLY') &&
     marklo.includes('useCountUp(4.9') &&
     marklo.includes('BintangLima'),
 );
@@ -436,6 +444,52 @@ cek(
 cek(
   'Gambar: visual kartu memakai gradien CSS + inisial (bukan <img> eksternal)',
   marklo.includes('bg-gradient-to-br') && !marklo.includes('<img src="http'),
+);
+
+// --- 19. Tombol "Book a Free Call" membuka halaman Meeting (admin). ---
+cek(
+  'BookMeeting: App.tsx menyimpan tujuan "meeting" di sessionStorage + tampilkan login',
+  app.includes("const KUNCI_TUJUAN_SETELAH_LOGIN = 'rri-tujuan-setelah-login'") &&
+    app.includes("sessionStorage.setItem(KUNCI_TUJUAN_SETELAH_LOGIN, 'meeting')") &&
+    app.includes("setHalamanPublik('login')"),
+);
+cek(
+  'BookMeeting: App.tsx menerapkan tujuan-tertunda begitu sesi Operator aktif (setActive meeting + hapus kunci)',
+  app.includes("sessionStorage.getItem(KUNCI_TUJUAN_SETELAH_LOGIN)") &&
+    app.includes("setActive('meeting')") &&
+    app.includes("sessionStorage.removeItem(KUNCI_TUJUAN_SETELAH_LOGIN)"),
+);
+cek(
+  'BookMeeting: App.tsx meneruskan onBookMeeting ke MarkloLanding',
+  app.includes('onBookMeeting={bukaMeetingDariLanding}'),
+);
+cek(
+  'BookMeeting: MarkloLanding mendeklarasikan prop onBookMeeting + meneruskannya ke Header, Hero, MengapaMarketing',
+  marklo.includes('onBookMeeting: () => void;') &&
+    marklo.includes('<Header onLogin={onLogin} onBookMeeting={onBookMeeting} />') &&
+    marklo.includes('<Hero onBookMeeting={onBookMeeting} />') &&
+    marklo.includes('<MengapaMarketing onBookMeeting={onBookMeeting} />'),
+);
+cek(
+  'BookMeeting: ketiga tombol "Book a Free Call" (header, hero, kartu gelap) memakai onClick={onBookMeeting}',
+  (marklo.match(/onClick=\{onBookMeeting\}/g) || []).length === 3 &&
+    marklo.includes('Book a Free Call'),
+);
+cek(
+  "BookMeeting: gulirKe('booking') tersisa 2 — tombol label lain (Proses 'Book a Free Consultation' + footer 'Book 30 Min Free Call'), bukan 'Book a Free Call'",
+  (marklo.match(/gulirKe\('booking'\)/g) || []).length === 2 &&
+    marklo.includes('Book a Free Consultation') &&
+    marklo.includes('Book 30 Min Free Call'),
+);
+cek(
+  'BookMeeting: tautan navigasi footer "Book a Free Call" tetap menggulir ke section booking',
+  marklo.includes("{ label: 'Book a Free Call', id: 'booking' }"),
+);
+cek(
+  'BookMeeting: kartu booking + tombol Next TIDAK diubah (pratinjau lokal, tanpa fetch)',
+  marklo.includes('Preview only') &&
+    marklo.includes('not sent anywhere') &&
+    !marklo.includes('kirimPengajuan'),
 );
 
 if (gagal > 0) {

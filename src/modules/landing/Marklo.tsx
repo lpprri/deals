@@ -24,6 +24,17 @@
 //     ditampilkan di footer Contact.
 //   - Kartu booking hanya pratinjau lokal: tombol Next menampilkan
 //     catatan jujur, tidak ada pemesanan yang terkirim.
+//   - Tombol "Book a Free Call" (header, hero, kartu gelap "Still not
+//     sure where to start?") membuka halaman Meeting di admin — bila
+//     belum login, tampilkan login dulu lalu mendarat di Meeting (PR
+//     landing-tombol-book-meeting, 2026-11-17). Tombol "Book a Free
+//     Consultation" (akhir Proses) dan "Book 30 Min Free Call" (footer
+//     Contact) TIDAK diubah — label berbeda, tetap menggulir ke kartu
+//     booking. Kartu booking + tombol Next tetap pratinjau lokal.
+//   - Teks social proof hero diubah atas permintaan pengguna 2026-11-17:
+//     "TRUSTED BY 100+ PARTNERS NATIONALLY"; avatar, bintang, dan 4.9/5.0
+//     tidak berubah. Teks lama (500+ brands, global) tidak boleh tersisa
+//     di landing ini.
 //   - Gambar: tidak ada hotlink eksternal — visual kartu memakai
 //     gradien CSS; avatar memakai lingkaran inisial.
 // Komponen landing lama (Beranda.tsx + landing/*) TETAP di repo dan
@@ -75,6 +86,9 @@ import {
 export interface MarkloLandingProps {
   /** Buka halaman login Operator (infrastruktur aplikasi). */
   onLogin: () => void;
+  /** Buka halaman Meeting di admin (tombol "Book a Free Call"): bila
+      belum login, tampilkan login dulu lalu mendarat di Meeting. */
+  onBookMeeting: () => void;
 }
 
 /** Gulir halus ke section berdasarkan id. */
@@ -168,19 +182,19 @@ function BintangLima({
   );
 }
 
-export default function MarkloLanding({ onLogin }: MarkloLandingProps) {
+export default function MarkloLanding({ onLogin, onBookMeeting }: MarkloLandingProps) {
   return (
     <div className="min-h-screen bg-white text-black">
-      <Header onLogin={onLogin} />
+      <Header onLogin={onLogin} onBookMeeting={onBookMeeting} />
       <main>
-        <Hero />
+        <Hero onBookMeeting={onBookMeeting} />
         <CarouselKampanye />
         <Pernyataan />
         <Statistik />
         <Proses />
         <LayananFunnel />
         <Perbandingan />
-        <MengapaMarketing />
+        <MengapaMarketing onBookMeeting={onBookMeeting} />
         <BookingKonsultasi />
         <Testimoni />
         <Faq />
@@ -192,7 +206,7 @@ export default function MarkloLanding({ onLogin }: MarkloLandingProps) {
 
 /* ================= Header ================= */
 
-function Header({ onLogin }: { onLogin: () => void }) {
+function Header({ onLogin, onBookMeeting }: { onLogin: () => void; onBookMeeting: () => void }) {
   return (
     <header className="sticky top-0 z-50 bg-white/90 backdrop-blur">
       <div className="mx-auto flex max-w-7xl items-center gap-4 px-4 py-3 sm:px-6">
@@ -237,7 +251,7 @@ function Header({ onLogin }: { onLogin: () => void }) {
         <div className="ml-auto flex shrink-0 items-center gap-2 md:ml-0">
           <button
             type="button"
-            onClick={() => gulirKe('booking')}
+            onClick={onBookMeeting}
             className="hidden rounded-full bg-mk-aksen px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-mk-aksen-gelap sm:inline-flex"
           >
             Book a Free Call
@@ -257,7 +271,7 @@ function Header({ onLogin }: { onLogin: () => void }) {
 
 /* ================= Hero ================= */
 
-function Hero() {
+function Hero({ onBookMeeting }: { onBookMeeting: () => void }) {
   const rating = useCountUp(4.9, true, 1800);
   return (
     <section id="atas" className="bg-white">
@@ -278,7 +292,7 @@ function Hero() {
           <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
             <button
               type="button"
-              onClick={() => gulirKe('booking')}
+              onClick={onBookMeeting}
               className="inline-flex items-center gap-2 rounded-full bg-mk-aksen px-6 py-3 text-sm font-semibold text-white shadow-md transition hover:bg-mk-aksen-gelap"
             >
               Book a Free Call
@@ -318,7 +332,7 @@ function Hero() {
               </span>
             </span>
             <span className="text-xs font-semibold tracking-widest text-slate-400">
-              TRUSTED BY 500+ BRANDS GLOBALLY
+              TRUSTED BY 100+ PARTNERS NATIONALLY
             </span>
           </div>
         </Reveal>
@@ -713,7 +727,7 @@ function Perbandingan() {
 
 /* ================= Why Marketing ================= */
 
-function MengapaMarketing() {
+function MengapaMarketing({ onBookMeeting }: { onBookMeeting: () => void }) {
   return (
     <section className="bg-slate-50 py-16 sm:py-20">
       <div className="mx-auto max-w-7xl px-4 sm:px-6">
@@ -756,7 +770,7 @@ function MengapaMarketing() {
               </p>
               <button
                 type="button"
-                onClick={() => gulirKe('booking')}
+                onClick={onBookMeeting}
                 className="mt-5 inline-flex items-center gap-2 rounded-full bg-mk-aksen px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-mk-aksen-gelap"
               >
                 Book a Free Call
