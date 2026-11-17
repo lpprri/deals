@@ -86,7 +86,7 @@ import {
 import { buatEntriAudit } from './lib/audit';
 import { idPercakapan, kunciAlamatOperator } from './lib/pesan';
 import Notifikasi from './components/Notifikasi';
-import { DAFTAR_JENIS_PENGAJUAN_KLIEN, type JenisPengajuanKlien } from './lib/types';
+import { DAFTAR_JENIS_PENGAJUAN_KLIEN } from './lib/types';
 import { bolehAksi, LABEL_PERAN } from './lib/permissions';
 import { formatRupiah, formatTanggal, hariIniIso } from './lib/format';
 import { LOGO_DEALS_DATA_URI } from './lib/logoDeals';
@@ -148,7 +148,7 @@ import type {
   UmpanBalikInput,
 } from './lib/store';
 import Login from './components/Login';
-import Beranda, { type HalamanLanding } from './modules/Beranda';
+import MarkloLanding from './modules/landing/Marklo';
 import Lacak from './modules/Lacak';
 import Ajukan from './modules/Ajukan';
 import Dashboard from './modules/Dashboard';
@@ -657,23 +657,9 @@ export default function App() {
   const [peringatanSimpan, setPeringatanSimpan] = useState<string | null>(null);
   /** Halaman publik tanpa login (lacak/ajukan) saat belum masuk. */
   const [halamanPublik, setHalamanPublik] = useState<'beranda' | 'login' | 'lacak' | 'ajukan'>('beranda');
-  /** Halaman landing yang tampil (halaman terpisah per section). */
-  const [halamanLanding, setHalamanLanding] = useState<HalamanLanding>('beranda');
-  /** Jangkar tujuan setelah pindah halaman landing (mis. 'kontak'). */
-  const [jangkarLanding, setJangkarLanding] = useState<string | null>(null);
-  /** Pindah halaman landing; gulir ke atas (atau ke jangkar bila ada). */
-  const navigasiLanding = (halaman: HalamanLanding, jangkar?: string) => {
-    setHalamanLanding(halaman);
-    setJangkarLanding(jangkar ?? null);
-    setHalamanPublik('beranda');
-    window.scrollTo(0, 0);
-  };
-  /** Prefill form Ajukan dari landing page (layanan/ruangan/lahan). */
-  const [ajukanAwal, setAjukanAwal] = useState<{
-    jenis: JenisPengajuanKlien;
-    judul: string;
-    uraian: string;
-  } | null>(null);
+  // Prefill form Ajukan dari landing page DIHAPUS sementara (PR
+  // landing-marklo-clone): landing baru belum memanggil Ajukan; state
+  // ajukanAwal + prop prefill akan dipasang lagi pada putaran penyesuaian.
 
   // Pulihkan sesi Auth yang sudah masuk (bila Firebase terkonfigurasi).
   useEffect(() => {
@@ -809,20 +795,11 @@ export default function App() {
 
   if (!user) {
     if (halamanPublik === 'beranda') {
-      return (
-        <Beranda
-          data={data}
-          onLogin={() => setHalamanPublik('login')}
-          onTrack={() => setHalamanPublik('lacak')}
-          onAjukan={(jenis, judul, uraian) => {
-            setAjukanAwal({ jenis, judul, uraian });
-            setHalamanPublik('ajukan');
-          }}
-          halamanLanding={halamanLanding}
-          jangkarLanding={jangkarLanding}
-          onNavigasiLanding={navigasiLanding}
-        />
-      );
+      // Landing page tiruan template Marklo (PR landing-marklo-clone).
+      // Komponen landing lama (Beranda.tsx + landing/*) tetap di repo,
+      // tidak dipakai di route `/` untuk sementara — putaran penyesuaian
+      // akan mengintegrasikan kembali Lacak/Ajukan/statistik live/dua bahasa.
+      return <MarkloLanding onLogin={() => setHalamanPublik('login')} />;
     }
     if (halamanPublik === 'lacak') {
       return (
@@ -830,7 +807,6 @@ export default function App() {
           data={data}
           modeLive={isFirebaseConfigured && !!db}
           onKembali={() => {
-            setHalamanLanding('beranda');
             setHalamanPublik('beranda');
           }}
         />
@@ -841,12 +817,8 @@ export default function App() {
         <Ajukan
           onKirim={kirimPengajuanPublik}
           onKembali={() => {
-            setHalamanLanding('beranda');
             setHalamanPublik('beranda');
           }}
-          jenisAwal={ajukanAwal?.jenis}
-          judulAwal={ajukanAwal?.judul}
-          uraianAwal={ajukanAwal?.uraian}
         />
       );
     }
