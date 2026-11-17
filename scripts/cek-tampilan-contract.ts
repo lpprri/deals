@@ -1,7 +1,8 @@
 // Cek tampilan baru tabel Contract (PR tampilan-baru-contract + PR
 // contract-signing-date + PR filter-contract-status + PR
 // remaining-days-contract + PR kolom-status-pembayaran + PR
-// tambah-kolom-nilai-contract): 17 kolom — No.,
+// tambah-kolom-nilai-contract + PR persentase-dokumen-contract): 18
+// kolom — No.,
 // Contract & Reference Number (gabungan, keputusan pengguna 16/11/2026
 // 13:35 WIB), Contract Title, Signing Date (= Creation Date per keputusan
 // pengguna 16/11/2026, dari tanggalTandaTangan dengan fallback
@@ -20,8 +21,10 @@
 // "Remaining Contract Value" 17/11/2026 09:07 WIB); urutan blok nilai
 // DIURUT ULANG per keputusan pengguna 17/11/2026 09:24 WIB — Contract
 // Value pindah ke awal blok (sesudah Payment Deadline), Realisation
-// dan Receivable Value bertukar posisi, Remaining Value kini terakhir;
-// nomor
+// dan Receivable Value bertukar posisi; kolom "Document Completeness"
+// ditambahkan sebagai kolom TERAKHIR (ke-18) per keputusan pengguna
+// 17/11/2026 09:26 WIB — persentase item checklist "Ada" / total item
+// (7 normal, 8 bila Overdue), format sama dengan Realisation; nomor
 // urut "No." mengikuti urutan tampil sesudah filter + sort (keputusan
 // pengguna 16/11/2026 13:31 WIB), filter Client Type + PNBP Type +
 // Payment Status + Cooperation Status (keputusan pengguna 16/11/2026
@@ -41,6 +44,10 @@ import {
   totalDendaKontrak,
 } from '../src/lib/realisasi';
 import type { Pembayaran, Tagihan } from '../src/lib/types';
+import {
+  daftarDokumenKontrak,
+  kelengkapanDokumen,
+} from '../src/lib/dokumenKontrak';
 import {
   detailLayananKontrak,
   jatuhTempoPembayaranKontrak,
@@ -1220,6 +1227,117 @@ cek(
   piutangRealisasi(live10227, DATA_NYATA.tagihan, DATA_NYATA.denda, HARI_INI) === 4856250,
 );
 
+// ---------- kolom Document Completeness (keputusan pengguna 17/11/2026 09:26 WIB) ----------
+// Persentase = item checklist "Ada" / total item (7 normal, 8 bila
+// Overdue) — dihitung dari daftar yang SAMA dengan tabel Document
+// (daftarDokumenKontrak), format sama dengan Realisation
+// (formatPersenRealisasi: 1 desimal). Distribusi seed (HARI_INI):
+// 14.3% (1/7) = 5 kontrak, 28.6% (2/7) = 15, 42.9% (3/7) = 15,
+// 57.1% (4/7) = 4, 71.4% (5/7) = 3. TIDAK ADA kontrak 100% — Nota
+// Penyiaran + Jadwal Siar / Nota Produksi + Bukti Siar Belum Ada untuk
+// semua Fungsional, Pemberitahuan Persetujuan Sewa Belum Ada untuk
+// semua Umum; maksimum 71.4% (1051/1052/1053), minimum 14.3%.
+const persenDokumen = (nomor: string) => {
+  const k = cari(nomor);
+  const items = daftarDokumenKontrak(
+    k,
+    DATA_NYATA.dokumen,
+    DATA_NYATA.tagihan,
+    DATA_NYATA.pembayaran,
+    DATA_NYATA.denda,
+    HARI_INI,
+  );
+  return kelengkapanDokumen(items);
+};
+const persenDokumenTampil = (nomor: string) =>
+  formatPersenRealisasi(persenDokumen(nomor).fraksi);
+cek(
+  '11290 keterpenuhan dokumen 1/7 = 14.3% (contoh screenshot user)',
+  persenDokumen('11290/PKS/RRI.PLB/10/2026').ada === 1 &&
+    persenDokumen('11290/PKS/RRI.PLB/10/2026').total === 7 &&
+    persenDokumenTampil('11290/PKS/RRI.PLB/10/2026') === '14.3%',
+);
+cek(
+  '10227 keterpenuhan dokumen 1/7 = 14.3%',
+  persenDokumenTampil('10227/PKS/RRI.PLB/10/2026') === '14.3%',
+);
+cek(
+  '1051 keterpenuhan dokumen 5/7 = 71.4% (tertinggi)',
+  persenDokumen('1051/PKS/RRI.PLB/02/2026').ada === 5 &&
+    persenDokumenTampil('1051/PKS/RRI.PLB/02/2026') === '71.4%',
+);
+cek(
+  '1052 keterpenuhan dokumen 5/7 = 71.4%',
+  persenDokumenTampil('1052/PKS/RRI.PLB/02/2026') === '71.4%',
+);
+cek(
+  '1053 keterpenuhan dokumen 5/7 = 71.4%',
+  persenDokumenTampil('1053/PKS/RRI.PLB/02/2026') === '71.4%',
+);
+cek(
+  '0603 keterpenuhan dokumen 4/7 = 57.1%',
+  persenDokumenTampil('0603/PKS/RRI.PLB/01/2026') === '57.1%',
+);
+cek(
+  '10828 keterpenuhan dokumen 2/7 = 28.6%',
+  persenDokumenTampil('10828/PKS/RRI.PLB/10/2026') === '28.6%',
+);
+cek(
+  'distribusi persen dokumen: 5x 14.3%, 15x 28.6%, 15x 42.9%, 4x 57.1%, 3x 71.4% (total 42)',
+  (() => {
+    const hitung = new Map<string, number>();
+    for (const k of kontrak) {
+      const items = daftarDokumenKontrak(
+        k,
+        DATA_NYATA.dokumen,
+        DATA_NYATA.tagihan,
+        DATA_NYATA.pembayaran,
+        DATA_NYATA.denda,
+        HARI_INI,
+      );
+      const p = formatPersenRealisasi(kelengkapanDokumen(items).fraksi);
+      hitung.set(p, (hitung.get(p) ?? 0) + 1);
+    }
+    return (
+      hitung.get('14.3%') === 5 &&
+      hitung.get('28.6%') === 15 &&
+      hitung.get('42.9%') === 15 &&
+      hitung.get('57.1%') === 4 &&
+      hitung.get('71.4%') === 3 &&
+      [...hitung.values()].reduce((s, n) => s + n, 0) === 42
+    );
+  })(),
+);
+cek(
+  'tidak ada kontrak 100% dan tidak ada 0% (maksimum 71.4%, minimum 14.3%)',
+  kontrak.every((k) => {
+    const items = daftarDokumenKontrak(
+      k,
+      DATA_NYATA.dokumen,
+      DATA_NYATA.tagihan,
+      DATA_NYATA.pembayaran,
+      DATA_NYATA.denda,
+      HARI_INI,
+    );
+    const f = kelengkapanDokumen(items).fraksi;
+    return f > 0 && f < 1;
+  }),
+);
+cek(
+  'semua kontrak penyebut 7 (tidak ada Overdue di data nyata)',
+  kontrak.every((k) => {
+    const items = daftarDokumenKontrak(
+      k,
+      DATA_NYATA.dokumen,
+      DATA_NYATA.tagihan,
+      DATA_NYATA.pembayaran,
+      DATA_NYATA.denda,
+      HARI_INI,
+    );
+    return kelengkapanDokumen(items).total === 7;
+  }),
+);
+
 // ---------- struktur sumber TabKontrak ----------
 const deals = fs.readFileSync('src/modules/Deals.tsx', 'utf8');
 const kerjaSama = fs.readFileSync('src/modules/KerjaSama.tsx', 'utf8');
@@ -1228,7 +1346,7 @@ const akhir = deals.indexOf('function DetailKontrak', awal);
 const tabKontrak = deals.slice(awal, akhir);
 const header = [...tabKontrak.matchAll(/<Th[^>]*>([^<]+)<\/Th>/g)].map((m) => m[1]);
 cek(
-  'urutan 17 header kolom (No. paling kiri, Remaining Days sesudah Contract Period, Payment Status sesudah Remaining Days, Payment Deadline sesudah Payment Status, blok nilai Contract Value, Fine Value, Total Revenue, Realisation, Receivable Value, Remaining Value terakhir)',
+  'urutan 18 header kolom (No. paling kiri, Remaining Days sesudah Contract Period, Payment Status sesudah Remaining Days, Payment Deadline sesudah Payment Status, blok nilai Contract Value, Fine Value, Total Revenue, Realisation, Receivable Value, Remaining Value, Document Completeness terakhir)',
   JSON.stringify(header) ===
     JSON.stringify([
       'No.',
@@ -1248,6 +1366,7 @@ cek(
       'Realisation',
       'Receivable Value',
       'Remaining Value',
+      'Document Completeness',
     ]),
   JSON.stringify(header),
 );
@@ -1263,14 +1382,16 @@ cek('header "Total Revenue" 1x', header.filter((h) => h === 'Total Revenue').len
 cek('header "Receivable Value" 1x', header.filter((h) => h === 'Receivable Value').length === 1);
 cek('header "Realisation" 1x', header.filter((h) => h === 'Realisation').length === 1);
 cek('header "Remaining Value" 1x', header.filter((h) => h === 'Remaining Value').length === 1);
+cek('header "Document Completeness" 1x', header.filter((h) => h === 'Document Completeness').length === 1);
 cek(
-  'urutan blok nilai: Payment Deadline, Contract Value, Fine Value, Total Revenue, Realisation, Receivable Value, Remaining Value (terakhir)',
+  'urutan blok nilai: Payment Deadline, Contract Value, Fine Value, Total Revenue, Realisation, Receivable Value, Remaining Value, Document Completeness (terakhir)',
   header.indexOf('Payment Deadline') + 1 === header.indexOf('Contract Value') &&
     header.indexOf('Contract Value') + 1 === header.indexOf('Fine Value') &&
     header.indexOf('Fine Value') + 1 === header.indexOf('Total Revenue') &&
     header.indexOf('Total Revenue') + 1 === header.indexOf('Realisation') &&
     header.indexOf('Realisation') + 1 === header.indexOf('Receivable Value') &&
-    header.indexOf('Receivable Value') + 1 === header.indexOf('Remaining Value'),
+    header.indexOf('Receivable Value') + 1 === header.indexOf('Remaining Value') &&
+    header.indexOf('Remaining Value') + 1 === header.indexOf('Document Completeness'),
 );
 cek(
   'header lama "Total Contract Value + Fine" 0x (diganti "Total Revenue" 09:06 WIB)',
@@ -1311,6 +1432,16 @@ cek(
     tabKontrak.includes('formatRupiah(sisaKontrak)'),
 );
 cek(
+  'sel Document Completeness pakai daftarDokumenKontrak + kelengkapanDokumen + formatPersenRealisasi (daftar yang sama dengan tabel Document)',
+  tabKontrak.includes('daftarDokumenKontrak(') &&
+    tabKontrak.includes('kelengkapanDokumen(') &&
+    tabKontrak.includes('formatPersenRealisasi(kelengkapan.fraksi)'),
+);
+cek(
+  'sel Document Completeness rata kanan',
+  tabKontrak.includes('<Td kanan>{formatPersenRealisasi(kelengkapan.fraksi)}</Td>'),
+);
+cek(
   'sel Fine Value / Total Revenue / Receivable Value / Realisation / Remaining Value rata kanan',
   tabKontrak.includes('<Td kanan>{formatRupiah(nilaiPlusDenda)}</Td>') &&
     tabKontrak.includes('<Td kanan>{formatRupiah(piutang)}</Td>') &&
@@ -1333,8 +1464,9 @@ cek(
 cek('header "Status Pembayaran" (Indonesia) 0x di TabKontrak', !tabKontrak.includes('Status Pembayaran'));
 cek('header "Remaining Days" 1x', header.filter((h) => h === 'Remaining Days').length === 1);
 cek(
-  'header "Remaining Value" kini terakhir (diurut ulang 17/11/2026 09:24 WIB)',
-  header[header.length - 1] === 'Remaining Value',
+  'header "Document Completeness" kini terakhir (ditambah 17/11/2026 09:26 WIB), Remaining Value kedua terakhir',
+  header[header.length - 1] === 'Document Completeness' &&
+    header[header.length - 2] === 'Remaining Value',
 );
 cek(
   'header "Contract Value" kini awal blok nilai (sesudah Payment Deadline, sebelum Fine Value)',
