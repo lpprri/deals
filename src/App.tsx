@@ -567,6 +567,12 @@ function buatChecklistDokumen(kontrakId: string, dokumenLama: DokumenItem[]): Do
   return baru;
 }
 
+/** Kunci sessionStorage untuk tujuan setelah login (PR
+    landing-tombol-book-meeting, 17/11/2026): tombol "Book a Free Call" di
+    landing meminta halaman Meeting; bila Operator belum login, tujuan ini
+    disimpan lalu diterapkan begitu sesi Operator aktif. */
+const KUNCI_TUJUAN_SETELAH_LOGIN = 'rri-tujuan-setelah-login';
+
 export default function App() {
   const [user, setUser] = useState<DummyUser | null>(null);
   const [data, setData] = useState<AppData>(DATA_NYATA);
@@ -660,6 +666,46 @@ export default function App() {
   // Prefill form Ajukan dari landing page DIHAPUS sementara (PR
   // landing-marklo-clone): landing baru belum memanggil Ajukan; state
   // ajukanAwal + prop prefill akan dipasang lagi pada putaran penyesuaian.
+
+  /** Buka halaman Meeting dari landing (tombol "Book a Free Call", PR
+      landing-tombol-book-meeting, 17/11/2026): bila Operator sudah login,
+      langsung ke view Meeting; bila belum, simpan tujuan di sessionStorage
+      lalu tampilkan login — tujuan diterapkan begitu sesi Operator aktif
+      (efek di bawah), jadi setelah login berhasil mendarat di Meeting,
+      bukan Home. */
+  const bukaMeetingDariLanding = () => {
+    if (user) {
+      setActive('meeting');
+      return;
+    }
+    try {
+      sessionStorage.setItem(KUNCI_TUJUAN_SETELAH_LOGIN, 'meeting');
+    } catch {
+      // Penyimpanan tidak tersedia (mode privat, dsb.) — login tetap
+      // jalan; tujuan kembali ke Home.
+    }
+    setHalamanPublik('login');
+  };
+  /** Terapkan tujuan-tertunda setelah login: mencakup login form (email +
+      dummy) maupun pemulihan sesi Firebase (onAuthStateChanged) dan reload
+      di layar login. Kunci dihapus setelah diterapkan supaya login
+      berikutnya kembali mendarat di Home. */
+  useEffect(() => {
+    if (!user) return;
+    let tujuan: string | null = null;
+    try {
+      tujuan = sessionStorage.getItem(KUNCI_TUJUAN_SETELAH_LOGIN);
+    } catch {
+      // Abaikan — tujuan kembali ke Home.
+    }
+    if (tujuan !== 'meeting') return;
+    setActive('meeting');
+    try {
+      sessionStorage.removeItem(KUNCI_TUJUAN_SETELAH_LOGIN);
+    } catch {
+      // Abaikan.
+    }
+  }, [user]);
 
   // Pulihkan sesi Auth yang sudah masuk (bila Firebase terkonfigurasi).
   useEffect(() => {
@@ -799,7 +845,12 @@ export default function App() {
       // Komponen landing lama (Beranda.tsx + landing/*) tetap di repo,
       // tidak dipakai di route `/` untuk sementara — putaran penyesuaian
       // akan mengintegrasikan kembali Lacak/Ajukan/statistik live/dua bahasa.
-      return <MarkloLanding onLogin={() => setHalamanPublik('login')} />;
+      return (
+        <MarkloLanding
+          onLogin={() => setHalamanPublik('login')}
+          onBookMeeting={bukaMeetingDariLanding}
+        />
+      );
     }
     if (halamanPublik === 'lacak') {
       return (
