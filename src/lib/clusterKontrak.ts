@@ -2,7 +2,7 @@
 //
 // Tabel Contract dikelompokkan menjadi 7 cluster; tiap cluster bisa
 // disembunyikan/ditampilkan lewat kotak centang di atas tabel — KECUALI
-// Cluster 1 "Contract" yang selalu tampil. State cluster yang
+// Cluster 1 "Description" yang selalu tampil. State cluster yang
 // disembunyikan disimpan di localStorage (pola yang sama seperti
 // 'rri-sidebar-ciut' di App.tsx) supaya tetap setelah refresh; default:
 // semua cluster tampil.
@@ -37,8 +37,10 @@ export interface ClusterKontrak {
  * (Sisa Kontrak PR #67; redefinisi 11:41 WIB dibatalkan koreksi
  * Arahan 3 11:57 WIB — lihat sisaNilaiSetelahBayar di lib/realisasi.ts).
  *
- * Nama cluster 1 "Contract" adalah pilihan Digi — pengguna tidak
- * menamai cluster ini ("(Always Show)"). Nama header kolom dipersingkat
+ * Nama cluster 1 "Description" (keputusan pengguna 17/11/2026 12:20 WIB;
+ * sebelumnya "Contract" pilihan Digi — pengguna tidak menamai cluster ini
+ * saat itu — dan akhiran "(Always Show)" pada label centangnya dihapus
+ * atas permintaan pengguna yang sama). Nama header kolom dipersingkat
  * dari arahan pengguna karena nama cluster di baris grup sudah memberi
  * konteks: "Type" = Type (Client), "Client" = Client (Name),
  * "Signatory" = (Nama) Penandatangan, "Signatory Title" = Jabatan
@@ -47,7 +49,7 @@ export interface ClusterKontrak {
 export const CLUSTER_KONTRAK: ClusterKontrak[] = [
   {
     id: 'kontrak',
-    label: 'Contract',
+    label: 'Description',
     selaluTampil: true,
     kolom: [
       { id: 'no', header: 'No.' },
