@@ -97,6 +97,28 @@ export interface PengajuanPublikInput {
   nilaiPerkiraan?: number;
 }
 
+/**
+ * Input permintaan free call dari kartu booking landing (PR
+ * landing-booking-ke-meeting, 2026-11-17): pengunjung memilih tanggal +
+ * jam (slot basis WIB) lalu mengisi form singkat. Jam disimpan WIB —
+ * zona tampilan yang dipilih pengunjung hanya memengaruhi tampilan jam
+ * di kartu, bukan jam meeting yang tersimpan.
+ */
+export interface BookingPublikInput {
+  /** Tanggal slot, 'yyyy-mm-dd'. */
+  tanggal: string;
+  /** Jam mulai slot basis WIB, 'HH:mm' (24 jam). */
+  jam: string;
+  /** Nama pengunjung (Contact Person / Client Representative). */
+  nama: string;
+  /** Perusahaan/institusi pengunjung (opsional). */
+  perusahaan?: string;
+  /** Kontak pengunjung (WA/telepon). */
+  kontak: string;
+  /** Topik/agenda yang ingin dibahas. */
+  topik: string;
+}
+
 export interface DendaInput {
   tagihanId: string;
   dasar: string;
