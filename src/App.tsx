@@ -2111,11 +2111,16 @@ export default function App() {
     tambahMeeting: (input: MeetingInput) => {
       if (!input.tanggal) return 'Meeting date is required.';
       if (!input.jam) return 'Meeting time is required.';
-      if (!input.peserta.trim()) return 'Meeting attendees are required.';
       if (!input.agenda.trim()) return 'Meeting agenda is required.';
       if (!input.prospectId && !input.klienId) {
         return 'Select a prospect or client for this meeting.';
       }
+      if (!input.clientRepresentatives.length)
+        return 'Add at least one client representative.';
+      if (!input.contactPersonNama.trim())
+        return 'Contact person name is required.';
+      if (!input.rriRepresentatives.length)
+        return 'Add at least one RRI representative.';
       if (
         input.prospectId &&
         !data.prospect.some((p) => p.id === input.prospectId)
@@ -2135,9 +2140,20 @@ export default function App() {
         jam: input.jam,
         prospectId: input.prospectId || undefined,
         klienId: input.klienId || undefined,
-        peserta: input.peserta.trim(),
+        // Field lama peserta TETAP DISIMPAN (kompatibilitas) — diturunkan
+        // dari RRI + Client Representative; tidak lagi ditampilkan.
+        peserta: [
+          ...input.rriRepresentatives,
+          ...input.clientRepresentatives,
+        ].join(', '),
         agenda: input.agenda.trim(),
         hasil: input.hasil || undefined,
+        clientRepresentatives: input.clientRepresentatives,
+        contactPersonNama: input.contactPersonNama.trim(),
+        contactPersonTelepon:
+          input.contactPersonTelepon.trim() || undefined,
+        rriRepresentatives: input.rriRepresentatives,
+        alamatKlien: input.alamatKlien.trim() || undefined,
         satker: SATKER_PILOT,
       };
       setData((d) => ({ ...d, meeting: [...d.meeting, meeting] }));
@@ -2150,6 +2166,86 @@ export default function App() {
         `${input.tanggal} ${input.jam} — ${input.agenda.trim()}`,
       );
       return null;
+    },
+
+    // Fitur Update meeting (PR #73) — validasi sama seperti tambah;
+    // id, satker, dan penanda sync Google Calendar dipertahankan.
+    ubahMeeting: (id: string, input: MeetingInput) => {
+      const lama = data.meeting.find((m) => m.id === id);
+      if (!lama) return 'Meeting not found.';
+      if (!input.tanggal) return 'Meeting date is required.';
+      if (!input.jam) return 'Meeting time is required.';
+      if (!input.agenda.trim()) return 'Meeting agenda is required.';
+      if (!input.prospectId && !input.klienId) {
+        return 'Select a prospect or client for this meeting.';
+      }
+      if (!input.clientRepresentatives.length)
+        return 'Add at least one client representative.';
+      if (!input.contactPersonNama.trim())
+        return 'Contact person name is required.';
+      if (!input.rriRepresentatives.length)
+        return 'Add at least one RRI representative.';
+      if (
+        input.prospectId &&
+        !data.prospect.some((p) => p.id === input.prospectId)
+      ) {
+        return 'Prospect not found.';
+      }
+      if (
+        input.klienId &&
+        !data.klien.some((k) => k.id === input.klienId)
+      ) {
+        return 'Client not found.';
+      }
+      const diperbarui: Meeting = {
+        ...lama,
+        tanggal: input.tanggal,
+        jam: input.jam,
+        prospectId: input.prospectId || undefined,
+        klienId: input.klienId || undefined,
+        peserta: [
+          ...input.rriRepresentatives,
+          ...input.clientRepresentatives,
+        ].join(', '),
+        agenda: input.agenda.trim(),
+        hasil: input.hasil || undefined,
+        clientRepresentatives: input.clientRepresentatives,
+        contactPersonNama: input.contactPersonNama.trim(),
+        contactPersonTelepon:
+          input.contactPersonTelepon.trim() || undefined,
+        rriRepresentatives: input.rriRepresentatives,
+        alamatKlien: input.alamatKlien.trim() || undefined,
+      };
+      setData((d) => ({
+        ...d,
+        meeting: d.meeting.map((m) => (m.id === id ? diperbarui : m)),
+      }));
+      simpanKeFirestore('meeting', id, diperbarui);
+      tambahAudit(
+        'Meeting diperbarui',
+        'Meeting',
+        id,
+        '—',
+        `${input.tanggal} ${input.jam} — ${input.agenda.trim()}`,
+      );
+      return null;
+    },
+
+    // Penanda sinkronisasi Google Calendar (PR #73): simpan id event
+    // Google + waktu sync ke dokumen meeting yang sama.
+    tandaiMeetingTersinkron: (id: string, googleEventId: string) => {
+      const lama = data.meeting.find((m) => m.id === id);
+      if (!lama) return;
+      const diperbarui: Meeting = {
+        ...lama,
+        googleEventId,
+        googleSyncedAt: new Date().toISOString(),
+      };
+      setData((d) => ({
+        ...d,
+        meeting: d.meeting.map((m) => (m.id === id ? diperbarui : m)),
+      }));
+      simpanKeFirestore('meeting', id, diperbarui);
     },
 
     // --- Aksi Fase B — Marketing (PRD Bab 7.2) ---

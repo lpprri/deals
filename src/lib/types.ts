@@ -396,9 +396,22 @@ export interface Meeting {
   jam: string; // 'hh:mm'
   prospectId?: string;
   klienId?: string;
+  /** Field lama — TETAP DISIMPAN (kompatibilitas), tidak lagi ditampilkan (PR #73). */
   peserta: string;
   agenda: string;
   hasil?: string;
+  /** Nama-nama klien yang ditemui (kolom Client Representative, PR #73). */
+  clientRepresentatives?: string[];
+  contactPersonNama?: string;
+  contactPersonTelepon?: string;
+  /** Petugas Layanan & Pengembangan Usaha yang hadir (atribusi performa). */
+  rriRepresentatives?: string[];
+  /** Alamat klien (kolom Client Address). */
+  alamatKlien?: string;
+  /** Id event Google Calendar hasil sinkronisasi (PR #73). */
+  googleEventId?: string;
+  /** Waktu sinkronisasi terakhir (ISO) — kapan googleEventId ditulis. */
+  googleSyncedAt?: string;
   satker: SatkerRef;
 }
 
