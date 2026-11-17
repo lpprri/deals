@@ -3,6 +3,11 @@
 @theme {
   --color-rri-blue: #2573e2;
   --color-rri-navy: #0d2569;
+  /* Aksen tiruan Marklo (PR landing-marklo-clone) — vermilion, BUKAN palet RRI. */
+  --color-mk-aksen: #ff4d2e;
+  --color-mk-aksen-gelap: #e63e20;
+  --color-mk-peach: #ffede8;
+  --color-mk-pink-pucat: #f6d9e8;
 }
 
 html,
@@ -27,4 +32,50 @@ body {
 }
 .scrollbar-tersembunyi::-webkit-scrollbar {
   display: none;
+}
+
+/* ---------- Motion landing Marklo (PR landing-marklo-clone) ----------
+   Reveal: blur + fade-in saat masuk viewport (IntersectionObserver di
+   src/modules/landing/Marklo.tsx). Marquee: strip logo klien berjalan.
+   Hormati prefers-reduced-motion: animasi dimatikan, konten langsung
+   tampil penuh. */
+.mk-reveal {
+  opacity: 0;
+  filter: blur(8px);
+  transform: translateY(24px);
+  transition:
+    opacity 0.7s ease,
+    transform 0.7s ease,
+    filter 0.7s ease;
+  will-change: opacity, transform, filter;
+}
+.mk-reveal.mk-tampil {
+  opacity: 1;
+  filter: blur(0);
+  transform: none;
+}
+@keyframes mk-marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+.mk-marquee {
+  animation: mk-marquee 28s linear infinite;
+}
+.mk-marquee:hover {
+  animation-play-state: paused;
+}
+@media (prefers-reduced-motion: reduce) {
+  .mk-reveal {
+    opacity: 1;
+    filter: none;
+    transform: none;
+    transition: none;
+  }
+  .mk-marquee {
+    animation: none;
+  }
 }
