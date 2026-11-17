@@ -13,18 +13,17 @@
 //   marquee logo, accordion FAQ, hover states.
 // - Yang DIPARKIR (penyesuaian RRI belakangan): Lacak, Ajukan,
 //   statistik live, dua bahasa, palet RRI — tidak ada di landing baru.
-//   KECUALI footer: gradien navy RRI + logo putih + kolom "Additional
-//   Service" + header seamless, atas permintaan eksplisit pengguna
-//   2026-11-17 (PR landing-footer-navy-putih). PR ini JUGA me-revert
-//   PR #75: ukuran landing kembali ke PR #74 karena pengguna menilai
-//   ukuran PR #75 kebesaran di zoom 100%.
+//   KECUALI footer: gradien navy RRI + logo putih + kolom "Our Service"
+//   + header seamless, atas permintaan eksplisit pengguna 2026-11-17
+//   (PR landing-footer-navy-putih; judul kolom diubah jadi "Our Service"
+//   dan isinya 4 layanan pada PR landing-booking-ke-meeting).
 // - Jujur: nama/klien/testimoni/angka adalah SAMPLE template
-//   (dinyatakan di data + PR body); booking Next hanya pratinjau,
-//   tidak ada pemesanan yang terkirim; tidak ada hotlink gambar
-//   eksternal.
-// - Tombol "Book a Free Call" membuka halaman Meeting di admin (login
-//   dulu bila belum login, lalu mendarat di Meeting); kartu booking
-//   tetap pratinjau lokal dan tidak diubah.
+//   (dinyatakan di data + PR body); tidak ada hotlink gambar eksternal.
+// - Tombol "Book a Free Call" menggulir ke kartu booking — perilaku
+//   PR #78 (membuka halaman Meeting) DI-REVERT atas koreksi pengguna
+//   2026-11-17 (PR landing-booking-ke-meeting). Kartu booking NYATA:
+//   Next membuka form singkat (Nama, Perusahaan opsional, Kontak,
+//   Topik); submit menyimpan permintaan sebagai Meeting di Firestore.
 // - Teks social proof hero: "TRUSTED BY 100+ PARTNERS NATIONALLY"
 //   (avatar, bintang, 4.9/5.0 tidak berubah; teks lama tidak tersisa).
 // Skrip ini membaca berkas sebagai teks. Keluar bukan-nol bila ada
@@ -39,6 +38,8 @@ const app = baca('src/App.tsx');
 const marklo = baca('src/modules/landing/Marklo.tsx');
 const dataMarklo = baca('src/lib/landingMarklo.ts');
 const css = baca('src/index.css');
+const firestoreStore = baca('src/lib/firestoreStore.ts');
+const rules = baca('firestore.rules');
 const berandaLama = baca('src/modules/Beranda.tsx');
 const layananLama = baca('src/modules/landing/Layanan.tsx');
 const kolaborasiLama = baca('src/modules/landing/Kolaborasi.tsx');
@@ -56,10 +57,10 @@ cek(
   app.includes("import MarkloLanding from './modules/landing/Marklo';"),
 );
 cek(
-  "App.tsx: beranda me-render <MarkloLanding onLogin + onBookMeeting />",
+  "App.tsx: beranda me-render <MarkloLanding onLogin + onKirimBooking />",
   app.includes('<MarkloLanding') &&
     app.includes("onLogin={() => setHalamanPublik('login')}") &&
-    app.includes('onBookMeeting={bukaMeetingDariLanding}'),
+    app.includes('onKirimBooking={kirimBookingPublik}'),
 );
 cek(
   'App.tsx: TIDAK lagi me-render Beranda di route beranda',
@@ -251,6 +252,13 @@ cek(
 );
 
 // --- 12. Booking konsultasi. ---
+// Substring kartu booking saja untuk asersi nama/logo kartu — komentar
+// header berkas menyebut 'Marklo' (template), jadi pengecekan nama
+// kartu harus dibatasi ke fungsi ini.
+const bookingMarklo = marklo.slice(
+  marklo.indexOf('function BookingKonsultasi('),
+  marklo.indexOf('/* ================= Testimonials ================= */'),
+);
 cek(
   'Booking: pill "Free Consultation" + heading "Let\'s talk about growing your business"',
   marklo.includes('<LabelPill>Free Consultation</LabelPill>') &&
@@ -273,12 +281,41 @@ cek(
     ),
 );
 cek(
-  'Booking: Next HANYA menampilkan catatan pratinjau jujur (tidak ada pemesanan terkirim)',
-  marklo.includes('Preview only') &&
-    marklo.includes('not sent anywhere') &&
-    marklo.includes('connect to the Ajukan') &&
-    !marklo.includes('fetch(') &&
-    !marklo.includes('kirimPengajuan'),
+  'Booking: Next membuka form singkat (bukan catatan pratinjau) — "Preview only" hilang',
+  marklo.includes("onClick={() => setTahap('form')}") &&
+    !marklo.includes('Preview only') &&
+    !marklo.includes('not sent anywhere') &&
+    !marklo.includes('catatanTampil'),
+);
+cek(
+  'Booking: form singkat punya 4 field — Nama, Perusahaan (opsional), Kontak, Topik',
+  marklo.includes('booking-nama') &&
+    marklo.includes('booking-perusahaan') &&
+    marklo.includes('booking-kontak') &&
+    marklo.includes('booking-topik') &&
+    marklo.includes('Nama *') &&
+    marklo.includes('Kontak *') &&
+    marklo.includes('Topik *'),
+);
+cek(
+  'Booking: validasi form — Nama, Kontak, Topik wajib; Perusahaan opsional',
+  marklo.includes("galat.nama = 'Nama wajib diisi.'") &&
+    marklo.includes("galat.kontak = 'Kontak wajib diisi.'") &&
+    marklo.includes("galat.topik = 'Topik wajib diisi.'"),
+);
+cek(
+  'Booking: submit memanggil onKirimBooking (prop App.tsx) + sukses/gagal jujur di kartu',
+  marklo.includes('onKirimBooking: (input: BookingPublikInput) => Promise<string | null>') &&
+    marklo.includes('const galatSimpan = await onKirimBooking({') &&
+    marklo.includes('Permintaan terkirim') &&
+    marklo.includes('setGalatKirim(galatSimpan)'),
+);
+cek(
+  'Booking: kartu memakai nama "Deals" + logo RRI — avatar "M" / "Marklo" hilang dari kartu',
+  bookingMarklo.includes('>Deals<') &&
+    bookingMarklo.includes('LOGO_RRI_LANDING_DATA_URI') &&
+    !bookingMarklo.includes('>Marklo<') &&
+    !bookingMarklo.includes('from-rose-400 to-orange-300'),
 );
 
 // --- 13. Testimonials. ---
@@ -316,8 +353,7 @@ cek(
 );
 
 // --- 15. Footer gelap. ---
-// Substring footer saja untuk asersi urutan kolom — komentar header
-// berkas juga menyebut 'Additional Service', jadi indexOf global salah.
+// Substring footer saja untuk asersi urutan kolom.
 const footerMarklo = marklo.slice(
   marklo.indexOf('/* ================= Footer ================= */'),
 );
@@ -354,11 +390,14 @@ cek(
     marklo.includes('className="h-9 w-auto shrink-0"'),
 );
 cek(
-  'Footer: kolom "Additional Service" di antara Navigation dan Contact — link Book a Room + Rent a Space ke booking',
-  footerMarklo.indexOf('Navigation') < footerMarklo.indexOf('Additional Service') &&
-    footerMarklo.indexOf('Additional Service') < footerMarklo.indexOf('Jl. Medan Merdeka Barat') &&
-    footerMarklo.includes('Book a Room') &&
-    footerMarklo.includes('Rent a Space'),
+  'Footer: kolom "Our Service" di antara Navigation dan Contact — 4 layanan berurutan ke booking (judul + isi lama hilang)',
+  footerMarklo.indexOf('Navigation') < footerMarklo.indexOf('Our Service') &&
+    footerMarklo.indexOf('Our Service') < footerMarklo.indexOf('Jl. Medan Merdeka Barat') &&
+    footerMarklo.indexOf('Plan a Campaign') < footerMarklo.indexOf('Book a Venue') &&
+    footerMarklo.indexOf('Book a Venue') < footerMarklo.indexOf('Rent a Space') &&
+    footerMarklo.indexOf('Rent a Space') < footerMarklo.indexOf('Get a Journalism Training') &&
+    !footerMarklo.includes('Additional Service') &&
+    !footerMarklo.includes('Book a Room'),
 );
 cek(
   'Footer: kontak RESMI Kantor Pusat RRI (alamat Jl. Medan Merdeka Barat, dua nomor telepon tel:, tanpa email sample)',
@@ -446,50 +485,55 @@ cek(
   marklo.includes('bg-gradient-to-br') && !marklo.includes('<img src="http'),
 );
 
-// --- 19. Tombol "Book a Free Call" membuka halaman Meeting (admin). ---
+// --- 19. Revert PR #78 + booking → Meeting (koreksi pengguna 2026-11-17). ---
 cek(
-  'BookMeeting: App.tsx menyimpan tujuan "meeting" di sessionStorage + tampilkan login',
-  app.includes("const KUNCI_TUJUAN_SETELAH_LOGIN = 'rri-tujuan-setelah-login'") &&
-    app.includes("sessionStorage.setItem(KUNCI_TUJUAN_SETELAH_LOGIN, 'meeting')") &&
-    app.includes("setHalamanPublik('login')"),
+  'Revert78: App.tsx TIDAK lagi punya wiring tujuan-setelah-login (onBookMeeting / sessionStorage)',
+  !app.includes('onBookMeeting') &&
+    !app.includes('bukaMeetingDariLanding') &&
+    !app.includes('rri-tujuan-setelah-login') &&
+    !app.includes('KUNCI_TUJUAN_SETELAH_LOGIN'),
 );
 cek(
-  'BookMeeting: App.tsx menerapkan tujuan-tertunda begitu sesi Operator aktif (setActive meeting + hapus kunci)',
-  app.includes("sessionStorage.getItem(KUNCI_TUJUAN_SETELAH_LOGIN)") &&
-    app.includes("setActive('meeting')") &&
-    app.includes("sessionStorage.removeItem(KUNCI_TUJUAN_SETELAH_LOGIN)"),
+  'Revert78: MarkloLanding TIDAK lagi mendeklarasikan/meneruskan prop onBookMeeting',
+  !marklo.includes('onBookMeeting') &&
+    !marklo.includes('onClick={onBookMeeting}'),
 );
 cek(
-  'BookMeeting: App.tsx meneruskan onBookMeeting ke MarkloLanding',
-  app.includes('onBookMeeting={bukaMeetingDariLanding}'),
-);
-cek(
-  'BookMeeting: MarkloLanding mendeklarasikan prop onBookMeeting + meneruskannya ke Header, Hero, MengapaMarketing',
-  marklo.includes('onBookMeeting: () => void;') &&
-    marklo.includes('<Header onLogin={onLogin} onBookMeeting={onBookMeeting} />') &&
-    marklo.includes('<Hero onBookMeeting={onBookMeeting} />') &&
-    marklo.includes('<MengapaMarketing onBookMeeting={onBookMeeting} />'),
-);
-cek(
-  'BookMeeting: ketiga tombol "Book a Free Call" (header, hero, kartu gelap) memakai onClick={onBookMeeting}',
-  (marklo.match(/onClick=\{onBookMeeting\}/g) || []).length === 3 &&
-    marklo.includes('Book a Free Call'),
-);
-cek(
-  "BookMeeting: gulirKe('booking') tersisa 2 — tombol label lain (Proses 'Book a Free Consultation' + footer 'Book 30 Min Free Call'), bukan 'Book a Free Call'",
-  (marklo.match(/gulirKe\('booking'\)/g) || []).length === 2 &&
+  'Revert78: 5 tombol menggulir ke booking — 3× "Book a Free Call" (header, hero, kartu gelap) + "Book a Free Consultation" + "Book 30 Min Free Call"',
+  (marklo.match(/onClick=\{\(\) => gulirKe\('booking'\)\}/g) || []).length === 5 &&
+    marklo.includes('Book a Free Call') &&
     marklo.includes('Book a Free Consultation') &&
     marklo.includes('Book 30 Min Free Call'),
 );
 cek(
-  'BookMeeting: tautan navigasi footer "Book a Free Call" tetap menggulir ke section booking',
+  'Revert78: tautan navigasi footer "Book a Free Call" tetap menggulir ke section booking',
   marklo.includes("{ label: 'Book a Free Call', id: 'booking' }"),
 );
 cek(
-  'BookMeeting: kartu booking + tombol Next TIDAK diubah (pratinjau lokal, tanpa fetch)',
-  marklo.includes('Preview only') &&
-    marklo.includes('not sent anywhere') &&
-    !marklo.includes('kirimPengajuan'),
+  'BookingSubmit: App.tsx kirimBookingPublik menyimpan Meeting (MTG-, SATKER_PILOT, Nama → Contact Person/Rep, RRI Rep kosong)',
+  app.includes('const kirimBookingPublik = async (') &&
+    app.includes("idBerikutnya('MTG-', data.meeting.map((m) => m.id))") &&
+    app.includes('satker: SATKER_PILOT') &&
+    app.includes('clientRepresentatives: [input.nama.trim()]') &&
+    app.includes('rriRepresentatives: []'),
+);
+cek(
+  'BookingSubmit: App.tsx menulis ke Firestore via kirimBookingPublikKeFirestore + error jujur bila gagal',
+  app.includes('kirimBookingPublik as kirimBookingPublikKeFirestore') &&
+    app.includes('await kirimBookingPublikKeFirestore(db, meeting)') &&
+    app.includes('Gagal menyimpan permintaan booking ke Firestore'),
+);
+cek(
+  'BookingSubmit: firestoreStore kirimBookingPublik setDoc ke KOLEKSI.meeting',
+  firestoreStore.includes('export async function kirimBookingPublik(') &&
+    firestoreStore.includes('doc(db, KOLEKSI.meeting, meeting.id)'),
+);
+cek(
+  'BookingRules: firestore.rules mengizinkan create publik tervalidasi ke /meeting/{id} (tanpa read/update/delete publik)',
+  rules.includes('match /meeting/{id}') &&
+    rules.includes('allow create: if request.auth == null') &&
+    rules.includes("request.resource.data.satker.kode == '41'") &&
+    rules.includes("!('googleEventId' in request.resource.data)"),
 );
 
 if (gagal > 0) {

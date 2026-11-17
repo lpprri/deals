@@ -2,7 +2,7 @@
 // (PR landing-marklo-clone, 2026-11-17).
 // (PR landing-footer-navy-putih, 2026-11-17: footer gradien navy RRI
 // #0D2569 (bukan maroon), logo RRI + Deals di footer dibuat putih,
-// kolom "Additional Service", header seamless tanpa garis bawah.
+// kolom "Our Service", header seamless tanpa garis bawah.
 // PR ini JUGA me-revert PR #75 (ukuran landing kembali ke PR #74)
 // karena pengguna menilai ukuran PR #75 kebesaran di zoom 100% —
 // permintaan ukuran PR #75 berasal dari tampilan zoom-out.)
@@ -22,15 +22,21 @@
 //     2026-11-17); TIDAK ADA baris email sama sekali — pengguna
 //     mengonfirmasi 2026-11-17 16:35 WIB: tidak ada email yang
 //     ditampilkan di footer Contact.
-//   - Kartu booking hanya pratinjau lokal: tombol Next menampilkan
-//     catatan jujur, tidak ada pemesanan yang terkirim.
 //   - Tombol "Book a Free Call" (header, hero, kartu gelap "Still not
-//     sure where to start?") membuka halaman Meeting di admin — bila
-//     belum login, tampilkan login dulu lalu mendarat di Meeting (PR
-//     landing-tombol-book-meeting, 2026-11-17). Tombol "Book a Free
-//     Consultation" (akhir Proses) dan "Book 30 Min Free Call" (footer
-//     Contact) TIDAK diubah — label berbeda, tetap menggulir ke kartu
-//     booking. Kartu booking + tombol Next tetap pratinjau lokal.
+//     sure where to start?") menggulir ke kartu booking — perilaku PR
+//     #78 (membuka halaman Meeting) DI-REVERT atas koreksi pengguna
+//     2026-11-17: tombol tetap mengarah ke pemilih tanggal/waktu.
+//     Tombol "Book a Free Consultation" (akhir Proses) dan
+//     "Book 30 Min Free Call" (footer Contact) TIDAK diubah.
+//   - Kartu booking NYATA (bukan pratinjau): pilih tanggal + jam lalu
+//     Next membuka form singkat (Nama, Perusahaan opsional, Kontak,
+//     Topik); submit menyimpan permintaan sebagai Meeting di Firestore
+//     (koleksi 'meeting') agar muncul di tabel Meeting panel admin.
+//     Catatan pratinjau SUDAH DIHAPUS.
+//   - Kolom footer "Our Service": Plan a Campaign, Book a Venue,
+//     Rent a Space, Get a Journalism Training — keempatnya menggulir
+//     ke kartu booking untuk sementara.
+//   - Kartu booking memakai nama "Deals" + logo RRI (bukan "Marklo").
 //   - Teks social proof hero diubah atas permintaan pengguna 2026-11-17:
 //     "TRUSTED BY 100+ PARTNERS NATIONALLY"; avatar, bintang, dan 4.9/5.0
 //     tidak berubah. Teks lama (500+ brands, global) tidak boleh tersisa
@@ -82,13 +88,15 @@ import {
   TESTIMONI_MARKLO,
   ZONA_WAKTU_MARKLO,
 } from '../../lib/landingMarklo';
+import type { BookingPublikInput } from '../../lib/store';
 
 export interface MarkloLandingProps {
   /** Buka halaman login Operator (infrastruktur aplikasi). */
   onLogin: () => void;
-  /** Buka halaman Meeting di admin (tombol "Book a Free Call"): bila
-      belum login, tampilkan login dulu lalu mendarat di Meeting. */
-  onBookMeeting: () => void;
+  /** Kirim permintaan free call publik (form singkat kartu booking):
+      menyimpan sebagai Meeting di Firestore; kembalikan null bila
+      berhasil, pesan error bila gagal. */
+  onKirimBooking: (input: BookingPublikInput) => Promise<string | null>;
 }
 
 /** Gulir halus ke section berdasarkan id. */
@@ -182,20 +190,20 @@ function BintangLima({
   );
 }
 
-export default function MarkloLanding({ onLogin, onBookMeeting }: MarkloLandingProps) {
+export default function MarkloLanding({ onLogin, onKirimBooking }: MarkloLandingProps) {
   return (
     <div className="min-h-screen bg-white text-black">
-      <Header onLogin={onLogin} onBookMeeting={onBookMeeting} />
+      <Header onLogin={onLogin} />
       <main>
-        <Hero onBookMeeting={onBookMeeting} />
+        <Hero />
         <CarouselKampanye />
         <Pernyataan />
         <Statistik />
         <Proses />
         <LayananFunnel />
         <Perbandingan />
-        <MengapaMarketing onBookMeeting={onBookMeeting} />
-        <BookingKonsultasi />
+        <MengapaMarketing />
+        <BookingKonsultasi onKirimBooking={onKirimBooking} />
         <Testimoni />
         <Faq />
       </main>
@@ -206,7 +214,7 @@ export default function MarkloLanding({ onLogin, onBookMeeting }: MarkloLandingP
 
 /* ================= Header ================= */
 
-function Header({ onLogin, onBookMeeting }: { onLogin: () => void; onBookMeeting: () => void }) {
+function Header({ onLogin }: { onLogin: () => void }) {
   return (
     <header className="sticky top-0 z-50 bg-white/90 backdrop-blur">
       <div className="mx-auto flex max-w-7xl items-center gap-4 px-4 py-3 sm:px-6">
@@ -251,7 +259,7 @@ function Header({ onLogin, onBookMeeting }: { onLogin: () => void; onBookMeeting
         <div className="ml-auto flex shrink-0 items-center gap-2 md:ml-0">
           <button
             type="button"
-            onClick={onBookMeeting}
+            onClick={() => gulirKe('booking')}
             className="hidden rounded-full bg-mk-aksen px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-mk-aksen-gelap sm:inline-flex"
           >
             Book a Free Call
@@ -271,7 +279,7 @@ function Header({ onLogin, onBookMeeting }: { onLogin: () => void; onBookMeeting
 
 /* ================= Hero ================= */
 
-function Hero({ onBookMeeting }: { onBookMeeting: () => void }) {
+function Hero() {
   const rating = useCountUp(4.9, true, 1800);
   return (
     <section id="atas" className="bg-white">
@@ -292,7 +300,7 @@ function Hero({ onBookMeeting }: { onBookMeeting: () => void }) {
           <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
             <button
               type="button"
-              onClick={onBookMeeting}
+              onClick={() => gulirKe('booking')}
               className="inline-flex items-center gap-2 rounded-full bg-mk-aksen px-6 py-3 text-sm font-semibold text-white shadow-md transition hover:bg-mk-aksen-gelap"
             >
               Book a Free Call
@@ -727,7 +735,7 @@ function Perbandingan() {
 
 /* ================= Why Marketing ================= */
 
-function MengapaMarketing({ onBookMeeting }: { onBookMeeting: () => void }) {
+function MengapaMarketing() {
   return (
     <section className="bg-slate-50 py-16 sm:py-20">
       <div className="mx-auto max-w-7xl px-4 sm:px-6">
@@ -770,7 +778,7 @@ function MengapaMarketing({ onBookMeeting }: { onBookMeeting: () => void }) {
               </p>
               <button
                 type="button"
-                onClick={onBookMeeting}
+                onClick={() => gulirKe('booking')}
                 className="mt-5 inline-flex items-center gap-2 rounded-full bg-mk-aksen px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-mk-aksen-gelap"
               >
                 Book a Free Call
@@ -819,7 +827,11 @@ const NAMA_BULAN = [
   'July', 'August', 'September', 'October', 'November', 'December',
 ];
 
-function BookingKonsultasi() {
+function BookingKonsultasi({
+  onKirimBooking,
+}: {
+  onKirimBooking: (input: BookingPublikInput) => Promise<string | null>;
+}) {
   const hariIni = useMemo(() => {
     const d = new Date();
     d.setHours(0, 0, 0, 0);
@@ -832,7 +844,20 @@ function BookingKonsultasi() {
   const [slotDipilih, setSlotDipilih] = useState<number | null>(null);
   const [zonaId, setZonaId] = useState('Asia/Jakarta');
   const [format24, setFormat24] = useState(true);
-  const [catatanTampil, setCatatanTampil] = useState(false);
+  /** Tahap kartu: 'pilih' (kalender + slot), 'form' (form singkat),
+      'terkirim' (status sukses). */
+  const [tahap, setTahap] = useState<'pilih' | 'form' | 'terkirim'>('pilih');
+  const [nama, setNama] = useState('');
+  const [perusahaan, setPerusahaan] = useState('');
+  const [kontak, setKontak] = useState('');
+  const [topik, setTopik] = useState('');
+  const [galatField, setGalatField] = useState<{
+    nama?: string;
+    kontak?: string;
+    topik?: string;
+  }>({});
+  const [galatKirim, setGalatKirim] = useState<string | null>(null);
+  const [mengirim, setMengirim] = useState(false);
   const zona = ZONA_WAKTU_MARKLO.find((z) => z.id === zonaId) ?? ZONA_WAKTU_MARKLO[0];
   const geserMenit = zona.offsetMenit - 420; // slot disimpan basis WIB (UTC+7)
 
@@ -851,7 +876,55 @@ function BookingKonsultasi() {
   const pilihTanggal = (d: Date) => {
     setTanggalDipilih(kunciTanggal(d));
     setSlotDipilih(null);
-    setCatatanTampil(false);
+  };
+
+  /** Ringkasan slot yang dipilih, dalam zona tampilan pengunjung. */
+  const ringkasanSlot =
+    tanggalDipilih !== null && slotDipilih !== null
+      ? `${labelTanggal(tanggalDipilih)}, ${formatSlot(slotDipilih + geserMenit, format24)} ${zona.id}`
+      : '';
+
+  /** Validasi form singkat lalu kirim sebagai Meeting (App.tsx). */
+  const kirim = async () => {
+    const galat: { nama?: string; kontak?: string; topik?: string } = {};
+    if (!nama.trim()) galat.nama = 'Nama wajib diisi.';
+    if (!kontak.trim()) galat.kontak = 'Kontak wajib diisi.';
+    if (!topik.trim()) galat.topik = 'Topik wajib diisi.';
+    setGalatField(galat);
+    if (Object.keys(galat).length > 0) return;
+    if (tanggalDipilih === null || slotDipilih === null) return;
+    setMengirim(true);
+    setGalatKirim(null);
+    const galatSimpan = await onKirimBooking({
+      tanggal: tanggalDipilih,
+      // Slot disimpan basis WIB (jam meeting); zona tampilan yang dipilih
+      // pengunjung hanya memengaruhi tampilan jam di kartu.
+      jam: formatSlot(slotDipilih, true),
+      nama: nama.trim(),
+      perusahaan: perusahaan.trim() || undefined,
+      kontak: kontak.trim(),
+      topik: topik.trim(),
+    });
+    setMengirim(false);
+    if (galatSimpan) {
+      // Gagal tersimpan — tampilkan jujur di kartu, jangan sukses palsu.
+      setGalatKirim(galatSimpan);
+      return;
+    }
+    setTahap('terkirim');
+  };
+
+  /** Kembali ke pemilih jadwal dari awal (setelah terkirim). */
+  const ulang = () => {
+    setTahap('pilih');
+    setTanggalDipilih(null);
+    setSlotDipilih(null);
+    setNama('');
+    setPerusahaan('');
+    setKontak('');
+    setTopik('');
+    setGalatField({});
+    setGalatKirim(null);
   };
 
   return (
@@ -870,14 +943,17 @@ function BookingKonsultasi() {
           </div>
         </Reveal>
         <Reveal tunda={150}>
+          {tahap === 'pilih' ? (
           <div className="mx-auto mt-12 max-w-5xl overflow-hidden rounded-[20px] bg-white shadow-xl ring-1 ring-slate-200">
             <div className="grid md:grid-cols-3">
               {/* Kolom host */}
               <div className="border-b border-slate-200 p-6 md:border-b-0 md:border-r">
-                <span className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-rose-400 to-orange-300 text-lg font-extrabold text-white">
-                  M
-                </span>
-                <h3 className="mt-4 text-lg font-extrabold text-black">Marklo</h3>
+                <img
+                  src={LOGO_RRI_LANDING_DATA_URI}
+                  alt="Radio Republik Indonesia"
+                  className="h-10 w-auto"
+                />
+                <h3 className="mt-4 text-lg font-extrabold text-black">Deals</h3>
                 <p className="mt-1 flex items-center gap-2 text-sm text-slate-500">
                   <Clock className="h-4 w-4" aria-hidden="true" />
                   30 Min Meeting
@@ -1008,10 +1084,7 @@ function BookingKonsultasi() {
                         <button
                           key={slot}
                           type="button"
-                          onClick={() => {
-                            setSlotDipilih(slot);
-                            setCatatanTampil(false);
-                          }}
+                          onClick={() => setSlotDipilih(slot)}
                           aria-pressed={aktif}
                           className={`rounded-lg border px-2 py-2 text-sm font-semibold transition ${
                             aktif
@@ -1032,24 +1105,149 @@ function BookingKonsultasi() {
                 <button
                   type="button"
                   disabled={tanggalDipilih === null || slotDipilih === null}
-                  onClick={() => setCatatanTampil(true)}
+                  onClick={() => setTahap('form')}
                   className="mt-auto inline-flex items-center justify-center gap-2 rounded-full bg-mk-aksen px-6 py-3 text-sm font-semibold text-white shadow-md transition hover:bg-mk-aksen-gelap disabled:cursor-not-allowed disabled:opacity-40"
                 >
                   Next
                   <ArrowRight className="h-4 w-4" aria-hidden="true" />
                 </button>
-                {catatanTampil && tanggalDipilih !== null && slotDipilih !== null && (
-                  <p className="mt-4 rounded-xl bg-amber-50 p-4 text-xs leading-relaxed text-amber-800 ring-1 ring-amber-200">
-                    Preview only — your selected slot (
-                    {labelTanggal(tanggalDipilih)},{' '}
-                    {formatSlot(slotDipilih + geserMenit, format24)} {zona.id}) is
-                    not sent anywhere. Booking will connect to the Ajukan
-                    (submission) flow in the RRI adjustment round.
+              </div>
+            </div>
+          </div>
+          ) : tahap === 'form' ? (
+          <div className="mx-auto mt-12 max-w-xl rounded-[20px] bg-white p-6 shadow-xl ring-1 ring-slate-200 sm:p-8">
+            <p className="text-sm font-semibold text-slate-500">
+              {ringkasanSlot} · 30 Min Meeting · Video call
+            </p>
+            <h3 className="mt-2 text-xl font-extrabold text-black">
+              Isi detail kamu
+            </h3>
+            <div className="mt-5 space-y-4">
+              <div>
+                <label
+                  htmlFor="booking-nama"
+                  className="block text-sm font-bold text-black"
+                >
+                  Nama *
+                </label>
+                <input
+                  id="booking-nama"
+                  type="text"
+                  value={nama}
+                  onChange={(e) => setNama(e.target.value)}
+                  placeholder="Nama kamu"
+                  className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm text-black outline-none focus:border-black"
+                />
+                {galatField.nama && (
+                  <p className="mt-1 text-xs font-semibold text-red-600">
+                    {galatField.nama}
+                  </p>
+                )}
+              </div>
+              <div>
+                <label
+                  htmlFor="booking-perusahaan"
+                  className="block text-sm font-bold text-black"
+                >
+                  Perusahaan
+                </label>
+                <input
+                  id="booking-perusahaan"
+                  type="text"
+                  value={perusahaan}
+                  onChange={(e) => setPerusahaan(e.target.value)}
+                  placeholder="Perusahaan / institusi (opsional)"
+                  className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm text-black outline-none focus:border-black"
+                />
+              </div>
+              <div>
+                <label
+                  htmlFor="booking-kontak"
+                  className="block text-sm font-bold text-black"
+                >
+                  Kontak *
+                </label>
+                <input
+                  id="booking-kontak"
+                  type="tel"
+                  value={kontak}
+                  onChange={(e) => setKontak(e.target.value)}
+                  placeholder="Nomor WhatsApp / telepon"
+                  className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm text-black outline-none focus:border-black"
+                />
+                {galatField.kontak && (
+                  <p className="mt-1 text-xs font-semibold text-red-600">
+                    {galatField.kontak}
+                  </p>
+                )}
+              </div>
+              <div>
+                <label
+                  htmlFor="booking-topik"
+                  className="block text-sm font-bold text-black"
+                >
+                  Topik *
+                </label>
+                <textarea
+                  id="booking-topik"
+                  value={topik}
+                  onChange={(e) => setTopik(e.target.value)}
+                  placeholder="Topik yang ingin dibahas"
+                  rows={3}
+                  className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm text-black outline-none focus:border-black"
+                />
+                {galatField.topik && (
+                  <p className="mt-1 text-xs font-semibold text-red-600">
+                    {galatField.topik}
                   </p>
                 )}
               </div>
             </div>
+            {galatKirim && (
+              <p className="mt-4 rounded-xl bg-red-50 p-4 text-xs leading-relaxed text-red-800 ring-1 ring-red-200">
+                {galatKirim}
+              </p>
+            )}
+            <div className="mt-6 flex flex-wrap items-center gap-3">
+              <button
+                type="button"
+                onClick={kirim}
+                disabled={mengirim}
+                className="inline-flex items-center gap-2 rounded-full bg-mk-aksen px-6 py-3 text-sm font-semibold text-white shadow-md transition hover:bg-mk-aksen-gelap disabled:cursor-not-allowed disabled:opacity-40"
+              >
+                {mengirim ? 'Mengirim...' : 'Kirim permintaan'}
+                <ArrowRight className="h-4 w-4" aria-hidden="true" />
+              </button>
+              <button
+                type="button"
+                onClick={() => setTahap('pilih')}
+                className="rounded-full border-2 border-black px-6 py-3 text-sm font-semibold text-black transition hover:bg-black hover:text-white"
+              >
+                Kembali
+              </button>
+            </div>
           </div>
+          ) : (
+          <div className="mx-auto mt-12 max-w-xl rounded-[20px] bg-white p-6 text-center shadow-xl ring-1 ring-slate-200 sm:p-8">
+            <span className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-emerald-500 text-white">
+              <Check className="h-6 w-6" aria-hidden="true" />
+            </span>
+            <h3 className="mt-4 text-xl font-extrabold text-black">
+              Permintaan terkirim
+            </h3>
+            <p className="mx-auto mt-2 max-w-md text-sm leading-relaxed text-slate-500">
+              Permintaan free call kamu untuk {ringkasanSlot} sudah terkirim.
+              Operator RRI akan menghubungimu untuk konfirmasi.
+            </p>
+            <button
+              type="button"
+              onClick={ulang}
+              className="mt-6 rounded-full border-2 border-black px-6 py-3 text-sm font-semibold text-black transition hover:bg-black hover:text-white"
+            >
+              Pilih jadwal lain
+            </button>
+          </div>
+          )}
         </Reveal>
       </div>
     </section>
@@ -1307,20 +1505,22 @@ function Footer() {
               ))}
             </ul>
           </nav>
-          {/* Kolom Additional Service — di antara Navigation dan
-              Contact (permintaan pengguna 2026-11-17). Untuk sementara
-              kedua link mengarah ke section booking/konsultasi, karena
-              halaman khusus Book a Room / Rent a Space belum ada di
-              landing baru; halaman khusus menyusul pada putaran
-              penyesuaian. */}
+          {/* Kolom Our Service — di antara Navigation dan Contact
+              (permintaan pengguna 2026-11-17). Untuk sementara keempat
+              link mengarah ke section booking/konsultasi, karena halaman
+              khusus Plan a Campaign / Book a Venue / Rent a Space /
+              Get a Journalism Training belum ada di landing baru;
+              halaman khusus menyusul pada putaran penyesuaian. */}
           <div>
             <h3 className="text-sm font-bold uppercase tracking-widest text-white/50">
-              Additional Service
+              Our Service
             </h3>
             <ul className="mt-4 space-y-2.5 text-sm">
               {[
-                { label: 'Book a Room', id: 'booking' },
+                { label: 'Plan a Campaign', id: 'booking' },
+                { label: 'Book a Venue', id: 'booking' },
                 { label: 'Rent a Space', id: 'booking' },
+                { label: 'Get a Journalism Training', id: 'booking' },
               ].map((item) => (
                 <li key={item.label}>
                   <button

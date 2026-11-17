@@ -58,6 +58,7 @@ import type {
 import type { PratinjauRemigrasi } from './lib/remigrasiRencana';
 import {
   cekSudahDimigrasi,
+  kirimBookingPublik as kirimBookingPublikKeFirestore,
   kirimPengajuanPublik as kirimPengajuanPublikKeFirestore,
   muatDariFirestore,
   simpanDokumen,
@@ -129,6 +130,7 @@ import type {
 import type {
   AdvertisementInput,
   ArtikelKBInput,
+  BookingPublikInput,
   DendaInput,
   DisposisiInput,
   EventInput,
@@ -567,12 +569,6 @@ function buatChecklistDokumen(kontrakId: string, dokumenLama: DokumenItem[]): Do
   return baru;
 }
 
-/** Kunci sessionStorage untuk tujuan setelah login (PR
-    landing-tombol-book-meeting, 17/11/2026): tombol "Book a Free Call" di
-    landing meminta halaman Meeting; bila Operator belum login, tujuan ini
-    disimpan lalu diterapkan begitu sesi Operator aktif. */
-const KUNCI_TUJUAN_SETELAH_LOGIN = 'rri-tujuan-setelah-login';
-
 export default function App() {
   const [user, setUser] = useState<DummyUser | null>(null);
   const [data, setData] = useState<AppData>(DATA_NYATA);
@@ -666,46 +662,6 @@ export default function App() {
   // Prefill form Ajukan dari landing page DIHAPUS sementara (PR
   // landing-marklo-clone): landing baru belum memanggil Ajukan; state
   // ajukanAwal + prop prefill akan dipasang lagi pada putaran penyesuaian.
-
-  /** Buka halaman Meeting dari landing (tombol "Book a Free Call", PR
-      landing-tombol-book-meeting, 17/11/2026): bila Operator sudah login,
-      langsung ke view Meeting; bila belum, simpan tujuan di sessionStorage
-      lalu tampilkan login — tujuan diterapkan begitu sesi Operator aktif
-      (efek di bawah), jadi setelah login berhasil mendarat di Meeting,
-      bukan Home. */
-  const bukaMeetingDariLanding = () => {
-    if (user) {
-      setActive('meeting');
-      return;
-    }
-    try {
-      sessionStorage.setItem(KUNCI_TUJUAN_SETELAH_LOGIN, 'meeting');
-    } catch {
-      // Penyimpanan tidak tersedia (mode privat, dsb.) — login tetap
-      // jalan; tujuan kembali ke Home.
-    }
-    setHalamanPublik('login');
-  };
-  /** Terapkan tujuan-tertunda setelah login: mencakup login form (email +
-      dummy) maupun pemulihan sesi Firebase (onAuthStateChanged) dan reload
-      di layar login. Kunci dihapus setelah diterapkan supaya login
-      berikutnya kembali mendarat di Home. */
-  useEffect(() => {
-    if (!user) return;
-    let tujuan: string | null = null;
-    try {
-      tujuan = sessionStorage.getItem(KUNCI_TUJUAN_SETELAH_LOGIN);
-    } catch {
-      // Abaikan — tujuan kembali ke Home.
-    }
-    if (tujuan !== 'meeting') return;
-    setActive('meeting');
-    try {
-      sessionStorage.removeItem(KUNCI_TUJUAN_SETELAH_LOGIN);
-    } catch {
-      // Abaikan.
-    }
-  }, [user]);
 
   // Pulihkan sesi Auth yang sudah masuk (bila Firebase terkonfigurasi).
   useEffect(() => {
@@ -839,6 +795,86 @@ export default function App() {
     return null;
   };
 
+  /**
+   * Kirim permintaan free call publik dari kartu booking landing (PR
+   * landing-booking-ke-meeting, 2026-11-17): pengunjung memilih tanggal +
+   * jam lalu mengisi form singkat. Didefinisikan SEBELUM cabang
+   * `if (!user)` karena dipakai halaman publik saat belum login.
+   * Permintaan disimpan sebagai dokumen Meeting (koleksi 'meeting') agar
+   * muncul di tabel Meeting panel admin — pemetaan field:
+   * - tanggal/jam: slot yang dipilih, jam basis WIB (zona tampilan yang
+   *   dipilih pengunjung hanya memengaruhi tampilan jam di kartu).
+   * - agenda: Topik, ditambah " (Perusahaan)" bila Perusahaan diisi
+   *   (tipe Meeting tidak punya field perusahaan; kolom Prospect/Client
+   *   menampilkan '-' sampai Operator menautkan prospect/klien via Update).
+   * - contactPersonNama + clientRepresentatives: Nama pengunjung.
+   * - contactPersonTelepon: Kontak (WA/telepon).
+   * - rriRepresentatives: KOSONG — belum ditetapkan; Operator melengkapi
+   *   via Update (form Update mensyaratkan minimal 1 RRI Representative).
+   * - satker: SATKER_PILOT (PALEMBANG) — sama seperti submission publik
+   *   dan tambahMeeting; tidak ada pemilih satker di kartu booking.
+   * - googleEventId/googleSyncedAt: TIDAK ada (status "Not synced") —
+   *   Operator yang menyinkronkan via tombol Sync. Durasi 30 menit dan
+   *   jenis video call TIDAK tersimpan (tipe Meeting tidak punya field
+   *   durasi/medium); sinkronisasi Google Calendar tetap membuat event
+   *   1 jam (default PR #73) sampai ada penyesuaian lanjutan.
+   * Audit TIDAK ditulis di sini (audit hanya sesi Operator) — sama seperti
+   * kirimPengajuanPublik. Bila mode Firestore aktif, tulis juga ke
+   * Firestore (gate isFirebaseConfigured seperti kirimPengajuanPublik);
+   * bila tulis itu gagal, kembalikan pesan error (jangan menelan
+   * diam-diam). Di luar mode Firestore, permintaan hanya tersimpan di
+   * sesi ini — sama seperti aksi lain sebelum migrasi.
+   */
+  const kirimBookingPublik = async (
+    input: BookingPublikInput,
+  ): Promise<string | null> => {
+    if (
+      !input.tanggal.trim() ||
+      !/^\d{4}-\d{2}-\d{2}$/.test(input.tanggal.trim())
+    ) {
+      return 'Meeting date is not valid.';
+    }
+    if (!input.jam.trim() || !/^\d{2}:\d{2}$/.test(input.jam.trim())) {
+      return 'Meeting time is not valid.';
+    }
+    if (!input.nama.trim()) return 'Name is required.';
+    if (!input.kontak.trim()) return 'Contact is required.';
+    if (!input.topik.trim()) return 'Topic is required.';
+    const perusahaan = input.perusahaan?.trim() || '';
+    const id = idBerikutnya('MTG-', data.meeting.map((m) => m.id));
+    const meeting: Meeting = {
+      id,
+      tanggal: input.tanggal.trim(),
+      jam: input.jam.trim(),
+      // Field lama peserta TETAP DISIMPAN (kompatibilitas) — diturunkan
+      // dari Client Representative; tidak lagi ditampilkan.
+      peserta: input.nama.trim(),
+      agenda: perusahaan
+        ? `${input.topik.trim()} (${perusahaan})`
+        : input.topik.trim(),
+      clientRepresentatives: [input.nama.trim()],
+      contactPersonNama: input.nama.trim(),
+      contactPersonTelepon: input.kontak.trim(),
+      // RRI Representative KOSONG — Operator melengkapi via Update.
+      rriRepresentatives: [],
+      satker: SATKER_PILOT,
+    };
+    setData((d) => ({ ...d, meeting: [...d.meeting, meeting] }));
+    // Tulis ke Firestore bila terkonfigurasi (gate isFirebaseConfigured,
+    // bukan modeData — pengunjung publik tidak pernah login; lihat
+    // komentar yang sama di kirimPengajuanPublik). Aturan publik meeting
+    // mengizinkan create tanpa login.
+    if (isFirebaseConfigured && db) {
+      try {
+        await kirimBookingPublikKeFirestore(db, meeting);
+      } catch (e) {
+        console.error('Gagal menyimpan permintaan booking ke Firestore:', e);
+        return 'Request recorded locally, but failed to save to Firestore — contact the Operator.';
+      }
+    }
+    return null;
+  };
+
   if (!user) {
     if (halamanPublik === 'beranda') {
       // Landing page tiruan template Marklo (PR landing-marklo-clone).
@@ -848,7 +884,7 @@ export default function App() {
       return (
         <MarkloLanding
           onLogin={() => setHalamanPublik('login')}
-          onBookMeeting={bukaMeetingDariLanding}
+          onKirimBooking={kirimBookingPublik}
         />
       );
     }

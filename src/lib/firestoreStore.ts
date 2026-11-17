@@ -54,7 +54,7 @@ import {
   where,
 } from 'firebase/firestore';
 import type { Firestore } from 'firebase/firestore';
-import type { AppData, AuditEntry, PengajuanKlien } from './types';
+import type { AppData, AuditEntry, Meeting, PengajuanKlien } from './types';
 
 /** Nama koleksi Firestore untuk tiap kunci AppData (nama kunci = nama koleksi). */
 export const KOLEKSI: Record<keyof AppData, string> = {
@@ -247,6 +247,24 @@ export async function kirimPengajuanPublik(
   await setDoc(
     doc(db, KOLEKSI.pengajuanKlien, submission.id),
     bersihkanUndefined(submission),
+  );
+}
+
+/**
+ * Tulis satu permintaan free call publik sebagai dokumen Meeting ke
+ * Firestore (PR landing-booking-ke-meeting, 2026-11-17: dipakai kirim
+ * publik tanpa login dari kartu booking landing; aturan Firestore
+ * mengizinkan create publik tervalidasi untuk koleksi ini — lihat blok
+ * publik meeting di firestore.rules). Pola sama dengan
+ * kirimPengajuanPublik.
+ */
+export async function kirimBookingPublik(
+  db: Firestore,
+  meeting: Meeting,
+): Promise<void> {
+  await setDoc(
+    doc(db, KOLEKSI.meeting, meeting.id),
+    bersihkanUndefined(meeting),
   );
 }
 

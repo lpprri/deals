@@ -3,13 +3,14 @@
 // Operator (Staf Layanan & Pengembangan Usaha). 6 peran dummy Q-01 TIDAK
 // BERLAKU; peran Admin Nasional TIDAK DIPAKAI tahap ini.
 // KOREKSI 2026-11-15: peran klien dihapus — tidak ada akses klien
-// terautentikasi; akses publik (Lacak + pengajuan publik) diatur di blok
-// publik tersendiri.
-// Semua akses wajib terautentikasi, KECUALI dua jalur publik di blok
-// publik tersendiri di bawah (Lacak + pengajuan publik) — keduanya
-// dibatasi ketat: create publik tervalidasi dan append-only, get publik
-// hanya per-dokumen (list dilarang). Data Keuangan (penerimaanAcuan)
-// hanya dibaca, tidak pernah ditulis dari aplikasi.
+// terautentikasi; akses publik (Lacak + pengajuan publik + booking
+// meeting publik) diatur di blok publik tersendiri.
+// Semua akses wajib terautentikasi, KECUALI tiga jalur publik di blok
+// publik tersendiri di bawah (Lacak + pengajuan publik + booking
+// meeting) — ketiganya dibatasi ketat: create publik tervalidasi dan
+// append-only, get publik hanya per-dokumen (list dilarang). Data
+// Keuangan (penerimaanAcuan) hanya dibaca, tidak pernah ditulis dari
+// aplikasi.
 // CARA AKTIFKAN: tempel seluruh isi file ini di Firebase console →
 // Firestore Database → Rules → Publish. File ini saja BELUM mengaktifkan
 // aturan apa pun di proyek pengguna.
@@ -272,6 +273,52 @@ service cloud.firestore {
         && satkerMilikPemanggil(resource.data)
         && satkerMilikPemanggil(request.resource.data);
       allow delete: if false;
+    }
+
+    // ---------- Permintaan free call publik → koleksi meeting ----------
+    // (PR landing-booking-ke-meeting, 2026-11-17): form booking publik di
+    // landing menyimpan permintaan sebagai dokumen Meeting agar muncul di
+    // tabel Meeting panel admin. Aturan Firestore bersifat OR antar blok
+    // match yang sama — blok generik di atas tetap mengatur baca/tulis
+    // Operator untuk 'meeting'; blok ini HANYA menambah jalur create
+    // publik. TIDAK ada read / update / delete publik.
+    // Validasi: tanggal 'yyyy-mm-dd', jam 'HH:mm' (WIB), agenda +
+    // contactPersonNama + contactPersonTelepon wajib terisi,
+    // clientRepresentatives tepat 1 nama, rriRepresentatives list (boleh
+    // kosong — Operator melengkapi via Update), satker SELALU '41'
+    // (PALEMBANG, pilot), googleEventId/googleSyncedAt TIDAK boleh ada
+    // (belum tersinkron), prospectId/klienId/hasil TIDAK boleh ada.
+    // PERINGATAN: blok ini BELUM TERVALIDASI COMPILER — ditulis dari
+    // dokumentasi aturan Firestore dan belum diuji di Rules Playground /
+    // emulator. Tempel di console, periksa tidak ada error, baru Publish.
+    match /meeting/{id} {
+      // Publik (tanpa login): HANYA create, append-only, tervalidasi.
+      // Dipakai form booking landing (kirimBookingPublik di App.tsx lewat
+      // kirimBookingPublik di firestoreStore.ts).
+      allow create: if request.auth == null
+        && request.resource.data.tanggal is string
+        && request.resource.data.tanggal.matches('^\\d{4}-\\d{2}-\\d{2}$')
+        && request.resource.data.jam is string
+        && request.resource.data.jam.matches('^\\d{2}:\\d{2}$')
+        && request.resource.data.agenda is string
+        && request.resource.data.agenda.size() > 0
+        && request.resource.data.contactPersonNama is string
+        && request.resource.data.contactPersonNama.size() > 0
+        && request.resource.data.contactPersonTelepon is string
+        && request.resource.data.contactPersonTelepon.size() > 0
+        && request.resource.data.clientRepresentatives is list
+        && request.resource.data.clientRepresentatives.size() == 1
+        && request.resource.data.rriRepresentatives is list
+        && request.resource.data.peserta is string
+        && request.resource.data.peserta.size() > 0
+        && request.resource.data.satker.kode == '41'
+        && !('googleEventId' in request.resource.data)
+        && !('googleSyncedAt' in request.resource.data)
+        && !('prospectId' in request.resource.data)
+        && !('klienId' in request.resource.data)
+        && !('hasil' in request.resource.data)
+        && (!('alamatKlien' in request.resource.data)
+          || request.resource.data.alamatKlien is string);
     }
 
     // ---------- Akses publik Lacak — get-by-ID saja, TANPA list ----------
