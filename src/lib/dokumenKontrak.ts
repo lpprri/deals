@@ -3,6 +3,11 @@
 // file: aplikasi tidak menyimpan file dokumen, jadi tidak ada tautan
 // unduh/unggah di cluster ini.
 //
+// Persentase keterpenuhan dokumen (permintaan pengguna 17/11/2026
+// 09:26 WIB) dihitung dari daftar ini juga (kelengkapanDokumen) —
+// tampil di cluster Document dan sebagai kolom "Document Completeness"
+// di tabel Contract.
+//
 // Label Bahasa Indonesia Proper Case persis permintaan pengguna —
 // pengecualian dari keputusan UI full-English (seperti kolom Status
 // Pembayaran, PR #64).
@@ -130,4 +135,32 @@ export function daftarDokumenKontrak(
     });
   }
   return items;
+}
+
+export interface KelengkapanDokumen {
+  /** Jumlah item checklist berstatus "Ada". */
+  ada: number;
+  /** Total item checklist kontrak itu (7 normal, 8 bila Overdue). */
+  total: number;
+  /** Fraksi 0–1 (ada / total); tampil dengan formatPersenRealisasi. */
+  fraksi: number;
+}
+
+/**
+ * Keterpenuhan dokumen (permintaan pengguna 17/11/2026 09:26 WIB):
+ * item "Ada" / total item checklist kontrak itu.
+ *
+ * Dihitung dari daftar yang SAMA dengan yang dirender tabel Document
+ * (daftarDokumenKontrak) — penyebut = panjang daftar, BUKAN angka
+ * tetap — supaya persen dan tabel tidak pernah berbeda. Karena Surat
+ * Penagihan hanya tampil bila Overdue, kontrak Overdue punya penyebut
+ * 8, yang lain 7. Daftar kosong (tidak terjadi di data — semua kontrak
+ * punya minimal Invoice Penagihan) menghasilkan 0.
+ */
+export function kelengkapanDokumen(
+  items: ItemDokumenKontrak[],
+): KelengkapanDokumen {
+  const ada = items.filter((x) => x.ada).length;
+  const total = items.length;
+  return { ada, total, fraksi: total === 0 ? 0 : ada / total };
 }

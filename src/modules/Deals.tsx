@@ -55,7 +55,7 @@ import {
   totalDendaKontrak,
   totalPembayaranKontrak,
 } from '../lib/realisasi';
-import { daftarDokumenKontrak } from '../lib/dokumenKontrak';
+import { daftarDokumenKontrak, kelengkapanDokumen } from '../lib/dokumenKontrak';
 import { bolehAksi } from '../lib/permissions';
 import {
   Baris,
@@ -692,7 +692,9 @@ export function TabKontrak({
   // diganti dari "Total Contract Value + Fine" 09:06 WIB),
   // Realisation, Receivable Value, Remaining Value (header diganti
   // dari "Remaining Contract Value" 09:07 WIB) — Remaining Value kini
-  // terakhir. Nilai-nilainya memakai helper yang SAMA dengan
+  // bukan terakhir: kolom "Document Completeness" (keputusan pengguna
+  // 17/11/2026 09:26 WIB) ditambahkan sebagai kolom terakhir (ke-18).
+  // Nilai-nilainya memakai helper yang SAMA dengan
   // seksi Revenue di DetailKontrak (lib/realisasi.ts), supaya perilaku
   // live-nya identik.
   const jenisKlien = (k: Kontrak): string | undefined =>
@@ -847,6 +849,7 @@ export function TabKontrak({
                 <Th kanan>Realisation</Th>
                 <Th kanan>Receivable Value</Th>
                 <Th kanan>Remaining Value</Th>
+                <Th kanan>Document Completeness</Th>
               </tr>
             </thead>
             <tbody>
@@ -881,6 +884,20 @@ export function TabKontrak({
                   data.tagihan,
                   data.pembayaran,
                   hariIni,
+                );
+                // Keterpenuhan dokumen (keputusan pengguna 17/11/2026
+                // 09:26 WIB) — dari daftar yang SAMA dengan tabel
+                // Document di DetailKontrak (daftarDokumenKontrak),
+                // supaya persen kolom dan tabel tidak pernah berbeda.
+                const kelengkapan = kelengkapanDokumen(
+                  daftarDokumenKontrak(
+                    k,
+                    data.dokumen,
+                    data.tagihan,
+                    data.pembayaran,
+                    data.denda,
+                    hariIni,
+                  ),
                 );
                 return (
                     <Baris key={k.id} onClick={() => onPilihKontrak(k.id)}>
@@ -956,6 +973,7 @@ export function TabKontrak({
                     <Td kanan>{formatPersenRealisasi(realisasi)}</Td>
                     <Td kanan>{formatRupiah(piutang)}</Td>
                     <Td kanan>{formatRupiah(sisaKontrak)}</Td>
+                    <Td kanan>{formatPersenRealisasi(kelengkapan.fraksi)}</Td>
                   </Baris>
                 );
               })}
@@ -1037,6 +1055,10 @@ function DetailKontrak({
     data.pembayaran,
     data.denda,
   );
+  // Keterpenuhan dokumen (permintaan pengguna 17/11/2026 09:26 WIB) —
+  // dari daftar yang sama dengan tabel di bawah, supaya persen dan
+  // tabel tidak pernah berbeda.
+  const kelengkapanDokumenCluster = kelengkapanDokumen(dokumenCluster);
   const jatuhTempo = tagihanKontrak[0]?.tanggalJatuhTempo;
   const jendelaWaktu = JENDELA_WAKTU_SIAR.find(
     (j) => j.programa === kontrak.programa,
@@ -1601,6 +1623,12 @@ function DetailKontrak({
       {/* ---- 5. Document (cluster dokumen, permintaan pengguna 17/11/2026) ---- */}
       <Kartu>
         <JudulBagian>Document</JudulBagian>
+        <p className="mt-2 text-sm text-[#0d2569]">
+          Document Completeness:{' '}
+          {formatPersenRealisasi(kelengkapanDokumenCluster.fraksi)} (
+          {kelengkapanDokumenCluster.ada} of {kelengkapanDokumenCluster.total}{' '}
+          documents)
+        </p>
         <div className="mt-2">
           <Tabel>
             <thead>

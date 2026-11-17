@@ -24,7 +24,7 @@ import {
   totalDendaKontrak,
   totalPembayaranKontrak,
 } from '../src/lib/realisasi';
-import { daftarDokumenKontrak } from '../src/lib/dokumenKontrak';
+import { daftarDokumenKontrak, kelengkapanDokumen } from '../src/lib/dokumenKontrak';
 import { statusPembayaranKontrak } from '../src/lib/kontrakTampilan';
 import type { Kontrak, Tagihan } from '../src/lib/types';
 
@@ -509,6 +509,41 @@ cek('0603 Billing Pembayaran Ada (catatan dokumen)', cariItem(dok0603, 'Billing 
 cek('0603 Kwitansi Pembayaran Ada', cariItem(dok0603, 'Kwitansi Pembayaran')?.ada === true);
 cek('0603 Invoice Penagihan Ada', cariItem(dok0603, 'Invoice Penagihan')?.ada === true);
 
+// ---------- persentase keterpenuhan dokumen (keputusan pengguna 17/11/2026 09:26 WIB) ----------
+// Persentase = item "Ada" / total item (7 normal, 8 bila Overdue) —
+// dari daftar yang SAMA dengan tabel Document (daftarDokumenKontrak),
+// format sama dengan Realisation (formatPersenRealisasi: 1 desimal).
+const persenCluster = (items: ReturnType<typeof daftarDokumenKontrak>) =>
+  kelengkapanDokumen(items);
+cek(
+  '11290 keterpenuhan 1/7 = 14.3% (contoh screenshot user)',
+  persenCluster(dok11290).ada === 1 &&
+    persenCluster(dok11290).total === 7 &&
+    formatPersenRealisasi(persenCluster(dok11290).fraksi) === '14.3%',
+);
+cek(
+  '10828 keterpenuhan 2/7 = 28.6%',
+  formatPersenRealisasi(persenCluster(dok10828).fraksi) === '28.6%',
+);
+cek(
+  '0603 keterpenuhan 4/7 = 57.1%',
+  formatPersenRealisasi(persenCluster(dok0603).fraksi) === '57.1%',
+);
+const k1051Dok = cariKontrak('1051/PKS/RRI.PLB/02/2026');
+const dok1051 = daftarDokumenKontrak(
+  k1051Dok,
+  dokumen,
+  tagihan,
+  pembayaran,
+  denda,
+  HARI_INI,
+);
+cek(
+  '1051 keterpenuhan 5/7 = 71.4% (tertinggi di seed)',
+  persenCluster(dok1051).ada === 5 &&
+    formatPersenRealisasi(persenCluster(dok1051).fraksi) === '71.4%',
+);
+
 // Hitungan global (seed)
 const hitungAda = (jenis: string) =>
   dokumen.filter((d) => d.jenisDokumen === jenis && d.status === 'Ada').length;
@@ -615,6 +650,19 @@ cek(
   'sintetis Overdue tanpa catatan: Surat Penagihan Belum Ada',
   cariItem(dokOverdueTanpaCatatan, 'Surat Penagihan')?.ada === false,
 );
+cek(
+  'sintetis Overdue: keterpenuhan 2/8 = 25% (penyebut 8 karena Surat Penagihan tampil)',
+  persenCluster(dokOverdue).ada === 2 &&
+    persenCluster(dokOverdue).total === 8 &&
+    formatPersenRealisasi(persenCluster(dokOverdue).fraksi) === '25%',
+);
+cek(
+  'sintetis Overdue tanpa catatan: keterpenuhan 1/8 = 12.5%',
+  persenCluster(dokOverdueTanpaCatatan).ada === 1 &&
+    persenCluster(dokOverdueTanpaCatatan).total === 8 &&
+    formatPersenRealisasi(persenCluster(dokOverdueTanpaCatatan).fraksi) ===
+      '12.5%',
+);
 
 // ---------- struktur UI cluster Document ----------
 const detailSlice = deals.slice(
@@ -644,6 +692,22 @@ cek(
   !docClusterSlice.includes('href=') &&
     !docClusterSlice.includes('<a ') &&
     !docClusterSlice.includes('onClick'),
+);
+cek(
+  'cluster Document menampilkan keterpenuhan "Document Completeness: X% (N of M documents)"',
+  docClusterSlice.includes('Document Completeness:') &&
+    docClusterSlice.includes('of ') &&
+    docClusterSlice.includes('documents)'),
+);
+cek(
+  'cluster Document memakai kelengkapanDokumen(dokumenCluster) + formatPersenRealisasi (daftar yang sama dengan tabel)',
+  detailSlice.includes('kelengkapanDokumen(dokumenCluster)') &&
+    detailSlice.includes('formatPersenRealisasi(kelengkapanDokumenCluster.fraksi)'),
+);
+cek(
+  'baris keterpenuhan ada di bawah judul Document, di atas tabel',
+  docClusterSlice.indexOf('Document Completeness:') <
+    docClusterSlice.indexOf('<Th>Document</Th>'),
 );
 const dokHelper = fs.readFileSync('src/lib/dokumenKontrak.ts', 'utf-8');
 for (const label of [
