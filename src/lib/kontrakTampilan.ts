@@ -152,6 +152,25 @@ export function statusPembayaranKontrak(
 }
 
 /**
+ * Label Bahasa Indonesia untuk kolom "Status Pembayaran" di tabel Contract
+ * (keputusan pengguna 17/11/2026 08:04 WIB): Paid → "Lunas", Unpaid →
+ * "Belum Bayar", Partially-Paid → "Kurang Bayar", Overdue →
+ * "Keterlambatan Pembayaran". SENGAJA Bahasa Indonesia atas permintaan
+ * eksplisit pengguna — pengecualian untuk kolom ini saja dari keputusan
+ * UI full-English; definisi statusnya TIDAK berubah (tetap
+ * statusPembayaranKontrak, PR #60) dan opsi filter Payment Status tetap
+ * Bahasa Inggris.
+ */
+export function labelStatusPembayaranKontrak(
+  status: StatusPembayaranKontrak,
+): string {
+  if (status === 'Paid') return 'Lunas';
+  if (status === 'Partially-Paid') return 'Kurang Bayar';
+  if (status === 'Overdue') return 'Keterlambatan Pembayaran';
+  return 'Belum Bayar';
+}
+
+/**
  * Status kerja sama per kontrak (keputusan pengguna 16/11/2026: filter
  * Cooperation Status):
  * - Completed: status tersimpan 'Selesai'.

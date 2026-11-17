@@ -28,6 +28,7 @@ import {
   jenisKlienYangAda,
   judulKontrak,
   labelArahUrutKontrak,
+  labelStatusPembayaranKontrak,
   nomorReferensiKontrak,
   sisaHariKerjaSama,
   statusKerjaSamaKontrak,
@@ -669,11 +670,14 @@ export function TabKontrak({
     );
   }
 
-  // Kolom baru (keputusan pengguna 16/11/2026): 10 kolom di bawah, tanpa
+  // Kolom baru (keputusan pengguna 16/11/2026): 11 kolom di bawah, tanpa
   // kolom kode akun dan tanpa Status. Filter: Client Type + PNBP Type +
   // Payment Status + Cooperation Status (keputusan pengguna 16/11/2026
   // 13:56 WIB). Kolom "Remaining Days" di samping Contract Period
-  // (keputusan pengguna 16/11/2026 15:29 WIB).
+  // (keputusan pengguna 16/11/2026 15:29 WIB). Kolom "Status Pembayaran"
+  // sesudah Remaining Days, sebelum Contract Value (keputusan pengguna
+  // 17/11/2026 08:04 WIB) — label Bahasa Indonesia, definisi status
+  // tetap statusPembayaranKontrak (PR #60).
   const jenisKlien = (k: Kontrak): string | undefined =>
     data.klien.find((kl) => kl.id === k.klienId)?.jenis;
   const kontrakTersaring = urutkanKontrak(
@@ -817,6 +821,7 @@ export function TabKontrak({
                 <Th>Service Detail</Th>
                 <Th>Contract Period</Th>
                 <Th>Remaining Days</Th>
+                <Th>Status Pembayaran</Th>
                 <Th kanan>Contract Value</Th>
               </tr>
             </thead>
@@ -864,6 +869,19 @@ export function TabKontrak({
                     kontrak yang sudah selesai tertulis "Completed".
                   */}
                   <Td>{sisaHariKerjaSama(k)}</Td>
+                  {/*
+                    Status pembayaran — label Bahasa Indonesia (keputusan
+                    pengguna 17/11/2026 08:04 WIB): Lunas / Belum Bayar /
+                    Kurang Bayar / Keterlambatan Pembayaran. Statusnya
+                    sendiri dari statusPembayaranKontrak (definisi PR #60,
+                    tidak berubah); hanya label tampilnya yang
+                    di-Indonesia-kan, atas permintaan eksplisit pengguna.
+                  */}
+                  <Td>
+                    {labelStatusPembayaranKontrak(
+                      statusPembayaranKontrak(k, data.tagihan, data.pembayaran, data.denda),
+                    )}
+                  </Td>
                   <Td kanan>{formatRupiah(k.nilaiKontrak)}</Td>
                 </Baris>
               ))}
