@@ -27,6 +27,7 @@
 import type { Denda, Klien, Kontrak, Pembayaran, Tagihan } from './types';
 import { MASTER_JENIS_KLIEN } from './master';
 import { dibayarTerverifikasi, tanggalAcuanKontrak } from './derive';
+import { piutangRealisasi } from './realisasi';
 import { hariIniIso, selisihHari } from './format';
 
 /** Ambil satu segmen "Kunci: nilai" dari teks catatan ("A | B | C"). */
@@ -82,9 +83,11 @@ export function tanggalPenandatangananKontrak(kontrak: Kontrak): string {
 
 /**
  * Status pembayaran per kontrak — diturunkan dari NILAI KONTRAK + DENDA
- * (keputusan pengguna 16/11/2026 15:13–15:15 WIB, mengoreksi precedence
- * PR #58). Pembandingnya adalah nilaiKontrak + total denda kontrak,
- * BUKAN nilai tagihan.
+ * dan PIUTANG (realisasi). REDEFINISI (keputusan pengguna 17/11/2026
+ * 08:33 WIB): Partially-Paid kini berarti dibayar == Piutang (nilai
+ * kontrak yang sudah dilaksanakan) — menggantikan definisi PR #60 —
+ * dan ada status baru 'Insufficient Payment'. Pembandingnya adalah
+ * nilaiKontrak + total denda kontrak, BUKAN nilai tagihan.
  *
  * FAKTA DATA (audit 16/11/2026 terhadap seed): denda SUDAH tertanam di
  * tagihan.nilai, TETAPI Σ tagihan.nilai == nilaiKontrak + total denda
@@ -103,17 +106,30 @@ export function tanggalPenandatangananKontrak(kontrak: Kontrak): string {
  * derive.ts; denda 'Dibayar' tetap dihitung karena pembayarannya juga
  * masuk ke total pembayaran terverifikasi).
  *
- * Kategori saling lepas (aturan baru, tanpa precedence):
+ * Kategori saling lepas — URUTAN PERIKSA PENTING (keputusan 17/11/2026):
+ * "belum mencukupi total nilai transaksi + denda" secara harfiah juga
+ * berlaku untuk Partially-Paid, jadi Partially-Paid diperiksa DULU:
  * - Paid: total pembayaran Terverifikasi >= nilaiKontrak + total denda.
- * - Partially-Paid: ada pembayaran Terverifikasi (> 0) tetapi totalnya
- *   < nilaiKontrak + total denda — tidak peduli sudah lewat jatuh tempo
- *   atau belum. Inilah yang membuat kontrak sewa multi-tahun yang
- *   tagihannya baru tahun pertama (1051/1052/1053, 016, 027) masuk ke
- *   sini: baru dibayar 1 tahun dari nilai kontrak 3 tahun.
+ * - Partially-Paid: dibayar == Piutang, dengan Piutang =
+ *   (nilaiKontrak + total denda) x % Realisasi (rumus PR #63,
+ *   piutangRealisasi) DAN Piutang < nilaiKontrak + total denda.
+ *   "Sesuai" diuji dengan toleransi |dibayar − Piutang| <= Rp1 —
+ *   jaring pengaman pembulatan (contoh 7054 yang nilai kontraknya
+ *   selisih Rp1 dari file). Artinya klien sudah membayar lunas nilai
+ *   kontrak yang SUDAH dilaksanakan; sisanya belum terealisasi —
+ *   contohnya sewa multi-tahun yang baru dibayar 1 tahun
+ *   (1051/1052/1053, 016, 027).
+ * - Insufficient Payment: 0 < dibayar < nilaiKontrak + total denda DAN
+ *   dibayar != Piutang — termasuk dibayar > Piutang tapi < penuh
+ *   (tidak ada kasusnya di seed per 17/11/2026). Contohnya 6 kontrak
+ *   yang pokoknya lunas tetapi dendanya belum dibayar (1744, 2919,
+ *   2920, 7052, 7054, 7060): dibayar == nilaiKontrak < Piutang.
  * - Overdue: TIDAK ADA pembayaran sama sekali (0) DAN ada tagihan yang
- *   sudah lewat tanggal jatuh tempo.
+ *   sudah lewat tanggal jatuh tempo. (TETAP seperti PR #60.)
  * - Unpaid: TIDAK ADA pembayaran sama sekali (0) DAN belum ada tagihan
- *   yang lewat jatuh tempo.
+ *   yang lewat jatuh tempo. (TETAP.)
+ * DISTRIBUSI BARU (seed, per 17/11/2026): Paid 28, Partially-Paid 5,
+ * Insufficient Payment 6, Unpaid 3, Overdue 0.
  * "Hari ini" default = tanggal sistem (hariIniIso); skrip cek memakai
  * '2026-11-16' eksplisit supaya deterministik. Hanya pembayaran
  * Terverifikasi yang dihitung.
@@ -125,6 +141,7 @@ export type StatusPembayaranKontrak =
   | 'Unpaid'
   | 'Paid'
   | 'Partially-Paid'
+  | 'Insufficient Payment'
   | 'Overdue';
 
 export function statusPembayaranKontrak(
@@ -143,32 +160,30 @@ export function statusPembayaranKontrak(
     (s, t) => s + dibayarTerverifikasi(t.id, pembayaran),
     0,
   );
-  if (totalDibayar >= kontrak.nilaiKontrak + totalDenda) return 'Paid';
-  if (totalDibayar > 0) return 'Partially-Paid';
+  const penuh = kontrak.nilaiKontrak + totalDenda;
+  if (totalDibayar >= penuh) return 'Paid';
+  if (totalDibayar > 0) {
+    // Partially-Paid = dibayar SESUAI Piutang (nilai kontrak yang sudah
+    // dilaksanakan); toleransi Rp1 untuk pembulatan (kasus 7054).
+    const piutang = piutangRealisasi(kontrak, tagihan, denda, hariIni);
+    if (Math.abs(totalDibayar - piutang) <= 1 && piutang < penuh)
+      return 'Partially-Paid';
+    return 'Insufficient Payment';
+  }
   const adaLewatJatuhTempo = tagihanKontrak.some(
     (t) => hariIni > t.tanggalJatuhTempo,
   );
   return adaLewatJatuhTempo ? 'Overdue' : 'Unpaid';
 }
 
-/**
- * Label Bahasa Indonesia untuk kolom "Status Pembayaran" di tabel Contract
- * (keputusan pengguna 17/11/2026 08:04 WIB): Paid → "Lunas", Unpaid →
- * "Belum Bayar", Partially-Paid → "Kurang Bayar", Overdue →
- * "Keterlambatan Pembayaran". SENGAJA Bahasa Indonesia atas permintaan
- * eksplisit pengguna — pengecualian untuk kolom ini saja dari keputusan
- * UI full-English; definisi statusnya TIDAK berubah (tetap
- * statusPembayaranKontrak, PR #60) dan opsi filter Payment Status tetap
- * Bahasa Inggris.
- */
-export function labelStatusPembayaranKontrak(
-  status: StatusPembayaranKontrak,
-): string {
-  if (status === 'Paid') return 'Lunas';
-  if (status === 'Partially-Paid') return 'Kurang Bayar';
-  if (status === 'Overdue') return 'Keterlambatan Pembayaran';
-  return 'Belum Bayar';
-}
+// CATATAN: helper labelStatusPembayaranKontrak (label Indonesia: Lunas /
+// Belum Bayar / Kurang Bayar / Keterlambatan Pembayaran, PR #64) DIHAPUS
+// per keputusan pengguna 17/11/2026 08:34 WIB — kolom Status Pembayaran
+// kembali ke English. Nilai statusnya sendiri sudah Bahasa Inggris
+// (Paid / Unpaid / Partially-Paid / Insufficient Payment / Overdue),
+// jadi sel tabel menampilkan status itu langsung, tanpa helper label.
+// Ini pembatalan label Indonesia atas instruksi eksplisit pengguna,
+// bukan perbaikan bug.
 
 /**
  * Status kerja sama per kontrak (keputusan pengguna 16/11/2026: filter

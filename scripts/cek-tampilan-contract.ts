@@ -8,10 +8,11 @@
 // gabung "; " — header diganti dari "Service / BMN Detail" per keputusan
 // pengguna 16/11/2026 13:58 WIB), Contract Period, Remaining Days
 // (hitung mundur sampai tanggalSelesai, "Completed" bila status Selesai —
-// keputusan pengguna 16/11/2026 15:29 WIB), Status Pembayaran (label
-// Bahasa Indonesia: Lunas / Belum Bayar / Kurang Bayar / Keterlambatan
-// Pembayaran — keputusan pengguna 17/11/2026 08:04 WIB; definisi status
-// tetap PR #60), Contract Value; nomor
+// keputusan pengguna 16/11/2026 15:29 WIB), Payment Status (kolom
+// kembali ke English per keputusan pengguna 17/11/2026 08:34 WIB —
+// membatalkan label Indonesia PR #64; definisi status DIREDEFINISI
+// 17/11/2026 08:33 WIB: Partially-Paid = dibayar == Piutang realisasi,
+// ditambah Insufficient Payment), Contract Value; nomor
 // urut "No." mengikuti urutan tampil sesudah filter + sort (keputusan
 // pengguna 16/11/2026 13:31 WIB), filter Client Type + PNBP Type +
 // Payment Status + Cooperation Status (keputusan pengguna 16/11/2026
@@ -23,12 +24,13 @@ import * as fs from 'node:fs';
 import { DATA_NYATA } from '../src/lib/seedNyata';
 import { dibayarTerverifikasi, hitungTotalKontrol } from '../src/lib/derive';
 import { selisihHari } from '../src/lib/format';
+import { piutangRealisasi } from '../src/lib/realisasi';
+import type { Pembayaran } from '../src/lib/types';
 import {
   detailLayananKontrak,
   jenisKlienYangAda,
   judulKontrak,
   labelArahUrutKontrak,
-  labelStatusPembayaranKontrak,
   nomorReferensiKontrak,
   sisaHariKerjaSama,
   statusKerjaSamaKontrak,
@@ -198,17 +200,25 @@ cek(
 );
 
 // ---------- filter Payment Status (keputusan pengguna 16/11/2026 13:56 WIB,
-// DIKOREKSI pengguna 16/11/2026 15:13–15:15 WIB — membalik precedence PR #58) ----------
+// DIREDEFINISI pengguna 17/11/2026 08:33 WIB — menggantikan definisi
+// PR #60 untuk Partially-Paid; ditambah Insufficient Payment) ----------
 // Aturan BARU (helper statusPembayaranKontrak, hari ini = 2026-11-16);
-// pembandingnya NILAI KONTRAK + DENDA, bukan nilai tagihan:
+// pembandingnya NILAI KONTRAK + DENDA dan PIUTANG (realisasi), bukan
+// nilai tagihan:
 // Paid = dibayar Terverifikasi >= nilaiKontrak + total denda;
-// Partially-Paid = 0 < dibayar < nilaiKontrak + total denda (tidak peduli
-// sudah lewat jatuh tempo atau belum — 6 kontrak bayar-sebagian yang dulu
-// Overdue kini Partially-Paid, ditambah 5 kontrak sewa multi-tahun yang
-// tagihannya baru tahun pertama: 1051/1052/1053, 016, 027);
+// Partially-Paid = dibayar == Piutang ((nilaiKontrak + total denda) x
+// % Realisasi) DALAM toleransi |dibayar - Piutang| <= Rp1, DAN Piutang
+// < nilaiKontrak + total denda — klien sudah membayar lunas nilai
+// kontrak yang SUDAH dilaksanakan (5 sewa multi-tahun: 1051/1052/1053
+// 1/3, 016/027 2/3);
+// Insufficient Payment = 0 < dibayar < nilaiKontrak + total denda DAN
+// dibayar != Piutang — 6 kontrak yang pokoknya lunas tetapi dendanya
+// belum dibayar (1744, 2919, 2920, 7052, 7054, 7060); termasuk dibayar
+// > Piutang tapi < penuh (tidak ada kasusnya di seed);
 // Overdue = dibayar 0 DAN ada tagihan lewat jatuh tempo;
 // Unpaid = dibayar 0 DAN belum ada tagihan lewat jatuh tempo.
-// Hanya pembayaran Terverifikasi yang dihitung.
+// Hanya pembayaran Terverifikasi yang dihitung. Urutan periksa: Paid,
+// Partially-Paid, Insufficient Payment, lalu Overdue/Unpaid.
 const HARI_INI = '2026-11-16';
 const statusBayar = (nomor: string) =>
   statusPembayaranKontrak(
@@ -235,47 +245,47 @@ cek(
   statusBayar('001/PKS/DIR.LPU/01/2026') === 'Paid',
 );
 cek(
-  'payment status 1744 = Partially-Paid (dibayar 15.000.000 dari 15.000.000 + denda 900.000)',
-  statusBayar('1744/PKS/RRI.PLB/03/2026') === 'Partially-Paid',
+  'payment status 1744 = Insufficient Payment (dibayar 15.000.000, piutang 15.900.000 = penuh; denda 900.000 belum dibayar)',
+  statusBayar('1744/PKS/RRI.PLB/03/2026') === 'Insufficient Payment',
 );
 cek(
-  'payment status 2919 = Partially-Paid (dibayar 1.500.000 dari 1.500.000 + denda 30.000)',
-  statusBayar('2919/PKS/RRI.PLB/04/2026') === 'Partially-Paid',
+  'payment status 2919 = Insufficient Payment (dibayar 1.500.000, piutang 1.530.000 = penuh; denda 30.000 belum dibayar)',
+  statusBayar('2919/PKS/RRI.PLB/04/2026') === 'Insufficient Payment',
 );
 cek(
-  'payment status 2920 = Partially-Paid (dibayar 1.000.000 dari 1.000.000 + denda 20.000)',
-  statusBayar('2920/PKS/RRI.PLB/04/2026') === 'Partially-Paid',
+  'payment status 2920 = Insufficient Payment (dibayar 1.000.000, piutang 1.020.000 = penuh; denda 20.000 belum dibayar)',
+  statusBayar('2920/PKS/RRI.PLB/04/2026') === 'Insufficient Payment',
 );
 cek(
-  'payment status 7052 = Partially-Paid (dibayar 6.000.000 dari 6.000.000 + denda 1.440.000)',
-  statusBayar('7052/PKS/RRI.PLB/07/2026') === 'Partially-Paid',
+  'payment status 7052 = Insufficient Payment (dibayar 6.000.000, piutang 7.440.000 = penuh; denda 1.440.000 belum dibayar)',
+  statusBayar('7052/PKS/RRI.PLB/07/2026') === 'Insufficient Payment',
 );
 cek(
-  'payment status 7054 = Partially-Paid (dibayar 7.904.292 dari 7.904.292 + denda 1.897.030)',
-  statusBayar('7054/PKS/RRI.PLB/07/2026') === 'Partially-Paid',
+  'payment status 7054 = Insufficient Payment (dibayar 7.904.292, piutang 9.801.322 = penuh; denda 1.897.030 belum dibayar)',
+  statusBayar('7054/PKS/RRI.PLB/07/2026') === 'Insufficient Payment',
 );
 cek(
-  'payment status 7060 = Partially-Paid (dibayar 4.116.000 dari 4.116.000 + denda 987.840)',
-  statusBayar('7060/PKS/RRI.PLB/07/2026') === 'Partially-Paid',
+  'payment status 7060 = Insufficient Payment (dibayar 4.116.000, piutang 5.103.840 = penuh; denda 987.840 belum dibayar)',
+  statusBayar('7060/PKS/RRI.PLB/07/2026') === 'Insufficient Payment',
 );
 cek(
-  'payment status 1051 = Partially-Paid (sewa 3 tahun, baru dibayar 1 tahun: 6.455.000 dari 19.365.000)',
+  'payment status 1051 = Partially-Paid (dibayar == piutang 6.455.000 = 1/3 x 19.365.000)',
   statusBayar('1051/PKS/RRI.PLB/02/2026') === 'Partially-Paid',
 );
 cek(
-  'payment status 1052 = Partially-Paid (sewa 3 tahun, baru dibayar 1 tahun: 6.455.000 dari 19.365.000)',
+  'payment status 1052 = Partially-Paid (dibayar == piutang 6.455.000 = 1/3 x 19.365.000)',
   statusBayar('1052/PKS/RRI.PLB/02/2026') === 'Partially-Paid',
 );
 cek(
-  'payment status 1053 = Partially-Paid (sewa 3 tahun, baru dibayar 1 tahun: 5.648.000 dari 16.944.000)',
+  'payment status 1053 = Partially-Paid (dibayar == piutang 5.648.000 = 1/3 x 16.944.000)',
   statusBayar('1053/PKS/RRI.PLB/02/2026') === 'Partially-Paid',
 );
 cek(
-  'payment status 016 VGreen = Partially-Paid (dibayar 34.292.500 dari 51.438.750)',
+  'payment status 016 VGreen = Partially-Paid (dibayar == piutang 34.292.500 = 2/3 x 51.438.750)',
   statusBayar('016/PKS/DIR.LPU/06/2025') === 'Partially-Paid',
 );
 cek(
-  'payment status 027 Darojad = Partially-Paid (dibayar 22.492.500 dari 33.738.750)',
+  'payment status 027 Darojad = Partially-Paid (dibayar == piutang 22.492.500 = 2/3 x 33.738.750)',
   statusBayar('027/RRI.PLB/PKS.U/06/2025') === 'Partially-Paid',
 );
 cek(
@@ -292,9 +302,14 @@ cek(
 );
 cek('payment status Paid = 28', hitungBayar('Paid') === 28, `${hitungBayar('Paid')}`);
 cek(
-  'payment status Partially-Paid = 11 (6 bayar-sebagian + denda + 5 sewa multi-tahun)',
-  hitungBayar('Partially-Paid') === 11,
+  'payment status Partially-Paid = 5 (sewa multi-tahun, dibayar == piutang)',
+  hitungBayar('Partially-Paid') === 5,
   `${hitungBayar('Partially-Paid')}`,
+);
+cek(
+  'payment status Insufficient Payment = 6 (pokok lunas, denda belum dibayar)',
+  hitungBayar('Insufficient Payment') === 6,
+  `${hitungBayar('Insufficient Payment')}`,
 );
 cek('payment status Unpaid = 3', hitungBayar('Unpaid') === 3, `${hitungBayar('Unpaid')}`);
 cek(
@@ -303,43 +318,33 @@ cek(
   `${hitungBayar('Overdue')}`,
 );
 
-// ---------- kolom Status Pembayaran (keputusan pengguna 17/11/2026 08:04 WIB) ----------
-// Label kolom Bahasa Indonesia, statusnya tetap dari
-// statusPembayaranKontrak (definisi PR #60, tidak berubah); opsi filter
-// Payment Status TETAP Bahasa Inggris (asersi di bawah, bagian struktur).
-// Nilai "Overdue" TIDAK BISA dites lewat baris tabel — saat ini tidak ada
-// kontrak Overdue di seed (0, lihat asersi di atas) — jadi hanya dites
-// lewat helper label di bawah, bukan lewat baris.
-const labelBayar = (nomor: string) =>
-  labelStatusPembayaranKontrak(statusBayar(nomor));
-cek("label Paid = 'Lunas'", labelStatusPembayaranKontrak('Paid') === 'Lunas');
+// ---------- kolom Payment Status (kembali ke English, keputusan pengguna
+// 17/11/2026 08:34 WIB — membatalkan label Indonesia PR #64) ----------
+// Helper label Indonesia labelStatusPembayaranKontrak DIHAPUS: sel tabel
+// menampilkan nilai statusnya langsung (Paid / Unpaid / Partially-Paid /
+// Insufficient Payment / Overdue). Nilai "Overdue" TIDAK BISA dites
+// lewat baris tabel — saat ini tidak ada kontrak Overdue di seed (0,
+// lihat asersi di atas) — nilai itu sendiri sudah English, jadi tidak
+// ada pemetaan label yang perlu dites.
 cek(
-  "label Unpaid = 'Belum Bayar'",
-  labelStatusPembayaranKontrak('Unpaid') === 'Belum Bayar',
+  'kolom Payment Status 0603 = Paid',
+  statusBayar('0603/PKS/RRI.PLB/01/2026') === 'Paid',
 );
 cek(
-  "label Partially-Paid = 'Kurang Bayar'",
-  labelStatusPembayaranKontrak('Partially-Paid') === 'Kurang Bayar',
+  'kolom Payment Status 018 = Unpaid',
+  statusBayar('018/PKS/DIR.LPU/08/2026') === 'Unpaid',
 );
 cek(
-  "label Overdue = 'Keterlambatan Pembayaran'",
-  labelStatusPembayaranKontrak('Overdue') === 'Keterlambatan Pembayaran',
+  'kolom Payment Status 1051 = Partially-Paid',
+  statusBayar('1051/PKS/RRI.PLB/02/2026') === 'Partially-Paid',
 );
 cek(
-  'kolom Status Pembayaran 0603 = Lunas',
-  labelBayar('0603/PKS/RRI.PLB/01/2026') === 'Lunas',
+  'kolom Payment Status 10227 = Unpaid',
+  statusBayar('10227/PKS/RRI.PLB/10/2026') === 'Unpaid',
 );
 cek(
-  'kolom Status Pembayaran 018 = Belum Bayar',
-  labelBayar('018/PKS/DIR.LPU/08/2026') === 'Belum Bayar',
-);
-cek(
-  'kolom Status Pembayaran 1051 = Kurang Bayar',
-  labelBayar('1051/PKS/RRI.PLB/02/2026') === 'Kurang Bayar',
-);
-cek(
-  'kolom Status Pembayaran 10227 = Belum Bayar',
-  labelBayar('10227/PKS/RRI.PLB/10/2026') === 'Belum Bayar',
+  'kolom Payment Status 1744 = Insufficient Payment',
+  statusBayar('1744/PKS/RRI.PLB/03/2026') === 'Insufficient Payment',
 );
 // Denda tertanam di tagihan.nilai, TETAPI Σ tagihan == nilaiKontrak +
 // total denda hanya di 34/42 kontrak: 7 kontrak punya tagihan yang
@@ -393,7 +398,8 @@ cek(
     -1,
 );
 // 11 kontrak yang dibayar sebagian (menurut nilai kontrak + denda)
-// semuanya Partially-Paid — tidak ada lagi yang masuk Overdue.
+// terbagi dua oleh definisi baru: 5 yang dibayar == Piutang tetap
+// Partially-Paid, 6 yang dibayar < Piutang jadi Insufficient Payment.
 const bayarSebagian = kontrak.filter((k) => {
   const tg = DATA_NYATA.tagihan.filter((t) => t.kontrakId === k.id);
   const total = tg.reduce(
@@ -402,26 +408,118 @@ const bayarSebagian = kontrak.filter((k) => {
   );
   return total > 0 && total < k.nilaiKontrak + dendaKontrak(k);
 });
+const statusDari = (k: (typeof kontrak)[number]) =>
+  statusPembayaranKontrak(
+    k,
+    DATA_NYATA.tagihan,
+    DATA_NYATA.pembayaran,
+    DATA_NYATA.denda,
+    HARI_INI,
+  );
 cek(
-  '11 kontrak bayar-sebagian (vs nilaiKontrak + denda) semuanya Partially-Paid',
+  '11 kontrak bayar-sebagian terbagi 5 Partially-Paid + 6 Insufficient Payment',
   bayarSebagian.length === 11 &&
-    bayarSebagian.every(
-      (k) =>
-        statusPembayaranKontrak(
-          k,
-          DATA_NYATA.tagihan,
-          DATA_NYATA.pembayaran,
-          DATA_NYATA.denda,
-          HARI_INI,
-        ) === 'Partially-Paid',
-    ),
+    bayarSebagian.filter((k) => statusDari(k) === 'Partially-Paid').length === 5 &&
+    bayarSebagian.filter((k) => statusDari(k) === 'Insufficient Payment').length === 6,
   `${bayarSebagian.length}`,
 );
-// Kategori saling lepas: jumlah keempatnya = 42.
 cek(
-  'payment status saling lepas (28+11+3+0 = 42)',
+  '5 Partially-Paid = 1051, 1052, 1053, 016, 027 (dibayar == piutang)',
+  JSON.stringify(
+    bayarSebagian
+      .filter((k) => statusDari(k) === 'Partially-Paid')
+      .map((k) => k.nomorPks.split('/')[0])
+      .sort(),
+  ) === JSON.stringify(['016', '027', '1051', '1052', '1053']),
+);
+cek(
+  '6 Insufficient Payment = 1744, 2919, 2920, 7052, 7054, 7060 (dibayar < piutang)',
+  JSON.stringify(
+    bayarSebagian
+      .filter((k) => statusDari(k) === 'Insufficient Payment')
+      .map((k) => k.nomorPks.split('/')[0])
+      .sort(),
+  ) === JSON.stringify(['1744', '2919', '2920', '7052', '7054', '7060']),
+);
+cek(
+  '6 Insufficient Payment semuanya pokok lunas, denda belum dibayar (dibayar == nilaiKontrak)',
+  bayarSebagian
+    .filter((k) => statusDari(k) === 'Insufficient Payment')
+    .every((k) => {
+      const tg = DATA_NYATA.tagihan.filter((t) => t.kontrakId === k.id);
+      const total = tg.reduce(
+        (s, t) => s + dibayarTerverifikasi(t.id, DATA_NYATA.pembayaran),
+        0,
+      );
+      return total === k.nilaiKontrak;
+    }),
+);
+cek(
+  'tidak ada kontrak dibayar > Piutang tapi < penuh di seed',
+  kontrak.every((k) => {
+    const tg = DATA_NYATA.tagihan.filter((t) => t.kontrakId === k.id);
+    const total = tg.reduce(
+      (s, t) => s + dibayarTerverifikasi(t.id, DATA_NYATA.pembayaran),
+      0,
+    );
+    const piutang = piutangRealisasi(k, DATA_NYATA.tagihan, DATA_NYATA.denda, HARI_INI);
+    return !(total > piutang && total < k.nilaiKontrak + dendaKontrak(k));
+  }),
+);
+// Toleransi |dibayar - Piutang| <= Rp1 (kasus sintetis pada 1051,
+// piutang 6.455.000): +1 dan -1 tetap Partially-Paid, +2 jadi
+// Insufficient Payment.
+const tagihan1051 = DATA_NYATA.tagihan.find(
+  (t) => t.kontrakId === cari('1051/PKS/RRI.PLB/02/2026').id,
+)!;
+const bayarSintetis = (jumlah: number): Pembayaran[] => [
+  {
+    id: 'SINT-TOL',
+    tagihanId: tagihan1051.id,
+    tanggalBayar: '2026-11-16',
+    jumlah,
+    metode: 'Transfer',
+    penyetor: 'Sintetis',
+    statusVerifikasi: 'Terverifikasi',
+    satker: { kode: '41', nama: 'PALEMBANG' },
+  },
+];
+cek(
+  'toleransi: dibayar piutang+1 (6.455.001) tetap Partially-Paid',
+  statusPembayaranKontrak(
+    cari('1051/PKS/RRI.PLB/02/2026'),
+    DATA_NYATA.tagihan,
+    bayarSintetis(6455001),
+    DATA_NYATA.denda,
+    HARI_INI,
+  ) === 'Partially-Paid',
+);
+cek(
+  'toleransi: dibayar piutang-1 (6.454.999) tetap Partially-Paid',
+  statusPembayaranKontrak(
+    cari('1051/PKS/RRI.PLB/02/2026'),
+    DATA_NYATA.tagihan,
+    bayarSintetis(6454999),
+    DATA_NYATA.denda,
+    HARI_INI,
+  ) === 'Partially-Paid',
+);
+cek(
+  'toleransi: dibayar piutang+2 (6.455.002) jadi Insufficient Payment',
+  statusPembayaranKontrak(
+    cari('1051/PKS/RRI.PLB/02/2026'),
+    DATA_NYATA.tagihan,
+    bayarSintetis(6455002),
+    DATA_NYATA.denda,
+    HARI_INI,
+  ) === 'Insufficient Payment',
+);
+// Kategori saling lepas: jumlah kelimanya = 42.
+cek(
+  'payment status saling lepas (28+5+6+3+0 = 42)',
   hitungBayar('Paid') +
     hitungBayar('Partially-Paid') +
+    hitungBayar('Insufficient Payment') +
     hitungBayar('Unpaid') +
     hitungBayar('Overdue') ===
     42,
@@ -442,8 +540,8 @@ const sebagianNilaiDesc = urutkanKontrak(
   'turun',
 );
 cek(
-  'filter Partially-Paid = 11 baris',
-  sebagianNilaiDesc.length === 11,
+  'filter Partially-Paid = 5 baris',
+  sebagianNilaiDesc.length === 5,
   `${sebagianNilaiDesc.length}`,
 );
 cek(
@@ -452,14 +550,48 @@ cek(
   sebagianNilaiDesc[0].nomorPks,
 );
 cek(
-  'filter Partially-Paid + sort nilai desc terakhir 2920',
-  sebagianNilaiDesc[10].nomorPks === '2920/PKS/RRI.PLB/04/2026',
-  sebagianNilaiDesc[10].nomorPks,
+  'filter Partially-Paid + sort nilai desc terakhir 1053',
+  sebagianNilaiDesc[4].nomorPks === '1053/PKS/RRI.PLB/02/2026',
+  sebagianNilaiDesc[4].nomorPks,
 );
 cek(
   'filter Partially-Paid + sort nilai desc urutan 016, 027, 1051, 1052, 1053',
-  JSON.stringify(sebagianNilaiDesc.slice(0, 5).map((k) => k.nomorPks.split('/')[0])) ===
+  JSON.stringify(sebagianNilaiDesc.map((k) => k.nomorPks.split('/')[0])) ===
     JSON.stringify(['016', '027', '1051', '1052', '1053']),
+);
+const kurangNilaiDesc = urutkanKontrak(
+  kontrak.filter(
+    (k) =>
+      statusPembayaranKontrak(
+        k,
+        DATA_NYATA.tagihan,
+        DATA_NYATA.pembayaran,
+        DATA_NYATA.denda,
+        HARI_INI,
+      ) === 'Insufficient Payment',
+  ),
+  'nilai',
+  'turun',
+);
+cek(
+  'filter Insufficient Payment = 6 baris',
+  kurangNilaiDesc.length === 6,
+  `${kurangNilaiDesc.length}`,
+);
+cek(
+  'filter Insufficient Payment + sort nilai desc pertama 1744',
+  kurangNilaiDesc[0].nomorPks === '1744/PKS/RRI.PLB/03/2026',
+  kurangNilaiDesc[0].nomorPks,
+);
+cek(
+  'filter Insufficient Payment + sort nilai desc terakhir 2920',
+  kurangNilaiDesc[5].nomorPks === '2920/PKS/RRI.PLB/04/2026',
+  kurangNilaiDesc[5].nomorPks,
+);
+cek(
+  'filter Insufficient Payment + sort nilai desc urutan 1744, 7054, 7052, 7060, 2919, 2920',
+  JSON.stringify(kurangNilaiDesc.map((k) => k.nomorPks.split('/')[0])) ===
+    JSON.stringify(['1744', '7054', '7052', '7060', '2919', '2920']),
 );
 cek(
   'filter Overdue = 0 baris (jujur: tidak ada kontrak nol-pembayaran yang lewat jatuh tempo)',
@@ -490,7 +622,7 @@ cek(
   ).length === 19,
 );
 cek(
-  'filter gabungan Fungsional + Partially-Paid = 3 (1744, 2919, 2920)',
+  'filter gabungan Fungsional + Partially-Paid = 0 (1744, 2919, 2920 pindah ke Insufficient)',
   kontrak.filter(
     (k) =>
       k.jenisPnBP === 'Fungsional' &&
@@ -501,6 +633,20 @@ cek(
         DATA_NYATA.denda,
         HARI_INI,
       ) === 'Partially-Paid',
+  ).length === 0,
+);
+cek(
+  'filter gabungan Fungsional + Insufficient Payment = 3 (1744, 2919, 2920)',
+  kontrak.filter(
+    (k) =>
+      k.jenisPnBP === 'Fungsional' &&
+      statusPembayaranKontrak(
+        k,
+        DATA_NYATA.tagihan,
+        DATA_NYATA.pembayaran,
+        DATA_NYATA.denda,
+        HARI_INI,
+      ) === 'Insufficient Payment',
   ).length === 3,
 );
 
@@ -566,7 +712,7 @@ cek(
   ).length === 20,
 );
 cek(
-  'filter gabungan Partially-Paid + Completed = 6 (1744, 2919, 2920, 7052, 7054, 7060)',
+  'filter gabungan Partially-Paid + Completed = 0 (6 kontrak lama pindah ke Insufficient)',
   kontrak.filter(
     (k) =>
       statusPembayaranKontrak(
@@ -576,7 +722,33 @@ cek(
         DATA_NYATA.denda,
         HARI_INI,
       ) === 'Partially-Paid' && statusKerjaSamaKontrak(k, HARI_INI) === 'Completed',
+  ).length === 0,
+);
+cek(
+  'filter gabungan Insufficient Payment + Completed = 6 (1744, 2919, 2920, 7052, 7054, 7060)',
+  kontrak.filter(
+    (k) =>
+      statusPembayaranKontrak(
+        k,
+        DATA_NYATA.tagihan,
+        DATA_NYATA.pembayaran,
+        DATA_NYATA.denda,
+        HARI_INI,
+      ) === 'Insufficient Payment' && statusKerjaSamaKontrak(k, HARI_INI) === 'Completed',
   ).length === 6,
+);
+cek(
+  'filter gabungan Insufficient Payment + On-Going = 0',
+  kontrak.filter(
+    (k) =>
+      statusPembayaranKontrak(
+        k,
+        DATA_NYATA.tagihan,
+        DATA_NYATA.pembayaran,
+        DATA_NYATA.denda,
+        HARI_INI,
+      ) === 'Insufficient Payment' && statusKerjaSamaKontrak(k, HARI_INI) === 'On-Going',
+  ).length === 0,
 );
 cek(
   'filter gabungan Partially-Paid + On-Going = 5 (1051, 1052, 1053, 016, 027)',
@@ -778,7 +950,7 @@ const akhir = deals.indexOf('function DetailKontrak', awal);
 const tabKontrak = deals.slice(awal, akhir);
 const header = [...tabKontrak.matchAll(/<Th[^>]*>([^<]+)<\/Th>/g)].map((m) => m[1]);
 cek(
-  'urutan 11 header kolom (No. paling kiri, Remaining Days sesudah Contract Period, Status Pembayaran sesudah Remaining Days, Contract Value tetap terakhir)',
+  'urutan 11 header kolom (No. paling kiri, Remaining Days sesudah Contract Period, Payment Status sesudah Remaining Days, Contract Value tetap terakhir)',
   JSON.stringify(header) ===
     JSON.stringify([
       'No.',
@@ -790,22 +962,28 @@ cek(
       'Service Detail',
       'Contract Period',
       'Remaining Days',
-      'Status Pembayaran',
+      'Payment Status',
       'Contract Value',
     ]),
   JSON.stringify(header),
 );
-cek('header "Status Pembayaran" 1x', header.filter((h) => h === 'Status Pembayaran').length === 1);
+cek('header "Payment Status" 1x', header.filter((h) => h === 'Payment Status').length === 1);
 cek(
-  'header "Status Pembayaran" sesudah Remaining Days, sebelum Contract Value',
-  header.indexOf('Status Pembayaran') === header.indexOf('Remaining Days') + 1 &&
-    header.indexOf('Status Pembayaran') === header.indexOf('Contract Value') - 1,
+  'header "Payment Status" sesudah Remaining Days, sebelum Contract Value',
+  header.indexOf('Payment Status') === header.indexOf('Remaining Days') + 1 &&
+    header.indexOf('Payment Status') === header.indexOf('Contract Value') - 1,
 );
 cek(
-  'sel Status Pembayaran pakai helper labelStatusPembayaranKontrak + statusPembayaranKontrak',
-  tabKontrak.includes('labelStatusPembayaranKontrak(') &&
-    tabKontrak.includes('statusPembayaranKontrak(k, data.tagihan, data.pembayaran, data.denda)'),
+  'sel Payment Status menampilkan statusPembayaranKontrak langsung (tanpa helper label)',
+  tabKontrak.includes('statusPembayaranKontrak(k, data.tagihan, data.pembayaran, data.denda)') &&
+    !tabKontrak.includes('labelStatusPembayaranKontrak'),
 );
+cek(
+  'helper label Indonesia labelStatusPembayaranKontrak 0x di Deals.tsx + kontrakTampilan.ts',
+  !deals.includes('labelStatusPembayaranKontrak') &&
+    !fs.readFileSync('src/lib/kontrakTampilan.ts', 'utf8').includes('export function labelStatusPembayaranKontrak'),
+);
+cek('header "Status Pembayaran" (Indonesia) 0x di TabKontrak', !tabKontrak.includes('Status Pembayaran'));
 cek('header "Remaining Days" 1x', header.filter((h) => h === 'Remaining Days').length === 1);
 cek(
   'header "Contract Value" tetap terakhir',
@@ -858,10 +1036,17 @@ cek('filter PNBP Type ada', tabKontrak.includes('<Label>PNBP Type</Label>'));
 cek('filter Payment Status ada', tabKontrak.includes('<Label>Payment Status</Label>'));
 cek('filter Cooperation Status ada', tabKontrak.includes('<Label>Cooperation Status</Label>'));
 cek(
-  'opsi filter Payment Status 4',
-  ['Unpaid', 'Paid', 'Partially-Paid', 'Overdue'].every((o) =>
+  'opsi filter Payment Status 5 (All + 5 status)',
+  ['Unpaid', 'Paid', 'Partially-Paid', 'Insufficient Payment', 'Overdue'].every((o) =>
     tabKontrak.includes(`value="${o}">${o}`),
   ),
+);
+cek(
+  'urutan opsi filter Payment Status: Partially-Paid, Insufficient Payment, Overdue',
+  tabKontrak.indexOf('value="Partially-Paid"') <
+    tabKontrak.indexOf('value="Insufficient Payment"') &&
+    tabKontrak.indexOf('value="Insufficient Payment"') <
+      tabKontrak.indexOf('value="Overdue"'),
 );
 cek(
   'opsi filter Cooperation Status 3',

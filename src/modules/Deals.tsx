@@ -28,7 +28,6 @@ import {
   jenisKlienYangAda,
   judulKontrak,
   labelArahUrutKontrak,
-  labelStatusPembayaranKontrak,
   nomorReferensiKontrak,
   sisaHariKerjaSama,
   statusKerjaSamaKontrak,
@@ -675,10 +674,12 @@ export function TabKontrak({
   // kolom kode akun dan tanpa Status. Filter: Client Type + PNBP Type +
   // Payment Status + Cooperation Status (keputusan pengguna 16/11/2026
   // 13:56 WIB). Kolom "Remaining Days" di samping Contract Period
-  // (keputusan pengguna 16/11/2026 15:29 WIB). Kolom "Status Pembayaran"
-  // sesudah Remaining Days, sebelum Contract Value (keputusan pengguna
-  // 17/11/2026 08:04 WIB) — label Bahasa Indonesia, definisi status
-  // tetap statusPembayaranKontrak (PR #60).
+  // (keputusan pengguna 16/11/2026 15:29 WIB). Kolom "Payment Status"
+  // sesudah Remaining Days, sebelum Contract Value — kembali ke English
+  // per keputusan pengguna 17/11/2026 08:34 WIB (membatalkan label
+  // Indonesia PR #64); definisi status DIREDEFINISI 17/11/2026
+  // 08:33 WIB (Partially-Paid = dibayar == Piutang realisasi;
+  // ditambah Insufficient Payment).
   const jenisKlien = (k: Kontrak): string | undefined =>
     data.klien.find((kl) => kl.id === k.klienId)?.jenis;
   const kontrakTersaring = urutkanKontrak(
@@ -755,6 +756,7 @@ export function TabKontrak({
             <option value="Unpaid">Unpaid</option>
             <option value="Paid">Paid</option>
             <option value="Partially-Paid">Partially-Paid</option>
+            <option value="Insufficient Payment">Insufficient Payment</option>
             <option value="Overdue">Overdue</option>
           </select>
         </div>
@@ -822,7 +824,7 @@ export function TabKontrak({
                 <Th>Service Detail</Th>
                 <Th>Contract Period</Th>
                 <Th>Remaining Days</Th>
-                <Th>Status Pembayaran</Th>
+                <Th>Payment Status</Th>
                 <Th kanan>Contract Value</Th>
               </tr>
             </thead>
@@ -871,17 +873,15 @@ export function TabKontrak({
                   */}
                   <Td>{sisaHariKerjaSama(k)}</Td>
                   {/*
-                    Status pembayaran — label Bahasa Indonesia (keputusan
-                    pengguna 17/11/2026 08:04 WIB): Lunas / Belum Bayar /
-                    Kurang Bayar / Keterlambatan Pembayaran. Statusnya
-                    sendiri dari statusPembayaranKontrak (definisi PR #60,
-                    tidak berubah); hanya label tampilnya yang
-                    di-Indonesia-kan, atas permintaan eksplisit pengguna.
+                    Status pembayaran — English (keputusan pengguna
+                    17/11/2026 08:34 WIB; membatalkan label Indonesia
+                    PR #64). Nilainya langsung dari
+                    statusPembayaranKontrak (REDEFINISI 17/11/2026
+                    08:33 WIB: Partially-Paid = dibayar == Piutang
+                    realisasi; ditambah Insufficient Payment).
                   */}
                   <Td>
-                    {labelStatusPembayaranKontrak(
-                      statusPembayaranKontrak(k, data.tagihan, data.pembayaran, data.denda),
-                    )}
+                    {statusPembayaranKontrak(k, data.tagihan, data.pembayaran, data.denda)}
                   </Td>
                   <Td kanan>{formatRupiah(k.nilaiKontrak)}</Td>
                 </Baris>
