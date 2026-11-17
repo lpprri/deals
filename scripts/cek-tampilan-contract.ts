@@ -1884,9 +1884,13 @@ cek(
     tabKontrak.includes('onPilihKontrak(k.id)'),
 );
 cek(
-  'sel Notes pakai catatanLuarJudulReferensi, "—" bila kosong',
-  tabKontrak.includes('const notes = catatanLuarJudulReferensi(k.catatan)') &&
-    tabKontrak.includes('notes ??'),
+  'sel Notes selalu "—" (isi dikosongkan, keputusan pengguna 17/11/2026 14:41 WIB; kolom + cluster Notes tetap ada)',
+  tabKontrak.includes("<Td className=\"max-w-md\">{'—'}</Td>") &&
+    !tabKontrak.includes('catatanLuarJudulReferensi') &&
+    !tabKontrak.includes('const notes =') &&
+    !tabKontrak.includes('Keterangan sumber') &&
+    !tabKontrak.includes('Realisasi kerja sama') &&
+    !tabKontrak.includes('BMN:'),
 );
 cek(
   'sel Fine Value / Total Revenue / Receivable Value / Realisation / Remaining Value / Payment Amount / Total Payment / Remaining Receivable rata kanan',
