@@ -694,10 +694,14 @@ cek(
     !docClusterSlice.includes('onClick'),
 );
 cek(
-  'cluster Document menampilkan keterpenuhan "Document Completeness: X% (N of M documents)"',
-  docClusterSlice.includes('Document Completeness:') &&
+  'cluster Document menampilkan keterpenuhan "Documentation: X% (N of M documents)" (diganti dari "Document Completeness" 17/11/2026 11:22 WIB)',
+  docClusterSlice.includes('Documentation:') &&
     docClusterSlice.includes('of ') &&
     docClusterSlice.includes('documents)'),
+);
+cek(
+  'label lama "Document Completeness:" 0x di DetailKontrak',
+  !detailSlice.includes('Document Completeness:'),
 );
 cek(
   'cluster Document memakai kelengkapanDokumen(dokumenCluster) + formatPersenRealisasi (daftar yang sama dengan tabel)',
@@ -706,8 +710,15 @@ cek(
 );
 cek(
   'baris keterpenuhan ada di bawah judul Document, di atas tabel',
-  docClusterSlice.indexOf('Document Completeness:') <
+  docClusterSlice.indexOf('Documentation:') <
     docClusterSlice.indexOf('<Th>Document</Th>'),
+);
+cek(
+  'tombol "View" di tabel Contract menggulir ke cluster Document: DetailKontrak menerima fokusCluster + refDokumen + scrollIntoView',
+  detailSlice.includes('fokusCluster') &&
+    detailSlice.includes('refDokumen') &&
+    detailSlice.includes("fokusCluster === 'document'") &&
+    detailSlice.includes('scrollIntoView'),
 );
 const dokHelper = fs.readFileSync('src/lib/dokumenKontrak.ts', 'utf-8');
 for (const label of [

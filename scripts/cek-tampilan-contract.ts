@@ -1,47 +1,76 @@
 // Cek tampilan baru tabel Contract (PR tampilan-baru-contract + PR
 // contract-signing-date + PR filter-contract-status + PR
 // remaining-days-contract + PR kolom-status-pembayaran + PR
-// tambah-kolom-nilai-contract + PR persentase-dokumen-contract): 18
-// kolom — No.,
-// Contract & Reference Number (gabungan, keputusan pengguna 16/11/2026
-// 13:35 WIB), Contract Title, Signing Date (= Creation Date per keputusan
-// pengguna 16/11/2026, dari tanggalTandaTangan dengan fallback
-// tanggalMulai), Client, Service Type, Service Detail (nama layanan,
-// gabung "; " — header diganti dari "Service / BMN Detail" per keputusan
-// pengguna 16/11/2026 13:58 WIB), Contract Period, Remaining Days
-// (hitung mundur sampai tanggalSelesai, "Completed" bila status Selesai —
-// keputusan pengguna 16/11/2026 15:29 WIB), Payment Status (kolom
-// kembali ke English per keputusan pengguna 17/11/2026 08:34 WIB —
-// membatalkan label Indonesia PR #64; definisi status DIREDEFINISI
-// 17/11/2026 08:33 WIB: Partially-Paid = dibayar == Piutang realisasi,
-// ditambah Insufficient Payment), Payment Deadline, Contract Value,
-// Fine Value, Total Revenue (header diganti dari
-// "Total Contract Value + Fine" 17/11/2026 09:06 WIB), Realisation,
-// Receivable Value, Remaining Value (header diganti dari
-// "Remaining Contract Value" 17/11/2026 09:07 WIB); urutan blok nilai
-// DIURUT ULANG per keputusan pengguna 17/11/2026 09:24 WIB — Contract
-// Value pindah ke awal blok (sesudah Payment Deadline), Realisation
-// dan Receivable Value bertukar posisi; kolom "Document Completeness"
-// ditambahkan sebagai kolom TERAKHIR (ke-18) per keputusan pengguna
-// 17/11/2026 09:26 WIB — persentase item checklist "Ada" / total item
-// (7 normal, 8 bila Overdue), format sama dengan Realisation; nomor
-// urut "No." mengikuti urutan tampil sesudah filter + sort (keputusan
-// pengguna 16/11/2026 13:31 WIB), filter Client Type + PNBP Type +
-// Payment Status + Cooperation Status (keputusan pengguna 16/11/2026
-// 13:56 WIB), sort 4 kunci (Signing Date / End Date / Contract Value /
-// Remaining Days — opsi ke-4 keputusan pengguna 16/11/2026 15:37 WIB,
-// TIDAK ada sort baru untuk 6 kolom nilai), tanpa Account Code dan
-// tanpa Status di tabel; total kontrol tidak berubah.
+// tambah-kolom-nilai-contract + PR persentase-dokumen-contract + PR
+// cluster-kolom-contract): 32 kolom dalam 7 cluster — Contract
+// (selalu tampil), Client Details, Service Details, Revenue Details,
+// Payment Details, Documents, Notes (keputusan pengguna 17/11/2026
+// 11:41 WIB). Tiap cluster (kecuali Contract) bisa disembunyikan
+// lewat kotak centang di atas tabel, state di localStorage
+// 'rri-contract-cluster-tersembunyi'; baris header grup menampilkan
+// nama cluster di atas nama kolom. Default: semua cluster tampil.
+// - Cluster 1 "Contract": No., Contract & Reference Number (gabungan,
+//   keputusan pengguna 16/11/2026 13:35 WIB), Contract Title, Signing
+//   Date (= Creation Date per keputusan pengguna 16/11/2026, dari
+//   tanggalTandaTangan dengan fallback tanggalMulai), Owner =
+//   operatorPenutup (atribusi Employee Rank PR #26).
+// - Cluster 2 "Client Details": Type (jenis klien), Client (nama klien,
+//   KLIK -> Clients dengan klien itu terpilih), Address, Signatory
+//   (penandatanganNama), Signatory Title (penandatanganJabatan),
+//   Contact Person (klien.kontakNama, fallback penanggungJawab),
+//   Contact (telepon), Email.
+// - Cluster 3 "Service Details": Service Type, Service Detail (nama
+//   layanan, gabung "; " — header diganti dari "Service / BMN Detail"
+//   per keputusan pengguna 16/11/2026 13:58 WIB), Contract Period,
+//   Remaining Days (hitung mundur sampai tanggalSelesai, "Completed"
+//   bila status Selesai — keputusan pengguna 16/11/2026 15:29 WIB),
+//   Realisation (pindah ke sini dari blok nilai).
+// - Cluster 4 "Revenue Details": Contract Value, Fine Value, Total
+//   Revenue (header diganti dari "Total Contract Value + Fine"
+//   17/11/2026 09:06 WIB), Receivable Value = Piutang (realisasi).
+// - Cluster 5 "Payment Details": Payment Deadline, Payment Status
+//   (kolom kembali ke English per keputusan pengguna 17/11/2026
+//   08:34 WIB — membatalkan label Indonesia PR #64; definisi status
+//   DIREDEFINISI 17/11/2026 08:33 WIB: Partially-Paid = dibayar ==
+//   Piutang realisasi, ditambah Insufficient Payment), Payment Date,
+//   Payment Amount (pembayaran Terverifikasi TERAKHIR), Total Payment
+//   (Σ pembayaran Terverifikasi), Remaining Receivable = Sisa Piutang
+//   = Piutang − Total Payment (koreksi Arahan 3, pengguna 17/11/2026
+//   11:57 WIB — rumus "Total Pembayaran − Piutang" diterapkan dengan
+//   urutan dibalik; tidak ada nilai negatif), Remaining Value = Sisa
+//   Kontrak = Total Revenue − Piutang (REDEFINISI 11:41 WIB
+//   DIBATALKAN 11:57 WIB — kembali ke definisi PR #67, sama dengan
+//   DetailKontrak).
+// - Cluster 6 "Documents": Availability Rate = persentase keterpenuhan
+//   dokumen PR #69 (dulu kolom "Document Completeness"; label baris di
+//   cluster Document diganti "Documentation" 17/11/2026 11:22 WIB),
+//   View = tombol yang membuka DetailKontrak lalu menggulir ke cluster
+//   Document.
+// - Cluster 7 "Notes": isi catatan di luar segmen Judul dan No.
+//   Referensi.
+// Nomor urut "No." mengikuti urutan tampil sesudah filter + sort
+// (keputusan pengguna 16/11/2026 13:31 WIB), filter Client Type +
+// PNBP Type + Payment Status + Cooperation Status (keputusan pengguna
+// 16/11/2026 13:56 WIB), sort 4 kunci (Signing Date / End Date /
+// Contract Value / Remaining Days — opsi ke-4 keputusan pengguna
+// 16/11/2026 15:37 WIB, TIDAK ada sort baru untuk kolom-kolom baru),
+// tanpa Account Code dan tanpa Status di tabel; total kontrol tidak
+// berubah.
 import * as fs from 'node:fs';
 import { DATA_NYATA } from '../src/lib/seedNyata';
 import { dibayarTerverifikasi, hitungTotalKontrol } from '../src/lib/derive';
 import { selisihHari } from '../src/lib/format';
 import {
   formatPersenRealisasi,
+  pembayaranTerverifikasiTerakhir,
   piutangRealisasi,
   realisasiKontrak,
+  selisihBayarPiutang,
   sisaKontrakRealisasi,
+  sisaNilaiSetelahBayar,
+  sisaPiutangRealisasi,
   totalDendaKontrak,
+  totalPembayaranKontrak,
 } from '../src/lib/realisasi';
 import type { Pembayaran, Tagihan } from '../src/lib/types';
 import {
@@ -49,6 +78,15 @@ import {
   kelengkapanDokumen,
 } from '../src/lib/dokumenKontrak';
 import {
+  CLUSTER_KONTRAK,
+  KUNCI_LOCALSTORAGE_CLUSTER_KONTRAK,
+  bacaClusterKontrakTersembunyi,
+  clusterKontrakTerlihat,
+  kolomKontrakTerlihat,
+  saringClusterKontrakTersembunyi,
+} from '../src/lib/clusterKontrak';
+import {
+  catatanLuarJudulReferensi,
   detailLayananKontrak,
   jatuhTempoPembayaranKontrak,
   jenisKlienYangAda,
@@ -965,14 +1003,9 @@ cek(
   labelArahUrutKontrak('tandaTangan', 'naik') === 'Oldest first',
 );
 
-// ---------- 6 kolom nilai baru (keputusan pengguna 17/11/2026 09:04 WIB;
-// header Total Revenue diganti 09:06 WIB, Remaining Value 09:07 WIB;
-// DIURUT ULANG 17/11/2026 09:24 WIB) ----------
-// Urutan blok nilai (Payment Deadline tetap sesudah Payment Status;
-// Contract Value kini awal blok, Realisation dan Receivable Value
-// bertukar posisi, Remaining Value kini terakhir): Payment Deadline,
-// Contract Value, Fine Value, Total Revenue, Realisation,
-// Receivable Value, Remaining Value.
+// ---------- kolom nilai + kolom baru Cluster 5 (keputusan pengguna
+// 17/11/2026 09:04 WIB + 11:41 WIB; header Total Revenue diganti
+// 09:06 WIB, Remaining Value 09:07 WIB) ----------
 // Definisi:
 // - Payment Deadline = jatuh tempo tagihan TERTUA yang belum lunas
 //   (statusTagihan bukan 'Lunas'); bila semua lunas, jatuh tempo
@@ -986,7 +1019,15 @@ cek(
 //   pemisah desimal ".", tanpa ",0" — "33.3%", "66.7%", "100%").
 //   Angka 33,33% / 66,67% / 54,05% dari brief adalah fraksi tersimpan
 //   (1/3, 2/3, 60/111); tampilannya dibulatkan 1 desimal.
-// - Remaining Value = Sisa Kontrak = (nilaiKontrak + denda) x (1 - %).
+// - Payment Date / Payment Amount = tanggal + jumlah pembayaran
+//   Terverifikasi TERAKHIR ("—" bila belum ada; 3 kontrak seed).
+// - Total Payment = Σ pembayaran Terverifikasi ("—" bila 0).
+// - Remaining Receivable = Sisa Piutang = Piutang − Total Payment
+//   (koreksi Arahan 3, 11:57 WIB — urutan dibalik dari rumus harfiah
+//   pengguna; 9/42 kontrak seed positif, 33 nol, 0 negatif).
+// - Remaining Value = Sisa Kontrak = Total Revenue − Piutang
+//   (REDEFINISI 11:41 WIB DIBATALKAN 11:57 WIB — kembali ke definisi
+//   PR #67, sama dengan DetailKontrak).
 // Semua nilai dihitung pada HARI_INI = 2026-11-16 supaya deterministik.
 const dendaNilai = (nomor: string) =>
   totalDendaKontrak(cari(nomor), DATA_NYATA.tagihan, DATA_NYATA.denda);
@@ -998,8 +1039,36 @@ const realisasiNilai = (nomor: string) =>
   realisasiKontrak(cari(nomor), HARI_INI);
 const realisasiTampil = (nomor: string) =>
   formatPersenRealisasi(realisasiNilai(nomor));
-const sisaNilai = (nomor: string) =>
+const sisaKontrakLama = (nomor: string) =>
   sisaKontrakRealisasi(cari(nomor), DATA_NYATA.tagihan, DATA_NYATA.denda, HARI_INI);
+const totalBayarNilai = (nomor: string) =>
+  totalPembayaranKontrak(
+    cari(nomor),
+    DATA_NYATA.tagihan,
+    DATA_NYATA.pembayaran,
+  );
+const bayarTerakhirNilai = (nomor: string) =>
+  pembayaranTerverifikasiTerakhir(
+    cari(nomor),
+    DATA_NYATA.tagihan,
+    DATA_NYATA.pembayaran,
+  );
+const sisaPiutangBaruNilai = (nomor: string) =>
+  selisihBayarPiutang(
+    cari(nomor),
+    DATA_NYATA.tagihan,
+    DATA_NYATA.denda,
+    DATA_NYATA.pembayaran,
+    HARI_INI,
+  );
+const sisaNilaiBaru = (nomor: string) =>
+  sisaNilaiSetelahBayar(
+    cari(nomor),
+    DATA_NYATA.tagihan,
+    DATA_NYATA.denda,
+    DATA_NYATA.pembayaran,
+    HARI_INI,
+  );
 const deadlineNilai = (nomor: string) =>
   jatuhTempoPembayaranKontrak(
     cari(nomor),
@@ -1165,16 +1234,147 @@ cek(
   Math.abs(realisasiNilai('016/PKS/DIR.LPU/06/2025') - 2 / 3) < 1e-9,
 );
 
-// ----- Remaining Value -----
-cek('remaining value 1051 = 12.910.000', sisaNilai('1051/PKS/RRI.PLB/02/2026') === 12910000);
-cek('remaining value 1052 = 12.910.000', sisaNilai('1052/PKS/RRI.PLB/02/2026') === 12910000);
-cek('remaining value 1053 = 11.296.000', sisaNilai('1053/PKS/RRI.PLB/02/2026') === 11296000);
-cek('remaining value 016 = 17.146.250', sisaNilai('016/PKS/DIR.LPU/06/2025') === 17146250);
-cek('remaining value 027 = 11.246.250', sisaNilai('027/RRI.PLB/PKS.U/06/2025') === 11246250);
-cek('remaining value 1744 = 0', sisaNilai('1744/PKS/RRI.PLB/03/2026') === 0);
-cek('remaining value 10227 = 2.295.000', sisaNilai('10227/PKS/RRI.PLB/10/2026') === 2295000);
-cek('remaining value 018 = 3.865.000', sisaNilai('018/PKS/DIR.LPU/08/2026') === 3865000);
-cek('remaining value 11290 = 0', sisaNilai('11290/PKS/RRI.PLB/10/2026') === 0);
+// ----- Payment Date / Payment Amount / Total Payment (Cluster 5, baru) -----
+cek(
+  'payment date 1744 = 2026-06-26 (pembayaran Terverifikasi terakhir)',
+  bayarTerakhirNilai('1744/PKS/RRI.PLB/03/2026')?.tanggalBayar === '2026-06-26',
+);
+cek(
+  'payment amount 1744 = 15.000.000',
+  bayarTerakhirNilai('1744/PKS/RRI.PLB/03/2026')?.jumlah === 15000000,
+);
+cek(
+  'payment date 1051 = 2026-01-30',
+  bayarTerakhirNilai('1051/PKS/RRI.PLB/02/2026')?.tanggalBayar === '2026-01-30',
+);
+cek(
+  'payment amount 1051 = 6.455.000',
+  bayarTerakhirNilai('1051/PKS/RRI.PLB/02/2026')?.jumlah === 6455000,
+);
+cek(
+  'payment date 7054 = 2026-07-30',
+  bayarTerakhirNilai('7054/PKS/RRI.PLB/07/2026')?.tanggalBayar === '2026-07-30',
+);
+cek(
+  'payment amount 7054 = 7.904.292',
+  bayarTerakhirNilai('7054/PKS/RRI.PLB/07/2026')?.jumlah === 7904292,
+);
+cek(
+  'payment date 10227 undefined (belum ada pembayaran — tampil "—")',
+  bayarTerakhirNilai('10227/PKS/RRI.PLB/10/2026') === undefined,
+);
+cek(
+  'payment date 018 undefined (belum ada pembayaran — tampil "—")',
+  bayarTerakhirNilai('018/PKS/DIR.LPU/08/2026') === undefined,
+);
+cek(
+  'payment date 11290 undefined (belum ada pembayaran — tampil "—")',
+  bayarTerakhirNilai('11290/PKS/RRI.PLB/10/2026') === undefined,
+);
+cek(
+  '39/42 kontrak punya pembayaran Terverifikasi (3 Unpaid tanpa pembayaran)',
+  kontrak.filter(
+    (k) =>
+      pembayaranTerverifikasiTerakhir(k, DATA_NYATA.tagihan, DATA_NYATA.pembayaran) !==
+      undefined,
+  ).length === 39,
+);
+cek(
+  '6/42 kontrak punya >1 pembayaran Terverifikasi (Total Payment = Σ)',
+  kontrak.filter((k) => {
+    const t = DATA_NYATA.tagihan.filter((x) => x.kontrakId === k.id);
+    return (
+      DATA_NYATA.pembayaran.filter(
+        (p) =>
+          t.some((x) => x.id === p.tagihanId) &&
+          p.statusVerifikasi === 'Terverifikasi',
+      ).length > 1
+    );
+  }).length === 6,
+);
+cek('total payment 1744 = 15.000.000', totalBayarNilai('1744/PKS/RRI.PLB/03/2026') === 15000000);
+cek('total payment 7054 = 7.904.292', totalBayarNilai('7054/PKS/RRI.PLB/07/2026') === 7904292);
+cek('total payment 1051 = 6.455.000', totalBayarNilai('1051/PKS/RRI.PLB/02/2026') === 6455000);
+cek('total payment 10227 = 0 (tampil "—")', totalBayarNilai('10227/PKS/RRI.PLB/10/2026') === 0);
+cek('total payment 018 = 0 (tampil "—")', totalBayarNilai('018/PKS/DIR.LPU/08/2026') === 0);
+cek(
+  'Σ total payment semua kontrak = 362.329.255 (sama dengan total kontrol pembayaran)',
+  kontrak.reduce(
+    (s, k) =>
+      s + totalPembayaranKontrak(k, DATA_NYATA.tagihan, DATA_NYATA.pembayaran),
+    0,
+  ) === 362329255,
+);
+
+// ----- Remaining Receivable (Cluster 5 — Sisa Piutang, koreksi Arahan 3 11:57 WIB) -----
+cek('remaining receivable 1744 = 900.000 (piutang 15.900.000 − bayar 15.000.000)', sisaPiutangBaruNilai('1744/PKS/RRI.PLB/03/2026') === 900000);
+cek('remaining receivable 1051 = 0 (bayar == Piutang)', sisaPiutangBaruNilai('1051/PKS/RRI.PLB/02/2026') === 0);
+cek('remaining receivable 10227 = 2.700.000 (piutang 2.700.000 − bayar 0)', sisaPiutangBaruNilai('10227/PKS/RRI.PLB/10/2026') === 2700000);
+cek('remaining receivable 018 = 4.110.000', sisaPiutangBaruNilai('018/PKS/DIR.LPU/08/2026') === 4110000);
+cek('remaining receivable 11290 = 2.000.000', sisaPiutangBaruNilai('11290/PKS/RRI.PLB/10/2026') === 2000000);
+cek('remaining receivable 7054 = 1.897.030', sisaPiutangBaruNilai('7054/PKS/RRI.PLB/07/2026') === 1897030);
+cek('remaining receivable 7052 = 1.440.000', sisaPiutangBaruNilai('7052/PKS/RRI.PLB/07/2026') === 1440000);
+cek('remaining receivable 7060 = 987.840', sisaPiutangBaruNilai('7060/PKS/RRI.PLB/07/2026') === 987840);
+cek(
+  'remaining receivable positif 9/42 (6 Insufficient Payment + 3 Unpaid); 33 nol; 0 negatif',
+  kontrak.filter(
+    (k) =>
+      selisihBayarPiutang(k, DATA_NYATA.tagihan, DATA_NYATA.denda, DATA_NYATA.pembayaran, HARI_INI) > 0,
+  ).length === 9 &&
+    kontrak.filter(
+      (k) =>
+        selisihBayarPiutang(k, DATA_NYATA.tagihan, DATA_NYATA.denda, DATA_NYATA.pembayaran, HARI_INI) === 0,
+    ).length === 33 &&
+    kontrak.filter(
+      (k) =>
+        selisihBayarPiutang(k, DATA_NYATA.tagihan, DATA_NYATA.denda, DATA_NYATA.pembayaran, HARI_INI) < 0,
+    ).length === 0,
+);
+cek(
+  'remaining receivable = Piutang − Total Payment alias sama dengan sisaPiutangRealisasi (DetailKontrak)',
+  kontrak.every(
+    (k) =>
+      selisihBayarPiutang(k, DATA_NYATA.tagihan, DATA_NYATA.denda, DATA_NYATA.pembayaran, HARI_INI) ===
+      sisaPiutangRealisasi(k, DATA_NYATA.tagihan, DATA_NYATA.denda, DATA_NYATA.pembayaran, HARI_INI),
+  ),
+);
+
+// ----- Remaining Value (Sisa Kontrak PR #67 — redefinisi 11:41 WIB DIBATALKAN koreksi Arahan 3 11:57 WIB) -----
+cek('remaining value 1051 = 12.910.000', sisaNilaiBaru('1051/PKS/RRI.PLB/02/2026') === 12910000);
+cek('remaining value 1052 = 12.910.000', sisaNilaiBaru('1052/PKS/RRI.PLB/02/2026') === 12910000);
+cek('remaining value 1053 = 11.296.000', sisaNilaiBaru('1053/PKS/RRI.PLB/02/2026') === 11296000);
+cek('remaining value 016 = 17.146.250', sisaNilaiBaru('016/PKS/DIR.LPU/06/2025') === 17146250);
+cek('remaining value 027 = 11.246.250', sisaNilaiBaru('027/RRI.PLB/PKS.U/06/2025') === 11246250);
+cek('remaining value 1744 = 0 (kembali ke lama; denda belum dibayar masuk Sisa Piutang)', sisaNilaiBaru('1744/PKS/RRI.PLB/03/2026') === 0);
+cek('remaining value 10227 = 2.295.000 (kembali ke lama)', sisaNilaiBaru('10227/PKS/RRI.PLB/10/2026') === 2295000);
+cek('remaining value 018 = 3.865.000 (kembali ke lama)', sisaNilaiBaru('018/PKS/DIR.LPU/08/2026') === 3865000);
+cek('remaining value 11290 = 0 (kembali ke lama)', sisaNilaiBaru('11290/PKS/RRI.PLB/10/2026') === 0);
+cek('remaining value 7054 = 0 (kembali ke lama)', sisaNilaiBaru('7054/PKS/RRI.PLB/07/2026') === 0);
+cek(
+  'remaining value = Total Revenue − Piutang untuk semua kontrak',
+  kontrak.every(
+    (k) =>
+      sisaNilaiSetelahBayar(k, DATA_NYATA.tagihan, DATA_NYATA.denda, DATA_NYATA.pembayaran, HARI_INI) ===
+      k.nilaiKontrak +
+        totalDendaKontrak(k, DATA_NYATA.tagihan, DATA_NYATA.denda) -
+        piutangRealisasi(k, DATA_NYATA.tagihan, DATA_NYATA.denda, HARI_INI),
+  ),
+);
+cek(
+  'remaining value ≥ 0 untuk semua 42 kontrak (tidak ada yang kelebihan bayar)',
+  kontrak.every(
+    (k) =>
+      sisaNilaiSetelahBayar(k, DATA_NYATA.tagihan, DATA_NYATA.denda, DATA_NYATA.pembayaran, HARI_INI) >= 0,
+  ),
+);
+cek(
+  'remaining value sama dengan Sisa Kontrak PR #67 (sisaKontrakRealisasi) untuk semua 42 kontrak',
+  kontrak.every(
+    (k) =>
+      sisaNilaiSetelahBayar(k, DATA_NYATA.tagihan, DATA_NYATA.denda, DATA_NYATA.pembayaran, HARI_INI) ===
+      sisaKontrakRealisasi(k, DATA_NYATA.tagihan, DATA_NYATA.denda, HARI_INI),
+  ),
+);
 
 // ----- Perilaku live -----
 // Firestore live TIDAK punya field layanan.realisasi (PR #63 hanya
@@ -1185,7 +1385,10 @@ cek('remaining value 11290 = 0', sisaNilai('11290/PKS/RRI.PLB/10/2026') === 0);
 // waktu). Simulasi live = hapus field realisasi dari semua layanan,
 // hitung ulang: hanya 2/42 kontrak yang nilainya berubah. Payment
 // Deadline, Fine Value, Total Revenue tidak memakai realisasi —
-// nilainya identik live dan seed.
+// nilainya identik live dan seed. Kolom BARU Cluster 5: Remaining
+// Value = Total Revenue − Piutang dan Remaining Receivable = Piutang
+// − Total Payment SAMA-SAMA memakai Piutang, jadi keduanya berbeda
+// live vs seed hanya untuk 018 + 10227 (sama seperti Piutang).
 const kontrakLive = kontrak.map((k) => ({
   ...k,
   layanan: k.layanan.map((l) => {
@@ -1226,8 +1429,34 @@ cek(
   'live: 10227 piutang 4.856.250 (seed 2.700.000)',
   piutangRealisasi(live10227, DATA_NYATA.tagihan, DATA_NYATA.denda, HARI_INI) === 4856250,
 );
+cek(
+  'live: remaining value identik seed untuk 40/42 kontrak (kecuali 018, 10227 — memakai Piutang)',
+  kontrak.filter((k) => {
+    const kl = kontrakLive.find((x) => x.id === k.id)!;
+    return (
+      sisaNilaiSetelahBayar(kl, DATA_NYATA.tagihan, DATA_NYATA.denda, DATA_NYATA.pembayaran, HARI_INI) !==
+      sisaNilaiSetelahBayar(k, DATA_NYATA.tagihan, DATA_NYATA.denda, DATA_NYATA.pembayaran, HARI_INI)
+    );
+  }).length === 2,
+);
+cek(
+  'live: 018 remaining value 1.787.500 (seed 3.865.000 — piutang live lebih besar)',
+  sisaNilaiSetelahBayar(live018, DATA_NYATA.tagihan, DATA_NYATA.denda, DATA_NYATA.pembayaran, HARI_INI) === 1787500,
+);
+cek(
+  'live: 10227 remaining value 138.750 (seed 2.295.000)',
+  sisaNilaiSetelahBayar(live10227, DATA_NYATA.tagihan, DATA_NYATA.denda, DATA_NYATA.pembayaran, HARI_INI) === 138750,
+);
+cek(
+  'live: 018 remaining receivable 6.187.500 (seed 4.110.000 — piutang live lebih besar)',
+  selisihBayarPiutang(live018, DATA_NYATA.tagihan, DATA_NYATA.denda, DATA_NYATA.pembayaran, HARI_INI) === 6187500,
+);
+cek(
+  'live: 10227 remaining receivable 4.856.250 (seed 2.700.000)',
+  selisihBayarPiutang(live10227, DATA_NYATA.tagihan, DATA_NYATA.denda, DATA_NYATA.pembayaran, HARI_INI) === 4856250,
+);
 
-// ---------- kolom Document Completeness (keputusan pengguna 17/11/2026 09:26 WIB) ----------
+// ---------- kolom Availability Rate (dulu "Document Completeness", keputusan pengguna 17/11/2026 09:26 WIB + 11:41 WIB) ----------
 // Persentase = item checklist "Ada" / total item (7 normal, 8 bila
 // Overdue) — dihitung dari daftar yang SAMA dengan tabel Document
 // (daftarDokumenKontrak), format sama dengan Realisation
@@ -1338,6 +1567,115 @@ cek(
   }),
 );
 
+// ---------- kolom baru Cluster 1 + Cluster 2 + Cluster 7 (keputusan pengguna 17/11/2026 11:41 WIB) ----------
+// Audit data (seed): Owner 42/42; Type 42/42; Address 42/42;
+// Signatory 41/42 (018 kosong); Signatory Title 25/42 (17 "—");
+// Contact Person 42/42 (kontakNama 40/42 + fallback penanggungJawab
+// 42/42); Contact 40/42 (Taspen + Komdigi "—"); Email 0/42 (SEMUA
+// "—" — tidak ada email klien di data); Notes 42/42.
+const klienDariKontrak = (nomor: string) =>
+  DATA_NYATA.klien.find((kl) => kl.id === cari(nomor).klienId);
+cek(
+  'owner terisi 42/42 (5 operator: hasil atribusi acak PR #26)',
+  kontrak.filter((k) => !!k.operatorPenutup).length === 42,
+);
+cek(
+  'owner 11290 = Meliyana (spot check)',
+  cari('11290/PKS/RRI.PLB/10/2026').operatorPenutup === 'Meliyana',
+);
+cek(
+  'owner 10227 terisi (bukan "—")',
+  !!cari('10227/PKS/RRI.PLB/10/2026').operatorPenutup,
+);
+cek(
+  'type klien terisi 42/42 (5 jenis: BUMN/BUMD, Perorangan, Pemerintah, Lembaga/Organisasi, Swasta)',
+  kontrak.every((k) => {
+    const kl = DATA_NYATA.klien.find((x) => x.id === k.klienId);
+    return !!kl?.jenis;
+  }) &&
+    JSON.stringify(
+      [...new Set(DATA_NYATA.klien.map((k) => k.jenis))].sort(),
+    ) ===
+      JSON.stringify(
+        ['BUMN/BUMD', 'Lembaga/Organisasi', 'Pemerintah', 'Perorangan', 'Swasta'],
+      ),
+);
+cek(
+  'address terisi 42/42',
+  kontrak.every((k) => {
+    const kl = DATA_NYATA.klien.find((x) => x.id === k.klienId);
+    return !!kl?.alamat?.trim();
+  }),
+);
+cek(
+  'signatory terisi 41/42 (018 kosong — tampil "—")',
+  kontrak.filter((k) => !!k.penandatanganNama).length === 41 &&
+    cari('018/PKS/DIR.LPU/08/2026').penandatanganNama === undefined,
+);
+cek(
+  'signatory title terisi 25/42 (17 kontrak tampil "—")',
+  kontrak.filter((k) => !!k.penandatanganJabatan).length === 25,
+);
+cek(
+  'contact person: kontakNama 40/42, fallback penanggungJawab 42/42 (Taspen + Komdigi tanpa kontakNama)',
+  kontrak.filter((k) => {
+    const kl = DATA_NYATA.klien.find((x) => x.id === k.klienId);
+    return !!kl?.kontakNama?.trim();
+  }).length === 40 &&
+    kontrak.every((k) => !!k.penanggungJawab?.trim()) &&
+    klienDariKontrak('001/PKS/DIR.LPU/01/2026')?.kontakNama === '' &&
+    klienDariKontrak('018/PKS/DIR.LPU/08/2026')?.kontakNama === '',
+);
+cek(
+  'contact (telepon) terisi 40/42 (Taspen + Komdigi "—")',
+  kontrak.filter((k) => {
+    const kl = DATA_NYATA.klien.find((x) => x.id === k.klienId);
+    return !!kl?.telepon?.trim();
+  }).length === 40,
+);
+cek(
+  'email kosong untuk SEMUA 33 klien (kolom Email tampil "—" untuk semua 42 kontrak — FLAG: data email belum ada)',
+  DATA_NYATA.klien.every((kl) => kl.email === ''),
+);
+cek(
+  'notes: semua 42 kontrak punya segmen di luar Judul + No. Referensi',
+  kontrak.every(
+    (k) => catatanLuarJudulReferensi(k.catatan) !== undefined,
+  ),
+);
+cek(
+  'notes 001 = "Keterangan sumber: Terlambang Melakukan Pembayaran | Tidak Dikenakan Denda"',
+  catatanLuarJudulReferensi(cari('001/PKS/DIR.LPU/01/2026').catatan) ===
+    'Keterangan sumber: Terlambang Melakukan Pembayaran | Tidak Dikenakan Denda',
+);
+cek(
+  'notes 11290 = "Keterangan sumber: Belum Jatuh Tempo"',
+  catatanLuarJudulReferensi(cari('11290/PKS/RRI.PLB/10/2026').catatan) ===
+    'Keterangan sumber: Belum Jatuh Tempo',
+);
+cek(
+  'notes 1051 memuat BMN + Lokasi + Tujuan + Luas + Dasar Nilai (segmen Umum)',
+  (catatanLuarJudulReferensi(cari('1051/PKS/RRI.PLB/02/2026').catatan) ?? '').includes(
+    'BMN: Lahan',
+  ) &&
+    (catatanLuarJudulReferensi(cari('1051/PKS/RRI.PLB/02/2026').catatan) ?? '').includes(
+      'Dasar Nilai: S-476/MK/KNL.0402/2025',
+    ),
+);
+cek(
+  'notes tidak memuat segmen Judul dan No. Referensi',
+  kontrak.every((k) => {
+    const n = catatanLuarJudulReferensi(k.catatan) ?? '';
+    return !n.includes('Judul:') && !n.includes('No. Referensi:');
+  }),
+);
+cek(
+  'notes kosong -> undefined (tampil "—")',
+  catatanLuarJudulReferensi(undefined) === undefined &&
+    catatanLuarJudulReferensi('Judul: X | No. Referensi: Y') === undefined &&
+    catatanLuarJudulReferensi('') === undefined,
+);
+
 // ---------- struktur sumber TabKontrak ----------
 const deals = fs.readFileSync('src/modules/Deals.tsx', 'utf8');
 const kerjaSama = fs.readFileSync('src/modules/KerjaSama.tsx', 'utf8');
@@ -1346,35 +1684,49 @@ const akhir = deals.indexOf('function DetailKontrak', awal);
 const tabKontrak = deals.slice(awal, akhir);
 const header = [...tabKontrak.matchAll(/<Th[^>]*>([^<]+)<\/Th>/g)].map((m) => m[1]);
 cek(
-  'urutan 18 header kolom (No. paling kiri, Remaining Days sesudah Contract Period, Payment Status sesudah Remaining Days, Payment Deadline sesudah Payment Status, blok nilai Contract Value, Fine Value, Total Revenue, Realisation, Receivable Value, Remaining Value, Document Completeness terakhir)',
+  'urutan 32 header kolom dalam 7 cluster (Contract: No., Contract & Reference Number, Contract Title, Signing Date, Owner; Client Details: Type, Client, Address, Signatory, Signatory Title, Contact Person, Contact, Email; Service Details: Service Type, Service Detail, Contract Period, Remaining Days, Realisation; Revenue Details: Contract Value, Fine Value, Total Revenue, Receivable Value; Payment Details: Payment Deadline, Payment Status, Payment Date, Payment Amount, Total Payment, Remaining Receivable, Remaining Value; Documents: Availability Rate, View; Notes: Notes)',
   JSON.stringify(header) ===
     JSON.stringify([
       'No.',
       'Contract &amp; Reference Number',
       'Contract Title',
       'Signing Date',
+      'Owner',
+      'Type',
       'Client',
+      'Address',
+      'Signatory',
+      'Signatory Title',
+      'Contact Person',
+      'Contact',
+      'Email',
       'Service Type',
       'Service Detail',
       'Contract Period',
       'Remaining Days',
-      'Payment Status',
-      'Payment Deadline',
+      'Realisation',
       'Contract Value',
       'Fine Value',
       'Total Revenue',
-      'Realisation',
       'Receivable Value',
+      'Payment Deadline',
+      'Payment Status',
+      'Payment Date',
+      'Payment Amount',
+      'Total Payment',
+      'Remaining Receivable',
       'Remaining Value',
-      'Document Completeness',
+      'Availability Rate',
+      'View',
+      'Notes',
     ]),
   JSON.stringify(header),
 );
 cek('header "Payment Status" 1x', header.filter((h) => h === 'Payment Status').length === 1);
 cek(
-  'header "Payment Status" sesudah Remaining Days, sebelum Payment Deadline',
-  header.indexOf('Payment Status') === header.indexOf('Remaining Days') + 1 &&
-    header.indexOf('Payment Status') === header.indexOf('Payment Deadline') - 1,
+  'header "Payment Status" di Cluster 5, sesudah Payment Deadline, sebelum Payment Date',
+  header.indexOf('Payment Status') === header.indexOf('Payment Deadline') + 1 &&
+    header.indexOf('Payment Status') === header.indexOf('Payment Date') - 1,
 );
 cek('header "Payment Deadline" 1x', header.filter((h) => h === 'Payment Deadline').length === 1);
 cek('header "Fine Value" 1x', header.filter((h) => h === 'Fine Value').length === 1);
@@ -1382,16 +1734,59 @@ cek('header "Total Revenue" 1x', header.filter((h) => h === 'Total Revenue').len
 cek('header "Receivable Value" 1x', header.filter((h) => h === 'Receivable Value').length === 1);
 cek('header "Realisation" 1x', header.filter((h) => h === 'Realisation').length === 1);
 cek('header "Remaining Value" 1x', header.filter((h) => h === 'Remaining Value').length === 1);
-cek('header "Document Completeness" 1x', header.filter((h) => h === 'Document Completeness').length === 1);
+cek('header "Availability Rate" 1x (pengganti "Document Completeness")', header.filter((h) => h === 'Availability Rate').length === 1);
+cek('header lama "Document Completeness" 0x di TabKontrak', !header.includes('Document Completeness'));
+cek('header "Owner" 1x', header.filter((h) => h === 'Owner').length === 1);
+cek('header "Type" 1x', header.filter((h) => h === 'Type').length === 1);
+cek('header "Signatory" 1x', header.filter((h) => h === 'Signatory').length === 1);
+cek('header "Signatory Title" 1x', header.filter((h) => h === 'Signatory Title').length === 1);
+cek('header "Contact Person" 1x', header.filter((h) => h === 'Contact Person').length === 1);
+cek('header "Payment Date" 1x', header.filter((h) => h === 'Payment Date').length === 1);
+cek('header "Payment Amount" 1x', header.filter((h) => h === 'Payment Amount').length === 1);
+cek('header "Total Payment" 1x', header.filter((h) => h === 'Total Payment').length === 1);
+cek('header "Remaining Receivable" 1x', header.filter((h) => h === 'Remaining Receivable').length === 1);
+cek('header "View" 1x', header.filter((h) => h === 'View').length === 1);
+cek('header "Notes" 1x (terakhir)', header.filter((h) => h === 'Notes').length === 1 && header[header.length - 1] === 'Notes');
 cek(
-  'urutan blok nilai: Payment Deadline, Contract Value, Fine Value, Total Revenue, Realisation, Receivable Value, Remaining Value, Document Completeness (terakhir)',
-  header.indexOf('Payment Deadline') + 1 === header.indexOf('Contract Value') &&
-    header.indexOf('Contract Value') + 1 === header.indexOf('Fine Value') &&
+  'urutan antar-cluster: Contract < Client Details < Service Details < Revenue Details < Payment Details < Documents < Notes',
+  header.indexOf('Owner') < header.indexOf('Type') &&
+    header.indexOf('Email') < header.indexOf('Service Type') &&
+    header.indexOf('Realisation') < header.indexOf('Contract Value') &&
+    header.indexOf('Receivable Value') < header.indexOf('Payment Deadline') &&
+    header.indexOf('Remaining Value') < header.indexOf('Availability Rate') &&
+    header.indexOf('View') < header.indexOf('Notes'),
+);
+cek(
+  'urutan dalam Cluster 5: Payment Deadline, Payment Status, Payment Date, Payment Amount, Total Payment, Remaining Receivable, Remaining Value',
+  header.indexOf('Payment Deadline') + 1 === header.indexOf('Payment Status') &&
+    header.indexOf('Payment Status') + 1 === header.indexOf('Payment Date') &&
+    header.indexOf('Payment Date') + 1 === header.indexOf('Payment Amount') &&
+    header.indexOf('Payment Amount') + 1 === header.indexOf('Total Payment') &&
+    header.indexOf('Total Payment') + 1 === header.indexOf('Remaining Receivable') &&
+    header.indexOf('Remaining Receivable') + 1 === header.indexOf('Remaining Value'),
+);
+cek(
+  'urutan dalam Cluster 2: Type, Client, Address, Signatory, Signatory Title, Contact Person, Contact, Email',
+  header.indexOf('Type') + 1 === header.indexOf('Client') &&
+    header.indexOf('Client') + 1 === header.indexOf('Address') &&
+    header.indexOf('Address') + 1 === header.indexOf('Signatory') &&
+    header.indexOf('Signatory') + 1 === header.indexOf('Signatory Title') &&
+    header.indexOf('Signatory Title') + 1 === header.indexOf('Contact Person') &&
+    header.indexOf('Contact Person') + 1 === header.indexOf('Contact') &&
+    header.indexOf('Contact') + 1 === header.indexOf('Email'),
+);
+cek(
+  'urutan dalam Cluster 3: Service Type, Service Detail, Contract Period, Remaining Days, Realisation',
+  header.indexOf('Service Type') + 1 === header.indexOf('Service Detail') &&
+    header.indexOf('Service Detail') + 1 === header.indexOf('Contract Period') &&
+    header.indexOf('Contract Period') + 1 === header.indexOf('Remaining Days') &&
+    header.indexOf('Remaining Days') + 1 === header.indexOf('Realisation'),
+);
+cek(
+  'urutan dalam Cluster 4: Contract Value, Fine Value, Total Revenue, Receivable Value',
+  header.indexOf('Contract Value') + 1 === header.indexOf('Fine Value') &&
     header.indexOf('Fine Value') + 1 === header.indexOf('Total Revenue') &&
-    header.indexOf('Total Revenue') + 1 === header.indexOf('Realisation') &&
-    header.indexOf('Realisation') + 1 === header.indexOf('Receivable Value') &&
-    header.indexOf('Receivable Value') + 1 === header.indexOf('Remaining Value') &&
-    header.indexOf('Remaining Value') + 1 === header.indexOf('Document Completeness'),
+    header.indexOf('Total Revenue') + 1 === header.indexOf('Receivable Value'),
 );
 cek(
   'header lama "Total Contract Value + Fine" 0x (diganti "Total Revenue" 09:06 WIB)',
@@ -1427,26 +1822,79 @@ cek(
     tabKontrak.includes('formatPersenRealisasi(realisasi)'),
 );
 cek(
-  'sel Remaining Value pakai sisaKontrakRealisasi (helper yang sama dengan DetailKontrak)',
-  tabKontrak.includes('const sisaKontrak = sisaKontrakRealisasi(') &&
-    tabKontrak.includes('formatRupiah(sisaKontrak)'),
+  'sel Remaining Value pakai sisaNilaiSetelahBayar (Sisa Kontrak PR #67; redefinisi 11:41 WIB DIBATALKAN 11:57 WIB)',
+  tabKontrak.includes('const sisaNilaiBaru = sisaNilaiSetelahBayar(') &&
+    tabKontrak.includes('formatRupiah(sisaNilaiBaru)') &&
+    !tabKontrak.includes('formatRupiah(sisaKontrak)'),
 );
 cek(
-  'sel Document Completeness pakai daftarDokumenKontrak + kelengkapanDokumen + formatPersenRealisasi (daftar yang sama dengan tabel Document)',
+  'sel Remaining Receivable pakai selisihBayarPiutang (Piutang − Total Payment)',
+  tabKontrak.includes('const sisaPiutangBaru = selisihBayarPiutang(') &&
+    tabKontrak.includes('formatRupiah(sisaPiutangBaru)'),
+);
+cek(
+  'sel Payment Date / Payment Amount pakai pembayaranTerverifikasiTerakhir, "—" bila belum ada',
+  tabKontrak.includes('const bayarTerakhir = pembayaranTerverifikasiTerakhir(') &&
+    tabKontrak.includes("bayarTerakhir ? formatTanggal(bayarTerakhir.tanggalBayar) : '—'") &&
+    tabKontrak.includes("bayarTerakhir ? formatRupiah(bayarTerakhir.jumlah) : '—'"),
+);
+cek(
+  'sel Total Payment pakai totalPembayaranKontrak, "—" bila 0',
+  tabKontrak.includes('const totalBayar = totalPembayaranKontrak(') &&
+    tabKontrak.includes("totalBayar === 0 ? '—' : formatRupiah(totalBayar)"),
+);
+cek(
+  'sel Availability Rate pakai daftarDokumenKontrak + kelengkapanDokumen + formatPersenRealisasi (daftar yang sama dengan tabel Document)',
   tabKontrak.includes('daftarDokumenKontrak(') &&
     tabKontrak.includes('kelengkapanDokumen(') &&
     tabKontrak.includes('formatPersenRealisasi(kelengkapan.fraksi)'),
 );
 cek(
-  'sel Document Completeness rata kanan',
+  'sel Availability Rate rata kanan',
   tabKontrak.includes('<Td kanan>{formatPersenRealisasi(kelengkapan.fraksi)}</Td>'),
 );
 cek(
-  'sel Fine Value / Total Revenue / Receivable Value / Realisation / Remaining Value rata kanan',
+  'sel Owner pakai kontrak.operatorPenutup, "—" bila kosong',
+  tabKontrak.includes("k.operatorPenutup ?? '—'"),
+);
+cek(
+  'sel Type pakai labelJenisKlien(klien.jenis); sel Address / Contact / Email pakai data klien, "—" bila kosong',
+  tabKontrak.includes('labelJenisKlien(klien.jenis)') &&
+    tabKontrak.includes("klien?.alamat && klien.alamat !== ''") &&
+    tabKontrak.includes("klien?.telepon && klien.telepon !== ''") &&
+    tabKontrak.includes("klien?.email && klien.email !== ''"),
+);
+cek(
+  'sel Signatory / Signatory Title pakai penandatanganNama / penandatanganJabatan, "—" bila kosong',
+  tabKontrak.includes("k.penandatanganNama ?? '—'") &&
+    tabKontrak.includes("k.penandatanganJabatan ?? '—'"),
+);
+cek(
+  'sel Contact Person = klien.kontakNama, fallback penanggungJawab (pola DetailKontrak)',
+  tabKontrak.includes("kontakNama !== '' ? kontakNama : k.penanggungJawab"),
+);
+cek(
+  'sel Client klik -> onNavigasiKlien(klien.id) dengan stopPropagation (tidak ikut membuka DetailKontrak)',
+  tabKontrak.includes('onNavigasiKlien(klien.id)') &&
+    tabKontrak.includes('e.stopPropagation()'),
+);
+cek(
+  'sel View (Documents) membuka DetailKontrak dengan fokusCluster "document" + stopPropagation',
+  tabKontrak.includes("setFokusClusterDetail('document')") &&
+    tabKontrak.includes('onPilihKontrak(k.id)'),
+);
+cek(
+  'sel Notes pakai catatanLuarJudulReferensi, "—" bila kosong',
+  tabKontrak.includes('const notes = catatanLuarJudulReferensi(k.catatan)') &&
+    tabKontrak.includes('notes ??'),
+);
+cek(
+  'sel Fine Value / Total Revenue / Receivable Value / Realisation / Remaining Value / Payment Amount / Total Payment / Remaining Receivable rata kanan',
   tabKontrak.includes('<Td kanan>{formatRupiah(nilaiPlusDenda)}</Td>') &&
     tabKontrak.includes('<Td kanan>{formatRupiah(piutang)}</Td>') &&
     tabKontrak.includes('<Td kanan>{formatPersenRealisasi(realisasi)}</Td>') &&
-    tabKontrak.includes('<Td kanan>{formatRupiah(sisaKontrak)}</Td>') &&
+    tabKontrak.includes('<Td kanan>{formatRupiah(sisaNilaiBaru)}</Td>') &&
+    tabKontrak.includes('<Td kanan>{formatRupiah(sisaPiutangBaru)}</Td>') &&
     tabKontrak.includes(
       "<Td kanan>{totalDenda === 0 ? '—' : formatRupiah(totalDenda)}</Td>",
     ),
@@ -1464,13 +1912,14 @@ cek(
 cek('header "Status Pembayaran" (Indonesia) 0x di TabKontrak', !tabKontrak.includes('Status Pembayaran'));
 cek('header "Remaining Days" 1x', header.filter((h) => h === 'Remaining Days').length === 1);
 cek(
-  'header "Document Completeness" kini terakhir (ditambah 17/11/2026 09:26 WIB), Remaining Value kedua terakhir',
-  header[header.length - 1] === 'Document Completeness' &&
-    header[header.length - 2] === 'Remaining Value',
+  'header "Notes" kini terakhir (Cluster 7); "Availability Rate" + "View" sebelumnya (Cluster 6)',
+  header[header.length - 1] === 'Notes' &&
+    header[header.length - 2] === 'View' &&
+    header[header.length - 3] === 'Availability Rate',
 );
 cek(
-  'header "Contract Value" kini awal blok nilai (sesudah Payment Deadline, sebelum Fine Value)',
-  header.indexOf('Contract Value') === header.indexOf('Payment Deadline') + 1 &&
+  'header "Contract Value" kini awal Cluster 4 Revenue Details (sesudah Realisation, sebelum Fine Value)',
+  header.indexOf('Contract Value') === header.indexOf('Realisation') + 1 &&
     header.indexOf('Contract Value') === header.indexOf('Fine Value') - 1,
 );
 cek(
@@ -1579,6 +2028,104 @@ cek(
     !kerjaSama.includes('filterStatus={filterStatus}'),
 );
 cek('MASTER_STATUS_KONTRAK 0x di Deals.tsx', !deals.includes('MASTER_STATUS_KONTRAK'));
+
+// ---------- konfigurasi cluster + hide/show (keputusan pengguna 17/11/2026 11:41 WIB) ----------
+cek(
+  'CLUSTER_KONTRAK: 7 cluster, urutan Contract, Client Details, Service Details, Revenue Details, Payment Details, Documents, Notes',
+  JSON.stringify(CLUSTER_KONTRAK.map((c) => c.label)) ===
+    JSON.stringify([
+      'Contract',
+      'Client Details',
+      'Service Details',
+      'Revenue Details',
+      'Payment Details',
+      'Documents',
+      'Notes',
+    ]),
+);
+cek(
+  'CLUSTER_KONTRAK: jumlah kolom per cluster 5, 8, 5, 4, 7, 2, 1 (total 32)',
+  JSON.stringify(CLUSTER_KONTRAK.map((c) => c.kolom.length)) ===
+    JSON.stringify([5, 8, 5, 4, 7, 2, 1]),
+);
+cek(
+  'CLUSTER_KONTRAK: header kolom dari konfigurasi sama persis dengan header <Th> di sumber TabKontrak',
+  JSON.stringify(CLUSTER_KONTRAK.flatMap((c) => c.kolom.map((k) => k.header))) ===
+    JSON.stringify(header.map((h) => h.replace('&amp;', '&'))),
+);
+cek(
+  'hanya Cluster 1 "Contract" selaluTampil; 6 cluster lain hideable',
+  CLUSTER_KONTRAK.filter((c) => c.selaluTampil).length === 1 &&
+    CLUSTER_KONTRAK[0].selaluTampil === true &&
+    CLUSTER_KONTRAK[0].id === 'kontrak',
+);
+cek(
+  'kunci localStorage cluster = "rri-contract-cluster-tersembunyi"',
+  KUNCI_LOCALSTORAGE_CLUSTER_KONTRAK === 'rri-contract-cluster-tersembunyi',
+);
+cek(
+  'bacaClusterKontrakTersembunyi() = [] di Node (tanpa localStorage)',
+  JSON.stringify(bacaClusterKontrakTersembunyi()) === JSON.stringify([]),
+);
+cek(
+  'saringClusterKontrakTersembunyi: buang id tidak dikenal + Cluster 1, tanpa duplikat, urutan konfigurasi',
+  JSON.stringify(
+    saringClusterKontrakTersembunyi(['dokumen', 'kontrak', 'tidak-ada', 'klien', 'dokumen']),
+  ) === JSON.stringify(['klien', 'dokumen']) &&
+    JSON.stringify(saringClusterKontrakTersembunyi('bukan-array')) === JSON.stringify([]) &&
+    JSON.stringify(saringClusterKontrakTersembunyi(null)) === JSON.stringify([]),
+);
+cek(
+  'clusterKontrakTerlihat: semua tampil bila daftar kosong; Cluster 1 tidak pernah hilang',
+  clusterKontrakTerlihat([]).length === 7 &&
+    clusterKontrakTerlihat(['klien', 'dokumen', 'catatan']).length === 4 &&
+    clusterKontrakTerlihat(['klien', 'dokumen', 'catatan'])[0].id === 'kontrak',
+);
+cek(
+  'kolomKontrakTerlihat: 32 kolom bila semua tampil; 22 bila Client Details + Documents disembunyikan',
+  kolomKontrakTerlihat([]).length === 32 &&
+    kolomKontrakTerlihat(['klien', 'dokumen']).length === 22,
+);
+cek(
+  'baris header grup: nama cluster dirender dari clusterTerlihat dengan colSpan = jumlah kolom',
+  tabKontrak.includes('{clusterTerlihat.map((c) => (') &&
+    tabKontrak.includes('colSpan={c.kolom.length}') &&
+    tabKontrak.includes('{c.label}'),
+);
+cek(
+  'kotak centang cluster di atas tabel: label "Column Clusters:", 1 centang per cluster dari CLUSTER_KONTRAK',
+  tabKontrak.includes('Column Clusters:') &&
+    tabKontrak.includes('{CLUSTER_KONTRAK.map((c) => (') &&
+    tabKontrak.includes('type="checkbox"'),
+);
+cek(
+  'centang Cluster 1 nonaktif (disabled + "(Always Show)"), centang lain memanggil toggleCluster',
+  tabKontrak.includes('disabled={c.selaluTampil}') &&
+    tabKontrak.includes('(Always Show)') &&
+    tabKontrak.includes('onChange={() => toggleCluster(c.id)}'),
+);
+cek(
+  'toggleCluster menyimpan ke localStorage lewat simpanClusterKontrakTersembunyi',
+  tabKontrak.includes('simpanClusterKontrakTersembunyi(baru)') &&
+    tabKontrak.includes('bacaClusterKontrakTersembunyi()'),
+);
+cek(
+  'header kolom tiap cluster dibungkus tampilCluster(id) — 7 pemakaian (1 per cluster)',
+  ['kontrak', 'klien', 'layanan', 'revenue', 'pembayaran', 'dokumen', 'catatan'].every((id) =>
+    tabKontrak.includes(`tampilCluster('${id}')`),
+  ),
+);
+cek(
+  'sel baris tiap cluster hideable dibungkus tampilCluster(id) — 6 pemakaian sel (Cluster 1 tanpa bungkus)',
+  ['klien', 'layanan', 'revenue', 'pembayaran', 'dokumen', 'catatan'].every((id) =>
+    tabKontrak.includes(`tampilCluster('${id}')`),
+  ),
+);
+cek(
+  'kolom "Client" kini di Cluster 2 (sesudah Type, sebelum Address) — bukan lagi kolom ke-5',
+  header.indexOf('Client') === header.indexOf('Type') + 1 &&
+    header.indexOf('Client') === header.indexOf('Address') - 1,
+);
 
 // ---------- total kontrol tidak berubah ----------
 const k = hitungTotalKontrol(DATA_NYATA);
