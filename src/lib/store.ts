@@ -151,9 +151,15 @@ export interface MeetingInput {
   jam: string;
   prospectId?: string;
   klienId?: string;
-  peserta: string;
   agenda: string;
   hasil?: string;
+  /** Nama-nama klien yang ditemui (kolom Client Representative). */
+  clientRepresentatives: string[];
+  contactPersonNama: string;
+  contactPersonTelepon: string;
+  /** Petugas Layanan & Pengembangan Usaha yang hadir (minimal 1). */
+  rriRepresentatives: string[];
+  alamatKlien: string;
 }
 
 export interface EventInput {
@@ -288,6 +294,10 @@ export interface StoreActions {
   /** Order Selesai -> Kontrak/PKS (Draft) via alur kontrak Fase A; prospek jadi Diterima. */
   konversiOrder: (order: Order) => string | null;
   tambahMeeting: (input: MeetingInput) => string | null;
+  /** Ubah meeting yang sudah ada (fitur Update, PR #73) — validasi sama seperti tambah. */
+  ubahMeeting: (id: string, input: MeetingInput) => string | null;
+  /** Simpan penanda sinkronisasi Google Calendar (id event + waktu sync). */
+  tandaiMeetingTersinkron: (id: string, googleEventId: string) => void;
   // Fase B — Marketing (PRD Bab 7.2).
   tambahEvent: (input: EventInput) => string | null;
   tambahAdvertisement: (input: AdvertisementInput) => string | null;

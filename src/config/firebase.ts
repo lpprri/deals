@@ -4,7 +4,9 @@
 // tidak pernah ada di GitHub/Vercel).
 // Tanpa konfigurasi, aplikasi berjalan dalam mode contoh yang diberi label jelas.
 
-const env = import.meta.env;
+const env = import.meta.env ?? {};
+// `?? {}` — import.meta.env tidak ada saat modul diimpor dari skrip cek
+// Node (tsx); tanpa konfigurasi, aplikasi berjalan dalam mode contoh.
 
 export const firebaseConfig = {
   apiKey: env.VITE_FIREBASE_API_KEY as string | undefined,

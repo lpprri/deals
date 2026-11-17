@@ -5,6 +5,7 @@
 
 import { useState } from 'react';
 import type {
+  Meeting as MeetingItem,
   Order as OrderItem,
   Prospect as ProspectItem,
   Quotation as QuotationItem,
@@ -24,9 +25,17 @@ import {
   MASTER_PROGRAMA,
   MASTER_SUMBER_PROSPEK,
   MASTER_TAHAP_PIPELINE,
+  OPERATOR_PALEMBANG,
 } from '../lib/master';
 import { hitungAnalitikSales } from '../lib/derive';
 import { formatRupiah, formatTanggal, hariIniIso } from '../lib/format';
+import {
+  hubungkanGoogleCalendar,
+  perbaruiEventKalender,
+  pesanGalatGoogle,
+  sinkronkanEventKalender,
+  type KoneksiKalender,
+} from '../lib/googleCalendar';
 import { bolehAksi } from '../lib/permissions';
 import {
   labelJenisPnBP,
@@ -1742,12 +1751,38 @@ function FormOrder({
 // MEETING
 // ---------------------------------------------------------------------------
 
+/** Tampilkan teks atau '—' bila kosong (kolom baru Meeting, PR #73). */
+function tampilTeks(nilai?: string): string {
+  return nilai?.trim() ? nilai.trim() : '—';
+}
+
+/** Tampilkan daftar nama dipisah koma, atau '—' bila kosong. */
+function tampilDaftar(nilai?: string[]): string {
+  return nilai?.length ? nilai.join(', ') : '—';
+}
+
+/** Contact Person: nama + telepon (bila ada), atau '—'. */
+function tampilKontak(m: MeetingItem): string {
+  if (!m.contactPersonNama?.trim()) return '—';
+  return m.contactPersonTelepon?.trim()
+    ? `${m.contactPersonNama.trim()} (${m.contactPersonTelepon.trim()})`
+    : m.contactPersonNama.trim();
+}
+
 export function TabMeeting({ data, user, actions, cari }: ModulProps) {
   const [filterWaktu, setFilterWaktu] = useState<'mendatang' | 'semua'>(
     'mendatang',
   );
   const [tampilForm, setTampilForm] = useState(false);
+  const [editMeeting, setEditMeeting] = useState<MeetingItem | null>(null);
+  // Google Calendar (PR #73) — access token HANYA di memori sesi,
+  // tidak disimpan di Firestore maupun localStorage.
+  const [google, setGoogle] = useState<KoneksiKalender | null>(null);
+  const [pesanGoogle, setPesanGoogle] = useState('');
+  const [catatanKalender, setCatatanKalender] = useState('');
+  const [sedangSinkron, setSedangSinkron] = useState<string | null>(null);
   const hariIni = hariIniIso();
+  const bolehKelola = bolehAksi(user.peran, 'kelolaMeeting');
 
   const kataKunci = cari.trim().toLowerCase();
   const meetingTersaring = data.meeting
@@ -1755,7 +1790,7 @@ export function TabMeeting({ data, user, actions, cari }: ModulProps) {
       (m) =>
         (filterWaktu === 'semua' || m.tanggal >= hariIni) &&
         (kataKunci === '' ||
-          `${m.id} ${m.agenda} ${m.peserta} ${m.hasil ?? ''}`
+          `${m.id} ${m.agenda} ${(m.clientRepresentatives ?? []).join(' ')} ${m.contactPersonNama ?? ''} ${(m.rriRepresentatives ?? []).join(' ')} ${m.alamatKlien ?? ''} ${m.hasil ?? ''}`
             .toLowerCase()
             .includes(kataKunci)),
     )
@@ -1766,16 +1801,125 @@ export function TabMeeting({ data, user, actions, cari }: ModulProps) {
         : a.tanggal.localeCompare(b.tanggal),
     );
 
+  /** Nama prospect/klien untuk satu meeting (dipakai tabel + event). */
+  const namaPihak = (m: MeetingItem): string => {
+    const prospek = m.prospectId
+      ? data.prospect.find((p) => p.id === m.prospectId)
+      : null;
+    const klien = m.klienId
+      ? data.klien.find((k) => k.id === m.klienId)
+      : null;
+    return [prospek?.namaInstansi, klien?.nama].filter(Boolean).join(' — ');
+  };
+
+  const hubungkan = async () => {
+    setPesanGoogle('');
+    try {
+      setGoogle(await hubungkanGoogleCalendar());
+    } catch (e) {
+      setPesanGoogle(pesanGalatGoogle(e));
+    }
+  };
+
+  const sinkronkan = async (m: MeetingItem) => {
+    if (!google) {
+      setPesanGoogle('Connect Google Calendar first, then Sync the meeting.');
+      return;
+    }
+    setSedangSinkron(m.id);
+    setPesanGoogle('');
+    try {
+      const idEvent = await sinkronkanEventKalender(
+        google.accessToken,
+        m,
+        namaPihak(m),
+      );
+      actions.tandaiMeetingTersinkron(m.id, idEvent);
+    } catch (e) {
+      setPesanGoogle(pesanGalatGoogle(e));
+    } finally {
+      setSedangSinkron(null);
+    }
+  };
+
+  /** Setelah Update tersimpan: PATCH event Google-nya bila sudah sync. */
+  const setelahUpdate = async (m: MeetingItem, input: MeetingInput) => {
+    setEditMeeting(null);
+    const eventId = m.googleEventId;
+    if (!eventId) return;
+    const diperbarui: MeetingItem = {
+      ...m,
+      tanggal: input.tanggal,
+      jam: input.jam,
+      prospectId: input.prospectId || undefined,
+      klienId: input.klienId || undefined,
+      peserta: [
+        ...input.rriRepresentatives,
+        ...input.clientRepresentatives,
+      ].join(', '),
+      agenda: input.agenda.trim(),
+      hasil: input.hasil || undefined,
+      clientRepresentatives: input.clientRepresentatives,
+      contactPersonNama: input.contactPersonNama.trim(),
+      contactPersonTelepon: input.contactPersonTelepon.trim() || undefined,
+      rriRepresentatives: input.rriRepresentatives,
+      alamatKlien: input.alamatKlien.trim() || undefined,
+    };
+    if (!google) {
+      setCatatanKalender(
+        'Google Calendar was not updated — connect Google Calendar and use Sync to update the event.',
+      );
+      return;
+    }
+    try {
+      await perbaruiEventKalender(
+        google.accessToken,
+        eventId,
+        diperbarui,
+        namaPihak(diperbarui),
+      );
+      setCatatanKalender('Google Calendar event updated.');
+    } catch (e) {
+      setCatatanKalender(
+        `Google Calendar was not updated: ${pesanGalatGoogle(e)}`,
+      );
+    }
+  };
+
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <JudulBagian>Meeting</JudulBagian>
-        {bolehAksi(user.peran, 'kelolaMeeting') && (
-          <TombolUtama onClick={() => setTampilForm(true)}>
-            + Add Meeting
-          </TombolUtama>
-        )}
+        <div className="flex flex-wrap items-center gap-2">
+          {google ? (
+            <>
+              <span className="text-sm text-[#0d2569]">
+                Connected: {google.email}
+              </span>
+              <TombolSekunder
+                onClick={() => {
+                  setGoogle(null);
+                  setPesanGoogle('');
+                }}
+              >
+                Disconnect
+              </TombolSekunder>
+            </>
+          ) : (
+            <TombolSekunder onClick={hubungkan}>
+              Connect Google Calendar
+            </TombolSekunder>
+          )}
+          {bolehKelola && (
+            <TombolUtama onClick={() => setTampilForm(true)}>
+              + Add Meeting
+            </TombolUtama>
+          )}
+        </div>
       </div>
+
+      {pesanGoogle !== '' && <Peringatan teks={pesanGoogle} />}
+      {catatanKalender !== '' && <Peringatan teks={catatanKalender} />}
 
       <div>
         <Label>Filter by time</Label>
@@ -1795,8 +1939,23 @@ export function TabMeeting({ data, user, actions, cari }: ModulProps) {
         <FormMeeting
           data={data}
           actions={actions}
+          namaOperatorLogin={user.nama}
           onBatal={() => setTampilForm(false)}
           onSukses={() => setTampilForm(false)}
+        />
+      )}
+
+      {editMeeting && (
+        <FormMeeting
+          data={data}
+          actions={actions}
+          meeting={editMeeting}
+          namaOperatorLogin={user.nama}
+          onBatal={() => setEditMeeting(null)}
+          onSukses={(input) => {
+            if (input) void setelahUpdate(editMeeting, input);
+            else setEditMeeting(null);
+          }}
         />
       )}
 
@@ -1810,30 +1969,49 @@ export function TabMeeting({ data, user, actions, cari }: ModulProps) {
                 <Th>Date</Th>
                 <Th>Time</Th>
                 <Th>Prospect / Client</Th>
-                <Th>Participants</Th>
+                <Th>Client Address</Th>
+                <Th>Client Representative</Th>
+                <Th>Contact Person</Th>
+                <Th>RRI Representative</Th>
                 <Th>Agenda</Th>
                 <Th>Outcome</Th>
+                <Th>Actions</Th>
               </tr>
             </thead>
             <tbody>
               {meetingTersaring.map((m) => {
-                const prospek = m.prospectId
-                  ? data.prospect.find((p) => p.id === m.prospectId)
-                  : null;
-                const klien = m.klienId
-                  ? data.klien.find((k) => k.id === m.klienId)
-                  : null;
-                const pihak = [prospek?.namaInstansi, klien?.nama]
-                  .filter(Boolean)
-                  .join(' — ');
+                const pihak = namaPihak(m);
                 return (
                   <Baris key={m.id}>
                     <Td>{formatTanggal(m.tanggal)}</Td>
                     <Td>{m.jam}</Td>
                     <Td>{pihak === '' ? '-' : pihak}</Td>
-                    <Td>{m.peserta}</Td>
+                    <Td>{tampilTeks(m.alamatKlien)}</Td>
+                    <Td>{tampilDaftar(m.clientRepresentatives)}</Td>
+                    <Td>{tampilKontak(m)}</Td>
+                    <Td>{tampilDaftar(m.rriRepresentatives)}</Td>
                     <Td>{m.agenda}</Td>
                     <Td>{m.hasil ?? '-'}</Td>
+                    <Td>
+                      <div className="flex flex-wrap items-center gap-2">
+                        {bolehKelola && (
+                          <TombolSekunder onClick={() => setEditMeeting(m)}>
+                            Update
+                          </TombolSekunder>
+                        )}
+                        {bolehKelola && (
+                          <TombolSekunder
+                            onClick={() => void sinkronkan(m)}
+                            disabled={sedangSinkron === m.id}
+                          >
+                            {sedangSinkron === m.id ? 'Syncing…' : 'Sync'}
+                          </TombolSekunder>
+                        )}
+                        <span className="text-xs whitespace-nowrap text-[#0d2569]/70">
+                          {m.googleEventId ? 'Synced' : 'Not synced'}
+                        </span>
+                      </div>
+                    </Td>
                   </Baris>
                 );
               })}
@@ -1848,27 +2026,100 @@ export function TabMeeting({ data, user, actions, cari }: ModulProps) {
 function FormMeeting({
   data,
   actions,
+  meeting,
+  namaOperatorLogin,
   onBatal,
   onSukses,
 }: {
   data: ModulProps['data'];
   actions: ModulProps['actions'];
+  /** Bila diisi: mode edit (Update) — form terisi dari meeting ini. */
+  meeting?: MeetingItem;
+  /** Nama operator yang sedang login — default RRI Representative. */
+  namaOperatorLogin: string;
   onBatal: () => void;
-  onSukses: () => void;
+  onSukses: (input?: MeetingInput) => void;
 }) {
   const [form, setForm] = useState<MeetingInput>({
-    tanggal: hariIniIso(),
-    jam: '09:00',
-    prospectId: '',
-    klienId: '',
-    peserta: '',
-    agenda: '',
-    hasil: '',
+    tanggal: meeting?.tanggal ?? hariIniIso(),
+    jam: meeting?.jam ?? '09:00',
+    prospectId: meeting?.prospectId ?? '',
+    klienId: meeting?.klienId ?? '',
+    agenda: meeting?.agenda ?? '',
+    hasil: meeting?.hasil ?? '',
+    clientRepresentatives: meeting?.clientRepresentatives ?? [],
+    contactPersonNama: meeting?.contactPersonNama ?? '',
+    contactPersonTelepon: meeting?.contactPersonTelepon ?? '',
+    // Form Add: operator yang sedang login terpilih secara default
+    // (bisa diubah/ditambah — pola atribusi operatorPenutup kontrak).
+    rriRepresentatives:
+      meeting?.rriRepresentatives ??
+      (namaOperatorLogin.trim() === '' ? [] : [namaOperatorLogin.trim()]),
+    alamatKlien: meeting?.alamatKlien ?? '',
   });
+  // Client Representative diisi free-text multi-nama (pisah koma);
+  // diurai menjadi string[] saat simpan.
+  const [wakilKlienTeks, setWakilKlienTeks] = useState(
+    (meeting?.clientRepresentatives ?? []).join(', '),
+  );
+  const [tampilOpsiRri, setTampilOpsiRri] = useState(false);
   const [error, setError] = useState('');
 
-  const ubah = (field: keyof MeetingInput, nilai: string) =>
-    setForm((f) => ({ ...f, [field]: nilai }));
+  const ubah = (
+    field:
+      | 'tanggal'
+      | 'jam'
+      | 'prospectId'
+      | 'klienId'
+      | 'contactPersonNama'
+      | 'contactPersonTelepon'
+      | 'alamatKlien'
+      | 'agenda'
+      | 'hasil',
+    nilai: string,
+  ) => setForm((f) => ({ ...f, [field]: nilai }));
+
+  // Opsi dropdown RRI Representative: 5 operator Palembang + nama yang
+  // sudah terpilih (mis. nama contoh di meeting lama / nama operator
+  // login bila bukan salah satu dari kelimanya).
+  const opsiRri = [
+    ...new Set(
+      [...OPERATOR_PALEMBANG, ...form.rriRepresentatives, namaOperatorLogin]
+        .map((n) => n.trim())
+        .filter((n) => n !== ''),
+    ),
+  ];
+
+  const alihkanRri = (nama: string) =>
+    setForm((f) => ({
+      ...f,
+      rriRepresentatives: f.rriRepresentatives.includes(nama)
+        ? f.rriRepresentatives.filter((n) => n !== nama)
+        : [...f.rriRepresentatives, nama],
+    }));
+
+  /** Pilih prospect: isi otomatis Contact Person dari data prospect. */
+  const pilihProspect = (id: string) => {
+    const p = data.prospect.find((x) => x.id === id);
+    setForm((f) => ({
+      ...f,
+      prospectId: id,
+      contactPersonNama: p?.kontakNama ?? f.contactPersonNama,
+      contactPersonTelepon: p?.telepon ?? f.contactPersonTelepon,
+    }));
+  };
+
+  /** Pilih klien: isi otomatis Contact Person + alamat dari data klien. */
+  const pilihKlien = (id: string) => {
+    const k = data.klien.find((x) => x.id === id);
+    setForm((f) => ({
+      ...f,
+      klienId: id,
+      contactPersonNama: k?.kontakNama ?? f.contactPersonNama,
+      contactPersonTelepon: k?.telepon ?? f.contactPersonTelepon,
+      alamatKlien: k?.alamat ?? f.alamatKlien,
+    }));
+  };
 
   const simpan = () => {
     if (form.tanggal === '') {
@@ -1886,34 +2137,52 @@ function FormMeeting({
       setError('Choose one: prospect or client.');
       return;
     }
-    if (form.peserta.trim() === '') {
-      setError('Participants are required.');
+    const wakilKlien = wakilKlienTeks
+      .split(',')
+      .map((n) => n.trim())
+      .filter((n) => n !== '');
+    if (wakilKlien.length === 0) {
+      setError('Add at least one client representative.');
+      return;
+    }
+    if (form.contactPersonNama.trim() === '') {
+      setError('Contact person name is required.');
+      return;
+    }
+    if (form.rriRepresentatives.length === 0) {
+      setError('Add at least one RRI representative.');
       return;
     }
     if (form.agenda.trim() === '') {
       setError('Agenda is required.');
       return;
     }
-    const hasil = actions.tambahMeeting({
+    const input: MeetingInput = {
       tanggal: form.tanggal,
       jam: form.jam,
-      prospectId:
-        form.prospectId === '' ? undefined : form.prospectId,
+      prospectId: form.prospectId === '' ? undefined : form.prospectId,
       klienId: form.klienId === '' ? undefined : form.klienId,
-      peserta: form.peserta.trim(),
       agenda: form.agenda.trim(),
       hasil: form.hasil?.trim() === '' ? undefined : form.hasil?.trim(),
-    });
+      clientRepresentatives: wakilKlien,
+      contactPersonNama: form.contactPersonNama.trim(),
+      contactPersonTelepon: form.contactPersonTelepon.trim(),
+      rriRepresentatives: form.rriRepresentatives,
+      alamatKlien: form.alamatKlien.trim(),
+    };
+    const hasil = meeting
+      ? actions.ubahMeeting(meeting.id, input)
+      : actions.tambahMeeting(input);
     if (hasil !== null) {
       setError(hasil);
       return;
     }
-    onSukses();
+    onSukses(input);
   };
 
   return (
     <Kartu>
-      <JudulBagian>Add Meeting</JudulBagian>
+      <JudulBagian>{meeting ? 'Update Meeting' : 'Add Meeting'}</JudulBagian>
       <div className="mt-4 grid gap-4 md:grid-cols-2">
         <div>
           <Label>Date *</Label>
@@ -1938,7 +2207,7 @@ function FormMeeting({
           <select
             className={inputClass}
             value={form.prospectId ?? ''}
-            onChange={(e) => ubah('prospectId', e.target.value)}
+            onChange={(e) => pilihProspect(e.target.value)}
           >
             <option value="">— No prospect —</option>
             {data.prospect.map((p) => (
@@ -1953,7 +2222,7 @@ function FormMeeting({
           <select
             className={inputClass}
             value={form.klienId ?? ''}
-            onChange={(e) => ubah('klienId', e.target.value)}
+            onChange={(e) => pilihKlien(e.target.value)}
           >
             <option value="">— No client —</option>
             {data.klien.map((k) => (
@@ -1964,13 +2233,71 @@ function FormMeeting({
           </select>
         </div>
         <div className="md:col-span-2">
-          <Label>Participants *</Label>
+          <Label>Client Address</Label>
           <input
             className={inputClass}
-            value={form.peserta}
-            onChange={(e) => ubah('peserta', e.target.value)}
-            placeholder="Meeting participant names"
+            value={form.alamatKlien}
+            onChange={(e) => ubah('alamatKlien', e.target.value)}
+            placeholder="Client address (filled automatically from client data)"
           />
+        </div>
+        <div className="md:col-span-2">
+          <Label>Client Representative *</Label>
+          <input
+            className={inputClass}
+            value={wakilKlienTeks}
+            onChange={(e) => setWakilKlienTeks(e.target.value)}
+            placeholder="Client representative names, separated by commas"
+          />
+        </div>
+        <div>
+          <Label>Contact Person *</Label>
+          <input
+            className={inputClass}
+            value={form.contactPersonNama}
+            onChange={(e) => ubah('contactPersonNama', e.target.value)}
+            placeholder="Contact person name"
+          />
+        </div>
+        <div>
+          <Label>Contact Person Phone</Label>
+          <input
+            className={inputClass}
+            value={form.contactPersonTelepon}
+            onChange={(e) => ubah('contactPersonTelepon', e.target.value)}
+            placeholder="Contact person phone number"
+          />
+        </div>
+        <div className="md:col-span-2">
+          <Label>RRI Representative *</Label>
+          <div className="relative">
+            <button
+              type="button"
+              className={`${inputClass} text-left`}
+              onClick={() => setTampilOpsiRri((v) => !v)}
+            >
+              {form.rriRepresentatives.length === 0
+                ? 'Select RRI representatives'
+                : form.rriRepresentatives.join(', ')}
+            </button>
+            {tampilOpsiRri && (
+              <div className="absolute z-10 mt-1 w-full rounded-md border border-[#2573e2]/40 bg-white p-2 shadow-md">
+                {opsiRri.map((nama) => (
+                  <label
+                    key={nama}
+                    className="flex cursor-pointer items-center gap-2 px-2 py-1 text-sm text-[#0d2569]"
+                  >
+                    <input
+                      type="checkbox"
+                      checked={form.rriRepresentatives.includes(nama)}
+                      onChange={() => alihkanRri(nama)}
+                    />
+                    {nama}
+                  </label>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
         <div className="md:col-span-2">
           <Label>Agenda *</Label>
@@ -1998,7 +2325,9 @@ function FormMeeting({
         </p>
       )}
       <div className="mt-4 flex gap-2">
-        <TombolUtama onClick={simpan}>Save Meeting</TombolUtama>
+        <TombolUtama onClick={simpan}>
+          {meeting ? 'Save Changes' : 'Save Meeting'}
+        </TombolUtama>
         <TombolSekunder onClick={onBatal}>Cancel</TombolSekunder>
       </div>
     </Kartu>
