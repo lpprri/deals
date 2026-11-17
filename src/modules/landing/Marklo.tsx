@@ -1,18 +1,15 @@
-// Landing page publik — tiruan template agency "Marklo"
-// (PR landing-marklo-clone, 2026-11-17).
-// (PR landing-footer-navy-putih, 2026-11-17: footer gradien navy RRI
-// #0D2569 (bukan maroon), logo RRI + Deals di footer dibuat putih,
-// kolom "Additional Service", header seamless tanpa garis bawah.
-// PR ini JUGA me-revert PR #75 (ukuran landing kembali ke PR #74)
-// karena pengguna menilai ukuran PR #75 kebesaran di zoom 100% —
-// permintaan ukuran PR #75 berasal dari tampilan zoom-out.)
-//
-// Tiruan visual SESETIA MUNGKIN dari template Marklo; penyesuaian RRI
-// (palet, Lacak, Ajukan, statistik live, dua bahasa) DIPARKIR ke
-// putaran berikutnya atas instruksi pengguna 15:42 WIB. Di PR ini:
-//   - Bahasa: Inggris (seperti template).
-//   - Nama orang/klien/kampanye/testimoni/angka: DATA CONTOH dari
-//     template (src/lib/landingMarklo.ts) — BUKAN data RRI.
+// Landing page publik RRI Deals (route `/`).
+// Dulu tiruan template agency (PR landing-marklo-clone, 2026-11-17);
+// pada PR ini seluruh copy contoh diganti dengan copy final RRI yang
+// disetujui pengguna 2026-11-17 (dokumen
+// Copy-Landing-RRI-Deals-Final-2026-11-17.md):
+//   - Bahasa: Indonesia sebagai bahasa utama.
+//   - Statistik: 500+ Partners, 67 Cities, 69 Satker, 42 Kontrak 2026.
+//   - Testimoni DIKOSONGKAN (section tidak dirender) sampai ada
+//     testimoni klien nyata; logo klien contoh dihapus.
+//   - "Lacak Kerja Sama" di footer Additional Service membuka halaman
+//     publik Lacak (nomor PKS/invoice); "Ajukan Kerja Sama" membuka
+//     halaman publik Ajukan — keduanya via callback dari App.tsx.
 //   - Brand header/footer tetap "RRI Deals" (logo/wordmark RRI apa
 //     adanya, tidak diwarnai ulang) — KECUALI logo di footer yang
 //     dibuat putih atas permintaan eksplisit pengguna 2026-11-17
@@ -22,7 +19,7 @@
 //     2026-11-17); TIDAK ADA baris email sama sekali — pengguna
 //     mengonfirmasi 2026-11-17 16:35 WIB: tidak ada email yang
 //     ditampilkan di footer Contact.
-//   - Kartu booking hanya pratinjau lokal: tombol Next menampilkan
+//   - Kartu booking hanya pratinjau lokal: tombol Lanjut menampilkan
 //     catatan jujur, tidak ada pemesanan yang terkirim.
 //   - Gambar: tidak ada hotlink eksternal — visual kartu memakai
 //     gradien CSS; avatar memakai lingkaran inisial.
@@ -50,7 +47,6 @@ import {
   Linkedin,
   MapPin,
   Phone,
-  Star,
   Video,
   X,
 } from 'lucide-react';
@@ -60,21 +56,23 @@ import {
   FAQ_MARKLO,
   FUNNEL_MARKLO,
   KAMPANYE_MARKLO,
-  LOGO_KLIEN_MARKLO,
+  KOTA_MARKLO,
   MANFAAT_MARKLO,
-  NEGARA_MARKLO,
   PERBANDINGAN_KAMI,
   PERBANDINGAN_LAIN,
   PROSES_MARKLO,
   SLOT_BOOKING_MENIT,
   STATISTIK_MARKLO,
-  TESTIMONI_MARKLO,
   ZONA_WAKTU_MARKLO,
 } from '../../lib/landingMarklo';
 
 export interface MarkloLandingProps {
   /** Buka halaman login Operator (infrastruktur aplikasi). */
   onLogin: () => void;
+  /** Buka halaman publik Lacak Kerja Sama (nomor PKS/invoice). */
+  onLacak: () => void;
+  /** Buka halaman publik Ajukan Kerja Sama. */
+  onAjukan: () => void;
 }
 
 /** Gulir halus ke section berdasarkan id. */
@@ -148,32 +146,16 @@ function LabelPill({ children }: { children: ReactNode }) {
   );
 }
 
-/** Bintang 5 penuh (social proof hero + kartu testimoni). */
-function BintangLima({
-  className = 'h-4 w-4',
-  pembungkus = 'text-mk-aksen',
-}: {
-  className?: string;
-  pembungkus?: string;
-}) {
-  return (
-    <span
-      className={`inline-flex items-center gap-0.5 ${pembungkus}`}
-      aria-label="Rated 5 out of 5"
-    >
-      {[0, 1, 2, 3, 4].map((i) => (
-        <Star key={i} className={`${className} fill-current`} aria-hidden="true" />
-      ))}
-    </span>
-  );
-}
-
-export default function MarkloLanding({ onLogin }: MarkloLandingProps) {
+export default function MarkloLanding({
+  onLogin,
+  onLacak,
+  onAjukan,
+}: MarkloLandingProps) {
   return (
     <div className="min-h-screen bg-white text-black">
-      <Header onLogin={onLogin} />
+      <Header onLogin={onLogin} onAjukan={onAjukan} />
       <main>
-        <Hero />
+        <Hero onAjukan={onAjukan} />
         <CarouselKampanye />
         <Pernyataan />
         <Statistik />
@@ -181,18 +163,23 @@ export default function MarkloLanding({ onLogin }: MarkloLandingProps) {
         <LayananFunnel />
         <Perbandingan />
         <MengapaMarketing />
-        <BookingKonsultasi />
-        <Testimoni />
+        <BookingKonsultasi onAjukan={onAjukan} />
         <Faq />
       </main>
-      <Footer />
+      <Footer onLacak={onLacak} />
     </div>
   );
 }
 
 /* ================= Header ================= */
 
-function Header({ onLogin }: { onLogin: () => void }) {
+function Header({
+  onLogin,
+  onAjukan,
+}: {
+  onLogin: () => void;
+  onAjukan: () => void;
+}) {
   return (
     <header className="sticky top-0 z-50 bg-white/90 backdrop-blur">
       <div className="mx-auto flex max-w-7xl items-center gap-4 px-4 py-3 sm:px-6">
@@ -223,13 +210,6 @@ function Header({ onLogin }: { onLogin: () => void }) {
           <button type="button" onClick={() => gulirKe('services')} className="hover:text-mk-aksen">
             Service
           </button>
-          <button
-            type="button"
-            onClick={() => gulirKe('testimonials')}
-            className="hover:text-mk-aksen"
-          >
-            Testimonials
-          </button>
           <button type="button" onClick={() => gulirKe('process')} className="hover:text-mk-aksen">
             Process
           </button>
@@ -241,6 +221,13 @@ function Header({ onLogin }: { onLogin: () => void }) {
             className="hidden rounded-full bg-mk-aksen px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-mk-aksen-gelap sm:inline-flex"
           >
             Book a Free Call
+          </button>
+          <button
+            type="button"
+            onClick={onAjukan}
+            className="hidden rounded-full border-2 border-black px-4 py-2 text-sm font-semibold text-black transition hover:bg-black hover:text-white sm:inline-flex"
+          >
+            Ajukan Kerja Sama
           </button>
           <button
             type="button"
@@ -257,21 +244,21 @@ function Header({ onLogin }: { onLogin: () => void }) {
 
 /* ================= Hero ================= */
 
-function Hero() {
-  const rating = useCountUp(4.9, true, 1800);
+function Hero({ onAjukan }: { onAjukan: () => void }) {
   return (
     <section id="atas" className="bg-white">
       <div className="mx-auto max-w-7xl px-4 pb-16 pt-14 text-center sm:px-6 lg:pt-20">
         <Reveal>
           <h1 className="mx-auto max-w-4xl text-5xl font-extrabold leading-[1.05] tracking-tight text-black sm:text-6xl lg:text-7xl">
-            Grow <span className="text-slate-300">smarter</span> with our
-            marketing.
+            Suara Anda,{' '}
+            <span className="text-slate-300">Didengar Indonesia.</span>
           </h1>
         </Reveal>
         <Reveal tunda={120}>
           <p className="mx-auto mt-6 max-w-2xl text-base leading-relaxed text-slate-500 sm:text-lg">
-            We help ambitious brands grow with data-driven campaigns, creative
-            that converts, and reporting you can actually trust.
+            Dari spot radio sampai Reels, feed, dan live streaming — RRI Deals
+            menempatkan brand Anda di udara dan di layar, di 67 kota lewat 69
+            satker RRI di seluruh Indonesia.
           </p>
         </Reveal>
         <Reveal tunda={220}>
@@ -286,40 +273,11 @@ function Hero() {
             </button>
             <button
               type="button"
-              onClick={() => gulirKe('services')}
+              onClick={onAjukan}
               className="rounded-full border-2 border-black px-6 py-3 text-sm font-semibold text-black transition hover:bg-black hover:text-white"
             >
-              Our Services
+              Ajukan Kerja Sama
             </button>
-          </div>
-        </Reveal>
-        <Reveal tunda={320}>
-          <div className="mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row sm:gap-4">
-            <span className="flex -space-x-2">
-              {[
-                { inisial: 'GR', gradien: 'from-rose-400 to-orange-300' },
-                { inisial: 'SM', gradien: 'from-sky-400 to-blue-300' },
-                { inisial: 'PK', gradien: 'from-violet-400 to-purple-300' },
-                { inisial: 'DL', gradien: 'from-emerald-400 to-teal-300' },
-              ].map((a) => (
-                <span
-                  key={a.inisial}
-                  className={`flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br ${a.gradien} text-xs font-bold text-white ring-2 ring-white`}
-                  aria-hidden="true"
-                >
-                  {a.inisial}
-                </span>
-              ))}
-            </span>
-            <span className="flex items-center gap-2">
-              <BintangLima />
-              <span className="text-sm font-bold text-black">
-                {rating.toFixed(1)}/5.0
-              </span>
-            </span>
-            <span className="text-xs font-semibold tracking-widest text-slate-400">
-              TRUSTED BY 500+ BRANDS GLOBALLY
-            </span>
           </div>
         </Reveal>
       </div>
@@ -354,13 +312,13 @@ function CarouselKampanye() {
         <Reveal>
           <div className="flex items-end justify-between gap-4">
             <h2 className="text-2xl font-extrabold tracking-tight text-black sm:text-3xl">
-              Campaigns that delivered.
+              Layanan RRI Deals.
             </h2>
             <div className="flex shrink-0 gap-2">
               <button
                 type="button"
                 onClick={() => gulirKartu(-1)}
-                aria-label="Previous campaign"
+                aria-label="Layanan sebelumnya"
                 className="flex h-10 w-10 items-center justify-center rounded-full border border-slate-300 text-black transition hover:border-black hover:bg-black hover:text-white"
               >
                 <ChevronLeft className="h-5 w-5" aria-hidden="true" />
@@ -368,7 +326,7 @@ function CarouselKampanye() {
               <button
                 type="button"
                 onClick={() => gulirKartu(1)}
-                aria-label="Next campaign"
+                aria-label="Layanan berikutnya"
                 className="flex h-10 w-10 items-center justify-center rounded-full border border-slate-300 text-black transition hover:border-black hover:text-white"
               >
                 <ChevronRight className="h-5 w-5" aria-hidden="true" />
@@ -429,9 +387,9 @@ function Pernyataan() {
       <div className="mx-auto max-w-5xl px-4 text-center sm:px-6">
         <Reveal>
           <p className="text-3xl font-extrabold leading-tight tracking-tight text-black sm:text-5xl lg:text-6xl">
-            We focus on returns, scaling your brand through{' '}
-            <span className="text-slate-300">digital marketing</span> to take
-            it to the next level.
+            Kami fokus pada hasil — menempatkan brand Anda{' '}
+            <span className="text-slate-300">di udara dan di layar</span>,
+            lewat radio dan kanal digital RRI, ke seluruh Indonesia.
           </p>
         </Reveal>
       </div>
@@ -472,16 +430,15 @@ function Statistik() {
         <Reveal tunda={150}>
           <div className="mt-12 text-center">
             <p className="text-sm font-bold tracking-wide text-black">
-              Our Clients in 35+ Countries
+              Mitra Kami di 67 Kota
             </p>
             <ul className="mt-4 flex flex-wrap items-center justify-center gap-2">
-              {NEGARA_MARKLO.map((n) => (
+              {KOTA_MARKLO.map((kota) => (
                 <li
-                  key={n.nama}
+                  key={kota.nama}
                   className="inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-600"
                 >
-                  <span aria-hidden="true">{n.bendera}</span>
-                  {n.nama}
+                  {kota.nama}
                 </li>
               ))}
             </ul>
@@ -510,24 +467,6 @@ function StatItem({
         {stat.akhiran}
       </dd>
       <dt className="mt-2 text-sm font-medium text-slate-500">{stat.label}</dt>
-      {stat.id === 'klien' && (
-        <span className="mt-3 inline-flex items-center justify-center gap-2">
-          <span className="flex -space-x-1.5">
-            {['GR', 'SM', 'PK'].map((inisial, i) => (
-              <span
-                key={inisial}
-                className={`flex h-6 w-6 items-center justify-center rounded-full text-[9px] font-bold text-white ring-2 ring-white ${
-                  ['bg-rose-400', 'bg-sky-400', 'bg-violet-400'][i]
-                }`}
-                aria-hidden="true"
-              >
-                {inisial}
-              </span>
-            ))}
-          </span>
-          <BintangLima className="h-3.5 w-3.5" />
-        </span>
-      )}
     </div>
   );
 }
@@ -539,9 +478,9 @@ function Proses() {
     <section id="process" className="bg-white py-16 sm:py-20">
       <div className="mx-auto max-w-7xl px-4 text-center sm:px-6">
         <Reveal>
-          <LabelPill>Process</LabelPill>
+          <LabelPill>Proses</LabelPill>
           <h2 className="mx-auto mt-5 max-w-3xl text-3xl font-extrabold leading-tight tracking-tight text-black sm:text-5xl">
-            Our simple 3-step process to skyrocket your business.
+            Tiga Langkah Mudah Memulai
           </h2>
         </Reveal>
         <div className="mt-12 grid gap-6 text-left md:grid-cols-3">
@@ -567,7 +506,7 @@ function Proses() {
             onClick={() => gulirKe('booking')}
             className="mt-10 inline-flex items-center gap-2 rounded-full bg-mk-aksen px-6 py-3 text-sm font-semibold text-white shadow-md transition hover:bg-mk-aksen-gelap"
           >
-            Book a Free Consultation
+            Book a Free Call
             <ArrowRight className="h-4 w-4" aria-hidden="true" />
           </button>
         </Reveal>
@@ -585,9 +524,9 @@ function LayananFunnel() {
     <section id="services" className="bg-slate-50 py-16 sm:py-20">
       <div className="mx-auto max-w-7xl px-4 text-center sm:px-6">
         <Reveal>
-          <LabelPill>Services</LabelPill>
+          <LabelPill>Layanan</LabelPill>
           <h2 className="mx-auto mt-5 max-w-3xl text-3xl font-extrabold leading-tight tracking-tight text-black sm:text-5xl">
-            Funnel-focused marketing for predictable, lasting growth.
+            Layanan RRI Deals
           </h2>
         </Reveal>
         <div className="mx-auto mt-12 max-w-3xl text-left">
@@ -600,7 +539,7 @@ function LayananFunnel() {
                   <div className="flex items-start justify-between gap-4">
                     <div>
                       <p className="text-xs font-bold uppercase tracking-widest text-slate-500">
-                        Step {i + 1}
+                        Layanan {i + 1}
                       </p>
                       <h3 className="mt-1 text-xl font-extrabold text-black">
                         {tahap.tahap}
@@ -623,16 +562,6 @@ function LayananFunnel() {
               )}
             </div>
           ))}
-          <div className={OFFSET_FUNNEL[4]}>
-            <Reveal tunda={420}>
-              <div className="rounded-[20px] bg-mk-aksen p-6 text-center shadow-lg">
-                <p className="text-3xl font-extrabold text-white">35X</p>
-                <p className="mt-1 text-sm font-semibold text-white/90">
-                  Client Growth
-                </p>
-              </div>
-            </Reveal>
-          </div>
         </div>
       </div>
     </section>
@@ -647,9 +576,9 @@ function Perbandingan() {
       <div className="mx-auto max-w-7xl px-4 sm:px-6">
         <Reveal>
           <div className="text-center">
-            <LabelPill>Comparison</LabelPill>
+            <LabelPill>Perbandingan</LabelPill>
             <h2 className="mx-auto mt-5 max-w-3xl text-3xl font-extrabold leading-tight tracking-tight text-black sm:text-5xl">
-              But, why would you want to work with us?
+              Mengapa RRI?
             </h2>
           </div>
         </Reveal>
@@ -657,7 +586,7 @@ function Perbandingan() {
           <Reveal>
             <article className="h-full rounded-[20px] bg-white p-7 shadow-lg ring-1 ring-slate-200">
               <h3 className="text-xl font-extrabold text-black">
-                Other Agencies
+                Agency Lain
               </h3>
               <ul className="mt-5 space-y-4">
                 {PERBANDINGAN_LAIN.map((item) => (
@@ -675,7 +604,7 @@ function Perbandingan() {
           </Reveal>
           <Reveal tunda={140}>
             <article className="h-full rounded-[20px] bg-mk-peach p-7 shadow-lg ring-1 ring-orange-100">
-              <h3 className="text-xl font-extrabold text-black">Our Agency</h3>
+              <h3 className="text-xl font-extrabold text-black">RRI Deals</h3>
               <ul className="mt-5 space-y-4">
                 {PERBANDINGAN_KAMI.map((item) => (
                   <li key={item} className="flex items-start gap-3">
@@ -691,21 +620,6 @@ function Perbandingan() {
             </article>
           </Reveal>
         </div>
-        <Reveal tunda={200}>
-          <div className="mt-12 overflow-hidden border-y border-slate-200 py-5">
-            <div className="mk-marquee flex w-max items-center gap-12">
-              {[...LOGO_KLIEN_MARKLO, ...LOGO_KLIEN_MARKLO].map((logo, i) => (
-                <span
-                  key={`${logo}-${i}`}
-                  className="whitespace-nowrap text-xl font-extrabold tracking-tight text-slate-400"
-                  aria-hidden={i >= LOGO_KLIEN_MARKLO.length}
-                >
-                  {logo}
-                </span>
-              ))}
-            </div>
-          </div>
-        </Reveal>
       </div>
     </section>
   );
@@ -719,9 +633,9 @@ function MengapaMarketing() {
       <div className="mx-auto max-w-7xl px-4 sm:px-6">
         <Reveal>
           <div className="text-center">
-            <LabelPill>Confusion?</LabelPill>
+            <LabelPill>Masih Ragu?</LabelPill>
             <h2 className="mx-auto mt-5 max-w-3xl text-3xl font-extrabold leading-tight tracking-tight text-black sm:text-5xl">
-              Why do you need Marketing?
+              Kenapa Beriklan di RRI?
             </h2>
           </div>
         </Reveal>
@@ -749,10 +663,11 @@ function MengapaMarketing() {
           <Reveal tunda={240} className="sm:col-span-2 lg:col-span-1">
             <article className="flex h-full flex-col items-start justify-center rounded-[20px] bg-black p-7 text-white shadow-md">
               <p className="text-2xl font-extrabold leading-snug">
-                Still not sure where to start?
+                Masih ragu mau mulai dari mana?
               </p>
               <p className="mt-2 text-sm leading-relaxed text-white/70">
-                Book a free 30-minute call and we will audit your funnel together.
+                Pesan panggilan gratis 30 menit — kami bantu petakan kanal dan
+                format yang paling pas untuk brand Anda.
               </p>
               <button
                 type="button"
@@ -792,7 +707,7 @@ function formatSlot(menit: number, format24: boolean) {
 
 function labelTanggal(kunci: string) {
   const [y, m, d] = kunci.split('-').map(Number);
-  return new Date(y, m - 1, d).toLocaleDateString('en-US', {
+  return new Date(y, m - 1, d).toLocaleDateString('id-ID', {
     weekday: 'short',
     day: 'numeric',
     month: 'short',
@@ -801,11 +716,11 @@ function labelTanggal(kunci: string) {
 }
 
 const NAMA_BULAN = [
-  'January', 'February', 'March', 'April', 'May', 'June',
-  'July', 'August', 'September', 'October', 'November', 'December',
+  'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
+  'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember',
 ];
 
-function BookingKonsultasi() {
+function BookingKonsultasi({ onAjukan }: { onAjukan: () => void }) {
   const hariIni = useMemo(() => {
     const d = new Date();
     d.setHours(0, 0, 0, 0);
@@ -845,13 +760,14 @@ function BookingKonsultasi() {
       <div className="mx-auto max-w-7xl px-4 sm:px-6">
         <Reveal>
           <div className="text-center">
-            <LabelPill>Free Consultation</LabelPill>
+            <LabelPill>Konsultasi Gratis</LabelPill>
             <h2 className="mx-auto mt-5 max-w-3xl text-3xl font-extrabold leading-tight tracking-tight text-black sm:text-5xl">
-              Let&apos;s talk about growing your business
+              Ngobrol dulu, gratis. Tanpa komitmen.
             </h2>
             <p className="mx-auto mt-4 max-w-xl text-base leading-relaxed text-slate-500">
-              Pick a time that works for you. We will review your funnel and
-              show you the fastest path to growth — free, no strings attached.
+              Pilih waktu yang cocok untuk Anda. Dalam 30 menit, kami bantu
+              petakan kanal dan format yang paling pas untuk brand Anda —
+              gratis.
             </p>
           </div>
         </Reveal>
@@ -861,19 +777,19 @@ function BookingKonsultasi() {
               {/* Kolom host */}
               <div className="border-b border-slate-200 p-6 md:border-b-0 md:border-r">
                 <span className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-rose-400 to-orange-300 text-lg font-extrabold text-white">
-                  M
+                  R
                 </span>
-                <h3 className="mt-4 text-lg font-extrabold text-black">Marklo</h3>
+                <h3 className="mt-4 text-lg font-extrabold text-black">RRI Deals</h3>
                 <p className="mt-1 flex items-center gap-2 text-sm text-slate-500">
                   <Clock className="h-4 w-4" aria-hidden="true" />
-                  30 Min Meeting
+                  Pertemuan 30 Menit
                 </p>
                 <p className="mt-1 flex items-center gap-2 text-sm text-slate-500">
                   <Video className="h-4 w-4" aria-hidden="true" />
-                  Video call
+                  Panggilan video
                 </p>
                 <label className="mt-5 block text-xs font-bold uppercase tracking-wide text-slate-400">
-                  Time zone
+                  Zona waktu
                 </label>
                 <span className="mt-1 flex items-center gap-2 rounded-lg border border-slate-300 px-3 py-2">
                   <Globe className="h-4 w-4 shrink-0 text-slate-400" aria-hidden="true" />
@@ -978,13 +894,13 @@ function BookingKonsultasi() {
                 </div>
                 <p className="mt-4 text-xs leading-relaxed text-slate-400">
                   {tanggalDipilih
-                    ? `Selected: ${labelTanggal(tanggalDipilih)}`
-                    : 'Select a date to see available times.'}
+                    ? `Dipilih: ${labelTanggal(tanggalDipilih)}`
+                    : 'Pilih tanggal untuk melihat waktu yang tersedia.'}
                 </p>
               </div>
               {/* Kolom slot + Next */}
               <div className="flex flex-col p-6">
-                <h3 className="text-base font-extrabold text-black">Available times</h3>
+                <h3 className="text-base font-extrabold text-black">Waktu tersedia</h3>
                 {tanggalDipilih ? (
                   <div className="mt-4 grid grid-cols-3 gap-2">
                     {SLOT_BOOKING_MENIT.map((slot) => {
@@ -1012,7 +928,7 @@ function BookingKonsultasi() {
                   </div>
                 ) : (
                   <p className="mt-4 text-sm leading-relaxed text-slate-400">
-                    Pick a date first — time slots will appear here.
+                    Pilih tanggal dulu — slot waktu akan muncul di sini.
                   </p>
                 )}
                 <button
@@ -1021,95 +937,31 @@ function BookingKonsultasi() {
                   onClick={() => setCatatanTampil(true)}
                   className="mt-auto inline-flex items-center justify-center gap-2 rounded-full bg-mk-aksen px-6 py-3 text-sm font-semibold text-white shadow-md transition hover:bg-mk-aksen-gelap disabled:cursor-not-allowed disabled:opacity-40"
                 >
-                  Next
+                  Lanjut
                   <ArrowRight className="h-4 w-4" aria-hidden="true" />
                 </button>
                 {catatanTampil && tanggalDipilih !== null && slotDipilih !== null && (
-                  <p className="mt-4 rounded-xl bg-amber-50 p-4 text-xs leading-relaxed text-amber-800 ring-1 ring-amber-200">
-                    Preview only — your selected slot (
-                    {labelTanggal(tanggalDipilih)},{' '}
-                    {formatSlot(slotDipilih + geserMenit, format24)} {zona.id}) is
-                    not sent anywhere. Booking will connect to the Ajukan
-                    (submission) flow in the RRI adjustment round.
-                  </p>
+                  <div className="mt-4 rounded-xl bg-amber-50 p-4 text-xs leading-relaxed text-amber-800 ring-1 ring-amber-200">
+                    <p>
+                      Pratinjau saja — slot yang Anda pilih (
+                      {labelTanggal(tanggalDipilih)},{' '}
+                      {formatSlot(slotDipilih + geserMenit, format24)} {zona.id})
+                      tidak dikirim ke mana pun.
+                    </p>
+                    <button
+                      type="button"
+                      onClick={onAjukan}
+                      className="mt-3 inline-flex items-center gap-1.5 font-bold text-mk-aksen hover:underline"
+                    >
+                      Ajukan Kerja Sama
+                      <ArrowRight className="h-4 w-4" aria-hidden="true" />
+                    </button>
+                  </div>
                 )}
               </div>
             </div>
           </div>
         </Reveal>
-      </div>
-    </section>
-  );
-}
-
-/* ================= Testimonials ================= */
-
-function Testimoni() {
-  const unggulan = TESTIMONI_MARKLO.find((t) => t.unggulan);
-  const biasa = TESTIMONI_MARKLO.filter((t) => !t.unggulan);
-  return (
-    <section id="testimonials" className="bg-slate-50 py-16 sm:py-20">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6">
-        <Reveal>
-          <div className="text-center">
-            <p className="mx-auto max-w-2xl text-xl font-semibold italic leading-relaxed text-slate-500 sm:text-2xl">
-              &ldquo;Growth is not luck. It is a system — and we build it with
-              you.&rdquo;
-            </p>
-            <p className="mt-5 inline-flex items-center gap-2 rounded-full bg-mk-aksen px-4 py-1.5 text-sm font-bold text-white shadow">
-              <Star className="h-4 w-4 fill-current" aria-hidden="true" />
-              #1 Marketing Agency 2025 Award Winner
-            </p>
-            <div className="mt-8">
-              <LabelPill>Testimonial</LabelPill>
-              <h2 className="mx-auto mt-5 max-w-3xl text-3xl font-extrabold leading-tight tracking-tight text-black sm:text-5xl">
-                Why everyone&apos;s talking about our service
-              </h2>
-            </div>
-          </div>
-        </Reveal>
-        <div className="mt-12 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {unggulan && (
-            <Reveal className="md:col-span-2 lg:col-span-1">
-              <article className="flex h-full flex-col rounded-[20px] bg-mk-aksen p-7 text-white shadow-lg">
-                <BintangLima pembungkus="text-white" />
-                <p className="mt-4 flex-1 text-base font-medium leading-relaxed">
-                  &ldquo;{unggulan.kutipan}&rdquo;
-                </p>
-                <footer className="mt-6 flex items-center gap-3">
-                  <span className="flex h-11 w-11 items-center justify-center rounded-full bg-white/20 text-sm font-extrabold ring-2 ring-white/40">
-                    {unggulan.inisial}
-                  </span>
-                  <span>
-                    <span className="block text-sm font-extrabold">{unggulan.nama}</span>
-                    <span className="block text-xs text-white/80">{unggulan.peran}</span>
-                  </span>
-                </footer>
-              </article>
-            </Reveal>
-          )}
-          {biasa.map((t, i) => (
-            <Reveal key={t.nama} tunda={(i % 3) * 120}>
-              <article className="flex h-full flex-col rounded-[20px] bg-white p-7 shadow-md ring-1 ring-slate-200 transition hover:-translate-y-1 hover:shadow-lg">
-                <BintangLima />
-                <p className="mt-4 flex-1 text-sm leading-relaxed text-slate-600">
-                  &ldquo;{t.kutipan}&rdquo;
-                </p>
-                <footer className="mt-6 flex items-center gap-3">
-                  <span
-                    className={`flex h-11 w-11 items-center justify-center rounded-full bg-gradient-to-br ${t.gradien} text-sm font-extrabold text-black/70 ring-2 ring-white`}
-                  >
-                    {t.inisial}
-                  </span>
-                  <span>
-                    <span className="block text-sm font-extrabold text-black">{t.nama}</span>
-                    <span className="block text-xs text-slate-500">{t.peran}</span>
-                  </span>
-                </footer>
-              </article>
-            </Reveal>
-          ))}
-        </div>
       </div>
     </section>
   );
@@ -1126,7 +978,7 @@ function Faq() {
           <div className="text-center">
             <LabelPill>FAQ</LabelPill>
             <h2 className="mx-auto mt-5 text-3xl font-extrabold leading-tight tracking-tight text-black sm:text-5xl">
-              No more confusion - just answers
+              Pertanyaan yang Sering Diajukan
             </h2>
           </div>
         </Reveal>
@@ -1183,7 +1035,7 @@ function Faq() {
 
 /* ================= Footer ================= */
 
-function Footer() {
+function Footer({ onLacak }: { onLacak: () => void }) {
   return (
     <footer className="relative bg-white">
       {/* Tepi atas bergelombang (SVG) menuju section gelap */}
@@ -1219,9 +1071,9 @@ function Footer() {
               />
             </div>
             <p className="mt-4 max-w-md text-sm leading-relaxed text-white/70">
-              The partnership portal of Lembaga Penyiaran Publik Radio
-              Republik Indonesia — advertising, events, programmes, rooms, and
-              land, across Indonesia.
+              Portal kemitraan Lembaga Penyiaran Publik Radio Republik
+              Indonesia — iklan, acara, programa, ruangan, dan lahan, di
+              seluruh Indonesia.
             </p>
             <button
               type="button"
@@ -1229,7 +1081,7 @@ function Footer() {
               className="mt-6 inline-flex items-center gap-2 rounded-full border border-white/30 px-4 py-2 text-sm font-semibold text-white transition hover:bg-white hover:text-black"
             >
               <ArrowUp className="h-4 w-4" aria-hidden="true" />
-              Back to top
+              Kembali ke atas
             </button>
           </div>
           <nav aria-label="Footer navigation">
@@ -1240,7 +1092,6 @@ function Footer() {
               {[
                 { label: 'About', id: 'about' },
                 { label: 'Service', id: 'services' },
-                { label: 'Testimonials', id: 'testimonials' },
                 { label: 'Process', id: 'process' },
                 { label: 'Book a Free Call', id: 'booking' },
               ].map((item) => (
@@ -1294,24 +1145,26 @@ function Footer() {
             </ul>
           </nav>
           {/* Kolom Additional Service — di antara Navigation dan
-              Contact (permintaan pengguna 2026-11-17). Untuk sementara
-              kedua link mengarah ke section booking/konsultasi, karena
-              halaman khusus Book a Room / Rent a Space belum ada di
+              Contact (permintaan pengguna 2026-11-17). Book a Room /
+              Rent a Space untuk sementara mengarah ke section
+              booking/konsultasi, karena halaman khusus belum ada di
               landing baru; halaman khusus menyusul pada putaran
-              penyesuaian. */}
+              penyesuaian. "Lacak Kerja Sama" membuka halaman publik
+              Lacak yang sudah ada (nomor PKS/invoice) — BUKAN booking. */}
           <div>
             <h3 className="text-sm font-bold uppercase tracking-widest text-white/50">
               Additional Service
             </h3>
             <ul className="mt-4 space-y-2.5 text-sm">
               {[
-                { label: 'Book a Room', id: 'booking' },
-                { label: 'Rent a Space', id: 'booking' },
+                { label: 'Book a Room', aksi: () => gulirKe('booking') },
+                { label: 'Rent a Space', aksi: () => gulirKe('booking') },
+                { label: 'Lacak Kerja Sama', aksi: onLacak },
               ].map((item) => (
                 <li key={item.label}>
                   <button
                     type="button"
-                    onClick={() => gulirKe(item.id)}
+                    onClick={item.aksi}
                     className="text-white/80 transition hover:text-white hover:underline"
                   >
                     {item.label}
@@ -1351,14 +1204,14 @@ function Footer() {
               onClick={() => gulirKe('booking')}
               className="mt-6 inline-flex items-center gap-2 rounded-full bg-mk-aksen px-5 py-2.5 text-sm font-semibold text-white shadow transition hover:bg-mk-aksen-gelap"
             >
-              Book 30 Min Free Call
+              Pesan Panggilan Gratis 30 Menit
               <ArrowRight className="h-4 w-4" aria-hidden="true" />
             </button>
           </div>
         </div>
         <div className="border-t border-white/10">
           <p className="mx-auto max-w-7xl px-4 py-4 text-center text-xs text-white/50 sm:px-6">
-            © 2026 LPP RRI. All rights reserved.
+            © 2026 LPP RRI. Hak cipta dilindungi.
           </p>
         </div>
       </div>

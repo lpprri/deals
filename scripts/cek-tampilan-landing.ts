@@ -1,27 +1,25 @@
-// Verifikasi landing page tiruan template agency "Marklo"
-// (PR landing-marklo-clone, route `/`).
+// Verifikasi landing page RRI Deals — copy final RRI yang disetujui
+// pengguna 2026-11-17 (PR landing-copy-rri-final, route `/`).
 // Asersi:
 // - Route `/` (belum login, halamanPublik 'beranda') me-render
-//   MarkloLanding dengan tombol Login; Beranda lama TIDAK dipakai di
-//   App.tsx tetapi filenya TETAP ADA di repo (tidak dihapus).
-// - Semua section template ada: header, hero, carousel kampanye,
-//   pernyataan, statistik (counter), process, services funnel,
-//   comparison, why-marketing, booking konsultasi, testimonials,
-//   FAQ, footer gelap.
+//   MarkloLanding dengan tombol Login + callback onLacak/onAjukan ke
+//   halaman publik Lacak/Ajukan yang sudah ada; Beranda lama TIDAK
+//   dipakai di App.tsx tetapi filenya TETAP ADA di repo (tidak dihapus).
+// - Semua section ada dengan copy RRI: header, hero, carousel
+//   etalase layanan, pernyataan, statistik (counter), process,
+//   services (4 kelompok layanan), comparison, why-marketing, booking
+//   konsultasi, FAQ, footer gelap.
+// - Testimoni DIKOSONGKAN: section tidak dirender, tautan Testimonials
+//   dihapus, logo klien contoh dihapus.
 // - Motion "hidup": IntersectionObserver (reveal blur/fade),
 //   requestAnimationFrame (counter), carousel auto-advance,
-//   marquee logo, accordion FAQ, hover states.
-// - Yang DIPARKIR (penyesuaian RRI belakangan): Lacak, Ajukan,
-//   statistik live, dua bahasa, palet RRI — tidak ada di landing baru.
-//   KECUALI footer: gradien navy RRI + logo putih + kolom "Additional
-//   Service" + header seamless, atas permintaan eksplisit pengguna
-//   2026-11-17 (PR landing-footer-navy-putih). PR ini JUGA me-revert
-//   PR #75: ukuran landing kembali ke PR #74 karena pengguna menilai
-//   ukuran PR #75 kebesaran di zoom 100%.
-// - Jujur: nama/klien/testimoni/angka adalah SAMPLE template
-//   (dinyatakan di data + PR body); booking Next hanya pratinjau,
-//   tidak ada pemesanan yang terkirim; tidak ada hotlink gambar
-//   eksternal.
+//   accordion FAQ, hover states. (Marquee logo klien dihapus bersama
+//   logonya; keyframes marquee di index.css tidak dipakai lagi.)
+// - Yang MASIH DIPARKIR: statistik live, dua bahasa, halaman khusus
+//   Book a Room / Rent a Space.
+// - Jujur: data landing kini copy RRI (bukan lagi SAMPLE template);
+//   booking Next hanya pratinjau, tidak ada pemesanan yang terkirim;
+//   tidak ada hotlink gambar eksternal.
 // Skrip ini membaca berkas sebagai teks. Keluar bukan-nol bila ada
 // asersi gagal.
 import { readFileSync } from 'node:fs';
@@ -51,8 +49,11 @@ cek(
   app.includes("import MarkloLanding from './modules/landing/Marklo';"),
 );
 cek(
-  "App.tsx: beranda me-render <MarkloLanding onLogin={...login} />",
-  app.includes('<MarkloLanding onLogin={() => setHalamanPublik(\'login\')} />'),
+  'App.tsx: beranda me-render <MarkloLanding onLogin + onLacak + onAjukan />',
+  app.includes('<MarkloLanding') &&
+    app.includes("onLogin={() => setHalamanPublik('login')}") &&
+    app.includes("onLacak={() => setHalamanPublik('lacak')}") &&
+    app.includes("onAjukan={() => setHalamanPublik('ajukan')}"),
 );
 cek(
   'App.tsx: TIDAK lagi me-render Beranda di route beranda',
@@ -86,15 +87,17 @@ cek(
 
 // --- 3. Header. ---
 cek(
-  'Header: nav About, Service, Testimonials, Process (jangkar)',
+  'Header: nav About, Service, Process (tanpa Testimonials)',
   marklo.includes("gulirKe('about')") &&
     marklo.includes("gulirKe('services')") &&
-    marklo.includes("gulirKe('testimonials')") &&
-    marklo.includes("gulirKe('process')"),
+    marklo.includes("gulirKe('process')") &&
+    !marklo.includes("gulirKe('testimonials')"),
 );
 cek(
-  'Header: tombol Book a Free Call + Login (onLogin)',
-  marklo.includes('Book a Free Call') && marklo.includes('onClick={onLogin}'),
+  'Header: tombol Book a Free Call + Ajukan Kerja Sama + Login (onLogin)',
+  marklo.includes('Book a Free Call') &&
+    marklo.includes('Ajukan Kerja Sama') &&
+    marklo.includes('onClick={onLogin}'),
 );
 cek(
   'Header: brand RRI Deals (logo RRI + Deals, apa adanya)',
@@ -111,152 +114,211 @@ cek(
 
 // --- 4. Hero. ---
 cek(
-  'Hero: H1 raksasa "Grow smarter with our marketing."',
-  marklo.includes('Grow <span className="text-slate-300">smarter</span> with our') &&
-    marklo.includes('marketing.'),
+  'Hero: H1 "Suara Anda, Didengar Indonesia."',
+  marklo.includes('Suara Anda,') &&
+    marklo.includes('Didengar Indonesia.'),
 );
 cek(
-  'Hero: tombol primer "Book a Free Call" + outline "Our Services"',
-  marklo.includes('Book a Free Call') && marklo.includes('Our Services'),
+  'Hero: subcopy 67 kota lewat 69 satker RRI',
+  marklo.includes('di 67 kota lewat 69') && marklo.includes('satker RRI'),
 );
 cek(
-  'Hero: social proof bintang 5 + rating 4.9 + "TRUSTED BY 500+ BRANDS GLOBALLY"',
-  marklo.includes('TRUSTED BY 500+ BRANDS GLOBALLY') &&
-    marklo.includes('useCountUp(4.9') &&
-    marklo.includes('BintangLima'),
+  'Hero: tombol primer "Book a Free Call" + "Ajukan Kerja Sama" (bukan "Our Services")',
+  marklo.includes('Book a Free Call') &&
+    marklo.includes('Ajukan Kerja Sama') &&
+    !marklo.includes('Our Services'),
+);
+cek(
+  'Hero: blok rating DIHAPUS — tidak ada TRUSTED BY, rating 4.9, bintang, atau avatar inisial testimoni',
+  !marklo.includes('TRUSTED BY') &&
+    !marklo.includes('useCountUp(4.9') &&
+    !marklo.includes('BintangLima') &&
+    !marklo.includes('/5.0') &&
+    !marklo.includes("inisial: 'GR'"),
 );
 
-// --- 5. Carousel kampanye. ---
+// --- 5. Carousel etalase layanan (dulu kampanye contoh). ---
 cek(
-  'Carousel: section id="work" + 4 kampanye template (RingID, Beskon, Boutique, Reviro)',
+  'Carousel: section id="work" + 4 kelompok layanan RRI (Radio, Digital, Venue & Produksi, Pelatihan & Sertifikasi)',
   marklo.includes('id="work"') &&
-    dataMarklo.includes("klien: 'RingID'") &&
-    dataMarklo.includes("klien: 'Beskon Music'") &&
-    dataMarklo.includes("klien: 'Boutique'") &&
-    dataMarklo.includes("klien: 'Reviro'"),
+    dataMarklo.includes("klien: 'Radio'") &&
+    dataMarklo.includes("klien: 'Digital'") &&
+    dataMarklo.includes("klien: 'Venue & Produksi'") &&
+    dataMarklo.includes("klien: 'Pelatihan & Sertifikasi'"),
 );
 cek(
-  'Carousel: layanan Meta Ads, Google Ads, SEO, Content Marketing',
-  dataMarklo.includes("layanan: 'Meta Ads'") &&
-    dataMarklo.includes("layanan: 'Google Ads'") &&
-    dataMarklo.includes("layanan: 'SEO'") &&
-    dataMarklo.includes("layanan: 'Content Marketing'"),
+  'Carousel: TIDAK ada lagi kampanye contoh (RingID, Beskon, Boutique, Reviro)',
+  !dataMarklo.includes("klien: 'RingID'") &&
+    !dataMarklo.includes("klien: 'Beskon Music'") &&
+    !dataMarklo.includes("klien: 'Boutique'") &&
+    !dataMarklo.includes("klien: 'Reviro'"),
+);
+cek(
+  'Carousel: TIDAK ada layanan agency (Meta Ads, Google Ads, SEO, Content Marketing, Viral TikTok Ads)',
+  !dataMarklo.includes("layanan: 'Meta Ads'") &&
+    !dataMarklo.includes("layanan: 'Google Ads'") &&
+    !dataMarklo.includes("layanan: 'SEO'") &&
+    !dataMarklo.includes("layanan: 'Content Marketing'") &&
+    !dataMarklo.includes('Viral TikTok Ads'),
 );
 cek(
   'Carousel: tombol prev/next + auto-advance 5 detik (jeda saat hover/fokus)',
-  marklo.includes('Previous campaign') &&
-    marklo.includes('Next campaign') &&
+  marklo.includes('Layanan sebelumnya') &&
+    marklo.includes('Layanan berikutnya') &&
     marklo.includes('setInterval(() => gulirKartu(1), 5000)') &&
     marklo.includes('snap-x snap-mandatory'),
 );
 
 // --- 6. Pernyataan / About. ---
 cek(
-  'Pernyataan: "We focus on returns..." + "digital marketing" abu-abu',
-  marklo.includes('We focus on returns, scaling your brand through') &&
-    marklo.includes('digital marketing'),
+  'Pernyataan: "Kami fokus pada hasil — menempatkan brand Anda di udara dan di layar"',
+  marklo.includes('Kami fokus pada hasil') &&
+    marklo.includes('di udara dan di layar') &&
+    marklo.includes('radio dan kanal digital RRI'),
 );
 
 // --- 7. Statistik (counter animasi). ---
 cek(
-  'Statistik: 4 item (Projects Delivered, Happy Clients, Satisfaction, Growth 35X)',
-  dataMarklo.includes("label: 'Projects Delivered'") &&
-    dataMarklo.includes("label: 'Happy Clients'") &&
-    dataMarklo.includes("label: 'Client Satisfaction'") &&
-    dataMarklo.includes("label: 'Client Growth Result'"),
+  'Statistik: 4 item RRI (500+ Partners, 67 Cities, 69 Satker, 42 Kontrak Kerja Sama 2026)',
+  dataMarklo.includes("label: 'Partners'") &&
+    dataMarklo.includes("label: 'Cities'") &&
+    dataMarklo.includes("label: 'Satker'") &&
+    dataMarklo.includes("label: 'Kontrak Kerja Sama 2026'") &&
+    dataMarklo.includes("nilai: 500") &&
+    dataMarklo.includes("nilai: 67") &&
+    dataMarklo.includes("nilai: 69") &&
+    dataMarklo.includes("nilai: 42"),
 );
 cek(
-  'Statistik: "Our Clients in 35+ Countries" + bendera negara',
-  marklo.includes('Our Clients in 35+ Countries') &&
-    dataMarklo.includes("bendera: '🇺🇸'"),
+  'Statistik: TIDAK ada lagi angka template (1200+ proyek, 25k+ klien, 98%, 35X)',
+  !dataMarklo.includes("label: 'Projects Delivered'") &&
+    !dataMarklo.includes("label: 'Happy Clients'") &&
+    !dataMarklo.includes("label: 'Client Satisfaction'") &&
+    !dataMarklo.includes("label: 'Client Growth Result'") &&
+    !marklo.includes('35X'),
+);
+cek(
+  'Statistik: "Mitra Kami di 67 Kota" + daftar nama satker (tanpa bendera negara)',
+  marklo.includes('Mitra Kami di 67 Kota') &&
+    dataMarklo.includes("nama: 'PALEMBANG'") &&
+    dataMarklo.includes("nama: 'JAKARTA'") &&
+    dataMarklo.includes("nama: 'MAMUJU'") &&
+    !dataMarklo.includes('bendera') &&
+    !marklo.includes('Our Clients in 35+ Countries'),
 );
 
 // --- 8. Process. ---
 cek(
-  'Process: pill "Process" + heading 3-step + Funnel Audit, Campaign Management, Reporting & Maximize Profit',
-  marklo.includes('<LabelPill>Process</LabelPill>') &&
-    marklo.includes('Our simple 3-step process to skyrocket your business.') &&
-    dataMarklo.includes("judul: 'Funnel Audit'") &&
-    dataMarklo.includes("judul: 'Campaign Management'") &&
-    dataMarklo.includes("judul: 'Reporting & Maximize Profit'"),
+  'Process: pill "Proses" + heading "Tiga Langkah Mudah Memulai" + 3 langkah RRI',
+  marklo.includes('<LabelPill>Proses</LabelPill>') &&
+    marklo.includes('Tiga Langkah Mudah Memulai') &&
+    dataMarklo.includes("judul: 'Book a Free Call'") &&
+    dataMarklo.includes("judul: 'Strategi & Penawaran'") &&
+    dataMarklo.includes("judul: 'Tayang & Terlacak'"),
+);
+cek(
+  'Process: TIDAK ada lagi Funnel Audit / Campaign Management / Reporting & Maximize Profit / "skyrocket"',
+  !dataMarklo.includes("judul: 'Funnel Audit'") &&
+    !dataMarklo.includes("judul: 'Campaign Management'") &&
+    !dataMarklo.includes("judul: 'Reporting & Maximize Profit'") &&
+    !marklo.includes('skyrocket'),
 );
 
-// --- 9. Services (tangga funnel). ---
+// --- 9. Services (4 kelompok layanan RRI). ---
 cek(
-  'Services: pill "Services" + heading funnel + 4 tahap (Attract/Engage/Convert/Retain)',
-  marklo.includes('<LabelPill>Services</LabelPill>') &&
-    marklo.includes('Funnel-focused marketing for predictable, lasting growth.') &&
-    dataMarklo.includes("tahap: 'Attract Customer'") &&
-    dataMarklo.includes("tahap: 'Engage Prospect'") &&
-    dataMarklo.includes("tahap: 'Convert Clients'") &&
-    dataMarklo.includes("tahap: 'Retain Clients'"),
+  'Services: pill "Layanan" + heading "Layanan RRI Deals" + 4 kelompok layanan',
+  marklo.includes('<LabelPill>Layanan</LabelPill>') &&
+    marklo.includes('Layanan RRI Deals') &&
+    dataMarklo.includes("tahap: 'Radio — Jasa Penyiaran'") &&
+    dataMarklo.includes("tahap: 'Digital — Jasa Digitalisasi Penyiaran'") &&
+    dataMarklo.includes("tahap: 'Venue & Produksi — Sarana & Prasarana'") &&
+    dataMarklo.includes("tahap: 'Pelatihan & Sertifikasi'"),
 );
 cek(
-  'Services: kartu Meta Ads, Google Ads, Viral TikTok Ads, Content Marketing + "35X Client Growth"',
-  dataMarklo.includes("layanan: 'Viral TikTok Ads'") &&
-    marklo.includes('35X') &&
-    marklo.includes('Client Growth'),
+  'Services: harga "mulai dari" sesuai Usulan Tarif 2026 (Rp40.000 spot, Rp1.500.000 sound, Rp500.000 sertifikasi)',
+  dataMarklo.includes('Mulai Rp40.000 / 60 detik') &&
+    dataMarklo.includes('Mulai Rp1.500.000 / 4 jam') &&
+    dataMarklo.includes('Mulai Rp500.000 / orang'),
 );
 cek(
-  'Services: susunan tangga diagonal + garis penghubung putus-putus vertikal',
+  'Services: TIDAK ada lagi tangga funnel agency (Attract/Engage/Convert/Retain) + kotak "35X Client Growth"',
+  !dataMarklo.includes("tahap: 'Attract Customer'") &&
+    !dataMarklo.includes("tahap: 'Engage Prospect'") &&
+    !dataMarklo.includes("tahap: 'Convert Clients'") &&
+    !dataMarklo.includes("tahap: 'Retain Clients'") &&
+    !marklo.includes('Client Growth'),
+);
+cek(
+  'Services: susunan tangga diagonal + garis penghubung putus-putus vertikal (layout tidak berubah)',
   marklo.includes('OFFSET_FUNNEL') &&
     marklo.includes('border-l-2 border-dashed'),
 );
 
 // --- 10. Comparison. ---
 cek(
-  'Comparison: pill "Comparison" + heading + Other Agencies vs Our Agency',
-  marklo.includes('<LabelPill>Comparison</LabelPill>') &&
-    marklo.includes('But, why would you want to work with us?') &&
-    marklo.includes('Other Agencies') &&
-    marklo.includes('Our Agency'),
+  'Comparison: pill "Perbandingan" + heading "Mengapa RRI?" + Agency Lain vs RRI Deals',
+  marklo.includes('<LabelPill>Perbandingan</LabelPill>') &&
+    marklo.includes('Mengapa RRI?') &&
+    marklo.includes('Agency Lain') &&
+    marklo.includes('>RRI Deals</h3>'),
 );
 cek(
-  'Comparison: X merah (lain) + ceklis merah (kami), 5 butir masing-masing',
-  dataMarklo.includes('Generic copy-paste strategies') &&
-    dataMarklo.includes('Custom campaigns built on your data') &&
-    marklo.includes('bg-pink-100') &&
-    marklo.includes('bg-mk-peach'),
+  'Comparison: 3 butir agency lain + 4 butir RRI (tarif PNBP, 69 satker, bukti siar)',
+  dataMarklo.includes('Strategi copy-paste untuk semua klien') &&
+    dataMarklo.includes('Tarif PNBP yang transparan') &&
+    dataMarklo.includes('Jangkauan 69 satker di 67 kota') &&
+    dataMarklo.includes('Bukti siar yang bisa dilacak'),
 );
 cek(
-  'Comparison: strip logo klien (ZenZap, Sparkle, Innovio, Craftgram, Lumo Labs) marquee',
-  dataMarklo.includes("'ZenZap'") &&
-    dataMarklo.includes("'Lumo Labs'") &&
-    marklo.includes('mk-marquee'),
+  'Comparison: strip logo klien contoh DIHAPUS (tidak ada marquee logo di komponen)',
+  !dataMarklo.includes("'ZenZap'") &&
+    !dataMarklo.includes("'Lumo Labs'") &&
+    !marklo.includes('mk-marquee') &&
+    !marklo.includes('LOGO_KLIEN'),
 );
 
 // --- 11. Why Marketing. ---
 cek(
-  'Why Marketing: pill "Confusion?" + heading + 5 manfaat',
-  marklo.includes('<LabelPill>Confusion?</LabelPill>') &&
-    marklo.includes('Why do you need Marketing?') &&
-    dataMarklo.includes("judul: 'Increased Visibility'") &&
-    dataMarklo.includes("judul: 'Targeted Audience'") &&
-    dataMarklo.includes("judul: 'Cost-Effective Growth'") &&
-    dataMarklo.includes("judul: 'Higher Conversions'") &&
-    dataMarklo.includes("judul: 'Competitive Advantage'"),
+  'Why Marketing: pill "Masih Ragu?" + heading "Kenapa Beriklan di RRI?" + 4 manfaat RRI',
+  marklo.includes('<LabelPill>Masih Ragu?</LabelPill>') &&
+    marklo.includes('Kenapa Beriklan di RRI?') &&
+    dataMarklo.includes("judul: 'Jangkauan Nasional'") &&
+    dataMarklo.includes("judul: 'Multi-Kanal'") &&
+    dataMarklo.includes("judul: 'Kredibilitas Penyiar Publik'") &&
+    dataMarklo.includes("judul: 'Tarif Jelas'"),
 );
 cek(
-  'Why Marketing: link "Book a Call" + "View our case study"',
+  'Why Marketing: link "Book a Call" dipertahankan; "View our case study" dihapus',
   dataMarklo.includes("label: 'Book a Call'") &&
-    dataMarklo.includes("label: 'View our case study'"),
+    !dataMarklo.includes("label: 'View our case study'"),
+);
+cek(
+  'Why Marketing: kartu gelap "Masih ragu mau mulai dari mana?" + Book a Free Call',
+  marklo.includes('Masih ragu mau mulai dari mana?') &&
+    marklo.includes('Pesan panggilan gratis 30 menit'),
 );
 
 // --- 12. Booking konsultasi. ---
 cek(
-  'Booking: pill "Free Consultation" + heading "Let\'s talk about growing your business"',
-  marklo.includes('<LabelPill>Free Consultation</LabelPill>') &&
-    marklo.includes("Let&apos;s talk about growing your business"),
+  'Booking: pill "Konsultasi Gratis" + heading "Ngobrol dulu, gratis. Tanpa komitmen."',
+  marklo.includes('<LabelPill>Konsultasi Gratis</LabelPill>') &&
+    marklo.includes('Ngobrol dulu, gratis. Tanpa komitmen.'),
 );
 cek(
-  'Booking: kartu 3 kolom (host, kalender bulan berjalan, slot) + "30 Min Meeting" + video call',
-  marklo.includes('30 Min Meeting') &&
-    marklo.includes('Video call') &&
-    marklo.includes('NAMA_BULAN') &&
-    marklo.includes('Available times'),
+  'Booking: subcopy 30 menit memetakan kanal dan format (bukan "review your funnel")',
+  marklo.includes('Dalam 30 menit, kami bantu') &&
+    marklo.includes('petakan kanal dan format') &&
+    !marklo.includes('review your funnel'),
 );
 cek(
-  'Booking: pemilih zona waktu + toggle 12h/24h + tombol Next',
+  'Booking: kartu host "RRI Deals" + "Pertemuan 30 Menit" + "Panggilan video" (bukan "Marklo")',
+  marklo.includes('>RRI Deals</h3>') &&
+    marklo.includes('Pertemuan 30 Menit') &&
+    marklo.includes('Panggilan video') &&
+    !marklo.includes('>Marklo</h3>'),
+);
+cek(
+  'Booking: pemilih zona waktu + toggle 12h/24h + tombol "Lanjut"',
   marklo.includes('ZONA_WAKTU_MARKLO') &&
     marklo.includes('12h') &&
     marklo.includes('24h') &&
@@ -265,36 +327,44 @@ cek(
     ),
 );
 cek(
-  'Booking: Next HANYA menampilkan catatan pratinjau jujur (tidak ada pemesanan terkirim)',
-  marklo.includes('Preview only') &&
-    marklo.includes('not sent anywhere') &&
-    marklo.includes('connect to the Ajukan') &&
+  'Booking: tombol Lanjut HANYA menampilkan catatan pratinjau jujur berbahasa Indonesia + tombol Ajukan Kerja Sama (tidak ada pemesanan terkirim)',
+  marklo.includes('Pratinjau saja') &&
+    marklo.includes('tidak dikirim ke mana pun') &&
+    marklo.includes('Ajukan Kerja Sama') &&
+    !marklo.includes('Preview only') &&
+    !marklo.includes('not sent anywhere') &&
     !marklo.includes('fetch(') &&
     !marklo.includes('kirimPengajuan'),
 );
 
-// --- 13. Testimonials. ---
+// --- 13. Testimonials DIKOSONGKAN. ---
 cek(
-  'Testimonials: ribbon "#1 Marketing Agency 2025 Award Winner" + pill + heading',
-  marklo.includes('#1 Marketing Agency 2025 Award Winner') &&
-    marklo.includes('<LabelPill>Testimonial</LabelPill>') &&
-    marklo.includes("Why everyone&apos;s talking about our service"),
+  'Testimonials: section TIDAK dirender (tidak ada id="testimonials", fungsi Testimoni, atau data TESTIMONI)',
+  !marklo.includes('id="testimonials"') &&
+    !marklo.includes('function Testimoni') &&
+    !marklo.includes('<Testimoni') &&
+    !marklo.includes('TESTIMONI_MARKLO') &&
+    !dataMarklo.includes('TESTIMONI'),
 );
 cek(
-  'Testimonials: 6 kartu + 1 unggulan merah (Daniel Lee/CEO Beskon)',
-  dataMarklo.includes("nama: 'Gabriel Ross'") &&
-    dataMarklo.includes("nama: 'Daniel Lee'") &&
-    dataMarklo.includes('unggulan: true') &&
-    marklo.includes('bg-mk-aksen p-7 text-white'),
+  'Testimonials: TIDAK ada lagi nama/kutipan contoh (Gabriel Ross, Daniel Lee, "Growth is not luck", "#1 Marketing Agency")',
+  !dataMarklo.includes("nama: 'Gabriel Ross'") &&
+    !dataMarklo.includes("nama: 'Daniel Lee'") &&
+    !marklo.includes('Growth is not luck') &&
+    !marklo.includes('#1 Marketing Agency 2025 Award Winner'),
 );
 
 // --- 14. FAQ. ---
 cek(
-  'FAQ: pill "FAQ" + heading "No more confusion - just answers" + 5 pertanyaan',
+  'FAQ: pill "FAQ" + heading "Pertanyaan yang Sering Diajukan" + 6 pertanyaan RRI',
   marklo.includes('<LabelPill>FAQ</LabelPill>') &&
-    marklo.includes('No more confusion - just answers') &&
-    dataMarklo.includes("q: 'What services do you offer?'") &&
-    dataMarklo.includes("q: 'How do you measure success?'"),
+    marklo.includes('Pertanyaan yang Sering Diajukan') &&
+    dataMarklo.includes("q: 'Bagaimana cara mengajukan kerja sama?'") &&
+    dataMarklo.includes("q: 'Bagaimana cara melacak kerja sama saya?'") &&
+    dataMarklo.includes("q: 'Apa bedanya Prime Time dan Regular Time?'") &&
+    dataMarklo.includes("q: 'Berapa biayanya?'") &&
+    dataMarklo.includes("q: 'Bisakah iklan saya tayang di banyak kota sekaligus?'") &&
+    dataMarklo.includes("q: 'Apakah saya mendapat bukti siar?'"),
 );
 cek(
   'FAQ: accordion (state terbuka) + pertanyaan terbuka jadi kartu merah teks putih',
@@ -302,9 +372,9 @@ cek(
     marklo.includes("bg-mk-aksen text-white' : 'bg-white text-black"),
 );
 cek(
-  'FAQ: jawaban hasil 2–4 minggu + leads/CPA/conversion rate',
-  dataMarklo.includes('2–4 weeks') &&
-    dataMarklo.includes('cost per acquisition'),
+  'FAQ: jawaban menyebut SK Kepala RRI No. 31/2026 + mulai Rp40.000/60 detik',
+  dataMarklo.includes('SK Kepala RRI No. 31/2026') &&
+    dataMarklo.includes('Mulai Rp40.000 per 60 detik'),
 );
 
 // --- 15. Footer gelap. ---
@@ -320,12 +390,15 @@ cek(
     !marklo.includes('#3a0d0d'),
 );
 cek(
-  'Footer: Back to top + Navigation + Socials + Contact + "Book 30 Min Free Call" (tanpa mark bunga)',
-  marklo.includes('Back to top') &&
+  'Footer: deskripsi berbahasa Indonesia + "Kembali ke atas" + Navigation + Socials + Contact + CTA "Pesan Panggilan Gratis 30 Menit"',
+  marklo.includes('Portal kemitraan Lembaga Penyiaran Publik') &&
+    marklo.includes('Kembali ke atas') &&
     marklo.includes('Navigation') &&
     marklo.includes('Socials') &&
     marklo.includes('Contact') &&
-    marklo.includes('Book 30 Min Free Call'),
+    marklo.includes('Pesan Panggilan Gratis 30 Menit') &&
+    !marklo.includes('Back to top') &&
+    !marklo.includes('Book 30 Min Free Call'),
 );
 cek(
   'Footer: mark bunga 4 kelopak pink SUDAH DIHAPUS (tidak ada kelopak / warna pink pucat di Marklo.tsx)',
@@ -346,11 +419,17 @@ cek(
     marklo.includes('className="h-9 w-auto shrink-0"'),
 );
 cek(
-  'Footer: kolom "Additional Service" di antara Navigation dan Contact — link Book a Room + Rent a Space ke booking',
+  'Footer: kolom "Additional Service" di antara Navigation dan Contact — Book a Room + Rent a Space ke booking, "Lacak Kerja Sama" via onLacak (bukan booking)',
   footerMarklo.indexOf('Navigation') < footerMarklo.indexOf('Additional Service') &&
     footerMarklo.indexOf('Additional Service') < footerMarklo.indexOf('Jl. Medan Merdeka Barat') &&
     footerMarklo.includes('Book a Room') &&
-    footerMarklo.includes('Rent a Space'),
+    footerMarklo.includes('Rent a Space') &&
+    footerMarklo.includes('Lacak Kerja Sama') &&
+    marklo.includes('onLacak'),
+);
+cek(
+  'Footer: navigasi TIDAK lagi memuat tautan Testimonials',
+  !footerMarklo.includes("'Testimonials'"),
 );
 cek(
   'Footer: kontak RESMI Kantor Pusat RRI (alamat Jl. Medan Merdeka Barat, dua nomor telepon tel:, tanpa email sample)',
@@ -361,7 +440,7 @@ cek(
     marklo.includes('+62 21 351 1086') &&
     !marklo.includes('contoh@rri.go.id') &&
     marklo.includes('08:00–16:00 WIB') &&
-    marklo.includes('© 2026 LPP RRI. All rights reserved.'),
+    marklo.includes('© 2026 LPP RRI. Hak cipta dilindungi.'),
 );
 
 // --- 16. Motion "hidup" (CSS + hook). ---
@@ -397,8 +476,10 @@ cek(
 
 // --- 17. Yang DIPARKIR: tidak ada di landing baru. ---
 cek(
-  'Parkir: landing baru TIDAK import Lacak/Ajukan/landingI18n/satker/Beranda',
-  !marklo.includes("from './Lacak'") &&
+  'Parkir: Lacak/Ajukan kini terhubung via callback onLacak/onAjukan (bukan import langsung di komponen landing)',
+  marklo.includes('onLacak') &&
+    marklo.includes('onAjukan') &&
+    !marklo.includes("from './Lacak'") &&
     !marklo.includes("from './Ajukan'") &&
     !marklo.includes('landingI18n') &&
     !marklo.includes('DAFTAR_SATKER') &&
@@ -412,19 +493,21 @@ cek(
     !marklo.includes('jumlahKontrak'),
 );
 cek(
-  'Parkir: TIDAK ada section harga (pricing)',
-  !/pricing|harga paket|price/i.test(marklo),
+  'Parkir: TIDAK ada section harga khusus (pricing) — harga hanya tag "Mulai ..." di kartu layanan',
+  !marklo.includes('id="pricing"') &&
+    dataMarklo.includes('Mulai Rp40.000 / 60 detik'),
 );
 
-// --- 18. Jujur: sample + tanpa hotlink eksternal. ---
+// --- 18. Jujur: data RRI + tanpa hotlink eksternal. ---
 cek(
-  'Sample: data Marklo dinyatakan SAMPLE/template, bukan data RRI',
-  dataMarklo.includes('CONTOH (SAMPLE)') &&
-    dataMarklo.includes('BUKAN data RRI'),
+  'Data: data landing kini copy RRI yang disetujui (bukan lagi SAMPLE template)',
+  dataMarklo.includes('disetujui pengguna') &&
+    !dataMarklo.includes('CONTOH (SAMPLE)') &&
+    !dataMarklo.includes('BUKAN data RRI'),
 );
 cek(
-  'Sample: komponen menyatakan penyesuaian RRI diparkir',
-  marklo.includes('DIPARKIR') && marklo.includes('penyesuaian RRI'),
+  'Data: komponen menyatakan copy final RRI (bukan penyesuaian yang diparkir)',
+  marklo.includes('copy final RRI') && !marklo.includes('DIPARKIR ke'),
 );
 cek(
   'Gambar: TIDAK ada hotlink gambar eksternal — https:// di Marklo.tsx hanya 3 tautan medsos resmi RRI',
@@ -436,6 +519,42 @@ cek(
 cek(
   'Gambar: visual kartu memakai gradien CSS + inisial (bukan <img> eksternal)',
   marklo.includes('bg-gradient-to-br') && !marklo.includes('<img src="http'),
+);
+
+// --- 19. Tidak ada jejak konten contoh di copy landing. ---
+const gabungan = marklo + '\n' + dataMarklo;
+const terlarang = [
+  'RingID',
+  'Beskon',
+  'Boutique',
+  'Reviro',
+  'Gabriel Ross',
+  'Daniel Lee',
+  'ZenZap',
+  'Sparkle',
+  'Innovio',
+  'Craftgram',
+  'Lumo Labs',
+  'Meta Ads',
+  'Google Ads',
+  '35+ Countries',
+  '35X',
+  '#1 Marketing Agency',
+  'TRUSTED BY',
+  'Viral TikTok Ads',
+  'Funnel Audit',
+  'Other Agencies',
+  'Our Agency',
+  'Growth is not luck',
+  'TRUSTED',
+  'useCountUp(4.9',
+  '>Marklo</h3>',
+];
+const ditemukan = terlarang.filter((s) => gabungan.includes(s));
+cek(
+  'Jejak: tidak ada satu pun string contoh terlarang di copy landing',
+  ditemukan.length === 0,
+  ditemukan.join(', '),
 );
 
 if (gagal > 0) {

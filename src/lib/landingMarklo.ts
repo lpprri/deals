@@ -1,10 +1,16 @@
-// Data CONTOH (SAMPLE) untuk tiruan landing page template agency "Marklo"
-// (PR landing-marklo-clone, 2026-11-17).
+// Data copy landing page RRI Deals — copy final yang disetujui pengguna
+// 2026-11-17 (dokumen Copy-Landing-RRI-Deals-Final-2026-11-17.md).
+// File ini DULU berisi data contoh template agency (PR
+// landing-marklo-clone); pada PR ini seluruh nama, angka, dan
+// layanan contoh diganti dengan copy RRI.
 //
-// Semua nama orang, klien, kampanye, testimoni, dan angka di file ini
-// berasal dari template Marklo dan BUKAN data RRI — dipakai apa adanya
-// untuk tiruan visual, dan akan diganti pada putaran penyesuaian RRI.
-// JANGAN jadikan nama/angka di sini sebagai fakta tentang RRI.
+// Catatan data:
+// - Angka statistik: 500+ Partners (sesuai arahan pengguna; verifikasi
+//   kumulatif masih terbuka), 67 Cities, 69 Satker, 42 Kontrak 2026.
+// - Tarif "mulai dari" berasal dari dokumen Usulan Tarif 2026 RRI
+//   Palembang — dipakai apa adanya, jangan diubah tanpa konfirmasi.
+// - Testimoni DIKOSONGKAN (belum ada testimoni nyata); logo klien
+//   fiktif dihapus — tidak ada lagi data testimoni di file ini.
 
 export interface KampanyeMarklo {
   klien: string;
@@ -15,34 +21,42 @@ export interface KampanyeMarklo {
   ringkasan: string;
 }
 
+/**
+ * Etalase 4 kelompok layanan RRI (bukan lagi kampanye klien contoh).
+ * Komponen carousel tidak diubah — hanya isi kartunya yang diganti.
+ */
 export const KAMPANYE_MARKLO: KampanyeMarklo[] = [
   {
-    klien: 'RingID',
-    layanan: 'Meta Ads',
+    klien: 'Radio',
+    layanan: 'Jasa Penyiaran',
     gradien: 'from-rose-200 via-pink-100 to-orange-100',
     inisial: 'R',
-    ringkasan: 'Paid social campaign that scaled installs month over month.',
+    ringkasan:
+      'Spot iklan, adlibs, dialog interaktif, sandiwara radio, kuis & wawancara, feature, report on the spot, sponsor program, dan greeting — mengudara di 4 programa RRI.',
   },
   {
-    klien: 'Beskon Music',
-    layanan: 'Google Ads',
+    klien: 'Digital',
+    layanan: 'Jasa Digitalisasi Penyiaran',
     gradien: 'from-sky-200 via-blue-100 to-indigo-100',
-    inisial: 'B',
-    ringkasan: 'Search campaign that put new releases in front of fans.',
+    inisial: 'D',
+    ringkasan:
+      'Banner rri.co.id, Live Dialog dan advertorial YouTube, Reels, Feed, Carousel, Live dan Story Instagram, Facebook, dan TikTok Live.',
   },
   {
-    klien: 'Boutique',
-    layanan: 'SEO',
+    klien: 'Venue & Produksi',
+    layanan: 'Sarana & Prasarana',
     gradien: 'from-violet-200 via-purple-100 to-fuchsia-100',
-    inisial: 'B',
-    ringkasan: 'Organic growth that turned search into the top channel.',
+    inisial: 'V',
+    ringkasan:
+      'Auditorium, sound system, dan studio RRI untuk acara dan siaran Anda — di dalam studio maupun di lokasi kegiatan.',
   },
   {
-    klien: 'Reviro',
-    layanan: 'Content Marketing',
+    klien: 'Pelatihan & Sertifikasi',
+    layanan: 'Diklat & Sertifikasi',
     gradien: 'from-emerald-200 via-teal-100 to-lime-100',
-    inisial: 'R',
-    ringkasan: 'Editorial engine that built authority and pipeline.',
+    inisial: 'P',
+    ringkasan:
+      'Pendidikan dan pelatihan sesuai tugas dan fungsi RRI, serta Sertifikasi Kompetensi Wartawan Radio.',
   },
 ];
 
@@ -55,26 +69,85 @@ export interface StatistikMarklo {
 }
 
 export const STATISTIK_MARKLO: StatistikMarklo[] = [
-  { id: 'proyek', nilai: 1200, akhiran: '+', desimal: 0, label: 'Projects Delivered' },
-  { id: 'klien', nilai: 25, akhiran: 'k+', desimal: 0, label: 'Happy Clients' },
-  { id: 'kepuasan', nilai: 98, akhiran: '%', desimal: 0, label: 'Client Satisfaction' },
-  { id: 'pertumbuhan', nilai: 35, akhiran: 'X', desimal: 0, label: 'Client Growth Result' },
+  { id: 'mitra', nilai: 500, akhiran: '+', desimal: 0, label: 'Partners' },
+  { id: 'kota', nilai: 67, akhiran: '', desimal: 0, label: 'Cities' },
+  { id: 'satker', nilai: 69, akhiran: '', desimal: 0, label: 'Satker' },
+  { id: 'kontrak', nilai: 42, akhiran: '', desimal: 0, label: 'Kontrak Kerja Sama 2026' },
 ];
 
-export interface NegaraMarklo {
-  bendera: string;
+/** 67 lokasi satker bernama (69 satker minus Kantor Pusat & Puslitbangdiklat). */
+export interface KotaMarklo {
   nama: string;
 }
 
-export const NEGARA_MARKLO: NegaraMarklo[] = [
-  { bendera: '🇺🇸', nama: 'United States' },
-  { bendera: '🇬🇧', nama: 'United Kingdom' },
-  { bendera: '🇮🇳', nama: 'India' },
-  { bendera: '🇦🇺', nama: 'Australia' },
-  { bendera: '🇨🇦', nama: 'Canada' },
-  { bendera: '🇩🇪', nama: 'Germany' },
-  { bendera: '🇸🇬', nama: 'Singapore' },
-  { bendera: '🇮🇩', nama: 'Indonesia' },
+export const KOTA_MARKLO: KotaMarklo[] = [
+  { nama: 'AMBON' },
+  { nama: 'ATAMBUA' },
+  { nama: 'BANDA ACEH' },
+  { nama: 'BANDAR LAMPUNG' },
+  { nama: 'BANDUNG' },
+  { nama: 'BANJARMASIN' },
+  { nama: 'BATAM' },
+  { nama: 'BENGKULU' },
+  { nama: 'BIAK' },
+  { nama: 'BOGOR' },
+  { nama: 'BOVENDIGOEL' },
+  { nama: 'BUKITTINGGI' },
+  { nama: 'CIREBON' },
+  { nama: 'DENPASAR' },
+  { nama: 'ENDE' },
+  { nama: 'SANGGAU' },
+  { nama: 'FAK FAK' },
+  { nama: 'GORONTALO' },
+  { nama: 'GUNUNG SITOLI' },
+  { nama: 'JAKARTA' },
+  { nama: 'JAMBI' },
+  { nama: 'JAYAPURA' },
+  { nama: 'JEMBER' },
+  { nama: 'KENDARI' },
+  { nama: 'KUPANG' },
+  { nama: 'LHOKSEUMAWE' },
+  { nama: 'MADIUN' },
+  { nama: 'MAKASSAR' },
+  { nama: 'MALANG' },
+  { nama: 'MANADO' },
+  { nama: 'MANOKWARI' },
+  { nama: 'MATARAM' },
+  { nama: 'MEDAN' },
+  { nama: 'MERAUKE' },
+  { nama: 'MEULABOH' },
+  { nama: 'NABIRE' },
+  { nama: 'NUNUKAN' },
+  { nama: 'PADANG' },
+  { nama: 'PALANGKARAYA' },
+  { nama: 'PALEMBANG' },
+  { nama: 'PALU' },
+  { nama: 'PEKANBARU' },
+  { nama: 'PONTIANAK' },
+  { nama: 'PURWOKERTO' },
+  { nama: 'RANAI' },
+  { nama: 'SAMARINDA' },
+  { nama: 'SEMARANG' },
+  { nama: 'SERUI' },
+  { nama: 'SIBOLGA' },
+  { nama: 'SINGARAJA' },
+  { nama: 'SINTANG' },
+  { nama: 'SORONG' },
+  { nama: 'SUMENEP' },
+  { nama: 'SUNGAILIAT' },
+  { nama: 'SURABAYA' },
+  { nama: 'SURAKARTA' },
+  { nama: 'TAHUNA' },
+  { nama: 'TAKENGON' },
+  { nama: 'TANJUNG PINANG' },
+  { nama: 'TARAKAN' },
+  { nama: 'TERNATE' },
+  { nama: 'TOLI TOLI' },
+  { nama: 'LANGGUR' },
+  { nama: 'WAMENA' },
+  { nama: 'YOGYAKARTA' },
+  { nama: 'BANTEN' },
+  { nama: 'MAMUJU' },
 ];
 
 export interface LangkahProsesMarklo {
@@ -86,18 +159,18 @@ export interface LangkahProsesMarklo {
 export const PROSES_MARKLO: LangkahProsesMarklo[] = [
   {
     nomor: '01',
-    judul: 'Funnel Audit',
-    desk: 'We map your funnel end to end, find the leaks, and show you exactly where growth is hiding.',
+    judul: 'Book a Free Call',
+    desk: 'Ceritakan tujuan dan anggaran Anda dalam 30 menit. Kami dengarkan dulu, baru tawarkan.',
   },
   {
     nomor: '02',
-    judul: 'Campaign Management',
-    desk: 'We launch and manage campaigns across channels, testing creative and audiences every week.',
+    judul: 'Strategi & Penawaran',
+    desk: 'Tim RRI menyusun paket multi-kanal — radio di jam Prime atau Regular, plus digital — lengkap dengan penawarannya.',
   },
   {
     nomor: '03',
-    judul: 'Reporting & Maximize Profit',
-    desk: 'Clear reporting on what matters — leads, cost per acquisition, and revenue — then we scale what works.',
+    judul: 'Tayang & Terlacak',
+    desk: 'Kerja sama dituangkan dalam PKS, iklan tayang, dan Anda bisa melacaknya lewat "Lacak Kerja Sama" dengan nomor PKS atau invoice.',
   },
 ];
 
@@ -110,53 +183,42 @@ export interface TahapFunnelMarklo {
 
 export const FUNNEL_MARKLO: TahapFunnelMarklo[] = [
   {
-    tahap: 'Attract Customer',
-    layanan: 'Meta Ads',
+    tahap: 'Radio — Jasa Penyiaran',
+    layanan: 'Mulai Rp40.000 / 60 detik',
     gradien: 'from-rose-200 to-pink-100',
-    desk: 'Scroll-stopping creative that puts your brand in front of the right people.',
+    desk: 'Spot iklan, jingle, filler & advertorial, adlibs, dialog interaktif, sandiwara radio, kuis & wawancara, feature, report on the spot, sponsor program, dan greeting/time signal — mengudara di 4 programa RRI, jam Prime Time dan Regular Time.',
   },
   {
-    tahap: 'Engage Prospect',
-    layanan: 'Google Ads',
+    tahap: 'Digital — Jasa Digitalisasi Penyiaran',
+    layanan: 'rri.co.id · YouTube · Instagram · Facebook · TikTok',
     gradien: 'from-sky-200 to-blue-100',
-    desk: 'High-intent search traffic, captured at the exact moment people look for you.',
+    desk: 'Banner di portal rri.co.id, Live Dialog dan advertorial YouTube, Reels, Feed, Carousel, Live dan Story Instagram @rri_official, Facebook Live, dan TikTok Live.',
   },
   {
-    tahap: 'Convert Clients',
-    layanan: 'Viral TikTok Ads',
+    tahap: 'Venue & Produksi — Sarana & Prasarana',
+    layanan: 'Mulai Rp1.500.000 / 4 jam',
     gradien: 'from-violet-200 to-purple-100',
-    desk: 'Short-form video that turns attention into enquiries and sales.',
+    desk: 'Auditorium dengan sound system, sound system untuk siaran di luar studio, dan studio RRI untuk rekaman dan siaran acara Anda.',
   },
   {
-    tahap: 'Retain Clients',
-    layanan: 'Content Marketing',
+    tahap: 'Pelatihan & Sertifikasi',
+    layanan: 'Mulai Rp500.000 / orang',
     gradien: 'from-emerald-200 to-teal-100',
-    desk: 'Useful content that keeps customers coming back — and bringing friends.',
+    desk: 'Pendidikan dan pelatihan sesuai tugas dan fungsi RRI, serta Sertifikasi Kompetensi Wartawan Radio — per orang per 3 hari.',
   },
 ];
 
 export const PERBANDINGAN_LAIN: string[] = [
-  'Generic copy-paste strategies for every client',
-  'Focused on ad spend, not on ROI',
-  'Poor targeting and wasted budget',
-  'Vanity metrics instead of real results',
-  'Big promises, little accountability',
+  'Strategi copy-paste untuk semua klien',
+  'Fokus pada ad spend, bukan pada hasil',
+  'Metrik yang sulit dicek',
 ];
 
 export const PERBANDINGAN_KAMI: string[] = [
-  'Custom campaigns built on your data',
-  'Focused on ROI and revenue, not spend',
-  'Deep research before a single ad runs',
-  'Measurable results you can check anytime',
-  'Transparent reporting, every week',
-];
-
-export const LOGO_KLIEN_MARKLO: string[] = [
-  'ZenZap',
-  'Sparkle',
-  'Innovio',
-  'Craftgram',
-  'Lumo Labs',
+  'Kampanye dirancang untuk setiap brand',
+  'Tarif PNBP yang transparan',
+  'Jangkauan 69 satker di 67 kota',
+  'Bukti siar yang bisa dilacak',
 ];
 
 export interface ManfaatMarklo {
@@ -167,95 +229,21 @@ export interface ManfaatMarklo {
 
 export const MANFAAT_MARKLO: ManfaatMarklo[] = [
   {
-    judul: 'Increased Visibility',
-    desk: 'Show up where your customers already are — search, social, and beyond.',
+    judul: 'Jangkauan Nasional',
+    desk: 'Satu mitra, 67 kota di seluruh Indonesia.',
   },
   {
-    judul: 'Targeted Audience',
-    desk: 'Reach the people most likely to buy, instead of shouting at everyone.',
+    judul: 'Multi-Kanal',
+    desk: 'Radio, portal, dan media sosial dalam satu kampanye.',
   },
   {
-    judul: 'Cost-Effective Growth',
-    desk: 'Every rupiah of budget is tracked against pipeline and revenue.',
+    judul: 'Kredibilitas Penyiar Publik',
+    desk: 'Brand Anda tampil di kanal yang dipercaya pendengar sejak lama.',
   },
   {
-    judul: 'Higher Conversions',
-    desk: 'Landing pages, offers, and follow-ups tuned to turn clicks into customers.',
+    judul: 'Tarif Jelas',
+    desk: 'Harga per format dan per durasi, bukan paket yang sulit dibandingkan.',
     tautan: { label: 'Book a Call', jangkar: '#booking' },
-  },
-  {
-    judul: 'Competitive Advantage',
-    desk: 'Move faster than competitors still guessing what works.',
-    tautan: { label: 'View our case study', jangkar: '#work' },
-  },
-];
-
-export interface TestimoniMarklo {
-  nama: string;
-  peran: string;
-  inisial: string;
-  gradien: string;
-  kutipan: string;
-  unggulan?: boolean;
-}
-
-export const TESTIMONI_MARKLO: TestimoniMarklo[] = [
-  {
-    nama: 'Gabriel Ross',
-    peran: 'CEO, Lumo Labs',
-    inisial: 'GR',
-    gradien: 'from-rose-200 to-orange-100',
-    kutipan:
-      'Marklo rebuilt our funnel from scratch. Within weeks we finally knew which campaigns were making money — and which ones to stop.',
-  },
-  {
-    nama: 'Samuel M',
-    peran: 'Founder, ZenZap',
-    inisial: 'SM',
-    gradien: 'from-sky-200 to-blue-100',
-    kutipan:
-      'The weekly reporting alone is worth it. No jargon, no vanity numbers — just leads, costs, and what happens next.',
-  },
-  {
-    nama: 'Pranav K',
-    peran: 'Marketing Lead, Innovio',
-    inisial: 'PK',
-    gradien: 'from-violet-200 to-purple-100',
-    kutipan:
-      'Our cost per acquisition dropped by half in the first month. The team tests fast and explains every change.',
-  },
-  {
-    nama: 'David L',
-    peran: 'Director, Craftgram',
-    inisial: 'DL',
-    gradien: 'from-emerald-200 to-teal-100',
-    kutipan:
-      'We tried three agencies before Marklo. They are the first ones who treated our budget like their own money.',
-  },
-  {
-    nama: 'Ethan W',
-    peran: 'Owner, Sparkle',
-    inisial: 'EW',
-    gradien: 'from-amber-200 to-yellow-100',
-    kutipan:
-      'From the first audit call it was clear they had done their homework. The plan was specific to our business, not a template.',
-  },
-  {
-    nama: 'James R',
-    peran: 'CMO, Reviro',
-    inisial: 'JR',
-    gradien: 'from-cyan-200 to-sky-100',
-    kutipan:
-      'Content, ads, and reporting finally work as one system. Pipeline is up and the sales team actually trusts the leads.',
-  },
-  {
-    nama: 'Daniel Lee',
-    peran: 'CEO, Beskon',
-    inisial: 'DL',
-    gradien: 'from-orange-400 to-rose-400',
-    kutipan:
-      'Marklo is the growth partner we had been looking for. Revenue from paid campaigns tripled — and we can see exactly why.',
-    unggulan: true,
   },
 ];
 
@@ -266,24 +254,28 @@ export interface FaqMarklo {
 
 export const FAQ_MARKLO: FaqMarklo[] = [
   {
-    q: 'What services do you offer?',
-    a: 'Meta Ads, Google Ads, viral TikTok Ads, SEO, and content marketing — all built around one funnel, from first click to repeat customer.',
+    q: 'Bagaimana cara mengajukan kerja sama?',
+    a: 'Klik "Ajukan Kerja Sama", isi pengajuan Anda, lalu tim operator RRI akan menindaklanjuti.',
   },
   {
-    q: 'How can digital marketing help my business?',
-    a: 'It puts you in front of people already looking for what you sell, then turns that attention into measurable leads and sales.',
+    q: 'Bagaimana cara melacak kerja sama saya?',
+    a: 'Buka "Lacak Kerja Sama" di footer, lalu masukkan nomor PKS atau invoice Anda.',
   },
   {
-    q: 'How long does it take to see results?',
-    a: 'Paid campaigns usually show first signals within 2–4 weeks. SEO and content compound over months — we report progress every week so you always know where things stand.',
+    q: 'Apa bedanya Prime Time dan Regular Time?',
+    a: 'Prime Time adalah jam siaran utama dengan pendengar terbanyak; Regular Time di luar jam tersebut. Pembagiannya mengikuti SK Kepala RRI No. 31/2026, dan tarif Prime Time lebih tinggi.',
   },
   {
-    q: 'Do you work with businesses of all sizes?',
-    a: 'Yes. From early-stage startups to established brands, every engagement starts with a funnel audit so the plan fits your budget and goals.',
+    q: 'Berapa biayanya?',
+    a: 'Mulai Rp40.000 per 60 detik untuk spot iklan Regular Time. Tarif lengkap per format ada di halaman layanan; tarif per satker dapat berbeda.',
   },
   {
-    q: 'How do you measure success?',
-    a: 'On leads, cost per acquisition, and conversion rate — the numbers that connect marketing spend to revenue, not vanity metrics.',
+    q: 'Bisakah iklan saya tayang di banyak kota sekaligus?',
+    a: 'Bisa — melalui jaringan 69 satker RRI di 67 kota. Cakupan dan biayanya dibahas saat konsultasi.',
+  },
+  {
+    q: 'Apakah saya mendapat bukti siar?',
+    a: 'Ya, bukti siar dan dokumen kerja sama tersedia untuk setiap kerja sama yang tayang.',
   },
 ];
 
