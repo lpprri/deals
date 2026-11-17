@@ -24,7 +24,6 @@ import {
 } from '../lib/labels';
 import { sisaTagihan, statusTagihan } from '../lib/derive';
 import {
-  catatanLuarJudulReferensi,
   detailLayananKontrak,
   jenisKlienYangAda,
   jatuhTempoPembayaranKontrak,
@@ -756,8 +755,9 @@ export function TabKontrak({
   //   Document); View = tombol yang membuka DetailKontrak lalu
   //   menggulir ke cluster Document (upload file DITUNDA pengguna
   //   09:28 WIB — tidak ada file untuk dibuka).
-  // - Notes = isi kontrak.catatan di luar segmen Judul dan No.
-  //   Referensi ("—" bila kosong).
+  // - Notes = DIKOSONGKAN (keputusan pengguna 17/11/2026 14:41 WIB):
+  //   sel selalu "—"; isi catatan TIDAK lagi ditampilkan di tabel
+  //   ini (kolom + cluster Notes tetap ada).
   const jenisKlien = (k: Kontrak): string | undefined =>
     data.klien.find((kl) => kl.id === k.klienId)?.jenis;
   const kontrakTersaring = urutkanKontrak(
@@ -1057,9 +1057,8 @@ export function TabKontrak({
                   data.pembayaran,
                   hariIni,
                 );
-                // Kolom baru Cluster 7: catatan di luar Judul dan No.
-                // Referensi (helper lib/kontrakTampilan.ts).
-                const notes = catatanLuarJudulReferensi(k.catatan);
+                // Cluster 7 "Notes": isi DIKOSONGKAN (keputusan
+                // pengguna 17/11/2026 14:41 WIB) — sel selalu "—".
                 // Keterpenuhan dokumen (keputusan pengguna 17/11/2026
                 // 09:26 WIB) — dari daftar yang SAMA dengan tabel
                 // Document di DetailKontrak (daftarDokumenKontrak),
@@ -1242,7 +1241,7 @@ export function TabKontrak({
                     )}
                     {/* ---- Cluster 7 "Notes" (hideable) ---- */}
                     {tampilCluster('catatan') && (
-                      <Td className="max-w-md">{notes ?? '—'}</Td>
+                      <Td className="max-w-md">{'—'}</Td>
                     )}
                   </Baris>
                 );
