@@ -1,6 +1,6 @@
 // Cek tampilan baru tabel Contract (PR tampilan-baru-contract + PR
 // contract-signing-date + PR filter-contract-status + PR
-// remaining-days-contract): 10 kolom — No.,
+// remaining-days-contract + PR kolom-status-pembayaran): 11 kolom — No.,
 // Contract & Reference Number (gabungan, keputusan pengguna 16/11/2026
 // 13:35 WIB), Contract Title, Signing Date (= Creation Date per keputusan
 // pengguna 16/11/2026, dari tanggalTandaTangan dengan fallback
@@ -8,7 +8,10 @@
 // gabung "; " — header diganti dari "Service / BMN Detail" per keputusan
 // pengguna 16/11/2026 13:58 WIB), Contract Period, Remaining Days
 // (hitung mundur sampai tanggalSelesai, "Completed" bila status Selesai —
-// keputusan pengguna 16/11/2026 15:29 WIB), Contract Value; nomor
+// keputusan pengguna 16/11/2026 15:29 WIB), Status Pembayaran (label
+// Bahasa Indonesia: Lunas / Belum Bayar / Kurang Bayar / Keterlambatan
+// Pembayaran — keputusan pengguna 17/11/2026 08:04 WIB; definisi status
+// tetap PR #60), Contract Value; nomor
 // urut "No." mengikuti urutan tampil sesudah filter + sort (keputusan
 // pengguna 16/11/2026 13:31 WIB), filter Client Type + PNBP Type +
 // Payment Status + Cooperation Status (keputusan pengguna 16/11/2026
@@ -25,6 +28,7 @@ import {
   jenisKlienYangAda,
   judulKontrak,
   labelArahUrutKontrak,
+  labelStatusPembayaranKontrak,
   nomorReferensiKontrak,
   sisaHariKerjaSama,
   statusKerjaSamaKontrak,
@@ -297,6 +301,45 @@ cek(
   'payment status Overdue = 0 (jujur: 3 kontrak tanpa pembayaran semuanya belum jatuh tempo)',
   hitungBayar('Overdue') === 0,
   `${hitungBayar('Overdue')}`,
+);
+
+// ---------- kolom Status Pembayaran (keputusan pengguna 17/11/2026 08:04 WIB) ----------
+// Label kolom Bahasa Indonesia, statusnya tetap dari
+// statusPembayaranKontrak (definisi PR #60, tidak berubah); opsi filter
+// Payment Status TETAP Bahasa Inggris (asersi di bawah, bagian struktur).
+// Nilai "Overdue" TIDAK BISA dites lewat baris tabel — saat ini tidak ada
+// kontrak Overdue di seed (0, lihat asersi di atas) — jadi hanya dites
+// lewat helper label di bawah, bukan lewat baris.
+const labelBayar = (nomor: string) =>
+  labelStatusPembayaranKontrak(statusBayar(nomor));
+cek("label Paid = 'Lunas'", labelStatusPembayaranKontrak('Paid') === 'Lunas');
+cek(
+  "label Unpaid = 'Belum Bayar'",
+  labelStatusPembayaranKontrak('Unpaid') === 'Belum Bayar',
+);
+cek(
+  "label Partially-Paid = 'Kurang Bayar'",
+  labelStatusPembayaranKontrak('Partially-Paid') === 'Kurang Bayar',
+);
+cek(
+  "label Overdue = 'Keterlambatan Pembayaran'",
+  labelStatusPembayaranKontrak('Overdue') === 'Keterlambatan Pembayaran',
+);
+cek(
+  'kolom Status Pembayaran 0603 = Lunas',
+  labelBayar('0603/PKS/RRI.PLB/01/2026') === 'Lunas',
+);
+cek(
+  'kolom Status Pembayaran 018 = Belum Bayar',
+  labelBayar('018/PKS/DIR.LPU/08/2026') === 'Belum Bayar',
+);
+cek(
+  'kolom Status Pembayaran 1051 = Kurang Bayar',
+  labelBayar('1051/PKS/RRI.PLB/02/2026') === 'Kurang Bayar',
+);
+cek(
+  'kolom Status Pembayaran 10227 = Belum Bayar',
+  labelBayar('10227/PKS/RRI.PLB/10/2026') === 'Belum Bayar',
 );
 // Denda tertanam di tagihan.nilai, TETAPI Σ tagihan == nilaiKontrak +
 // total denda hanya di 34/42 kontrak: 7 kontrak punya tagihan yang
@@ -735,7 +778,7 @@ const akhir = deals.indexOf('function DetailKontrak', awal);
 const tabKontrak = deals.slice(awal, akhir);
 const header = [...tabKontrak.matchAll(/<Th[^>]*>([^<]+)<\/Th>/g)].map((m) => m[1]);
 cek(
-  'urutan 10 header kolom (No. paling kiri, Remaining Days sesudah Contract Period, Contract Value tetap terakhir)',
+  'urutan 11 header kolom (No. paling kiri, Remaining Days sesudah Contract Period, Status Pembayaran sesudah Remaining Days, Contract Value tetap terakhir)',
   JSON.stringify(header) ===
     JSON.stringify([
       'No.',
@@ -747,9 +790,21 @@ cek(
       'Service Detail',
       'Contract Period',
       'Remaining Days',
+      'Status Pembayaran',
       'Contract Value',
     ]),
   JSON.stringify(header),
+);
+cek('header "Status Pembayaran" 1x', header.filter((h) => h === 'Status Pembayaran').length === 1);
+cek(
+  'header "Status Pembayaran" sesudah Remaining Days, sebelum Contract Value',
+  header.indexOf('Status Pembayaran') === header.indexOf('Remaining Days') + 1 &&
+    header.indexOf('Status Pembayaran') === header.indexOf('Contract Value') - 1,
+);
+cek(
+  'sel Status Pembayaran pakai helper labelStatusPembayaranKontrak + statusPembayaranKontrak',
+  tabKontrak.includes('labelStatusPembayaranKontrak(') &&
+    tabKontrak.includes('statusPembayaranKontrak(k, data.tagihan, data.pembayaran, data.denda)'),
 );
 cek('header "Remaining Days" 1x', header.filter((h) => h === 'Remaining Days').length === 1);
 cek(
