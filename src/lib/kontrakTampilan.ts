@@ -26,7 +26,7 @@
 
 import type { Denda, Klien, Kontrak, Pembayaran, Tagihan } from './types';
 import { MASTER_JENIS_KLIEN } from './master';
-import { dibayarTerverifikasi, tanggalAcuanKontrak } from './derive';
+import { dibayarTerverifikasi, statusTagihan, tanggalAcuanKontrak } from './derive';
 import { piutangRealisasi } from './realisasi';
 import { hariIniIso, selisihHari } from './format';
 
@@ -229,6 +229,49 @@ export function sisaHariKerjaSama(
   const sisa = selisihHari(hariIni, kontrak.tanggalSelesai);
   if (sisa === 1) return '1 day';
   return `${sisa} days`;
+}
+
+/**
+ * Jatuh tempo pembayaran untuk kolom "Payment Deadline" (keputusan
+ * pengguna 17/11/2026 09:04 WIB): jatuh tempo tagihan TERTUA yang belum
+ * lunas (statusTagihan bukan 'Lunas' — konvensi derive.ts yang sama
+ * dengan statusPembayaranKontrak); bila semua tagihan lunas, jatuh
+ * tempo tagihan TERAKHIR; undefined bila kontrak tidak punya tagihan.
+ * "Tertua" = tanggal jatuh tempo paling awal di antara yang belum
+ * lunas; "terakhir" = tanggal jatuh tempo paling akhir.
+ *
+ * FAKTA DATA (seed, per 2026-11-17): semua 42 kontrak punya TEPAT
+ * 1 tagihan — jadi di data saat ini kedua cabang itu sama dengan jatuh
+ * tempo satu-satunya tagihan itu (contoh: 10227 yang belum lunas →
+ * 15/12/2026; 0603 yang lunas → 24/02/2026). Cabang-cabangnya baru
+ * berbeda bila suatu kontrak punya >1 tagihan — dites sintetis di
+ * skrip cek.
+ * "Hari ini" default = tanggal sistem (hariIniIso); skrip cek memakai
+ * '2026-11-16' eksplisit supaya deterministik. Hanya status 'Lunas'
+ * yang menentukan "belum lunas" — statusTagihan memakai hariIni hanya
+ * untuk membedakan 'Lewat Jatuh Tempo' / 'Jatuh Tempo' /
+ * 'Belum Jatuh Tempo', bukan untuk 'Lunas'.
+ */
+export function jatuhTempoPembayaranKontrak(
+  kontrak: Kontrak,
+  tagihan: Tagihan[],
+  pembayaran: Pembayaran[],
+  hariIni: string = hariIniIso(),
+): string | undefined {
+  const tagihanKontrak = tagihan.filter((t) => t.kontrakId === kontrak.id);
+  if (tagihanKontrak.length === 0) return undefined;
+  const terurut = [...tagihanKontrak].sort((a, b) =>
+    a.tanggalJatuhTempo < b.tanggalJatuhTempo
+      ? -1
+      : a.tanggalJatuhTempo > b.tanggalJatuhTempo
+        ? 1
+        : 0,
+  );
+  const belumLunas = terurut.filter(
+    (t) => statusTagihan(t, pembayaran, hariIni) !== 'Lunas',
+  );
+  if (belumLunas.length > 0) return belumLunas[0].tanggalJatuhTempo;
+  return terurut[terurut.length - 1].tanggalJatuhTempo;
 }
 
 /** Nilai filter Payment Status di dropdown (Semua = tanpa filter). */
