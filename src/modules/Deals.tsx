@@ -55,6 +55,7 @@ import {
   totalDendaKontrak,
   totalPembayaranKontrak,
 } from '../lib/realisasi';
+import { daftarDokumenKontrak } from '../lib/dokumenKontrak';
 import { bolehAksi } from '../lib/permissions';
 import {
   Baris,
@@ -955,6 +956,14 @@ function DetailKontrak({
   const kwitansi = dokumenKontrak.find(
     (d) => d.jenisDokumen === 'Kwitansi Pembayaran',
   );
+  // Cluster Document (permintaan pengguna 17/11/2026) — lihat lib/dokumenKontrak.ts.
+  const dokumenCluster = daftarDokumenKontrak(
+    kontrak,
+    data.dokumen,
+    data.tagihan,
+    data.pembayaran,
+    data.denda,
+  );
   const jatuhTempo = tagihanKontrak[0]?.tanggalJatuhTempo;
   const jendelaWaktu = JENDELA_WAKTU_SIAR.find(
     (j) => j.programa === kontrak.programa,
@@ -1514,6 +1523,39 @@ function DetailKontrak({
             )}
           </div>
         )}
+      </Kartu>
+
+      {/* ---- 5. Document (cluster dokumen, permintaan pengguna 17/11/2026) ---- */}
+      <Kartu>
+        <JudulBagian>Document</JudulBagian>
+        <div className="mt-2">
+          <Tabel>
+            <thead>
+              <tr>
+                <Th>Document</Th>
+                <Th>Details</Th>
+                <Th>Status</Th>
+              </tr>
+            </thead>
+            <tbody>
+              {dokumenCluster.map((item) => (
+                <Baris key={item.label}>
+                  <Td>{item.label}</Td>
+                  <Td>{item.detail ?? '—'}</Td>
+                  <Td>{item.ada ? 'Ada' : 'Belum Ada'}</Td>
+                </Baris>
+              ))}
+            </tbody>
+          </Tabel>
+        </div>
+        <p className="mt-2 text-xs text-[#0d2569]/70">
+          Document checklist for this contract — the app does not store
+          document files, so there is no upload or download here.
+          &ldquo;Belum Ada&rdquo; means no record of that document for this
+          contract yet. For Persetujuan Sewa KPKNL the approval letter
+          number is on record (see Special Details); the letter file itself
+          is not stored in the app.
+        </p>
       </Kartu>
     </div>
   );
