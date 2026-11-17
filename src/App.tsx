@@ -795,11 +795,17 @@ export default function App() {
 
   if (!user) {
     if (halamanPublik === 'beranda') {
-      // Landing page tiruan template Marklo (PR landing-marklo-clone).
+      // Landing page RRI Deals — copy final RRI (2026-11-17).
       // Komponen landing lama (Beranda.tsx + landing/*) tetap di repo,
-      // tidak dipakai di route `/` untuk sementara — putaran penyesuaian
-      // akan mengintegrasikan kembali Lacak/Ajukan/statistik live/dua bahasa.
-      return <MarkloLanding onLogin={() => setHalamanPublik('login')} />;
+      // tidak dipakai di route `/` untuk sementara. Lacak/Ajukan
+      // terhubung dari landing via callback onLacak/onAjukan.
+      return (
+        <MarkloLanding
+          onLogin={() => setHalamanPublik('login')}
+          onLacak={() => setHalamanPublik('lacak')}
+          onAjukan={() => setHalamanPublik('ajukan')}
+        />
+      );
     }
     if (halamanPublik === 'lacak') {
       return (
