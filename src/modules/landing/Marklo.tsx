@@ -17,8 +17,10 @@
 //     adanya, tidak diwarnai ulang) — KECUALI logo di footer yang
 //     dibuat putih atas permintaan eksplisit pengguna 2026-11-17
 //     (filter brightness(0) invert(1), hanya di footer).
-//   - Kontak footer memakai data kontak landing saat ini; telepon dan
-//     email bertanda (contoh) karena memang placeholder di sana.
+//   - Kontak footer memakai data RESMI Kantor Pusat RRI (alamat Jl.
+//     Medan Merdeka Barat No. 4–5 + dua nomor telepon tel:, pengguna
+//     2026-11-17); baris email DIHAPUS sementara — menunggu alamat
+//     email resmi dari pengguna, jangan tampilkan email palsu.
 //   - Kartu booking hanya pratinjau lokal: tombol Next menampilkan
 //     catatan jujur, tidak ada pemesanan yang terkirim.
 //   - Gambar: tidak ada hotlink eksternal — visual kartu memakai
@@ -45,11 +47,9 @@ import {
   Globe,
   Instagram,
   Linkedin,
-  Mail,
   MapPin,
   Phone,
   Star,
-  Twitter,
   Video,
   X,
 } from 'lucide-react';
@@ -1200,12 +1200,6 @@ function Footer() {
       <div className="bg-gradient-to-b from-[#0D2569] to-[#04122e] text-white">
         <div className="mx-auto grid max-w-7xl gap-10 px-4 py-14 sm:px-6 md:grid-cols-5">
           <div className="md:col-span-2">
-            {/* Mark lingkaran 4 kelopak pink pucat */}
-            <span className="relative block h-16 w-16" aria-hidden="true">
-              <span className="absolute left-1/2 top-1/2 h-14 w-7 -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#f6d9e8]" />
-              <span className="absolute left-1/2 top-1/2 h-7 w-14 -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#f6d9e8]" />
-              <span className="absolute left-1/2 top-1/2 h-5 w-5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#0D2569] ring-2 ring-[#f6d9e8]" />
-            </span>
             <div className="mt-5 flex items-center gap-3">
               {/* Logo dibuat putih khusus footer (permintaan eksplisit
                   pengguna 2026-11-17): kedua logo PNG berlatar
@@ -1264,16 +1258,30 @@ function Footer() {
               Socials
             </h3>
             <ul className="mt-4 flex gap-2">
+              {/* Tautan media sosial RESMI RRI (pengguna 2026-11-17) —
+                  dibuka di tab baru. Twitter template tidak dipakai. */}
               {[
-                { label: 'Twitter', Ikon: Twitter },
-                { label: 'Instagram', Ikon: Instagram },
-                { label: 'LinkedIn', Ikon: Linkedin },
-                { label: 'Facebook', Ikon: Facebook },
-              ].map(({ label, Ikon }) => (
+                {
+                  label: 'LinkedIn',
+                  Ikon: Linkedin,
+                  href: 'https://www.linkedin.com/company/6777005/',
+                },
+                {
+                  label: 'Facebook',
+                  Ikon: Facebook,
+                  href: 'https://www.facebook.com/p/Radio-Republik-Indonesia-100079994898112',
+                },
+                {
+                  label: 'Instagram',
+                  Ikon: Instagram,
+                  href: 'https://www.instagram.com/rri_official/',
+                },
+              ].map(({ label, Ikon, href }) => (
                 <li key={label}>
                   <a
-                    href="#atas"
-                    onClick={(e) => e.preventDefault()}
+                    href={href}
+                    target="_blank"
+                    rel="noopener noreferrer"
                     aria-label={label}
                     title={label}
                     className="flex h-9 w-9 items-center justify-center rounded-full border border-white/30 text-white/80 transition hover:bg-white hover:text-black"
@@ -1318,17 +1326,19 @@ function Footer() {
             <ul className="mt-4 space-y-3 text-sm text-white/80">
               <li className="flex items-start gap-2.5">
                 <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-white/50" aria-hidden="true" />
-                LPP RRI Head Office, Jakarta
+                Jl. Medan Merdeka Barat No. 4–5, Jakarta Pusat, DKI Jakarta 10110
               </li>
               <li className="flex items-start gap-2.5">
                 <Phone className="mt-0.5 h-4 w-4 shrink-0 text-white/50" aria-hidden="true" />
-                (021) 000-0000{' '}
-                <span className="text-xs text-white/50">(sample)</span>
+                <a href="tel:+62213500584" className="transition hover:text-white hover:underline">
+                  +62 21 350 0584
+                </a>
               </li>
               <li className="flex items-start gap-2.5">
-                <Mail className="mt-0.5 h-4 w-4 shrink-0 text-white/50" aria-hidden="true" />
-                contoh@rri.go.id{' '}
-                <span className="text-xs text-white/50">(sample)</span>
+                <Phone className="mt-0.5 h-4 w-4 shrink-0 text-white/50" aria-hidden="true" />
+                <a href="tel:+62213511086" className="transition hover:text-white hover:underline">
+                  +62 21 351 1086
+                </a>
               </li>
               <li className="flex items-start gap-2.5">
                 <Clock className="mt-0.5 h-4 w-4 shrink-0 text-white/50" aria-hidden="true" />

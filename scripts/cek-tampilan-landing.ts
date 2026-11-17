@@ -320,13 +320,25 @@ cek(
     !marklo.includes('#3a0d0d'),
 );
 cek(
-  'Footer: mark 4 kelopak + Back to top + Navigation + Socials + Contact + "Book 30 Min Free Call"',
+  'Footer: Back to top + Navigation + Socials + Contact + "Book 30 Min Free Call" (tanpa mark bunga)',
   marklo.includes('Back to top') &&
     marklo.includes('Navigation') &&
     marklo.includes('Socials') &&
     marklo.includes('Contact') &&
-    marklo.includes('Book 30 Min Free Call') &&
-    marklo.includes('rounded-full bg-[#f6d9e8]'),
+    marklo.includes('Book 30 Min Free Call'),
+);
+cek(
+  'Footer: mark bunga 4 kelopak pink SUDAH DIHAPUS (tidak ada kelopak / warna pink pucat di Marklo.tsx)',
+  !marklo.includes('kelopak') && !marklo.includes('#f6d9e8'),
+);
+cek(
+  'Footer: Socials memakai tautan RESMI RRI (LinkedIn, Facebook, Instagram) dibuka di tab baru — bukan sample template',
+  marklo.includes('https://www.linkedin.com/company/6777005/') &&
+    marklo.includes('https://www.facebook.com/p/Radio-Republik-Indonesia-100079994898112') &&
+    marklo.includes('https://www.instagram.com/rri_official/') &&
+    marklo.includes('target="_blank"') &&
+    marklo.includes('rel="noopener noreferrer"') &&
+    !marklo.includes("href=\"#atas\""),
 );
 cek(
   'Footer: logo RRI + Deals putih (filter brightness(0) invert(1) di kedua img footer; logo header tanpa filter)',
@@ -336,16 +348,18 @@ cek(
 cek(
   'Footer: kolom "Additional Service" di antara Navigation dan Contact — link Book a Room + Rent a Space ke booking',
   footerMarklo.indexOf('Navigation') < footerMarklo.indexOf('Additional Service') &&
-    footerMarklo.indexOf('Additional Service') < footerMarklo.indexOf('LPP RRI Head Office') &&
+    footerMarklo.indexOf('Additional Service') < footerMarklo.indexOf('Jl. Medan Merdeka Barat') &&
     footerMarklo.includes('Book a Room') &&
     footerMarklo.includes('Rent a Space'),
 );
 cek(
-  'Footer: kontak RRI dari landing saat ini (alamat HQ, telepon/email bertanda sample, jam layanan)',
-  marklo.includes('LPP RRI Head Office, Jakarta') &&
-    marklo.includes('(021) 000-0000') &&
-    marklo.includes('contoh@rri.go.id') &&
-    marklo.includes('(sample)') &&
+  'Footer: kontak RESMI Kantor Pusat RRI (alamat Jl. Medan Merdeka Barat, dua nomor telepon tel:, tanpa email sample)',
+  marklo.includes('Jl. Medan Merdeka Barat No. 4–5, Jakarta Pusat, DKI Jakarta 10110') &&
+    marklo.includes('tel:+62213500584') &&
+    marklo.includes('+62 21 350 0584') &&
+    marklo.includes('tel:+62213511086') &&
+    marklo.includes('+62 21 351 1086') &&
+    !marklo.includes('contoh@rri.go.id') &&
     marklo.includes('08:00–16:00 WIB') &&
     marklo.includes('© 2026 LPP RRI. All rights reserved.'),
 );
@@ -413,8 +427,11 @@ cek(
   marklo.includes('DIPARKIR') && marklo.includes('penyesuaian RRI'),
 );
 cek(
-  'Gambar: TIDAK ada hotlink eksternal (tanpa https:// di Marklo.tsx)',
-  !marklo.includes('https://'),
+  'Gambar: TIDAK ada hotlink gambar eksternal — https:// di Marklo.tsx hanya 3 tautan medsos resmi RRI',
+  (marklo.match(/https:\/\//g) || []).length === 3 &&
+    marklo.includes('https://www.linkedin.com/company/6777005/') &&
+    marklo.includes('https://www.facebook.com/p/Radio-Republik-Indonesia-100079994898112') &&
+    marklo.includes('https://www.instagram.com/rri_official/'),
 );
 cek(
   'Gambar: visual kartu memakai gradien CSS + inisial (bukan <img> eksternal)',
