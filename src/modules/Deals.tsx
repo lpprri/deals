@@ -26,6 +26,7 @@ import { sisaTagihan, statusTagihan } from '../lib/derive';
 import {
   detailLayananKontrak,
   jenisKlienYangAda,
+  jatuhTempoPembayaranKontrak,
   judulKontrak,
   labelArahUrutKontrak,
   nomorReferensiKontrak,
@@ -670,7 +671,12 @@ export function TabKontrak({
     );
   }
 
-  // Kolom baru (keputusan pengguna 16/11/2026): 11 kolom di bawah, tanpa
+  // "Hari ini" untuk 6 kolom nilai — tanggal sistem, sama seperti
+  // DetailKontrak (hariIniIso) dan seperti kolom Payment Status /
+  // Remaining Days yang memakai default tanggal sistem di helpernya.
+  const hariIni = hariIniIso();
+
+  // Kolom baru (keputusan pengguna 16/11/2026): 17 kolom di bawah, tanpa
   // kolom kode akun dan tanpa Status. Filter: Client Type + PNBP Type +
   // Payment Status + Cooperation Status (keputusan pengguna 16/11/2026
   // 13:56 WIB). Kolom "Remaining Days" di samping Contract Period
@@ -679,7 +685,15 @@ export function TabKontrak({
   // per keputusan pengguna 17/11/2026 08:34 WIB (membatalkan label
   // Indonesia PR #64); definisi status DIREDEFINISI 17/11/2026
   // 08:33 WIB (Partially-Paid = dibayar == Piutang realisasi;
-  // ditambah Insufficient Payment).
+  // ditambah Insufficient Payment). 6 kolom nilai sesudah Payment
+  // Status, sebelum Contract Value (keputusan pengguna 17/11/2026
+  // 09:04 WIB): Payment Deadline, Fine Value, Total Revenue
+  // (header diganti dari "Total Contract Value + Fine" 09:06 WIB),
+  // Receivable Value, Realisation, Remaining Value (header diganti
+  // dari "Remaining Contract Value" 09:07 WIB) — Contract Value
+  // tetap terakhir. Nilai-nilainya memakai helper yang SAMA dengan
+  // seksi Revenue di DetailKontrak (lib/realisasi.ts), supaya perilaku
+  // live-nya identik.
   const jenisKlien = (k: Kontrak): string | undefined =>
     data.klien.find((kl) => kl.id === k.klienId)?.jenis;
   const kontrakTersaring = urutkanKontrak(
@@ -825,67 +839,122 @@ export function TabKontrak({
                 <Th>Contract Period</Th>
                 <Th>Remaining Days</Th>
                 <Th>Payment Status</Th>
+                <Th>Payment Deadline</Th>
+                <Th kanan>Fine Value</Th>
+                <Th kanan>Total Revenue</Th>
+                <Th kanan>Receivable Value</Th>
+                <Th kanan>Realisation</Th>
+                <Th kanan>Remaining Value</Th>
                 <Th kanan>Contract Value</Th>
               </tr>
             </thead>
             <tbody>
-              {kontrakTersaring.map((k, indeks) => (
-                <Baris key={k.id} onClick={() => onPilihKontrak(k.id)}>
-                  {/*
-                    Nomor urut tampil — indeks baris sesudah filter +
-                    sort (kontrakTersaring), jadi nomor 1 selalu baris
-                    pertama yang terlihat dan tetap 1..N berurutan
-                    sesudah filter. (Keputusan pengguna 16/11/2026
-                    13:31 WIB.)
-                  */}
-                  <Td>{indeks + 1}</Td>
-                  {/*
-                    Nomor kontrak + nomor referensi digabung dalam satu
-                    kolom (keputusan pengguna 16/11/2026 13:35 WIB):
-                    nomor kontrak tebal di baris pertama, nomor referensi
-                    lebih kecil di baris kedua; "—" bila tanpa referensi.
-                  */}
-                  <Td>
-                    <div className="font-semibold">{k.nomorPks}</div>
-                    <div className="text-xs text-[#0d2569]/70">
-                      {nomorReferensiKontrak(k) ?? '—'}
-                    </div>
-                  </Td>
-                  <Td>{judulKontrak(k) ?? '—'}</Td>
-                  {/*
-                    Kolom tanggal penandatanganan — per keputusan pengguna
-                    16/11/2026 13:29 WIB, kolom ini menggantikan kolom
-                    tanggal pembuatan: tanggalTandaTangan, fallback
-                    tanggalMulai — pola yang sama dengan kunci sort
-                    'tandaTangan' (tanggalAcuanKontrak).
-                  */}
-                  <Td>{formatTanggal(tanggalPenandatangananKontrak(k))}</Td>
-                  <Td>{namaKlien(data, k.klienId)}</Td>
-                  <Td>{labelKategoriLayanan(k.kategoriLayanan)}</Td>
-                  <Td>{detailLayananKontrak(k) ?? '—'}</Td>
-                  <Td>
-                    {formatTanggal(k.tanggalMulai)} – {formatTanggal(k.tanggalSelesai)}
-                  </Td>
-                  {/*
-                    Sisa hari kerja sama — hitung mundur sampai tanggal
-                    akhir (keputusan pengguna 16/11/2026 15:29 WIB);
-                    kontrak yang sudah selesai tertulis "Completed".
-                  */}
-                  <Td>{sisaHariKerjaSama(k)}</Td>
-                  {/*
-                    Status pembayaran — English (keputusan pengguna
-                    17/11/2026 08:34 WIB; membatalkan label Indonesia
-                    PR #64). Nilainya langsung dari
-                    statusPembayaranKontrak (REDEFINISI 17/11/2026
-                    08:33 WIB: Partially-Paid = dibayar == Piutang
-                    realisasi; ditambah Insufficient Payment).
-                  */}
-                  <Td>
-                    {statusPembayaranKontrak(k, data.tagihan, data.pembayaran, data.denda)}
-                  </Td>
-                  <Td kanan>{formatRupiah(k.nilaiKontrak)}</Td>
-                </Baris>
-              ))}
+              {kontrakTersaring.map((k, indeks) => {
+                // 6 kolom nilai (keputusan pengguna 17/11/2026 09:04 WIB)
+                // — helper yang SAMA dengan seksi Revenue di DetailKontrak
+                // (lib/realisasi.ts + jatuhTempoPembayaranKontrak di
+                // lib/kontrakTampilan.ts), supaya perilaku live-nya
+                // identik; hariIni = tanggal sistem (hariIniIso) seperti
+                // di DetailKontrak.
+                const totalDenda = totalDendaKontrak(
+                  k,
+                  data.tagihan,
+                  data.denda,
+                );
+                const nilaiPlusDenda = k.nilaiKontrak + totalDenda;
+                const piutang = piutangRealisasi(
+                  k,
+                  data.tagihan,
+                  data.denda,
+                  hariIni,
+                );
+                const realisasi = realisasiKontrak(k, hariIni);
+                const sisaKontrak = sisaKontrakRealisasi(
+                  k,
+                  data.tagihan,
+                  data.denda,
+                  hariIni,
+                );
+                const jatuhTempo = jatuhTempoPembayaranKontrak(
+                  k,
+                  data.tagihan,
+                  data.pembayaran,
+                  hariIni,
+                );
+                return (
+                    <Baris key={k.id} onClick={() => onPilihKontrak(k.id)}>
+                    {/*
+                      Nomor urut tampil — indeks baris sesudah filter +
+                      sort (kontrakTersaring), jadi nomor 1 selalu baris
+                      pertama yang terlihat dan tetap 1..N berurutan
+                      sesudah filter. (Keputusan pengguna 16/11/2026
+                      13:31 WIB.)
+                    */}
+                    <Td>{indeks + 1}</Td>
+                    {/*
+                      Nomor kontrak + nomor referensi digabung dalam satu
+                      kolom (keputusan pengguna 16/11/2026 13:35 WIB):
+                      nomor kontrak tebal di baris pertama, nomor referensi
+                      lebih kecil di baris kedua; "—" bila tanpa referensi.
+                    */}
+                    <Td>
+                      <div className="font-semibold">{k.nomorPks}</div>
+                      <div className="text-xs text-[#0d2569]/70">
+                        {nomorReferensiKontrak(k) ?? '—'}
+                      </div>
+                    </Td>
+                    <Td>{judulKontrak(k) ?? '—'}</Td>
+                    {/*
+                      Kolom tanggal penandatanganan — per keputusan pengguna
+                      16/11/2026 13:29 WIB, kolom ini menggantikan kolom
+                      tanggal pembuatan: tanggalTandaTangan, fallback
+                      tanggalMulai — pola yang sama dengan kunci sort
+                      'tandaTangan' (tanggalAcuanKontrak).
+                    */}
+                    <Td>{formatTanggal(tanggalPenandatangananKontrak(k))}</Td>
+                    <Td>{namaKlien(data, k.klienId)}</Td>
+                    <Td>{labelKategoriLayanan(k.kategoriLayanan)}</Td>
+                    <Td>{detailLayananKontrak(k) ?? '—'}</Td>
+                    <Td>
+                      {formatTanggal(k.tanggalMulai)} – {formatTanggal(k.tanggalSelesai)}
+                    </Td>
+                    {/*
+                      Sisa hari kerja sama — hitung mundur sampai tanggal
+                      akhir (keputusan pengguna 16/11/2026 15:29 WIB);
+                      kontrak yang sudah selesai tertulis "Completed".
+                    */}
+                    <Td>{sisaHariKerjaSama(k)}</Td>
+                    {/*
+                      Status pembayaran — English (keputusan pengguna
+                      17/11/2026 08:34 WIB; membatalkan label Indonesia
+                      PR #64). Nilainya langsung dari
+                      statusPembayaranKontrak (REDEFINISI 17/11/2026
+                      08:33 WIB: Partially-Paid = dibayar == Piutang
+                      realisasi; ditambah Insufficient Payment).
+                    */}
+                    <Td>
+                      {statusPembayaranKontrak(k, data.tagihan, data.pembayaran, data.denda)}
+                    </Td>
+                    {/*
+                      6 kolom nilai (keputusan pengguna 17/11/2026 09:04 WIB):
+                      Payment Deadline = jatuh tempo tagihan tertua yang
+                      belum lunas, bila semua lunas tagihan terakhir,
+                      "—" bila tanpa tagihan; Fine Value = Σ denda
+                      ("—" bila 0); Total Revenue = nilaiKontrak + denda;
+                      Receivable Value = Piutang (realisasi); Realisation
+                      = % realisasi (format sama dengan seksi Revenue di
+                      DetailKontrak); Remaining Value = Sisa Kontrak.
+                    */}
+                    <Td>{jatuhTempo ? formatTanggal(jatuhTempo) : '—'}</Td>
+                    <Td kanan>{totalDenda === 0 ? '—' : formatRupiah(totalDenda)}</Td>
+                    <Td kanan>{formatRupiah(nilaiPlusDenda)}</Td>
+                    <Td kanan>{formatRupiah(piutang)}</Td>
+                    <Td kanan>{formatPersenRealisasi(realisasi)}</Td>
+                    <Td kanan>{formatRupiah(sisaKontrak)}</Td>
+                    <Td kanan>{formatRupiah(k.nilaiKontrak)}</Td>
+                  </Baris>
+                );
+              })}
             </tbody>
           </Tabel>
         </Kartu>
