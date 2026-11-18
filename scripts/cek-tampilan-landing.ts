@@ -161,9 +161,10 @@ cek(
 
 // --- 6. Pernyataan / About. ---
 cek(
-  'Pernyataan: "We focus on returns..." + "digital marketing" abu-abu',
+  'Pernyataan: "We focus on returns..." + "multi-platform marketing" abu-abu ("digital marketing" hilang)',
   marklo.includes('We focus on returns, scaling your brand through') &&
-    marklo.includes('digital marketing'),
+    marklo.includes('multi-platform marketing') &&
+    !marklo.includes('digital marketing'),
 );
 
 // --- 7. Statistik (counter animasi). ---

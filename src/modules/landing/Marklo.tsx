@@ -454,7 +454,7 @@ function Pernyataan() {
         <Reveal>
           <p className="text-3xl font-extrabold leading-tight tracking-tight text-black sm:text-5xl lg:text-6xl">
             We focus on returns, scaling your brand through{' '}
-            <span className="text-slate-300">digital marketing</span> to take
+            <span className="text-slate-300">multi-platform marketing</span> to take
             it to the next level.
           </p>
         </Reveal>
