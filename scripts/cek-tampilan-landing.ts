@@ -166,15 +166,17 @@ cek(
 
 // --- 5. Carousel kampanye. ---
 cek(
-  'Carousel: section id="work" + 7 kampanye nyata RRI (PLN, Taspen, Alfamart, Medco, Bank Indonesia, PIM, BNN Sumsel) — template hilang',
+  'Carousel: section id="work" + 7 kampanye nyata RRI (PLN, Taspen, Alfamart, Medco, Bank Indonesia, Perempuan Indonesia Maju, BNN) — template hilang',
   marklo.includes('id="work"') &&
     dataMarklo.includes("klien: 'PLN'") &&
     dataMarklo.includes("klien: 'Taspen'") &&
     dataMarklo.includes("klien: 'Alfamart'") &&
     dataMarklo.includes("klien: 'Medco'") &&
     dataMarklo.includes("klien: 'Bank Indonesia'") &&
-    dataMarklo.includes("klien: 'Perempuan Indonesia Maju (PIM)'") &&
-    dataMarklo.includes("klien: 'BNN Sumsel'") &&
+    dataMarklo.includes("klien: 'Perempuan Indonesia Maju'") &&
+    dataMarklo.includes("klien: 'BNN'") &&
+    !dataMarklo.includes("klien: 'Perempuan Indonesia Maju (PIM)'") &&
+    !dataMarklo.includes("klien: 'BNN Sumsel'") &&
     !dataMarklo.includes("klien: 'RingID'") &&
     !dataMarklo.includes("klien: 'Beskon Music'") &&
     !dataMarklo.includes("klien: 'Boutique'") &&
