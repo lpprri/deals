@@ -81,7 +81,6 @@ import {
   LAYANAN_MARKLO,
   LOGO_KLIEN_MARKLO,
   MANFAAT_MARKLO,
-  NEGARA_MARKLO,
   PERBANDINGAN_KAMI,
   PERBANDINGAN_LAIN,
   PROSES_MARKLO,
@@ -90,6 +89,7 @@ import {
   TESTIMONI_MARKLO,
   ZONA_WAKTU_MARKLO,
 } from '../../lib/landingMarklo';
+import { KOTA_SATKER_MARKLO } from '../../lib/landingMarklo';
 import type { BookingPublikInput } from '../../lib/store';
 
 export interface MarkloLandingProps {
@@ -499,19 +499,29 @@ function Statistik() {
         <Reveal tunda={150}>
           <div className="mt-12 text-center">
             <p className="text-sm font-bold tracking-wide text-black">
-              Our Clients in 35+ Countries
+              Our Clients in 67+ Cities
             </p>
-            <ul className="mt-4 flex flex-wrap items-center justify-center gap-2">
-              {NEGARA_MARKLO.map((n) => (
-                <li
-                  key={n.nama}
-                  className="inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-600"
-                >
-                  <span aria-hidden="true">{n.bendera}</span>
-                  {n.nama}
-                </li>
-              ))}
-            </ul>
+            <p className="mt-1 text-sm text-slate-500">
+              From the capital to the farthest corners of Indonesia
+            </p>
+            <div className="mt-4 overflow-hidden">
+              <ul
+                className="mk-marquee flex w-max items-center gap-2"
+                style={{ animationDuration: '90s' }}
+              >
+                {[...KOTA_SATKER_MARKLO, ...KOTA_SATKER_MARKLO].map(
+                  (kota, i) => (
+                    <li
+                      key={`${kota}-${i}`}
+                      aria-hidden={i >= KOTA_SATKER_MARKLO.length}
+                      className="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-600"
+                    >
+                      {kota}
+                    </li>
+                  ),
+                )}
+              </ul>
+            </div>
           </div>
         </Reveal>
       </div>
