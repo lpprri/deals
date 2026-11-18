@@ -48,6 +48,17 @@ body {
     filter 0.7s ease;
   will-change: opacity, transform, filter;
 }
+/* Reveal dalam untuk kartu layanan (PR #93): keadaan awal lebih dalam
+   (naik 48px + blur lebih kuat) dan transisi lebih panjang (0,9 detik),
+   supaya kartu benar-benar tersembunyi lalu muncul jelas saat di-scroll,
+   seperti template. Aturan ini HARUS di atas .mk-reveal.mk-tampil:
+   keduanya berspesifisitas sama, jadi .mk-tampil yang di bawah menang
+   untuk transform/filter saat kartu sudah tampil. */
+.mk-reveal.mk-reveal-dalam {
+  transform: translateY(48px);
+  filter: blur(12px);
+  transition-duration: 0.9s;
+}
 .mk-reveal.mk-tampil {
   opacity: 1;
   filter: blur(0);
@@ -132,6 +143,15 @@ body {
 }
 @media (prefers-reduced-motion: reduce) {
   .mk-reveal {
+    opacity: 1;
+    filter: none;
+    transform: none;
+    transition: none;
+  }
+  /* Modifier dalam (PR #93) berspesifisitas lebih tinggi dari .mk-reveal,
+     jadi harus dimatikan eksplisit di sini — kalau tidak, kartu layanan
+     tetap bergeser 48px walau animasi dimatikan. */
+  .mk-reveal.mk-reveal-dalam {
     opacity: 1;
     filter: none;
     transform: none;

@@ -393,6 +393,21 @@ cek(
     css.includes('mk-logo-goyang 0.7s ease-in-out infinite') &&
     (css.match(/mk-logo-layanan/g) || []).length >= 3,
 );
+cek(
+  'Services: kartu scroll-reveal dalam — hidden (naik 48px + blur kuat) sampai masuk viewport, muncul halus bertahap seperti template (PR #93)',
+  marklo.includes('className="mk-reveal-dalam"') &&
+    marklo.includes('tunda={i * 180}') &&
+    marklo.includes('ambang={0.15}') &&
+    marklo.includes('margin="0px 0px -8% 0px"') &&
+    marklo.includes('threshold: ambang') &&
+    marklo.includes('rootMargin: margin') &&
+    marklo.includes("document\n      .getElementById(`layanan-${i}`)") &&
+    css.includes('.mk-reveal.mk-reveal-dalam') &&
+    css.includes('transform: translateY(48px);') &&
+    css.includes('filter: blur(12px);') &&
+    css.includes('transition-duration: 0.9s;') &&
+    css.includes('  .mk-reveal.mk-reveal-dalam {\n    opacity: 1;'),
+);
 
 // --- 10. Comparison. ---
 cek(
