@@ -215,11 +215,17 @@ cek(
 
 // --- 7. Statistik (counter animasi). ---
 cek(
-  'Statistik: 4 item (Projects Delivered, Happy Clients, Satisfaction, Growth 35X)',
-  dataMarklo.includes("label: 'Projects Delivered'") &&
+  'Statistik: 3 item — 500+ Projects Delivered, 1k+ Happy Clients, 98% Client Satisfaction; kartu 35X dihapus',
+  dataMarklo.includes("nilai: 500, akhiran: '+'") &&
+    dataMarklo.includes("label: 'Projects Delivered'") &&
+    dataMarklo.includes("nilai: 1, akhiran: 'k+'") &&
     dataMarklo.includes("label: 'Happy Clients'") &&
+    dataMarklo.includes("nilai: 98, akhiran: '%'") &&
     dataMarklo.includes("label: 'Client Satisfaction'") &&
-    dataMarklo.includes("label: 'Client Growth Result'"),
+    !dataMarklo.includes("label: 'Client Growth Result'") &&
+    !dataMarklo.includes('35X') &&
+    !dataMarklo.includes('Client Growth') &&
+    marklo.includes('grid grid-cols-2 gap-6 lg:grid-cols-3'),
 );
 cek(
   'Statistik: judul "Our Clients in 67+ Cities" + subjudul + pil kota satker (bukan negara)',
