@@ -137,19 +137,37 @@ cek(
 
 // --- 5. Carousel kampanye. ---
 cek(
-  'Carousel: section id="work" + 4 kampanye template (RingID, Beskon, Boutique, Reviro)',
+  'Carousel: section id="work" + 7 kampanye nyata RRI (PLN, Taspen, Alfamart, Medco, Bank Indonesia, PIM, BNN Sumsel) — template hilang',
   marklo.includes('id="work"') &&
-    dataMarklo.includes("klien: 'RingID'") &&
-    dataMarklo.includes("klien: 'Beskon Music'") &&
-    dataMarklo.includes("klien: 'Boutique'") &&
-    dataMarklo.includes("klien: 'Reviro'"),
+    dataMarklo.includes("klien: 'PLN'") &&
+    dataMarklo.includes("klien: 'Taspen'") &&
+    dataMarklo.includes("klien: 'Alfamart'") &&
+    dataMarklo.includes("klien: 'Medco'") &&
+    dataMarklo.includes("klien: 'Bank Indonesia'") &&
+    dataMarklo.includes("klien: 'Perempuan Indonesia Maju (PIM)'") &&
+    dataMarklo.includes("klien: 'BNN Sumsel'") &&
+    !dataMarklo.includes("klien: 'RingID'") &&
+    !dataMarklo.includes("klien: 'Beskon Music'") &&
+    !dataMarklo.includes("klien: 'Boutique'") &&
+    !dataMarklo.includes("klien: 'Reviro'"),
 );
 cek(
-  'Carousel: layanan Meta Ads, Google Ads, SEO, Content Marketing',
-  dataMarklo.includes("layanan: 'Meta Ads'") &&
-    dataMarklo.includes("layanan: 'Google Ads'") &&
-    dataMarklo.includes("layanan: 'SEO'") &&
-    dataMarklo.includes("layanan: 'Content Marketing'"),
+  'Carousel: judul kampanye asli (Bahasa Indonesia) di ketujuh kartu',
+  dataMarklo.includes('Spot Iklan Edukasi Bahaya & Manfaat Listrik') &&
+    dataMarklo.includes('Adlibs Waspada Penipuan Mengatasnamakan PT Taspen') &&
+    dataMarklo.includes('Promosi Alfamart') &&
+    dataMarklo.includes('Goes to Campus "Ngobrol Seputar Gas: Integritas dalam Industri Hulu Migas"') &&
+    dataMarklo.includes('Event Digital Kito Galo 7th X Gemilang Palembang Raya 2026') &&
+    dataMarklo.includes('Parade Kebaya Songket: Pesona Perempuan Indonesia') &&
+    dataMarklo.includes('Re-Link (Rehabilitasi Keliling) & Pindang (Pelayanan Aplikasi)'),
+);
+cek(
+  'Carousel: layanan English (Radio Spot, Adlibs, Promotion, Adlibs & Interactive Dialogue, Interactive Dialogue)',
+  dataMarklo.includes("layanan: 'Radio Spot'") &&
+    dataMarklo.includes("layanan: 'Adlibs'") &&
+    dataMarklo.includes("layanan: 'Promotion'") &&
+    dataMarklo.includes("layanan: 'Adlibs & Interactive Dialogue'") &&
+    dataMarklo.includes("layanan: 'Interactive Dialogue'"),
 );
 cek(
   'Carousel: tombol prev/next + auto-advance 5 detik (jeda saat hover/fokus)',
@@ -472,9 +490,10 @@ cek(
 
 // --- 18. Jujur: sample + tanpa hotlink eksternal. ---
 cek(
-  'Sample: data Marklo dinyatakan SAMPLE/template, bukan data RRI',
-  dataMarklo.includes('CONTOH (SAMPLE)') &&
-    dataMarklo.includes('BUKAN data RRI'),
+  'Jujur: kampanye dinyatakan NYATA RRI, sisa data tetap SAMPLE/template bukan data RRI',
+  dataMarklo.includes('KAMPANYE NYATA RRI') &&
+    dataMarklo.includes('BUKAN data RRI') &&
+    !dataMarklo.includes('CONTOH (SAMPLE)'),
 );
 cek(
   'Sample: komponen menyatakan penyesuaian RRI diparkir',

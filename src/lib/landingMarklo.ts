@@ -1,13 +1,18 @@
-// Data CONTOH (SAMPLE) untuk tiruan landing page template agency "Marklo"
+// Data untuk tiruan landing page template agency "Marklo"
 // (PR landing-marklo-clone, 2026-11-17).
 //
-// Semua nama orang, klien, kampanye, testimoni, dan angka di file ini
-// berasal dari template Marklo dan BUKAN data RRI — dipakai apa adanya
-// untuk tiruan visual, dan akan diganti pada putaran penyesuaian RRI.
-// JANGAN jadikan nama/angka di sini sebagai fakta tentang RRI.
+// KECUALI KAMPANYE_MARKLO: sejak PR #80 (2026-11-18) daftar kampanye di bawah
+// adalah KAMPANYE NYATA RRI — nama klien + judul kampanye asli (Bahasa
+// Indonesia, sesuai daftar user); deskripsi berbahasa Inggris ditulis dari
+// judul kampanye itu saja, tanpa angka/klaim hasil yang dikarang.
+// Bagian lain file ini (testimoni, statistik, dst.) MASIH data contoh template
+// Marklo dan BUKAN data RRI — JANGAN jadikan nama/angka di sana sebagai
+// fakta tentang RRI.
 
 export interface KampanyeMarklo {
   klien: string;
+  /** Judul kampanye asli (Bahasa Indonesia, sesuai daftar user). */
+  judul: string;
   layanan: string;
   /** Kelas gradien pastel untuk visual kartu (placeholder CSS, bukan foto). */
   gradien: string;
@@ -17,32 +22,67 @@ export interface KampanyeMarklo {
 
 export const KAMPANYE_MARKLO: KampanyeMarklo[] = [
   {
-    klien: 'RingID',
-    layanan: 'Meta Ads',
+    klien: 'PLN',
+    judul: 'Spot Iklan Edukasi Bahaya & Manfaat Listrik',
+    layanan: 'Radio Spot',
     gradien: 'from-rose-200 via-pink-100 to-orange-100',
-    inisial: 'R',
-    ringkasan: 'Paid social campaign that scaled installs month over month.',
+    inisial: 'P',
+    ringkasan:
+      'A public-education spot that makes electricity safety simple to understand — the dangers to avoid and the benefits to enjoy, delivered loud and clear on air.',
   },
   {
-    klien: 'Beskon Music',
-    layanan: 'Google Ads',
+    klien: 'Taspen',
+    judul: 'Adlibs Waspada Penipuan Mengatasnamakan PT Taspen',
+    layanan: 'Adlibs',
     gradien: 'from-sky-200 via-blue-100 to-indigo-100',
-    inisial: 'B',
-    ringkasan: 'Search campaign that put new releases in front of fans.',
+    inisial: 'T',
+    ringkasan:
+      'A sharp adlibs warning that helps listeners spot scams pretending to be PT Taspen — before anyone gets tricked.',
   },
   {
-    klien: 'Boutique',
-    layanan: 'SEO',
+    klien: 'Alfamart',
+    judul: 'Promosi Alfamart',
+    layanan: 'Promotion',
+    gradien: 'from-violet-200 via-purple-100 to-fuchsia-100',
+    inisial: 'A',
+    ringkasan:
+      "A cheerful on-air promo that keeps Alfamart's offers top of mind for everyday shoppers.",
+  },
+  {
+    klien: 'Medco',
+    judul: 'Goes to Campus "Ngobrol Seputar Gas: Integritas dalam Industri Hulu Migas"',
+    layanan: 'Adlibs & Interactive Dialogue',
+    gradien: 'from-emerald-200 via-teal-100 to-lime-100',
+    inisial: 'M',
+    ringkasan:
+      "An on-campus talk that opens up the gas industry's integrity story — in plain language, with room for real questions.",
+  },
+  {
+    klien: 'Bank Indonesia',
+    judul: 'Event Digital Kito Galo 7th X Gemilang Palembang Raya 2026',
+    layanan: 'Adlibs',
+    gradien: 'from-rose-200 via-pink-100 to-orange-100',
+    inisial: 'B',
+    ringkasan:
+      'Live adlibs from Digital Kito Galo 7th x Gemilang Palembang Raya 2026 — bringing the energy of the event straight to listeners at home.',
+  },
+  {
+    klien: 'Perempuan Indonesia Maju (PIM)',
+    judul: '"Parade Kebaya Songket: Pesona Perempuan Indonesia"',
+    layanan: 'Interactive Dialogue',
+    gradien: 'from-sky-200 via-blue-100 to-indigo-100',
+    inisial: 'P',
+    ringkasan:
+      'An interactive dialogue celebrating Indonesian women — the grace of kebaya songket, worn with pride and talked about live on air.',
+  },
+  {
+    klien: 'BNN Sumsel',
+    judul: 'Re-Link (Rehabilitasi Keliling) & Pindang (Pelayanan Aplikasi)',
+    layanan: 'Radio Spot',
     gradien: 'from-violet-200 via-purple-100 to-fuchsia-100',
     inisial: 'B',
-    ringkasan: 'Organic growth that turned search into the top channel.',
-  },
-  {
-    klien: 'Reviro',
-    layanan: 'Content Marketing',
-    gradien: 'from-emerald-200 via-teal-100 to-lime-100',
-    inisial: 'R',
-    ringkasan: 'Editorial engine that built authority and pipeline.',
+    ringkasan:
+      'A public-service spot that takes rehabilitation on the road and puts help within reach — Re-Link and Pindang, explained simply for everyone listening.',
   },
 ];
 
