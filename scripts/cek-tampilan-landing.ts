@@ -142,19 +142,37 @@ cek(
 
 // --- 5. Carousel kampanye. ---
 cek(
-  'Carousel: section id="work" + 4 kampanye template (RingID, Beskon, Boutique, Reviro)',
+  'Carousel: section id="work" + 7 kampanye nyata RRI (PLN, Taspen, Alfamart, Medco, Bank Indonesia, PIM, BNN Sumsel) — template hilang',
   marklo.includes('id="work"') &&
-    dataMarklo.includes("klien: 'RingID'") &&
-    dataMarklo.includes("klien: 'Beskon Music'") &&
-    dataMarklo.includes("klien: 'Boutique'") &&
-    dataMarklo.includes("klien: 'Reviro'"),
+    dataMarklo.includes("klien: 'PLN'") &&
+    dataMarklo.includes("klien: 'Taspen'") &&
+    dataMarklo.includes("klien: 'Alfamart'") &&
+    dataMarklo.includes("klien: 'Medco'") &&
+    dataMarklo.includes("klien: 'Bank Indonesia'") &&
+    dataMarklo.includes("klien: 'Perempuan Indonesia Maju (PIM)'") &&
+    dataMarklo.includes("klien: 'BNN Sumsel'") &&
+    !dataMarklo.includes("klien: 'RingID'") &&
+    !dataMarklo.includes("klien: 'Beskon Music'") &&
+    !dataMarklo.includes("klien: 'Boutique'") &&
+    !dataMarklo.includes("klien: 'Reviro'"),
 );
 cek(
-  'Carousel: layanan Meta Ads, Google Ads, SEO, Content Marketing',
-  dataMarklo.includes("layanan: 'Meta Ads'") &&
-    dataMarklo.includes("layanan: 'Google Ads'") &&
-    dataMarklo.includes("layanan: 'SEO'") &&
-    dataMarklo.includes("layanan: 'Content Marketing'"),
+  'Carousel: judul kampanye asli (Bahasa Indonesia) di ketujuh kartu',
+  dataMarklo.includes('Spot Iklan Edukasi Bahaya & Manfaat Listrik') &&
+    dataMarklo.includes('Adlibs Waspada Penipuan Mengatasnamakan PT Taspen') &&
+    dataMarklo.includes('Promosi Alfamart') &&
+    dataMarklo.includes('Goes to Campus "Ngobrol Seputar Gas: Integritas dalam Industri Hulu Migas"') &&
+    dataMarklo.includes('Event Digital Kito Galo 7th X Gemilang Palembang Raya 2026') &&
+    dataMarklo.includes('Parade Kebaya Songket: Pesona Perempuan Indonesia') &&
+    dataMarklo.includes('Re-Link (Rehabilitasi Keliling) & Pindang (Pelayanan Aplikasi)'),
+);
+cek(
+  'Carousel: layanan English (Radio Spot, Adlibs, Promotion, Adlibs & Interactive Dialogue, Interactive Dialogue)',
+  dataMarklo.includes("layanan: 'Radio Spot'") &&
+    dataMarklo.includes("layanan: 'Adlibs'") &&
+    dataMarklo.includes("layanan: 'Promotion'") &&
+    dataMarklo.includes("layanan: 'Adlibs & Interactive Dialogue'") &&
+    dataMarklo.includes("layanan: 'Interactive Dialogue'"),
 );
 cek(
   'Carousel: tombol prev/next + auto-advance 5 detik (jeda saat hover/fokus)',
@@ -166,9 +184,10 @@ cek(
 
 // --- 6. Pernyataan / About. ---
 cek(
-  'Pernyataan: "We focus on returns..." + "digital marketing" abu-abu',
+  'Pernyataan: "We focus on returns..." + "multi-platform marketing" abu-abu ("digital marketing" hilang)',
   marklo.includes('We focus on returns, scaling your brand through') &&
-    marklo.includes('digital marketing'),
+    marklo.includes('multi-platform marketing') &&
+    !marklo.includes('digital marketing'),
 );
 
 // --- 7. Statistik (counter animasi). ---
@@ -257,6 +276,12 @@ cek(
     !marklo.includes('Craftgram') &&
     !marklo.includes('Lumo Labs'),
 );
+cek(
+  'Landing: frasa "digital marketing" 0 di seluruh teks landing (termasuk FAQ), "multi-platform marketing" ada',
+  !(marklo + dataMarklo).toLowerCase().includes('digital marketing') &&
+    marklo.includes('multi-platform marketing') &&
+    dataMarklo.includes('How can multi-platform marketing help my business?'),
+);
 
 // --- 11. Why Marketing. ---
 cek(
@@ -312,19 +337,23 @@ cek(
     !marklo.includes('catatanTampil'),
 );
 cek(
-  'Booking: form singkat punya 4 field — Nama, Perusahaan (opsional), Kontak, Topik',
+  'Booking: form singkat punya 5 field — Nama, Perusahaan (opsional), Kontak, Email, Topik (Email setelah Kontak)',
   marklo.includes('booking-nama') &&
     marklo.includes('booking-perusahaan') &&
     marklo.includes('booking-kontak') &&
+    marklo.includes('booking-email') &&
     marklo.includes('booking-topik') &&
     marklo.includes('Nama *') &&
     marklo.includes('Kontak *') &&
+    marklo.includes('Email *') &&
     marklo.includes('Topik *'),
 );
 cek(
-  'Booking: validasi form — Nama, Kontak, Topik wajib; Perusahaan opsional',
+  'Booking: validasi form — Nama, Kontak, Email, Topik wajib; Email format dasar; Perusahaan opsional',
   marklo.includes("galat.nama = 'Nama wajib diisi.'") &&
     marklo.includes("galat.kontak = 'Kontak wajib diisi.'") &&
+    marklo.includes("galat.email = 'Email wajib diisi.'") &&
+    marklo.includes("galat.email = 'Format email tidak valid.'") &&
     marklo.includes("galat.topik = 'Topik wajib diisi.'"),
 );
 cek(
@@ -335,17 +364,19 @@ cek(
     marklo.includes('setGalatKirim(galatSimpan)'),
 );
 cek(
-  'Booking: kartu memakai nama "Deals" + logo RRI — avatar "M" / "Marklo" hilang dari kartu',
-  bookingMarklo.includes('>Deals<') &&
+  'Booking: kartu memakai gambar logo Deals (aset sama dengan header) + logo RRI — teks "Deals" polos / avatar "M" / "Marklo" hilang dari kartu',
+  bookingMarklo.includes('src={LOGO_DEALS_DATA_URI}') &&
     bookingMarklo.includes('LOGO_RRI_LANDING_DATA_URI') &&
+    !bookingMarklo.includes('>Deals<') &&
     !bookingMarklo.includes('>Marklo<') &&
     !bookingMarklo.includes('from-rose-400 to-orange-300'),
 );
 
 // --- 13. Testimonials. ---
 cek(
-  'Testimonials: ribbon "#1 Marketing Agency 2025 Award Winner" + pill + heading',
-  marklo.includes('#1 Marketing Agency 2025 Award Winner') &&
+  'Testimonials: ribbon "#1 Radio with the Widest Network in Indonesia" + pill + heading (teks lama hilang)',
+  marklo.includes('#1 Radio with the Widest Network in Indonesia') &&
+    !marklo.includes('#1 Marketing Agency 2025 Award Winner') &&
     marklo.includes('<LabelPill>Testimonial</LabelPill>') &&
     marklo.includes("Why everyone&apos;s talking about our service"),
 );
@@ -489,9 +520,10 @@ cek(
 
 // --- 18. Jujur: sample + tanpa hotlink eksternal. ---
 cek(
-  'Sample: data Marklo dinyatakan SAMPLE/template, bukan data RRI',
-  dataMarklo.includes('CONTOH (SAMPLE)') &&
-    dataMarklo.includes('BUKAN data RRI'),
+  'Jujur: kampanye dinyatakan NYATA RRI, sisa data tetap SAMPLE/template bukan data RRI',
+  dataMarklo.includes('KAMPANYE NYATA RRI') &&
+    dataMarklo.includes('BUKAN data RRI') &&
+    !dataMarklo.includes('CONTOH (SAMPLE)'),
 );
 cek(
   'Sample: komponen menyatakan penyesuaian RRI diparkir',
@@ -534,11 +566,12 @@ cek(
   marklo.includes("{ label: 'Book a Free Call', id: 'booking' }"),
 );
 cek(
-  'BookingSubmit: App.tsx kirimBookingPublik menyimpan Meeting (MTG-, SATKER_PILOT, Nama → Contact Person/Rep, RRI Rep kosong)',
+  'BookingSubmit: App.tsx kirimBookingPublik menyimpan Meeting (MTG-, SATKER_PILOT, Nama → Contact Person/Rep, Email → contactPersonEmail, RRI Rep kosong)',
   app.includes('const kirimBookingPublik = async (') &&
     app.includes("idBerikutnya('MTG-', data.meeting.map((m) => m.id))") &&
     app.includes('satker: SATKER_PILOT') &&
     app.includes('clientRepresentatives: [input.nama.trim()]') &&
+    app.includes('contactPersonEmail: input.email.trim()') &&
     app.includes('rriRepresentatives: []'),
 );
 cek(
@@ -553,10 +586,11 @@ cek(
     firestoreStore.includes('doc(db, KOLEKSI.meeting, meeting.id)'),
 );
 cek(
-  'BookingRules: firestore.rules mengizinkan create publik tervalidasi ke /meeting/{id} (tanpa read/update/delete publik)',
+  'BookingRules: firestore.rules mengizinkan create publik tervalidasi ke /meeting/{id} (tanpa read/update/delete publik) — email wajib + format',
   rules.includes('match /meeting/{id}') &&
     rules.includes('allow create: if request.auth == null') &&
     rules.includes("request.resource.data.satker.kode == '41'") &&
+    rules.includes('contactPersonEmail') &&
     rules.includes("!('googleEventId' in request.resource.data)"),
 );
 
