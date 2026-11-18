@@ -479,6 +479,15 @@ cek(
     !bookingMarklo.includes('from-rose-400 to-orange-300'),
 );
 
+// Potongan data testimoni saja (PR #88): 'Marklo' masih ada di komentar,
+// nama tipe/identifier, dan nama file di luar potongan ini — bukan teks UI.
+// Cek kata 'Marklo' memakai batas kata (\b) supaya identifier
+// 'TestimoniMarklo' di baris deklarasi tidak ikut terhitung.
+const testimoni = dataMarklo.slice(
+  dataMarklo.indexOf('export const TESTIMONI_MARKLO'),
+  dataMarklo.indexOf('export interface FaqMarklo'),
+);
+
 // --- 13. Testimonials. ---
 cek(
   'Testimonials: ribbon "#1 Radio with the Widest Network in Indonesia" + pill + heading (teks lama hilang)',
@@ -488,11 +497,38 @@ cek(
     marklo.includes("Why everyone&apos;s talking about our service"),
 );
 cek(
-  'Testimonials: 6 kartu + 1 unggulan merah (Daniel Lee/CEO Beskon)',
-  dataMarklo.includes("nama: 'Gabriel Ross'") &&
-    dataMarklo.includes("nama: 'Daniel Lee'") &&
+  'Testimonials: 6 kartu + 1 unggulan merah (Siti Rahmawati/CEO Beskon)',
+  dataMarklo.includes("nama: 'Budi Santoso'") &&
+    dataMarklo.includes("nama: 'Siti Rahmawati'") &&
     dataMarklo.includes('unggulan: true') &&
     marklo.includes('bg-mk-aksen p-7 text-white'),
+);
+cek(
+  'Testimonials: kata "Marklo" hilang, nama Indonesia baru ada, nama lama hilang (PR #88)',
+  !/\bMarklo\b/.test(testimoni) &&
+    testimoni.includes("nama: 'Budi Santoso'") &&
+    testimoni.includes("nama: 'Agus Wijaya'") &&
+    testimoni.includes("nama: 'Rizky Pratama'") &&
+    testimoni.includes("nama: 'Dewi Lestari'") &&
+    testimoni.includes("nama: 'Maya Kusuma'") &&
+    testimoni.includes("nama: 'Andi Firmansyah'") &&
+    testimoni.includes("nama: 'Siti Rahmawati'") &&
+    testimoni.includes("inisial: 'BS'") &&
+    testimoni.includes("inisial: 'AW'") &&
+    testimoni.includes("inisial: 'RP'") &&
+    testimoni.includes("inisial: 'MK'") &&
+    testimoni.includes("inisial: 'AF'") &&
+    testimoni.includes("inisial: 'SR'") &&
+    testimoni.includes('RRI rebuilt our funnel from scratch') &&
+    testimoni.includes('We tried three agencies before RRI.') &&
+    testimoni.includes('RRI is the growth partner we had been looking for.') &&
+    !testimoni.includes("nama: 'Gabriel Ross'") &&
+    !testimoni.includes("nama: 'Samuel M'") &&
+    !testimoni.includes("nama: 'Pranav K'") &&
+    !testimoni.includes("nama: 'David L'") &&
+    !testimoni.includes("nama: 'Ethan W'") &&
+    !testimoni.includes("nama: 'James R'") &&
+    !testimoni.includes("nama: 'Daniel Lee'"),
 );
 
 // --- 14. FAQ. ---
