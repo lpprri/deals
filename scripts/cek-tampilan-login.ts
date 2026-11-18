@@ -1,0 +1,146 @@
+// Verifikasi redesign halaman login (PR login-redesign-mixpanel,
+// disetujui pengguna 2026-11-18 15:58 WIB): meniru TATA LETAK halaman
+// sign-up/login Mixpanel (kolom tunggal terpusat ~400px, BUKAN
+// split-screen) dengan re-skin warna RRI — Navy #0D2569 + Biru #2573E2.
+// Asersi:
+// - Kolom terpusat max-w-[400px]; split-screen lama HILANG (tidak ada
+//   lagi kolom form lg:w-[49%] / panel foto lg:w-[51%]); panel foto
+//   gedung RRI DIHAPUS dari Login.tsx (GEDUNG_RRI_DATA_URI tidak lagi
+//   diimpor di sini; src/lib/gedungRri.ts tetap dipakai Beranda.tsx).
+// - Logo RRI di tengah atas + teks "Radio Republik Indonesia"; heading
+//   "Welcome Back" + subjudul lama dipertahankan.
+// - Keterangan akses (versi LENGKAP, keputusan pengguna 15:53 WIB,
+//   verbatim) dengan ikon gembok, di bawah subjudul, di atas kolom email.
+// - Field Email + Password gaya Mixpanel: label tebal gelap di atas,
+//   input pill putih (rounded-full), border tipis, placeholder abu-abu;
+//   password tetap di layar yang sama (TIDAK ada alur email-first).
+// - Satu tombol pill full-width Biru #2573E2 "Sign in" (hover navy).
+// - Tombol sudut kiri atas "Back to Landing Page" (prop onKembali,
+//   disambungkan di App.tsx ke halamanPublik 'beranda').
+// - HANYA login email: TIDAK ada login sosial (tanpa tombol Google),
+//   TIDAK ada sign-up klien; TIDAK ada warna ungu/violet pastel
+//   template (tidak ada class violet-/purple- dan tidak ada #8263FF).
+// - Latar warm off-white #f5f2f2 + gradasi pucat biru/navy di bawah.
+// - Mode contoh/dummy TETAP dipertahankan (tombol Operator dummy).
+// - Tautan publik Lacak/Ajukan TETAP tidak ada di halaman login
+//   (keputusan pengguna 2026-11-15).
+// Skrip ini membaca berkas sebagai teks. Keluar bukan-nol bila ada
+// asersi gagal.
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
+
+// Dijalankan dari root repo (pola skrip cek lain).
+const baca = (relatif: string) =>
+  readFileSync(join(process.cwd(), relatif), 'utf8');
+const login = baca('src/components/Login.tsx');
+const app = baca('src/App.tsx');
+
+let gagal = 0;
+const cek = (nama: string, lolos: boolean, detail = '') => {
+  console.log(`${lolos ? 'OK' : 'GAGAL'} ${nama}${detail ? `: ${detail}` : ''}`);
+  if (!lolos) gagal += 1;
+};
+
+cek(
+  'Login: kolom terpusat max-w-[400px] (bukan split-screen)',
+  login.includes('max-w-[400px]') &&
+    login.includes('items-center justify-center'),
+);
+cek(
+  'Login: split-screen lama hilang (tidak ada lg:w-[49%] / lg:w-[51%])',
+  !login.includes('lg:w-[49%]') && !login.includes('lg:w-[51%]'),
+);
+cek(
+  'Login: panel foto gedung DIHAPUS (tidak lagi diimpor dari gedungRri)',
+  !login.includes("from '../lib/gedungRri'") &&
+    !login.includes('GEDUNG_RRI_DATA_URI'),
+);
+cek(
+  'Login: logo RRI di tengah atas + teks "Radio Republik Indonesia"',
+  login.includes('src="/logo-rri.svg"') &&
+    login.includes('mx-auto') &&
+    login.includes('Radio Republik Indonesia'),
+);
+cek(
+  'Login: heading "Welcome Back" + subjudul lama dipertahankan',
+  login.includes('Welcome Back') &&
+    login.includes('Enter your credentials to access your account'),
+);
+cek(
+  'Login: keterangan akses lengkap (verbatim) + ikon gembok',
+  login.includes('Only designated officers can sign in here.') &&
+    login.includes("If you&apos;re a") &&
+    login.includes(
+      'please use Track or Submit a Request on the landing page.',
+    ) &&
+    login.includes('Lock'),
+);
+cek(
+  'Login: field Email + Password gaya Mixpanel (label tebal di atas, input pill putih)',
+  login.includes('label') &&
+    login.includes('font-bold text-[#0d2569]') &&
+    login.includes('rounded-full border border-[#0d2569]/20 bg-white'),
+);
+cek(
+  'Login: password di layar yang sama (tidak ada alur email-first)',
+  login.includes('type="password"') &&
+    login.includes('autoComplete="current-password"') &&
+    !login.includes('Continue') &&
+    !login.includes('Passkey'),
+);
+cek(
+  'Login: tombol pill full-width Biru "Sign in" (hover navy)',
+  login.includes('rounded-full bg-[#2573e2]') &&
+    login.includes("hover:bg-[#0d2569]") &&
+    login.includes("'Sign in'") &&
+    login.includes("'Checking…'"),
+);
+cek(
+  'Login: tombol sudut kiri atas "Back to Landing Page" (prop onKembali)',
+  login.includes('Back to Landing Page') &&
+    login.includes('onKembali?: () => void') &&
+    login.includes('absolute left-4 top-4'),
+);
+cek(
+  'Login: App.tsx menyambungkan onKembali ke halamanPublik beranda',
+  app.includes("onKembali={() => setHalamanPublik('beranda')}"),
+);
+cek(
+  'Login: HANYA login email — tanpa tombol Google / sign-up klien',
+  !login.includes('Continue with Google') &&
+    !login.includes('>Google<') &&
+    !login.includes('Sign up') &&
+    !login.includes('Sign Up'),
+);
+cek(
+  'Login: tanpa ungu/violet pastel template (tidak ada class violet-/purple- atau #8263FF)',
+  !login.includes('violet-') &&
+    !login.includes('purple-') &&
+    !login.toLowerCase().includes('#8263ff'),
+);
+cek(
+  'Login: latar warm off-white + gradasi pucat biru/navy di bawah',
+  login.includes('bg-[#f5f2f2]') &&
+    login.includes('bg-gradient-to-t') &&
+    login.includes('from-[#2573e2]/15') &&
+    login.includes('via-[#0d2569]/10'),
+);
+cek(
+  'Login: mode contoh/dummy TETAP dipertahankan',
+  login.includes('onLoginDummy') &&
+    login.includes('DUMMY_USERS') &&
+    login.includes('Sign in as (Sample):'),
+);
+cek(
+  'Login: tautan/tombol publik Lacak/Ajukan TETAP tidak ada (hanya disebut di keterangan akses, bukan tautan)',
+  !login.includes('<a ') &&
+    !login.includes("setHalamanPublik('lacak')") &&
+    !login.includes("setHalamanPublik('ajukan')") &&
+    !login.includes('Ajukan Permohonan'),
+);
+
+if (gagal > 0) {
+  console.log(`\n${gagal} asersi GAGAL`);
+  process.exit(1);
+}
+console.log('\nSemua asersi lolos.');

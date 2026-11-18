@@ -1,48 +1,62 @@
-// Halaman login — pola "Desktop sign up and login pages by EditorM"
-// (Figma Community, Bhakthi Manjari, CC BY 4.0, fileKey
-// KqMNx1pEplshja5mtMTZC7): split-screen 50/50 — form di kiri, panel
-// foto full-height di kanan TANPA teks/overlay di atas foto; judul besar,
-// field berlabel, tombol utama penuh lebar.
-// HANYA polanya yang dipakai, dengan penyesuaian aplikasi ini: bahasa
-// Indonesia; palet tetap 3 warna RRI (Biru #2573E2, Navy #0D2569, Putih);
-// tombol Biru; TIDAK ada login sosial, TIDAK ada Forgot password (belum
-// ada alurnya), TIDAK ada checkbox Remember (persistensi Firebase sudah
-// default), TIDAK ada signup klien. Tautan publik Lacak/Ajukan TIDAK ada
-// di halaman ini lagi (keputusan pengguna 2026-11-15) — halaman publik
-// tersebut dijangkau lewat landing page, yang kini menjadi pintu masuk
-// publik aplikasi.
+// Halaman login — REDESAIN 2026-11-18 (PR login-redesign-mixpanel,
+// disetujui pengguna 15:58 WIB): meniru TATA LETAK halaman sign-up/login
+// Mixpanel (kolom tunggal terpusat ~400px, BUKAN split-screen) dengan
+// re-skin warna RRI — Navy #0D2569 + Biru #2573E2, BUKAN ungu/violet
+// pastel template. Latar warm off-white (#f5f2f2) dengan gradasi pucat
+// biru/navy yang halus di bagian bawah (re-skin gradasi pastel bawah
+// template Mixpanel).
+// - Logo RRI di tengah atas + teks "Radio Republik Indonesia".
+// - Heading "Welcome Back" + subjudul yang sama seperti sebelumnya.
+// - Keterangan akses (keputusan pengguna 15:53 WIB, versi LENGKAP,
+//   verbatim) dengan ikon gembok di bawah subjudul, di atas kolom email.
+// - Field Email + Password gaya Mixpanel: label tebal gelap di atas
+//   field, input pill putih, border tipis, placeholder abu-abu.
+// - Satu tombol pill full-width Biru "Sign in" (hover navy).
+// - Tombol sudut kiri atas kembali ke landing page (prop onKembali).
+// - Panel foto gedung RRI di kanan DIHAPUS (template tidak punya side
+//   panel); src/lib/gedungRri.ts tetap dipakai Beranda.tsx, jangan hapus.
+// HANYA login email operator: TIDAK ada login sosial (tanpa tombol
+// Google), TIDAK ada sign-up klien, TIDAK ada alur email-first (password
+// tetap di layar yang sama), TIDAK ada Forgot password (belum ada
+// alurnya), TIDAK ada checkbox Remember (persistensi Firebase sudah
+// default). Tautan publik Lacak/Ajukan TIDAK ada di halaman ini
+// (keputusan pengguna 2026-11-15) — halaman publik tersebut dijangkau
+// lewat landing page.
 // KOREKSI 2026-11-15: klien tidak punya login/akun; halaman ini hanya
 // untuk Operator. Akses klien lewat Lacak (kode transaksi) dan Ajukan
 // Permohonan (form publik).
-// Panel kanan memakai foto gedung Kantor Pusat RRI Jakarta
-// (src/lib/gedungRri.ts — data URI base64, karena push snapshot GitHub
-// hanya menerima file teks). Logo RRI kecil tetap di atas form.
 // Bila Firebase terkonfigurasi: form email + kata sandi (Firebase Auth).
 // Bila belum: mode contoh dengan 1 tombol Operator dummy saja.
 // Halaman ini TIDAK menampilkan konfigurasi Firebase apa pun.
 
 import { useState } from 'react';
-import type { FormEvent, ReactNode } from 'react';
+import type { FormEvent, InputHTMLAttributes } from 'react';
+import { ArrowLeft, Lock } from 'lucide-react';
 import type { DummyUser } from '../lib/dummyUsers';
 import { DUMMY_USERS } from '../lib/dummyUsers';
 import { isFirebaseConfigured } from '../lib/firebaseApp';
-import { GEDUNG_RRI_DATA_URI } from '../lib/gedungRri';
 import { labelJabatan } from '../lib/labels';
 import { FASE_TERBANGUN } from '../lib/master';
 import { LABEL_PERAN } from '../lib/permissions';
 import { Peringatan } from './ui';
 
-const inputDalam =
-  'w-full border-0 bg-transparent px-1 py-1 text-sm text-[#0d2569] outline-none placeholder:text-[#0d2569]/40';
-
-/** Field dengan label mengambang memotong garis border atas (pola PR #15). */
-function Kolom({ label, children }: { label: string; children: ReactNode }) {
+/** Field gaya Mixpanel: label tebal gelap di atas, input pill putih. */
+function Kolom({
+  label,
+  ...inputProps
+}: { label: string } & InputHTMLAttributes<HTMLInputElement>) {
   return (
-    <div className="relative rounded-md border border-[#2573e2]/30 bg-white px-3 pb-2 pt-2.5 focus-within:border-[#2573e2]">
-      <span className="absolute -top-2 left-3 bg-white px-1 text-xs font-semibold text-[#0d2569]">
+    <div>
+      <label
+        htmlFor={inputProps.id}
+        className="mb-1.5 block text-sm font-bold text-[#0d2569]"
+      >
         {label}
-      </span>
-      {children}
+      </label>
+      <input
+        {...inputProps}
+        className="w-full rounded-full border border-[#0d2569]/20 bg-white px-4 py-2.5 text-sm text-[#0d2569] outline-none placeholder:text-[#0d2569]/40 focus:border-[#2573e2] focus:ring-2 focus:ring-[#2573e2]/20"
+      />
     </div>
   );
 }
@@ -50,11 +64,14 @@ function Kolom({ label, children }: { label: string; children: ReactNode }) {
 export default function Login({
   onLoginAuth,
   onLoginDummy,
+  onKembali,
 }: {
   /** Dipanggil saat Firebase terkonfigurasi; kembalikan pesan error atau null bila sukses. */
   onLoginAuth: (email: string, kataSandi: string) => Promise<string | null>;
   /** Dipanggil saat mode contoh (Firebase belum terkonfigurasi). */
   onLoginDummy: (user: DummyUser) => void;
+  /** Dipanggil saat tombol kembali ditekan (kembali ke landing page). */
+  onKembali?: () => void;
 }) {
   const [email, setEmail] = useState('');
   const [kataSandi, setKataSandi] = useState('');
@@ -76,101 +93,126 @@ export default function Login({
   const operatorDummy = DUMMY_USERS[0];
 
   return (
-    <div className="flex min-h-screen bg-white">
-      {/* Kolom form (kiri, ~49%) */}
-      <div className="flex w-full items-center justify-center px-6 py-10 lg:w-[49%] lg:shrink-0">
-        <div className="w-full max-w-md">
-          <img src="/logo-rri.svg" alt="Logo RRI" className="h-12 w-auto" />
-          <h1 className="mt-6 text-4xl font-bold text-[#0d2569]">
-            Welcome Back
-          </h1>
-          <p className="mt-2 text-sm text-[#0d2569]/70">
-            Enter your credentials to access your account
+    <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-[#f5f2f2] px-4 py-16">
+      {/* Gradasi pucat biru/navy di bagian bawah (re-skin gradasi pastel
+          bawah template Mixpanel) — dekoratif saja. */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-x-0 bottom-0 h-80 bg-gradient-to-t from-[#2573e2]/15 via-[#0d2569]/10 to-transparent"
+      />
+
+      {/* Tombol sudut kiri atas kembali ke landing page. */}
+      {onKembali && (
+        <button
+          type="button"
+          onClick={onKembali}
+          className="absolute left-4 top-4 z-10 inline-flex items-center gap-1.5 rounded-full border border-[#0d2569]/15 bg-white/80 px-3 py-2 text-xs font-semibold text-[#0d2569] hover:border-[#2573e2] hover:text-[#2573e2] sm:left-6 sm:top-6"
+        >
+          <ArrowLeft className="h-3.5 w-3.5" aria-hidden />
+          Back to Landing Page
+        </button>
+      )}
+
+      {/* Kolom terpusat ~400px. */}
+      <div className="relative w-full max-w-[400px]">
+        <div className="text-center">
+          <img
+            src="/logo-rri.svg"
+            alt="Logo RRI"
+            className="mx-auto h-14 w-auto"
+          />
+          <p className="mt-3 text-sm font-semibold text-[#0d2569]">
+            Radio Republik Indonesia
           </p>
-
-          {isFirebaseConfigured ? (
-            <>
-              <form onSubmit={kirimForm} className="mt-8 space-y-5">
-                <Kolom label="Email">
-                  <input
-                    type="email"
-                    required
-                    autoComplete="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    className={inputDalam}
-                    placeholder="your email address"
-                  />
-                </Kolom>
-                <Kolom label="Password">
-                  <input
-                    type="password"
-                    required
-                    autoComplete="current-password"
-                    value={kataSandi}
-                    onChange={(e) => setKataSandi(e.target.value)}
-                    className={inputDalam}
-                    placeholder="Password"
-                  />
-                </Kolom>
-                {pesanError && (
-                  <p className="rounded-md bg-[#2573e2]/10 px-3 py-2 text-sm font-semibold text-[#0d2569]">
-                    {pesanError}
-                  </p>
-                )}
-                <button
-                  type="submit"
-                  disabled={sedangMasuk}
-                  className="w-full rounded-md bg-[#2573e2] px-4 py-3 text-sm font-bold text-white hover:bg-[#0d2569] disabled:opacity-60"
-                >
-                  {sedangMasuk ? 'Checking…' : 'Sign in'}
-                </button>
-              </form>
-            </>
-          ) : (
-            <>
-              <div className="mt-8">
-                <Peringatan teks="Sample mode — sign in as Operator (Sample). In production, sign-in uses Firebase Auth; this dummy profile is only for development." />
-              </div>
-              <p className="mt-6 text-sm font-semibold text-[#0d2569]">
-                Sign in as (Sample):
-              </p>
-              <div className="mt-3">
-                <button
-                  type="button"
-                  onClick={() => onLoginDummy(operatorDummy)}
-                  className="w-full rounded-md border border-[#2573e2]/20 bg-white p-4 text-left hover:border-[#2573e2] hover:bg-[#2573e2]/5"
-                >
-                  <p className="text-sm font-bold text-[#0d2569]">
-                    {operatorDummy.nama}
-                  </p>
-                  <p className="mt-1 text-xs text-[#0d2569]/70">
-                    {labelJabatan(operatorDummy.jabatan)}
-                  </p>
-                  <p className="mt-2">
-                    <span className="inline-flex items-center gap-1 rounded bg-[#2573e2]/10 px-2 py-0.5 text-xs font-semibold text-[#0d2569]">
-                      {LABEL_PERAN[operatorDummy.peran]}
-                    </span>
-                  </p>
-                </button>
-              </div>
-              <p className="mt-6 text-center text-xs text-[#0d2569]/60">
-                No password — sample mode is for development only{' '}
-                {FASE_TERBANGUN}.
-              </p>
-            </>
-          )}
-
         </div>
-      </div>
 
-      {/* Panel foto gedung (kanan, ~51%) — full-height, tanpa teks/overlay */}
-      <div className="hidden lg:block lg:w-[51%]">
-        <img
-          src={GEDUNG_RRI_DATA_URI}
-          alt="Gedung Kantor Pusat RRI Jakarta"
-          className="h-full w-full object-cover"
-        />
+        <h1 className="mt-8 text-center text-3xl font-bold text-[#0d2569]">
+          Welcome Back
+        </h1>
+        <p className="mt-2 text-center text-sm text-[#0d2569]/70">
+          Enter your credentials to access your account
+        </p>
+
+        {/* Keterangan akses (versi lengkap, keputusan pengguna 15:53 WIB). */}
+        <div className="mt-6 flex items-start gap-2.5 rounded-xl border border-[#2573e2]/25 bg-white px-3.5 py-3">
+          <Lock
+            className="mt-0.5 h-4 w-4 shrink-0 text-[#2573e2]"
+            aria-hidden
+          />
+          <p className="text-xs leading-relaxed text-[#0d2569]/80">
+            Only designated officers can sign in here. If you&apos;re a
+            client, please use Track or Submit a Request on the landing page.
+          </p>
+        </div>
+
+        {isFirebaseConfigured ? (
+          <form onSubmit={kirimForm} className="mt-6 space-y-5">
+            <Kolom
+              label="Email"
+              id="login-email"
+              type="email"
+              required
+              autoComplete="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="your email address"
+            />
+            <Kolom
+              label="Password"
+              id="login-password"
+              type="password"
+              required
+              autoComplete="current-password"
+              value={kataSandi}
+              onChange={(e) => setKataSandi(e.target.value)}
+              placeholder="Password"
+            />
+            {pesanError && (
+              <p className="rounded-md bg-[#2573e2]/10 px-3 py-2 text-sm font-semibold text-[#0d2569]">
+                {pesanError}
+              </p>
+            )}
+            <button
+              type="submit"
+              disabled={sedangMasuk}
+              className="w-full rounded-full bg-[#2573e2] px-4 py-3 text-sm font-bold text-white hover:bg-[#0d2569] disabled:opacity-60"
+            >
+              {sedangMasuk ? 'Checking…' : 'Sign in'}
+            </button>
+          </form>
+        ) : (
+          <>
+            <div className="mt-6">
+              <Peringatan teks="Sample mode — sign in as Operator (Sample). In production, sign-in uses Firebase Auth; this dummy profile is only for development." />
+            </div>
+            <p className="mt-6 text-sm font-semibold text-[#0d2569]">
+              Sign in as (Sample):
+            </p>
+            <div className="mt-3">
+              <button
+                type="button"
+                onClick={() => onLoginDummy(operatorDummy)}
+                className="w-full rounded-md border border-[#2573e2]/20 bg-white p-4 text-left hover:border-[#2573e2] hover:bg-[#2573e2]/5"
+              >
+                <p className="text-sm font-bold text-[#0d2569]">
+                  {operatorDummy.nama}
+                </p>
+                <p className="mt-1 text-xs text-[#0d2569]/70">
+                  {labelJabatan(operatorDummy.jabatan)}
+                </p>
+                <p className="mt-2">
+                  <span className="inline-flex items-center gap-1 rounded bg-[#2573e2]/10 px-2 py-0.5 text-xs font-semibold text-[#0d2569]">
+                    {LABEL_PERAN[operatorDummy.peran]}
+                  </span>
+                </p>
+              </button>
+            </div>
+            <p className="mt-6 text-center text-xs text-[#0d2569]/60">
+              No password — sample mode is for development only{' '}
+              {FASE_TERBANGUN}.
+            </p>
+          </>
+        )}
       </div>
     </div>
   );

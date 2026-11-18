@@ -917,6 +917,7 @@ export default function App() {
     }
     return (
       <Login
+        onKembali={() => setHalamanPublik('beranda')}
         onLoginAuth={async (email, kataSandi) => {
           try {
             const appUser = await masukDenganEmail(email, kataSandi);
