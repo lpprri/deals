@@ -2,9 +2,10 @@
 // (PR landing-marklo-clone, 2026-11-17).
 //
 // KECUALI KAMPANYE_MARKLO: sejak PR #80 (2026-11-18) daftar kampanye di bawah
-// adalah KAMPANYE NYATA RRI — nama klien + judul kampanye asli (Bahasa
-// Indonesia, sesuai daftar user); deskripsi berbahasa Inggris ditulis dari
-// judul kampanye itu saja, tanpa angka/klaim hasil yang dikarang.
+// adalah KAMPANYE NYATA RRI — nama klien asli (Bahasa Indonesia, sesuai
+// daftar user); deskripsi berbahasa Inggris ditulis dari judul kampanye
+// aslinya, tanpa angka/klaim hasil yang dikarang. Sejak PR #86 judul kampanye
+// tidak lagi tampil di kartu (hanya nama klien + tag layanan + deskripsi).
 // KECUALI KOTA_SATKER_MARKLO: sejak PR #82 (2026-11-18) daftar kota di bawah
 // adalah KOTA SATKER NYATA RRI — diturunkan langsung dari DAFTAR_SATKER
 // (master data nasional, src/lib/satker.ts).
@@ -23,8 +24,6 @@ import type { LogoLayanan } from './logoLayanan';
 
 export interface KampanyeMarklo {
   klien: string;
-  /** Judul kampanye asli (Bahasa Indonesia, sesuai daftar user). */
-  judul: string;
   layanan: string;
   /** Kelas gradien pastel untuk visual kartu (placeholder CSS, bukan foto). */
   gradien: string;
@@ -35,7 +34,6 @@ export interface KampanyeMarklo {
 export const KAMPANYE_MARKLO: KampanyeMarklo[] = [
   {
     klien: 'PLN',
-    judul: 'Spot Iklan Edukasi Bahaya & Manfaat Listrik',
     layanan: 'Radio Spot',
     gradien: 'from-rose-200 via-pink-100 to-orange-100',
     inisial: 'P',
@@ -44,7 +42,6 @@ export const KAMPANYE_MARKLO: KampanyeMarklo[] = [
   },
   {
     klien: 'Taspen',
-    judul: 'Adlibs Waspada Penipuan Mengatasnamakan PT Taspen',
     layanan: 'Adlibs',
     gradien: 'from-sky-200 via-blue-100 to-indigo-100',
     inisial: 'T',
@@ -53,7 +50,6 @@ export const KAMPANYE_MARKLO: KampanyeMarklo[] = [
   },
   {
     klien: 'Alfamart',
-    judul: 'Promosi Alfamart',
     layanan: 'Promotion',
     gradien: 'from-violet-200 via-purple-100 to-fuchsia-100',
     inisial: 'A',
@@ -62,7 +58,6 @@ export const KAMPANYE_MARKLO: KampanyeMarklo[] = [
   },
   {
     klien: 'Medco',
-    judul: 'Goes to Campus "Ngobrol Seputar Gas: Integritas dalam Industri Hulu Migas"',
     layanan: 'Adlibs & Interactive Dialogue',
     gradien: 'from-emerald-200 via-teal-100 to-lime-100',
     inisial: 'M',
@@ -71,7 +66,6 @@ export const KAMPANYE_MARKLO: KampanyeMarklo[] = [
   },
   {
     klien: 'Bank Indonesia',
-    judul: 'Event Digital Kito Galo 7th X Gemilang Palembang Raya 2026',
     layanan: 'Adlibs',
     gradien: 'from-rose-200 via-pink-100 to-orange-100',
     inisial: 'B',
@@ -80,7 +74,6 @@ export const KAMPANYE_MARKLO: KampanyeMarklo[] = [
   },
   {
     klien: 'Perempuan Indonesia Maju (PIM)',
-    judul: '"Parade Kebaya Songket: Pesona Perempuan Indonesia"',
     layanan: 'Interactive Dialogue',
     gradien: 'from-sky-200 via-blue-100 to-indigo-100',
     inisial: 'P',
@@ -89,7 +82,6 @@ export const KAMPANYE_MARKLO: KampanyeMarklo[] = [
   },
   {
     klien: 'BNN Sumsel',
-    judul: 'Re-Link (Rehabilitasi Keliling) & Pindang (Pelayanan Aplikasi)',
     layanan: 'Radio Spot',
     gradien: 'from-violet-200 via-purple-100 to-fuchsia-100',
     inisial: 'B',
