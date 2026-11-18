@@ -49,7 +49,6 @@
 // tidak dipakai di route `/` untuk sementara.
 
 import {
-  useCallback,
   useEffect,
   useMemo,
   useRef,
@@ -219,7 +218,7 @@ export default function MarkloLanding({ onLogin, onKirimBooking }: MarkloLanding
       <Header onLogin={onLogin} />
       <main>
         <Hero />
-        <CarouselKampanye />
+        <MarqueeKampanye />
         <Pernyataan />
         <Statistik />
         <Proses />
@@ -372,91 +371,53 @@ function Hero() {
   );
 }
 
-/* ================= Carousel kampanye ================= */
+/* ================= Marquee kampanye =================
+   Dulu carousel: lompat satu kartu tiap 5 detik + tombol prev/next
+   (PR landing-kampanye-marquee). Sekarang marquee kontinu seperti
+   strip logo mitra: 7 kartu diduplikasi, animasi CSS linear infinite
+   (.mk-marquee-kampanye di src/index.css), tanpa tombol geser.
+   Jeda saat hover mengikuti pola marquee logo. */
 
-function CarouselKampanye() {
-  const ref = useRef<HTMLDivElement>(null);
-  const [jeda, setJeda] = useState(false);
-  const gulirKartu = useCallback((arah: 1 | -1) => {
-    const el = ref.current;
-    if (!el) return;
-    const kartu = el.querySelector<HTMLElement>('[data-kartu]');
-    const lebar = kartu ? kartu.offsetWidth + 24 : 360;
-    const maks = el.scrollWidth - el.clientWidth;
-    let berikut = el.scrollLeft + arah * lebar;
-    if (berikut > maks + 4) berikut = 0;
-    if (berikut < -4) berikut = maks;
-    el.scrollTo({ left: berikut, behavior: 'smooth' });
-  }, []);
-  useEffect(() => {
-    if (jeda) return;
-    const id = window.setInterval(() => gulirKartu(1), 5000);
-    return () => window.clearInterval(id);
-  }, [jeda, gulirKartu]);
+function MarqueeKampanye() {
   return (
     <section id="work" className="bg-white pb-16">
       <div className="mx-auto max-w-7xl px-4 sm:px-6">
         <Reveal>
-          <div className="flex items-end justify-between gap-4">
-            <h2 className="text-2xl font-extrabold tracking-tight text-black sm:text-3xl">
-              Campaigns that delivered.
-            </h2>
-            <div className="flex shrink-0 gap-2">
-              <button
-                type="button"
-                onClick={() => gulirKartu(-1)}
-                aria-label="Previous campaign"
-                className="flex h-10 w-10 items-center justify-center rounded-full border border-slate-300 text-black transition hover:border-black hover:bg-black hover:text-white"
-              >
-                <ChevronLeft className="h-5 w-5" aria-hidden="true" />
-              </button>
-              <button
-                type="button"
-                onClick={() => gulirKartu(1)}
-                aria-label="Next campaign"
-                className="flex h-10 w-10 items-center justify-center rounded-full border border-slate-300 text-black transition hover:border-black hover:text-white"
-              >
-                <ChevronRight className="h-5 w-5" aria-hidden="true" />
-              </button>
-            </div>
-          </div>
+          <h2 className="text-2xl font-extrabold tracking-tight text-black sm:text-3xl">
+            Campaigns that delivered.
+          </h2>
         </Reveal>
         <Reveal tunda={120}>
-          <div
-            ref={ref}
-            onMouseEnter={() => setJeda(true)}
-            onMouseLeave={() => setJeda(false)}
-            onFocus={() => setJeda(true)}
-            onBlur={() => setJeda(false)}
-            className="scrollbar-tersembunyi mt-8 flex snap-x snap-mandatory gap-6 overflow-x-auto pb-2"
-          >
-            {KAMPANYE_MARKLO.map((k) => (
-              <article
-                key={k.klien}
-                data-kartu
-                className="w-[85%] shrink-0 snap-start overflow-hidden rounded-[20px] bg-white shadow-lg ring-1 ring-slate-200 transition hover:-translate-y-1 hover:shadow-xl sm:w-[420px]"
-              >
-                <div className="relative h-60 overflow-hidden" aria-hidden="true">
-                  <img
-                    src={FOTO_KAMPANYE[k.klien]}
-                    alt=""
-                    loading="lazy"
-                    className="h-full w-full object-cover"
-                  />
-                </div>
-                <div className="flex items-start justify-between gap-4 p-5">
-                  <div>
-                    <h3 className="text-lg font-extrabold text-black">{k.klien}</h3>
-                    <p className="mt-1 text-sm leading-relaxed text-slate-500">
-                      {k.ringkasan}
-                    </p>
+          <div className="relative mt-8 overflow-hidden py-2">
+            <div className="mk-marquee-kampanye flex w-max items-start gap-6">
+              {[...KAMPANYE_MARKLO, ...KAMPANYE_MARKLO].map((k, i) => (
+                <article
+                  key={`${k.klien}-${i}`}
+                  aria-hidden={i >= KAMPANYE_MARKLO.length}
+                  className="w-[320px] shrink-0 overflow-hidden rounded-[20px] bg-white shadow-lg ring-1 ring-slate-200 transition hover:-translate-y-1 hover:shadow-xl sm:w-[420px]"
+                >
+                  <div className="relative h-60 overflow-hidden" aria-hidden="true">
+                    <img
+                      src={FOTO_KAMPANYE[k.klien]}
+                      alt=""
+                      loading="lazy"
+                      className="h-full w-full object-cover"
+                    />
                   </div>
-                  <span className="shrink-0 rounded-full bg-mk-peach px-3 py-1 text-xs font-bold text-mk-aksen">
-                    {k.layanan}
-                  </span>
-                </div>
-              </article>
-            ))}
+                  <div className="flex items-start justify-between gap-4 p-5">
+                    <div>
+                      <h3 className="text-lg font-extrabold text-black">{k.klien}</h3>
+                      <p className="mt-1 text-sm leading-relaxed text-slate-500">
+                        {k.ringkasan}
+                      </p>
+                    </div>
+                    <span className="shrink-0 rounded-full bg-mk-peach px-3 py-1 text-xs font-bold text-mk-aksen">
+                      {k.layanan}
+                    </span>
+                  </div>
+                </article>
+              ))}
+            </div>
           </div>
         </Reveal>
       </div>
@@ -794,7 +755,14 @@ function Perbandingan() {
           </Reveal>
         </div>
         <Reveal tunda={200}>
-          <div className="relative mt-12 overflow-hidden py-5">
+          {/* Baris social proof di atas strip logo (permintaan pengguna
+              16:42 WIB): teks persis "Trusted by hundreds of companies
+              in Indonesia" — bukan "thousands worldwide" seperti template.
+              Putih, tebal, rata tengah, di atas marquee. */}
+          <p className="mt-12 text-center text-sm font-bold tracking-wide text-white">
+            Trusted by hundreds of companies in Indonesia
+          </p>
+          <div className="relative mt-6 overflow-hidden py-5">
             <div className="mk-marquee flex w-max items-center gap-12">
               {[...LOGO_KLIEN_MARKLO, ...LOGO_KLIEN_MARKLO].map((logo, i) => (
                 <span

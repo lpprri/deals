@@ -5,7 +5,9 @@
 // pastel template. Latar warm off-white (#f5f2f2) dengan gradasi pucat
 // biru/navy yang halus di bagian bawah (re-skin gradasi pastel bawah
 // template Mixpanel).
-// - Logo RRI di tengah atas + teks "Radio Republik Indonesia".
+// - Logo lockup lengkap RRI (mark "rri" + teks di dalam gambar,
+//   data URI di src/lib/logoRriLockup.ts) di tengah atas; teks terpisah
+//   di bawah logo DIHAPUS supaya tidak duplikat dengan teks di gambar.
 // - Heading "Welcome Back" + subjudul yang sama seperti sebelumnya.
 // - Keterangan akses (keputusan pengguna 15:53 WIB, versi LENGKAP,
 //   verbatim) dengan ikon gembok di bawah subjudul, di atas kolom email.
@@ -36,6 +38,7 @@ import type { DummyUser } from '../lib/dummyUsers';
 import { DUMMY_USERS } from '../lib/dummyUsers';
 import { isFirebaseConfigured } from '../lib/firebaseApp';
 import { labelJabatan } from '../lib/labels';
+import { LOGO_RRI_LOCKUP_DATA_URI } from '../lib/logoRriLockup';
 import { FASE_TERBANGUN } from '../lib/master';
 import { LABEL_PERAN } from '../lib/permissions';
 import { Peringatan } from './ui';
@@ -116,14 +119,18 @@ export default function Login({
       {/* Kolom terpusat ~400px. */}
       <div className="relative w-full max-w-[400px]">
         <div className="text-center">
+          {/* Logo lockup lengkap (PR login-logo-lockup): mark "rri" +
+              teks sudah di dalam gambar; h-20 (80px) → lebar ~254px
+              (rasio 3,18:1), ~64% dari kolom 400px — teks di gambar
+              terbaca (~13px per baris) tanpa memenuhi kolom. Data URI
+              terpisah (src/lib/logoRriLockup.ts) dari /logo-rri.svg
+              karena file itu dipakai bersama (favicon, top bar admin,
+              header Ajukan/Lacak) yang butuh mark saja. */}
           <img
-            src="/logo-rri.svg"
+            src={LOGO_RRI_LOCKUP_DATA_URI}
             alt="Logo RRI"
-            className="mx-auto h-14 w-auto"
+            className="mx-auto h-20 w-auto"
           />
-          <p className="mt-3 text-sm font-semibold text-[#0d2569]">
-            Radio Republik Indonesia
-          </p>
         </div>
 
         <h1 className="mt-8 text-center text-3xl font-bold text-[#0d2569]">

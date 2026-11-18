@@ -80,6 +80,21 @@ body {
   animation-play-state: paused;
 }
 
+/* ---------- Marquee kampanye (PR landing-kampanye-marquee) ----------
+   Memakai keyframes mk-marquee yang sama (geser -50% = satu set kartu),
+   tapi durasi 60 detik, bukan 28 detik seperti strip logo: setengah
+   lintasan kampanye ≈ 7 × (420px + 24px gap) ≈ 3108px, hampir 2×
+   setengah lintasan logo, jadi 28 detik akan terasa ~2× lebih cepat.
+   60 detik memberi kecepatan linier yang sebanding dengan marquee logo
+   (≈ 52px/detik) dan cukup pelan untuk membaca teks kartu. Jeda saat
+   hover mengikuti pola marquee logo; prefers-reduced-motion di bawah. */
+.mk-marquee-kampanye {
+  animation: mk-marquee 60s linear infinite;
+}
+.mk-marquee-kampanye:hover {
+  animation-play-state: paused;
+}
+
 /* ---------- Latar gelap section Comparison + strip logo (PR #97) ----------
    Meniru GAYA gradasi latar gelap template Marklo (terang di kiri atas
    meredup ke kanan bawah — diukur dari screenshot template pengguna:
@@ -186,7 +201,8 @@ body {
     transform: none;
     transition: none;
   }
-  .mk-marquee {
+  .mk-marquee,
+  .mk-marquee-kampanye {
     animation: none;
   }
   .mk-layang,
