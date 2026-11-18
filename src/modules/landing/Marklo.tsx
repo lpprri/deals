@@ -77,9 +77,9 @@ import { LOGO_RRI_LANDING_DATA_URI } from '../../lib/logoRriLanding';
 import { LOGO_DEALS_DATA_URI } from '../../lib/logoDeals';
 import {
   FAQ_MARKLO,
-  FUNNEL_MARKLO,
   KAMPANYE_MARKLO,
   KOTA_SATKER_MARKLO,
+  LAYANAN_MARKLO,
   LOGO_KLIEN_MARKLO,
   MANFAAT_MARKLO,
   PERBANDINGAN_KAMI,
@@ -202,7 +202,7 @@ export default function MarkloLanding({ onLogin, onKirimBooking }: MarkloLanding
         <Pernyataan />
         <Statistik />
         <Proses />
-        <LayananFunnel />
+        <Layanan />
         <Perbandingan />
         <MengapaMarketing />
         <BookingKonsultasi onKirimBooking={onKirimBooking} />
@@ -613,46 +613,38 @@ function Proses() {
   );
 }
 
-/* ================= Services (tangga funnel) ================= */
+/* ================= Services (4 layanan RRI) ================= */
 
-const OFFSET_FUNNEL = ['', 'sm:pl-10', 'sm:pl-20', 'sm:pl-32', 'sm:pl-40'];
+const OFFSET_FUNNEL = ['', 'sm:pl-10', 'sm:pl-20', 'sm:pl-32'];
 
-function LayananFunnel() {
+function Layanan() {
   return (
     <section id="services" className="bg-slate-50 py-16 sm:py-20">
       <div className="mx-auto max-w-7xl px-4 text-center sm:px-6">
         <Reveal>
           <LabelPill>Services</LabelPill>
           <h2 className="mx-auto mt-5 max-w-3xl text-3xl font-extrabold leading-tight tracking-tight text-black sm:text-5xl">
-            Funnel-focused marketing for predictable, lasting growth.
+            Multi-platform marketing for predictable, lasting growth.
           </h2>
         </Reveal>
         <div className="mx-auto mt-12 max-w-3xl text-left">
-          {FUNNEL_MARKLO.map((tahap, i) => (
-            <div key={tahap.tahap} className={OFFSET_FUNNEL[i]}>
+          {LAYANAN_MARKLO.map((layanan, i) => (
+            <div key={layanan.nama} className={OFFSET_FUNNEL[i]}>
               <Reveal tunda={i * 100}>
                 <article
-                  className={`rounded-[20px] bg-gradient-to-br ${tahap.gradien} p-6 shadow-md ring-1 ring-white transition hover:-translate-y-1 hover:shadow-lg`}
+                  className={`rounded-[20px] bg-gradient-to-br ${layanan.gradien} p-6 shadow-md ring-1 ring-white transition hover:-translate-y-1 hover:shadow-lg`}
                 >
-                  <div className="flex items-start justify-between gap-4">
-                    <div>
-                      <p className="text-xs font-bold uppercase tracking-widest text-slate-500">
-                        Step {i + 1}
-                      </p>
-                      <h3 className="mt-1 text-xl font-extrabold text-black">
-                        {tahap.tahap}
-                      </h3>
-                      <p className="mt-1 text-sm leading-relaxed text-slate-600">
-                        {tahap.desk}
-                      </p>
-                    </div>
-                    <span className="shrink-0 rounded-full bg-white px-3 py-1 text-xs font-bold text-black shadow-sm">
-                      {tahap.layanan}
-                    </span>
+                  <div>
+                    <h3 className="text-xl font-extrabold text-black">
+                      {layanan.nama}
+                    </h3>
+                    <p className="mt-1 text-sm leading-relaxed text-slate-600">
+                      {layanan.desk}
+                    </p>
                   </div>
                 </article>
               </Reveal>
-              {i < FUNNEL_MARKLO.length - 1 && (
+              {i < LAYANAN_MARKLO.length - 1 && (
                 <div
                   className="mx-auto h-8 w-0 border-l-2 border-dashed border-slate-300"
                   aria-hidden="true"
@@ -660,16 +652,6 @@ function LayananFunnel() {
               )}
             </div>
           ))}
-          <div className={OFFSET_FUNNEL[4]}>
-            <Reveal tunda={420}>
-              <div className="rounded-[20px] bg-mk-aksen p-6 text-center shadow-lg">
-                <p className="text-3xl font-extrabold text-white">35X</p>
-                <p className="mt-1 text-sm font-semibold text-white/90">
-                  Client Growth
-                </p>
-              </div>
-            </Reveal>
-          </div>
         </div>
       </div>
     </section>

@@ -154,37 +154,32 @@ export const PROSES_MARKLO: LangkahProsesMarklo[] = [
   },
 ];
 
-export interface TahapFunnelMarklo {
-  tahap: string;
-  layanan: string;
+export interface LayananMarklo {
+  nama: string;
   gradien: string;
   desk: string;
 }
 
-export const FUNNEL_MARKLO: TahapFunnelMarklo[] = [
+export const LAYANAN_MARKLO: LayananMarklo[] = [
   {
-    tahap: 'Attract Customer',
-    layanan: 'Meta Ads',
+    nama: 'Radio Ads',
     gradien: 'from-rose-200 to-pink-100',
-    desk: 'Scroll-stopping creative that puts your brand in front of the right people.',
+    desk: "Prime-time spots and adlibs broadcast across 67 cities — your brand heard on Indonesia's widest radio network, from the capital to the farthest corners of the country.",
   },
   {
-    tahap: 'Engage Prospect',
-    layanan: 'Google Ads',
+    nama: 'Social Media Ads',
     gradien: 'from-sky-200 to-blue-100',
-    desk: 'High-intent search traffic, captured at the exact moment people look for you.',
+    desk: 'Thumb-stopping creative built for the feed — turning scrollers into followers, and followers into customers.',
   },
   {
-    tahap: 'Convert Clients',
-    layanan: 'Viral TikTok Ads',
+    nama: 'Digital Platform Ads',
     gradien: 'from-violet-200 to-purple-100',
-    desk: 'Short-form video that turns attention into enquiries and sales.',
+    desk: "Your brand across RRI's digital platforms — display, video, and streaming — so your message follows listeners from the radio to the screen.",
   },
   {
-    tahap: 'Retain Clients',
-    layanan: 'Content Marketing',
+    nama: 'Dialogue & Podcast',
     gradien: 'from-emerald-200 to-teal-100',
-    desk: 'Useful content that keeps customers coming back — and bringing friends.',
+    desk: 'Interactive dialogues and podcasts that give your story room to breathe — real conversations, live on air and on demand.',
   },
 ];
 
