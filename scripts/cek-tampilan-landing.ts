@@ -846,20 +846,33 @@ cek(
     marklo.includes('className="h-9 w-auto shrink-0"'),
 );
 cek(
-  'Footer: urutan kolom "Site Map" < "Client Portal" < "Additional Service" < Contact — isi tiap kolom berurutan + "Our Service" hilang dari footer',
+  'Footer: urutan kolom "Site Map" < "Client Portal" < "Additional Service" < Contact — isi tiap kolom berurutan + "Our Service" hilang dari footer + "Book a Free Call" hilang dari footer',
   footerMarklo.indexOf('Site Map') < footerMarklo.indexOf('Client Portal') &&
     footerMarklo.indexOf('Client Portal') < footerMarklo.indexOf('Additional Service') &&
     footerMarklo.indexOf('Additional Service') < footerMarklo.indexOf('Jl. Medan Merdeka Barat') &&
     !footerMarklo.includes('Our Service') &&
     !footerMarklo.includes('Navigation') &&
+    !footerMarklo.includes('Book a Free Call') &&
+    (() => {
+      const peta = footerMarklo.slice(
+        footerMarklo.indexOf('Site Map'),
+        footerMarklo.indexOf('Client Portal'),
+      );
+      return (
+        peta.indexOf('About') < peta.indexOf('Service') &&
+        peta.indexOf('Service') < peta.indexOf('Testimonials') &&
+        peta.indexOf('Testimonials') < peta.indexOf('Process') &&
+        !peta.includes('Book a Free Call')
+      );
+    })() &&
     (() => {
       const portal = footerMarklo.slice(
         footerMarklo.indexOf('Client Portal'),
         footerMarklo.indexOf('Additional Service'),
       );
       return (
-        portal.indexOf('Plan a Campaign') < portal.indexOf('Book a Free Call') &&
-        portal.indexOf('Book a Free Call') < portal.indexOf('Track your Deal')
+        portal.indexOf('Plan a Campaign') < portal.indexOf('Track your Deal') &&
+        !portal.includes('Book a Free Call')
       );
     })() &&
     (() => {
@@ -1031,8 +1044,9 @@ cek(
     marklo.includes('Book 30 Min Free Call'),
 );
 cek(
-  'Revert78: tautan navigasi footer "Book a Free Call" tetap menggulir ke section booking',
-  marklo.includes("{ label: 'Book a Free Call', id: 'booking' }"),
+  'Revert78: footer SUDAH TIDAK punya tautan "Book a Free Call" (dihapus dari Site Map + Client Portal atas permintaan pengguna 2026-11-18; tombol booking di header/hero/kartu gelap tetap ada)',
+  !footerMarklo.includes('Book a Free Call') &&
+    marklo.includes('Book a Free Call'),
 );
 cek(
   'BookingSubmit: App.tsx kirimBookingPublik menyimpan Meeting (MTG-, SATKER_PILOT, Nama → Contact Person/Rep, Email → contactPersonEmail, RRI Rep kosong)',

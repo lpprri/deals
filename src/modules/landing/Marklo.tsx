@@ -37,8 +37,8 @@
 //     manual setelah sync; PR landing-booking-email).
 //     Catatan pratinjau SUDAH DIHAPUS.
 //   - Kolom footer (revisi pengguna 2026-11-18): "Site Map" (navigasi
-//     section), "Client Portal" (Plan a Campaign + Book a Free Call
-//     → booking; Track your Deal → halaman Lacak via prop onLacak),
+//     section), "Client Portal" (Plan a Campaign → booking;
+//     Track your Deal → halaman Lacak via prop onLacak),
 //     "Additional Service" (Book a Venue, Rent a Space, Get a
 //     Journalism Training, Collaborate with Us — keempatnya menggulir
 //     ke kartu booking untuk sementara).
@@ -1641,7 +1641,6 @@ function Footer({ onLacak }: { onLacak: () => void }) {
                 { label: 'Service', id: 'services' },
                 { label: 'Testimonials', id: 'testimonials' },
                 { label: 'Process', id: 'process' },
-                { label: 'Book a Free Call', id: 'booking' },
               ].map((item) => (
                 <li key={item.id}>
                   <button
@@ -1693,7 +1692,7 @@ function Footer({ onLacak }: { onLacak: () => void }) {
             </ul>
           </nav>
           {/* Kolom Client Portal — pintu masuk klien (permintaan
-              pengguna 2026-11-18). Dua item pertama menggulir ke
+              pengguna 2026-11-18). Item pertama menggulir ke
               kartu booking; item terakhir membuka halaman Lacak
               lewat prop onLacak (pola onLogin). */}
           <div>
@@ -1703,7 +1702,6 @@ function Footer({ onLacak }: { onLacak: () => void }) {
             <ul className="mt-4 space-y-2.5 text-sm">
               {[
                 { label: 'Plan a Campaign', aksi: 'booking' },
-                { label: 'Book a Free Call', aksi: 'booking' },
                 { label: 'Track your Deal', aksi: 'lacak' },
               ].map((item) => (
                 <li key={item.label}>
