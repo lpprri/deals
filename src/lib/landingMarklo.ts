@@ -226,14 +226,8 @@ export const MANFAAT_MARKLO: ManfaatMarklo[] = [
     gradien: 'from-white to-blue-100',
   },
   {
-    judul: 'Higher Conversions',
-    desk: 'Landing pages, offers, and follow-ups tuned to turn clicks into customers.',
-    gradien: 'from-white to-blue-100',
-    tautan: { label: 'Book a Call', jangkar: '#booking' },
-  },
-  {
     judul: 'Competitive Advantage',
-    desk: 'Move faster than competitors still guessing what works.',
+    desk: 'Stand out from other business in your industry.',
     gradien: 'from-white to-orange-100',
     tautan: { label: 'View our case study', jangkar: '#work' },
   },
