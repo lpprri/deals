@@ -18,10 +18,12 @@
 //   gradasi avatar oren/amber/rose jadi biru/sky; merah error booking
 //   tetap merah (fungsional), logo merek Instagram/TikTok/YouTube tetap
 //   warna merek.
-//   KECUALI footer: gradien navy RRI + logo putih + kolom "Our Service"
-//   + header seamless, atas permintaan eksplisit pengguna 2026-11-17
-//   (PR landing-footer-navy-putih; judul kolom diubah jadi "Our Service"
-//   dan isinya 4 layanan pada PR landing-booking-ke-meeting).
+//   KECUALI footer: gradien navy RRI + logo putih + kolom "Site Map" /
+//   "Client Portal" / "Additional Service" + header seamless, atas
+//   permintaan eksplisit pengguna 2026-11-17 (PR landing-footer-navy-
+//   putih; judul kolom "Our Service") dan revisi 2026-11-18 (PR footer-
+//   site-map-client-portal: "Navigation" → "Site Map", kolom baru
+//   "Client Portal", "Our Service" → "Additional Service").
 //   KECUALI section Comparison + strip logo (PR #97): latar gradasi
 //   diagonal NAVY RRI (#1a3a8a -> #0D2569 -> #04122e, gaya gradasi latar
 //   gelap template, BUKAN maroon template — koreksi pengguna 15:48 WIB);
@@ -122,9 +124,10 @@ cek(
   app.includes("import MarkloLanding from './modules/landing/Marklo';"),
 );
 cek(
-  "App.tsx: beranda me-render <MarkloLanding onLogin + onKirimBooking />",
+  "App.tsx: beranda me-render <MarkloLanding onLogin + onLacak + onKirimBooking />",
   app.includes('<MarkloLanding') &&
     app.includes("onLogin={() => setHalamanPublik('login')}") &&
+    app.includes("onLacak={() => setHalamanPublik('lacak')}") &&
     app.includes('onKirimBooking={kirimBookingPublik}'),
 );
 cek(
@@ -816,9 +819,10 @@ cek(
     !marklo.includes('#3a0d0d'),
 );
 cek(
-  'Footer: Back to top + Navigation + Socials + Contact + "Book 30 Min Free Call" (tanpa mark bunga)',
+  'Footer: Back to top + Site Map + Socials + Contact + "Book 30 Min Free Call" (tanpa mark bunga; "Navigation" sudah hilang)',
   marklo.includes('Back to top') &&
-    marklo.includes('Navigation') &&
+    marklo.includes('Site Map') &&
+    !footerMarklo.includes('Navigation') &&
     marklo.includes('Socials') &&
     marklo.includes('Contact') &&
     marklo.includes('Book 30 Min Free Call'),
@@ -842,14 +846,42 @@ cek(
     marklo.includes('className="h-9 w-auto shrink-0"'),
 );
 cek(
-  'Footer: kolom "Our Service" di antara Navigation dan Contact — 4 layanan berurutan ke booking (judul + isi lama hilang)',
-  footerMarklo.indexOf('Navigation') < footerMarklo.indexOf('Our Service') &&
-    footerMarklo.indexOf('Our Service') < footerMarklo.indexOf('Jl. Medan Merdeka Barat') &&
-    footerMarklo.indexOf('Plan a Campaign') < footerMarklo.indexOf('Book a Venue') &&
-    footerMarklo.indexOf('Book a Venue') < footerMarklo.indexOf('Rent a Space') &&
-    footerMarklo.indexOf('Rent a Space') < footerMarklo.indexOf('Get a Journalism Training') &&
-    !footerMarklo.includes('Additional Service') &&
-    !footerMarklo.includes('Book a Room'),
+  'Footer: urutan kolom "Site Map" < "Client Portal" < "Additional Service" < Contact — isi tiap kolom berurutan + "Our Service" hilang dari footer',
+  footerMarklo.indexOf('Site Map') < footerMarklo.indexOf('Client Portal') &&
+    footerMarklo.indexOf('Client Portal') < footerMarklo.indexOf('Additional Service') &&
+    footerMarklo.indexOf('Additional Service') < footerMarklo.indexOf('Jl. Medan Merdeka Barat') &&
+    !footerMarklo.includes('Our Service') &&
+    !footerMarklo.includes('Navigation') &&
+    (() => {
+      const portal = footerMarklo.slice(
+        footerMarklo.indexOf('Client Portal'),
+        footerMarklo.indexOf('Additional Service'),
+      );
+      return (
+        portal.indexOf('Plan a Campaign') < portal.indexOf('Book a Free Call') &&
+        portal.indexOf('Book a Free Call') < portal.indexOf('Track your Deal')
+      );
+    })() &&
+    (() => {
+      const layanan = footerMarklo.slice(
+        footerMarklo.indexOf('Additional Service'),
+        footerMarklo.indexOf('Jl. Medan Merdeka Barat'),
+      );
+      return (
+        layanan.indexOf('Book a Venue') < layanan.indexOf('Rent a Space') &&
+        layanan.indexOf('Rent a Space') < layanan.indexOf('Get a Journalism Training') &&
+        layanan.indexOf('Get a Journalism Training') < layanan.indexOf('Collaborate with Us') &&
+        !layanan.includes('Plan a Campaign')
+      );
+    })(),
+);
+cek(
+  'Footer: "Track your Deal" membuka halaman Lacak via prop onLacak (pola onLogin) — bukan gulirKe',
+  marklo.includes('onLacak: () => void') &&
+    marklo.includes('<Footer onLacak={onLacak} />') &&
+    marklo.includes('function Footer({ onLacak }') &&
+    footerMarklo.includes("label: 'Track your Deal'") &&
+    footerMarklo.includes('onLacak()'),
 );
 cek(
   'Footer: kontak RESMI Kantor Pusat RRI (alamat Jl. Medan Merdeka Barat, dua nomor telepon tel:, tanpa email sample)',

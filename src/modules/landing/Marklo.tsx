@@ -2,7 +2,8 @@
 // (PR landing-marklo-clone, 2026-11-17).
 // (PR landing-footer-navy-putih, 2026-11-17: footer gradien navy RRI
 // #0D2569 (bukan maroon), logo RRI + Deals di footer dibuat putih,
-// kolom "Our Service", header seamless tanpa garis bawah.
+// kolom "Site Map" / "Client Portal" / "Additional Service", header
+// seamless tanpa garis bawah.
 // PR ini JUGA me-revert PR #75 (ukuran landing kembali ke PR #74)
 // karena pengguna menilai ukuran PR #75 kebesaran di zoom 100% —
 // permintaan ukuran PR #75 berasal dari tampilan zoom-out.)
@@ -35,9 +36,12 @@
 //     admin. Email wajib — kanal kirim link Google Meet (operator kirim
 //     manual setelah sync; PR landing-booking-email).
 //     Catatan pratinjau SUDAH DIHAPUS.
-//   - Kolom footer "Our Service": Plan a Campaign, Book a Venue,
-//     Rent a Space, Get a Journalism Training — keempatnya menggulir
-//     ke kartu booking untuk sementara.
+//   - Kolom footer (revisi pengguna 2026-11-18): "Site Map" (navigasi
+//     section), "Client Portal" (Plan a Campaign + Book a Free Call
+//     → booking; Track your Deal → halaman Lacak via prop onLacak),
+//     "Additional Service" (Book a Venue, Rent a Space, Get a
+//     Journalism Training, Collaborate with Us — keempatnya menggulir
+//     ke kartu booking untuk sementara).
 //   - Kartu booking memakai nama "Deals" + logo RRI (bukan "Marklo").
 //   - Teks social proof hero diubah atas permintaan pengguna 2026-11-17:
 //     "TRUSTED BY 100+ PARTNERS NATIONALLY"; avatar, bintang, dan 4.9/5.0
@@ -96,6 +100,10 @@ import type { BookingPublikInput } from '../../lib/store';
 export interface MarkloLandingProps {
   /** Buka halaman login Operator (infrastruktur aplikasi). */
   onLogin: () => void;
+  /** Buka halaman Lacak (Track) publik — klien memasukkan nomor PKS/
+      invoice (tanpa login). Dipakai footer "Track your Deal"
+      (Client Portal); pola persis onLogin. */
+  onLacak: () => void;
   /** Kirim permintaan free call publik (form singkat kartu booking):
       menyimpan sebagai Meeting di Firestore; kembalikan null bila
       berhasil, pesan error bila gagal. */
@@ -213,7 +221,7 @@ function BintangLima({
   );
 }
 
-export default function MarkloLanding({ onLogin, onKirimBooking }: MarkloLandingProps) {
+export default function MarkloLanding({ onLogin, onLacak, onKirimBooking }: MarkloLandingProps) {
   return (
     <div className="min-h-screen bg-white text-black">
       <Header onLogin={onLogin} />
@@ -230,7 +238,7 @@ export default function MarkloLanding({ onLogin, onKirimBooking }: MarkloLanding
         <Testimoni />
         <Faq />
       </main>
-      <Footer />
+      <Footer onLacak={onLacak} />
     </div>
   );
 }
@@ -1574,7 +1582,7 @@ function Faq() {
 
 /* ================= Footer ================= */
 
-function Footer() {
+function Footer({ onLacak }: { onLacak: () => void }) {
   return (
     <footer className="relative bg-white">
       {/* Tepi atas bergelombang (SVG) menuju section gelap */}
@@ -1590,7 +1598,7 @@ function Footer() {
         />
       </svg>
       <div className="bg-gradient-to-b from-[#0D2569] to-[#04122e] text-white">
-        <div className="mx-auto grid max-w-7xl gap-10 px-4 py-14 sm:px-6 md:grid-cols-5">
+        <div className="mx-auto grid max-w-7xl gap-10 px-4 py-14 sm:px-6 md:grid-cols-6">
           <div className="md:col-span-2">
             <div className="mt-5 flex items-center gap-3">
               {/* Logo dibuat putih khusus footer (permintaan eksplisit
@@ -1625,7 +1633,7 @@ function Footer() {
           </div>
           <nav aria-label="Footer navigation">
             <h3 className="text-sm font-bold uppercase tracking-widest text-white/50">
-              Navigation
+              Site Map
             </h3>
             <ul className="mt-4 space-y-2.5 text-sm">
               {[
@@ -1684,22 +1692,51 @@ function Footer() {
               ))}
             </ul>
           </nav>
-          {/* Kolom Our Service — di antara Navigation dan Contact
-              (permintaan pengguna 2026-11-17). Untuk sementara keempat
-              link mengarah ke section booking/konsultasi, karena halaman
-              khusus Plan a Campaign / Book a Venue / Rent a Space /
-              Get a Journalism Training belum ada di landing baru;
-              halaman khusus menyusul pada putaran penyesuaian. */}
+          {/* Kolom Client Portal — pintu masuk klien (permintaan
+              pengguna 2026-11-18). Dua item pertama menggulir ke
+              kartu booking; item terakhir membuka halaman Lacak
+              lewat prop onLacak (pola onLogin). */}
           <div>
             <h3 className="text-sm font-bold uppercase tracking-widest text-white/50">
-              Our Service
+              Client Portal
             </h3>
             <ul className="mt-4 space-y-2.5 text-sm">
               {[
-                { label: 'Plan a Campaign', id: 'booking' },
+                { label: 'Plan a Campaign', aksi: 'booking' },
+                { label: 'Book a Free Call', aksi: 'booking' },
+                { label: 'Track your Deal', aksi: 'lacak' },
+              ].map((item) => (
+                <li key={item.label}>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      item.aksi === 'lacak' ? onLacak() : gulirKe('booking')
+                    }
+                    className="text-white/80 transition hover:text-white hover:underline"
+                  >
+                    {item.label}
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </div>
+          {/* Kolom Additional Service — di antara Client Portal dan
+              Contact (judul lama diubah atas permintaan
+              pengguna 2026-11-18; satu item pindah ke Client Portal,
+              satu item baru ditambahkan. Keempat link mengarah ke
+              kartu booking untuk sementara, karena halaman khusus
+              belum ada di landing baru; halaman khusus menyusul
+              pada putaran penyesuaian. */}
+          <div>
+            <h3 className="text-sm font-bold uppercase tracking-widest text-white/50">
+              Additional Service
+            </h3>
+            <ul className="mt-4 space-y-2.5 text-sm">
+              {[
                 { label: 'Book a Venue', id: 'booking' },
                 { label: 'Rent a Space', id: 'booking' },
                 { label: 'Get a Journalism Training', id: 'booking' },
+                { label: 'Collaborate with Us', id: 'booking' },
               ].map((item) => (
                 <li key={item.label}>
                   <button
