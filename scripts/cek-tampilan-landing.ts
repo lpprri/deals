@@ -43,6 +43,19 @@
 //   pengguna (bukan gradasi + huruf awal), di-embed sebagai data URI WebP
 //   di src/lib/fotoKampanye.ts, dipetakan ke nama klien (Badan_Narkotika_
 //   Nasional.jpg -> BNN).
+//   KECUALI section "Why do you need Marketing?" (PR
+//   landing-why-marketing-template, 2026-11-18): mengikuti template ASLI
+//   atas pilihan pengguna ("ikuti template asli", diklarifikasi "gaya
+//   nya saja, teks tetap sama") — 5 kartu gradien pastel + ikon 3D
+//   glossy orisinal hasil generate (bukan aset template), pill
+//   "Confusion?" + tautan "Book a Call" MERAH vermilion template #ff4d2e
+//   (varian lokal PillMerahTemplate; LabelPill global tetap Biru RRI),
+//   tautan "View our case study" hitam, latar section putih, layout 3
+//   kartu atas + 2 kartu lebar bawah. SEMUA TEKS byte-identik dengan
+//   sebelumnya (5 manfaat termasuk "Every rupiah...", heading, kartu CTA
+//   hitam "Still not sure where to start?" — kartu CTA dipertahankan
+//   sebagai strip full-width di bawah 5 kartu, tombolnya tetap Biru RRI).
+//   Target tautan tetap #booking / #work (bukan #testimonials template).
 // - Tombol "Book a Free Call" menggulir ke kartu booking — perilaku
 //   PR #78 (membuka halaman Meeting) DI-REVERT atas koreksi pengguna
 //   2026-11-17 (PR landing-booking-ke-meeting). Kartu booking NYATA:
@@ -574,10 +587,19 @@ cek(
     !dataMarklo.includes('How can multi-platform marketing help my business?'),
 );
 
-// --- 11. Why Marketing. ---
+// --- 11. Why Marketing (gaya template asli, PR landing-why-marketing-template). ---
+// Slice fungsi saja: string 'bg-white py-16 sm:py-20' juga dipakai
+// section lain (dengan id), jadi asersi latar + gradien + ikon dibatasi
+// ke fungsi ini. Copy TIDAK BERUBAH (keputusan pengguna 2026-11-18:
+// "gaya nya saja, teks tetap sama").
+const mengapaMarklo = marklo.slice(
+  marklo.indexOf('function MengapaMarketing()'),
+  marklo.indexOf('/* ================= Booking konsultasi ================= */'),
+);
 cek(
-  'Why Marketing: pill "Confusion?" + heading + 5 manfaat',
-  marklo.includes('<LabelPill>Confusion?</LabelPill>') &&
+  'Why Marketing: pill "Confusion?" MERAH template (varian lokal PillMerahTemplate, LabelPill global tetap biru RRI) + heading + 5 manfaat',
+  marklo.includes('<PillMerahTemplate>Confusion?</PillMerahTemplate>') &&
+    marklo.includes('border-[#ff4d2e]') &&
     marklo.includes('Why do you need Marketing?') &&
     dataMarklo.includes("judul: 'Increased Visibility'") &&
     dataMarklo.includes("judul: 'Targeted Audience'") &&
@@ -589,6 +611,36 @@ cek(
   'Why Marketing: link "Book a Call" + "View our case study"',
   dataMarklo.includes("label: 'Book a Call'") &&
     dataMarklo.includes("label: 'View our case study'"),
+);
+cek(
+  'Why Marketing: latar section PUTIH template (bukan slate-50) + 5 gradien pastel + ikon 3D (bukan kartu putih ber-ring)',
+  mengapaMarklo.includes('<section className="bg-white py-16 sm:py-20">') &&
+    !mengapaMarklo.includes('bg-slate-50') &&
+    !mengapaMarklo.includes('ring-1 ring-slate-200') &&
+    dataMarklo.includes("gradien: 'from-white to-pink-100'") &&
+    dataMarklo.includes("gradien: 'from-white to-sky-100'") &&
+    dataMarklo.includes("gradien: 'from-white to-blue-100'") &&
+    dataMarklo.includes("gradien: 'from-white to-orange-100'") &&
+    marklo.includes('IKON_MANFAAT[m.judul]') &&
+    marklo.includes("from '../../lib/ikonManfaat'"),
+);
+cek(
+  'Why Marketing: layout template 3 kartu atas + 2 kartu lebar bawah (grid 6 kolom) + tautan merah "Book a Call" + tautan hitam "View our case study"',
+  mengapaMarklo.includes('lg:grid-cols-6') &&
+    mengapaMarklo.includes('lg:col-span-2') &&
+    mengapaMarklo.includes('lg:col-span-3') &&
+    mengapaMarklo.includes("m.tautan.label === 'Book a Call'") &&
+    mengapaMarklo.includes("text-[#ff4d2e]") &&
+    mengapaMarklo.includes('text-black'),
+);
+cek(
+  'Why Marketing: kartu CTA hitam TETAP ADA sebagai strip full-width di bawah 5 kartu (teks + tombol tidak berubah)',
+  mengapaMarklo.includes('Still not sure where to start?') &&
+    mengapaMarklo.includes(
+      'Book a free 30-minute call and we will audit your funnel together.',
+    ) &&
+    mengapaMarklo.includes('Book a Free Call') &&
+    mengapaMarklo.includes('sm:flex-row sm:items-center sm:justify-between'),
 );
 
 // --- 12. Booking konsultasi. ---
@@ -830,9 +882,17 @@ cek(
     !css.includes('#e63e20') &&
     !css.includes('#ffede8'),
 );
+// Merah template #ff4d2e hanya boleh ada di section Why (komentar +
+// komponen PillMerahTemplate + tautan "Book a Call" di MengapaMarketing) —
+// di luar blok itu, larangan oren PR oren-ke-biru tetap berlaku.
+const luarWhyMarklo =
+  marklo.slice(0, marklo.indexOf('/* ================= Why Marketing ================= */')) +
+  marklo.slice(
+    marklo.indexOf('/* ================= Booking konsultasi ================= */'),
+  );
 cek(
-  'Oren-ke-biru: tidak ada lagi warna oren di landing — aksen Biru RRI, hover navy, peach biru muda, gradasi avatar biru/sky, ring + ikon cek biru; merah error booking tetap ada (PR oren-ke-biru)',
-  !marklo.includes('#ff4d2e') &&
+  'Oren-ke-biru: tidak ada lagi warna oren di landing KECUALI section Why (pill + "Book a Call" merah template #ff4d2e, PR landing-why-marketing-template) — aksen Biru RRI, hover navy, peach biru muda, gradasi avatar biru/sky, ring + ikon cek biru; merah error booking tetap ada (PR oren-ke-biru)',
+  !luarWhyMarklo.includes('#ff4d2e') &&
     !marklo.includes('ring-orange-100') &&
     !marklo.includes('bg-pink-100') &&
     !marklo.includes('text-red-400') &&

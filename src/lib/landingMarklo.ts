@@ -204,6 +204,8 @@ export type { LogoMitra } from './logoMitra';
 export interface ManfaatMarklo {
   judul: string;
   desk: string;
+  /** Gradien pastel kartu (gaya template asli Marklo, PR landing-why-marketing-template). */
+  gradien: string;
   tautan?: { label: string; jangkar: string };
 }
 
@@ -211,23 +213,28 @@ export const MANFAAT_MARKLO: ManfaatMarklo[] = [
   {
     judul: 'Increased Visibility',
     desk: 'Show up where your customers already are — search, social, and beyond.',
+    gradien: 'from-white to-pink-100',
   },
   {
     judul: 'Targeted Audience',
     desk: 'Reach the people most likely to buy, instead of shouting at everyone.',
+    gradien: 'from-white to-sky-100',
   },
   {
     judul: 'Cost-Effective Growth',
     desk: 'Every rupiah of budget is tracked against pipeline and revenue.',
+    gradien: 'from-white to-blue-100',
   },
   {
     judul: 'Higher Conversions',
     desk: 'Landing pages, offers, and follow-ups tuned to turn clicks into customers.',
+    gradien: 'from-white to-blue-100',
     tautan: { label: 'Book a Call', jangkar: '#booking' },
   },
   {
     judul: 'Competitive Advantage',
     desk: 'Move faster than competitors still guessing what works.',
+    gradien: 'from-white to-orange-100',
     tautan: { label: 'View our case study', jangkar: '#work' },
   },
 ];
