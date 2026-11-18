@@ -794,7 +794,7 @@ function Perbandingan() {
           </Reveal>
         </div>
         <Reveal tunda={200}>
-          <div className="mt-12 overflow-hidden py-5">
+          <div className="relative mt-12 overflow-hidden py-5">
             <div className="mk-marquee flex w-max items-center gap-12">
               {[...LOGO_KLIEN_MARKLO, ...LOGO_KLIEN_MARKLO].map((logo, i) => (
                 <span
@@ -810,6 +810,17 @@ function Perbandingan() {
                 </span>
               ))}
             </div>
+            {/* Fade tepi (PR #98): overlay gradasi di kedua ujung strip —
+                kiri #1a3a8a, kanan #04122e, mengikuti latar navy section.
+                pointer-events-none supaya hover tetap men-pause marquee. */}
+            <div
+              aria-hidden="true"
+              className="mk-fade-tepi-kiri pointer-events-none absolute inset-y-0 left-0 w-24 sm:w-32"
+            />
+            <div
+              aria-hidden="true"
+              className="mk-fade-tepi-kanan pointer-events-none absolute inset-y-0 right-0 w-24 sm:w-32"
+            />
           </div>
         </Reveal>
       </div>
