@@ -73,7 +73,7 @@ export const KAMPANYE_MARKLO: KampanyeMarklo[] = [
       'Live adlibs from Digital Kito Galo 7th x Gemilang Palembang Raya 2026 — bringing the energy of the event straight to listeners at home.',
   },
   {
-    klien: 'Perempuan Indonesia Maju (PIM)',
+    klien: 'Perempuan Indonesia Maju',
     layanan: 'Interactive Dialogue',
     gradien: 'from-sky-200 via-blue-100 to-indigo-100',
     inisial: 'P',
@@ -81,7 +81,7 @@ export const KAMPANYE_MARKLO: KampanyeMarklo[] = [
       'An interactive dialogue celebrating Indonesian women — the grace of kebaya songket, worn with pride and talked about live on air.',
   },
   {
-    klien: 'BNN Sumsel',
+    klien: 'BNN',
     layanan: 'Radio Spot',
     gradien: 'from-violet-200 via-purple-100 to-fuchsia-100',
     inisial: 'B',
