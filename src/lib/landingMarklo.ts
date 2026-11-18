@@ -8,11 +8,6 @@
 // Bagian lain file ini (testimoni, statistik, dst.) MASIH data contoh template
 // Marklo dan BUKAN data RRI — JANGAN jadikan nama/angka di sana sebagai
 // fakta tentang RRI.
-//
-// KECUALI JUGA LOGO_KLIEN_MARKLO: sejak PR #81 (2026-11-18) strip logo di
-// bawah Comparison adalah LOGO MITRA NYATA RRI (10 logo yang diunggah
-// pengguna, di-embed di src/lib/logoMitra.ts) — bukan lagi wordmark
-// contoh template.
 
 export interface KampanyeMarklo {
   klien: string;
@@ -197,9 +192,9 @@ export const PERBANDINGAN_KAMI: string[] = [
 ];
 
 // Strip logo mitra RRI (bukan lagi wordmark contoh template).
-// Daftar + data URI logo ada di src/lib/logoMitra.ts (10 logo yang
-// diunggah pengguna, di-embed sebagai base64). Nama ekspor dipertahankan
-// supaya Marklo.tsx tidak berubah impornya.
+// Sejak PR #81 (2026-11-18): 10 LOGO MITRA NYATA RRI yang diunggah
+// pengguna, di-embed sebagai base64 di src/lib/logoMitra.ts.
+// Nama ekspor dipertahankan supaya Marklo.tsx tidak berubah impornya.
 export { LOGO_MITRA as LOGO_KLIEN_MARKLO } from './logoMitra';
 export type { LogoMitra } from './logoMitra';
 
