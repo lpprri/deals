@@ -90,6 +90,7 @@ import {
   ZONA_WAKTU_MARKLO,
 } from '../../lib/landingMarklo';
 import { KOTA_SATKER_MARKLO } from '../../lib/landingMarklo';
+import { FOTO_KAMPANYE } from '../../lib/fotoKampanye';
 import type { BookingPublikInput } from '../../lib/store';
 
 export interface MarkloLandingProps {
@@ -421,15 +422,13 @@ function CarouselKampanye() {
                 data-kartu
                 className="w-[85%] shrink-0 snap-start overflow-hidden rounded-[20px] bg-white shadow-lg ring-1 ring-slate-200 transition hover:-translate-y-1 hover:shadow-xl sm:w-[420px]"
               >
-                <div
-                  className={`relative flex h-60 items-center justify-center bg-gradient-to-br ${k.gradien}`}
-                  aria-hidden="true"
-                >
-                  <span className="absolute left-6 top-6 h-16 w-16 rounded-full bg-white/30" />
-                  <span className="absolute bottom-8 right-8 h-24 w-24 rounded-full bg-white/20" />
-                  <span className="text-8xl font-extrabold text-white/70">
-                    {k.inisial}
-                  </span>
+                <div className="relative h-60 overflow-hidden" aria-hidden="true">
+                  <img
+                    src={FOTO_KAMPANYE[k.klien]}
+                    alt=""
+                    loading="lazy"
+                    className="h-full w-full object-cover"
+                  />
                 </div>
                 <div className="flex items-start justify-between gap-4 p-5">
                   <div>

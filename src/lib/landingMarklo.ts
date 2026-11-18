@@ -6,6 +6,8 @@
 // daftar user); deskripsi berbahasa Inggris ditulis dari judul kampanye
 // aslinya, tanpa angka/klaim hasil yang dikarang. Sejak PR #86 judul kampanye
 // tidak lagi tampil di kartu (hanya nama klien + tag layanan + deskripsi).
+// Sejak PR #95 tiap kartu memakai FOTO yang diunggah pengguna (bukan gradasi
+// + huruf awal) — foto di-embed sebagai data URI di src/lib/fotoKampanye.ts.
 // KECUALI KOTA_SATKER_MARKLO: sejak PR #82 (2026-11-18) daftar kota di bawah
 // adalah KOTA SATKER NYATA RRI — diturunkan langsung dari DAFTAR_SATKER
 // (master data nasional, src/lib/satker.ts).
@@ -25,9 +27,6 @@ import type { LogoLayanan } from './logoLayanan';
 export interface KampanyeMarklo {
   klien: string;
   layanan: string;
-  /** Kelas gradien pastel untuk visual kartu (placeholder CSS, bukan foto). */
-  gradien: string;
-  inisial: string;
   ringkasan: string;
 }
 
@@ -35,56 +34,42 @@ export const KAMPANYE_MARKLO: KampanyeMarklo[] = [
   {
     klien: 'PLN',
     layanan: 'Radio Spot',
-    gradien: 'from-rose-200 via-pink-100 to-orange-100',
-    inisial: 'P',
     ringkasan:
       'A public-education spot that makes electricity safety simple to understand — the dangers to avoid and the benefits to enjoy, delivered loud and clear on air.',
   },
   {
     klien: 'Taspen',
     layanan: 'Adlibs',
-    gradien: 'from-sky-200 via-blue-100 to-indigo-100',
-    inisial: 'T',
     ringkasan:
       'A sharp adlibs warning that helps listeners spot scams pretending to be PT Taspen — before anyone gets tricked.',
   },
   {
     klien: 'Alfamart',
     layanan: 'Promotion',
-    gradien: 'from-violet-200 via-purple-100 to-fuchsia-100',
-    inisial: 'A',
     ringkasan:
       "A cheerful on-air promo that keeps Alfamart's offers top of mind for everyday shoppers.",
   },
   {
     klien: 'Medco',
     layanan: 'Adlibs & Interactive Dialogue',
-    gradien: 'from-emerald-200 via-teal-100 to-lime-100',
-    inisial: 'M',
     ringkasan:
       "An on-campus talk that opens up the gas industry's integrity story — in plain language, with room for real questions.",
   },
   {
     klien: 'Bank Indonesia',
     layanan: 'Adlibs',
-    gradien: 'from-rose-200 via-pink-100 to-orange-100',
-    inisial: 'B',
     ringkasan:
       'Live adlibs from Digital Kito Galo 7th x Gemilang Palembang Raya 2026 — bringing the energy of the event straight to listeners at home.',
   },
   {
     klien: 'Perempuan Indonesia Maju',
     layanan: 'Interactive Dialogue',
-    gradien: 'from-sky-200 via-blue-100 to-indigo-100',
-    inisial: 'P',
     ringkasan:
       'An interactive dialogue celebrating Indonesian women — the grace of kebaya songket, worn with pride and talked about live on air.',
   },
   {
     klien: 'BNN',
     layanan: 'Radio Spot',
-    gradien: 'from-violet-200 via-purple-100 to-fuchsia-100',
-    inisial: 'B',
     ringkasan:
       'A public-service spot that takes rehabilitation on the road and puts help within reach — Re-Link and Pindang, explained simply for everyone listening.',
   },
