@@ -79,9 +79,9 @@ import {
   FAQ_MARKLO,
   FUNNEL_MARKLO,
   KAMPANYE_MARKLO,
+  KOTA_SATKER_MARKLO,
   LOGO_KLIEN_MARKLO,
   MANFAAT_MARKLO,
-  NEGARA_MARKLO,
   PERBANDINGAN_KAMI,
   PERBANDINGAN_LAIN,
   PROSES_MARKLO,
@@ -499,16 +499,18 @@ function Statistik() {
         <Reveal tunda={150}>
           <div className="mt-12 text-center">
             <p className="text-sm font-bold tracking-wide text-black">
-              Our Clients in 35+ Countries
+              Our Clients in 67+ Cities
+            </p>
+            <p className="mt-1 text-sm text-slate-500">
+              From the capital to the farthest corners of Indonesia
             </p>
             <ul className="mt-4 flex flex-wrap items-center justify-center gap-2">
-              {NEGARA_MARKLO.map((n) => (
+              {KOTA_SATKER_MARKLO.map((kota) => (
                 <li
-                  key={n.nama}
+                  key={kota}
                   className="inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-600"
                 >
-                  <span aria-hidden="true">{n.bendera}</span>
-                  {n.nama}
+                  {kota}
                 </li>
               ))}
             </ul>

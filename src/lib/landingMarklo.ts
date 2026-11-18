@@ -5,9 +5,14 @@
 // adalah KAMPANYE NYATA RRI — nama klien + judul kampanye asli (Bahasa
 // Indonesia, sesuai daftar user); deskripsi berbahasa Inggris ditulis dari
 // judul kampanye itu saja, tanpa angka/klaim hasil yang dikarang.
+// KECUALI KOTA_SATKER_MARKLO: sejak PR #82 (2026-11-18) daftar kota di bawah
+// adalah KOTA SATKER NYATA RRI — diturunkan langsung dari DAFTAR_SATKER
+// (master data nasional, src/lib/satker.ts).
 // Bagian lain file ini (testimoni, statistik, dst.) MASIH data contoh template
 // Marklo dan BUKAN data RRI — JANGAN jadikan nama/angka di sana sebagai
 // fakta tentang RRI.
+
+import { DAFTAR_SATKER } from './satker';
 
 export interface KampanyeMarklo {
   klien: string;
@@ -101,21 +106,29 @@ export const STATISTIK_MARKLO: StatistikMarklo[] = [
   { id: 'pertumbuhan', nilai: 35, akhiran: 'X', desimal: 0, label: 'Client Growth Result' },
 ];
 
-export interface NegaraMarklo {
-  bendera: string;
-  nama: string;
+/** Ubah nama satker (HURUF BESAR per spreadsheet) menjadi Title Case
+    untuk tampilan pil kota — hanya kapitalisasi, ejaan tidak diubah
+    (ejaan mengikuti spreadsheet, menunggu verifikasi HQ). */
+function titelKota(nama: string): string {
+  return nama
+    .toLowerCase()
+    .split(' ')
+    .map((kata) => kata.charAt(0).toUpperCase() + kata.slice(1))
+    .join(' ');
 }
 
-export const NEGARA_MARKLO: NegaraMarklo[] = [
-  { bendera: '🇺🇸', nama: 'United States' },
-  { bendera: '🇬🇧', nama: 'United Kingdom' },
-  { bendera: '🇮🇳', nama: 'India' },
-  { bendera: '🇦🇺', nama: 'Australia' },
-  { bendera: '🇨🇦', nama: 'Canada' },
-  { bendera: '🇩🇪', nama: 'Germany' },
-  { bendera: '🇸🇬', nama: 'Singapore' },
-  { bendera: '🇮🇩', nama: 'Indonesia' },
-];
+/**
+ * Kota-kota Satuan Kerja RRI untuk section "Our Clients in 67+ Cities"
+ * (PR #82): diturunkan langsung dari DAFTAR_SATKER (master data nasional)
+ * supaya section selalu sinkron — 67 stasiun (tipe 'SATKER'), diurutkan
+ * abjad A–Z (keputusan user 2026-11-18); KANTOR PUSAT + PUSLITBANGDIKLAT
+ * TIDAK ditampilkan karena bukan kota.
+ */
+export const KOTA_SATKER_MARKLO: string[] = DAFTAR_SATKER.filter(
+  (s) => s.tipe === 'SATKER',
+)
+  .map((s) => titelKota(s.nama))
+  .sort((a, b) => (a < b ? -1 : a > b ? 1 : 0));
 
 export interface LangkahProsesMarklo {
   nomor: string;

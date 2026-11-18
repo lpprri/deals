@@ -23,6 +23,10 @@
 //   yang diunggah pengguna (PR #81), di-embed sebagai data URI di
 //   src/lib/logoMitra.ts, tampil slate redup (grayscale + opacity)
 //   seperti screenshot referensi pengguna.
+//   KECUALI section "Our Clients in 67+ Cities" (PR #82): 67 pil kota
+//   satker nyata RRI, diturunkan dari DAFTAR_SATKER (master data nasional)
+//   di src/lib/satker.ts, diurutkan abjad A–Z; KANTOR PUSAT +
+//   PUSLITBANGDIKLAT tidak ditampilkan karena bukan kota.
 // - Tombol "Book a Free Call" menggulir ke kartu booking — perilaku
 //   PR #78 (membuka halaman Meeting) DI-REVERT atas koreksi pengguna
 //   2026-11-17 (PR landing-booking-ke-meeting). Kartu booking NYATA:
@@ -34,6 +38,25 @@
 // asersi gagal.
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { KOTA_SATKER_MARKLO } from '../src/lib/landingMarklo';
+
+// Daftar 67 kota satker (Title Case, urutan ABJAD A–Z, keputusan user
+// 2026-11-18) yang harus tampil sebagai pil di section
+// "Our Clients in 67+ Cities" (PR #82).
+const KOTA_HARAPAN: string[] = [
+  'Ambon', 'Atambua', 'Banda Aceh', 'Bandar Lampung', 'Bandung',
+  'Banjarmasin', 'Banten', 'Batam', 'Bengkulu', 'Biak', 'Bogor',
+  'Bovendigoel', 'Bukittinggi', 'Cirebon', 'Denpasar', 'Ende', 'Fak Fak',
+  'Gorontalo', 'Gunung Sitoli', 'Jakarta', 'Jambi', 'Jayapura', 'Jember',
+  'Kendari', 'Kupang', 'Langgur', 'Lhokseumawe', 'Madiun', 'Makassar',
+  'Malang', 'Mamuju', 'Manado', 'Manokwari', 'Mataram', 'Medan', 'Merauke',
+  'Meulaboh', 'Nabire', 'Nunukan', 'Padang', 'Palangkaraya', 'Palembang',
+  'Palu', 'Pekanbaru', 'Pontianak', 'Purwokerto', 'Ranai', 'Samarinda',
+  'Sanggau', 'Semarang', 'Serui', 'Sibolga', 'Singaraja', 'Sintang',
+  'Sorong', 'Sumenep', 'Sungailiat', 'Surabaya', 'Surakarta', 'Tahuna',
+  'Takengon', 'Tanjung Pinang', 'Tarakan', 'Ternate', 'Toli Toli',
+  'Wamena', 'Yogyakarta',
+];
 
 // Dijalankan dari root repo (pola skrip cek lain).
 const baca = (relatif: string) =>
@@ -199,9 +222,36 @@ cek(
     dataMarklo.includes("label: 'Client Growth Result'"),
 );
 cek(
-  'Statistik: "Our Clients in 35+ Countries" + bendera negara',
-  marklo.includes('Our Clients in 35+ Countries') &&
-    dataMarklo.includes("bendera: '🇺🇸'"),
+  'Statistik: judul "Our Clients in 67+ Cities" + subjudul + pil kota satker (bukan negara)',
+  marklo.includes('Our Clients in 67+ Cities') &&
+    !marklo.includes('62+ Cities') &&
+    marklo.includes('From the capital to the farthest corners of Indonesia') &&
+    marklo.includes('KOTA_SATKER_MARKLO') &&
+    !marklo.includes('Our Clients in 35+ Countries') &&
+    !marklo.includes('NEGARA_MARKLO'),
+);
+cek(
+  'Statistik: KOTA_SATKER_MARKLO diturunkan dari DAFTAR_SATKER (67 stasiun, Title Case) — negara template hilang',
+  dataMarklo.includes("from './satker'") &&
+    dataMarklo.includes("tipe === 'SATKER'") &&
+    !dataMarklo.includes("nama: 'United States'") &&
+    !dataMarklo.includes("nama: 'United Kingdom'") &&
+    !dataMarklo.includes("nama: 'India'") &&
+    !dataMarklo.includes("nama: 'Australia'") &&
+    !dataMarklo.includes("nama: 'Canada'") &&
+    !dataMarklo.includes("nama: 'Germany'") &&
+    !dataMarklo.includes("nama: 'Singapore'") &&
+    !dataMarklo.includes('NEGARA_MARKLO'),
+);
+cek(
+  'Statistik: 67 pil kota persis DAFTAR_SATKER (Title Case, urutan ABJAD A–Z; tanpa Kantor Pusat/Puslitbangdiklat)',
+  KOTA_SATKER_MARKLO.length === 67 &&
+    KOTA_SATKER_MARKLO.every((kota, i) => kota === KOTA_HARAPAN[i]) &&
+    KOTA_SATKER_MARKLO.every(
+      (kota, i, arr) => i === 0 || arr[i - 1] < kota,
+    ) &&
+    !KOTA_SATKER_MARKLO.includes('Kantor Pusat') &&
+    !KOTA_SATKER_MARKLO.includes('Puslitbangdiklat'),
 );
 
 // --- 8. Process. ---
