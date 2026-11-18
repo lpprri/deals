@@ -150,7 +150,7 @@ export interface LayananMarklo {
 export const LAYANAN_MARKLO: LayananMarklo[] = [
   {
     nama: 'Radio Ads',
-    gradien: 'from-rose-100 to-pink-50',
+    gradien: 'from-blue-100 to-sky-50',
     desk: "Prime-time spots and adlibs broadcast across 67 cities — your brand heard on Indonesia's widest radio network, from the capital to the farthest corners of the country.",
     langkah: 'Attract Customer',
     logo: LOGO_PROGRAMA,
@@ -246,7 +246,7 @@ export const TESTIMONI_MARKLO: TestimoniMarklo[] = [
     nama: 'Budi Santoso',
     peran: 'CEO, Lumo Labs',
     inisial: 'BS',
-    gradien: 'from-rose-200 to-orange-100',
+    gradien: 'from-blue-200 to-sky-100',
     kutipan:
       'RRI rebuilt our funnel from scratch. Within weeks we finally knew which campaigns were making money — and which ones to stop.',
   },
@@ -278,7 +278,7 @@ export const TESTIMONI_MARKLO: TestimoniMarklo[] = [
     nama: 'Maya Kusuma',
     peran: 'Owner, Sparkle',
     inisial: 'MK',
-    gradien: 'from-amber-200 to-yellow-100',
+    gradien: 'from-sky-200 to-blue-100',
     kutipan:
       'From the first audit call it was clear they had done their homework. The plan was specific to our business, not a template.',
   },
@@ -294,7 +294,7 @@ export const TESTIMONI_MARKLO: TestimoniMarklo[] = [
     nama: 'Siti Rahmawati',
     peran: 'CEO, Beskon',
     inisial: 'SR',
-    gradien: 'from-orange-400 to-rose-400',
+    gradien: 'from-blue-400 to-sky-400',
     kutipan:
       'RRI is the growth partner we had been looking for. Revenue from paid campaigns tripled — and we can see exactly why.',
     unggulan: true,

@@ -3,10 +3,11 @@
 @theme {
   --color-rri-blue: #2573e2;
   --color-rri-navy: #0d2569;
-  /* Aksen tiruan Marklo (PR landing-marklo-clone) — vermilion, BUKAN palet RRI. */
-  --color-mk-aksen: #ff4d2e;
-  --color-mk-aksen-gelap: #e63e20;
-  --color-mk-peach: #ffede8;
+  /* Aksen landing (PR oren-ke-biru): dulu vermilion tiruan Marklo,
+     kini Biru RRI; hover gelap Navy; peach kini biru muda. */
+  --color-mk-aksen: #2573e2;
+  --color-mk-aksen-gelap: #0d2569;
+  --color-mk-peach: #e8f1fe;
 }
 
 html,

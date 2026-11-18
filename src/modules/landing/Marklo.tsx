@@ -342,7 +342,7 @@ function Hero() {
           <div className="mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row sm:gap-4">
             <span className="flex -space-x-2">
               {[
-                { inisial: 'GR', gradien: 'from-rose-400 to-orange-300' },
+                { inisial: 'GR', gradien: 'from-blue-400 to-sky-300' },
                 { inisial: 'SM', gradien: 'from-sky-400 to-blue-300' },
                 { inisial: 'PK', gradien: 'from-violet-400 to-purple-300' },
                 { inisial: 'DL', gradien: 'from-emerald-400 to-teal-300' },
@@ -570,7 +570,7 @@ function StatItem({
               <span
                 key={inisial}
                 className={`flex h-6 w-6 items-center justify-center rounded-full text-[9px] font-bold text-white ring-2 ring-white ${
-                  ['bg-rose-400', 'bg-sky-400', 'bg-violet-400'][i]
+                  ['bg-blue-400', 'bg-sky-400', 'bg-violet-400'][i]
                 }`}
                 aria-hidden="true"
               >
@@ -671,7 +671,7 @@ function Layanan() {
               onClick={() => pilihLayanan(i)}
               aria-label={`View ${layanan.nama} service`}
               className={`cursor-pointer text-sm font-medium focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-mk-aksen sm:text-base ${
-                i === 0 ? 'text-red-400' : 'text-slate-400'
+                i === 0 ? 'text-[#2573e2]' : 'text-slate-400'
               }`}
             >
               {layanan.langkah}
@@ -764,7 +764,7 @@ function Perbandingan() {
               <ul className="mt-5 space-y-4">
                 {PERBANDINGAN_LAIN.map((item) => (
                   <li key={item} className="flex items-start gap-3">
-                    <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-pink-100 text-mk-aksen">
+                    <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-blue-100 text-mk-aksen">
                       <X className="h-4 w-4" aria-hidden="true" />
                     </span>
                     <span className="text-sm leading-relaxed text-slate-500">
@@ -776,7 +776,7 @@ function Perbandingan() {
             </article>
           </Reveal>
           <Reveal tunda={140}>
-            <article className="h-full rounded-[20px] bg-mk-peach p-7 shadow-lg ring-1 ring-orange-100">
+            <article className="h-full rounded-[20px] bg-mk-peach p-7 shadow-lg ring-1 ring-blue-100">
               <h3 className="text-xl font-extrabold text-black">Our Service</h3>
               <ul className="mt-5 space-y-4">
                 {PERBANDINGAN_KAMI.map((item) => (

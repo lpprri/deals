@@ -12,7 +12,12 @@
 //   requestAnimationFrame (counter), carousel auto-advance,
 //   marquee logo, accordion FAQ, hover states.
 // - Yang DIPARKIR (penyesuaian RRI belakangan): Lacak, Ajukan,
-//   statistik live, dua bahasa, palet RRI — tidak ada di landing baru.
+//   statistik live, dua bahasa — tidak ada di landing baru.
+//   KECUALI aksen warna (PR oren-ke-biru): vermilion template diganti
+//   Biru RRI #2573E2 (hover Navy #0D2569, peach jadi biru muda #e8f1fe),
+//   gradasi avatar oren/amber/rose jadi biru/sky; merah error booking
+//   tetap merah (fungsional), logo merek Instagram/TikTok/YouTube tetap
+//   warna merek.
 //   KECUALI footer: gradien navy RRI + logo putih + kolom "Our Service"
 //   + header seamless, atas permintaan eksplisit pengguna 2026-11-17
 //   (PR landing-footer-navy-putih; judul kolom diubah jadi "Our Service"
@@ -412,25 +417,26 @@ const layananData = dataMarklo.slice(
   ),
 );
 cek(
-  'Services: gradasi kartu pucat seperti template — bukan gradasi jenuh -200/-100 (PR #92)',
-  layananData.includes("gradien: 'from-rose-100 to-pink-50'") &&
+  'Services: gradasi kartu pucat seperti template — bukan gradasi jenuh -200/-100 (PR #92; kartu pertama biru muda sejak PR oren-ke-biru)',
+  layananData.includes("gradien: 'from-blue-100 to-sky-50'") &&
     layananData.includes("gradien: 'from-sky-100 to-blue-50'") &&
     layananData.includes("gradien: 'from-violet-100 to-purple-50'") &&
     layananData.includes("gradien: 'from-emerald-100 to-teal-50'") &&
+    !layananData.includes("gradien: 'from-rose-100 to-pink-50'") &&
     !layananData.includes("gradien: 'from-rose-200 to-pink-100'") &&
     !layananData.includes("gradien: 'from-sky-200 to-blue-100'") &&
     !layananData.includes("gradien: 'from-violet-200 to-purple-100'") &&
     !layananData.includes("gradien: 'from-emerald-200 to-teal-100'"),
 );
 cek(
-  'Services: ukuran + warna dekat template — kartu lebih sempit (max-w-xl), padding lebih lega, judul lebih besar, latar putih, label pertama merah lembut (PR #92)',
+  'Services: ukuran + warna dekat template — kartu lebih sempit (max-w-xl), padding lebih lega, judul lebih besar, latar putih, label pertama biru RRI (PR oren-ke-biru)',
   marklo.includes('<section id="services" className="bg-white py-16 sm:py-20">') &&
     marklo.includes('max-w-xl rounded-[20px]') &&
     marklo.includes('p-7 shadow-md') &&
     marklo.includes('sm:p-8') &&
     marklo.includes('<h3 className="text-2xl font-extrabold text-black">') &&
     marklo.includes('text-[15px] leading-relaxed text-slate-600') &&
-    marklo.includes("i === 0 ? 'text-red-400' : 'text-slate-400'"),
+    marklo.includes("i === 0 ? 'text-[#2573e2]' : 'text-slate-400'"),
 );
 cek(
   'Services: logo beranimasi saat di-hover — goyang ringan + naik (PR #92), dimatikan bila prefers-reduced-motion',
@@ -467,10 +473,10 @@ cek(
     !marklo.includes('Our Agency'),
 );
 cek(
-  'Comparison: X merah (lain) + ceklis merah (kami), 5 butir masing-masing',
+  'Comparison: X merah (lain) + ceklis biru (kami), 5 butir masing-masing (ikon cek biru muda sejak PR oren-ke-biru)',
   dataMarklo.includes('Generic copy-paste strategies') &&
     dataMarklo.includes('Custom campaigns built on your data') &&
-    marklo.includes('bg-pink-100') &&
+    marklo.includes('bg-blue-100') &&
     marklo.includes('bg-mk-peach'),
 );
 cek(
@@ -775,9 +781,39 @@ cek(
     css.includes('prefers-reduced-motion'),
 );
 cek(
-  'Motion: token aksen vermilion di @theme index.css',
-  css.includes('--color-mk-aksen: #ff4d2e;') &&
-    css.includes('--color-mk-peach: #ffede8;'),
+  'Motion: token aksen biru RRI di @theme index.css (PR oren-ke-biru)',
+  css.includes('--color-mk-aksen: #2573e2;') &&
+    css.includes('--color-mk-aksen-gelap: #0d2569;') &&
+    css.includes('--color-mk-peach: #e8f1fe;') &&
+    !css.includes('#ff4d2e') &&
+    !css.includes('#e63e20') &&
+    !css.includes('#ffede8'),
+);
+cek(
+  'Oren-ke-biru: tidak ada lagi warna oren di landing — aksen Biru RRI, hover navy, peach biru muda, gradasi avatar biru/sky, ring + ikon cek biru; merah error booking tetap ada (PR oren-ke-biru)',
+  !marklo.includes('#ff4d2e') &&
+    !marklo.includes('ring-orange-100') &&
+    !marklo.includes('bg-pink-100') &&
+    !marklo.includes('text-red-400') &&
+    !marklo.includes('from-rose-400 to-orange-300') &&
+    !marklo.includes('bg-rose-400') &&
+    !dataMarklo.includes('from-rose-100 to-pink-50') &&
+    !dataMarklo.includes('from-rose-200 to-orange-100') &&
+    !dataMarklo.includes('from-amber-200 to-yellow-100') &&
+    !dataMarklo.includes('from-orange-400 to-rose-400') &&
+    marklo.includes('ring-blue-100') &&
+    marklo.includes('bg-blue-100') &&
+    marklo.includes("i === 0 ? 'text-[#2573e2]' : 'text-slate-400'") &&
+    marklo.includes('from-blue-400 to-sky-300') &&
+    marklo.includes('bg-blue-400') &&
+    dataMarklo.includes("gradien: 'from-blue-100 to-sky-50'") &&
+    dataMarklo.includes("gradien: 'from-blue-200 to-sky-100'") &&
+    dataMarklo.includes("gradien: 'from-sky-200 to-blue-100'") &&
+    dataMarklo.includes("gradien: 'from-blue-400 to-sky-400'") &&
+    marklo.includes('bg-red-50') &&
+    marklo.includes('text-red-800') &&
+    marklo.includes('ring-red-200') &&
+    marklo.includes('text-red-600'),
 );
 cek(
   'Motion: hover states di kartu/tombol (hover:-translate-y-1 / hover:bg-mk-aksen-gelap)',
