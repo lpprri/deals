@@ -181,14 +181,17 @@ cek(
     !dataMarklo.includes("klien: 'Reviro'"),
 );
 cek(
-  'Carousel: judul kampanye asli (Bahasa Indonesia) di ketujuh kartu',
-  dataMarklo.includes('Spot Iklan Edukasi Bahaya & Manfaat Listrik') &&
-    dataMarklo.includes('Adlibs Waspada Penipuan Mengatasnamakan PT Taspen') &&
-    dataMarklo.includes('Promosi Alfamart') &&
-    dataMarklo.includes('Goes to Campus "Ngobrol Seputar Gas: Integritas dalam Industri Hulu Migas"') &&
-    dataMarklo.includes('Event Digital Kito Galo 7th X Gemilang Palembang Raya 2026') &&
-    dataMarklo.includes('Parade Kebaya Songket: Pesona Perempuan Indonesia') &&
-    dataMarklo.includes('Re-Link (Rehabilitasi Keliling) & Pindang (Pelayanan Aplikasi)'),
+  'Carousel: judul kampanye TIDAK tampil (PR #86) — ketujuh judul hilang dari data + komponen, deskripsi tetap',
+  !dataMarklo.includes('Spot Iklan Edukasi Bahaya & Manfaat Listrik') &&
+    !dataMarklo.includes('Adlibs Waspada Penipuan Mengatasnamakan PT Taspen') &&
+    !dataMarklo.includes('Promosi Alfamart') &&
+    !dataMarklo.includes('Goes to Campus "Ngobrol Seputar Gas: Integritas dalam Industri Hulu Migas"') &&
+    !dataMarklo.includes('Event Digital Kito Galo 7th X Gemilang Palembang Raya 2026') &&
+    !dataMarklo.includes('Parade Kebaya Songket: Pesona Perempuan Indonesia') &&
+    !dataMarklo.includes('Re-Link (Rehabilitasi Keliling) & Pindang (Pelayanan Aplikasi)') &&
+    !marklo.includes('{k.judul}') &&
+    dataMarklo.includes('A public-education spot that makes electricity safety simple to understand') &&
+    dataMarklo.includes('A public-service spot that takes rehabilitation on the road'),
 );
 cek(
   'Carousel: layanan English (Radio Spot, Adlibs, Promotion, Adlibs & Interactive Dialogue, Interactive Dialogue)',

@@ -428,9 +428,6 @@ function CarouselKampanye() {
                 <div className="flex items-start justify-between gap-4 p-5">
                   <div>
                     <h3 className="text-lg font-extrabold text-black">{k.klien}</h3>
-                    <p className="mt-1 text-sm font-semibold leading-snug text-black">
-                      {k.judul}
-                    </p>
                     <p className="mt-1 text-sm leading-relaxed text-slate-500">
                       {k.ringkasan}
                     </p>
