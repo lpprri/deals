@@ -324,7 +324,7 @@ export interface FaqMarklo {
 export const FAQ_MARKLO: FaqMarklo[] = [
   {
     q: 'What services do you offer?',
-    a: 'Meta Ads, Google Ads, viral TikTok Ads, SEO, and content marketing — all built around one funnel, from first click to repeat customer.',
+    a: 'Radio Ads, Social Media Ads, Digital Platform Ads, and Dialogue & Podcast — all built around one funnel, from first click to repeat customer.',
   },
   {
     q: 'How can marketing help my business?',
@@ -332,7 +332,7 @@ export const FAQ_MARKLO: FaqMarklo[] = [
   },
   {
     q: 'How long does it take to see results?',
-    a: 'Paid campaigns usually show first signals within 2–4 weeks. SEO and content compound over months — we report progress every week so you always know where things stand.',
+    a: 'Paid campaigns usually show first signals within 2–4 weeks. We report progress every week so you always know where things stand.',
   },
   {
     q: 'Do you work with businesses of all sizes?',

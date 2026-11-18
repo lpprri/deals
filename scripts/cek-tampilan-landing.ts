@@ -549,6 +549,14 @@ cek(
   dataMarklo.includes('2–4 weeks') &&
     dataMarklo.includes('cost per acquisition'),
 );
+cek(
+  'FAQ: jawaban layanan = 4 layanan RRI; daftar lama (Meta/Google/TikTok/SEO) hilang',
+  dataMarklo.includes(
+    'Radio Ads, Social Media Ads, Digital Platform Ads, and Dialogue & Podcast',
+  ) &&
+    !dataMarklo.includes('Meta Ads, Google Ads, viral TikTok Ads') &&
+    !dataMarklo.includes('SEO and content compound'),
+);
 
 // --- 15. Footer gelap. ---
 // Substring footer saja untuk asersi urutan kolom.
