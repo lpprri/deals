@@ -78,7 +78,6 @@ import { LOGO_DEALS_DATA_URI } from '../../lib/logoDeals';
 import {
   FAQ_MARKLO,
   KAMPANYE_MARKLO,
-  KOTA_SATKER_MARKLO,
   LAYANAN_MARKLO,
   LOGO_KLIEN_MARKLO,
   MANFAAT_MARKLO,
@@ -90,6 +89,7 @@ import {
   TESTIMONI_MARKLO,
   ZONA_WAKTU_MARKLO,
 } from '../../lib/landingMarklo';
+import { KOTA_SATKER_MARKLO } from '../../lib/landingMarklo';
 import type { BookingPublikInput } from '../../lib/store';
 
 export interface MarkloLandingProps {
