@@ -90,6 +90,23 @@ body {
   background: linear-gradient(105deg, #1a3a8a 0%, #0d2569 55%, #04122e 100%);
 }
 
+/* ---------- Fade tepi marquee logo mitra (PR #98) ----------
+   Gradasi fade di ujung kiri & kanan strip logo supaya logo menghilang
+   mulus saat bergeser keluar, seperti template Marklo. Warna fade
+   MENGIKUTI latar gradasi diagonal navy section ini (PR #97) — jadi
+   kiri dan kanan TIDAK satu warna yang sama: kiri mendekati ujung
+   terang gradasi (#1a3a8a), kanan mendekati ujung gelap (#04122e).
+   Ujung transparan memakai warna yang sama dengan alpha 0 (bukan kata
+   kunci `transparent`, yang berinterpolasi lewat hitam dan menggelapkan
+   tengah gradasi). Overlay dipasang pointer-events-none supaya hover
+   tetap sampai ke .mk-marquee (pause saat hover, PR #81). */
+.mk-fade-tepi-kiri {
+  background: linear-gradient(to right, #1a3a8a, rgb(26 58 138 / 0));
+}
+.mk-fade-tepi-kanan {
+  background: linear-gradient(to left, #04122e, rgb(4 18 46 / 0));
+}
+
 /* ---------- Animasi section Services (PR landing-layanan-logo) ----------
    Meniru gerakan template Marklo: kartu tangga melayang pelan (stagger
    per kartu) dan garis penghubung putus-putus yang "berjalan" ke bawah,

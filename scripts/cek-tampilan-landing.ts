@@ -497,6 +497,16 @@ cek(
     !marklo.includes('<LabelPill>Comparison</LabelPill>'),
 );
 cek(
+  'Comparison: strip logo fade-out di ujung kiri & kanan (PR #98, warna mengikuti latar navy — kiri #1a3a8a, kanan #04122e, BUKAN satu warna sama)',
+  marklo.includes('<div className="relative mt-12 overflow-hidden py-5">') &&
+    marklo.includes('mk-fade-tepi-kiri pointer-events-none absolute inset-y-0 left-0') &&
+    marklo.includes('mk-fade-tepi-kanan pointer-events-none absolute inset-y-0 right-0') &&
+    css.includes('.mk-fade-tepi-kiri {') &&
+    css.includes('linear-gradient(to right, #1a3a8a, rgb(26 58 138 / 0))') &&
+    css.includes('.mk-fade-tepi-kanan {') &&
+    css.includes('linear-gradient(to left, #04122e, rgb(4 18 46 / 0))'),
+);
+cek(
   'Comparison: wordmark contoh template (ZenZap, Sparkle, Innovio, Craftgram, Lumo Labs) tidak ada lagi',
   !dataMarklo.includes("'ZenZap'") &&
     !dataMarklo.includes("'Sparkle'") &&
