@@ -355,6 +355,44 @@ cek(
     css.includes('@keyframes mk-garis-bergerak') &&
     !marklo.includes('border-l-2 border-dashed'),
 );
+// Blok data LAYANAN_MARKLO saja (gradien -200/-100 yang sama juga dipakai
+// TESTIMONI_MARKLO — di luar cakupan PR #92, jangan ikut dihitung).
+const layananData = dataMarklo.slice(
+  dataMarklo.indexOf('export const LAYANAN_MARKLO'),
+  dataMarklo.indexOf(
+    '];',
+    dataMarklo.indexOf('export const LAYANAN_MARKLO'),
+  ),
+);
+cek(
+  'Services: gradasi kartu pucat seperti template — bukan gradasi jenuh -200/-100 (PR #92)',
+  layananData.includes("gradien: 'from-rose-100 to-pink-50'") &&
+    layananData.includes("gradien: 'from-sky-100 to-blue-50'") &&
+    layananData.includes("gradien: 'from-violet-100 to-purple-50'") &&
+    layananData.includes("gradien: 'from-emerald-100 to-teal-50'") &&
+    !layananData.includes("gradien: 'from-rose-200 to-pink-100'") &&
+    !layananData.includes("gradien: 'from-sky-200 to-blue-100'") &&
+    !layananData.includes("gradien: 'from-violet-200 to-purple-100'") &&
+    !layananData.includes("gradien: 'from-emerald-200 to-teal-100'"),
+);
+cek(
+  'Services: ukuran + warna dekat template — kartu lebih sempit (max-w-xl), padding lebih lega, judul lebih besar, latar putih, label pertama merah lembut (PR #92)',
+  marklo.includes('<section id="services" className="bg-white py-16 sm:py-20">') &&
+    marklo.includes('max-w-xl rounded-[20px]') &&
+    marklo.includes('p-7 shadow-md') &&
+    marklo.includes('sm:p-8') &&
+    marklo.includes('<h3 className="text-2xl font-extrabold text-black">') &&
+    marklo.includes('text-[15px] leading-relaxed text-slate-600') &&
+    marklo.includes("i === 0 ? 'text-red-400' : 'text-slate-400'"),
+);
+cek(
+  'Services: logo beranimasi saat di-hover — goyang ringan + naik (PR #92), dimatikan bila prefers-reduced-motion',
+  marklo.includes('mk-logo-layanan h-10 w-auto sm:h-12') &&
+    css.includes('@keyframes mk-logo-goyang') &&
+    css.includes('.mk-logo-layanan:hover') &&
+    css.includes('mk-logo-goyang 0.7s ease-in-out infinite') &&
+    (css.match(/mk-logo-layanan/g) || []).length >= 3,
+);
 
 // --- 10. Comparison. ---
 cek(

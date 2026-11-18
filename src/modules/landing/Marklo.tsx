@@ -632,7 +632,7 @@ function Layanan() {
     timerSorot.current = window.setTimeout(() => setSorot(null), 1600);
   }
   return (
-    <section id="services" className="bg-slate-50 py-16 sm:py-20">
+    <section id="services" className="bg-white py-16 sm:py-20">
       <div className="mx-auto max-w-7xl px-4 text-center sm:px-6">
         <Reveal>
           <LabelPill>Services</LabelPill>
@@ -651,8 +651,8 @@ function Layanan() {
               type="button"
               onClick={() => pilihLayanan(i)}
               aria-label={`View ${layanan.nama} service`}
-              className={`cursor-pointer text-sm font-semibold focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-mk-aksen sm:text-base ${
-                i === 0 ? 'text-mk-aksen' : 'text-slate-400'
+              className={`cursor-pointer text-sm font-medium focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-mk-aksen sm:text-base ${
+                i === 0 ? 'text-red-400' : 'text-slate-400'
               }`}
             >
               {layanan.langkah}
@@ -669,27 +669,28 @@ function Layanan() {
               <Reveal tunda={i * 100}>
                 <article
                   id={`layanan-${i}`}
-                  className={`scroll-mt-24 rounded-[20px] bg-gradient-to-br ${layanan.gradien} p-6 shadow-md transition hover:shadow-lg ${
+                  className={`scroll-mt-24 max-w-xl rounded-[20px] bg-gradient-to-br ${layanan.gradien} p-7 shadow-md transition hover:shadow-lg sm:p-8 ${
                     sorot === i ? 'ring-2 ring-mk-aksen' : 'ring-1 ring-white'
                   }`}
                 >
-                  {/* Logo langsung di atas gradasi kartu, tanpa chip putih (PR #90). */}
+                  {/* Logo langsung di atas gradasi kartu, tanpa chip putih (PR #90).
+                      Logo bergoyang saat di-hover (PR #92). */}
                   <div className="flex flex-wrap items-center gap-2">
                     {layanan.logo.map((item) => (
                       <img
                         key={item.nama}
                         src={item.logoDataUri}
                         alt={item.nama}
-                        className="h-9 w-auto sm:h-11"
+                        className="mk-logo-layanan h-10 w-auto sm:h-12"
                         loading="lazy"
                       />
                     ))}
                   </div>
                   <div className="mt-3">
-                    <h3 className="text-xl font-extrabold text-black">
+                    <h3 className="text-2xl font-extrabold text-black">
                       {layanan.nama}
                     </h3>
-                    <p className="mt-1 text-sm leading-relaxed text-slate-600">
+                    <p className="mt-1 text-[15px] leading-relaxed text-slate-600">
                       {layanan.desk}
                     </p>
                   </div>
@@ -697,9 +698,11 @@ function Layanan() {
               </Reveal>
               {i < LAYANAN_MARKLO.length - 1 && (
                 <div
-                  className="mk-garis-funnel mx-auto h-8 w-0.5"
+                  className={OFFSET_FUNNEL[i + 1]}
                   aria-hidden="true"
-                />
+                >
+                  <div className="mk-garis-funnel h-8 w-0.5" />
+                </div>
               )}
             </div>
           ))}

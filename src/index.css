@@ -102,6 +102,34 @@ body {
   background-size: 100% 12px;
   animation: mk-garis-bergerak 1s linear infinite;
 }
+
+/* ---------- Animasi hover logo layanan (PR #92) ----------
+   Meniru interaksi template Marklo: tiap logo bergerak (goyang ringan
+   + naik sedikit + membesar sedikit) ketika didekati/di-hover kursor.
+   Animasi berulang selama kursor di atas logo; transisi menghaluskan
+   saat kursor pergi. Tanpa dependensi baru; hormati
+   prefers-reduced-motion di bawah. */
+@keyframes mk-logo-goyang {
+  0%,
+  100% {
+    transform: translateY(0) rotate(0deg) scale(1);
+  }
+  25% {
+    transform: translateY(-3px) rotate(-4deg) scale(1.06);
+  }
+  50% {
+    transform: translateY(-3px) rotate(3deg) scale(1.06);
+  }
+  75% {
+    transform: translateY(-3px) rotate(-2deg) scale(1.06);
+  }
+}
+.mk-logo-layanan {
+  transition: transform 0.3s ease;
+}
+.mk-logo-layanan:hover {
+  animation: mk-logo-goyang 0.7s ease-in-out infinite;
+}
 @media (prefers-reduced-motion: reduce) {
   .mk-reveal {
     opacity: 1;
@@ -113,7 +141,8 @@ body {
     animation: none;
   }
   .mk-layang,
-  .mk-garis-funnel {
+  .mk-garis-funnel,
+  .mk-logo-layanan {
     animation: none;
   }
 }
