@@ -886,10 +886,13 @@ export default function App() {
       // Landing page tiruan template Marklo (PR landing-marklo-clone).
       // Komponen landing lama (Beranda.tsx + landing/*) tetap di repo,
       // tidak dipakai di route `/` untuk sementara — putaran penyesuaian
-      // akan mengintegrasikan kembali Lacak/Ajukan/statistik live/dua bahasa.
+      // akan mengintegrasikan kembali Ajukan/statistik live/dua bahasa;
+      // Lacak SUDAH terhubung lewat footer "Track your Deal" (Client
+      // Portal) sejak PR footer-site-map-client-portal.
       return (
         <MarkloLanding
           onLogin={() => setHalamanPublik('login')}
+          onLacak={() => setHalamanPublik('lacak')}
           onKirimBooking={kirimBookingPublik}
         />
       );
