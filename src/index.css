@@ -67,6 +67,41 @@ body {
 .mk-marquee:hover {
   animation-play-state: paused;
 }
+
+/* ---------- Animasi section Services (PR landing-layanan-logo) ----------
+   Meniru gerakan template Marklo: kartu tangga melayang pelan (stagger
+   per kartu) dan garis penghubung putus-putus yang "berjalan" ke bawah,
+   mengikuti arah funnel. Tanpa dependensi baru; hormati
+   prefers-reduced-motion di bawah. */
+@keyframes mk-layang {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-6px);
+  }
+}
+.mk-layang {
+  animation: mk-layang 6s ease-in-out infinite;
+}
+@keyframes mk-garis-bergerak {
+  from {
+    background-position-y: 0;
+  }
+  to {
+    background-position-y: 12px;
+  }
+}
+.mk-garis-funnel {
+  background-image: repeating-linear-gradient(
+    to bottom,
+    #cbd5e1 0 6px,
+    transparent 6px 12px
+  );
+  background-size: 100% 12px;
+  animation: mk-garis-bergerak 1s linear infinite;
+}
 @media (prefers-reduced-motion: reduce) {
   .mk-reveal {
     opacity: 1;
@@ -75,6 +110,10 @@ body {
     transition: none;
   }
   .mk-marquee {
+    animation: none;
+  }
+  .mk-layang,
+  .mk-garis-funnel {
     animation: none;
   }
 }
