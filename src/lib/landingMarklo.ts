@@ -165,28 +165,28 @@ export interface LayananMarklo {
 export const LAYANAN_MARKLO: LayananMarklo[] = [
   {
     nama: 'Radio Ads',
-    gradien: 'from-rose-200 to-pink-100',
+    gradien: 'from-rose-100 to-pink-50',
     desk: "Prime-time spots and adlibs broadcast across 67 cities — your brand heard on Indonesia's widest radio network, from the capital to the farthest corners of the country.",
     langkah: 'Attract Customer',
     logo: LOGO_PROGRAMA,
   },
   {
     nama: 'Social Media Ads',
-    gradien: 'from-sky-200 to-blue-100',
+    gradien: 'from-sky-100 to-blue-50',
     desk: 'Thumb-stopping creative built for the feed — turning scrollers into followers, and followers into customers.',
     langkah: 'Engage Prospect',
     logo: LOGO_SOSIAL,
   },
   {
     nama: 'Digital Platform Ads',
-    gradien: 'from-violet-200 to-purple-100',
+    gradien: 'from-violet-100 to-purple-50',
     desk: "Your brand across RRI's digital platforms — display, video, and streaming — so your message follows listeners from the radio to the screen.",
     langkah: 'Convert Clients',
     logo: LOGO_PLATFORM,
   },
   {
     nama: 'Dialogue & Podcast',
-    gradien: 'from-emerald-200 to-teal-100',
+    gradien: 'from-emerald-100 to-teal-50',
     desk: 'Interactive dialogues and podcasts that give your story room to breathe — real conversations, live on air and on demand.',
     langkah: 'Retain Clients',
     logo: LOGO_YOUTUBE,
