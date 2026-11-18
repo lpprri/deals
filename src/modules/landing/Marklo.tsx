@@ -627,14 +627,48 @@ function Layanan() {
             Multi-platform marketing for predictable, lasting growth.
           </h2>
         </Reveal>
-        <div className="mx-auto mt-12 max-w-3xl text-left">
+        {/* Baris label langkah template — dipetakan ke layanan RRI (PR #85):
+            label pertama merah seperti template, sisanya slate. */}
+        <div className="mx-auto mt-12 flex max-w-3xl flex-wrap items-baseline justify-between gap-x-4 gap-y-1 text-left">
           {LAYANAN_MARKLO.map((layanan, i) => (
-            <div key={layanan.nama} className={OFFSET_FUNNEL[i]}>
+            <span
+              key={layanan.nama}
+              className={`text-sm font-semibold sm:text-base ${
+                i === 0 ? 'text-mk-aksen' : 'text-slate-400'
+              }`}
+            >
+              {layanan.langkah}
+            </span>
+          ))}
+        </div>
+        <div className="mx-auto mt-6 max-w-3xl text-left">
+          {LAYANAN_MARKLO.map((layanan, i) => (
+            <div
+              key={layanan.nama}
+              className={`mk-layang ${OFFSET_FUNNEL[i]}`}
+              style={{ animationDelay: `${i * 1.2}s` }}
+            >
               <Reveal tunda={i * 100}>
                 <article
-                  className={`rounded-[20px] bg-gradient-to-br ${layanan.gradien} p-6 shadow-md ring-1 ring-white transition hover:-translate-y-1 hover:shadow-lg`}
+                  className={`rounded-[20px] bg-gradient-to-br ${layanan.gradien} p-6 shadow-md ring-1 ring-white transition hover:shadow-lg`}
                 >
-                  <div>
+                  {/* Chip logo putih di atas judul, seperti kotak ikon template. */}
+                  <div className="flex flex-wrap items-center gap-2">
+                    {layanan.logo.map((item) => (
+                      <span
+                        key={item.nama}
+                        className="inline-flex h-9 items-center justify-center rounded-lg bg-white px-1.5 py-1 shadow-sm ring-1 ring-slate-200/70 sm:h-11"
+                      >
+                        <img
+                          src={item.logoDataUri}
+                          alt={item.nama}
+                          className="h-full w-auto"
+                          loading="lazy"
+                        />
+                      </span>
+                    ))}
+                  </div>
+                  <div className="mt-3">
                     <h3 className="text-xl font-extrabold text-black">
                       {layanan.nama}
                     </h3>
@@ -646,7 +680,7 @@ function Layanan() {
               </Reveal>
               {i < LAYANAN_MARKLO.length - 1 && (
                 <div
-                  className="mx-auto h-8 w-0 border-l-2 border-dashed border-slate-300"
+                  className="mk-garis-funnel mx-auto h-8 w-0.5"
                   aria-hidden="true"
                 />
               )}

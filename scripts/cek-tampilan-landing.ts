@@ -65,6 +65,7 @@ const app = baca('src/App.tsx');
 const marklo = baca('src/modules/landing/Marklo.tsx');
 const dataMarklo = baca('src/lib/landingMarklo.ts');
 const logoMitra = baca('src/lib/logoMitra.ts');
+const logoLayanan = baca('src/lib/logoLayanan.ts');
 const css = baca('src/index.css');
 const firestoreStore = baca('src/lib/firestoreStore.ts');
 const rules = baca('firestore.rules');
@@ -288,15 +289,36 @@ cek(
     dataMarklo.includes("nama: 'Dialogue & Podcast'"),
 );
 cek(
-  'Services: keempat deskripsi layanan ada + teks funnel lama hilang (tahap/tag/Step/35X)',
+  'Services: label langkah template dipetakan ke layanan RRI (Attract→Radio, Engage→Social, Convert→Digital, Retain→Dialogue)',
+  dataMarklo.includes("langkah: 'Attract Customer'") &&
+    dataMarklo.includes("langkah: 'Engage Prospect'") &&
+    dataMarklo.includes("langkah: 'Convert Clients'") &&
+    dataMarklo.includes("langkah: 'Retain Clients'") &&
+    marklo.includes('layanan.langkah'),
+);
+cek(
+  'Services: logo per layanan ter-embed (programa 1-4, Instagram+TikTok, RRI Digital+rri.co.id, YouTube)',
+  dataMarklo.includes('logo: LOGO_PROGRAMA') &&
+    dataMarklo.includes('logo: LOGO_SOSIAL') &&
+    dataMarklo.includes('logo: LOGO_PLATFORM') &&
+    dataMarklo.includes('logo: LOGO_YOUTUBE') &&
+    logoLayanan.includes("nama: 'Pro 1'") &&
+    logoLayanan.includes("nama: 'Pro 4'") &&
+    logoLayanan.includes("nama: 'Instagram'") &&
+    logoLayanan.includes("nama: 'TikTok'") &&
+    logoLayanan.includes("nama: 'RRI Digital'") &&
+    logoLayanan.includes("nama: 'rri.co.id'") &&
+    logoLayanan.includes("nama: 'YouTube'") &&
+    logoLayanan.includes('data:image/webp;base64,') &&
+    logoLayanan.includes('data:image/svg+xml,') &&
+    marklo.includes('layanan.logo.map'),
+);
+cek(
+  'Services: keempat deskripsi layanan ada + teks funnel lama hilang (tag/Step/35X)',
   dataMarklo.includes("Prime-time spots and adlibs broadcast across 67 cities") &&
     dataMarklo.includes('Thumb-stopping creative built for the feed') &&
     dataMarklo.includes("Your brand across RRI's digital platforms") &&
     dataMarklo.includes('Interactive dialogues and podcasts that give your story room to breathe') &&
-    !dataMarklo.includes("tahap: 'Attract Customer'") &&
-    !dataMarklo.includes("tahap: 'Engage Prospect'") &&
-    !dataMarklo.includes("tahap: 'Convert Clients'") &&
-    !dataMarklo.includes("tahap: 'Retain Clients'") &&
     !dataMarklo.includes("layanan: 'Meta Ads'") &&
     !dataMarklo.includes("layanan: 'Google Ads'") &&
     !dataMarklo.includes("layanan: 'Viral TikTok Ads'") &&
@@ -306,9 +328,13 @@ cek(
     !marklo.includes('Client Growth'),
 );
 cek(
-  'Services: susunan tangga diagonal + garis penghubung putus-putus vertikal',
+  'Services: susunan tangga diagonal + garis penghubung beranimasi + kartu melayang (gaya template)',
   marklo.includes('OFFSET_FUNNEL') &&
-    marklo.includes('border-l-2 border-dashed'),
+    marklo.includes('mk-layang') &&
+    marklo.includes('mk-garis-funnel') &&
+    css.includes('@keyframes mk-layang') &&
+    css.includes('@keyframes mk-garis-bergerak') &&
+    !marklo.includes('border-l-2 border-dashed'),
 );
 
 // --- 10. Comparison. ---
