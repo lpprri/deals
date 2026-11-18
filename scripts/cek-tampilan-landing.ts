@@ -469,7 +469,7 @@ cek(
     marklo.includes('bg-mk-peach'),
 );
 cek(
-  'Comparison: strip logo = 10 logo mitra nyata RRI (marquee, gambar <img>)',
+  'Comparison: strip logo = 10 logo mitra nyata RRI (marquee, gambar <img>) tanpa garis pembatas di atas & bawah',
   ['Taspen', 'Bank Sumsel Babel', 'PLN', 'Alfamart', 'MedcoEnergi', 'Bea Cukai', 'Bank Indonesia', 'BNN', 'DJP', 'Komdigi'].every((nama) =>
     logoMitra.includes(`nama: '${nama}'`),
   ) &&
@@ -478,7 +478,8 @@ cek(
     marklo.includes('<img') &&
     marklo.includes('logo.logoDataUri') &&
     marklo.includes('grayscale') &&
-    marklo.includes('opacity-60'),
+    marklo.includes('opacity-60') &&
+    !marklo.includes('border-y'),
 );
 cek(
   'Comparison: wordmark contoh template (ZenZap, Sparkle, Innovio, Craftgram, Lumo Labs) tidak ada lagi',

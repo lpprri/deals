@@ -780,7 +780,7 @@ function Perbandingan() {
           </Reveal>
         </div>
         <Reveal tunda={200}>
-          <div className="mt-12 overflow-hidden border-y border-slate-200 py-5">
+          <div className="mt-12 overflow-hidden py-5">
             <div className="mk-marquee flex w-max items-center gap-12">
               {[...LOGO_KLIEN_MARKLO, ...LOGO_KLIEN_MARKLO].map((logo, i) => (
                 <img
