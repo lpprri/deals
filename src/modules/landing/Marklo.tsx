@@ -504,16 +504,24 @@ function Statistik() {
             <p className="mt-1 text-sm text-slate-500">
               From the capital to the farthest corners of Indonesia
             </p>
-            <ul className="mt-4 flex flex-wrap items-center justify-center gap-2">
-              {KOTA_SATKER_MARKLO.map((kota) => (
-                <li
-                  key={kota}
-                  className="inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-600"
-                >
-                  {kota}
-                </li>
-              ))}
-            </ul>
+            <div className="mt-4 overflow-hidden">
+              <ul
+                className="mk-marquee flex w-max items-center gap-2"
+                style={{ animationDuration: '90s' }}
+              >
+                {[...KOTA_SATKER_MARKLO, ...KOTA_SATKER_MARKLO].map(
+                  (kota, i) => (
+                    <li
+                      key={`${kota}-${i}`}
+                      aria-hidden={i >= KOTA_SATKER_MARKLO.length}
+                      className="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-600"
+                    >
+                      {kota}
+                    </li>
+                  ),
+                )}
+              </ul>
+            </div>
           </div>
         </Reveal>
       </div>

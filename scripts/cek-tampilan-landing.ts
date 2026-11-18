@@ -253,6 +253,13 @@ cek(
     !KOTA_SATKER_MARKLO.includes('Kantor Pusat') &&
     !KOTA_SATKER_MARKLO.includes('Puslitbangdiklat'),
 );
+cek(
+  'Statistik: pil kota dirender sebagai marquee horizontal tak berujung (daftar terduplikasi, seperti strip logo mitra)',
+  marklo.includes('[...KOTA_SATKER_MARKLO, ...KOTA_SATKER_MARKLO]') &&
+    marklo.includes('mk-marquee flex w-max items-center gap-2') &&
+    marklo.includes("animationDuration: '90s'") &&
+    !marklo.includes('flex flex-wrap items-center justify-center gap-2'),
+);
 
 // --- 8. Process. ---
 cek(
