@@ -32,10 +32,21 @@
 //
 // Palet HANYA 3 warna RRI: Biru #2573E2, Navy #0D2569, Putih #FFFFFF.
 // Status dibedakan teks & ikon (StatusBadge), bukan warna baru.
+//
+// REDESAIN GAYA 2026-11-18 (permintaan pengguna, dari screenshot):
+// tampilan mengikuti gaya login page (PR #99) — kolom tunggal terpusat
+// ~400px, latar off-white #f5f2f2 + gradasi pucat biru/navy di bawah,
+// logo lockup RRI lengkap h-20, field pill + tombol pill biru
+// full-width, tombol "Back to Landing Page" di kiri atas. HANYA gaya:
+// semua copy/teks dan logika lacak (Function + fallback contoh) TIDAK
+// berubah. Hasil lacak tetap di dalam kolom tengah yang sama; grid
+// StatCard 4 kolom jadi 2 kolom dan tabel dokumen dibungkus
+// overflow-x-auto supaya muat di kolom 400px.
 
 import { useState } from 'react';
 import type { FormEvent } from 'react';
-import { FileText } from 'lucide-react';
+import { ArrowLeft, FileText } from 'lucide-react';
+import { LOGO_RRI_LOCKUP_DATA_URI } from '../lib/logoRriLockup';
 import type {
   AppData,
   DokumenItem,
@@ -58,7 +69,6 @@ import {
   Baris,
   JudulBagian,
   Kartu,
-  Label,
   Peringatan,
   PesanKosong,
   StatCard,
@@ -66,9 +76,6 @@ import {
   Tabel,
   Td,
   Th,
-  TombolSekunder,
-  TombolUtama,
-  inputClass,
 } from '../components/ui';
 
 export interface LacakProps {
@@ -288,61 +295,87 @@ export default function Lacak({ data, onKembali, modeLive = false }: LacakProps)
   );
 
   return (
-    <div className="min-h-screen bg-white">
-      <header className="flex flex-wrap items-center gap-4 border-b border-[#2573e2]/15 px-6 py-4">
-        <img src="/logo-rri.svg" alt="Logo RRI" className="h-9 w-auto" />
-        <div>
-          <h1 className="text-xl font-bold text-[#0d2569]">
-            Track Partnership
-          </h1>
-          <p className="text-sm text-[#0d2569]/70">
-            Track your partnership status with your PKS or invoice number —
-            no sign-in required.
-          </p>
-        </div>
-        <div className="ml-auto">
-          <TombolSekunder onClick={onKembali}>Back to Home</TombolSekunder>
-        </div>
-      </header>
+    <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-[#f5f2f2] px-4 py-16">
+      {/* Gradasi pucat biru/navy di bagian bawah (pola yang sama seperti
+          halaman login) — dekoratif saja. */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-x-0 bottom-0 h-80 bg-gradient-to-t from-[#2573e2]/15 via-[#0d2569]/10 to-transparent"
+      />
 
-      <main className="mx-auto max-w-5xl space-y-6 px-6 py-6">
-        <Kartu>
-          <form onSubmit={lacak} className="grid gap-4 md:grid-cols-[1fr_auto]">
-            <div>
-              <Label>PKS or invoice number</Label>
-              <input
-                className={inputClass}
-                value={kode}
-                onChange={(e) => setKode(e.target.value)}
-                placeholder="Example: 0603/PKS/RRI.PLB/01/2026"
-                autoComplete="off"
-              />
-            </div>
-            <div className="flex items-end">
-              <TombolUtama type="submit" disabled={mencari}>
-                {mencari ? 'Searching…' : 'Track'}
-              </TombolUtama>
-            </div>
-          </form>
-          {sumber === 'fungsi' && (
-            <p className="mt-3 text-xs text-[#0d2569]/60">
-              Source: live Firestore data.
-            </p>
-          )}
-          {sumber === 'contoh' && (
-            <div className="mt-4">
-              <Peringatan teks="Live lookup is unavailable (the Cloud Function has not been deployed yet) — showing sample data for this number." />
-            </div>
-          )}
-          {pesan !== null && (
-            <div className="mt-4">
-              <Peringatan teks={pesan} />
-            </div>
-          )}
-        </Kartu>
+      {/* Tombol sudut kiri atas kembali ke landing page (pola login). */}
+      <button
+        type="button"
+        onClick={onKembali}
+        className="absolute left-4 top-4 z-10 inline-flex items-center gap-1.5 rounded-full border border-[#0d2569]/15 bg-white/80 px-3 py-2 text-xs font-semibold text-[#0d2569] hover:border-[#2573e2] hover:text-[#2573e2] sm:left-6 sm:top-6"
+      >
+        <ArrowLeft className="h-3.5 w-3.5" aria-hidden />
+        Back to Landing Page
+      </button>
+
+      {/* Kolom terpusat ~400px (pola login). */}
+      <div className="relative w-full max-w-[400px]">
+        <div className="text-center">
+          {/* Logo lockup lengkap RRI (mark + teks di dalam gambar),
+              h-20 seperti login. */}
+          <img
+            src={LOGO_RRI_LOCKUP_DATA_URI}
+            alt="Logo RRI"
+            className="mx-auto h-20 w-auto"
+          />
+        </div>
+
+        <h1 className="mt-8 text-center text-3xl font-bold text-[#0d2569]">
+          Track Partnership
+        </h1>
+        <p className="mt-2 text-center text-sm text-[#0d2569]/70">
+          Track your partnership status with your PKS or invoice number —
+          no sign-in required.
+        </p>
+
+        <form onSubmit={lacak} className="mt-6 space-y-5">
+          <div>
+            <label
+              htmlFor="lacak-kode"
+              className="mb-1.5 block text-sm font-bold text-[#0d2569]"
+            >
+              PKS or invoice number
+            </label>
+            <input
+              id="lacak-kode"
+              className="w-full rounded-full border border-[#0d2569]/20 bg-white px-4 py-2.5 text-sm text-[#0d2569] outline-none placeholder:text-[#0d2569]/40 focus:border-[#2573e2] focus:ring-2 focus:ring-[#2573e2]/20"
+              value={kode}
+              onChange={(e) => setKode(e.target.value)}
+              placeholder="Example: 0603/PKS/RRI.PLB/01/2026"
+              autoComplete="off"
+            />
+          </div>
+          <button
+            type="submit"
+            disabled={mencari}
+            className="w-full rounded-full bg-[#2573e2] px-4 py-3 text-sm font-bold text-white hover:bg-[#0d2569] disabled:opacity-60"
+          >
+            {mencari ? 'Searching…' : 'Track'}
+          </button>
+        </form>
+        {sumber === 'fungsi' && (
+          <p className="mt-3 text-xs text-[#0d2569]/60">
+            Source: live Firestore data.
+          </p>
+        )}
+        {sumber === 'contoh' && (
+          <div className="mt-4">
+            <Peringatan teks="Live lookup is unavailable (the Cloud Function has not been deployed yet) — showing sample data for this number." />
+          </div>
+        )}
+        {pesan !== null && (
+          <div className="mt-4">
+            <Peringatan teks={pesan} />
+          </div>
+        )}
 
         {kontrak && (
-          <>
+          <div className="mt-6 space-y-6">
             <Kartu>
               <JudulBagian>Partnership summary</JudulBagian>
               <dl className="mt-3 grid gap-3 text-sm md:grid-cols-2">
@@ -399,7 +432,7 @@ export default function Lacak({ data, onKembali, modeLive = false }: LacakProps)
               </dl>
             </Kartu>
 
-            <div className="grid gap-4 md:grid-cols-4">
+            <div className="grid grid-cols-2 gap-4">
               <StatCard
                 label="Contract value"
                 nilai={formatRupiah(kontrak.nilaiKontrak)}
@@ -498,9 +531,9 @@ export default function Lacak({ data, onKembali, modeLive = false }: LacakProps)
                 </Tabel>
               )}
             </Kartu>
-          </>
+          </div>
         )}
-      </main>
+      </div>
     </div>
   );
 }
