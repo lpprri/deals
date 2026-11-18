@@ -615,6 +615,22 @@ function Proses() {
 const OFFSET_FUNNEL = ['', 'sm:pl-10', 'sm:pl-20', 'sm:pl-32'];
 
 function Layanan() {
+  const [sorot, setSorot] = useState<number | null>(null);
+  const timerSorot = useRef<number | null>(null);
+  useEffect(() => {
+    return () => {
+      if (timerSorot.current !== null) window.clearTimeout(timerSorot.current);
+    };
+  }, []);
+  /** Klik label langkah: gulir halus ke kartu layanannya + sorot singkat (PR #91). */
+  function pilihLayanan(i: number) {
+    if (timerSorot.current !== null) window.clearTimeout(timerSorot.current);
+    document
+      .getElementById(`layanan-${i}`)
+      ?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    setSorot(i);
+    timerSorot.current = window.setTimeout(() => setSorot(null), 1600);
+  }
   return (
     <section id="services" className="bg-slate-50 py-16 sm:py-20">
       <div className="mx-auto max-w-7xl px-4 text-center sm:px-6">
@@ -625,17 +641,22 @@ function Layanan() {
           </h2>
         </Reveal>
         {/* Baris label langkah template — dipetakan ke layanan RRI (PR #85):
-            label pertama merah seperti template, sisanya slate. */}
+            label pertama merah seperti template, sisanya slate.
+            Label bisa di-klik (PR #91): tiap label tombol yang menggulir
+            halus ke kartu layanannya + sorot singkat; tampilan tetap. */}
         <div className="mx-auto mt-12 flex max-w-3xl flex-wrap items-baseline justify-between gap-x-4 gap-y-1 text-left">
           {LAYANAN_MARKLO.map((layanan, i) => (
-            <span
+            <button
               key={layanan.nama}
-              className={`text-sm font-semibold sm:text-base ${
+              type="button"
+              onClick={() => pilihLayanan(i)}
+              aria-label={`View ${layanan.nama} service`}
+              className={`cursor-pointer text-sm font-semibold focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-mk-aksen sm:text-base ${
                 i === 0 ? 'text-mk-aksen' : 'text-slate-400'
               }`}
             >
               {layanan.langkah}
-            </span>
+            </button>
           ))}
         </div>
         <div className="mx-auto mt-6 max-w-3xl text-left">
@@ -647,7 +668,10 @@ function Layanan() {
             >
               <Reveal tunda={i * 100}>
                 <article
-                  className={`rounded-[20px] bg-gradient-to-br ${layanan.gradien} p-6 shadow-md ring-1 ring-white transition hover:shadow-lg`}
+                  id={`layanan-${i}`}
+                  className={`scroll-mt-24 rounded-[20px] bg-gradient-to-br ${layanan.gradien} p-6 shadow-md transition hover:shadow-lg ${
+                    sorot === i ? 'ring-2 ring-mk-aksen' : 'ring-1 ring-white'
+                  }`}
                 >
                   {/* Logo langsung di atas gradasi kartu, tanpa chip putih (PR #90). */}
                   <div className="flex flex-wrap items-center gap-2">

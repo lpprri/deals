@@ -300,6 +300,17 @@ cek(
     marklo.includes('layanan.langkah'),
 );
 cek(
+  'Services: label langkah bisa di-klik — button (bukan span) yang smooth-scroll ke kartu + sorot singkat (PR #91)',
+  marklo.includes('onClick={() => pilihLayanan(i)}') &&
+    marklo.includes('aria-label={`View ${layanan.nama} service`}') &&
+    marklo.includes('id={`layanan-${i}`}') &&
+    marklo.includes(
+      "scrollIntoView({ behavior: 'smooth', block: 'center' })",
+    ) &&
+    marklo.includes('ring-mk-aksen') &&
+    marklo.includes('window.setTimeout(() => setSorot(null), 1600)'),
+);
+cek(
   'Services: logo per layanan ter-embed (programa 1-4, Instagram+TikTok, RRI Digital+rri.co.id, YouTube)',
   dataMarklo.includes('logo: LOGO_PROGRAMA') &&
     dataMarklo.includes('logo: LOGO_SOSIAL') &&
