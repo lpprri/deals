@@ -214,21 +214,33 @@ cek(
     dataMarklo.includes("judul: 'Reporting & Maximize Profit'"),
 );
 
-// --- 9. Services (tangga funnel). ---
+// --- 9. Services (4 layanan RRI). ---
 cek(
-  'Services: pill "Services" + heading funnel + 4 tahap (Attract/Engage/Convert/Retain)',
+  'Services: pill "Services" + heading multi-platform + 4 layanan (Radio/Social Media/Digital Platform/Dialogue & Podcast)',
   marklo.includes('<LabelPill>Services</LabelPill>') &&
-    marklo.includes('Funnel-focused marketing for predictable, lasting growth.') &&
-    dataMarklo.includes("tahap: 'Attract Customer'") &&
-    dataMarklo.includes("tahap: 'Engage Prospect'") &&
-    dataMarklo.includes("tahap: 'Convert Clients'") &&
-    dataMarklo.includes("tahap: 'Retain Clients'"),
+    marklo.includes('Multi-platform marketing for predictable, lasting growth.') &&
+    dataMarklo.includes("nama: 'Radio Ads'") &&
+    dataMarklo.includes("nama: 'Social Media Ads'") &&
+    dataMarklo.includes("nama: 'Digital Platform Ads'") &&
+    dataMarklo.includes("nama: 'Dialogue & Podcast'"),
 );
 cek(
-  'Services: kartu Meta Ads, Google Ads, Viral TikTok Ads, Content Marketing + "35X Client Growth"',
-  dataMarklo.includes("layanan: 'Viral TikTok Ads'") &&
-    marklo.includes('35X') &&
-    marklo.includes('Client Growth'),
+  'Services: keempat deskripsi layanan ada + teks funnel lama hilang (tahap/tag/Step/35X)',
+  dataMarklo.includes("Prime-time spots and adlibs broadcast across 67 cities") &&
+    dataMarklo.includes('Thumb-stopping creative built for the feed') &&
+    dataMarklo.includes("Your brand across RRI's digital platforms") &&
+    dataMarklo.includes('Interactive dialogues and podcasts that give your story room to breathe') &&
+    !dataMarklo.includes("tahap: 'Attract Customer'") &&
+    !dataMarklo.includes("tahap: 'Engage Prospect'") &&
+    !dataMarklo.includes("tahap: 'Convert Clients'") &&
+    !dataMarklo.includes("tahap: 'Retain Clients'") &&
+    !dataMarklo.includes("layanan: 'Meta Ads'") &&
+    !dataMarklo.includes("layanan: 'Google Ads'") &&
+    !dataMarklo.includes("layanan: 'Viral TikTok Ads'") &&
+    !dataMarklo.includes("layanan: 'Content Marketing'") &&
+    !marklo.includes('Step {i + 1}') &&
+    !marklo.includes('35X') &&
+    !marklo.includes('Client Growth'),
 );
 cek(
   'Services: susunan tangga diagonal + garis penghubung putus-putus vertikal',
