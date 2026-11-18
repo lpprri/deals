@@ -256,11 +256,23 @@ cek(
     !marklo.includes('bg-gradient-to-br ${k.gradien}'),
 );
 cek(
-  'Carousel: tombol prev/next + auto-advance 5 detik (jeda saat hover/fokus)',
-  marklo.includes('Previous campaign') &&
-    marklo.includes('Next campaign') &&
-    marklo.includes('setInterval(() => gulirKartu(1), 5000)') &&
-    marklo.includes('snap-x snap-mandatory'),
+  'Carousel: MARQUEE kampanye (PR landing-kampanye-marquee) — tombol prev/next + auto-advance 5 detik + snap HILANG; 7 kartu diduplikasi, animasi mk-marquee-kampanye, jeda hover',
+  !marklo.includes('Previous campaign') &&
+    !marklo.includes('Next campaign') &&
+    !marklo.includes('gulirKartu') &&
+    !marklo.includes('setInterval') &&
+    !marklo.includes('snap-x snap-mandatory') &&
+    !marklo.includes('scrollbar-tersembunyi') &&
+    marklo.includes('function MarqueeKampanye()') &&
+    marklo.includes('[...KAMPANYE_MARKLO, ...KAMPANYE_MARKLO]') &&
+    marklo.includes('mk-marquee-kampanye flex w-max items-start gap-6') &&
+    marklo.includes('aria-hidden={i >= KAMPANYE_MARKLO.length}') &&
+    css.includes('.mk-marquee-kampanye {') &&
+    css.includes('animation: mk-marquee 60s linear infinite;') &&
+    css.includes('.mk-marquee-kampanye:hover {') &&
+    css.includes('animation-play-state: paused;') &&
+    css.includes('.mk-marquee,\n  .mk-marquee-kampanye {') &&
+    !marklo.includes('CarouselKampanye'),
 );
 
 // --- 6. Pernyataan / About. ---
@@ -522,13 +534,24 @@ cek(
 );
 cek(
   'Comparison: strip logo fade-out di ujung kiri & kanan (PR #98, warna mengikuti latar navy — kiri #1a3a8a, kanan #04122e, BUKAN satu warna sama)',
-  marklo.includes('<div className="relative mt-12 overflow-hidden py-5">') &&
+  marklo.includes('<div className="relative mt-6 overflow-hidden py-5">') &&
     marklo.includes('mk-fade-tepi-kiri pointer-events-none absolute inset-y-0 left-0') &&
     marklo.includes('mk-fade-tepi-kanan pointer-events-none absolute inset-y-0 right-0') &&
     css.includes('.mk-fade-tepi-kiri {') &&
     css.includes('linear-gradient(to right, #1a3a8a, rgb(26 58 138 / 0))') &&
     css.includes('.mk-fade-tepi-kanan {') &&
     css.includes('linear-gradient(to left, #04122e, rgb(4 18 46 / 0))'),
+);
+cek(
+  'Comparison: baris "Trusted by hundreds of companies in Indonesia" 1×, putih tebal rata tengah, TEPAT di atas marquee logo (permintaan pengguna 16:42 WIB — bukan "thousands worldwide" template)',
+  marklo.split('Trusted by hundreds of companies in Indonesia').length - 1 === 1 &&
+    marklo.includes(
+      '<p className="mt-12 text-center text-sm font-bold tracking-wide text-white">',
+    ) &&
+    marklo.indexOf('Trusted by hundreds of companies in Indonesia') <
+      marklo.indexOf('mk-marquee flex w-max items-center gap-12') &&
+    !marklo.includes('Trusted by thousands of companies worldwide') &&
+    !marklo.includes('thousands of companies worldwide'),
 );
 cek(
   'Comparison: wordmark contoh template (ZenZap, Sparkle, Innovio, Craftgram, Lumo Labs) tidak ada lagi',
