@@ -106,15 +106,21 @@ function gulirKe(id: string) {
   document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
 }
 
-/** Pembungkus reveal: blur + fade-in saat masuk viewport. */
+/** Pembungkus reveal: blur + fade-in saat masuk viewport.
+    Opsi ambang/margin hanya dipakai kartu layanan (PR #93) supaya
+    pemicunya lebih dalam di viewport; pemakaian lain tetap default. */
 function Reveal({
   children,
   className = '',
   tunda = 0,
+  ambang = 0.12,
+  margin = '0px',
 }: {
   children: ReactNode;
   className?: string;
   tunda?: number;
+  ambang?: number;
+  margin?: string;
 }) {
   const ref = useRef<HTMLDivElement>(null);
   const [tampil, setTampil] = useState(false);
@@ -128,11 +134,11 @@ function Reveal({
           pengamat.disconnect();
         }
       },
-      { threshold: 0.12 },
+      { threshold: ambang, rootMargin: margin },
     );
     pengamat.observe(el);
     return () => pengamat.disconnect();
-  }, []);
+  }, [ambang, margin]);
   return (
     <div
       ref={ref}
@@ -666,7 +672,17 @@ function Layanan() {
               className={`mk-layang ${OFFSET_FUNNEL[i]}`}
               style={{ animationDelay: `${i * 1.2}s` }}
             >
-              <Reveal tunda={i * 100}>
+              {/* Reveal dalam (PR #93): kartu benar-benar tersembunyi
+                  (naik 48px + blur kuat) sampai masuk viewport, lalu
+                  muncul halus bertahap (stagger 180ms) seperti template.
+                  Klik label (PR #91) menggulir kartu ke tengah layar,
+                  jadi pemicu reveal tetap jalan seperti scroll biasa. */}
+              <Reveal
+                tunda={i * 180}
+                className="mk-reveal-dalam"
+                ambang={0.15}
+                margin="0px 0px -8% 0px"
+              >
                 <article
                   id={`layanan-${i}`}
                   className={`scroll-mt-24 max-w-xl rounded-[20px] bg-gradient-to-br ${layanan.gradien} p-7 shadow-md transition hover:shadow-lg sm:p-8 ${
