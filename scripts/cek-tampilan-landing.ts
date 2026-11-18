@@ -342,11 +342,13 @@ cek(
 
 // --- 10. Comparison. ---
 cek(
-  'Comparison: pill "Comparison" + heading + Other Agencies vs Our Agency',
+  'Comparison: pill "Comparison" + heading + Other Services vs Our Service',
   marklo.includes('<LabelPill>Comparison</LabelPill>') &&
     marklo.includes('But, why would you want to work with us?') &&
-    marklo.includes('Other Agencies') &&
-    marklo.includes('Our Agency'),
+    marklo.includes('Other Services') &&
+    marklo.includes('Our Service') &&
+    !marklo.includes('Other Agencies') &&
+    !marklo.includes('Our Agency'),
 );
 cek(
   'Comparison: X merah (lain) + ceklis merah (kami), 5 butir masing-masing',
