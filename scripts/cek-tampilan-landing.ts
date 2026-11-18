@@ -27,6 +27,10 @@
 //   satker nyata RRI, diturunkan dari DAFTAR_SATKER (master data nasional)
 //   di src/lib/satker.ts, diurutkan abjad A–Z; KANTOR PUSAT +
 //   PUSLITBANGDIKLAT tidak ditampilkan karena bukan kota.
+//   KECUALI kartu kampanye (PR #95): tiap kartu memakai FOTO yang diunggah
+//   pengguna (bukan gradasi + huruf awal), di-embed sebagai data URI WebP
+//   di src/lib/fotoKampanye.ts, dipetakan ke nama klien (Badan_Narkotika_
+//   Nasional.jpg -> BNN).
 // - Tombol "Book a Free Call" menggulir ke kartu booking — perilaku
 //   PR #78 (membuka halaman Meeting) DI-REVERT atas koreksi pengguna
 //   2026-11-17 (PR landing-booking-ke-meeting). Kartu booking NYATA:
@@ -65,6 +69,7 @@ const app = baca('src/App.tsx');
 const marklo = baca('src/modules/landing/Marklo.tsx');
 const dataMarklo = baca('src/lib/landingMarklo.ts');
 const logoMitra = baca('src/lib/logoMitra.ts');
+const fotoKampanye = baca('src/lib/fotoKampanye.ts');
 const logoLayanan = baca('src/lib/logoLayanan.ts');
 const css = baca('src/index.css');
 const firestoreStore = baca('src/lib/firestoreStore.ts');
@@ -202,6 +207,41 @@ cek(
     dataMarklo.includes("layanan: 'Promotion'") &&
     dataMarklo.includes("layanan: 'Adlibs & Interactive Dialogue'") &&
     dataMarklo.includes("layanan: 'Interactive Dialogue'"),
+);
+// Blok data kampanye saja (bukan seluruh landingMarklo.ts — LAYANAN dan
+// TESTIMONI masih memakai gradien/inisial).
+const blokKampanye = dataMarklo.slice(
+  dataMarklo.indexOf('export const KAMPANYE_MARKLO'),
+  dataMarklo.indexOf('];', dataMarklo.indexOf('export const KAMPANYE_MARKLO')),
+);
+cek(
+  'Carousel: foto tiap kartu (PR #95) — 7 data URI WebP di fotoKampanye.ts, dipetakan ke nama klien',
+  fotoKampanye.includes('export const FOTO_KAMPANYE') &&
+    fotoKampanye.includes("'PLN': 'data:image/webp;base64,") &&
+    fotoKampanye.includes("'Taspen': 'data:image/webp;base64,") &&
+    fotoKampanye.includes("'Alfamart': 'data:image/webp;base64,") &&
+    fotoKampanye.includes("'Medco': 'data:image/webp;base64,") &&
+    fotoKampanye.includes("'Bank Indonesia': 'data:image/webp;base64,") &&
+    fotoKampanye.includes("'Perempuan Indonesia Maju': 'data:image/webp;base64,") &&
+    fotoKampanye.includes("'BNN': 'data:image/webp;base64,") &&
+    !fotoKampanye.includes("'BNN Sumsel'") &&
+    !fotoKampanye.includes("'Perempuan Indonesia Maju (PIM)'"),
+);
+cek(
+  'Carousel: komponen memakai FOTO_KAMPANYE[k.klien] — img object-cover h-60, lazy (crop, bukan distorsi)',
+  marklo.includes("import { FOTO_KAMPANYE } from '../../lib/fotoKampanye'") &&
+    marklo.includes('src={FOTO_KAMPANYE[k.klien]}') &&
+    marklo.includes('className="h-full w-full object-cover"') &&
+    marklo.includes('loading="lazy"') &&
+    marklo.includes('className="relative h-60 overflow-hidden"'),
+);
+cek(
+  'Carousel: area gradasi + huruf awal HILANG (PR #95) — data kampanye tanpa gradien/inisial, komponen tanpa k.gradien/k.inisial',
+  !blokKampanye.includes('gradien') &&
+    !blokKampanye.includes('inisial') &&
+    !marklo.includes('k.gradien') &&
+    !marklo.includes('k.inisial') &&
+    !marklo.includes('bg-gradient-to-br ${k.gradien}'),
 );
 cek(
   'Carousel: tombol prev/next + auto-advance 5 detik (jeda saat hover/fokus)',
@@ -759,8 +799,8 @@ cek(
     marklo.includes('https://www.instagram.com/rri_official/'),
 );
 cek(
-  'Gambar: visual kartu memakai gradien CSS + inisial (bukan <img> eksternal)',
-  marklo.includes('bg-gradient-to-br') && !marklo.includes('<img src="http'),
+  'Gambar: visual kartu kampanye memakai foto data URI (PR #95) — bukan <img> eksternal',
+  marklo.includes('src={FOTO_KAMPANYE[k.klien]}') && !marklo.includes('<img src="http'),
 );
 
 // --- 19. Revert PR #78 + booking → Meeting (koreksi pengguna 2026-11-17). ---
