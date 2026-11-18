@@ -280,7 +280,8 @@ cek(
   'Landing: frasa "digital marketing" 0 di seluruh teks landing (termasuk FAQ), "multi-platform marketing" ada',
   !(marklo + dataMarklo).toLowerCase().includes('digital marketing') &&
     marklo.includes('multi-platform marketing') &&
-    dataMarklo.includes('How can multi-platform marketing help my business?'),
+    dataMarklo.includes('How can marketing help my business?') &&
+    !dataMarklo.includes('How can multi-platform marketing help my business?'),
 );
 
 // --- 11. Why Marketing. ---

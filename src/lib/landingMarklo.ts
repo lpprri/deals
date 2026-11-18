@@ -314,7 +314,7 @@ export const FAQ_MARKLO: FaqMarklo[] = [
     a: 'Meta Ads, Google Ads, viral TikTok Ads, SEO, and content marketing — all built around one funnel, from first click to repeat customer.',
   },
   {
-    q: 'How can multi-platform marketing help my business?',
+    q: 'How can marketing help my business?',
     a: 'It puts you in front of people already looking for what you sell, then turns that attention into measurable leads and sales.',
   },
   {
