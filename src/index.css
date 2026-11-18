@@ -79,6 +79,17 @@ body {
   animation-play-state: paused;
 }
 
+/* ---------- Latar gelap section Comparison + strip logo (PR #97) ----------
+   Meniru GAYA gradasi latar gelap template Marklo (terang di kiri atas
+   meredup ke kanan bawah — diukur dari screenshot template pengguna:
+   ujung terang #660d02 meredup ke #321310), tapi warnanya NAVY RRI,
+   bukan maroon template (koreksi pengguna 15:48 WIB). Keluarga gradasi
+   sama dengan footer (PR #76: #0D2569 → #04122e), ditambah ujung terang
+   #1a3a8a supaya gradasinya terasa seperti template. Bukan flat solid. */
+.mk-latar-navy {
+  background: linear-gradient(105deg, #1a3a8a 0%, #0d2569 55%, #04122e 100%);
+}
+
 /* ---------- Animasi section Services (PR landing-layanan-logo) ----------
    Meniru gerakan template Marklo: kartu tangga melayang pelan (stagger
    per kartu) dan garis penghubung putus-putus yang "berjalan" ke bawah,

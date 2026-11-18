@@ -170,10 +170,24 @@ function useCountUp(target: number, aktif: boolean, durasi = 1600) {
   return nilai;
 }
 
-/** Label section berbentuk pill outline merah (gaya template). */
-function LabelPill({ children }: { children: ReactNode }) {
+/** Label section berbentuk pill outline merah (gaya template).
+    Varian `gelap` (PR #97) untuk section berlatar gelap: border + teks
+    putih supaya kontras cukup di atas navy. */
+function LabelPill({
+  children,
+  gelap = false,
+}: {
+  children: ReactNode;
+  gelap?: boolean;
+}) {
   return (
-    <span className="inline-flex items-center rounded-full border border-mk-aksen px-4 py-1.5 text-sm font-semibold text-mk-aksen">
+    <span
+      className={
+        gelap
+          ? 'inline-flex items-center rounded-full border border-white/60 px-4 py-1.5 text-sm font-semibold text-white'
+          : 'inline-flex items-center rounded-full border border-mk-aksen px-4 py-1.5 text-sm font-semibold text-mk-aksen'
+      }
+    >
       {children}
     </span>
   );
@@ -731,12 +745,12 @@ function Layanan() {
 
 function Perbandingan() {
   return (
-    <section className="bg-white py-16 sm:py-20">
+    <section className="mk-latar-navy py-16 sm:py-20">
       <div className="mx-auto max-w-7xl px-4 sm:px-6">
         <Reveal>
           <div className="text-center">
-            <LabelPill>Comparison</LabelPill>
-            <h2 className="mx-auto mt-5 max-w-3xl text-3xl font-extrabold leading-tight tracking-tight text-black sm:text-5xl">
+            <LabelPill gelap>Comparison</LabelPill>
+            <h2 className="mx-auto mt-5 max-w-3xl text-3xl font-extrabold leading-tight tracking-tight text-white sm:text-5xl">
               But, why would you want to work with us?
             </h2>
           </div>
@@ -783,13 +797,17 @@ function Perbandingan() {
           <div className="mt-12 overflow-hidden py-5">
             <div className="mk-marquee flex w-max items-center gap-12">
               {[...LOGO_KLIEN_MARKLO, ...LOGO_KLIEN_MARKLO].map((logo, i) => (
-                <img
+                <span
                   key={`${logo.nama}-${i}`}
-                  src={logo.logoDataUri}
-                  alt={logo.nama}
-                  aria-hidden={i >= LOGO_KLIEN_MARKLO.length}
-                  className="h-10 w-auto shrink-0 opacity-60 grayscale"
-                />
+                  className="flex shrink-0 items-center rounded-lg bg-white px-3 py-2 shadow-sm"
+                >
+                  <img
+                    src={logo.logoDataUri}
+                    alt={logo.nama}
+                    aria-hidden={i >= LOGO_KLIEN_MARKLO.length}
+                    className="h-10 w-auto"
+                  />
+                </span>
               ))}
             </div>
           </div>
