@@ -317,6 +317,11 @@ cek(
     marklo.includes('layanan.logo.map'),
 );
 cek(
+  'Services: logo tanpa chip putih — logo langsung di atas gradasi kartu (PR #90)',
+  marklo.includes('layanan.logo.map') &&
+    !marklo.includes('rounded-lg bg-white px-1.5 py-1 shadow-sm ring-1 ring-slate-200/70'),
+);
+cek(
   'Services: keempat deskripsi layanan ada + teks funnel lama hilang (tag/Step/35X)',
   dataMarklo.includes("Prime-time spots and adlibs broadcast across 67 cities") &&
     dataMarklo.includes('Thumb-stopping creative built for the feed') &&

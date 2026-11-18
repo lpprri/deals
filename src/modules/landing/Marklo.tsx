@@ -649,20 +649,16 @@ function Layanan() {
                 <article
                   className={`rounded-[20px] bg-gradient-to-br ${layanan.gradien} p-6 shadow-md ring-1 ring-white transition hover:shadow-lg`}
                 >
-                  {/* Chip logo putih di atas judul, seperti kotak ikon template. */}
+                  {/* Logo langsung di atas gradasi kartu, tanpa chip putih (PR #90). */}
                   <div className="flex flex-wrap items-center gap-2">
                     {layanan.logo.map((item) => (
-                      <span
+                      <img
                         key={item.nama}
-                        className="inline-flex h-9 items-center justify-center rounded-lg bg-white px-1.5 py-1 shadow-sm ring-1 ring-slate-200/70 sm:h-11"
-                      >
-                        <img
-                          src={item.logoDataUri}
-                          alt={item.nama}
-                          className="h-full w-auto"
-                          loading="lazy"
-                        />
-                      </span>
+                        src={item.logoDataUri}
+                        alt={item.nama}
+                        className="h-9 w-auto sm:h-11"
+                        loading="lazy"
+                      />
                     ))}
                   </div>
                   <div className="mt-3">
