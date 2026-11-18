@@ -25,14 +25,16 @@
 //   KECUALI section Comparison + strip logo (PR #97): latar gradasi
 //   diagonal NAVY RRI (#1a3a8a -> #0D2569 -> #04122e, gaya gradasi latar
 //   gelap template, BUKAN maroon template — koreksi pengguna 15:48 WIB);
-//   logo mitra di atas chip putih supaya tetap terbaca di latar gelap.
+//   logo mitra PUTIH tanpa chip sejak PR landing-logo-mitra-putih
+//   (membalik PR #97 atas permintaan pengguna 2026-11-18; logo diolah
+//   jadi putih-transparan per file, BUKAN filter CSS).
 // - Jujur: nama/klien/testimoni/angka adalah SAMPLE template
 //   (dinyatakan di data + PR body); tidak ada hotlink gambar eksternal.
 //   KECUALI strip logo di bawah Comparison: 10 logo mitra nyata RRI
 //   yang diunggah pengguna (PR #81), di-embed sebagai data URI di
-//   src/lib/logoMitra.ts; sejak PR #97 strip berada di atas latar navy
-//   gelap, jadi tiap logo duduk di atas chip putih (bukan lagi grayscale
-//   + opacity seperti di latar putih) supaya tetap terbaca.
+//   src/lib/logoMitra.ts; sejak PR landing-logo-mitra-putih tiap logo
+//   berwarna PUTIH (diolah per file) dan tampil langsung di atas latar
+//   navy gelap, tanpa chip putih.
 //   KECUALI section "Our Clients in 67+ Cities" (PR #82): 67 pil kota
 //   satker nyata RRI, diturunkan dari DAFTAR_SATKER (master data nasional)
 //   di src/lib/satker.ts, diurutkan abjad A–Z; KANTOR PUSAT +
@@ -480,15 +482,31 @@ cek(
     marklo.includes('bg-mk-peach'),
 );
 cek(
-  'Comparison: strip logo = 10 logo mitra nyata RRI (marquee, gambar <img>) tanpa garis pembatas di atas & bawah, tiap logo di atas chip putih (latar navy gelap, PR #97)',
+  'Comparison: strip logo = 10 logo mitra PUTIH nyata RRI (marquee, gambar <img>) tanpa garis pembatas di atas & bawah, TANPA chip putih — logo putih langsung di atas latar navy (PR landing-logo-mitra-putih, membalik PR #97)',
   ['Taspen', 'Bank Sumsel Babel', 'PLN', 'Alfamart', 'MedcoEnergi', 'Bea Cukai', 'Bank Indonesia', 'BNN', 'DJP', 'Komdigi'].every((nama) =>
     logoMitra.includes(`nama: '${nama}'`),
   ) &&
     logoMitra.includes('data:image/webp;base64,') &&
+    logoMitra.includes('PUTIH-TRANSPARAN') &&
     marklo.includes('mk-marquee') &&
     marklo.includes('<img') &&
     marklo.includes('logo.logoDataUri') &&
-    marklo.includes('rounded-lg bg-white px-3 py-2 shadow-sm') &&
+    !marklo.includes('rounded-lg bg-white px-3 py-2 shadow-sm') &&
+    // Filter brightness(0) invert(1) TETAP dipakai di FOOTER (logo RRI
+    // putih di navy, PR #76) — yang dilarang hanya di strip logo mitra,
+    // jadi cek negatifnya dibatasi ke blok marquee, bukan seluruh file.
+    !marklo
+      .slice(
+        marklo.indexOf('mk-marquee flex w-max items-center gap-12'),
+        marklo.indexOf('mk-fade-tepi-kiri'),
+      )
+      .includes('brightness(0)') &&
+    !marklo
+      .slice(
+        marklo.indexOf('mk-marquee flex w-max items-center gap-12'),
+        marklo.indexOf('mk-fade-tepi-kiri'),
+      )
+      .includes('invert(1)') &&
     !marklo.includes('grayscale') &&
     !marklo.includes('opacity-60') &&
     !marklo.includes('border-y'),

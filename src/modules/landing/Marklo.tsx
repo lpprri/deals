@@ -799,8 +799,10 @@ function Perbandingan() {
               {[...LOGO_KLIEN_MARKLO, ...LOGO_KLIEN_MARKLO].map((logo, i) => (
                 <span
                   key={`${logo.nama}-${i}`}
-                  className="flex shrink-0 items-center rounded-lg bg-white px-3 py-2 shadow-sm"
+                  className="flex shrink-0 items-center"
                 >
+                  {/* Logo putih langsung di atas navy — TANPA chip putih
+                      sejak PR landing-logo-mitra-putih (membalik PR #97). */}
                   <img
                     src={logo.logoDataUri}
                     alt={logo.nama}
