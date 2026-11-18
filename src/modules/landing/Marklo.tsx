@@ -803,9 +803,12 @@ function Perbandingan() {
 
 /** Pill merah template (#ff4d2e, vermilion asli Marklo) — varian LOKAL
     hanya untuk section ini. LabelPill global TIDAK diubah: section lain
-    tetap memakai Biru RRI #2573E2 (PR oren-ke-biru). Merah di sini +
-    tautan "Book a Call" mengikuti template asli atas pilihan pengguna
-    2026-11-18 ("ikuti template asli"); ganti ke Biru RRI bila diminta. */
+    tetap memakai Biru RRI #2573E2 (PR oren-ke-biru). Merah di sini
+    mengikuti template asli atas pilihan pengguna 2026-11-18 ("ikuti
+    template asli"); ganti ke Biru RRI bila diminta. Sejak 2026-11-18
+    20:21 WIB (permintaan pengguna): tautan "Book a Call" merah sudah
+    TIDAK ADA lagi — kartunya ("Higher Conversions") dihapus, jadi merah
+    #ff4d2e di section ini hanya tersisa di pill ini. */
 function PillMerahTemplate({ children }: { children: ReactNode }) {
   return (
     <span className="inline-flex items-center rounded-full border border-[#ff4d2e] bg-white px-4 py-1.5 text-sm font-semibold text-[#ff4d2e]">
@@ -816,17 +819,24 @@ function PillMerahTemplate({ children }: { children: ReactNode }) {
 
 /** Gaya template ASLI Marklo (PR landing-why-marketing-template,
     pilihan pengguna 2026-11-18; studi jiro.build 19:29 WIB):
-    latar section putih, 5 kartu gradien pastel + ikon 3D glossy,
-    3 kartu atas (ikon kiri atas, teks kiri bawah) + 2 kartu lebar bawah
-    (teks kiri, ikon kanan, tautan kiri bawah). TEKS TIDAK BERUBAH
-    satu karakter pun (keputusan pengguna 19:32 WIB: "gaya nya saja,
-    teks tetap sama") — copy 5 manfaat, pill, heading, dan kartu CTA
-    hitam sama persis seperti sebelumnya. Kartu CTA hitam (BUKAN bagian
-    template asli — dari versi restyle) dipertahankan sebagai strip
-    full-width DI BAWAH 5 kartu supaya layout 3+2 template tetap murni.
-    Target tautan tetap: "Book a Call" -> #booking, "View our case
+    latar section putih, kartu gradien pastel + ikon 3D glossy,
+    3 kartu atas (ikon kiri atas, teks kiri bawah) + 1 kartu lebar bawah
+    SELEBAR FULL (teks kiri, ikon kanan, tautan kiri bawah).
+    Perubahan 2026-11-18 20:21 WIB (permintaan pengguna): kartu
+    "Higher Conversions" DIHAPUS (judul + desk + ikon petir + tautan
+    "Book a Call" ikut hilang), kartu "Competitive Advantage" menjadi
+    selebar full menggantikan posisinya, dan kalimatnya diubah menjadi
+    "Stand out from other business in your industry." — persis seperti
+    yang pengguna tulis (bukan "businesses"/"websites" template asli;
+    bila itu typo, pengguna bisa koreksi). Copy 3 kartu atas, pill,
+    heading, dan kartu CTA hitam sama persis seperti sebelumnya.
+    Kartu CTA hitam (BUKAN bagian template asli — dari versi restyle)
+    dipertahankan sebagai strip full-width DI BAWAH 4 kartu supaya
+    layout template tetap murni. Target tautan tetap: "View our case
     study" -> #work (di template asli mengarah ke #testimonials —
-    perilaku tidak diubah karena pengguna minta gaya saja). */
+    perilaku tidak diubah karena pengguna minta gaya saja).
+    Booking tetap bisa dicapai lewat tombol "Book a Free Call" di strip
+    CTA hitam, hero, dan footer. */
 function MengapaMarketing() {
   return (
     <section className="bg-white py-16 sm:py-20">
@@ -870,7 +880,7 @@ function MengapaMarketing() {
               <Reveal
                 key={m.judul}
                 tunda={(i - 3) * 120}
-                className="sm:col-span-2 lg:col-span-3"
+                className="sm:col-span-2 lg:col-span-6"
               >
                 <article
                   className={`flex h-full flex-col gap-6 rounded-[20px] bg-gradient-to-br ${m.gradien} p-7 shadow-md transition hover:-translate-y-1 hover:shadow-lg sm:flex-row`}
@@ -886,11 +896,7 @@ function MengapaMarketing() {
                       <button
                         type="button"
                         onClick={() => gulirKe(m.tautan!.jangkar.slice(1))}
-                        className={`mt-auto inline-flex items-center gap-1.5 self-start pt-4 text-sm font-bold hover:underline ${
-                          m.tautan.label === 'Book a Call'
-                            ? 'text-[#ff4d2e]'
-                            : 'text-black'
-                        }`}
+                        className="mt-auto inline-flex items-center gap-1.5 self-start pt-4 text-sm font-bold text-black hover:underline"
                       >
                         {m.tautan.label}
                         <ArrowRight className="h-4 w-4" aria-hidden="true" />
