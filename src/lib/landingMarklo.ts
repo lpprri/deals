@@ -191,13 +191,12 @@ export const PERBANDINGAN_KAMI: string[] = [
   'Transparent reporting, every week',
 ];
 
-export const LOGO_KLIEN_MARKLO: string[] = [
-  'ZenZap',
-  'Sparkle',
-  'Innovio',
-  'Craftgram',
-  'Lumo Labs',
-];
+// Strip logo mitra RRI (bukan lagi wordmark contoh template).
+// Sejak PR #81 (2026-11-18): 10 LOGO MITRA NYATA RRI yang diunggah
+// pengguna, di-embed sebagai base64 di src/lib/logoMitra.ts.
+// Nama ekspor dipertahankan supaya Marklo.tsx tidak berubah impornya.
+export { LOGO_MITRA as LOGO_KLIEN_MARKLO } from './logoMitra';
+export type { LogoMitra } from './logoMitra';
 
 export interface ManfaatMarklo {
   judul: string;
@@ -310,7 +309,7 @@ export const FAQ_MARKLO: FaqMarklo[] = [
     a: 'Meta Ads, Google Ads, viral TikTok Ads, SEO, and content marketing — all built around one funnel, from first click to repeat customer.',
   },
   {
-    q: 'How can digital marketing help my business?',
+    q: 'How can marketing help my business?',
     a: 'It puts you in front of people already looking for what you sell, then turns that attention into measurable leads and sales.',
   },
   {
