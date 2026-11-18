@@ -106,21 +106,18 @@ body {
   background: linear-gradient(105deg, #1a3a8a 0%, #0d2569 55%, #04122e 100%);
 }
 
-/* ---------- Fade tepi marquee logo mitra (PR #98) ----------
-   Gradasi fade di ujung kiri & kanan strip logo supaya logo menghilang
-   mulus saat bergeser keluar, seperti template Marklo. Warna fade
-   MENGIKUTI latar gradasi diagonal navy section ini (PR #97) — jadi
-   kiri dan kanan TIDAK satu warna yang sama: kiri mendekati ujung
-   terang gradasi (#1a3a8a), kanan mendekati ujung gelap (#04122e).
-   Ujung transparan memakai warna yang sama dengan alpha 0 (bukan kata
-   kunci `transparent`, yang berinterpolasi lewat hitam dan menggelapkan
-   tengah gradasi). Overlay dipasang pointer-events-none supaya hover
-   tetap sampai ke .mk-marquee (pause saat hover, PR #81). */
-.mk-fade-tepi-kiri {
-  background: linear-gradient(to right, #1a3a8a, rgb(26 58 138 / 0));
-}
-.mk-fade-tepi-kanan {
-  background: linear-gradient(to left, #04122e, rgb(4 18 46 / 0));
+/* ---------- Fade tepi marquee logo mitra (MASK, PR landing-logo-marquee-fade-mask) ----------
+   Mengganti overlay gradasi PR #98: dua div overlay (.mk-fade-tepi-kiri /
+   .mk-fade-tepi-kanan) warnanya tidak pernah sama persis dengan latar
+   gradasi diagonal navy di titik itu, sehingga terbaca sebagai persegi/bar
+   kaku di ujung strip (laporan pengguna 2026-11-18 21:30 WIB — "sepertinya
+   tidak ada perubahan"). Mask di container membuat LOGO-nya sendiri memudar
+   di tepi, sementara latar navy tetap seragam — tidak ada lagi elemen
+   persegi di atas strip. Zona fade 12% ≈ lebar overlay lama (128px dari
+   strip ~1490px). -webkit- untuk Safari. */
+.mk-fade-mask-logo {
+  -webkit-mask-image: linear-gradient(to right, transparent 0, #000 12%, #000 88%, transparent 100%);
+  mask-image: linear-gradient(to right, transparent 0, #000 12%, #000 88%, transparent 100%);
 }
 
 /* ---------- Animasi section Services (PR landing-layanan-logo) ----------

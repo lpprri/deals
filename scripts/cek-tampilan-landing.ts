@@ -529,16 +529,20 @@ cek(
     // Filter brightness(0) invert(1) TETAP dipakai di FOOTER (logo RRI
     // putih di navy, PR #76) — yang dilarang hanya di strip logo mitra,
     // jadi cek negatifnya dibatasi ke blok marquee, bukan seluruh file.
+    // Batas akhir slice: dulu div overlay fade (mk-fade-tepi-kiri) —
+    // sejak PR landing-logo-marquee-fade-mask overlay dihapus, dipakai
+    // header section berikutnya (Why Marketing) sebagai penanda akhir
+    // blok marquee.
     !marklo
       .slice(
         marklo.indexOf('mk-marquee flex w-max items-center gap-12'),
-        marklo.indexOf('mk-fade-tepi-kiri'),
+        marklo.indexOf('/* ================= Why Marketing ================= */'),
       )
       .includes('brightness(0)') &&
     !marklo
       .slice(
         marklo.indexOf('mk-marquee flex w-max items-center gap-12'),
-        marklo.indexOf('mk-fade-tepi-kiri'),
+        marklo.indexOf('/* ================= Why Marketing ================= */'),
       )
       .includes('invert(1)') &&
     !marklo.includes('grayscale') &&
@@ -555,14 +559,15 @@ cek(
     !marklo.includes('<LabelPill>Comparison</LabelPill>'),
 );
 cek(
-  'Comparison: strip logo fade-out di ujung kiri & kanan (PR #98, warna mengikuti latar navy — kiri #1a3a8a, kanan #04122e, BUKAN satu warna sama)',
-  marklo.includes('<div className="relative mt-6 overflow-hidden py-5">') &&
-    marklo.includes('mk-fade-tepi-kiri pointer-events-none absolute inset-y-0 left-0') &&
-    marklo.includes('mk-fade-tepi-kanan pointer-events-none absolute inset-y-0 right-0') &&
-    css.includes('.mk-fade-tepi-kiri {') &&
-    css.includes('linear-gradient(to right, #1a3a8a, rgb(26 58 138 / 0))') &&
-    css.includes('.mk-fade-tepi-kanan {') &&
-    css.includes('linear-gradient(to left, #04122e, rgb(4 18 46 / 0))'),
+  'Comparison: strip logo fade-out di ujung kiri & kanan via MASK pada container (PR landing-logo-marquee-fade-mask — mengganti overlay PR #98 yang terbaca sebagai bar kaku; mask membuat LOGO memudar, latar navy tetap seragam, TANPA div overlay)',
+  marklo.includes('<div className="mk-fade-mask-logo relative mt-6 overflow-hidden py-5">') &&
+    !marklo.includes('mk-fade-tepi-kiri') &&
+    !marklo.includes('mk-fade-tepi-kanan') &&
+    css.includes('.mk-fade-mask-logo {') &&
+    css.includes('-webkit-mask-image: linear-gradient(to right, transparent 0, #000 12%, #000 88%, transparent 100%)') &&
+    css.includes('mask-image: linear-gradient(to right, transparent 0, #000 12%, #000 88%, transparent 100%)') &&
+    !css.includes('.mk-fade-tepi-kiri {') &&
+    !css.includes('.mk-fade-tepi-kanan {'),
 );
 cek(
   'Comparison: baris "Trusted by hundreds of companies in Indonesia" 1×, putih tebal rata tengah, TEPAT di atas marquee logo (permintaan pengguna 16:42 WIB — bukan "thousands worldwide" template)',

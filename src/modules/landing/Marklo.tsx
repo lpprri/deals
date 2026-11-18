@@ -771,7 +771,14 @@ function Perbandingan() {
           <p className="mt-12 text-center text-sm font-bold tracking-wide text-white">
             Trusted by hundreds of companies in Indonesia
           </p>
-          <div className="relative mt-6 overflow-hidden py-5">
+          {/* Fade tepi via MASK (bukan overlay): dua div overlay gradasi
+              PR #98 dihapus 2026-11-18 — warnanya tidak pernah sama persis
+              dengan latar gradasi diagonal navy di titik itu, sehingga
+              terbaca sebagai persegi/bar kaku di ujung strip (laporan
+              pengguna 21:30 WIB). Mask membuat LOGO-nya sendiri memudar
+              di tepi; latar navy tetap seragam. Definisi di index.css
+              (.mk-fade-mask-logo). */}
+          <div className="mk-fade-mask-logo relative mt-6 overflow-hidden py-5">
             <div className="mk-marquee flex w-max items-center gap-12">
               {[...LOGO_KLIEN_MARKLO, ...LOGO_KLIEN_MARKLO].map((logo, i) => (
                 <span
@@ -789,17 +796,6 @@ function Perbandingan() {
                 </span>
               ))}
             </div>
-            {/* Fade tepi (PR #98): overlay gradasi di kedua ujung strip —
-                kiri #1a3a8a, kanan #04122e, mengikuti latar navy section.
-                pointer-events-none supaya hover tetap men-pause marquee. */}
-            <div
-              aria-hidden="true"
-              className="mk-fade-tepi-kiri pointer-events-none absolute inset-y-0 left-0 w-24 sm:w-32"
-            />
-            <div
-              aria-hidden="true"
-              className="mk-fade-tepi-kanan pointer-events-none absolute inset-y-0 right-0 w-24 sm:w-32"
-            />
           </div>
         </Reveal>
       </div>
