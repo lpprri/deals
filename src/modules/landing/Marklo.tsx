@@ -90,6 +90,7 @@ import {
 } from '../../lib/landingMarklo';
 import { KOTA_SATKER_MARKLO } from '../../lib/landingMarklo';
 import { FOTO_KAMPANYE } from '../../lib/fotoKampanye';
+import { IKON_MANFAAT } from '../../lib/ikonManfaat';
 import type { BookingPublikInput } from '../../lib/store';
 
 export interface MarkloLandingProps {
@@ -800,58 +801,133 @@ function Perbandingan() {
 
 /* ================= Why Marketing ================= */
 
+/** Pill merah template (#ff4d2e, vermilion asli Marklo) — varian LOKAL
+    hanya untuk section ini. LabelPill global TIDAK diubah: section lain
+    tetap memakai Biru RRI #2573E2 (PR oren-ke-biru). Merah di sini +
+    tautan "Book a Call" mengikuti template asli atas pilihan pengguna
+    2026-11-18 ("ikuti template asli"); ganti ke Biru RRI bila diminta. */
+function PillMerahTemplate({ children }: { children: ReactNode }) {
+  return (
+    <span className="inline-flex items-center rounded-full border border-[#ff4d2e] bg-white px-4 py-1.5 text-sm font-semibold text-[#ff4d2e]">
+      {children}
+    </span>
+  );
+}
+
+/** Gaya template ASLI Marklo (PR landing-why-marketing-template,
+    pilihan pengguna 2026-11-18; studi jiro.build 19:29 WIB):
+    latar section putih, 5 kartu gradien pastel + ikon 3D glossy,
+    3 kartu atas (ikon kiri atas, teks kiri bawah) + 2 kartu lebar bawah
+    (teks kiri, ikon kanan, tautan kiri bawah). TEKS TIDAK BERUBAH
+    satu karakter pun (keputusan pengguna 19:32 WIB: "gaya nya saja,
+    teks tetap sama") — copy 5 manfaat, pill, heading, dan kartu CTA
+    hitam sama persis seperti sebelumnya. Kartu CTA hitam (BUKAN bagian
+    template asli — dari versi restyle) dipertahankan sebagai strip
+    full-width DI BAWAH 5 kartu supaya layout 3+2 template tetap murni.
+    Target tautan tetap: "Book a Call" -> #booking, "View our case
+    study" -> #work (di template asli mengarah ke #testimonials —
+    perilaku tidak diubah karena pengguna minta gaya saja). */
 function MengapaMarketing() {
   return (
-    <section className="bg-slate-50 py-16 sm:py-20">
+    <section className="bg-white py-16 sm:py-20">
       <div className="mx-auto max-w-7xl px-4 sm:px-6">
         <Reveal>
           <div className="text-center">
-            <LabelPill>Confusion?</LabelPill>
+            <PillMerahTemplate>Confusion?</PillMerahTemplate>
             <h2 className="mx-auto mt-5 max-w-3xl text-3xl font-extrabold leading-tight tracking-tight text-black sm:text-5xl">
               Why do you need Marketing?
             </h2>
           </div>
         </Reveal>
-        <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {MANFAAT_MARKLO.map((m, i) => (
-            <Reveal key={m.judul} tunda={(i % 3) * 120} className={i === 4 ? 'sm:col-span-2 lg:col-span-1' : ''}>
-              <article className="flex h-full flex-col rounded-[20px] bg-white p-7 shadow-md ring-1 ring-slate-200 transition hover:-translate-y-1 hover:shadow-lg">
-                <h3 className="text-lg font-extrabold text-black">{m.judul}</h3>
-                <p className="mt-2 flex-1 text-sm leading-relaxed text-slate-500">
-                  {m.desk}
-                </p>
-                {m.tautan && (
-                  <button
-                    type="button"
-                    onClick={() => gulirKe(m.tautan!.jangkar.slice(1))}
-                    className="mt-4 inline-flex items-center gap-1.5 self-start text-sm font-bold text-mk-aksen hover:underline"
-                  >
-                    {m.tautan.label}
-                    <ArrowRight className="h-4 w-4" aria-hidden="true" />
-                  </button>
-                )}
-              </article>
-            </Reveal>
-          ))}
-          <Reveal tunda={240} className="sm:col-span-2 lg:col-span-1">
-            <article className="flex h-full flex-col items-start justify-center rounded-[20px] bg-black p-7 text-white shadow-md">
+        <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-6">
+          {MANFAAT_MARKLO.map((m, i) =>
+            i < 3 ? (
+              <Reveal
+                key={m.judul}
+                tunda={i * 120}
+                className="lg:col-span-2"
+              >
+                <article
+                  className={`flex h-full flex-col rounded-[20px] bg-gradient-to-br ${m.gradien} p-7 shadow-md transition hover:-translate-y-1 hover:shadow-lg`}
+                >
+                  <img
+                    src={IKON_MANFAAT[m.judul]}
+                    alt=""
+                    aria-hidden="true"
+                    className="h-24 w-auto self-start sm:h-28"
+                  />
+                  <div className="mt-auto pt-8">
+                    <h3 className="text-lg font-extrabold text-black">
+                      {m.judul}
+                    </h3>
+                    <p className="mt-2 text-sm leading-relaxed text-slate-500">
+                      {m.desk}
+                    </p>
+                  </div>
+                </article>
+              </Reveal>
+            ) : (
+              <Reveal
+                key={m.judul}
+                tunda={(i - 3) * 120}
+                className="sm:col-span-2 lg:col-span-3"
+              >
+                <article
+                  className={`flex h-full flex-col gap-6 rounded-[20px] bg-gradient-to-br ${m.gradien} p-7 shadow-md transition hover:-translate-y-1 hover:shadow-lg sm:flex-row`}
+                >
+                  <div className="flex min-w-0 flex-1 flex-col">
+                    <h3 className="text-lg font-extrabold text-black">
+                      {m.judul}
+                    </h3>
+                    <p className="mt-2 text-sm leading-relaxed text-slate-500">
+                      {m.desk}
+                    </p>
+                    {m.tautan && (
+                      <button
+                        type="button"
+                        onClick={() => gulirKe(m.tautan!.jangkar.slice(1))}
+                        className={`mt-auto inline-flex items-center gap-1.5 self-start pt-4 text-sm font-bold hover:underline ${
+                          m.tautan.label === 'Book a Call'
+                            ? 'text-[#ff4d2e]'
+                            : 'text-black'
+                        }`}
+                      >
+                        {m.tautan.label}
+                        <ArrowRight className="h-4 w-4" aria-hidden="true" />
+                      </button>
+                    )}
+                  </div>
+                  <img
+                    src={IKON_MANFAAT[m.judul]}
+                    alt=""
+                    aria-hidden="true"
+                    className="h-28 w-auto shrink-0 self-center sm:h-32"
+                  />
+                </article>
+              </Reveal>
+            ),
+          )}
+        </div>
+        <Reveal tunda={240} className="mt-6">
+          <article className="flex flex-col gap-4 rounded-[20px] bg-black p-7 text-white shadow-md sm:flex-row sm:items-center sm:justify-between">
+            <div>
               <p className="text-2xl font-extrabold leading-snug">
                 Still not sure where to start?
               </p>
               <p className="mt-2 text-sm leading-relaxed text-white/70">
                 Book a free 30-minute call and we will audit your funnel together.
               </p>
-              <button
-                type="button"
-                onClick={() => gulirKe('booking')}
-                className="mt-5 inline-flex items-center gap-2 rounded-full bg-mk-aksen px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-mk-aksen-gelap"
-              >
-                Book a Free Call
-                <ArrowRight className="h-4 w-4" aria-hidden="true" />
-              </button>
-            </article>
-          </Reveal>
-        </div>
+            </div>
+            <button
+              type="button"
+              onClick={() => gulirKe('booking')}
+              className="inline-flex shrink-0 items-center gap-2 self-start rounded-full bg-mk-aksen px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-mk-aksen-gelap sm:self-center"
+            >
+              Book a Free Call
+              <ArrowRight className="h-4 w-4" aria-hidden="true" />
+            </button>
+          </article>
+        </Reveal>
       </div>
     </section>
   );
