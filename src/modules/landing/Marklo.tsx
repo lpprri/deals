@@ -707,7 +707,7 @@ function Perbandingan() {
           <Reveal>
             <article className="h-full rounded-[20px] bg-white p-7 shadow-lg ring-1 ring-slate-200">
               <h3 className="text-xl font-extrabold text-black">
-                Other Agencies
+                Other Services
               </h3>
               <ul className="mt-5 space-y-4">
                 {PERBANDINGAN_LAIN.map((item) => (
@@ -725,7 +725,7 @@ function Perbandingan() {
           </Reveal>
           <Reveal tunda={140}>
             <article className="h-full rounded-[20px] bg-mk-peach p-7 shadow-lg ring-1 ring-orange-100">
-              <h3 className="text-xl font-extrabold text-black">Our Agency</h3>
+              <h3 className="text-xl font-extrabold text-black">Our Service</h3>
               <ul className="mt-5 space-y-4">
                 {PERBANDINGAN_KAMI.map((item) => (
                   <li key={item} className="flex items-start gap-3">
