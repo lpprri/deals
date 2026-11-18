@@ -115,6 +115,8 @@ export interface BookingPublikInput {
   perusahaan?: string;
   /** Kontak pengunjung (WA/telepon). */
   kontak: string;
+  /** Email pengunjung — kanal kirim link Google Meet (wajib). */
+  email: string;
   /** Topik/agenda yang ingin dibahas. */
   topik: string;
 }
@@ -179,6 +181,8 @@ export interface MeetingInput {
   clientRepresentatives: string[];
   contactPersonNama: string;
   contactPersonTelepon: string;
+  /** Email Contact Person (opsional di form operator; wajib dari form booking publik). */
+  contactPersonEmail?: string;
   /** Petugas Layanan & Pengembangan Usaha yang hadir (minimal 1). */
   rriRepresentatives: string[];
   alamatKlien: string;

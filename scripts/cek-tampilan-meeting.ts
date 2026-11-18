@@ -57,10 +57,11 @@ const isiTabel = tab.slice(tab.indexOf('<tbody>'), tab.indexOf('</tbody>'));
 
 // --- 1. Tipe Meeting: field baru + peserta tetap disimpan. ---
 cek(
-  'types.ts: Meeting punya clientRepresentatives + contactPersonNama/Telepon + rriRepresentatives + alamatKlien',
+  'types.ts: Meeting punya clientRepresentatives + contactPersonNama/Telepon/Email + rriRepresentatives + alamatKlien',
   types.includes('clientRepresentatives?: string[];') &&
     types.includes('contactPersonNama?: string;') &&
     types.includes('contactPersonTelepon?: string;') &&
+    types.includes('contactPersonEmail?: string;') &&
     types.includes('rriRepresentatives?: string[];') &&
     types.includes('alamatKlien?: string;'),
 );
@@ -70,7 +71,7 @@ cek(
 );
 cek(
   'types.ts: Meeting punya googleEventId + googleSyncedAt',
-  /export interface Meeting \{[\s\S]{0,900}?googleEventId\?: string;[\s\S]{0,200}?googleSyncedAt\?: string;/.test(
+  /export interface Meeting \{[\s\S]{0,1300}?googleEventId\?: string;[\s\S]{0,200}?googleSyncedAt\?: string;/.test(
     types,
   ),
 );
@@ -173,6 +174,11 @@ cek(
     isiTabel.includes('tampilDaftar(m.rriRepresentatives)'),
 );
 cek(
+  'tabel Meeting: Contact Person menampilkan email (kanal kirim link Meet)',
+  sales.includes('contactPersonEmail?.trim()') &&
+    sales.includes("`${dasar} · ${m.contactPersonEmail.trim()}`"),
+);
+cek(
   'tabel Meeting: tombol Update per baris (label persis)',
   />\s*Update\s*<\/TombolSekunder>/.test(tab) &&
     tab.includes('onClick={() => setEditMeeting(m)}'),
@@ -198,6 +204,7 @@ cek(
     form.includes('<Label>Client Representative *</Label>') &&
     form.includes('<Label>Contact Person *</Label>') &&
     form.includes('<Label>Contact Person Phone</Label>') &&
+    form.includes('<Label>Contact Person Email</Label>') &&
     form.includes('<Label>RRI Representative *</Label>'),
 );
 cek(

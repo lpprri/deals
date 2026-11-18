@@ -288,19 +288,23 @@ cek(
     !marklo.includes('catatanTampil'),
 );
 cek(
-  'Booking: form singkat punya 4 field — Nama, Perusahaan (opsional), Kontak, Topik',
+  'Booking: form singkat punya 5 field — Nama, Perusahaan (opsional), Kontak, Email, Topik (Email setelah Kontak)',
   marklo.includes('booking-nama') &&
     marklo.includes('booking-perusahaan') &&
     marklo.includes('booking-kontak') &&
+    marklo.includes('booking-email') &&
     marklo.includes('booking-topik') &&
     marklo.includes('Nama *') &&
     marklo.includes('Kontak *') &&
+    marklo.includes('Email *') &&
     marklo.includes('Topik *'),
 );
 cek(
-  'Booking: validasi form — Nama, Kontak, Topik wajib; Perusahaan opsional',
+  'Booking: validasi form — Nama, Kontak, Email, Topik wajib; Email format dasar; Perusahaan opsional',
   marklo.includes("galat.nama = 'Nama wajib diisi.'") &&
     marklo.includes("galat.kontak = 'Kontak wajib diisi.'") &&
+    marklo.includes("galat.email = 'Email wajib diisi.'") &&
+    marklo.includes("galat.email = 'Format email tidak valid.'") &&
     marklo.includes("galat.topik = 'Topik wajib diisi.'"),
 );
 cek(
@@ -311,17 +315,19 @@ cek(
     marklo.includes('setGalatKirim(galatSimpan)'),
 );
 cek(
-  'Booking: kartu memakai nama "Deals" + logo RRI — avatar "M" / "Marklo" hilang dari kartu',
-  bookingMarklo.includes('>Deals<') &&
+  'Booking: kartu memakai gambar logo Deals (aset sama dengan header) + logo RRI — teks "Deals" polos / avatar "M" / "Marklo" hilang dari kartu',
+  bookingMarklo.includes('src={LOGO_DEALS_DATA_URI}') &&
     bookingMarklo.includes('LOGO_RRI_LANDING_DATA_URI') &&
+    !bookingMarklo.includes('>Deals<') &&
     !bookingMarklo.includes('>Marklo<') &&
     !bookingMarklo.includes('from-rose-400 to-orange-300'),
 );
 
 // --- 13. Testimonials. ---
 cek(
-  'Testimonials: ribbon "#1 Marketing Agency 2025 Award Winner" + pill + heading',
-  marklo.includes('#1 Marketing Agency 2025 Award Winner') &&
+  'Testimonials: ribbon "#1 Radio with the Widest Network in Indonesia" + pill + heading (teks lama hilang)',
+  marklo.includes('#1 Radio with the Widest Network in Indonesia') &&
+    !marklo.includes('#1 Marketing Agency 2025 Award Winner') &&
     marklo.includes('<LabelPill>Testimonial</LabelPill>') &&
     marklo.includes("Why everyone&apos;s talking about our service"),
 );
@@ -510,11 +516,12 @@ cek(
   marklo.includes("{ label: 'Book a Free Call', id: 'booking' }"),
 );
 cek(
-  'BookingSubmit: App.tsx kirimBookingPublik menyimpan Meeting (MTG-, SATKER_PILOT, Nama → Contact Person/Rep, RRI Rep kosong)',
+  'BookingSubmit: App.tsx kirimBookingPublik menyimpan Meeting (MTG-, SATKER_PILOT, Nama → Contact Person/Rep, Email → contactPersonEmail, RRI Rep kosong)',
   app.includes('const kirimBookingPublik = async (') &&
     app.includes("idBerikutnya('MTG-', data.meeting.map((m) => m.id))") &&
     app.includes('satker: SATKER_PILOT') &&
     app.includes('clientRepresentatives: [input.nama.trim()]') &&
+    app.includes('contactPersonEmail: input.email.trim()') &&
     app.includes('rriRepresentatives: []'),
 );
 cek(
@@ -529,10 +536,11 @@ cek(
     firestoreStore.includes('doc(db, KOLEKSI.meeting, meeting.id)'),
 );
 cek(
-  'BookingRules: firestore.rules mengizinkan create publik tervalidasi ke /meeting/{id} (tanpa read/update/delete publik)',
+  'BookingRules: firestore.rules mengizinkan create publik tervalidasi ke /meeting/{id} (tanpa read/update/delete publik) — email wajib + format',
   rules.includes('match /meeting/{id}') &&
     rules.includes('allow create: if request.auth == null') &&
     rules.includes("request.resource.data.satker.kode == '41'") &&
+    rules.includes('contactPersonEmail') &&
     rules.includes("!('googleEventId' in request.resource.data)"),
 );
 

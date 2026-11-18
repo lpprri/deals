@@ -283,7 +283,8 @@ service cloud.firestore {
     // Operator untuk 'meeting'; blok ini HANYA menambah jalur create
     // publik. TIDAK ada read / update / delete publik.
     // Validasi: tanggal 'yyyy-mm-dd', jam 'HH:mm' (WIB), agenda +
-    // contactPersonNama + contactPersonTelepon wajib terisi,
+    // contactPersonNama + contactPersonTelepon + contactPersonEmail wajib
+    // terisi (email format dasar: ada '@' dan titik setelahnya),
     // clientRepresentatives tepat 1 nama, rriRepresentatives list (boleh
     // kosong — Operator melengkapi via Update), satker SELALU '41'
     // (PALEMBANG, pilot), googleEventId/googleSyncedAt TIDAK boleh ada
@@ -306,6 +307,8 @@ service cloud.firestore {
         && request.resource.data.contactPersonNama.size() > 0
         && request.resource.data.contactPersonTelepon is string
         && request.resource.data.contactPersonTelepon.size() > 0
+        && request.resource.data.contactPersonEmail is string
+        && request.resource.data.contactPersonEmail.matches('^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$')
         && request.resource.data.clientRepresentatives is list
         && request.resource.data.clientRepresentatives.size() == 1
         && request.resource.data.rriRepresentatives is list
