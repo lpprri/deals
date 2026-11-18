@@ -404,6 +404,8 @@ export interface Meeting {
   clientRepresentatives?: string[];
   contactPersonNama?: string;
   contactPersonTelepon?: string;
+  /** Email Contact Person — kanal kirim link Google Meet (PR landing-booking-email, 2026-11-17): dikumpulkan form booking publik (wajib); operator mengirim link Meet manual ke alamat ini setelah sync ke Google Calendar. */
+  contactPersonEmail?: string;
   /** Petugas Layanan & Pengembangan Usaha yang hadir (atribusi performa). */
   rriRepresentatives?: string[];
   /** Alamat klien (kolom Client Address). */

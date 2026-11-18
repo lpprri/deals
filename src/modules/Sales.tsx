@@ -1761,12 +1761,17 @@ function tampilDaftar(nilai?: string[]): string {
   return nilai?.length ? nilai.join(', ') : '—';
 }
 
-/** Contact Person: nama + telepon (bila ada), atau '—'. */
+/** Contact Person: nama + telepon (bila ada) + email (bila ada), atau '—'.
+    Email ditampilkan supaya operator bisa mengirim link Google Meet manual
+    setelah sync (PR landing-booking-email). */
 function tampilKontak(m: MeetingItem): string {
   if (!m.contactPersonNama?.trim()) return '—';
-  return m.contactPersonTelepon?.trim()
+  const dasar = m.contactPersonTelepon?.trim()
     ? `${m.contactPersonNama.trim()} (${m.contactPersonTelepon.trim()})`
     : m.contactPersonNama.trim();
+  return m.contactPersonEmail?.trim()
+    ? `${dasar} · ${m.contactPersonEmail.trim()}`
+    : dasar;
 }
 
 export function TabMeeting({ data, user, actions, cari }: ModulProps) {
@@ -1790,7 +1795,7 @@ export function TabMeeting({ data, user, actions, cari }: ModulProps) {
       (m) =>
         (filterWaktu === 'semua' || m.tanggal >= hariIni) &&
         (kataKunci === '' ||
-          `${m.id} ${m.agenda} ${(m.clientRepresentatives ?? []).join(' ')} ${m.contactPersonNama ?? ''} ${(m.rriRepresentatives ?? []).join(' ')} ${m.alamatKlien ?? ''} ${m.hasil ?? ''}`
+          `${m.id} ${m.agenda} ${(m.clientRepresentatives ?? []).join(' ')} ${m.contactPersonNama ?? ''} ${m.contactPersonEmail ?? ''} ${(m.rriRepresentatives ?? []).join(' ')} ${m.alamatKlien ?? ''} ${m.hasil ?? ''}`
             .toLowerCase()
             .includes(kataKunci)),
     )
@@ -2050,6 +2055,7 @@ function FormMeeting({
     clientRepresentatives: meeting?.clientRepresentatives ?? [],
     contactPersonNama: meeting?.contactPersonNama ?? '',
     contactPersonTelepon: meeting?.contactPersonTelepon ?? '',
+    contactPersonEmail: meeting?.contactPersonEmail ?? '',
     // Form Add: operator yang sedang login terpilih secara default
     // (bisa diubah/ditambah — pola atribusi operatorPenutup kontrak).
     rriRepresentatives:
@@ -2073,6 +2079,7 @@ function FormMeeting({
       | 'klienId'
       | 'contactPersonNama'
       | 'contactPersonTelepon'
+      | 'contactPersonEmail'
       | 'alamatKlien'
       | 'agenda'
       | 'hasil',
@@ -2106,6 +2113,7 @@ function FormMeeting({
       prospectId: id,
       contactPersonNama: p?.kontakNama ?? f.contactPersonNama,
       contactPersonTelepon: p?.telepon ?? f.contactPersonTelepon,
+      contactPersonEmail: p?.email ?? f.contactPersonEmail,
     }));
   };
 
@@ -2117,6 +2125,7 @@ function FormMeeting({
       klienId: id,
       contactPersonNama: k?.kontakNama ?? f.contactPersonNama,
       contactPersonTelepon: k?.telepon ?? f.contactPersonTelepon,
+      contactPersonEmail: k?.email ?? f.contactPersonEmail,
       alamatKlien: k?.alamat ?? f.alamatKlien,
     }));
   };
@@ -2167,6 +2176,7 @@ function FormMeeting({
       clientRepresentatives: wakilKlien,
       contactPersonNama: form.contactPersonNama.trim(),
       contactPersonTelepon: form.contactPersonTelepon.trim(),
+      contactPersonEmail: form.contactPersonEmail?.trim() || undefined,
       rriRepresentatives: form.rriRepresentatives,
       alamatKlien: form.alamatKlien.trim(),
     };
@@ -2266,6 +2276,15 @@ function FormMeeting({
             value={form.contactPersonTelepon}
             onChange={(e) => ubah('contactPersonTelepon', e.target.value)}
             placeholder="Contact person phone number"
+          />
+        </div>
+        <div>
+          <Label>Contact Person Email</Label>
+          <input
+            className={inputClass}
+            value={form.contactPersonEmail ?? ''}
+            onChange={(e) => ubah('contactPersonEmail', e.target.value)}
+            placeholder="Contact person email (receives the Google Meet link)"
           />
         </div>
         <div className="md:col-span-2">

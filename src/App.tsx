@@ -839,6 +839,9 @@ export default function App() {
     }
     if (!input.nama.trim()) return 'Name is required.';
     if (!input.kontak.trim()) return 'Contact is required.';
+    if (!input.email.trim()) return 'Email is required.';
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(input.email.trim()))
+      return 'Email format is not valid.';
     if (!input.topik.trim()) return 'Topic is required.';
     const perusahaan = input.perusahaan?.trim() || '';
     const id = idBerikutnya('MTG-', data.meeting.map((m) => m.id));
@@ -855,6 +858,9 @@ export default function App() {
       clientRepresentatives: [input.nama.trim()],
       contactPersonNama: input.nama.trim(),
       contactPersonTelepon: input.kontak.trim(),
+      // Email WAJIB dari form booking — kanal kirim link Google Meet
+      // (operator kirim manual setelah sync; PR landing-booking-email).
+      contactPersonEmail: input.email.trim(),
       // RRI Representative KOSONG — Operator melengkapi via Update.
       rriRepresentatives: [],
       satker: SATKER_PILOT,
@@ -2211,6 +2217,7 @@ export default function App() {
         contactPersonNama: input.contactPersonNama.trim(),
         contactPersonTelepon:
           input.contactPersonTelepon.trim() || undefined,
+        contactPersonEmail: input.contactPersonEmail?.trim() || undefined,
         rriRepresentatives: input.rriRepresentatives,
         alamatKlien: input.alamatKlien.trim() || undefined,
         satker: SATKER_PILOT,
@@ -2272,6 +2279,7 @@ export default function App() {
         contactPersonNama: input.contactPersonNama.trim(),
         contactPersonTelepon:
           input.contactPersonTelepon.trim() || undefined,
+        contactPersonEmail: input.contactPersonEmail?.trim() || undefined,
         rriRepresentatives: input.rriRepresentatives,
         alamatKlien: input.alamatKlien.trim() || undefined,
       };

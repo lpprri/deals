@@ -30,8 +30,10 @@
 //     "Book 30 Min Free Call" (footer Contact) TIDAK diubah.
 //   - Kartu booking NYATA (bukan pratinjau): pilih tanggal + jam lalu
 //     Next membuka form singkat (Nama, Perusahaan opsional, Kontak,
-//     Topik); submit menyimpan permintaan sebagai Meeting di Firestore
-//     (koleksi 'meeting') agar muncul di tabel Meeting panel admin.
+//     Email, Topik); submit menyimpan permintaan sebagai Meeting di
+//     Firestore (koleksi 'meeting') agar muncul di tabel Meeting panel
+//     admin. Email wajib — kanal kirim link Google Meet (operator kirim
+//     manual setelah sync; PR landing-booking-email).
 //     Catatan pratinjau SUDAH DIHAPUS.
 //   - Kolom footer "Our Service": Plan a Campaign, Book a Venue,
 //     Rent a Space, Get a Journalism Training — keempatnya menggulir
@@ -426,6 +428,9 @@ function CarouselKampanye() {
                 <div className="flex items-start justify-between gap-4 p-5">
                   <div>
                     <h3 className="text-lg font-extrabold text-black">{k.klien}</h3>
+                    <p className="mt-1 text-sm font-semibold leading-snug text-black">
+                      {k.judul}
+                    </p>
                     <p className="mt-1 text-sm leading-relaxed text-slate-500">
                       {k.ringkasan}
                     </p>
@@ -452,7 +457,7 @@ function Pernyataan() {
         <Reveal>
           <p className="text-3xl font-extrabold leading-tight tracking-tight text-black sm:text-5xl lg:text-6xl">
             We focus on returns, scaling your brand through{' '}
-            <span className="text-slate-300">digital marketing</span> to take
+            <span className="text-slate-300">multi-platform marketing</span> to take
             it to the next level.
           </p>
         </Reveal>
@@ -850,10 +855,12 @@ function BookingKonsultasi({
   const [nama, setNama] = useState('');
   const [perusahaan, setPerusahaan] = useState('');
   const [kontak, setKontak] = useState('');
+  const [email, setEmail] = useState('');
   const [topik, setTopik] = useState('');
   const [galatField, setGalatField] = useState<{
     nama?: string;
     kontak?: string;
+    email?: string;
     topik?: string;
   }>({});
   const [galatKirim, setGalatKirim] = useState<string | null>(null);
@@ -886,9 +893,12 @@ function BookingKonsultasi({
 
   /** Validasi form singkat lalu kirim sebagai Meeting (App.tsx). */
   const kirim = async () => {
-    const galat: { nama?: string; kontak?: string; topik?: string } = {};
+    const galat: { nama?: string; kontak?: string; email?: string; topik?: string } = {};
     if (!nama.trim()) galat.nama = 'Nama wajib diisi.';
     if (!kontak.trim()) galat.kontak = 'Kontak wajib diisi.';
+    if (!email.trim()) galat.email = 'Email wajib diisi.';
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim()))
+      galat.email = 'Format email tidak valid.';
     if (!topik.trim()) galat.topik = 'Topik wajib diisi.';
     setGalatField(galat);
     if (Object.keys(galat).length > 0) return;
@@ -903,6 +913,7 @@ function BookingKonsultasi({
       nama: nama.trim(),
       perusahaan: perusahaan.trim() || undefined,
       kontak: kontak.trim(),
+      email: email.trim(),
       topik: topik.trim(),
     });
     setMengirim(false);
@@ -922,6 +933,7 @@ function BookingKonsultasi({
     setNama('');
     setPerusahaan('');
     setKontak('');
+    setEmail('');
     setTopik('');
     setGalatField({});
     setGalatKirim(null);
@@ -953,7 +965,11 @@ function BookingKonsultasi({
                   alt="Radio Republik Indonesia"
                   className="h-10 w-auto"
                 />
-                <h3 className="mt-4 text-lg font-extrabold text-black">Deals</h3>
+                <img
+                  src={LOGO_DEALS_DATA_URI}
+                  alt="Deals"
+                  className="mt-4 h-7 w-auto"
+                />
                 <p className="mt-1 flex items-center gap-2 text-sm text-slate-500">
                   <Clock className="h-4 w-4" aria-hidden="true" />
                   30 Min Meeting
@@ -1183,6 +1199,27 @@ function BookingKonsultasi({
               </div>
               <div>
                 <label
+                  htmlFor="booking-email"
+                  className="block text-sm font-bold text-black"
+                >
+                  Email *
+                </label>
+                <input
+                  id="booking-email"
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="Email kamu"
+                  className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm text-black outline-none focus:border-black"
+                />
+                {galatField.email && (
+                  <p className="mt-1 text-xs font-semibold text-red-600">
+                    {galatField.email}
+                  </p>
+                )}
+              </div>
+              <div>
+                <label
                   htmlFor="booking-topik"
                   className="block text-sm font-bold text-black"
                 >
@@ -1270,7 +1307,7 @@ function Testimoni() {
             </p>
             <p className="mt-5 inline-flex items-center gap-2 rounded-full bg-mk-aksen px-4 py-1.5 text-sm font-bold text-white shadow">
               <Star className="h-4 w-4 fill-current" aria-hidden="true" />
-              #1 Marketing Agency 2025 Award Winner
+              #1 Radio with the Widest Network in Indonesia
             </p>
             <div className="mt-8">
               <LabelPill>Testimonial</LabelPill>
