@@ -7,8 +7,11 @@
 //   lagi kolom form lg:w-[49%] / panel foto lg:w-[51%]); panel foto
 //   gedung RRI DIHAPUS dari Login.tsx (GEDUNG_RRI_DATA_URI tidak lagi
 //   diimpor di sini; src/lib/gedungRri.ts tetap dipakai Beranda.tsx).
-// - Logo RRI di tengah atas + teks "Radio Republik Indonesia"; heading
-//   "Welcome Back" + subjudul lama dipertahankan.
+// - Logo lockup lengkap RRI di tengah atas (data URI terpisah
+//   src/lib/logoRriLockup.ts, h-20); teks terpisah
+//   "Radio Republik Indonesia" DIHAPUS dari Login.tsx karena teks itu
+//   sudah ada di dalam gambar logo (duplikat bila dipertahankan).
+// - Heading "Welcome Back" + subjudul lama dipertahankan.
 // - Keterangan akses (versi LENGKAP, keputusan pengguna 15:53 WIB,
 //   verbatim) dengan ikon gembok, di bawah subjudul, di atas kolom email.
 // - Field Email + Password gaya Mixpanel: label tebal gelap di atas,
@@ -35,6 +38,8 @@ const baca = (relatif: string) =>
 const login = baca('src/components/Login.tsx');
 const app = baca('src/App.tsx');
 
+const logoLockup = baca('src/lib/logoRriLockup.ts');
+
 let gagal = 0;
 const cek = (nama: string, lolos: boolean, detail = '') => {
   console.log(`${lolos ? 'OK' : 'GAGAL'} ${nama}${detail ? `: ${detail}` : ''}`);
@@ -56,10 +61,18 @@ cek(
     !login.includes('GEDUNG_RRI_DATA_URI'),
 );
 cek(
-  'Login: logo RRI di tengah atas + teks "Radio Republik Indonesia"',
-  login.includes('src="/logo-rri.svg"') &&
-    login.includes('mx-auto') &&
-    login.includes('Radio Republik Indonesia'),
+  'Login: logo lockup lengkap di tengah atas (data URI terpisah, h-20, bukan mark saja)',
+  login.includes("import { LOGO_RRI_LOCKUP_DATA_URI } from '../lib/logoRriLockup'") &&
+    login.includes('src={LOGO_RRI_LOCKUP_DATA_URI}') &&
+    login.includes('mx-auto h-20 w-auto') &&
+    login.includes('alt="Logo RRI"') &&
+    !login.includes('src="/logo-rri.svg"') &&
+    logoLockup.includes('export const LOGO_RRI_LOCKUP_DATA_URI') &&
+    logoLockup.includes('data:image/png;base64,'),
+);
+cek(
+  'Login: teks terpisah "Radio Republik Indonesia" DIHAPUS (sudah di dalam gambar logo)',
+  !login.includes('Radio Republik Indonesia'),
 );
 cek(
   'Login: heading "Welcome Back" + subjudul lama dipertahankan',
