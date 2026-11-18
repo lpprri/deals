@@ -17,12 +17,17 @@
 //   + header seamless, atas permintaan eksplisit pengguna 2026-11-17
 //   (PR landing-footer-navy-putih; judul kolom diubah jadi "Our Service"
 //   dan isinya 4 layanan pada PR landing-booking-ke-meeting).
+//   KECUALI section Comparison + strip logo (PR #97): latar gradasi
+//   diagonal NAVY RRI (#1a3a8a -> #0D2569 -> #04122e, gaya gradasi latar
+//   gelap template, BUKAN maroon template — koreksi pengguna 15:48 WIB);
+//   logo mitra di atas chip putih supaya tetap terbaca di latar gelap.
 // - Jujur: nama/klien/testimoni/angka adalah SAMPLE template
 //   (dinyatakan di data + PR body); tidak ada hotlink gambar eksternal.
 //   KECUALI strip logo di bawah Comparison: 10 logo mitra nyata RRI
 //   yang diunggah pengguna (PR #81), di-embed sebagai data URI di
-//   src/lib/logoMitra.ts, tampil slate redup (grayscale + opacity)
-//   seperti screenshot referensi pengguna.
+//   src/lib/logoMitra.ts; sejak PR #97 strip berada di atas latar navy
+//   gelap, jadi tiap logo duduk di atas chip putih (bukan lagi grayscale
+//   + opacity seperti di latar putih) supaya tetap terbaca.
 //   KECUALI section "Our Clients in 67+ Cities" (PR #82): 67 pil kota
 //   satker nyata RRI, diturunkan dari DAFTAR_SATKER (master data nasional)
 //   di src/lib/satker.ts, diurutkan abjad A–Z; KANTOR PUSAT +
@@ -454,7 +459,7 @@ cek(
 // --- 10. Comparison. ---
 cek(
   'Comparison: pill "Comparison" + heading + Other Services vs Our Service',
-  marklo.includes('<LabelPill>Comparison</LabelPill>') &&
+  marklo.includes('<LabelPill gelap>Comparison</LabelPill>') &&
     marklo.includes('But, why would you want to work with us?') &&
     marklo.includes('Other Services') &&
     marklo.includes('Our Service') &&
@@ -469,7 +474,7 @@ cek(
     marklo.includes('bg-mk-peach'),
 );
 cek(
-  'Comparison: strip logo = 10 logo mitra nyata RRI (marquee, gambar <img>) tanpa garis pembatas di atas & bawah',
+  'Comparison: strip logo = 10 logo mitra nyata RRI (marquee, gambar <img>) tanpa garis pembatas di atas & bawah, tiap logo di atas chip putih (latar navy gelap, PR #97)',
   ['Taspen', 'Bank Sumsel Babel', 'PLN', 'Alfamart', 'MedcoEnergi', 'Bea Cukai', 'Bank Indonesia', 'BNN', 'DJP', 'Komdigi'].every((nama) =>
     logoMitra.includes(`nama: '${nama}'`),
   ) &&
@@ -477,9 +482,19 @@ cek(
     marklo.includes('mk-marquee') &&
     marklo.includes('<img') &&
     marklo.includes('logo.logoDataUri') &&
-    marklo.includes('grayscale') &&
-    marklo.includes('opacity-60') &&
+    marklo.includes('rounded-lg bg-white px-3 py-2 shadow-sm') &&
+    !marklo.includes('grayscale') &&
+    !marklo.includes('opacity-60') &&
     !marklo.includes('border-y'),
+);
+cek(
+  'Comparison: latar gradasi diagonal navy RRI (PR #97, BUKAN maroon, BUKAN flat solid) + judul putih + pill gelap',
+  marklo.includes('<section className="mk-latar-navy py-16 sm:py-20">') &&
+    marklo.includes('<LabelPill gelap>Comparison</LabelPill>') &&
+    marklo.includes('text-3xl font-extrabold leading-tight tracking-tight text-white sm:text-5xl') &&
+    css.includes('.mk-latar-navy {') &&
+    css.includes('linear-gradient(105deg, #1a3a8a 0%, #0d2569 55%, #04122e 100%)') &&
+    !marklo.includes('<LabelPill>Comparison</LabelPill>'),
 );
 cek(
   'Comparison: wordmark contoh template (ZenZap, Sparkle, Innovio, Craftgram, Lumo Labs) tidak ada lagi',
