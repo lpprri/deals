@@ -490,7 +490,7 @@ function Statistik() {
     <section className="bg-white pb-16 sm:pb-20">
       <div ref={ref} className="mx-auto max-w-7xl px-4 sm:px-6">
         <Reveal>
-          <dl className="grid grid-cols-2 gap-6 lg:grid-cols-4">
+          <dl className="grid grid-cols-2 gap-6 lg:grid-cols-3">
             {STATISTIK_MARKLO.map((s) => (
               <StatItem key={s.id} stat={s} aktif={terlihat} />
             ))}

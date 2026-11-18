@@ -100,10 +100,9 @@ export interface StatistikMarklo {
 }
 
 export const STATISTIK_MARKLO: StatistikMarklo[] = [
-  { id: 'proyek', nilai: 1200, akhiran: '+', desimal: 0, label: 'Projects Delivered' },
-  { id: 'klien', nilai: 25, akhiran: 'k+', desimal: 0, label: 'Happy Clients' },
+  { id: 'proyek', nilai: 500, akhiran: '+', desimal: 0, label: 'Projects Delivered' },
+  { id: 'klien', nilai: 1, akhiran: 'k+', desimal: 0, label: 'Happy Clients' },
   { id: 'kepuasan', nilai: 98, akhiran: '%', desimal: 0, label: 'Client Satisfaction' },
-  { id: 'pertumbuhan', nilai: 35, akhiran: 'X', desimal: 0, label: 'Client Growth Result' },
 ];
 
 /** Ubah nama satker (HURUF BESAR per spreadsheet) menjadi Title Case
