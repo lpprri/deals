@@ -19,6 +19,10 @@
 //   dan isinya 4 layanan pada PR landing-booking-ke-meeting).
 // - Jujur: nama/klien/testimoni/angka adalah SAMPLE template
 //   (dinyatakan di data + PR body); tidak ada hotlink gambar eksternal.
+//   KECUALI strip logo di bawah Comparison: 10 logo mitra nyata RRI
+//   yang diunggah pengguna (PR #81), di-embed sebagai data URI di
+//   src/lib/logoMitra.ts, tampil slate redup (grayscale + opacity)
+//   seperti screenshot referensi pengguna.
 // - Tombol "Book a Free Call" menggulir ke kartu booking — perilaku
 //   PR #78 (membuka halaman Meeting) DI-REVERT atas koreksi pengguna
 //   2026-11-17 (PR landing-booking-ke-meeting). Kartu booking NYATA:
@@ -37,6 +41,7 @@ const baca = (relatif: string) =>
 const app = baca('src/App.tsx');
 const marklo = baca('src/modules/landing/Marklo.tsx');
 const dataMarklo = baca('src/lib/landingMarklo.ts');
+const logoMitra = baca('src/lib/logoMitra.ts');
 const css = baca('src/index.css');
 const firestoreStore = baca('src/lib/firestoreStore.ts');
 const rules = baca('firestore.rules');
@@ -228,10 +233,29 @@ cek(
     marklo.includes('bg-mk-peach'),
 );
 cek(
-  'Comparison: strip logo klien (ZenZap, Sparkle, Innovio, Craftgram, Lumo Labs) marquee',
-  dataMarklo.includes("'ZenZap'") &&
-    dataMarklo.includes("'Lumo Labs'") &&
-    marklo.includes('mk-marquee'),
+  'Comparison: strip logo = 10 logo mitra nyata RRI (marquee, gambar <img>)',
+  ['Taspen', 'Bank Sumsel Babel', 'PLN', 'Alfamart', 'MedcoEnergi', 'Bea Cukai', 'Bank Indonesia', 'BNN', 'DJP', 'Komdigi'].every((nama) =>
+    logoMitra.includes(`nama: '${nama}'`),
+  ) &&
+    logoMitra.includes('data:image/webp;base64,') &&
+    marklo.includes('mk-marquee') &&
+    marklo.includes('<img') &&
+    marklo.includes('logo.logoDataUri') &&
+    marklo.includes('grayscale') &&
+    marklo.includes('opacity-60'),
+);
+cek(
+  'Comparison: wordmark contoh template (ZenZap, Sparkle, Innovio, Craftgram, Lumo Labs) tidak ada lagi',
+  !dataMarklo.includes("'ZenZap'") &&
+    !dataMarklo.includes("'Sparkle'") &&
+    !dataMarklo.includes("'Innovio'") &&
+    !dataMarklo.includes("'Craftgram'") &&
+    !dataMarklo.includes("'Lumo Labs'") &&
+    !marklo.includes('ZenZap') &&
+    !marklo.includes('Sparkle') &&
+    !marklo.includes('Innovio') &&
+    !marklo.includes('Craftgram') &&
+    !marklo.includes('Lumo Labs'),
 );
 
 // --- 11. Why Marketing. ---

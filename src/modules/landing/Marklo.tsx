@@ -717,13 +717,13 @@ function Perbandingan() {
           <div className="mt-12 overflow-hidden border-y border-slate-200 py-5">
             <div className="mk-marquee flex w-max items-center gap-12">
               {[...LOGO_KLIEN_MARKLO, ...LOGO_KLIEN_MARKLO].map((logo, i) => (
-                <span
-                  key={`${logo}-${i}`}
-                  className="whitespace-nowrap text-xl font-extrabold tracking-tight text-slate-400"
+                <img
+                  key={`${logo.nama}-${i}`}
+                  src={logo.logoDataUri}
+                  alt={logo.nama}
                   aria-hidden={i >= LOGO_KLIEN_MARKLO.length}
-                >
-                  {logo}
-                </span>
+                  className="h-10 w-auto shrink-0 opacity-60 grayscale"
+                />
               ))}
             </div>
           </div>

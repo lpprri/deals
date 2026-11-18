@@ -5,6 +5,11 @@
 // berasal dari template Marklo dan BUKAN data RRI — dipakai apa adanya
 // untuk tiruan visual, dan akan diganti pada putaran penyesuaian RRI.
 // JANGAN jadikan nama/angka di sini sebagai fakta tentang RRI.
+//
+// KECUALI LOGO_KLIEN_MARKLO: sejak PR #81 (2026-11-18) strip logo di
+// bawah Comparison adalah LOGO MITRA NYATA RRI (10 logo yang diunggah
+// pengguna, di-embed di src/lib/logoMitra.ts) — bukan lagi wordmark
+// contoh template.
 
 export interface KampanyeMarklo {
   klien: string;
@@ -151,13 +156,12 @@ export const PERBANDINGAN_KAMI: string[] = [
   'Transparent reporting, every week',
 ];
 
-export const LOGO_KLIEN_MARKLO: string[] = [
-  'ZenZap',
-  'Sparkle',
-  'Innovio',
-  'Craftgram',
-  'Lumo Labs',
-];
+// Strip logo mitra RRI (bukan lagi wordmark contoh template).
+// Daftar + data URI logo ada di src/lib/logoMitra.ts (10 logo yang
+// diunggah pengguna, di-embed sebagai base64). Nama ekspor dipertahankan
+// supaya Marklo.tsx tidak berubah impornya.
+export { LOGO_MITRA as LOGO_KLIEN_MARKLO } from './logoMitra';
+export type { LogoMitra } from './logoMitra';
 
 export interface ManfaatMarklo {
   judul: string;
