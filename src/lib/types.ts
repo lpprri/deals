@@ -446,6 +446,49 @@ export interface PermintaanLayanan {
   satker: SatkerRef;
 }
 
+/**
+ * Memorandum of Understanding — record kerja sama dari file pengguna
+ * "Rekapitulasi_Nota_Kesepahaman.xlsx" (sheet '2026', 44 baris;
+ * impor 19/11/2026). Data TERPISAH dari kontrak PNBP — bukan kontrak,
+ * tanpa nilai rupiah, dan TIDAK memengaruhi total kontrak/PNBP.
+ * Keputusan pengguna 19/11/2026: SEMUA 44 baris adalah MoU meski
+ * penyebutan JENIS berbeda (26 Nota Kesepahaman, 17 Perjanjian
+ * Kerjasama, 1 Pelaksanaan Kerja Sama); label JENIS asli disimpan di
+ * field `jenis`. Panel Memorandum of Understanding membaca koleksi
+ * `mou` (seed: src/lib/seedMou.ts, dibuat scripts/impor-mou.py).
+ * - id = nomor dokumen (5 kolom digabung, mis.
+ *   '008/RRI-PLB/KJM.02.04/01/2026'); mengandung '/' seperti id
+ *   kontrak, di-encode saat tulis Firestore.
+ * - pic = PIC RRI penanggung jawab (apa adanya dari file: 'Dessi' dan
+ *   'Dessi Maya Sari' TIDAK digabung; 'Selvia Lena' bukan operator).
+ *   '—' bila kosong di sumber (1 baris).
+ * - dokumen = label dokumen sumber ('DOKUMEN NOTA KESEPAHAMAN', dst.);
+ *   '—' bila kosong di sumber (21 baris).
+ * - tanggal* = 'yyyy-mm-dd'. Typo tahun sumber '0206' (2 baris)
+ *   dibaca sebagai 2026 (lihat scripts/impor-mou.py).
+ */
+export interface Mou {
+  /** Nomor dokumen — id record. */
+  id: string;
+  /** JENIS KERJASAMA asli dari file. */
+  jenis: string;
+  instansi: string;
+  kategori: string;
+  /** Narahubung instansi mitra. */
+  narahubung: string;
+  telepon: string;
+  tematik: string;
+  astaCita: string;
+  judul: string;
+  tanggalTandaTangan: string; // 'yyyy-mm-dd'
+  tanggalMulai: string; // 'yyyy-mm-dd'
+  tanggalSelesai: string; // 'yyyy-mm-dd'
+  masaBerlaku: string;
+  dokumen: string;
+  pic: string;
+  satker: SatkerRef;
+}
+
 export interface Meeting {
   id: string;
   tanggal: string; // 'yyyy-mm-dd'
@@ -655,6 +698,11 @@ export interface AppData {
   spaceRentOrder: PermintaanLayanan[];
   trainingOrder: PermintaanLayanan[];
   mediaPartnerOrder: PermintaanLayanan[];
+  // Memorandum of Understanding (impor MoU 19/11/2026): 44 record dari
+  // file pengguna — data tersendiri, BUKAN kontrak (total PNBP tidak
+  // berubah). Panel MoU membaca koleksi ini; sebelum migrasi MoU
+  // dijalankan, Firestore mode menampilkan empty state jujur.
+  mou: Mou[];
   meeting: Meeting[];
   event: Event[];
   advertisement: Advertisement[];

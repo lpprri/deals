@@ -722,4 +722,7 @@ export const DATA_CONTOH: AppData = {
   spaceRentOrder: [],
   trainingOrder: [],
   mediaPartnerOrder: [],
+  // Memorandum of Understanding (impor MoU 19/11/2026): data contoh
+  // belum punya MoU (44 record nyata ada di seedNyata via seedMou.ts).
+  mou: [],
 };
