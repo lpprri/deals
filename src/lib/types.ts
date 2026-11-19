@@ -489,6 +489,69 @@ export interface Mou {
   satker: SatkerRef;
 }
 
+/**
+ * Satu baris item dukungan (barang) dalam satu record Commitment.
+ * `jumlah` = qty x hargaSatuan — dicek sama dengan kolom JUMLAH file.
+ */
+export interface DukunganItem {
+  /** Jenis barang dukungan, apa adanya dari file. */
+  jenis: string;
+  qty: number;
+  hargaSatuan: number;
+  jumlah: number;
+}
+
+/**
+ * Commitment — dokumen kerja sama dukungan layanan untuk support event
+ * & program acara di RRI, dari file pengguna
+ * "Dukungan_Layanan_2026.xlsx" (sheet 'Semarak Ramadhan', 13 baris item
+ * jadi 4 record; impor 19/11/2026). Data TERPISAH dari kontrak PNBP —
+ * bukan kontrak, TANPA nilai PNBP, dan TIDAK memengaruhi total
+ * kontrak/PNBP. Keputusan pengguna 19/11/2026: data Commitment
+ * tersendiri seperti MoU. Panel Commitment membaca koleksi
+ * `commitment` (seed: src/lib/seedCommitment.ts, dibuat
+ * scripts/impor-commitment.py).
+ * - id = nomor dokumen PKS.DL (mis. '001/RRI.PLB/PKS.DL/03/2024');
+ *   mengandung '/' seperti id kontrak dan id MoU, di-encode saat
+ *   tulis Firestore.
+ * - tanggalKegiatan = 'yyyy-mm-dd'. PERHATIAN: nama file menyebut
+ *   2026, tapi data kegiatan adalah 13 Maret 2024 — disimpan
+ *   2024-03-13 apa adanya dari file (lihat scripts/impor-commitment.py).
+ * - mitra = nama mitra apa adanya dari file ('Bank Syariah Indonesian
+ *   Kenten 2' — dengan "Indonesian", bukan "Indonesia").
+ * - layanan / nilaiKonversi = '—' bila kosong di sumber (semua baris
+ *   file: kolom LAYANAN/BENEFIT dan NILAI KONVERSI berisi '-'; tidak
+ *   ada benefit/nilai konversi yang dikarang).
+ * - totalDukungan = jumlah `dukungan[].jumlah` per mitra; total semua
+ *   mitra Rp16.600.000 (cocok dengan REKAPITULASI file).
+ */
+export interface Commitment {
+  /** Nomor dokumen PKS.DL — id record. */
+  id: string;
+  /** Nama kegiatan yang didukung. */
+  kegiatan: string;
+  /** Tanggal pelaksanaan kegiatan ('yyyy-mm-dd'). */
+  tanggalKegiatan: string;
+  /** Mitra/penyumbang dukungan. */
+  mitra: string;
+  /** Nama penandatangan dari pihak mitra. */
+  penandatangan: string;
+  jabatanPenandatangan: string;
+  /** Baris-baris item dukungan (barang). */
+  dukungan: DukunganItem[];
+  /** Total nilai dukungan mitra ini (Rp). */
+  totalDukungan: number;
+  /** Layanan/benefit yang diterima mitra — '—' bila kosong di sumber. */
+  layanan: string;
+  /** Nilai konversi dukungan — '—' bila kosong di sumber. */
+  nilaiKonversi: string;
+  /** Dokumen sumber ('Surat Penawaran 00X ...'). */
+  dokumen: string;
+  /** Nomor dokumen pendek (kolom U file: '001'–'004'). */
+  nomorDokumen: string;
+  satker: SatkerRef;
+}
+
 export interface Meeting {
   id: string;
   tanggal: string; // 'yyyy-mm-dd'
@@ -703,6 +766,12 @@ export interface AppData {
   // berubah). Panel MoU membaca koleksi ini; sebelum migrasi MoU
   // dijalankan, Firestore mode menampilkan empty state jujur.
   mou: Mou[];
+  // Commitment (impor Commitment 19/11/2026): 4 record dukungan
+  // layanan dari file pengguna — data tersendiri seperti MoU, BUKAN
+  // kontrak (total PNBP tidak berubah). Panel Commitment membaca
+  // koleksi ini; sebelum migrasi Commitment dijalankan, Firestore
+  // mode menampilkan empty state jujur.
+  commitment: Commitment[];
   meeting: Meeting[];
   event: Event[];
   advertisement: Advertisement[];

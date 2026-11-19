@@ -47,14 +47,14 @@ service cloud.firestore {
       return data.satker.kode == satkerPemanggil();
     }
 
-    // ---------- Koleksi data bersatker (20 koleksi di blok ini) ----------
+    // ---------- Koleksi data bersatker (21 koleksi di blok ini) ----------
     // Baca/tulis hanya Operator dari satker yang sama. Saat membuat data
     // baru, satker dicek dari data yang dikirim; saat mengubah, dicek dari
     // data lama DAN data baru (tidak boleh pindah satker). Tiket &
     // umpanBalik (Fase C) memakai aturan yang sama di blok tersendiri di
-    // bawah, jadi total koleksi bersatker menjadi 22. Chat antar
+    // bawah, jadi total koleksi bersatker menjadi 23. Chat antar
     // operator (Fase C, PR #45) memakai aturan yang sama di blok
-    // tersendiri juga, jadi total koleksi bersatker menjadi 23.
+    // tersendiri juga, jadi total koleksi bersatker menjadi 24.
     match /{koleksi}/{id} {
       allow read: if koleksi in [
           'klien', 'kontrak', 'tagihan', 'pembayaran', 'denda',
@@ -68,7 +68,12 @@ service cloud.firestore {
           // Impor MoU 19/11/2026: koleksi `mou` (44 record dari file
           // pengguna); ditulis lewat migrasi MoU (Admin SDK tidak
           // dipakai — client SDK operator, seperti migrasi lain).
-          'mou'
+          'mou',
+          // Impor Commitment 19/11/2026: koleksi `commitment` (4 record
+          // dari file pengguna); ditulis lewat migrasi Commitment
+          // (Admin SDK tidak dipakai — client SDK operator, seperti
+          // migrasi lain).
+          'commitment'
         ]
         && adalahOperator()
         && satkerMilikPemanggil(resource.data);
@@ -81,7 +86,12 @@ service cloud.firestore {
           // Impor MoU 19/11/2026: koleksi `mou` (44 record dari file
           // pengguna); ditulis lewat migrasi MoU (Admin SDK tidak
           // dipakai — client SDK operator, seperti migrasi lain).
-          'mou'
+          'mou',
+          // Impor Commitment 19/11/2026: koleksi `commitment` (4 record
+          // dari file pengguna); ditulis lewat migrasi Commitment
+          // (Admin SDK tidak dipakai — client SDK operator, seperti
+          // migrasi lain).
+          'commitment'
         ]
         && adalahOperator()
         && satkerMilikPemanggil(request.resource.data);
@@ -94,7 +104,12 @@ service cloud.firestore {
           // Impor MoU 19/11/2026: koleksi `mou` (44 record dari file
           // pengguna); ditulis lewat migrasi MoU (Admin SDK tidak
           // dipakai — client SDK operator, seperti migrasi lain).
-          'mou'
+          'mou',
+          // Impor Commitment 19/11/2026: koleksi `commitment` (4 record
+          // dari file pengguna); ditulis lewat migrasi Commitment
+          // (Admin SDK tidak dipakai — client SDK operator, seperti
+          // migrasi lain).
+          'commitment'
         ]
         && adalahOperator()
         && satkerMilikPemanggil(resource.data)
@@ -108,7 +123,12 @@ service cloud.firestore {
           // Impor MoU 19/11/2026: koleksi `mou` (44 record dari file
           // pengguna); ditulis lewat migrasi MoU (Admin SDK tidak
           // dipakai — client SDK operator, seperti migrasi lain).
-          'mou'
+          'mou',
+          // Impor Commitment 19/11/2026: koleksi `commitment` (4 record
+          // dari file pengguna); ditulis lewat migrasi Commitment
+          // (Admin SDK tidak dipakai — client SDK operator, seperti
+          // migrasi lain).
+          'commitment'
         ]
         && adalahOperator()
         && satkerMilikPemanggil(resource.data);
@@ -233,6 +253,19 @@ service cloud.firestore {
       allow read: if adalahOperator();
       allow create: if adalahOperator()
         && !exists(/databases/$(database)/documents/meta/migrasi-mou-2026);
+      allow update, delete: if false;
+    }
+
+    // ---------- Penanda migrasi Commitment: hanya boleh dibuat sekali ----------
+    // Migrasi Commitment (src/lib/migrasiCommitment.ts, impor Commitment
+    // 19/11/2026) menulis 4 record ke koleksi `commitment` dari seed
+    // (src/lib/seedCommitment.ts). Penanda ini dibuat sekali; bila sudah
+    // ada, create ditolak. Terpisah dari `meta/migrasi`,
+    // `meta/migrasi-kontrak-2026`, dan `meta/migrasi-mou-2026`.
+    match /meta/migrasi-commitment-2026 {
+      allow read: if adalahOperator();
+      allow create: if adalahOperator()
+        && !exists(/databases/$(database)/documents/meta/migrasi-commitment-2026);
       allow update, delete: if false;
     }
 

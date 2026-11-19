@@ -34,6 +34,16 @@ adalah konstanta `TANGGAL_IMPOR = '2026-11-14'` — bukan tanggal berjalan.
 > `mou: MOU_NYATA` HARUS dipertahankan — bila hilang, panel MoU
 > kembali kosong dan skrip `scripts/cek-impor-mou.ts` akan gagal
 > (seed mou 44 record).
+>
+> PERHATIAN (impor Commitment 19/11/2026): `src/lib/seedNyata.ts`
+> kini JUGA mengimpor `COMMITMENT_NYATA` dari
+> `src/lib/seedCommitment.ts` (dibuat `scripts/impor-commitment.py`
+> dari file pengguna "Dukungan_Layanan_2026.xlsx"). Bila skrip ini
+> dijalankan ulang dan menulis ulang `seedNyata.ts`, baris impor +
+> entri `commitment: COMMITMENT_NYATA` HARUS dipertahankan — bila
+> hilang, panel Commitment kembali kosong dan skrip
+> `scripts/cek-impor-commitment.ts` akan gagal (seed commitment
+> 4 record).
 
 ## Keputusan yang didokumentasikan
 

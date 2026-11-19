@@ -82,6 +82,10 @@ export const KOLEKSI: Record<keyof AppData, string> = {
   // dari file pengguna; ditulis ke Firestore lewat migrasi MoU
   // (src/lib/migrasiMou.ts) setelah PR ini merge.
   mou: 'mou',
+  // Commitment (impor Commitment 19/11/2026): 4 record dukungan
+  // layanan dari file pengguna; ditulis ke Firestore lewat migrasi
+  // Commitment (src/lib/migrasiCommitment.ts) setelah PR ini merge.
+  commitment: 'commitment',
   meeting: 'meeting',
   event: 'event',
   advertisement: 'advertisement',

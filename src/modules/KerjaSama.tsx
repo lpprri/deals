@@ -15,15 +15,21 @@
 //   data.mou (bukan kontrak) — JANGAN kembalikan filter kontrak.
 //   Sebelum migrasi MoU dijalankan (Master & Pengguna), panel
 //   menampilkan empty state jujur.
-// - Commitment & Approvement masih MENUNGGU data (empty state jujur
-//   sampai datanya diimpor; JANGAN mengarang record dan JANGAN membuat
-//   model data baru secara diam-diam).
+// - Commitment (impor 19/11/2026): data TERPISAH seperti MoU, bukan
+//   kontrak — 4 record dari file pengguna "Dukungan_Layanan_2026.xlsx"
+//   (seed src/lib/seedCommitment.ts, koleksi Firestore `commitment`).
+//   Panel Commitment membaca data.commitment (bukan kontrak) — JANGAN
+//   kembalikan filter kontrak. Sebelum migrasi Commitment dijalankan
+//   (Master & Pengguna), panel menampilkan empty state jujur.
+// - Approvement masih MENUNGGU data (empty state jujur sampai datanya
+//   diimpor; JANGAN mengarang record dan JANGAN membuat model data baru
+//   secara diam-diam).
 
 import { useState } from 'react';
 import { TabKontrak } from './Deals';
 import type { ModulProps } from '../lib/store';
-import { formatTanggal } from '../lib/format';
-import type { Mou } from '../lib/types';
+import { formatRupiah, formatTanggal } from '../lib/format';
+import type { Commitment, Mou } from '../lib/types';
 import {
   Baris,
   JudulBagian,
@@ -45,10 +51,12 @@ import { sisaHariMou } from '../lib/kontrakTampilan';
 interface PropsKategori extends ModulProps {
   /**
    * Nilai `Kontrak.kategoriLayanan` yang difilter; null = semua kontrak
-   * (menu Contract). Kategori 'Dukungan Layanan' / 'Media Partner'
-   * masih MENUNGGU data — lihat komentar di atas. (MoU tidak lagi
-   * memakai filter ini sejak impor MoU 19/11/2026: panel MoU membaca
-   * data.mou lewat DaftarMou.)
+   * (menu Contract). Kategori 'Media Partner' masih MENUNGGU data —
+   * lihat komentar di atas. (MoU tidak lagi memakai filter ini sejak
+   * impor MoU 19/11/2026: panel MoU membaca data.mou lewat DaftarMou;
+   * Commitment tidak lagi memakai filter ini sejak impor Commitment
+   * 19/11/2026: panel Commitment membaca data.commitment lewat
+   * DaftarCommitment.)
    */
   kategori: string | null;
   /** Teks empty state jujur bila belum ada record berkategori ini. */
@@ -310,16 +318,186 @@ function DaftarMou({ data, cari }: Pick<ModulProps, 'data' | 'cari'>) {
 
 /**
  * Commitment — dokumen kerja sama dukungan layanan untuk support event
- * & program acara di RRI. Data tipe ini masih menunggu (0 record).
+ * & program acara di RRI. Data TERPISAH dari kontrak (impor Commitment
+ * 19/11/2026, 4 record dari file pengguna); panel membaca
+ * data.commitment.
  */
-export function MenuKomitmen(props: ModulProps) {
+export function MenuKomitmen({ data, cari }: ModulProps) {
+  return <DaftarCommitment data={data} cari={cari} />;
+}
+
+/** Detail satu Commitment — semua field dari file sumber + tabel item dukungan. */
+function DetailCommitment({
+  commitment,
+  onKembali,
+}: {
+  commitment: Commitment;
+  onKembali: () => void;
+}) {
+  const baris: [string, string][] = [
+    ['Document Number', commitment.id],
+    ['Event', commitment.kegiatan],
+    ['Event Date', formatTanggal(commitment.tanggalKegiatan)],
+    ['Partner', commitment.mitra],
+    ['Signatory', commitment.penandatangan],
+    ['Signatory Title', commitment.jabatanPenandatangan],
+    ['Total Support', formatRupiah(commitment.totalDukungan)],
+    ['Service / Benefit', commitment.layanan],
+    ['Conversion Value', commitment.nilaiKonversi],
+    ['Document', commitment.dokumen],
+    ['Document No.', commitment.nomorDokumen],
+  ];
   return (
-    <DaftarKontrakKategori
-      {...props}
-      kategori="Dukungan Layanan"
-      teksKosong="No Commitment documents yet."
-      penjelasanKosong="No contract in the imported data has the 'Dukungan Layanan' service category yet. This list will fill in once such data is imported."
-    />
+    <div className="space-y-4">
+      <div>
+        <TombolSekunder onClick={onKembali}>← Back to list</TombolSekunder>
+      </div>
+      <Kartu>
+        <JudulBagian>
+          {commitment.kegiatan} — {commitment.mitra}
+        </JudulBagian>
+        <div className="mt-3 space-y-2">
+          {baris.map(([label, nilai]) => (
+            <div
+              key={label}
+              className="grid grid-cols-[180px_1fr] gap-2 text-sm"
+            >
+              <span className="font-semibold text-[#0d2569]/60">{label}</span>
+              <span className="text-[#0d2569]">{nilai}</span>
+            </div>
+          ))}
+        </div>
+        <div className="mt-4">
+          <p className="text-sm font-semibold text-[#0d2569]">
+            Support Items (Goods)
+          </p>
+          <div className="mt-2">
+            <Tabel>
+              <thead>
+                <tr>
+                  <Th>Item</Th>
+                  <Th>Qty</Th>
+                  <Th>Unit Price</Th>
+                  <Th>Amount</Th>
+                </tr>
+              </thead>
+              <tbody>
+                {commitment.dukungan.map((d) => (
+                  <Baris key={d.jenis}>
+                    <Td>{d.jenis}</Td>
+                    <Td>{d.qty}</Td>
+                    <Td>{formatRupiah(d.hargaSatuan)}</Td>
+                    <Td>{formatRupiah(d.jumlah)}</Td>
+                  </Baris>
+                ))}
+                <Baris>
+                  <Td tebal>Total</Td>
+                  <Td />
+                  <Td />
+                  <Td tebal>{formatRupiah(commitment.totalDukungan)}</Td>
+                </Baris>
+              </tbody>
+            </Tabel>
+          </div>
+        </div>
+      </Kartu>
+    </div>
+  );
+}
+
+/**
+ * Daftar Commitment — tabel dari data.commitment (bukan kontrak).
+ * Diurutkan nomor dokumen (001 → 004); pencarian `cari` memfilter
+ * nomor, mitra, kegiatan, penandatangan, dan dokumen.
+ */
+function DaftarCommitment({ data, cari }: Pick<ModulProps, 'data' | 'cari'>) {
+  const [commitmentIdTerpilih, setCommitmentIdTerpilih] = useState<
+    string | null
+  >(null);
+
+  const kataKunci = cari.trim().toLowerCase();
+  const commitmentTersaring = [...data.commitment]
+    .sort((a, b) => a.id.localeCompare(b.id))
+    .filter(
+      (c) =>
+        kataKunci === '' ||
+        `${c.id} ${c.mitra} ${c.kegiatan} ${c.penandatangan} ${c.dokumen}`
+          .toLowerCase()
+          .includes(kataKunci),
+    );
+  const commitmentTerpilih = commitmentIdTerpilih
+    ? commitmentTersaring.find((c) => c.id === commitmentIdTerpilih) ?? null
+    : null;
+
+  if (commitmentTerpilih) {
+    return (
+      <DetailCommitment
+        commitment={commitmentTerpilih}
+        onKembali={() => setCommitmentIdTerpilih(null)}
+      />
+    );
+  }
+
+  // Belum ada record Commitment di Firestore (migrasi Commitment belum
+  // dijalankan): empty state jujur, bukan tabel kosong.
+  if (commitmentTersaring.length === 0) {
+    return (
+      <div className="space-y-3">
+        <PesanKosong teks="No Commitment documents yet." />
+        <p className="max-w-2xl text-sm text-[#0d2569]/70">
+          No Commitment records in Firestore yet. Run the Commitment migration from the
+          Master &amp; Users page to import the 4 records from
+          &lsquo;Dukungan Layanan 2026&rsquo;.
+        </p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-4">
+      <p className="text-sm text-[#0d2569]/70">
+        {commitmentTersaring.length} Commitment records. Total support:{' '}
+        {formatRupiah(
+          commitmentTersaring.reduce((s, c) => s + c.totalDukungan, 0),
+        )}
+        .
+      </p>
+      <Kartu>
+        <Tabel>
+          <thead>
+            <tr>
+              <Th>No.</Th>
+              <Th>Document Number</Th>
+              <Th>Partner</Th>
+              <Th>Event</Th>
+              <Th>Event Date</Th>
+              <Th>Signatory</Th>
+              <Th>Support Items</Th>
+              <Th>Total Support</Th>
+            </tr>
+          </thead>
+          <tbody>
+            {commitmentTersaring.map((c, i) => (
+              <Baris
+                key={c.id}
+                onClick={() => setCommitmentIdTerpilih(c.id)}
+              >
+                <Td>{i + 1}</Td>
+                <Td tebal>{c.id}</Td>
+                <Td>{c.mitra}</Td>
+                <Td>{c.kegiatan}</Td>
+                <Td>{formatTanggal(c.tanggalKegiatan)}</Td>
+                <Td>{c.penandatangan}</Td>
+                <Td>
+                  {c.dukungan.length} item{c.dukungan.length > 1 ? 's' : ''}
+                </Td>
+                <Td>{formatRupiah(c.totalDukungan)}</Td>
+              </Baris>
+            ))}
+          </tbody>
+        </Tabel>
+      </Kartu>
+    </div>
   );
 }
 

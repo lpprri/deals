@@ -52,6 +52,12 @@ import type {
   KemajuanMigrasiMou,
   TahapMigrasiMou,
 } from '../lib/migrasiMou';
+import { JUMLAH_COMMITMENT_SEED } from '../lib/migrasiCommitmentRencana';
+import type {
+  HasilMigrasiCommitment,
+  KemajuanMigrasiCommitment,
+  TahapMigrasiCommitment,
+} from '../lib/migrasiCommitment';
 import {
   ID_MOU_037,
   PIC_MOU_037_BARU,
@@ -159,6 +165,18 @@ export interface MasterPageProps extends ModulProps {
    * `meta/` — lihat src/lib/perbaikanMou037.ts.
    */
   statusPerbaikanMou037?: 'belum' | 'sudah' | 'tidak-tersedia';
+  /**
+   * Dipanggil saat tombol jalankan migrasi Commitment diklik, dengan
+   * callback progres per tahap. Koordinator menyambungkannya ke
+   * `jalankanMigrasiCommitment` (src/lib/migrasiCommitment.ts).
+   */
+  onMigrasiCommitment?: (
+    onKemajuan?: (k: KemajuanMigrasiCommitment) => void,
+  ) => Promise<HasilMigrasiCommitment>;
+  /** Status migrasi Commitment dari Firestore (dokumen meta/migrasi-commitment-2026). */
+  statusMigrasiCommitment?: 'belum' | 'sudah' | 'tidak-tersedia';
+  /** Tanggal migrasi Commitment (bila diketahui dari luar sesi ini). */
+  tanggalMigrasiCommitment?: string;
 }
 
 function formatTanggalIso(iso: string): string {
@@ -542,6 +560,16 @@ const LABEL_TAHAP_MIGRASI_MOU: Record<TahapMigrasiMou, string> = {
   selesai: 'Done.',
 };
 
+const LABEL_TAHAP_MIGRASI_COMMITMENT: Record<TahapMigrasiCommitment, string> = {
+  guard: 'Checking Commitment migration status…',
+  'baca-live': 'Reading live Commitment data…',
+  prakondisi: 'Checking preconditions…',
+  tulis: 'Writing Commitment documents…',
+  verifikasi: 'Verifying the new data…',
+  audit: 'Writing the audit record…',
+  selesai: 'Done.',
+};
+
 /**
  * Bagian "Migrate MoU Data" — menulis 44 record MoU dari seed
  * (src/lib/seedMou.ts, file pengguna "Rekapitulasi_Nota_Kesepahaman")
@@ -817,6 +845,146 @@ function BagianPerbaikanMou037({
   );
 }
 
+/**
+ * Bagian "Migrate Commitment Data" — menulis 4 record Commitment dari
+ * seed (src/lib/seedCommitment.ts, file pengguna
+ * "Dukungan_Layanan_2026") ke koleksi `commitment` di Firestore. SATU
+ * koleksi saja: tidak ada yang dihapus, koleksi lain TIDAK disentuh,
+ * dan total kontrak PNBP tidak berubah. Sekali jalan, dengan
+ * prakondisi (live `commitment` harus 0) dan verifikasi sebelum
+ * selesai.
+ */
+function BagianMigrasiCommitment({
+  onMigrasiCommitment,
+  statusMigrasiCommitment,
+  tanggalMigrasiCommitment,
+}: {
+  onMigrasiCommitment?: (
+    onKemajuan?: (k: KemajuanMigrasiCommitment) => void,
+  ) => Promise<HasilMigrasiCommitment>;
+  statusMigrasiCommitment: 'belum' | 'sudah' | 'tidak-tersedia';
+  tanggalMigrasiCommitment?: string;
+}) {
+  const [setuju, setSetuju] = useState(false);
+  const [proses, setProses] = useState(false);
+  const [kemajuan, setKemajuan] = useState<KemajuanMigrasiCommitment | null>(null);
+  const [hasil, setHasil] = useState<HasilMigrasiCommitment | null>(null);
+  const [galat, setGalat] = useState<string | null>(null);
+
+  const sudah = statusMigrasiCommitment === 'sudah' || hasil !== null;
+
+  async function tanganiMigrasiCommitment() {
+    if (!onMigrasiCommitment || proses || sudah || !setuju) return;
+    setProses(true);
+    setGalat(null);
+    setKemajuan(null);
+    try {
+      const r = await onMigrasiCommitment((k) => setKemajuan(k));
+      setHasil(r);
+    } catch (e) {
+      setGalat(
+        e instanceof Error
+          ? e.message
+          : 'Commitment migration failed. Try again.',
+      );
+    } finally {
+      setProses(false);
+    }
+  }
+
+  return (
+    <Kartu>
+      <JudulBagian>Migrate Commitment Data</JudulBagian>
+      {statusMigrasiCommitment === 'tidak-tersedia' ? (
+        <p className="mt-2 text-sm text-[#0d2569]/70">
+          Commitment migration only works on live Firestore data. Open
+          this page after signing in while the app is in Firestore mode —
+          in sample mode the data already comes from the new seed.
+        </p>
+      ) : sudah ? (
+        <p className="mt-2 text-sm text-[#0d2569]/70">
+          Already migrated on{' '}
+          {hasil
+            ? formatTanggalIso(hasil.tanggal)
+            : tanggalMigrasiCommitment
+              ? formatTanggalIso(tanggalMigrasiCommitment)
+              : 'the recorded date'}
+          . Commitment migration can only be done once.
+        </p>
+      ) : (
+        <>
+          <p className="mt-2 text-sm text-[#0d2569]/70">
+            Writes {JUMLAH_COMMITMENT_SEED} Commitment records from
+            &lsquo;Dukungan Layanan 2026&rsquo; to the Firestore
+            collection `commitment`. Nothing is deleted, no other
+            collection is touched, and the PNBP contract totals do not
+            change. Before writing anything, the migration checks that
+            the live `commitment` collection is still empty; it can only
+            be done once.
+          </p>
+          <label className="mt-3 flex items-start gap-2 text-sm text-[#0d2569]">
+            <input
+              type="checkbox"
+              checked={setuju}
+              onChange={(e) => setSetuju(e.target.checked)}
+              disabled={proses}
+              className="mt-0.5"
+            />
+            <span>
+              I understand this writes {JUMLAH_COMMITMENT_SEED} new
+              Commitment documents to Firestore. This cannot be undone
+              from the app.
+            </span>
+          </label>
+          <div className="mt-3">
+            <TombolUtama
+              onClick={tanganiMigrasiCommitment}
+              disabled={proses || !setuju || !onMigrasiCommitment}
+            >
+              {proses ? 'Migrating Commitment…' : 'Run Commitment migration'}
+            </TombolUtama>
+          </div>
+        </>
+      )}
+
+      {(proses || kemajuan) && !hasil && (
+        <div className="mt-3">
+          <p className="text-sm font-semibold text-[#0d2569]">
+            {kemajuan
+              ? LABEL_TAHAP_MIGRASI_COMMITMENT[kemajuan.tahap]
+              : 'Starting…'}
+          </p>
+        </div>
+      )}
+
+      {galat && (
+        <div className="mt-3">
+          <Peringatan teks={galat} />
+          {kemajuan && (
+            <p className="mt-2 text-sm text-[#0d2569]/70">
+              Stopped at: {LABEL_TAHAP_MIGRASI_COMMITMENT[kemajuan.tahap]}.
+              Do not run it again — report this to Digi with the message
+              above.
+            </p>
+          )}
+        </div>
+      )}
+
+      {hasil && (
+        <div className="mt-3">
+          <p className="text-sm font-semibold text-[#0d2569]">
+            Commitment migration succeeded on{' '}
+            {formatTanggalIso(hasil.tanggal)}. Live Commitment records:{' '}
+            {hasil.sebelum.jumlahCommitment} →{' '}
+            {hasil.sesudah.jumlahCommitment}. Verify the Commitment panel
+            in Firestore mode.
+          </p>
+        </div>
+      )}
+    </Kartu>
+  );
+}
+
 export default function MasterPage(props: MasterPageProps) {
   const {
     onMigrasi,
@@ -831,6 +999,9 @@ export default function MasterPage(props: MasterPageProps) {
     tanggalMigrasiMou,
     onPerbaikanMou037,
     statusPerbaikanMou037 = 'tidak-tersedia',
+    onMigrasiCommitment,
+    statusMigrasiCommitment = 'tidak-tersedia',
+    tanggalMigrasiCommitment,
   } = props;
   return (
     <div className="space-y-6">
@@ -862,6 +1033,12 @@ export default function MasterPage(props: MasterPageProps) {
       <BagianPerbaikanMou037
         onPerbaikanMou037={onPerbaikanMou037}
         statusPerbaikanMou037={statusPerbaikanMou037}
+      />
+
+      <BagianMigrasiCommitment
+        onMigrasiCommitment={onMigrasiCommitment}
+        statusMigrasiCommitment={statusMigrasiCommitment}
+        tanggalMigrasiCommitment={tanggalMigrasiCommitment}
       />
 
       <Peringatan teks="Master data is only changed by the Operator; values already used by transactions cannot be deleted, only deactivated." />
