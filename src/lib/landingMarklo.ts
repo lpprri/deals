@@ -342,8 +342,11 @@ export interface ZonaWaktuMarklo {
   offsetMenit: number;
 }
 
+/** Tiga zona waktu Indonesia untuk dropdown TIME ZONE kartu booking
+    (keputusan pengguna 2026-11-19 14:45 WIB): WIB/WITA/WIT — dua entri
+    lama (Singapura + UTC) dihapus. Slot disimpan basis WIB (offsetMenit 420). */
 export const ZONA_WAKTU_MARKLO: ZonaWaktuMarklo[] = [
   { id: 'Asia/Jakarta', label: 'WIB — Jakarta (UTC+7)', offsetMenit: 420 },
-  { id: 'Asia/Singapore', label: 'SGT — Singapore (UTC+8)', offsetMenit: 480 },
-  { id: 'UTC', label: 'UTC', offsetMenit: 0 },
+  { id: 'Asia/Makassar', label: 'WITA — Makassar (UTC+8)', offsetMenit: 480 },
+  { id: 'Asia/Jayapura', label: 'WIT — Jayapura (UTC+9)', offsetMenit: 540 },
 ];

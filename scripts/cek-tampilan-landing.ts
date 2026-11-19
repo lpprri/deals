@@ -81,11 +81,16 @@
 //   pengguna 09:12 WIB (memotong kalimat) — deskripsi tampil UTUH
 //   tanpa elipsis, kartu sm:w-[520px] supaya teks maksimal sampai
 //   ujung box (Perempuan Indonesia Maju muat 2 baris).
+// - Zona waktu booking (keputusan pengguna 2026-11-19 14:45 WIB):
+//   dropdown TIME ZONE hanya 3 zona Indonesia — WIB Jakarta (UTC+7),
+//   WITA Makassar (UTC+8), WIT Jayapura (UTC+9); SGT Singapore + UTC
+//   dihapus. Default tetap WIB; slot disimpan basis WIB, zona hanya
+//   menggeser tampilan jam (offsetMenit - 420).
 // Skrip ini membaca berkas sebagai teks. Keluar bukan-nol bila ada
 // asersi gagal.
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { KOTA_SATKER_MARKLO } from '../src/lib/landingMarklo';
+import { KOTA_SATKER_MARKLO, ZONA_WAKTU_MARKLO } from '../src/lib/landingMarklo';
 
 // Daftar 67 kota satker (Title Case, urutan ABJAD A–Z, keputusan user
 // 2026-11-18) yang harus tampil sebagai pil di section
@@ -776,6 +781,31 @@ cek(
     marklo.includes(
       "disabled={tanggalDipilih === null || slotDipilih === null}",
     ),
+);
+cek(
+  'Booking: zona waktu = 3 zona Indonesia — WIB Jakarta (UTC+7, Asia/Jakarta, 420), WITA Makassar (UTC+8, Asia/Makassar, 480), WIT Jayapura (UTC+9, Asia/Jayapura, 540); SGT/Singapore + UTC HILANG (keputusan pengguna 2026-11-19 14:45 WIB)',
+  ZONA_WAKTU_MARKLO.length === 3 &&
+    ZONA_WAKTU_MARKLO[0].id === 'Asia/Jakarta' &&
+    ZONA_WAKTU_MARKLO[0].label === 'WIB — Jakarta (UTC+7)' &&
+    ZONA_WAKTU_MARKLO[0].offsetMenit === 420 &&
+    ZONA_WAKTU_MARKLO[1].id === 'Asia/Makassar' &&
+    ZONA_WAKTU_MARKLO[1].label === 'WITA — Makassar (UTC+8)' &&
+    ZONA_WAKTU_MARKLO[1].offsetMenit === 480 &&
+    ZONA_WAKTU_MARKLO[2].id === 'Asia/Jayapura' &&
+    ZONA_WAKTU_MARKLO[2].label === 'WIT — Jayapura (UTC+9)' &&
+    ZONA_WAKTU_MARKLO[2].offsetMenit === 540 &&
+    !dataMarklo.includes('Asia/Singapore') &&
+    !dataMarklo.includes('SGT') &&
+    !dataMarklo.includes("id: 'UTC'"),
+);
+cek(
+  'Booking: default zona WIB (useState Asia/Jakarta) + geser slot basis WIB — WITA +60 mnt, WIT +120 mnt (zona.offsetMenit - 420)',
+  marklo.includes("const [zonaId, setZonaId] = useState('Asia/Jakarta')") &&
+    marklo.includes('const geserMenit = zona.offsetMenit - 420;') &&
+    ZONA_WAKTU_MARKLO[1].offsetMenit - ZONA_WAKTU_MARKLO[0].offsetMenit ===
+      60 &&
+    ZONA_WAKTU_MARKLO[2].offsetMenit - ZONA_WAKTU_MARKLO[0].offsetMenit ===
+      120,
 );
 cek(
   'Booking: Next membuka form singkat (bukan catatan pratinjau) — "Preview only" hilang',
