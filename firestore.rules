@@ -47,33 +47,42 @@ service cloud.firestore {
       return data.satker.kode == satkerPemanggil();
     }
 
-    // ---------- Koleksi data bersatker (14 koleksi di blok ini) ----------
+    // ---------- Koleksi data bersatker (19 koleksi di blok ini) ----------
     // Baca/tulis hanya Operator dari satker yang sama. Saat membuat data
     // baru, satker dicek dari data yang dikirim; saat mengubah, dicek dari
     // data lama DAN data baru (tidak boleh pindah satker). Tiket &
     // umpanBalik (Fase C) memakai aturan yang sama di blok tersendiri di
-    // bawah, jadi total koleksi bersatker menjadi 16. Chat antar
+    // bawah, jadi total koleksi bersatker menjadi 21. Chat antar
     // operator (Fase C, PR #45) memakai aturan yang sama di blok
-    // tersendiri juga, jadi total koleksi bersatker menjadi 17.
+    // tersendiri juga, jadi total koleksi bersatker menjadi 22.
     match /{koleksi}/{id} {
       allow read: if koleksi in [
           'klien', 'kontrak', 'tagihan', 'pembayaran', 'denda',
           'sewa', 'pengajuan', 'prospect', 'quotation', 'order', 'meeting',
-          'event', 'advertisement', 'task'
+          'event', 'advertisement', 'task',
+          // Panel Order — enam tabel (PR #115): lima koleksi baru, mulai
+          // kosong. Webhook Tally menulis adsQuotationRequest lewat Admin
+          // SDK (bypass rules); aturan di sini untuk baca operator.
+          'adsQuotationRequest', 'venueBookOrder', 'spaceRentOrder',
+          'trainingOrder', 'mediaPartnerOrder'
         ]
         && adalahOperator()
         && satkerMilikPemanggil(resource.data);
       allow create: if koleksi in [
           'klien', 'kontrak', 'tagihan', 'pembayaran', 'denda',
           'sewa', 'pengajuan', 'prospect', 'quotation', 'order', 'meeting',
-          'event', 'advertisement', 'task'
+          'event', 'advertisement', 'task',
+          'adsQuotationRequest', 'venueBookOrder', 'spaceRentOrder',
+          'trainingOrder', 'mediaPartnerOrder'
         ]
         && adalahOperator()
         && satkerMilikPemanggil(request.resource.data);
       allow update: if koleksi in [
           'klien', 'kontrak', 'tagihan', 'pembayaran', 'denda',
           'sewa', 'pengajuan', 'prospect', 'quotation', 'order', 'meeting',
-          'event', 'advertisement', 'task'
+          'event', 'advertisement', 'task',
+          'adsQuotationRequest', 'venueBookOrder', 'spaceRentOrder',
+          'trainingOrder', 'mediaPartnerOrder'
         ]
         && adalahOperator()
         && satkerMilikPemanggil(resource.data)
@@ -81,7 +90,9 @@ service cloud.firestore {
       allow delete: if koleksi in [
           'klien', 'kontrak', 'tagihan', 'pembayaran', 'denda',
           'sewa', 'pengajuan', 'prospect', 'quotation', 'order', 'meeting',
-          'event', 'advertisement', 'task'
+          'event', 'advertisement', 'task',
+          'adsQuotationRequest', 'venueBookOrder', 'spaceRentOrder',
+          'trainingOrder', 'mediaPartnerOrder'
         ]
         && adalahOperator()
         && satkerMilikPemanggil(resource.data);

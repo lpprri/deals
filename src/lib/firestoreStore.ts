@@ -72,6 +72,12 @@ export const KOLEKSI: Record<keyof AppData, string> = {
   prospect: 'prospect',
   quotation: 'quotation',
   order: 'order',
+  // Panel Order — enam tabel (PR #115): koleksi baru, mulai kosong.
+  adsQuotationRequest: 'adsQuotationRequest',
+  venueBookOrder: 'venueBookOrder',
+  spaceRentOrder: 'spaceRentOrder',
+  trainingOrder: 'trainingOrder',
+  mediaPartnerOrder: 'mediaPartnerOrder',
   meeting: 'meeting',
   event: 'event',
   advertisement: 'advertisement',

@@ -142,6 +142,22 @@ export function labelStatusOrder(status: string): string {
   );
 }
 
+/**
+ * Status permintaan form publik (panel Order, enam tabel — PR #115):
+ * Baru / Diproses / Selesai / Ditolak.
+ */
+export function labelStatusPermintaan(status: string): string {
+  return petakan(
+    {
+      Baru: 'New',
+      Diproses: 'In progress',
+      Selesai: 'Completed',
+      Ditolak: 'Rejected',
+    },
+    status,
+  );
+}
+
 /** Status task: Belum Dikerjakan / Berjalan / Selesai / Ditutup. */
 export function labelStatusTask(status: string): string {
   return petakan(

@@ -147,6 +147,164 @@ cek(
   !notifikasi.includes("modul: 'sales'"),
 );
 
+// --- Asersi panel Order — enam tabel (PR #115, 19/11/2026). ---
+// Urutan: Manual Order, Ads Quotation Request, Venue Book Order,
+// Space Rent Order, Training Order, Media Partner Order. Manual Order
+// adalah tabel Order yang sudah ada (judul saja yang berubah); lima
+// tabel baru mulai kosong dengan empty state jujur; TIDAK ada tabel
+// untuk Support our Event / Collaborate with Us.
+const tabOrder = sales.slice(sales.indexOf('export function TabOrder('));
+const types = baca('src/lib/types.ts');
+const store = baca('src/lib/firestoreStore.ts');
+const seed = baca('src/lib/seedNyata.ts');
+const contoh = baca('src/lib/sampleData.ts');
+const rules = baca('firestore.rules');
+const labels = baca('src/lib/labels.ts');
+
+const urutanJudul = [
+  'Manual Order',
+  'Ads Quotation Request',
+  'Venue Book Order',
+  'Space Rent Order',
+  'Training Order',
+  'Media Partner Order',
+];
+const posisiJudul = urutanJudul.map((j) => tabOrder.indexOf(j));
+cek(
+  'panel Order: enam judul tabel berurutan (Manual, Ads Quotation Request, Venue, Space, Training, Media Partner)',
+  posisiJudul.every((p) => p >= 0) &&
+    posisiJudul.every((p, i) => i === 0 || p > posisiJudul[i - 1]),
+  posisiJudul.join(', '),
+);
+cek(
+  'Manual Order: judul + tombol + Create Order + kolom lama utuh',
+  tabOrder.includes('<JudulBagian>Manual Order</JudulBagian>') &&
+    tabOrder.includes('+ Create Order') &&
+    [
+      '<Th>ID</Th>',
+      '<Th>Quotation</Th>',
+      '<Th>Prospect</Th>',
+      '<Th>Order Date</Th>',
+      '<Th>Status</Th>',
+      '<Th kanan>Value</Th>',
+      '<Th>Contract</Th>',
+    ].every((h) => tabOrder.includes(h)),
+);
+cek(
+  "judul halaman 'Order' + subtitle shell tidak berubah (App.tsx)",
+  app.includes("description: 'Order list — the same Order tab as Sales (ORD-01 …).'"),
+);
+cek(
+  'Ads Quotation Request: 7 kolom + empty state jujur + tanpa tombol create',
+  [
+    '<Th>Request ID</Th>',
+    '<Th>Client</Th>',
+    '<Th>Company</Th>',
+    '<Th>Services</Th>',
+    '<Th>Budget</Th>',
+    '<Th>Submitted</Th>',
+    '<Th>Status</Th>',
+  ].every((h) => tabOrder.includes(h)) &&
+    tabOrder.includes(
+      'No quotation requests yet. Responses from the Plan a Campaign form will appear here automatically once the webhook is connected.',
+    ) &&
+    !tabOrder.includes('Create Quotation Request'),
+);
+const tabelLayanan: [string, string][] = [
+  [
+    'Venue Book Order',
+    'No venue booking orders yet. Requests from the Book a Venue form will appear here once it is available.',
+  ],
+  [
+    'Space Rent Order',
+    'No space rental orders yet. Requests from the Rent a Space form will appear here once it is available.',
+  ],
+  [
+    'Training Order',
+    'No journalism training orders yet. Requests from the Get a Journalism Training form will appear here once it is available.',
+  ],
+  [
+    'Media Partner Order',
+    'No media partner orders yet. Requests from the Invite as Media Partner form will appear here once it is available.',
+  ],
+];
+for (const [judul, kosong] of tabelLayanan) {
+  cek(
+    `tabel layanan ${judul}: judul + empty state jujur`,
+    tabOrder.includes(judul) && tabOrder.includes(kosong),
+  );
+}
+cek(
+  'tabel layanan: kolom bersama Request ID / Client / Request Date / Status',
+  tabOrder.includes('<Th>Request ID</Th>') &&
+    tabOrder.includes('<Th>Request Date</Th>'),
+);
+cek(
+  'tabel layanan: tanpa tombol create',
+  !tabOrder.includes('Create Venue') &&
+    !tabOrder.includes('Create Space') &&
+    !tabOrder.includes('Create Training') &&
+    !tabOrder.includes('Create Media'),
+);
+cek(
+  'TIDAK ada tabel Support our Event / Collaborate with Us',
+  !tabOrder.includes('Support our Event') &&
+    !tabOrder.includes('Collaborate with Us'),
+);
+cek(
+  'filter panel (cari) berlaku untuk lima tabel baru',
+  tabOrder.includes('data.adsQuotationRequest.filter') &&
+    tabOrder.includes('data.venueBookOrder.filter') &&
+    tabOrder.includes('data.spaceRentOrder.filter') &&
+    tabOrder.includes('data.trainingOrder.filter') &&
+    tabOrder.includes('data.mediaPartnerOrder.filter'),
+);
+cek(
+  'types: AdsQuotationRequest + PermintaanLayanan + StatusPermintaan + 5 kunci AppData',
+  types.includes('export interface AdsQuotationRequest {') &&
+    types.includes('export interface PermintaanLayanan {') &&
+    types.includes('export type StatusPermintaan =') &&
+    types.includes('adsQuotationRequest: AdsQuotationRequest[];') &&
+    types.includes('venueBookOrder: PermintaanLayanan[];') &&
+    types.includes('spaceRentOrder: PermintaanLayanan[];') &&
+    types.includes('trainingOrder: PermintaanLayanan[];') &&
+    types.includes('mediaPartnerOrder: PermintaanLayanan[];'),
+);
+cek(
+  'firestoreStore: KOLEKSI memetakan 5 koleksi baru',
+  [
+    'adsQuotationRequest',
+    'venueBookOrder',
+    'spaceRentOrder',
+    'trainingOrder',
+    'mediaPartnerOrder',
+  ].every((k) => store.includes(`${k}: '${k}',`)),
+);
+cek(
+  'seed + contoh: 5 array baru mulai kosong (tanpa data contoh)',
+  [
+    'adsQuotationRequest: [],',
+    'venueBookOrder: [],',
+    'spaceRentOrder: [],',
+    'trainingOrder: [],',
+    'mediaPartnerOrder: [],',
+  ].every((s) => seed.includes(s) && contoh.includes(s)),
+);
+cek(
+  'firestore.rules: 5 koleksi baru di allowlist operator',
+  [
+    'adsQuotationRequest',
+    'venueBookOrder',
+    'spaceRentOrder',
+    'trainingOrder',
+    'mediaPartnerOrder',
+  ].every((k) => rules.includes(`'${k}'`)),
+);
+cek(
+  'labels: labelStatusPermintaan ada',
+  labels.includes('export function labelStatusPermintaan('),
+);
+
 if (gagal > 0) {
   console.log(`\n${gagal} asersi GAGAL`);
   process.exit(1);
