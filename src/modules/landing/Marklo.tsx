@@ -416,7 +416,7 @@ function MarqueeKampanye() {
                 <article
                   key={`${k.klien}-${i}`}
                   aria-hidden={i >= KAMPANYE_MARKLO.length}
-                  className="w-[320px] shrink-0 overflow-hidden rounded-[20px] bg-white shadow-lg ring-1 ring-slate-200 transition hover:-translate-y-1 hover:shadow-xl sm:w-[420px]"
+                  className="w-[320px] shrink-0 overflow-hidden rounded-[20px] bg-white shadow-lg ring-1 ring-slate-200 transition hover:-translate-y-1 hover:shadow-xl sm:w-[520px]"
                 >
                   <div className="relative h-60 overflow-hidden" aria-hidden="true">
                     <img
@@ -426,20 +426,24 @@ function MarqueeKampanye() {
                       className="h-full w-full object-cover"
                     />
                   </div>
-                  <div className="flex items-start justify-between gap-4 p-5">
-                    <div>
+                  <div className="p-5">
+                    <div className="flex items-start justify-between gap-4">
                       <h3 className="text-lg font-extrabold text-black">{k.klien}</h3>
-                      {/* Deskripsi max 3 baris (line-clamp) supaya tinggi
-                          kartu seragam — permintaan pengguna 2026-11-19
-                          08:51 WIB; copy byte-identik, hanya dipotong
-                          tampilannya. */}
-                      <p className="mt-1 line-clamp-3 text-sm leading-relaxed text-slate-500">
-                        {k.ringkasan}
-                      </p>
+                      <span className="shrink-0 rounded-full bg-mk-peach px-3 py-1 text-xs font-bold text-mk-aksen">
+                        {k.layanan}
+                      </span>
                     </div>
-                    <span className="shrink-0 rounded-full bg-mk-peach px-3 py-1 text-xs font-bold text-mk-aksen">
-                      {k.layanan}
-                    </span>
+                    {/* Deskripsi tampil UTUH tanpa pemotongan — koreksi
+                        pengguna 2026-11-19 09:12 WIB: clamp 3 baris dari
+                        PR #113 memotong kalimat dengan "...". Deskripsi
+                        di luar baris judul+pill supaya memakai lebar penuh
+                        kartu (maksimal sampai ujung box); kartu
+                        sm:w-[520px] supaya Perempuan Indonesia Maju muat
+                        2 baris. Copy byte-identik; tinggi kartu boleh
+                        berbeda. */}
+                    <p className="mt-1 text-sm leading-relaxed text-slate-500">
+                      {k.ringkasan}
+                    </p>
                   </div>
                 </article>
               ))}
