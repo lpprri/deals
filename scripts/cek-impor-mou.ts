@@ -202,8 +202,9 @@ cek(
     kerjaSama.includes('Master &amp; Users page'),
 );
 cek(
-  'panel Commitment tetap filter kontrak Dukungan Layanan (tidak disentuh)',
-  kerjaSama.includes('kategori="Dukungan Layanan"'),
+  'panel Commitment TIDAK lagi filter kontrak (diimpor 19/11/2026, baca data.commitment)',
+  !kerjaSama.includes('kategori="Dukungan Layanan"') &&
+    kerjaSama.includes('data.commitment'),
 );
 cek(
   'panel Approvement tetap filter kontrak Media Partner (tidak disentuh)',
@@ -302,8 +303,8 @@ cek(
   !rules.includes('perbaikan-mou-037'),
 );
 cek(
-  'rules hitungan koleksi bersatker diperbarui (20 di blok)',
-  rules.includes('20 koleksi di blok ini'),
+  'rules hitungan koleksi bersatker diperbarui (21 di blok)',
+  rules.includes('21 koleksi di blok ini'),
 );
 
 // ---------- rencana migrasi MoU ----------
