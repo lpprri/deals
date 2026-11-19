@@ -12,8 +12,11 @@
 //   "Radio Republik Indonesia" DIHAPUS dari Login.tsx karena teks itu
 //   sudah ada di dalam gambar logo (duplikat bila dipertahankan).
 // - Heading "Welcome Back" + subjudul lama dipertahankan.
-// - Keterangan akses (versi LENGKAP, keputusan pengguna 15:53 WIB,
-//   verbatim) dengan ikon gembok, di bawah subjudul, di atas kolom email.
+// - Keterangan akses dengan ikon gembok, di bawah subjudul, di atas kolom
+//   email. Kalimat pertama verbatim keputusan pengguna 15:53 WIB;
+//   kalimat kedua direvisi pengguna 2026-11-19 08:45 WIB menjadi
+//   "please click here" dengan tautan ke halaman Lacak publik (prop
+//   onLacak, disambungkan di App.tsx ke halamanPublik 'lacak').
 // - Field Email + Password gaya Mixpanel: label tebal gelap di atas,
 //   input pill putih (rounded-full), border tipis, placeholder abu-abu;
 //   password tetap di layar yang sama (TIDAK ada alur email-first).
@@ -25,8 +28,9 @@
 //   template (tidak ada class violet-/purple- dan tidak ada #8263FF).
 // - Latar warm off-white #f5f2f2 + gradasi pucat biru/navy di bawah.
 // - Mode contoh/dummy TETAP dipertahankan (tombol Operator dummy).
-// - Tautan publik Lacak/Ajukan TETAP tidak ada di halaman login
-//   (keputusan pengguna 2026-11-15).
+// - Tautan publik Ajukan TETAP tidak ada di halaman login (keputusan
+//   pengguna 2026-11-15). Lacak DIJANGKAU dari sini sejak 2026-11-19
+//   lewat tautan "click here" di keterangan akses.
 // Skrip ini membaca berkas sebagai teks. Keluar bukan-nol bila ada
 // asersi gagal.
 import { readFileSync } from 'node:fs';
@@ -80,13 +84,24 @@ cek(
     login.includes('Enter your credentials to access your account'),
 );
 cek(
-  'Login: keterangan akses lengkap (verbatim) + ikon gembok',
+  'Login: keterangan akses (kalimat pertama verbatim + "click here", revisi pengguna 2026-11-19; kalimat lama 0x)',
   login.includes('Only designated officers can sign in here.') &&
     login.includes("If you&apos;re a") &&
-    login.includes(
+    login.includes('click here') &&
+    !login.includes(
       'please use Track or Submit a Request on the landing page.',
     ) &&
     login.includes('Lock'),
+);
+cek(
+  'Login: "click here" adalah tautan biru ke halaman Lacak (prop onLacak, onClick, gaya tautan aplikasi)',
+  login.includes('onLacak?: () => void') &&
+    login.includes('onClick={onLacak}') &&
+    login.includes('click here') &&
+    login.includes("className=\"font-semibold text-[#2573e2] underline hover:text-[#0d2569]\"") &&
+    app
+      .slice(app.indexOf('<Login'))
+      .includes("onLacak={() => setHalamanPublik('lacak')}"),
 );
 cek(
   'Login: field Email + Password gaya Mixpanel (label tebal di atas, input pill putih)',
@@ -145,11 +160,11 @@ cek(
     login.includes('Sign in as (Sample):'),
 );
 cek(
-  'Login: tautan/tombol publik Lacak/Ajukan TETAP tidak ada (hanya disebut di keterangan akses, bukan tautan)',
-  !login.includes('<a ') &&
-    !login.includes("setHalamanPublik('lacak')") &&
-    !login.includes("setHalamanPublik('ajukan')") &&
-    !login.includes('Ajukan Permohonan'),
+  'Login: tautan publik Ajukan TETAP tidak ada; satu-satunya tautan publik adalah "click here" ke Lacak',
+  !login.includes("setHalamanPublik('ajukan')") &&
+    !login.includes('Ajukan Permohonan') &&
+    !login.includes('<a ') &&
+    login.includes('onLacak'),
 );
 
 if (gagal > 0) {
