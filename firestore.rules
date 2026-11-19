@@ -47,14 +47,14 @@ service cloud.firestore {
       return data.satker.kode == satkerPemanggil();
     }
 
-    // ---------- Koleksi data bersatker (19 koleksi di blok ini) ----------
+    // ---------- Koleksi data bersatker (20 koleksi di blok ini) ----------
     // Baca/tulis hanya Operator dari satker yang sama. Saat membuat data
     // baru, satker dicek dari data yang dikirim; saat mengubah, dicek dari
     // data lama DAN data baru (tidak boleh pindah satker). Tiket &
     // umpanBalik (Fase C) memakai aturan yang sama di blok tersendiri di
-    // bawah, jadi total koleksi bersatker menjadi 21. Chat antar
+    // bawah, jadi total koleksi bersatker menjadi 22. Chat antar
     // operator (Fase C, PR #45) memakai aturan yang sama di blok
-    // tersendiri juga, jadi total koleksi bersatker menjadi 22.
+    // tersendiri juga, jadi total koleksi bersatker menjadi 23.
     match /{koleksi}/{id} {
       allow read: if koleksi in [
           'klien', 'kontrak', 'tagihan', 'pembayaran', 'denda',
@@ -64,7 +64,11 @@ service cloud.firestore {
           // kosong. Webhook Tally menulis adsQuotationRequest lewat Admin
           // SDK (bypass rules); aturan di sini untuk baca operator.
           'adsQuotationRequest', 'venueBookOrder', 'spaceRentOrder',
-          'trainingOrder', 'mediaPartnerOrder'
+          'trainingOrder', 'mediaPartnerOrder',
+          // Impor MoU 19/11/2026: koleksi `mou` (44 record dari file
+          // pengguna); ditulis lewat migrasi MoU (Admin SDK tidak
+          // dipakai — client SDK operator, seperti migrasi lain).
+          'mou'
         ]
         && adalahOperator()
         && satkerMilikPemanggil(resource.data);
@@ -73,7 +77,11 @@ service cloud.firestore {
           'sewa', 'pengajuan', 'prospect', 'quotation', 'order', 'meeting',
           'event', 'advertisement', 'task',
           'adsQuotationRequest', 'venueBookOrder', 'spaceRentOrder',
-          'trainingOrder', 'mediaPartnerOrder'
+          'trainingOrder', 'mediaPartnerOrder',
+          // Impor MoU 19/11/2026: koleksi `mou` (44 record dari file
+          // pengguna); ditulis lewat migrasi MoU (Admin SDK tidak
+          // dipakai — client SDK operator, seperti migrasi lain).
+          'mou'
         ]
         && adalahOperator()
         && satkerMilikPemanggil(request.resource.data);
@@ -82,7 +90,11 @@ service cloud.firestore {
           'sewa', 'pengajuan', 'prospect', 'quotation', 'order', 'meeting',
           'event', 'advertisement', 'task',
           'adsQuotationRequest', 'venueBookOrder', 'spaceRentOrder',
-          'trainingOrder', 'mediaPartnerOrder'
+          'trainingOrder', 'mediaPartnerOrder',
+          // Impor MoU 19/11/2026: koleksi `mou` (44 record dari file
+          // pengguna); ditulis lewat migrasi MoU (Admin SDK tidak
+          // dipakai — client SDK operator, seperti migrasi lain).
+          'mou'
         ]
         && adalahOperator()
         && satkerMilikPemanggil(resource.data)
@@ -92,7 +104,11 @@ service cloud.firestore {
           'sewa', 'pengajuan', 'prospect', 'quotation', 'order', 'meeting',
           'event', 'advertisement', 'task',
           'adsQuotationRequest', 'venueBookOrder', 'spaceRentOrder',
-          'trainingOrder', 'mediaPartnerOrder'
+          'trainingOrder', 'mediaPartnerOrder',
+          // Impor MoU 19/11/2026: koleksi `mou` (44 record dari file
+          // pengguna); ditulis lewat migrasi MoU (Admin SDK tidak
+          // dipakai — client SDK operator, seperti migrasi lain).
+          'mou'
         ]
         && adalahOperator()
         && satkerMilikPemanggil(resource.data);
@@ -205,6 +221,18 @@ service cloud.firestore {
       allow read: if adalahOperator();
       allow create: if adalahOperator()
         && !exists(/databases/$(database)/documents/meta/migrasi-kontrak-2026);
+      allow update, delete: if false;
+    }
+
+    // ---------- Penanda migrasi MoU: hanya boleh dibuat sekali ----------
+    // Migrasi MoU (src/lib/migrasiMou.ts, impor MoU 19/11/2026) menulis
+    // 44 record ke koleksi `mou` dari seed (src/lib/seedMou.ts).
+    // Penanda ini dibuat sekali; bila sudah ada, create ditolak.
+    // Terpisah dari `meta/migrasi` dan `meta/migrasi-kontrak-2026`.
+    match /meta/migrasi-mou-2026 {
+      allow read: if adalahOperator();
+      allow create: if adalahOperator()
+        && !exists(/databases/$(database)/documents/meta/migrasi-mou-2026);
       allow update, delete: if false;
     }
 

@@ -78,6 +78,10 @@ export const KOLEKSI: Record<keyof AppData, string> = {
   spaceRentOrder: 'spaceRentOrder',
   trainingOrder: 'trainingOrder',
   mediaPartnerOrder: 'mediaPartnerOrder',
+  // Memorandum of Understanding (impor MoU 19/11/2026): 44 record
+  // dari file pengguna; ditulis ke Firestore lewat migrasi MoU
+  // (src/lib/migrasiMou.ts) setelah PR ini merge.
+  mou: 'mou',
   meeting: 'meeting',
   event: 'event',
   advertisement: 'advertisement',

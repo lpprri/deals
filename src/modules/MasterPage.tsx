@@ -46,6 +46,12 @@ import type {
   TahapRemigrasi,
 } from '../lib/remigrasi';
 import type { PratinjauRemigrasi } from '../lib/remigrasiRencana';
+import { JUMLAH_MOU_SEED } from '../lib/migrasiMouRencana';
+import type {
+  HasilMigrasiMou,
+  KemajuanMigrasiMou,
+  TahapMigrasiMou,
+} from '../lib/migrasiMou';
 import {
   Baris,
   JudulBagian,
@@ -118,6 +124,18 @@ export interface MasterPageProps extends ModulProps {
   statusRemigrasi?: 'belum' | 'sudah' | 'tidak-tersedia';
   /** Tanggal re-migrasi (bila diketahui dari luar sesi ini). */
   tanggalRemigrasi?: string;
+  /**
+   * Dipanggil saat tombol jalankan migrasi MoU diklik, dengan callback
+   * progres per tahap. Koordinator menyambungkannya ke
+   * `jalankanMigrasiMou` (src/lib/migrasiMou.ts).
+   */
+  onMigrasiMou?: (
+    onKemajuan?: (k: KemajuanMigrasiMou) => void,
+  ) => Promise<HasilMigrasiMou>;
+  /** Status migrasi MoU dari Firestore (dokumen meta/migrasi-mou-2026). */
+  statusMigrasiMou?: 'belum' | 'sudah' | 'tidak-tersedia';
+  /** Tanggal migrasi MoU (bila diketahui dari luar sesi ini). */
+  tanggalMigrasiMou?: string;
 }
 
 function formatTanggalIso(iso: string): string {
@@ -491,6 +509,148 @@ function BagianRemigrasi({
   );
 }
 
+const LABEL_TAHAP_MIGRASI_MOU: Record<TahapMigrasiMou, string> = {
+  guard: 'Checking MoU migration status…',
+  'baca-live': 'Reading live MoU data…',
+  prakondisi: 'Checking preconditions…',
+  tulis: 'Writing MoU documents…',
+  verifikasi: 'Verifying the new data…',
+  audit: 'Writing the audit record…',
+  selesai: 'Done.',
+};
+
+/**
+ * Bagian "Migrate MoU Data" — menulis 44 record MoU dari seed
+ * (src/lib/seedMou.ts, file pengguna "Rekapitulasi_Nota_Kesepahaman")
+ * ke koleksi `mou` di Firestore. SATU koleksi saja: tidak ada yang
+ * dihapus, koleksi lain TIDAK disentuh, dan total kontrak PNBP tidak
+ * berubah. Sekali jalan, dengan prakondisi (live `mou` harus 0) dan
+ * verifikasi sebelum selesai.
+ */
+function BagianMigrasiMou({
+  onMigrasiMou,
+  statusMigrasiMou,
+  tanggalMigrasiMou,
+}: {
+  onMigrasiMou?: (
+    onKemajuan?: (k: KemajuanMigrasiMou) => void,
+  ) => Promise<HasilMigrasiMou>;
+  statusMigrasiMou: 'belum' | 'sudah' | 'tidak-tersedia';
+  tanggalMigrasiMou?: string;
+}) {
+  const [setuju, setSetuju] = useState(false);
+  const [proses, setProses] = useState(false);
+  const [kemajuan, setKemajuan] = useState<KemajuanMigrasiMou | null>(null);
+  const [hasil, setHasil] = useState<HasilMigrasiMou | null>(null);
+  const [galat, setGalat] = useState<string | null>(null);
+
+  const sudah = statusMigrasiMou === 'sudah' || hasil !== null;
+
+  async function tanganiMigrasiMou() {
+    if (!onMigrasiMou || proses || sudah || !setuju) return;
+    setProses(true);
+    setGalat(null);
+    setKemajuan(null);
+    try {
+      const r = await onMigrasiMou((k) => setKemajuan(k));
+      setHasil(r);
+    } catch (e) {
+      setGalat(
+        e instanceof Error ? e.message : 'MoU migration failed. Try again.',
+      );
+    } finally {
+      setProses(false);
+    }
+  }
+
+  return (
+    <Kartu>
+      <JudulBagian>Migrate MoU Data</JudulBagian>
+      {statusMigrasiMou === 'tidak-tersedia' ? (
+        <p className="mt-2 text-sm text-[#0d2569]/70">
+          MoU migration only works on live Firestore data. Open this page
+          after signing in while the app is in Firestore mode — in sample
+          mode the data already comes from the new seed.
+        </p>
+      ) : sudah ? (
+        <p className="mt-2 text-sm text-[#0d2569]/70">
+          Already migrated on{' '}
+          {hasil
+            ? formatTanggalIso(hasil.tanggal)
+            : tanggalMigrasiMou
+              ? formatTanggalIso(tanggalMigrasiMou)
+              : 'the recorded date'}
+          . MoU migration can only be done once.
+        </p>
+      ) : (
+        <>
+          <p className="mt-2 text-sm text-[#0d2569]/70">
+            Writes {JUMLAH_MOU_SEED} Memorandum of Understanding records
+            from &lsquo;Rekapitulasi Nota Kesepahaman&rsquo; to the
+            Firestore collection `mou`. Nothing is deleted, no other
+            collection is touched, and the PNBP contract totals do not
+            change. Before writing anything, the migration checks that the
+            live `mou` collection is still empty; it can only be done
+            once.
+          </p>
+          <label className="mt-3 flex items-start gap-2 text-sm text-[#0d2569]">
+            <input
+              type="checkbox"
+              checked={setuju}
+              onChange={(e) => setSetuju(e.target.checked)}
+              disabled={proses}
+              className="mt-0.5"
+            />
+            <span>
+              I understand this writes {JUMLAH_MOU_SEED} new MoU documents
+              to Firestore. This cannot be undone from the app.
+            </span>
+          </label>
+          <div className="mt-3">
+            <TombolUtama
+              onClick={tanganiMigrasiMou}
+              disabled={proses || !setuju || !onMigrasiMou}
+            >
+              {proses ? 'Migrating MoU…' : 'Run MoU migration'}
+            </TombolUtama>
+          </div>
+        </>
+      )}
+
+      {(proses || kemajuan) && !hasil && (
+        <div className="mt-3">
+          <p className="text-sm font-semibold text-[#0d2569]">
+            {kemajuan ? LABEL_TAHAP_MIGRASI_MOU[kemajuan.tahap] : 'Starting…'}
+          </p>
+        </div>
+      )}
+
+      {galat && (
+        <div className="mt-3">
+          <Peringatan teks={galat} />
+          {kemajuan && (
+            <p className="mt-2 text-sm text-[#0d2569]/70">
+              Stopped at: {LABEL_TAHAP_MIGRASI_MOU[kemajuan.tahap]}. Do not
+              run it again — report this to Digi with the message above.
+            </p>
+          )}
+        </div>
+      )}
+
+      {hasil && (
+        <div className="mt-3">
+          <p className="text-sm font-semibold text-[#0d2569]">
+            MoU migration succeeded on {formatTanggalIso(hasil.tanggal)}.
+            Live MoU records: {hasil.sebelum.jumlahMou} →{' '}
+            {hasil.sesudah.jumlahMou}. Verify the Memorandum of
+            Understanding panel in Firestore mode.
+          </p>
+        </div>
+      )}
+    </Kartu>
+  );
+}
+
 export default function MasterPage(props: MasterPageProps) {
   const {
     onMigrasi,
@@ -500,6 +660,9 @@ export default function MasterPage(props: MasterPageProps) {
     onRemigrasi,
     statusRemigrasi = 'tidak-tersedia',
     tanggalRemigrasi,
+    onMigrasiMou,
+    statusMigrasiMou = 'tidak-tersedia',
+    tanggalMigrasiMou,
   } = props;
   return (
     <div className="space-y-6">
@@ -520,6 +683,12 @@ export default function MasterPage(props: MasterPageProps) {
         onRemigrasi={onRemigrasi}
         statusRemigrasi={statusRemigrasi}
         tanggalRemigrasi={tanggalRemigrasi}
+      />
+
+      <BagianMigrasiMou
+        onMigrasiMou={onMigrasiMou}
+        statusMigrasiMou={statusMigrasiMou}
+        tanggalMigrasiMou={tanggalMigrasiMou}
       />
 
       <Peringatan teks="Master data is only changed by the Operator; values already used by transactions cannot be deleted, only deactivated." />

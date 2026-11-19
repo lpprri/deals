@@ -47,6 +47,7 @@ import type { AppData } from './types';
 import { SATKER_PILOT } from './master';
 import { ARTIKEL_REGULASI } from './artikelRegulasi';
 import { FAQ_REGULASI } from './faqRegulasi';
+import { MOU_NYATA } from './seedMou';
 
 const S = SATKER_PILOT;
 
@@ -6931,4 +6932,9 @@ export const DATA_NYATA: AppData = {
   spaceRentOrder: [],
   trainingOrder: [],
   mediaPartnerOrder: [],
+  // Memorandum of Understanding (impor MoU 19/11/2026): 44 record
+  // dari file pengguna — data tersendiri, bukan kontrak. Isinya di
+  // src/lib/seedMou.ts (dibuat scripts/impor-mou.py); JANGAN pindahkan
+  // ke sini — impor.mjs menulis ulang file ini dan akan menghapusnya.
+  mou: MOU_NYATA,
 };

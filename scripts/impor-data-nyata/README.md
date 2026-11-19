@@ -26,6 +26,15 @@ Skrip deterministis: dijalankan ulang menghasilkan file yang sama persis
 (cek: `sha256sum src/lib/seedNyata.ts` sebelum/sesudah). Tanggal impor
 adalah konstanta `TANGGAL_IMPOR = '2026-11-14'` — bukan tanggal berjalan.
 
+> PERHATIAN (impor MoU 19/11/2026): `src/lib/seedNyata.ts` kini
+> mengimpor `MOU_NYATA` dari `src/lib/seedMou.ts` (dibuat
+> `scripts/impor-mou.py` dari file pengguna
+> "Rekapitulasi_Nota_Kesepahaman.xlsx"). Bila skrip ini dijalankan
+> ulang dan menulis ulang `seedNyata.ts`, baris impor + entri
+> `mou: MOU_NYATA` HARUS dipertahankan — bila hilang, panel MoU
+> kembali kosong dan skrip `scripts/cek-impor-mou.ts` akan gagal
+> (seed mou 44 record).
+
 ## Keputusan yang didokumentasikan
 
 1. **Dataset default aplikasi adalah `DATA_NYATA`** (`src/lib/seedNyata.ts`,
