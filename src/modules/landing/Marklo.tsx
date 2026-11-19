@@ -40,8 +40,10 @@
 //     section), "Client Portal" (Plan a Campaign → booking;
 //     Track your Deal → halaman Lacak via prop onLacak),
 //     "Additional Service" (Book a Venue, Rent a Space, Get a
-//     Journalism Training, Collaborate with Us — keempatnya menggulir
-//     ke kartu booking untuk sementara).
+//     Journalism Training, Collaborate with Us, Support our Event,
+//     Invite as Media Partner — keenamnya membuka halaman "Coming
+//     Soon" via prop onComingSoon, BUKAN ke kartu booking;
+//     permintaan pengguna 2026-11-18 21:19–21:21 WIB).
 //   - Kartu booking memakai nama "Deals" + logo RRI (bukan "Marklo").
 //   - Teks social proof hero diubah atas permintaan pengguna 2026-11-17:
 //     "TRUSTED BY 100+ PARTNERS NATIONALLY"; avatar, bintang, dan 4.9/5.0
@@ -104,6 +106,10 @@ export interface MarkloLandingProps {
       invoice (tanpa login). Dipakai footer "Track your Deal"
       (Client Portal); pola persis onLogin. */
   onLacak: () => void;
+  /** Buka halaman "Coming Soon" publik — dipakai keenam item footer
+      "Additional Service" (pola persis onLacak; permintaan pengguna
+      2026-11-18 21:19–21:21 WIB — BUKAN ke kartu booking). */
+  onComingSoon: () => void;
   /** Kirim permintaan free call publik (form singkat kartu booking):
       menyimpan sebagai Meeting di Firestore; kembalikan null bila
       berhasil, pesan error bila gagal. */
@@ -221,7 +227,7 @@ function BintangLima({
   );
 }
 
-export default function MarkloLanding({ onLogin, onLacak, onKirimBooking }: MarkloLandingProps) {
+export default function MarkloLanding({ onLogin, onLacak, onComingSoon, onKirimBooking }: MarkloLandingProps) {
   return (
     <div className="min-h-screen bg-white text-black">
       <Header onLogin={onLogin} />
@@ -238,7 +244,7 @@ export default function MarkloLanding({ onLogin, onLacak, onKirimBooking }: Mark
         <Testimoni />
         <Faq />
       </main>
-      <Footer onLacak={onLacak} />
+      <Footer onLacak={onLacak} onComingSoon={onComingSoon} />
     </div>
   );
 }
@@ -1578,7 +1584,7 @@ function Faq() {
 
 /* ================= Footer ================= */
 
-function Footer({ onLacak }: { onLacak: () => void }) {
+function Footer({ onLacak, onComingSoon }: { onLacak: () => void; onComingSoon: () => void }) {
   return (
     <footer className="relative bg-white">
       {/* Tepi atas bergelombang (SVG) menuju section gelap */}
@@ -1717,25 +1723,28 @@ function Footer({ onLacak }: { onLacak: () => void }) {
           {/* Kolom Additional Service — di antara Client Portal dan
               Contact (judul lama diubah atas permintaan
               pengguna 2026-11-18; satu item pindah ke Client Portal,
-              satu item baru ditambahkan. Keempat link mengarah ke
-              kartu booking untuk sementara, karena halaman khusus
-              belum ada di landing baru; halaman khusus menyusul
-              pada putaran penyesuaian. */}
+              satu item baru ditambahkan). Keenam item membuka halaman
+              "Coming Soon" lewat prop onComingSoon (pola onLacak) —
+              BUKAN ke kartu booking; permintaan pengguna 2026-11-18
+              21:19–21:21 WIB (dua item baru ditambahkan di akhir
+              daftar). */}
           <div>
             <h3 className="text-sm font-bold uppercase tracking-widest text-white/50">
               Additional Service
             </h3>
             <ul className="mt-4 space-y-2.5 text-sm">
               {[
-                { label: 'Book a Venue', id: 'booking' },
-                { label: 'Rent a Space', id: 'booking' },
-                { label: 'Get a Journalism Training', id: 'booking' },
-                { label: 'Collaborate with Us', id: 'booking' },
+                { label: 'Book a Venue' },
+                { label: 'Rent a Space' },
+                { label: 'Get a Journalism Training' },
+                { label: 'Collaborate with Us' },
+                { label: 'Support our Event' },
+                { label: 'Invite as Media Partner' },
               ].map((item) => (
                 <li key={item.label}>
                   <button
                     type="button"
-                    onClick={() => gulirKe(item.id)}
+                    onClick={onComingSoon}
                     className="text-white/80 transition hover:text-white hover:underline"
                   >
                     {item.label}
