@@ -10,28 +10,34 @@
 //   di bawah logo DIHAPUS supaya tidak duplikat dengan teks di gambar.
 // - Heading "Welcome Back" + subjudul yang sama seperti sebelumnya.
 // - Keterangan akses dengan ikon gembok di bawah subjudul, di atas kolom
-//   email (kalimat pertama verbatim keputusan pengguna 15:53 WIB;
-//   kalimat kedua direvisi pengguna 2026-11-19 08:45 WIB menjadi
-//   "please click here" dengan tautan ke halaman Lacak publik).
+//   email (DUA PERAN, keputusan pengguna 19/11/2026 15:45 WIB: client
+//   JUGA masuk lewat halaman ini — kalimat lama "Only designated
+//   officers can sign in here. If you're a client, please click here."
+//   (PR #112, revisi pengguna 19/11/2026 08:45 WIB) diganti karena
+//   client kini punya akun; "click here" tetap membuka halaman Lacak
+//   publik bagi client yang belum punya akun).
 // - Field Email + Password gaya Mixpanel: label tebal gelap di atas
 //   field, input pill putih, border tipis, placeholder abu-abu.
 // - Satu tombol pill full-width Biru "Sign in" (hover navy).
 // - Tombol sudut kiri atas kembali ke landing page (prop onKembali).
 // - Panel foto gedung RRI di kanan DIHAPUS (template tidak punya side
 //   panel); src/lib/gedungRri.ts tetap dipakai Beranda.tsx, jangan hapus.
-// HANYA login email operator: TIDAK ada login sosial (tanpa tombol
-// Google), TIDAK ada sign-up klien, TIDAK ada alur email-first (password
-// tetap di layar yang sama), TIDAK ada Forgot password (belum ada
-// alurnya), TIDAK ada checkbox Remember (persistensi Firebase sudah
-// default). Tautan publik Ajukan TIDAK ada di halaman ini (keputusan
-// pengguna 2026-11-15). Lacak DIJANGKAU dari sini sejak 2026-11-19:
-// tautan "click here" di keterangan akses membuka halaman Lacak publik
-// (prop onLacak, disambungkan di App.tsx ke halamanPublik 'lacak').
-// KOREKSI 2026-11-15: klien tidak punya login/akun; halaman ini hanya
-// untuk Operator. Akses klien lewat Lacak (kode transaksi) dan Ajukan
-// Permohonan (form publik).
+// HANYA login email: TIDAK ada login sosial (tanpa tombol Google),
+// TIDAK ada sign-up klien (akun client dibuat OPERATOR — invite),
+// TIDAK ada alur email-first (password tetap di layar yang sama),
+// TIDAK ada Forgot password (belum ada alurnya), TIDAK ada checkbox
+// Remember (persistensi Firebase sudah default). Tautan publik Ajukan
+// TIDAK ada di halaman ini (keputusan pengguna 2026-11-15). Lacak
+// DIJANGKAU dari sini sejak 2026-11-19: tautan "click here" di
+// keterangan akses membuka halaman Lacak publik (prop onLacak,
+// disambungkan di App.tsx ke halamanPublik 'lacak').
+// KOREKSI 2026-11-15 yang lama ("klien tidak punya login/akun;
+// halaman ini hanya untuk Operator") DIBALIK keputusan 19/11/2026 —
+// halaman ini kini melayani Operator DAN Client (peran dibedakan lewat
+// field `peran` di profil; routing di App.tsx). Akses klien TANPA akun
+// tetap lewat Lacak (kode transaksi) dan form Ajukan (publik).
 // Bila Firebase terkonfigurasi: form email + kata sandi (Firebase Auth).
-// Bila belum: mode contoh dengan 1 tombol Operator dummy saja.
+// Bila belum: mode contoh dengan tombol dummy Operator DAN Client.
 // Halaman ini TIDAK menampilkan konfigurasi Firebase apa pun.
 
 import { useState } from 'react';
@@ -99,8 +105,6 @@ export default function Login({
     }
   }
 
-  const operatorDummy = DUMMY_USERS[0];
-
   return (
     <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-[#f5f2f2] px-4 py-16">
       {/* Gradasi pucat biru/navy di bagian bawah (re-skin gradasi pastel
@@ -146,15 +150,19 @@ export default function Login({
           Enter your credentials to access your account
         </p>
 
-        {/* Keterangan akses ("click here" ke Lacak, revisi pengguna 2026-11-19). */}
+        {/* Keterangan akses (dua peran 19/11/2026: client JUGA masuk
+            di sini; "click here" ke Lacak publik bagi yang belum punya
+            akun). */}
         <div className="mt-6 flex items-start gap-2.5 rounded-xl border border-[#2573e2]/25 bg-white px-3.5 py-3">
           <Lock
             className="mt-0.5 h-4 w-4 shrink-0 text-[#2573e2]"
             aria-hidden
           />
           <p className="text-xs leading-relaxed text-[#0d2569]/80">
-            Only designated officers can sign in here. If you&apos;re a
-            client, please{' '}
+            Sign in with the account created for you by the Operator.
+            Clients sign in here too — after signing in you will see
+            your own Client Portal. No account yet? Track your
+            partnership by PKS or invoice number — please{' '}
             <button
               type="button"
               onClick={onLacak}
@@ -204,29 +212,32 @@ export default function Login({
         ) : (
           <>
             <div className="mt-6">
-              <Peringatan teks="Sample mode — sign in as Operator (Sample). In production, sign-in uses Firebase Auth; this dummy profile is only for development." />
+              <Peringatan teks="Sample mode — sign in as Operator (Sample) or Client (Sample). In production, sign-in uses Firebase Auth; these dummy profiles are only for development." />
             </div>
             <p className="mt-6 text-sm font-semibold text-[#0d2569]">
               Sign in as (Sample):
             </p>
-            <div className="mt-3">
-              <button
-                type="button"
-                onClick={() => onLoginDummy(operatorDummy)}
-                className="w-full rounded-md border border-[#2573e2]/20 bg-white p-4 text-left hover:border-[#2573e2] hover:bg-[#2573e2]/5"
-              >
-                <p className="text-sm font-bold text-[#0d2569]">
-                  {operatorDummy.nama}
-                </p>
-                <p className="mt-1 text-xs text-[#0d2569]/70">
-                  {labelJabatan(operatorDummy.jabatan)}
-                </p>
-                <p className="mt-2">
-                  <span className="inline-flex items-center gap-1 rounded bg-[#2573e2]/10 px-2 py-0.5 text-xs font-semibold text-[#0d2569]">
-                    {LABEL_PERAN[operatorDummy.peran]}
-                  </span>
-                </p>
-              </button>
+            <div className="mt-3 space-y-3">
+              {DUMMY_USERS.map((pengguna) => (
+                <button
+                  key={pengguna.peran}
+                  type="button"
+                  onClick={() => onLoginDummy(pengguna)}
+                  className="w-full rounded-md border border-[#2573e2]/20 bg-white p-4 text-left hover:border-[#2573e2] hover:bg-[#2573e2]/5"
+                >
+                  <p className="text-sm font-bold text-[#0d2569]">
+                    {pengguna.nama}
+                  </p>
+                  <p className="mt-1 text-xs text-[#0d2569]/70">
+                    {labelJabatan(pengguna.jabatan)}
+                  </p>
+                  <p className="mt-2">
+                    <span className="inline-flex items-center gap-1 rounded bg-[#2573e2]/10 px-2 py-0.5 text-xs font-semibold text-[#0d2569]">
+                      {LABEL_PERAN[pengguna.peran]}
+                    </span>
+                  </p>
+                </button>
+              ))}
             </div>
             <p className="mt-6 text-center text-xs text-[#0d2569]/60">
               No password — sample mode is for development only{' '}

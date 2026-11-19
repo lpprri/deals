@@ -19,6 +19,14 @@
 // dokumen, peringatan "Menunggu diterbitkan") — tanpa form submission,
 // tanpa "Pengajuan saya", tanpa login.
 //
+// DUA PERAN (keputusan pengguna 19/11/2026 15:45 WIB): keputusan 15/11 di
+// atas DIBALIK sebagian — klien kini JUGA bisa login (peran 'client') dan
+// masuk Client Portal. Lacak publik (tanpa login) TETAP ada di samping
+// login. Blok hasil di bawah diekstrak ke komponen `DetailKerjaSama`
+// (dipakai ulang Client Portal untuk satu kontrak milik client yang
+// login — portal memanggil cariKerjaSama dengan nomor PKS kontrak itu
+// atas data client yang sudah tersaring).
+//
 // TITIK INTEGRASI MODE FIRESTORE (wiring PR #29):
 // Data diterima lewat prop `data` (seed, mode contoh). Bila prop
 // `modeLive` benar (Firebase terkonfigurasi — App.tsx memberi
@@ -174,6 +182,246 @@ export function cariKerjaSama(
   };
 }
 
+/**
+ * Blok hasil satu kerja sama (ringkasan + statistik + timeline +
+ * dokumen) — dipakai halaman Lacak publik DAN Client Portal (dua peran
+ * 19/11/2026): portal memanggil komponen ini per kontrak milik client
+ * yang login, dengan `hasil` dari cariKerjaSama atas data client yang
+ * sudah tersaring. `data` opsional: fallback nama klien bila `hasil`
+ * tidak membawa klien (mis. dari Cloud Function).
+ */
+export function DetailKerjaSama({
+  hasil,
+  data,
+}: {
+  hasil: HasilLacak;
+  data?: AppData;
+}) {
+  const kontrak = hasil.kontrak;
+  const klien =
+    hasil.klien ??
+    data?.klien.find((k) => k.id === kontrak.klienId) ??
+    null;
+
+  const tagihan = hasil.tagihan;
+  const dokumen = hasil.dokumen;
+  const pembayaranTerverifikasi = hasil.pembayaran.filter(
+    (p) => p.statusVerifikasi === 'Terverifikasi',
+  );
+  const totalTagihan = tagihan.reduce((jumlah, t) => jumlah + t.nilai, 0);
+  const totalPembayaranTerverifikasi = pembayaranTerverifikasi.reduce(
+    (jumlah, p) => jumlah + p.jumlah,
+    0,
+  );
+  const sisaPiutang = totalTagihan - totalPembayaranTerverifikasi;
+
+  // Timeline: hanya peristiwa bertanggal milik kontrak ini, terbaru dulu.
+  // "Billing" dan "invoice" adalah tagihan yang sama di aplikasi ini
+  // (Tagihan) — label ditulis "Invoice / billing" supaya cocok dengan
+  // istilah Q-10 tanpa menduplikasi entitas.
+  const peristiwa: PeristiwaTimeline[] = [
+    {
+      tanggal: kontrak.tanggalTandaTangan ?? kontrak.tanggalMulai,
+      label: `Contract ${kontrak.nomorPks} signed`,
+      detail: `${labelKategoriLayanan(kontrak.kategoriLayanan)} — ${formatRupiah(kontrak.nilaiKontrak)}`,
+      status: kontrak.status,
+    },
+    ...tagihan.map((t) => ({
+      tanggal: t.tanggalTerbit,
+      label: `Invoice / billing ${t.nomor} issued`,
+      detail: `${t.uraian} — ${formatRupiah(t.nilai)} • due ${formatTanggal(t.tanggalJatuhTempo)}`,
+    })),
+    ...pembayaranTerverifikasi.map((p) => {
+      const tagihanTerkait = tagihan.find((t) => t.id === p.tagihanId);
+      return {
+        tanggal: p.tanggalBayar,
+        label: 'Verified payment',
+        detail: `${formatRupiah(p.jumlah)} • ${labelMetodePembayaran(p.metode)}${tagihanTerkait ? ` • for ${tagihanTerkait.nomor}` : ''}`,
+        status: 'Terverifikasi',
+      };
+    }),
+    ...dokumen
+      .filter((d) => d.status === 'Ada' && d.tanggalUnggah)
+      .map((d) => ({
+        tanggal: d.tanggalUnggah as string,
+        label: `${labelJenisDokumen(d.jenisDokumen)} issued`,
+        detail: `Contract ${kontrak.nomorPks}`,
+        status: 'Ada',
+      })),
+  ].sort((a, b) => (a.tanggal < b.tanggal ? 1 : -1));
+
+  // Kwitansi & bukti siaran yang belum diterbitkan (status bukan 'Ada').
+  // Dicocokkan dengan `includes` karena di data impor jenisnya tertulis
+  // "Kwitansi Pembayaran", bukan "Kwitansi" persis (Portal memakai
+  // perbandingan persis sehingga tidak menangkap varian ini).
+  const dokumenMenunggu = dokumen.filter(
+    (d) =>
+      (d.jenisDokumen.includes('Kwitansi') ||
+        d.jenisDokumen.includes('Bukti Siaran')) &&
+      d.status !== 'Ada',
+  );
+
+  return (
+    <div className="mt-6 space-y-6">
+      <Kartu>
+        <JudulBagian>Partnership summary</JudulBagian>
+        <dl className="mt-3 grid gap-3 text-sm md:grid-cols-2">
+          <div>
+            <dt className="text-xs font-semibold text-[#0d2569]/60">
+              Client
+            </dt>
+            <dd className="font-semibold text-[#0d2569]">
+              {klien?.nama ?? '-'}
+            </dd>
+          </div>
+          <div>
+            <dt className="text-xs font-semibold text-[#0d2569]/60">
+              PKS Number
+            </dt>
+            <dd className="font-semibold text-[#0d2569]">
+              {kontrak.nomorPks}
+            </dd>
+          </div>
+          <div>
+            <dt className="text-xs font-semibold text-[#0d2569]/60">
+              Contract status
+            </dt>
+            <dd className="mt-0.5">
+              <StatusBadge status={kontrak.status} />
+            </dd>
+          </div>
+          <div>
+            <dt className="text-xs font-semibold text-[#0d2569]/60">
+              Contract value
+            </dt>
+            <dd className="font-semibold text-[#0d2569]">
+              {formatRupiah(kontrak.nilaiKontrak)}
+            </dd>
+          </div>
+          <div>
+            <dt className="text-xs font-semibold text-[#0d2569]/60">
+              Period
+            </dt>
+            <dd className="text-[#0d2569]">
+              {formatTanggal(kontrak.tanggalMulai)} —{' '}
+              {formatTanggal(kontrak.tanggalSelesai)}
+            </dd>
+          </div>
+          <div>
+            <dt className="text-xs font-semibold text-[#0d2569]/60">
+              Service
+            </dt>
+            <dd className="text-[#0d2569]">
+              {labelKategoriLayanan(kontrak.kategoriLayanan)}
+              {kontrak.jenisPnBP ? ` • PNBP ${labelJenisPnBP(kontrak.jenisPnBP)}` : ''}
+            </dd>
+          </div>
+        </dl>
+      </Kartu>
+
+      <div className="grid grid-cols-2 gap-4">
+        <StatCard
+          label="Contract value"
+          nilai={formatRupiah(kontrak.nilaiKontrak)}
+          keterangan={`Contract ${kontrak.nomorPks}`}
+        />
+        <StatCard
+          label="Total invoices"
+          nilai={formatRupiah(totalTagihan)}
+          keterangan={`${tagihan.length} invoices / billings issued`}
+        />
+        <StatCard
+          label="Verified payments"
+          nilai={formatRupiah(totalPembayaranTerverifikasi)}
+          keterangan={`${pembayaranTerverifikasi.length} verified payments`}
+        />
+        <StatCard
+          label="Outstanding receivables"
+          nilai={formatRupiah(sisaPiutang)}
+          keterangan="Total invoices minus verified payments"
+        />
+      </div>
+
+      <Kartu>
+        <JudulBagian>Partnership timeline</JudulBagian>
+        {peristiwa.length === 0 ? (
+          <p className="mt-3">
+            <PesanKosong teks="No partnership events for this number yet." />
+          </p>
+        ) : (
+          <ul className="mt-3 space-y-3">
+            {peristiwa.map((p, i) => (
+              <li
+                key={`${p.tanggal}-${p.label}-${i}`}
+                className="flex gap-3 border-b border-[#2573e2]/10 pb-3 last:border-0 last:pb-0"
+              >
+                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-[#2573e2]/10 text-[#2573e2]">
+                  <FileText size={16} />
+                </span>
+                <div>
+                  <p className="text-sm font-semibold text-[#0d2569]">
+                    {p.label}
+                  </p>
+                  <p className="text-sm text-[#0d2569]/70">{p.detail}</p>
+                  <p className="mt-1 text-xs text-[#0d2569]/60">
+                    {formatTanggal(p.tanggal)}
+                    {p.status ? ` • ${labelStatusTimeline(p.status)}` : ''}
+                  </p>
+                </div>
+              </li>
+            ))}
+          </ul>
+        )}
+        {dokumenMenunggu.length > 0 && (
+          <div className="mt-4">
+            <Peringatan
+              teks={`Awaiting issuance: ${dokumenMenunggu
+                .map((d) => `${labelJenisDokumen(d.jenisDokumen)} (contract ${kontrak.nomorPks})`)
+                .join('; ')}.`}
+            />
+          </div>
+        )}
+      </Kartu>
+
+      <Kartu>
+        <JudulBagian>Partnership documents</JudulBagian>
+        {dokumen.length === 0 ? (
+          <p className="mt-3">
+            <PesanKosong teks="No documents for this number yet." />
+          </p>
+        ) : (
+          <Tabel>
+            <thead>
+              <tr>
+                <Th>Document type</Th>
+                <Th>Contract</Th>
+                <Th>Status</Th>
+                <Th>Upload date</Th>
+              </tr>
+            </thead>
+            <tbody>
+              {dokumen.map((d) => (
+                <Baris key={d.id}>
+                  <Td>{labelJenisDokumen(d.jenisDokumen)}</Td>
+                  <Td>{kontrak.nomorPks}</Td>
+                  <Td>
+                    <StatusBadge status={d.status} />
+                  </Td>
+                  <Td>
+                    {d.tanggalUnggah
+                      ? formatTanggal(d.tanggalUnggah)
+                      : '-'}
+                  </Td>
+                </Baris>
+              ))}
+            </tbody>
+          </Tabel>
+        )}
+      </Kartu>
+    </div>
+  );
+}
+
 export default function Lacak({ data, onKembali, modeLive = false }: LacakProps) {
   const [kode, setKode] = useState('');
   const [hasil, setHasil] = useState<HasilLacak | null>(null);
@@ -226,73 +474,6 @@ export default function Lacak({ data, onKembali, modeLive = false }: LacakProps)
     setPesan(ditemukan ? null : PESAN_TIDAK_DITEMUKAN);
     setSumber(ditemukan && modeLive ? 'contoh' : null);
   };
-
-  const kontrak = hasil?.kontrak ?? null;
-  // Nama klien: dari Function bila ada, bila tidak dari data seed.
-  const klien = kontrak
-    ? hasil?.klien ??
-      data.klien.find((k) => k.id === kontrak.klienId)
-    : undefined;
-
-  const tagihan = hasil?.tagihan ?? [];
-  const dokumen = hasil?.dokumen ?? [];
-  const pembayaranTerverifikasi = (hasil?.pembayaran ?? []).filter(
-    (p) => p.statusVerifikasi === 'Terverifikasi',
-  );
-  const totalTagihan = tagihan.reduce((jumlah, t) => jumlah + t.nilai, 0);
-  const totalPembayaranTerverifikasi = pembayaranTerverifikasi.reduce(
-    (jumlah, p) => jumlah + p.jumlah,
-    0,
-  );
-  const sisaPiutang = totalTagihan - totalPembayaranTerverifikasi;
-
-  // Timeline: hanya peristiwa bertanggal milik kontrak ini, terbaru dulu.
-  // "Billing" dan "invoice" adalah tagihan yang sama di aplikasi ini
-  // (Tagihan) — label ditulis "Invoice / billing" supaya cocok dengan
-  // istilah Q-10 tanpa menduplikasi entitas.
-  const peristiwa: PeristiwaTimeline[] = kontrak
-    ? [
-        {
-          tanggal: kontrak.tanggalTandaTangan ?? kontrak.tanggalMulai,
-          label: `Contract ${kontrak.nomorPks} signed`,
-          detail: `${labelKategoriLayanan(kontrak.kategoriLayanan)} — ${formatRupiah(kontrak.nilaiKontrak)}`,
-          status: kontrak.status,
-        },
-        ...tagihan.map((t) => ({
-          tanggal: t.tanggalTerbit,
-          label: `Invoice / billing ${t.nomor} issued`,
-          detail: `${t.uraian} — ${formatRupiah(t.nilai)} • due ${formatTanggal(t.tanggalJatuhTempo)}`,
-        })),
-        ...pembayaranTerverifikasi.map((p) => {
-          const tagihanTerkait = tagihan.find((t) => t.id === p.tagihanId);
-          return {
-            tanggal: p.tanggalBayar,
-            label: 'Verified payment',
-            detail: `${formatRupiah(p.jumlah)} • ${labelMetodePembayaran(p.metode)}${tagihanTerkait ? ` • for ${tagihanTerkait.nomor}` : ''}`,
-            status: 'Terverifikasi',
-          };
-        }),
-        ...dokumen
-          .filter((d) => d.status === 'Ada' && d.tanggalUnggah)
-          .map((d) => ({
-            tanggal: d.tanggalUnggah as string,
-            label: `${labelJenisDokumen(d.jenisDokumen)} issued`,
-            detail: `Contract ${kontrak.nomorPks}`,
-            status: 'Ada',
-          })),
-      ].sort((a, b) => (a.tanggal < b.tanggal ? 1 : -1))
-    : [];
-
-  // Kwitansi & bukti siaran yang belum diterbitkan (status bukan 'Ada').
-  // Dicocokkan dengan `includes` karena di data impor jenisnya tertulis
-  // "Kwitansi Pembayaran", bukan "Kwitansi" persis (Portal memakai
-  // perbandingan persis sehingga tidak menangkap varian ini).
-  const dokumenMenunggu = dokumen.filter(
-    (d) =>
-      (d.jenisDokumen.includes('Kwitansi') ||
-        d.jenisDokumen.includes('Bukti Siaran')) &&
-      d.status !== 'Ada',
-  );
 
   return (
     <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-[#f5f2f2] px-4 py-16">
@@ -374,165 +555,7 @@ export default function Lacak({ data, onKembali, modeLive = false }: LacakProps)
           </div>
         )}
 
-        {kontrak && (
-          <div className="mt-6 space-y-6">
-            <Kartu>
-              <JudulBagian>Partnership summary</JudulBagian>
-              <dl className="mt-3 grid gap-3 text-sm md:grid-cols-2">
-                <div>
-                  <dt className="text-xs font-semibold text-[#0d2569]/60">
-                    Client
-                  </dt>
-                  <dd className="font-semibold text-[#0d2569]">
-                    {klien?.nama ?? '-'}
-                  </dd>
-                </div>
-                <div>
-                  <dt className="text-xs font-semibold text-[#0d2569]/60">
-                    PKS Number
-                  </dt>
-                  <dd className="font-semibold text-[#0d2569]">
-                    {kontrak.nomorPks}
-                  </dd>
-                </div>
-                <div>
-                  <dt className="text-xs font-semibold text-[#0d2569]/60">
-                    Contract status
-                  </dt>
-                  <dd className="mt-0.5">
-                    <StatusBadge status={kontrak.status} />
-                  </dd>
-                </div>
-                <div>
-                  <dt className="text-xs font-semibold text-[#0d2569]/60">
-                    Contract value
-                  </dt>
-                  <dd className="font-semibold text-[#0d2569]">
-                    {formatRupiah(kontrak.nilaiKontrak)}
-                  </dd>
-                </div>
-                <div>
-                  <dt className="text-xs font-semibold text-[#0d2569]/60">
-                    Period
-                  </dt>
-                  <dd className="text-[#0d2569]">
-                    {formatTanggal(kontrak.tanggalMulai)} —{' '}
-                    {formatTanggal(kontrak.tanggalSelesai)}
-                  </dd>
-                </div>
-                <div>
-                  <dt className="text-xs font-semibold text-[#0d2569]/60">
-                    Service
-                  </dt>
-                  <dd className="text-[#0d2569]">
-                    {labelKategoriLayanan(kontrak.kategoriLayanan)}
-                    {kontrak.jenisPnBP ? ` • PNBP ${labelJenisPnBP(kontrak.jenisPnBP)}` : ''}
-                  </dd>
-                </div>
-              </dl>
-            </Kartu>
-
-            <div className="grid grid-cols-2 gap-4">
-              <StatCard
-                label="Contract value"
-                nilai={formatRupiah(kontrak.nilaiKontrak)}
-                keterangan={`Contract ${kontrak.nomorPks}`}
-              />
-              <StatCard
-                label="Total invoices"
-                nilai={formatRupiah(totalTagihan)}
-                keterangan={`${tagihan.length} invoices / billings issued`}
-              />
-              <StatCard
-                label="Verified payments"
-                nilai={formatRupiah(totalPembayaranTerverifikasi)}
-                keterangan={`${pembayaranTerverifikasi.length} verified payments`}
-              />
-              <StatCard
-                label="Outstanding receivables"
-                nilai={formatRupiah(sisaPiutang)}
-                keterangan="Total invoices minus verified payments"
-              />
-            </div>
-
-            <Kartu>
-              <JudulBagian>Partnership timeline</JudulBagian>
-              {peristiwa.length === 0 ? (
-                <p className="mt-3">
-                  <PesanKosong teks="No partnership events for this number yet." />
-                </p>
-              ) : (
-                <ul className="mt-3 space-y-3">
-                  {peristiwa.map((p, i) => (
-                    <li
-                      key={`${p.tanggal}-${p.label}-${i}`}
-                      className="flex gap-3 border-b border-[#2573e2]/10 pb-3 last:border-0 last:pb-0"
-                    >
-                      <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-[#2573e2]/10 text-[#2573e2]">
-                        <FileText size={16} />
-                      </span>
-                      <div>
-                        <p className="text-sm font-semibold text-[#0d2569]">
-                          {p.label}
-                        </p>
-                        <p className="text-sm text-[#0d2569]/70">{p.detail}</p>
-                        <p className="mt-1 text-xs text-[#0d2569]/60">
-                          {formatTanggal(p.tanggal)}
-                          {p.status ? ` • ${labelStatusTimeline(p.status)}` : ''}
-                        </p>
-                      </div>
-                    </li>
-                  ))}
-                </ul>
-              )}
-              {dokumenMenunggu.length > 0 && (
-                <div className="mt-4">
-                  <Peringatan
-                    teks={`Awaiting issuance: ${dokumenMenunggu
-                      .map((d) => `${labelJenisDokumen(d.jenisDokumen)} (contract ${kontrak.nomorPks})`)
-                      .join('; ')}.`}
-                  />
-                </div>
-              )}
-            </Kartu>
-
-            <Kartu>
-              <JudulBagian>Partnership documents</JudulBagian>
-              {dokumen.length === 0 ? (
-                <p className="mt-3">
-                  <PesanKosong teks="No documents for this number yet." />
-                </p>
-              ) : (
-                <Tabel>
-                  <thead>
-                    <tr>
-                      <Th>Document type</Th>
-                      <Th>Contract</Th>
-                      <Th>Status</Th>
-                      <Th>Upload date</Th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {dokumen.map((d) => (
-                      <Baris key={d.id}>
-                        <Td>{labelJenisDokumen(d.jenisDokumen)}</Td>
-                        <Td>{kontrak.nomorPks}</Td>
-                        <Td>
-                          <StatusBadge status={d.status} />
-                        </Td>
-                        <Td>
-                          {d.tanggalUnggah
-                            ? formatTanggal(d.tanggalUnggah)
-                            : '-'}
-                        </Td>
-                      </Baris>
-                    ))}
-                  </tbody>
-                </Tabel>
-              )}
-            </Kartu>
-          </div>
-        )}
+        {hasil && <DetailKerjaSama hasil={hasil} data={data} />}
       </div>
     </div>
   );

@@ -5,6 +5,13 @@
 // Pemetaan jenis → layanan dipertahankan dari Fase C (lihat
 // setujuiPengajuanKlien di App.tsx). Hanya warna RRI: Biru #2573E2,
 // Navy #0D2569, Putih #FFFFFF.
+//
+// NOMOR REFERENSI (dua peran 19/11/2026): onKirim mengembalikan id
+// submission (mis. 'PKL-001') dan halaman ini menampilkannya sebagai
+// nomor referensi di pesan sukses — pemohon menyimpannya untuk
+// melacak status permohonannya (Lacak publik / portal klien).
+// Dipakai juga dari dalam Client Portal (client yang login) dengan
+// label kembali yang berbeda.
 
 import { useState, type FormEvent } from 'react';
 import { DAFTAR_JENIS_PENGAJUAN_KLIEN } from '../lib/types';
@@ -35,13 +42,27 @@ export default function Ajukan({
   jenisAwal,
   judulAwal,
   uraianAwal,
+  labelKembali,
 }: {
-  onKirim: (input: PengajuanPublikInput) => Promise<string | null>;
+  /**
+   * Mengembalikan `{ galat, id }` — `galat` pesan error (null bila
+   * sukses), `id` nomor referensi submission (mis. 'PKL-001') yang
+   * ditampilkan ke pemohon supaya bisa melacak statusnya.
+   */
+  onKirim: (input: PengajuanPublikInput) => Promise<{
+    galat: string | null;
+    id?: string;
+  }>;
   onKembali: () => void;
   /** Pre-select dari landing page (opsional; fallback ke default). */
   jenisAwal?: PengajuanPublikInput['jenis'];
   judulAwal?: string;
   uraianAwal?: string;
+  /**
+   * Label tombol kembali — default "Back to Home" (publik). Client
+   * Portal (dua peran 19/11/2026) memakai "Back to Client Portal".
+   */
+  labelKembali?: string;
 }) {
   const [form, setForm] = useState<PengajuanPublikInput>({
     namaPemohon: '',
@@ -100,8 +121,8 @@ export default function Ajukan({
       uraian: form.uraian.trim(),
       nilaiPerkiraan,
     });
-    if (hasil !== null) {
-      setError(hasil);
+    if (hasil.galat !== null) {
+      setError(hasil.galat);
       return;
     }
     setError('');
@@ -116,7 +137,11 @@ export default function Ajukan({
       nilaiPerkiraan: undefined,
     });
     setNilaiTeks('');
-    setPesanSukses('Your request has been sent and is awaiting review by the Operator.');
+    setPesanSukses(
+      hasil.id
+        ? `Your request has been sent and is awaiting review by the Operator. Your reference number is ${hasil.id} — keep it to track your request.`
+        : 'Your request has been sent and is awaiting review by the Operator.',
+    );
   };
 
   return (
@@ -135,7 +160,7 @@ export default function Ajukan({
             </div>
           </div>
           <TombolSekunder onClick={onKembali}>
-            &larr; Back to Home
+            &larr; {labelKembali ?? 'Back to Home'}
           </TombolSekunder>
         </div>
       </header>

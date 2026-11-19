@@ -1,10 +1,14 @@
 // Aturan keamanan Firestore — Partnership LPP RRI.
-// Model 1 ROLE (keputusan pengguna 14 Nov 2026 21:29 WIB): hanya ada
-// Operator (Staf Layanan & Pengembangan Usaha). 6 peran dummy Q-01 TIDAK
-// BERLAKU; peran Admin Nasional TIDAK DIPAKAI tahap ini.
-// KOREKSI 2026-11-15: peran klien dihapus — tidak ada akses klien
-// terautentikasi; akses publik (Lacak + pengajuan publik + booking
-// meeting publik) diatur di blok publik tersendiri.
+// Model DUA PERAN (keputusan pengguna 19/11/2026 15:45 WIB): Operator
+// (Staf Layanan & Pengembangan Usaha) DAN Client — satu halaman login,
+// peran dibedakan lewat field `peran` di dokumen `users/{uid}`.
+// Keputusan ini MEMBALIK dua keputusan sebelumnya: (1) model 1 ROLE
+// 14 Nov 2026 21:29 WIB ("buang semua role"); (2) KOREKSI 2026-11-15
+// yang menghapus peran klien (tidak ada akses klien terautentikasi).
+// Client hanya membaca data yang `klienId`-nya sama dengan klienId di
+// profilnya (blok "Akses baca klien" di bawah) — routing client-side
+// saja BUKAN keamanan. Akses publik (Lacak + pengajuan publik +
+// booking meeting) diatur di blok publik tersendiri di bawah.
 // Semua akses wajib terautentikasi, KECUALI tiga jalur publik di blok
 // publik tersendiri di bawah (Lacak + pengajuan publik + booking
 // meeting) — ketiganya dibatasi ketat: create publik tervalidasi dan
@@ -14,6 +18,10 @@
 // CARA AKTIFKAN: tempel seluruh isi file ini di Firebase console →
 // Firestore Database → Rules → Publish. File ini saja BELUM mengaktifkan
 // aturan apa pun di proyek pengguna.
+// PERINGATAN: file ini BERUBAH di PR ini (dua peran) — publikasikan
+// rules ini di console SEBELUM merge PR, seperti PR #115/#116/#117:
+// bila merge dulu, muatDataKlien gagal total (aturan lama menolak
+// baca client) dan client tidak bisa masuk.
 
 rules_version = '2';
 
@@ -35,6 +43,18 @@ service cloud.firestore {
     // Pemanggil adalah Operator (satu-satunya peran tahap ini).
     function adalahOperator() {
       return sudahLogin() && profilPemanggil().peran == 'operator';
+    }
+
+    // Pemanggil adalah Client (dua peran, 19/11/2026).
+    function adalahClient() {
+      return sudahLogin() && profilPemanggil().peran == 'client';
+    }
+
+    // Id record klien yang ditautkan ke akun client pemanggil
+    // (users/{uid}.klienId). Akun client tanpa klienId tidak bisa
+    // membaca apa pun — lihat peranDariProfil di src/lib/auth.ts.
+    function klienPemanggil() {
+      return profilPemanggil().klienId;
     }
 
     // Kode satker pemanggil, dari dokumen users/{uid}-nya.
@@ -131,6 +151,75 @@ service cloud.firestore {
           'commitment'
         ]
         && adalahOperator()
+        && satkerMilikPemanggil(resource.data);
+    }
+
+    // ---------- Akses baca klien (dua peran, 19/11/2026) ----------
+    // Client hanya membaca data yang klienId-nya sama dengan klienId di
+    // profilnya (users/{uid}.klienId) DAN satker yang sama. TIDAK ADA
+    // create/update/delete klien, dan TIDAK ADA list lintas klien:
+    // - Koleksi bersatker (kontrak, tagihan, pembayaran, denda, mou,
+    //   commitment): `allow read` mencakup get + list, TAPI query list
+    //   WAJIB memfilter klienId + satker.kode (lihat muatDataKlien di
+    //   src/lib/firestoreStore.ts) — query tanpa kedua filter itu
+    //   DITOLAK rules, karena aturan tidak bisa membuktikan semua
+    //   dokumen hasil query milik client ini. Indeks komposit
+    //   (klienId + satker.kode) wajib dibuat di console per koleksi.
+    // - `klien`: hanya get per id (record sendiri); list DILARANG.
+    // - `dokumen`: tidak punya field satker — hanya dicek klienId.
+    //   Field klienId di dokumen diisi backfill satu kali
+    //   (src/lib/backfillKlienId.ts); dokumen lama tanpa klienId
+    //   tidak terbaca client.
+    // - `pengajuanKlien`: milik client lewat klienId ATAU lewat email
+    //   pembuat (submission publik sebelum punya akun).
+    // Aturan Firestore bersifat OR antar blok match yang sama — blok
+    // generik operator di atas tetap mengatur akses Operator; blok ini
+    // HANYA menambah jalur baca client. Client yang menebak id
+    // dokumen klien lain tetap DITOLAK (klienId tidak cocok).
+    match /klien/{id} {
+      allow get: if adalahClient()
+        && resource.data.id == klienPemanggil()
+        && satkerMilikPemanggil(resource.data);
+      allow list: if false;
+    }
+    match /kontrak/{id} {
+      allow read: if adalahClient()
+        && resource.data.klienId == klienPemanggil()
+        && satkerMilikPemanggil(resource.data);
+    }
+    match /tagihan/{id} {
+      allow read: if adalahClient()
+        && resource.data.klienId == klienPemanggil()
+        && satkerMilikPemanggil(resource.data);
+    }
+    match /pembayaran/{id} {
+      allow read: if adalahClient()
+        && resource.data.klienId == klienPemanggil()
+        && satkerMilikPemanggil(resource.data);
+    }
+    match /denda/{id} {
+      allow read: if adalahClient()
+        && resource.data.klienId == klienPemanggil()
+        && satkerMilikPemanggil(resource.data);
+    }
+    match /mou/{id} {
+      allow read: if adalahClient()
+        && resource.data.klienId == klienPemanggil()
+        && satkerMilikPemanggil(resource.data);
+    }
+    match /commitment/{id} {
+      allow read: if adalahClient()
+        && resource.data.klienId == klienPemanggil()
+        && satkerMilikPemanggil(resource.data);
+    }
+    match /dokumen/{id} {
+      allow read: if adalahClient()
+        && resource.data.klienId == klienPemanggil();
+    }
+    match /pengajuanKlien/{id} {
+      allow read: if adalahClient()
+        && (resource.data.klienId == klienPemanggil()
+          || resource.data.dibuatOleh == request.auth.token.email)
         && satkerMilikPemanggil(resource.data);
     }
 
@@ -269,22 +358,50 @@ service cloud.firestore {
       allow update, delete: if false;
     }
 
+    // ---------- Penanda backfill klienId: hanya boleh dibuat sekali ----------
+    // Backfill klienId (src/lib/backfillKlienId.ts, dua peran 19/11/2026)
+    // menambah field `klienId` ke tagihan/pembayaran/denda/dokumen/MoU
+    // live. Penanda ini dibuat sekali; bila sudah ada, create ditolak.
+    // Terpisah dari `meta/migrasi`, `meta/migrasi-kontrak-2026`,
+    // `meta/migrasi-mou-2026`, dan `meta/migrasi-commitment-2026`.
+    match /meta/backfill-klienId-2026 {
+      allow read: if adalahOperator();
+      allow create: if adalahOperator()
+        && !exists(/databases/$(database)/documents/meta/backfill-klienId-2026);
+      allow update, delete: if false;
+    }
+
     // ---------- Profil pengguna (koleksi users) ----------
-    // Pengguna hanya boleh membaca dokumennya sendiri. Saat login pertama,
-    // pengguna membuat dokumennya sendiri sebagai Operator (akun Auth
-    // hanya dibuat admin lewat console, jadi tidak ada pendaftaran liar).
-    // Peran dan satker TIDAK boleh diubah setelah dibuat — perubahan peran
-    // dilakukan admin langsung di console.
+    // Pengguna hanya boleh membaca dokumennya sendiri. Dua peran
+    // (19/11/2026):
+    // - Self-create (login pertama dari profil userProfiles yang
+    //   disiapkan): HANYA peran 'operator' — pengguna TIDAK BOLEH
+    //   membuat profil client untuk dirinya sendiri (itu akan
+    //   menautkan dirinya ke klien mana pun). Akun client dibuat
+    //   OPERATOR lewat kartu undang (lihat di bawah).
+    // - Operator boleh membuat profil akun lain (invite): peran
+    //   'operator' (tanpa klienId) atau 'client' (klienId WAJIB
+    //   non-kosong — menautkan akun ke record klien).
+    // Peran, satker, dan klienId TIDAK boleh diubah setelah dibuat —
+    // perubahan peran dilakukan admin langsung di console.
     match /users/{uid} {
       allow get: if sudahLogin() && request.auth.uid == uid;
       allow create: if sudahLogin()
         && request.auth.uid == uid
         && request.resource.data.peran == 'operator'
         && request.resource.data.satker.kode is string;
+      allow create: if adalahOperator()
+        && request.resource.data.peran in ['operator', 'client']
+        && request.resource.data.email is string
+        && request.resource.data.satker.kode is string
+        && (request.resource.data.peran == 'operator'
+          || (request.resource.data.klienId is string
+            && request.resource.data.klienId.size() > 0));
       allow update: if sudahLogin()
         && request.auth.uid == uid
         && request.resource.data.peran == resource.data.peran
-        && request.resource.data.satker == resource.data.satker;
+        && request.resource.data.satker == resource.data.satker
+        && request.resource.data.get('klienId', '') == resource.data.get('klienId', '');
       allow delete: if false;
     }
 
@@ -298,9 +415,12 @@ service cloud.firestore {
     }
 
     // ---------- Pengajuan publik — antrean approval (Operator) ----------
-    // KOREKSI 2026-11-15: peran klien dihapus. Submission publik
-    // (pengajuanKlien) tetap dibaca/diproses Operator dari satkernya.
-    // Aturan Firestore bersifat OR antar blok match yang sama.
+    // KOREKSI 2026-11-15 yang lama ("peran klien dihapus") DIBALIK
+    // keputusan 19/11/2026: submission publik (pengajuanKlien) tetap
+    // dibaca/diproses Operator dari satkernya, DAN client yang login
+    // boleh membuat submission yang tertaut ke akunnya (klienId milik
+    // sendiri) serta membaca submission miliknya. Aturan Firestore
+    // bersifat OR antar blok match yang sama.
 
     // Submission publik (form Ajukan Permohonan, tanpa login).
     match /pengajuanKlien/{id} {
@@ -310,6 +430,35 @@ service cloud.firestore {
       // Operator boleh membuat (tidak dipakai aplikasi saat ini).
       allow create: if adalahOperator()
         && satkerMilikPemanggil(request.resource.data);
+      // Client yang login (dua peran 19/11/2026): HANYA create
+      // submission yang klienId-nya sama dengan klienId di profilnya
+      // (dipakai form Ajukan di dalam Client Portal — submission
+      // tertaut ke akun client dan tampil di "My Requests"). Validasi
+      // field sama dengan jalur publik; klienId TIDAK BOLEH '' di sini
+      // (jalur publik memakai klienId '' — lihat di bawah).
+      allow create: if adalahClient()
+        && request.resource.data.klienId == klienPemanggil()
+        && satkerMilikPemanggil(request.resource.data)
+        && request.resource.data.status == 'Menunggu'
+        && request.resource.data.jenis in [
+          'Pengajuan Kerja Sama', 'Media Order', 'Permohonan Sewa'
+        ]
+        && request.resource.data.judul is string
+        && request.resource.data.judul.size() > 0
+        && request.resource.data.uraian is string
+        && request.resource.data.uraian.size() > 0
+        && request.resource.data.namaPic is string
+        && request.resource.data.namaPic.size() > 0
+        && request.resource.data.namaInstitusi is string
+        && request.resource.data.namaInstitusi.size() > 0
+        && request.resource.data.dibuatOleh is string
+        && request.resource.data.dibuatOleh.size() > 0
+        && request.resource.data.tanggalBuat is string
+        && request.resource.data.tanggalBuat.size() > 0
+        && (!('nilaiPerkiraan' in request.resource.data)
+          || request.resource.data.nilaiPerkiraan is number)
+        && (!('telepon' in request.resource.data)
+          || request.resource.data.telepon is string);
       // Publik (tanpa login): HANYA create, append-only, tervalidasi.
       // Dipakai form Ajukan Permohonan (src/modules/Ajukan.tsx lewat
       // kirimPengajuanPublik di firestoreStore.ts). TIDAK ada read /

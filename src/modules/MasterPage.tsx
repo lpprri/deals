@@ -58,6 +58,13 @@ import type {
   KemajuanMigrasiCommitment,
   TahapMigrasiCommitment,
 } from '../lib/migrasiCommitment';
+import { HITUNGAN_BACKFILL_DIHARAPKAN } from '../lib/backfillKlienIdRencana';
+import type {
+  HasilBackfillKlienId,
+  KemajuanBackfillKlienId,
+  TahapBackfillKlienId,
+} from '../lib/backfillKlienId';
+import type { Klien } from '../lib/types';
 import {
   ID_MOU_037,
   PIC_MOU_037_BARU,
@@ -177,6 +184,46 @@ export interface MasterPageProps extends ModulProps {
   statusMigrasiCommitment?: 'belum' | 'sudah' | 'tidak-tersedia';
   /** Tanggal migrasi Commitment (bila diketahui dari luar sesi ini). */
   tanggalMigrasiCommitment?: string;
+  /**
+   * Daftar record klien untuk kartu undang akun (dua peran 19/11/2026)
+   * — id, nama, email, dan penanda akun sudah dibuat. Dipakai memilih
+   * record klien yang ditautkan ke akun client baru.
+   */
+  daftarKlien?: Pick<Klien, 'id' | 'nama' | 'email' | 'akunKlienDibuat'>[];
+  /**
+   * Dipanggil saat form undang akun dikirim. Koordinator menyambungkannya
+   * ke handler App.tsx yang menulis `users/{uid}` (profil peran +
+   * klienId) dan menandai record klien. Halaman ini TIDAK memanggil
+   * Firebase langsung.
+   */
+  onUndangKlien?: (input: UndangKlienInput) => Promise<{
+    galat: string | null;
+  }>;
+  /**
+   * Dipanggil saat tombol jalankan backfill klienId diklik, dengan
+   * callback progres per tahap. Koordinator menyambungkannya ke
+   * `jalankanBackfillKlienId` (src/lib/backfillKlienId.ts).
+   */
+  onBackfillKlienId?: (
+    onKemajuan?: (k: KemajuanBackfillKlienId) => void,
+  ) => Promise<HasilBackfillKlienId>;
+  /** Status backfill klienId dari Firestore (dokumen meta/backfill-klienId-2026). */
+  statusBackfillKlienId?: 'belum' | 'sudah' | 'tidak-tersedia';
+  /** Tanggal backfill klienId (bila diketahui dari luar sesi ini). */
+  tanggalBackfillKlienId?: string;
+}
+
+/** Input form undang akun (dua peran 19/11/2026). */
+export interface UndangKlienInput {
+  peran: 'operator' | 'client';
+  /** UID akun Auth yang dibuat di Firebase console. */
+  uidAuth: string;
+  /** Email akun Auth (harus sama dengan yang dibuat di console). */
+  email: string;
+  nama: string;
+  jabatan: string;
+  /** Id record klien — WAJIB untuk peran 'client', kosong untuk operator. */
+  klienId?: string;
 }
 
 function formatTanggalIso(iso: string): string {
@@ -985,6 +1032,378 @@ function BagianMigrasiCommitment({
   );
 }
 
+const LABEL_TAHAP_BACKFILL_KLIENID: Record<TahapBackfillKlienId, string> = {
+  guard: 'Checking backfill status…',
+  'baca-live': 'Reading live data…',
+  prakondisi: 'Checking preconditions…',
+  tulis: 'Writing klienId fields…',
+  verifikasi: 'Verifying the new data…',
+  audit: 'Writing the audit record…',
+  selesai: 'Done.',
+};
+
+/**
+ * Bagian "Backfill klienId (One-off)" — menambah field `klienId` ke
+ * data live Firestore (dua peran 19/11/2026): tagihan/dokumen dari
+ * kontrak, pembayaran/denda dari tagihan, MoU 3 record dari KLIEN_MOU.
+ * Hanya field `klienId` yang ditulis (update parsial); dokumen yang
+ * sudah punya klienId benar dilewati, yang punya klienId salah
+ * membuat backfill GAGAL. Sekali jalan dengan guard
+ * `meta/backfill-klienId-2026`, prakondisi hitungan live = seed, dan
+ * verifikasi sebelum selesai. Kontrak/klien/commitment TIDAK disentuh.
+ */
+function BagianBackfillKlienId({
+  onBackfillKlienId,
+  statusBackfillKlienId,
+  tanggalBackfillKlienId,
+}: {
+  onBackfillKlienId?: (
+    onKemajuan?: (k: KemajuanBackfillKlienId) => void,
+  ) => Promise<HasilBackfillKlienId>;
+  statusBackfillKlienId: 'belum' | 'sudah' | 'tidak-tersedia';
+  tanggalBackfillKlienId?: string;
+}) {
+  const [setuju, setSetuju] = useState(false);
+  const [proses, setProses] = useState(false);
+  const [kemajuan, setKemajuan] = useState<KemajuanBackfillKlienId | null>(null);
+  const [hasil, setHasil] = useState<HasilBackfillKlienId | null>(null);
+  const [galat, setGalat] = useState<string | null>(null);
+
+  const sudah = statusBackfillKlienId === 'sudah' || hasil !== null;
+
+  async function tanganiBackfill() {
+    if (!onBackfillKlienId || proses || sudah || !setuju) return;
+    setProses(true);
+    setGalat(null);
+    setKemajuan(null);
+    try {
+      const r = await onBackfillKlienId((k) => setKemajuan(k));
+      setHasil(r);
+    } catch (e) {
+      setGalat(
+        e instanceof Error ? e.message : 'klienId backfill failed. Try again.',
+      );
+    } finally {
+      setProses(false);
+    }
+  }
+
+  return (
+    <Kartu>
+      <JudulBagian>Backfill klienId (One-off)</JudulBagian>
+      {statusBackfillKlienId === 'tidak-tersedia' ? (
+        <p className="mt-2 text-sm text-[#0d2569]/70">
+          klienId backfill only works on live Firestore data. Open this
+          page after signing in while the app is in Firestore mode — in
+          sample mode the data already comes from the new seed.
+        </p>
+      ) : sudah ? (
+        <p className="mt-2 text-sm text-[#0d2569]/70">
+          Already backfilled on{' '}
+          {hasil
+            ? formatTanggalIso(hasil.tanggal)
+            : tanggalBackfillKlienId
+              ? formatTanggalIso(tanggalBackfillKlienId)
+              : 'the recorded date'}
+          . klienId backfill can only be done once.
+        </p>
+      ) : (
+        <>
+          <p className="mt-2 text-sm text-[#0d2569]/70">
+            Adds the `klienId` field to live Firestore documents so
+            clients can read their own data: {HITUNGAN_BACKFILL_DIHARAPKAN.tagihan}{' '}
+            invoices, {HITUNGAN_BACKFILL_DIHARAPKAN.pembayaran} payments,{' '}
+            {HITUNGAN_BACKFILL_DIHARAPKAN.denda} fines, and{' '}
+            {HITUNGAN_BACKFILL_DIHARAPKAN.dokumen} documents (from their
+            parent contract/invoice), plus 3 MoU records linked by exact
+            institution name. Only the `klienId` field is written —
+            nothing is deleted, no other field or collection is touched,
+            and the PNBP contract totals do not change. Before writing
+            anything, the backfill checks that the live counts still
+            match the seed; it can only be done once. Run this BEFORE
+            inviting the first client accounts.
+          </p>
+          <label className="mt-3 flex items-start gap-2 text-sm text-[#0d2569]">
+            <input
+              type="checkbox"
+              checked={setuju}
+              onChange={(e) => setSetuju(e.target.checked)}
+              disabled={proses}
+              className="mt-0.5"
+            />
+            <span>
+              I understand this updates the `klienId` field on live
+              documents. This cannot be undone from the app.
+            </span>
+          </label>
+          <div className="mt-3">
+            <TombolUtama
+              onClick={tanganiBackfill}
+              disabled={proses || !setuju || !onBackfillKlienId}
+            >
+              {proses ? 'Backfilling klienId…' : 'Run klienId backfill'}
+            </TombolUtama>
+          </div>
+        </>
+      )}
+
+      {(proses || kemajuan) && !hasil && (
+        <div className="mt-3">
+          <p className="text-sm font-semibold text-[#0d2569]">
+            {kemajuan
+              ? LABEL_TAHAP_BACKFILL_KLIENID[kemajuan.tahap]
+              : 'Starting…'}
+          </p>
+        </div>
+      )}
+
+      {galat && (
+        <div className="mt-3">
+          <Peringatan teks={galat} />
+          {kemajuan && (
+            <p className="mt-2 text-sm text-[#0d2569]/70">
+              Stopped at: {LABEL_TAHAP_BACKFILL_KLIENID[kemajuan.tahap]}.
+              Do not run it again — report this to Digi with the message
+              above.
+            </p>
+          )}
+        </div>
+      )}
+
+      {hasil && (
+        <div className="mt-3">
+          <p className="text-sm font-semibold text-[#0d2569]">
+            klienId backfill succeeded on{' '}
+            {formatTanggalIso(hasil.tanggal)}. Documents updated:{' '}
+            {hasil.jumlahDitulis} (documents without klienId:{' '}
+            {hasil.sebelum.tanpaKlienId} → {hasil.sesudah.tanpaKlienId}).
+            Verify by signing in as the sample client.
+          </p>
+        </div>
+      )}
+    </Kartu>
+  );
+}
+
+/**
+ * Bagian "Invite Client Account" — Operator menautkan akun Auth ke
+ * record klien (dua peran 19/11/2026). TIDAK ADA self-registration
+ * publik: Operator (1) membuat akun Auth di Firebase console
+ * (Authentication → Add user, email + kata sandi), (2) menyalin UID
+ * akun itu, (3) mengisi form ini. Form menulis dokumen profil
+ * `users/{uid}` (peran + klienId) dan menandai record klien
+ * (`akunKlienDibuat`). Akun yang sudah ditautkan tidak bisa ditautkan
+ * ulang dari sini — perubahan peran dilakukan admin langsung di
+ * console.
+ *
+ * PERINGATAN EMAIL (temuan 19/11/2026): SEMUA 33 record klien seed
+ * punya email KOSONG — email akun Auth TIDAK BISA diambil dari record
+ * klien dan TIDAK BOLEH dikarang. Operator memakai alamat email asli
+ * klien (dari luar aplikasi) saat membuat akun di console, lalu
+ * memasukkannya di form ini. Daftar di bawah menampilkan "no email on
+ * record" untuk tiap record supaya jelas.
+ */
+function BagianUndangKlien({
+  daftarKlien,
+  onUndangKlien,
+}: {
+  daftarKlien?: Pick<Klien, 'id' | 'nama' | 'email' | 'akunKlienDibuat'>[];
+  onUndangKlien?: (input: UndangKlienInput) => Promise<{
+    galat: string | null;
+  }>;
+}) {
+  const [peran, setPeran] = useState<'operator' | 'client'>('client');
+  const [uidAuth, setUidAuth] = useState('');
+  const [email, setEmail] = useState('');
+  const [nama, setNama] = useState('');
+  const [jabatan, setJabatan] = useState('');
+  const [klienId, setKlienId] = useState('');
+  const [proses, setProses] = useState(false);
+  const [galat, setGalat] = useState<string | null>(null);
+  const [sukses, setSukses] = useState<string | null>(null);
+
+  const sudahPunyaAkun = daftarKlien?.filter((k) => k.akunKlienDibuat).length ?? 0;
+
+  async function tanganiUndang() {
+    if (!onUndangKlien || proses) return;
+    setGalat(null);
+    setSukses(null);
+    if (uidAuth.trim() === '') {
+      setGalat('Auth UID is required — copy it from Firebase console → Authentication → Users.');
+      return;
+    }
+    if (email.trim() === '' || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
+      setGalat('A valid Auth email is required — it must match the email used when creating the account in the console.');
+      return;
+    }
+    if (nama.trim() === '') {
+      setGalat('Name is required.');
+      return;
+    }
+    if (peran === 'client' && klienId === '') {
+      setGalat('Pick the client record this account links to.');
+      return;
+    }
+    setProses(true);
+    try {
+      const hasil = await onUndangKlien({
+        peran,
+        uidAuth: uidAuth.trim(),
+        email: email.trim(),
+        nama: nama.trim(),
+        jabatan: jabatan.trim() || (peran === 'client' ? 'Client' : 'Staf Layanan & Pengembangan Usaha'),
+        klienId: peran === 'client' ? klienId : undefined,
+      });
+      if (hasil.galat !== null) {
+        setGalat(hasil.galat);
+        return;
+      }
+      setSukses(
+        peran === 'client'
+          ? `Client account linked to ${klienId}. The client can now sign in with ${email.trim()} and will see only their own cooperation.`
+          : `Operator account created for ${email.trim()}. They can now sign in and will see the admin portal.`,
+      );
+      setUidAuth('');
+      setEmail('');
+      setNama('');
+      setJabatan('');
+      setKlienId('');
+    } catch (e) {
+      setGalat(e instanceof Error ? e.message : 'Invite failed. Try again.');
+    } finally {
+      setProses(false);
+    }
+  }
+
+  return (
+    <Kartu>
+      <JudulBagian>Invite Client Account</JudulBagian>
+      <p className="mt-2 text-sm text-[#0d2569]/70">
+        Create client and operator accounts. There is no public
+        sign-up: first create the Auth account in the Firebase console
+        (Authentication → Add user, email + password), copy its UID,
+        then link it here. A client account only sees the cooperation
+        linked to its client record. {sudahPunyaAkun} of{' '}
+        {daftarKlien?.length ?? 0} client records already have an
+        account.
+      </p>
+      <p className="mt-2 text-sm font-semibold text-[#0d2569]">
+        No email on record: every client record in the seed has an empty
+        email field — use the client&apos;s real email address (from
+        outside the app) when creating the account in the console. Do
+        not invent an email.
+      </p>
+      {daftarKlien === undefined ? (
+        <p className="mt-3 text-sm text-[#0d2569]/70">
+          Client list is unavailable in this mode.
+        </p>
+      ) : (
+        <div className="mt-4 grid gap-3 md:grid-cols-2">
+          <div>
+            <label className="mb-1.5 block text-sm font-bold text-[#0d2569]">
+              Role
+            </label>
+            <select
+              className="w-full rounded-md border border-[#0d2569]/20 bg-white px-3 py-2 text-sm text-[#0d2569]"
+              value={peran}
+              onChange={(e) =>
+                setPeran(e.target.value as 'operator' | 'client')
+              }
+              disabled={proses}
+            >
+              <option value="client">Client</option>
+              <option value="operator">Operator</option>
+            </select>
+          </div>
+          <div>
+            <label className="mb-1.5 block text-sm font-bold text-[#0d2569]">
+              Auth UID *
+            </label>
+            <input
+              className="w-full rounded-md border border-[#0d2569]/20 bg-white px-3 py-2 text-sm text-[#0d2569]"
+              value={uidAuth}
+              onChange={(e) => setUidAuth(e.target.value)}
+              placeholder="UID from Firebase console"
+              disabled={proses}
+            />
+          </div>
+          <div>
+            <label className="mb-1.5 block text-sm font-bold text-[#0d2569]">
+              Auth email *
+            </label>
+            <input
+              className="w-full rounded-md border border-[#0d2569]/20 bg-white px-3 py-2 text-sm text-[#0d2569]"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="email used in the console"
+              disabled={proses}
+            />
+          </div>
+          <div>
+            <label className="mb-1.5 block text-sm font-bold text-[#0d2569]">
+              Name *
+            </label>
+            <input
+              className="w-full rounded-md border border-[#0d2569]/20 bg-white px-3 py-2 text-sm text-[#0d2569]"
+              value={nama}
+              onChange={(e) => setNama(e.target.value)}
+              placeholder="Account holder name"
+              disabled={proses}
+            />
+          </div>
+          <div>
+            <label className="mb-1.5 block text-sm font-bold text-[#0d2569]">
+              Job title
+            </label>
+            <input
+              className="w-full rounded-md border border-[#0d2569]/20 bg-white px-3 py-2 text-sm text-[#0d2569]"
+              value={jabatan}
+              onChange={(e) => setJabatan(e.target.value)}
+              placeholder={peran === 'client' ? 'Client' : 'Staf Layanan & Pengembangan Usaha'}
+              disabled={proses}
+            />
+          </div>
+          {peran === 'client' && (
+            <div>
+              <label className="mb-1.5 block text-sm font-bold text-[#0d2569]">
+                Client record *
+              </label>
+              <select
+                className="w-full rounded-md border border-[#0d2569]/20 bg-white px-3 py-2 text-sm text-[#0d2569]"
+                value={klienId}
+                onChange={(e) => setKlienId(e.target.value)}
+                disabled={proses}
+              >
+                <option value="">— Pick a client record —</option>
+                {daftarKlien.map((k) => (
+                  <option key={k.id} value={k.id} disabled={k.akunKlienDibuat}>
+                    {k.nama} ({k.id}) — no email on record
+                    {k.akunKlienDibuat ? ' — account already created' : ''}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
+        </div>
+      )}
+      <div className="mt-4">
+        <TombolUtama onClick={tanganiUndang} disabled={proses || !onUndangKlien}>
+          {proses ? 'Linking account…' : 'Link account'}
+        </TombolUtama>
+      </div>
+      {galat && (
+        <div className="mt-3">
+          <Peringatan teks={galat} />
+        </div>
+      )}
+      {sukses && (
+        <p className="mt-3 text-sm font-semibold text-[#0d2569]">{sukses}</p>
+      )}
+    </Kartu>
+  );
+}
+
 export default function MasterPage(props: MasterPageProps) {
   const {
     onMigrasi,
@@ -1002,6 +1421,11 @@ export default function MasterPage(props: MasterPageProps) {
     onMigrasiCommitment,
     statusMigrasiCommitment = 'tidak-tersedia',
     tanggalMigrasiCommitment,
+    daftarKlien,
+    onUndangKlien,
+    onBackfillKlienId,
+    statusBackfillKlienId = 'tidak-tersedia',
+    tanggalBackfillKlienId,
   } = props;
   return (
     <div className="space-y-6">
@@ -1039,6 +1463,17 @@ export default function MasterPage(props: MasterPageProps) {
         onMigrasiCommitment={onMigrasiCommitment}
         statusMigrasiCommitment={statusMigrasiCommitment}
         tanggalMigrasiCommitment={tanggalMigrasiCommitment}
+      />
+
+      <BagianBackfillKlienId
+        onBackfillKlienId={onBackfillKlienId}
+        statusBackfillKlienId={statusBackfillKlienId}
+        tanggalBackfillKlienId={tanggalBackfillKlienId}
+      />
+
+      <BagianUndangKlien
+        daftarKlien={daftarKlien}
+        onUndangKlien={onUndangKlien}
       />
 
       <Peringatan teks="Master data is only changed by the Operator; values already used by transactions cannot be deleted, only deactivated." />

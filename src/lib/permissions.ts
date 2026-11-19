@@ -1,7 +1,11 @@
-// Matriks hak akses — hanya 1 role Operator.
+// Matriks hak akses — DUA peran (keputusan pengguna 19/11/2026):
 // Operator (Staf Layanan & Pengembangan Usaha) dengan akses penuh,
-// termasuk migrasi/master/konfigurasi. KOREKSI 2026-11-15: peran Klien
-// dihapus; setujui/tolak submission publik hanya Operator.
+// termasuk migrasi/master/konfigurasi, dan Client yang HANYA membaca
+// datanya sendiri (portal klien; ditegakkan firestore.rules).
+// KOREKSI 2026-11-15 yang lama ("peran Klien dihapus") DIBALIK oleh
+// keputusan 19/11/2026 — matriks ini TIDAK memberi client satu pun
+// aksi tulis: semua aksi di bawah ini tetap operator saja. Setujui/
+// tolak submission publik hanya Operator.
 // Catatan: data Keuangan (`penerimaanAcuan`) tetap read-only sebagai acuan
 // dan perubahan sensitif tetap tercatat di audit — penegakan read-only itu
 // ada di Firestore Rules, bukan di matriks ini.
@@ -74,4 +78,5 @@ export function bolehAksi(peran: Role, aksi: Aksi): boolean {
 
 export const LABEL_PERAN: Record<Role, string> = {
   operator: 'Operator',
+  client: 'Client',
 };

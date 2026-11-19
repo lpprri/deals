@@ -44,6 +44,18 @@ adalah konstanta `TANGGAL_IMPOR = '2026-11-14'` — bukan tanggal berjalan.
 > hilang, panel Commitment kembali kosong dan skrip
 > `scripts/cek-impor-commitment.ts` akan gagal (seed commitment
 > 4 record).
+>
+> PERHATIAN (dua peran 19/11/2026): `src/lib/seedNyata.ts` kini
+> membawa field `klienId` di 201 record tagihan (42), pembayaran
+> (45), denda (12), dan dokumen (102) — ditambahkan oleh
+> `scripts/isi-klienId-seed.py` (BUKAN oleh impor.mjs, yang tidak
+> mengenal field itu). Menjalankan ulang impor.mjs akan MENGHAPUS
+> ke-201 field itu (plus semua edit pasca-impor lain: PR #52, #57,
+> #63, atribusi operator). Bila impor.mjs dijalankan ulang, jalankan
+> LANGSUNG sesudahnya `python3 scripts/isi-klienId-seed.py` untuk
+> mengembalikan klienId — skrip itu idempotent dan memverifikasi
+> total kontrol. Skrip `scripts/cek-login-dua-peran.ts` akan gagal
+> bila ada record tanpa klienId.
 
 ## Keputusan yang didokumentasikan
 

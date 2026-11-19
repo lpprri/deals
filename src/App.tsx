@@ -9,7 +9,7 @@
 
 import { Fragment, useEffect, useState } from 'react';
 import { onAuthStateChanged } from 'firebase/auth';
-import { doc, getDoc } from 'firebase/firestore';
+import { doc, getDoc, setDoc } from 'firebase/firestore';
 import {
   BarChart3,
   Briefcase,
@@ -81,10 +81,19 @@ import type {
   KemajuanMigrasiCommitment,
 } from './lib/migrasiCommitment';
 import {
+  bacaStatusBackfillKlienId,
+  jalankanBackfillKlienId,
+} from './lib/backfillKlienId';
+import type {
+  HasilBackfillKlienId,
+  KemajuanBackfillKlienId,
+} from './lib/backfillKlienId';
+import {
   cekSudahDimigrasi,
   kirimBookingPublik as kirimBookingPublikKeFirestore,
   kirimPengajuanPublik as kirimPengajuanPublikKeFirestore,
   muatDariFirestore,
+  muatDataKlien,
   simpanDokumen,
   tulisAudit,
 } from './lib/firestoreStore';
@@ -192,6 +201,8 @@ import Chat from './modules/Chat';
 import Service from './modules/Service';
 import AuditPage from './modules/AuditPage';
 import MasterPage from './modules/MasterPage';
+import type { UndangKlienInput } from './modules/MasterPage';
+import PortalKlien from './modules/PortalKlien';
 import HomePage from './modules/Home';
 import {
   MenuApprovement,
@@ -689,6 +700,9 @@ export default function App() {
   /** Status migrasi Commitment (impor Commitment 19/11/2026) — guard terpisah dari migrasi lain. */
   const [sudahMigrasiCommitment, setSudahMigrasiCommitment] = useState(false);
   const [tanggalMigrasiCommitment, setTanggalMigrasiCommitment] = useState<string | undefined>(undefined);
+  /** Status backfill klienId (dua peran 19/11/2026) — guard terpisah dari migrasi lain. */
+  const [sudahBackfillKlienId, setSudahBackfillKlienId] = useState(false);
+  const [tanggalBackfillKlienId, setTanggalBackfillKlienId] = useState<string | undefined>(undefined);
   const [galatMuat, setGalatMuat] = useState<string | null>(null);
   const [peringatanSimpan, setPeringatanSimpan] = useState<string | null>(null);
   /** Halaman publik tanpa login (lacak/ajukan) saat belum masuk. */
@@ -698,22 +712,32 @@ export default function App() {
   // ajukanAwal + prop prefill akan dipasang lagi pada putaran penyesuaian.
 
   // Pulihkan sesi Auth yang sudah masuk (bila Firebase terkonfigurasi).
+  // DUA PERAN (19/11/2026): pulihkan Operator DAN Client — peran
+  // dibedakan lewat field `peran` di users/{uid}; client membawa
+  // klienId (tanpa itu portal tidak tahu data siapa yang ditampilkan).
   useEffect(() => {
     if (!isFirebaseConfigured || !auth || !db) return;
     const berhenti = onAuthStateChanged(auth, async (fbUser) => {
       if (!fbUser || !db) return;
       try {
         const snap = await getDoc(doc(db, 'users', fbUser.uid));
-        if (snap.exists() && snap.data().peran === 'operator') {
+        if (snap.exists()) {
           const d = snap.data();
-          setUser({
-            nama: String(d.nama ?? ''),
-            jabatan: String(d.jabatan ?? ''),
-            peran: 'operator',
-            email: String(d.email ?? fbUser.email ?? ''),
-            satker: d.satker as { kode: string; nama: string } | undefined,
-          });
-          setAuthEmail(fbUser.email ?? null);
+          const peran = d.peran;
+          if (peran === 'operator' || peran === 'client') {
+            setUser({
+              nama: String(d.nama ?? ''),
+              jabatan: String(d.jabatan ?? ''),
+              peran,
+              email: String(d.email ?? fbUser.email ?? ''),
+              satker: d.satker as { kode: string; nama: string } | undefined,
+              klienId:
+                typeof d.klienId === 'string' && d.klienId !== ''
+                  ? d.klienId
+                  : undefined,
+            });
+            setAuthEmail(fbUser.email ?? null);
+          }
         }
       } catch {
         // Abaikan — pengguna masuk manual lewat form login.
@@ -723,7 +747,10 @@ export default function App() {
   }, []);
 
   // Muat data dari Firestore setelah login, bila sudah dimigrasi.
-  // Hanya Operator yang login; data selalu dimuat penuh dari Firestore.
+  // Operator: data penuh (muatDariFirestore). Client (dua peran
+  // 19/11/2026): HANYA datanya sendiri lewat muatDataKlien() — filter
+  // klienId + satker; status migrasi/master TIDAK dibaca (client tidak
+  // boleh membaca dokumen meta).
   useEffect(() => {
     if (!user || !isFirebaseConfigured || !db) return;
     let batal = false;
@@ -733,6 +760,27 @@ export default function App() {
         if (batal) return;
         if (!sudah) {
           setModeData('belum-dimigrasi');
+          return;
+        }
+        if (user.peran === 'client') {
+          if (!user.klienId) {
+            setGalatMuat(
+              'Akun client belum ditautkan ke data klien — hubungi Operator.',
+            );
+            return;
+          }
+          const dariFirestore = await muatDataKlien(
+            db,
+            SATKER_PILOT.kode,
+            user.klienId,
+            user.email,
+          );
+          if (batal) return;
+          if (dariFirestore) {
+            setData(dariFirestore);
+            setModeData('firestore');
+            setSudahDimigrasi(true);
+          }
           return;
         }
         const dariFirestore = await muatDariFirestore(db, SATKER_PILOT.kode);
@@ -756,6 +804,10 @@ export default function App() {
           if (batal) return;
           setSudahMigrasiCommitment(statusMigrasiCommitment.sudah);
           setTanggalMigrasiCommitment(statusMigrasiCommitment.tanggal);
+          const statusBackfillKlienId = await bacaStatusBackfillKlienId(db);
+          if (batal) return;
+          setSudahBackfillKlienId(statusBackfillKlienId.sudah);
+          setTanggalBackfillKlienId(statusBackfillKlienId.tanggal);
         }
       } catch (e) {
         if (!batal) {
@@ -781,31 +833,40 @@ export default function App() {
    * bila tulis itu gagal, kembalikan pesan error (jangan menelan
    * diam-diam). Di luar mode Firestore, submission hanya tersimpan di
    * sesi ini — sama seperti aksi lain sebelum migrasi.
+   *
+   * NOMOR REFERENSI + DUA PERAN (19/11/2026): mengembalikan
+   * `{ galat, id }` — `id` adalah nomor referensi submission
+   * (mis. 'PKL-001') yang ditampilkan ke pemohon supaya bisa melacak
+   * statusnya. Bila dipanggil dari Client Portal (client yang login),
+   * `klienId` diisi id record klien akun itu — submission tertaut ke
+   * client dan tampil di "My Requests"-nya (aturan Firestore
+   * mengizinkan client create dengan klienId milik sendiri).
    */
   const kirimPengajuanPublik = async (
     input: PengajuanPublikInput,
-  ): Promise<string | null> => {
+    klienId?: string,
+  ): Promise<{ galat: string | null; id?: string }> => {
     if (!DAFTAR_JENIS_PENGAJUAN_KLIEN.includes(input.jenis)) {
-      return `Request type "${input.jenis}" is not recognised.`;
+      return { galat: `Request type "${input.jenis}" is not recognised.` };
     }
-    if (!input.namaPemohon.trim()) return 'Applicant name is required.';
-    if (!input.namaInstitusi.trim()) return 'Institution name is required.';
-    if (!input.kontakEmail.trim()) return 'Contact email is required.';
+    if (!input.namaPemohon.trim()) return { galat: 'Applicant name is required.' };
+    if (!input.namaInstitusi.trim()) return { galat: 'Institution name is required.' };
+    if (!input.kontakEmail.trim()) return { galat: 'Contact email is required.' };
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(input.kontakEmail.trim())) {
-      return 'Contact email is not valid.';
+      return { galat: 'Contact email is not valid.' };
     }
-    if (!input.judul.trim()) return 'Request title is required.';
-    if (!input.uraian.trim()) return 'Request details are required.';
+    if (!input.judul.trim()) return { galat: 'Request title is required.' };
+    if (!input.uraian.trim()) return { galat: 'Request details are required.' };
     if (
       input.nilaiPerkiraan !== undefined &&
       !(input.nilaiPerkiraan >= 0)
     ) {
-      return 'Estimated value must be 0 or more.';
+      return { galat: 'Estimated value must be 0 or more.' };
     }
     const id = idBerikutnya('PKL-', data.pengajuanKlien.map((s) => s.id));
     const submission: PengajuanKlien = {
       id,
-      klienId: '',
+      klienId: klienId ?? '',
       jenis: input.jenis,
       judul: input.judul.trim(),
       uraian: input.uraian.trim(),
@@ -834,10 +895,10 @@ export default function App() {
         await kirimPengajuanPublikKeFirestore(db, submission);
       } catch (e) {
         console.error('Gagal menyimpan submission publik ke Firestore:', e);
-        return 'Request recorded locally, but failed to save to Firestore — contact the Operator.';
+        return { galat: 'Request recorded locally, but failed to save to Firestore — contact the Operator.' };
       }
     }
-    return null;
+    return { galat: null, id };
   };
 
   /**
@@ -1004,6 +1065,7 @@ export default function App() {
               peran: appUser.peran,
               email: appUser.email,
               satker: appUser.satker,
+              klienId: appUser.klienId,
             });
             setAuthEmail(appUser.email);
             return null;
@@ -1051,9 +1113,30 @@ export default function App() {
     setSudahPerbaikanMou037(false);
     setSudahMigrasiCommitment(false);
     setTanggalMigrasiCommitment(undefined);
+    setSudahBackfillKlienId(false);
+    setTanggalBackfillKlienId(undefined);
     setHalamanPublik('beranda');
     setActive('home');
   };
+
+  // DUA PERAN (19/11/2026): client yang login masuk Client Portal —
+  // BUKAN admin portal. Portal hanya menerima data client itu
+  // (di mode Firestore sudah tersaring lewat muatDataKlien; di mode
+  // contoh portal menyaring seed penuh di dalamnya). Client tidak
+  // pernah mencapai shell admin di bawah (nav, modul, MasterPage).
+  if (user.peran === 'client') {
+    return (
+      <PortalKlien
+        pengguna={user}
+        data={data}
+        onKeluar={tanganiKeluar}
+        onKirimBooking={kirimBookingPublik}
+        onKirimPengajuan={(input) =>
+          kirimPengajuanPublik(input, user.klienId)
+        }
+      />
+    );
+  }
 
   const tambahAudit = (
     aksi: string,
@@ -2943,6 +3026,108 @@ export default function App() {
     return hasil;
   };
 
+  /** Jalankan backfill klienId satu kali (dari halaman Master & Pengguna). */
+  const tanganiBackfillKlienId = async (
+    onKemajuan?: (k: KemajuanBackfillKlienId) => void,
+  ): Promise<HasilBackfillKlienId> => {
+    if (!db) {
+      throw new Error('Firebase is not yet configured.');
+    }
+    const hasil = await jalankanBackfillKlienId(
+      db,
+      penggunaAktif,
+      SATKER_PILOT.kode,
+      onKemajuan,
+    );
+    setSudahBackfillKlienId(true);
+    setTanggalBackfillKlienId(hasil.tanggal);
+    const dariFirestore = await muatDariFirestore(db, SATKER_PILOT.kode);
+    if (dariFirestore) setData(dariFirestore);
+    return hasil;
+  };
+
+  /**
+   * Undang akun (dua peran 19/11/2026; dari kartu "Invite Client
+   * Account" di MasterPage). Operator SUDAH membuat akun Auth di
+   * Firebase console (email + kata sandi) dan menyalin UID-nya —
+   * aplikasi TIDAK membuat akun Auth (tidak ada Admin SDK). Handler
+   * ini menulis dokumen profil `users/{uid}` (peran + klienId untuk
+   * client) dan menandai record klien (`akunKlienDibuat`) bila
+   * client. Profil yang sudah ada TIDAK ditimpa. Di luar mode
+   * Firestore (mode contoh), hanya state lokal yang diubah — akun
+   * tidak benar-benar dibuat; kartu tetap bisa dicoba dengan akun
+   * dummy.
+   */
+  const tanganiUndangKlien = async (
+    input: UndangKlienInput,
+  ): Promise<{ galat: string | null }> => {
+    if (input.peran === 'client') {
+      const klien = data.klien.find((k) => k.id === input.klienId);
+      if (!klien) {
+        return { galat: `Client record ${input.klienId ?? '(kosong)'} not found.` };
+      }
+      if (klien.akunKlienDibuat) {
+        return { galat: `Client record ${klien.id} (${klien.nama}) already has an account linked.` };
+      }
+    }
+    if (!isFirebaseConfigured || !db) {
+      // Mode contoh: tandai record klien saja (tidak ada Auth sungguhan).
+      if (input.peran === 'client' && input.klienId) {
+        setData((d) => ({
+          ...d,
+          klien: d.klien.map((k) =>
+            k.id === input.klienId ? { ...k, akunKlienDibuat: true } : k,
+          ),
+        }));
+      }
+      return { galat: null };
+    }
+    try {
+      const refProfil = doc(db, 'users', input.uidAuth);
+      const sudahAda = await getDoc(refProfil);
+      if (sudahAda.exists()) {
+        return { galat: `A profile for Auth UID ${input.uidAuth} already exists — role changes are done by the admin directly in the console.` };
+      }
+      await setDoc(refProfil, {
+        email: input.email.toLowerCase(),
+        nama: input.nama,
+        jabatan: input.jabatan,
+        peran: input.peran,
+        ...(input.peran === 'client' ? { klienId: input.klienId } : {}),
+        satker: SATKER_PILOT,
+        dibuatPada: new Date().toISOString(),
+      });
+      if (input.peran === 'client' && input.klienId) {
+        const klien = data.klien.find((k) => k.id === input.klienId);
+        if (klien) {
+          const klienBaru = { ...klien, akunKlienDibuat: true };
+          await simpanDokumen(db, 'klien', klien.id, klienBaru);
+          setData((d) => ({
+            ...d,
+            klien: d.klien.map((k) => (k.id === klien.id ? klienBaru : k)),
+          }));
+        }
+      }
+      tambahAudit(
+        input.peran === 'client' ? 'Akun client diundang' : 'Akun operator dibuat',
+        'users',
+        input.uidAuth,
+        '—',
+        `${input.nama} (${input.email})` +
+          (input.peran === 'client' ? ` → ${input.klienId}` : ''),
+      );
+      return { galat: null };
+    } catch (e) {
+      console.error('Gagal mengundang akun:', e);
+      return {
+        galat:
+          e instanceof Error
+            ? e.message
+            : 'Invite failed — check that the rules are published and the Auth UID exists.',
+      };
+    }
+  };
+
   // Daftar utama sidebar: hanya item tanpa induk (sub-item tampil di
   // panel tambahan di samping sidebar, lihat panel di bawah).
   const navUtama = MODULES.filter((m) => m.phase !== 'Admin' && !m.induk);
@@ -3374,6 +3559,22 @@ export default function App() {
                     : 'tidak-tersedia'
                 }
                 tanggalMigrasiCommitment={tanggalMigrasiCommitment}
+                daftarKlien={data.klien.map((k) => ({
+                  id: k.id,
+                  nama: k.nama,
+                  email: k.email,
+                  akunKlienDibuat: k.akunKlienDibuat,
+                }))}
+                onUndangKlien={tanganiUndangKlien}
+                onBackfillKlienId={tanganiBackfillKlienId}
+                statusBackfillKlienId={
+                  modeData === 'firestore'
+                    ? sudahBackfillKlienId
+                      ? 'sudah'
+                      : 'belum'
+                    : 'tidak-tersedia'
+                }
+                tanggalBackfillKlienId={tanggalBackfillKlienId}
               />
             )}
             {active === 'service' && <Service {...propsModul} />}

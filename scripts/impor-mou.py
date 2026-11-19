@@ -61,6 +61,12 @@ HEADER = """// Data MoU NYATA Palembang — hasil impor file pengguna
 //   dengan tanggal penandatanganan baris itu (2026-04-07 / 2026-05-06);
 //   Q baris 29 (masa '1 Hari') = 2026-05-06. Bila pengguna mengoreksi,
 //   ubah xlsx lalu jalankan ulang skrip ini.
+// - klienId (dua peran 19/11/2026): 3 record tertaut ke klien lewat
+//   pencocokan nama instansi PERSIS (035 → KLN-030 BNN Sumsel,
+//   043 → KLN-014 Diskominfo OKU Selatan, 045 → KLN-009 Diskominfo
+//   Banyuasin); 41 lainnya tanpa klienId — termasuk near-miss 039
+//   "…Ogan Komering Ulu" (tanpa "Selatan") yang SENGAJA tidak ditautkan
+//   ke KLN-014. Lihat KLIEN_MOU di scripts/impor-mou.py.
 
 import type { Mou } from './types';
 
@@ -154,6 +160,25 @@ def main() -> int:
     rec037["pic"] = KOREKSI_037["pic_baru"]
     rec037["instansi"] = KOREKSI_037["instansi_baru"]
 
+    # --- tautan MoU -> klien (dua peran 19/11/2026) ---
+    # HANYA bila nama instansi MoU sama PERSIS dengan nama record klien
+    # di seed (pencocokan nama persis, bukan kemiripan). Dipakai aturan
+    # Firestore baca-klien: client hanya membaca MoU yang klienId-nya
+    # sama dengan klienId di profilnya. 3 dari 44 record tertaut;
+    # near-miss yang SENGAJA tidak ditautkan: 039 "Dinas Komunikasi
+    # dan Informatika Kabupaten Ogan Komering Ulu" (tanpa "Selatan")
+    # bukan KLN-014 ("...Ogan Komering Ulu Selatan"). Map ini HARUS
+    # sama dengan KLIEN_MOU di src/lib/backfillKlienIdRencana.ts
+    # (skrip cek mengasersi keduanya identik).
+    KLIEN_MOU = {
+        "035/RRI-PLB/KJM.02.04/08/2026": "KLN-030",  # BNN Sumsel
+        "043/RRI-PLB/KJM.02.04/10/2026": "KLN-014",  # Diskominfo OKU Selatan
+        "045/RRI-PLB/KJM.02.04/10/2026": "KLN-009",  # Diskominfo Banyuasin
+    }
+    for rec in records:
+        if rec["id"] in KLIEN_MOU:
+            rec["klienId"] = KLIEN_MOU[rec["id"]]
+
     # --- verification summary (must match the parent's analysis) ---
     from collections import Counter
     jenis = Counter(x["jenis"] for x in records)
@@ -189,6 +214,13 @@ def main() -> int:
     assert per_id["037/RRI-PLB/KJM.02.04/09/2026"]["pic"] == "Ja'far"
     assert per_id["037/RRI-PLB/KJM.02.04/09/2026"]["instansi"] == \
         "Komunitas Wirausaha Tangan Di Atas"
+    # Tautan MoU -> klien (dua peran 19/11/2026, KLIEN_MOU di atas):
+    # tepat 3 record tertaut, dan near-miss 039 TIDAK tertaut.
+    assert sum(1 for x in records if x.get("klienId")) == 3
+    assert per_id["035/RRI-PLB/KJM.02.04/08/2026"]["klienId"] == "KLN-030"
+    assert per_id["043/RRI-PLB/KJM.02.04/10/2026"]["klienId"] == "KLN-014"
+    assert per_id["045/RRI-PLB/KJM.02.04/10/2026"]["klienId"] == "KLN-009"
+    assert "klienId" not in per_id["039/RRI-PLB/KJM.02.04/10/2026"]
 
     body = json.dumps(records, ensure_ascii=False, indent=2)
     OUT.write_text(HEADER + body + ";\n", encoding="utf-8")

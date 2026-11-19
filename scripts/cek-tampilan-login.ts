@@ -13,10 +13,12 @@
 //   sudah ada di dalam gambar logo (duplikat bila dipertahankan).
 // - Heading "Welcome Back" + subjudul lama dipertahankan.
 // - Keterangan akses dengan ikon gembok, di bawah subjudul, di atas kolom
-//   email. Kalimat pertama verbatim keputusan pengguna 15:53 WIB;
-//   kalimat kedua direvisi pengguna 2026-11-19 08:45 WIB menjadi
-//   "please click here" dengan tautan ke halaman Lacak publik (prop
-//   onLacak, disambungkan di App.tsx ke halamanPublik 'lacak').
+//   email. DUA PERAN (keputusan pengguna 19/11/2026 15:45 WIB): kalimat
+//   lama "Only designated officers can sign in here. If you're a client,
+//   please click here." (PR #112, revisi pengguna 2026-11-19 08:45 WIB)
+//   diganti — client kini JUGA masuk lewat halaman ini; "click here"
+//   tetap membuka halaman Lacak publik bagi client yang belum punya
+//   akun (prop onLacak, disambungkan di App.tsx ke halamanPublik 'lacak').
 // - Field Email + Password gaya Mixpanel: label tebal gelap di atas,
 //   input pill putih (rounded-full), border tipis, placeholder abu-abu;
 //   password tetap di layar yang sama (TIDAK ada alur email-first).
@@ -27,7 +29,8 @@
 //   TIDAK ada sign-up klien; TIDAK ada warna ungu/violet pastel
 //   template (tidak ada class violet-/purple- dan tidak ada #8263FF).
 // - Latar warm off-white #f5f2f2 + gradasi pucat biru/navy di bawah.
-// - Mode contoh/dummy TETAP dipertahankan (tombol Operator dummy).
+// - Mode contoh/dummy TETAP dipertahankan (tombol dummy Operator DAN
+//   Client sejak dua peran 19/11/2026).
 // - Tautan publik Ajukan TETAP tidak ada di halaman login (keputusan
 //   pengguna 2026-11-15). Lacak DIJANGKAU dari sini sejak 2026-11-19
 //   lewat tautan "click here" di keterangan akses.
@@ -84,10 +87,11 @@ cek(
     login.includes('Enter your credentials to access your account'),
 );
 cek(
-  'Login: keterangan akses (kalimat pertama verbatim + "click here", revisi pengguna 2026-11-19; kalimat lama 0x)',
-  login.includes('Only designated officers can sign in here.') &&
-    login.includes("If you&apos;re a") &&
+  'Login: keterangan akses dua peran (client JUGA masuk di sini; "click here" ke Lacak bagi yang belum punya akun; kalimat lama 0x)',
+  login.includes('Sign in with the account created for you by the Operator.') &&
+    login.includes('Clients sign in here too') &&
     login.includes('click here') &&
+    !login.includes('Only designated officers can sign in here.') &&
     !login.includes(
       'please use Track or Submit a Request on the landing page.',
     ) &&
