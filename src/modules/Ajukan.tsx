@@ -43,6 +43,7 @@ export default function Ajukan({
   judulAwal,
   uraianAwal,
   labelKembali,
+  emailTetap,
 }: {
   /**
    * Mengembalikan `{ galat, id }` — `galat` pesan error (null bila
@@ -63,11 +64,19 @@ export default function Ajukan({
    * Portal (dua peran 19/11/2026) memakai "Back to Client Portal".
    */
   labelKembali?: string;
+  /**
+   * Email yang dikunci (opsional; dipakai Client Portal): field email
+   * diisi email akun client yang login dan TIDAK bisa diubah — aturan
+   * Firestore untuk submission client yang belum tertaut menuntut
+   * `dibuatOleh` sama dengan email akun Auth-nya (lihat
+   * firestore.rules, blok pengajuanKlien).
+   */
+  emailTetap?: string;
 }) {
   const [form, setForm] = useState<PengajuanPublikInput>({
     namaPemohon: '',
     namaInstitusi: '',
-    kontakEmail: '',
+    kontakEmail: emailTetap ?? '',
     kontakTelepon: '',
     jenis: jenisAwal ?? 'Pengajuan Kerja Sama',
     judul: judulAwal ?? '',
@@ -202,7 +211,14 @@ export default function Ajukan({
                   setForm((f) => ({ ...f, kontakEmail: e.target.value }))
                 }
                 placeholder="email@example.com"
+                disabled={emailTetap !== undefined}
               />
+              {emailTetap !== undefined && (
+                <p className="mt-1 text-xs text-gray-500">
+                  Using your account email — the Operator uses it to link
+                  your account to your partnership data.
+                </p>
+              )}
             </div>
             <div>
               <Label>Phone</Label>

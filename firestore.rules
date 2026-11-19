@@ -7,8 +7,18 @@
 // yang menghapus peran klien (tidak ada akses klien terautentikasi).
 // Client hanya membaca data yang `klienId`-nya sama dengan klienId di
 // profilnya (blok "Akses baca klien" di bawah) — routing client-side
-// saja BUKAN keamanan. Akses publik (Lacak + pengajuan publik +
-// booking meeting) diatur di blok publik tersendiri di bawah.
+// saja BUKAN keamanan. SIGNUP PUBLIK (keputusan pengguna 19/11/2026
+// 16:12 WIB): calon klien membuat akun sendiri dari halaman login —
+// signup SELALU menghasilkan peran 'client' (tanpa klienId; operator
+// menautkan setelah verifikasi), tidak ada jalan membuat akun operator
+// lewat signup. Akun client tanpa klienId TIDAK BISA membaca data
+// klien mana pun (aturan baca menuntut klienId yang cocok) dan TIDAK
+// BISA menaikkan perannya (update menuntut peran/klienId tak berubah);
+// satu-satunya yang bisa dilakukan akun belum tertaut adalah membuat
+// submission Ajukan dengan klienId '' yang dibuatOleh-nya sama dengan
+// email akun Auth-nya (lihat blok pengajuanKlien). Akses publik (Lacak
+// + pengajuan publik + booking meeting) diatur di blok publik
+// tersendiri di bawah.
 // Semua akses wajib terautentikasi, KECUALI tiga jalur publik di blok
 // publik tersendiri di bawah (Lacak + pengajuan publik + booking
 // meeting) — ketiganya dibatasi ketat: create publik tervalidasi dan
@@ -373,22 +383,44 @@ service cloud.firestore {
 
     // ---------- Profil pengguna (koleksi users) ----------
     // Pengguna hanya boleh membaca dokumennya sendiri. Dua peran
-    // (19/11/2026):
-    // - Self-create (login pertama dari profil userProfiles yang
-    //   disiapkan): HANYA peran 'operator' — pengguna TIDAK BOLEH
-    //   membuat profil client untuk dirinya sendiri (itu akan
-    //   menautkan dirinya ke klien mana pun). Akun client dibuat
-    //   OPERATOR lewat kartu undang (lihat di bawah).
+    // (19/11/2026) + SIGNUP PUBLIK (19/11/2026 16:12 WIB):
+    // - Self-create OPERATOR (login pertama dari profil userProfiles
+    //   yang disiapkan): HANYA bila ada dokumen userProfiles untuk
+    //   email yang ditulis (exists(...) di bawah). Sebelum perubahan
+    //   ini aturan mengizinkan pengguna mana pun membuat profil
+    //   operator untuk dirinya sendiri — dengan signup publik itu
+    //   menjadi jalan penaikan peran (role escalation) yang sepele,
+    //   jadi sekarang dikunci ke profil yang sudah disiapkan operator.
+    // - Self-create CLIENT (signup publik di halaman login): peran
+    //   'client', TANPA klienId, email HARUS sama dengan email akun
+    //   Auth-nya. Signup selalu menghasilkan client (lihat
+    //   daftarDenganEmail di src/lib/auth.ts); tidak ada jalan
+    //   membuat akun operator lewat signup.
     // - Operator boleh membuat profil akun lain (invite): peran
     //   'operator' (tanpa klienId) atau 'client' (klienId WAJIB
     //   non-kosong — menautkan akun ke record klien).
+    // - Operator boleh MENAUTKAN akun client hasil signup publik
+    //   (profil sudah ada sebagai client TANPA klienId): HANYA
+    //   menambah klienId (lihat klausa update operator di bawah).
     // Peran, satker, dan klienId TIDAK boleh diubah setelah dibuat —
-    // perubahan peran dilakukan admin langsung di console.
+    // perubahan peran dilakukan admin langsung di console. Khususnya:
+    // client TIDAK BISA menaikkan perannya sendiri (update menuntut
+    // peran baru == peran lama) dan TIDAK BISA menautkan dirinya ke
+    // klien mana pun (update menuntut klienId baru == klienId lama).
     match /users/{uid} {
       allow get: if sudahLogin() && request.auth.uid == uid;
       allow create: if sudahLogin()
         && request.auth.uid == uid
         && request.resource.data.peran == 'operator'
+        && request.resource.data.email is string
+        && request.resource.data.satker.kode is string
+        && exists(/databases/$(database)/documents/userProfiles/$(request.resource.data.email));
+      allow create: if sudahLogin()
+        && request.auth.uid == uid
+        && request.resource.data.peran == 'client'
+        && !('klienId' in request.resource.data)
+        && request.resource.data.email is string
+        && request.resource.data.email == request.auth.token.email
         && request.resource.data.satker.kode is string;
       allow create: if adalahOperator()
         && request.resource.data.peran in ['operator', 'client']
@@ -402,6 +434,19 @@ service cloud.firestore {
         && request.resource.data.peran == resource.data.peran
         && request.resource.data.satker == resource.data.satker
         && request.resource.data.get('klienId', '') == resource.data.get('klienId', '');
+      // Operator menautkan akun client hasil signup publik (profil
+      // sudah ada sebagai client TANPA klienId): HANYA menambah
+      // klienId — peran harus tetap 'client', satker tetap, klienId
+      // lama harus kosong (akun yang sudah tertaut TIDAK bisa
+      // ditautkan ulang dari sini). Dipakai kartu "Invite Client
+      // Account" saat UID yang dimasukkan adalah akun hasil signup.
+      allow update: if adalahOperator()
+        && resource.data.peran == 'client'
+        && request.resource.data.peran == 'client'
+        && request.resource.data.satker == resource.data.satker
+        && resource.data.get('klienId', '') == ''
+        && request.resource.data.klienId is string
+        && request.resource.data.klienId.size() > 0;
       allow delete: if false;
     }
 
@@ -455,6 +500,40 @@ service cloud.firestore {
         && request.resource.data.dibuatOleh.size() > 0
         && request.resource.data.tanggalBuat is string
         && request.resource.data.tanggalBuat.size() > 0
+        && (!('nilaiPerkiraan' in request.resource.data)
+          || request.resource.data.nilaiPerkiraan is number)
+        && (!('telepon' in request.resource.data)
+          || request.resource.data.telepon is string);
+      // Client yang login TAPI BELUM TERTAUT (akun baru dari signup
+      // publik, 19/11/2026 16:12 WIB): boleh membuat submission
+      // jalur publik (klienId '') — inilah jalur Ajukan yang
+      // diarahkan portal 'belum tertaut' ke calon klien. DibuatOleh
+      // HARUS sama dengan email akun Auth-nya (mengikat submission
+      // ke pendaftar; operator melihat siapa pengirimnya saat
+      // menautkan). Validasi field sama dengan jalur publik. Tanpa
+      // klausa ini, submission akun belum tertaut ditolak: jalur
+      // publik menuntut request.auth == null, jalur client menuntut
+      // klienId yang cocok.
+      allow create: if sudahLogin()
+        && request.resource.data.status == 'Menunggu'
+        && request.resource.data.klienId == ''
+        && request.resource.data.dibuatOleh == request.auth.token.email
+        && request.resource.data.jenis in [
+          'Pengajuan Kerja Sama', 'Media Order', 'Permohonan Sewa'
+        ]
+        && request.resource.data.judul is string
+        && request.resource.data.judul.size() > 0
+        && request.resource.data.uraian is string
+        && request.resource.data.uraian.size() > 0
+        && request.resource.data.namaPic is string
+        && request.resource.data.namaPic.size() > 0
+        && request.resource.data.namaInstitusi is string
+        && request.resource.data.namaInstitusi.size() > 0
+        && request.resource.data.dibuatOleh is string
+        && request.resource.data.dibuatOleh.size() > 0
+        && request.resource.data.tanggalBuat is string
+        && request.resource.data.tanggalBuat.size() > 0
+        && request.resource.data.satker.kode is string
         && (!('nilaiPerkiraan' in request.resource.data)
           || request.resource.data.nilaiPerkiraan is number)
         && (!('telepon' in request.resource.data)

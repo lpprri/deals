@@ -195,6 +195,7 @@ export default function PortalKlien({
         onKirim={onKirimPengajuan}
         onKembali={kembaliKePortal}
         labelKembali="Back to Client Portal"
+        emailTetap={pengguna.email}
       />
     );
   }
@@ -223,7 +224,11 @@ export default function PortalKlien({
               </p>
               <p className="text-xs text-[#0d2569]/60">
                 {klien?.nama ?? pengguna.nama}
-                {klien ? ` • ${klien.jenis}` : ''}
+                {klien
+                  ? ` • ${klien.jenis}`
+                  : pengguna.institusi
+                    ? ` • ${pengguna.institusi}`
+                    : ''}
               </p>
             </div>
           </div>
@@ -253,10 +258,23 @@ export default function PortalKlien({
             {klienId === '' && (
               <Kartu>
                 <p className="text-sm font-semibold text-[#0d2569]">
-                  Your account is not linked to a client record yet —
-                  please contact the Operator (Service &amp; Business
-                  Development) to link it.
+                  Your account is not linked to a client record yet.
                 </p>
+                <p className="mt-2 text-sm text-[#0d2569]/70">
+                  You signed up
+                  {pengguna.institusi ? ` as ${pengguna.institusi}` : ''} —
+                  the Operator will link your account to your
+                  partnership data after verifying your identity. Until
+                  then you cannot see any contract, invoice, or
+                  broadcast proof here. Start by submitting a
+                  partnership request below — the Operator will use it
+                  to link your account.
+                </p>
+                <div className="mt-4">
+                  <TombolUtama onClick={() => setTab('ajukan')}>
+                    Submit a Request
+                  </TombolUtama>
+                </div>
               </Kartu>
             )}
 

@@ -19,6 +19,11 @@
 //   diganti — client kini JUGA masuk lewat halaman ini; "click here"
 //   tetap membuka halaman Lacak publik bagi client yang belum punya
 //   akun (prop onLacak, disambungkan di App.tsx ke halamanPublik 'lacak').
+//   SIGNUP PUBLIK (keputusan pengguna 19/11/2026 16:12 WIB): kalimat
+//   akses mode login kini "Sign in with your account — Operators and
+//   clients sign in here." + tautan "Create account" ke mode signup
+//   ("Create your account"); mode signup menjelaskan tanpa pilihan
+//   peran ("no role to choose") dan operator menautkan akunnya.
 // - Field Email + Password gaya Mixpanel: label tebal gelap di atas,
 //   input pill putih (rounded-full), border tipis, placeholder abu-abu;
 //   password tetap di layar yang sama (TIDAK ada alur email-first).
@@ -26,8 +31,10 @@
 // - Tombol sudut kiri atas "Back to Landing Page" (prop onKembali,
 //   disambungkan di App.tsx ke halamanPublik 'beranda').
 // - HANYA login email: TIDAK ada login sosial (tanpa tombol Google),
-//   TIDAK ada sign-up klien; TIDAK ada warna ungu/violet pastel
-//   template (tidak ada class violet-/purple- dan tidak ada #8263FF).
+//   TIDAK ada warna ungu/violet pastel template (tidak ada class
+//   violet-/purple- dan tidak ada #8263FF). Signup publik ADA sejak
+//   19/11/2026 16:12 WIB (jalur 'Create account', selalu peran
+//   client — lihat cek-login-dua-peran.ts untuk asersi signup).
 // - Latar warm off-white #f5f2f2 + gradasi pucat biru/navy di bawah.
 // - Mode contoh/dummy TETAP dipertahankan (tombol dummy Operator DAN
 //   Client sejak dua peran 19/11/2026).
@@ -44,6 +51,9 @@ const baca = (relatif: string) =>
   readFileSync(join(process.cwd(), relatif), 'utf8');
 const login = baca('src/components/Login.tsx');
 const app = baca('src/App.tsx');
+// Teks JSX terbelah baris — asersi salinan memakai versi yang
+// diratakan spasi-nya.
+const loginRata = login.replace(/\s+/g, ' ');
 
 const logoLockup = baca('src/lib/logoRriLockup.ts');
 
@@ -87,12 +97,14 @@ cek(
     login.includes('Enter your credentials to access your account'),
 );
 cek(
-  'Login: keterangan akses dua peran (client JUGA masuk di sini; "click here" ke Lacak bagi yang belum punya akun; kalimat lama 0x)',
-  login.includes('Sign in with the account created for you by the Operator.') &&
-    login.includes('Clients sign in here too') &&
-    login.includes('click here') &&
-    !login.includes('Only designated officers can sign in here.') &&
-    !login.includes(
+  'Login: keterangan akses dua peran + signup (operator & client masuk di sini; "click here" ke Lacak bagi yang belum punya akun; kalimat lama 0x)',
+  loginRata.includes('Sign in with your account') &&
+    loginRata.includes('Operators and clients sign in here') &&
+    loginRata.includes('click here') &&
+    loginRata.includes('Create account') &&
+    loginRata.includes('Create your account') &&
+    !loginRata.includes('Only designated officers can sign in here.') &&
+    !loginRata.includes(
       'please use Track or Submit a Request on the landing page.',
     ) &&
     login.includes('Lock'),

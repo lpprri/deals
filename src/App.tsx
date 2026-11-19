@@ -9,7 +9,7 @@
 
 import { Fragment, useEffect, useState } from 'react';
 import { onAuthStateChanged } from 'firebase/auth';
-import { doc, getDoc, setDoc } from 'firebase/firestore';
+import { doc, getDoc, setDoc, updateDoc } from 'firebase/firestore';
 import {
   BarChart3,
   Briefcase,
@@ -42,6 +42,7 @@ import {
 } from 'lucide-react';
 import { auth, db, isFirebaseConfigured } from './lib/firebaseApp';
 import {
+  daftarDenganEmail,
   keluar,
   masukDenganEmail,
 } from './lib/auth';
@@ -735,6 +736,10 @@ export default function App() {
                 typeof d.klienId === 'string' && d.klienId !== ''
                   ? d.klienId
                   : undefined,
+              institusi:
+                typeof d.institusi === 'string' && d.institusi !== ''
+                  ? d.institusi
+                  : undefined,
             });
             setAuthEmail(fbUser.email ?? null);
           }
@@ -764,9 +769,13 @@ export default function App() {
         }
         if (user.peran === 'client') {
           if (!user.klienId) {
-            setGalatMuat(
-              'Akun client belum ditautkan ke data klien — hubungi Operator.',
-            );
+            // Akun client baru dari signup publik yang BELUM ditautkan
+            // operator (19/11/2026 16:12 WIB): ini keadaan yang
+            // diharapkan, BUKAN galat muat — portal menampilkan kartu
+            // 'belum tertaut' yang jujur + mengarahkan ke Ajukan.
+            // muatDataKlien TIDAK dipanggil tanpa klienId (query
+            // klienId-nya tidak ada artinya tanpa tautan, dan aturan
+            // Firestore menolak baca tanpa klienId yang cocok).
             return;
           }
           const dariFirestore = await muatDataKlien(
@@ -1066,6 +1075,7 @@ export default function App() {
               email: appUser.email,
               satker: appUser.satker,
               klienId: appUser.klienId,
+              institusi: appUser.institusi,
             });
             setAuthEmail(appUser.email);
             return null;
@@ -1085,6 +1095,46 @@ export default function App() {
               return 'No network connection.';
             }
             return e instanceof Error ? e.message : 'Failed to sign in. Try again.';
+          }
+        }}
+        onSignupAuth={async (nama, institusi, email, kataSandi) => {
+          // SIGNUP PUBLIK (keputusan pengguna 19/11/2026 16:12 WIB):
+          // selalu membuat akun peran 'client' tanpa klienId —
+          // portal menampilkan keadaan 'belum tertaut' sampai
+          // operator menautkan. Tidak ada pilihan peran di sini.
+          try {
+            const appUser = await daftarDenganEmail(
+              nama,
+              institusi,
+              email,
+              kataSandi,
+            );
+            setUser({
+              nama: appUser.nama,
+              jabatan: appUser.jabatan,
+              peran: appUser.peran,
+              email: appUser.email,
+              satker: appUser.satker,
+              klienId: appUser.klienId,
+              institusi: appUser.institusi,
+            });
+            setAuthEmail(appUser.email);
+            return null;
+          } catch (e) {
+            const kode = (e as { code?: string }).code;
+            if (kode === 'auth/email-already-in-use') {
+              return 'An account with this email already exists — sign in instead.';
+            }
+            if (kode === 'auth/weak-password') {
+              return 'Password must be at least 6 characters.';
+            }
+            if (kode === 'auth/invalid-email') {
+              return 'Email address is not valid.';
+            }
+            if (kode === 'auth/network-request-failed') {
+              return 'No network connection.';
+            }
+            return e instanceof Error ? e.message : 'Failed to create account. Try again.';
           }
         }}
         onLoginDummy={setUser}
@@ -3086,7 +3136,49 @@ export default function App() {
       const refProfil = doc(db, 'users', input.uidAuth);
       const sudahAda = await getDoc(refProfil);
       if (sudahAda.exists()) {
-        return { galat: `A profile for Auth UID ${input.uidAuth} already exists — role changes are done by the admin directly in the console.` };
+        // Akun hasil SIGNUP PUBLIK (19/11/2026 16:12 WIB): profil
+        // client TANPA klienId sudah ada — TAUTKAN dengan menambah
+        // klienId saja (updateDoc). Syarat: peran yang diminta
+        // 'client', profil lama juga 'client' dan belum tertaut,
+        // email form SAMA dengan email profil (menghindari salah
+        // tautan UID). Akun yang sudah tertaut / akun operator TIDAK
+        // bisa diubah dari sini — perubahan peran dilakukan admin
+        // langsung di console. Aturan Firestore mengizinkan update
+        // ini hanya untuk operator (lihat firestore.rules, users).
+        const d = sudahAda.data();
+        const klienIdLama = typeof d.klienId === 'string' ? d.klienId : '';
+        if (
+          input.peran !== 'client' ||
+          d.peran !== 'client' ||
+          klienIdLama !== ''
+        ) {
+          return { galat: `A profile for Auth UID ${input.uidAuth} already exists — role changes are done by the admin directly in the console.` };
+        }
+        if (
+          String(d.email ?? '').toLowerCase() !== input.email.toLowerCase()
+        ) {
+          return { galat: `The email for Auth UID ${input.uidAuth} does not match the account that signed up — check the UID and email.` };
+        }
+        await updateDoc(refProfil, { klienId: input.klienId });
+        if (input.klienId) {
+          const klien = data.klien.find((k) => k.id === input.klienId);
+          if (klien) {
+            const klienBaru = { ...klien, akunKlienDibuat: true };
+            await simpanDokumen(db, 'klien', klien.id, klienBaru);
+            setData((dd) => ({
+              ...dd,
+              klien: dd.klien.map((k) => (k.id === klien.id ? klienBaru : k)),
+            }));
+          }
+        }
+        tambahAudit(
+          'Akun client ditautkan',
+          'users',
+          input.uidAuth,
+          '—',
+          `${input.nama} (${input.email}) → ${input.klienId}`,
+        );
+        return { galat: null };
       }
       await setDoc(refProfil, {
         email: input.email.toLowerCase(),

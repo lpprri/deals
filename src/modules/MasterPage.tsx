@@ -1187,14 +1187,18 @@ function BagianBackfillKlienId({
 
 /**
  * Bagian "Invite Client Account" — Operator menautkan akun Auth ke
- * record klien (dua peran 19/11/2026). TIDAK ADA self-registration
- * publik: Operator (1) membuat akun Auth di Firebase console
- * (Authentication → Add user, email + kata sandi), (2) menyalin UID
- * akun itu, (3) mengisi form ini. Form menulis dokumen profil
- * `users/{uid}` (peran + klienId) dan menandai record klien
- * (`akunKlienDibuat`). Akun yang sudah ditautkan tidak bisa ditautkan
- * ulang dari sini — perubahan peran dilakukan admin langsung di
- * console.
+ * record klien (dua peran 19/11/2026). DUA KASUS (signup publik
+ * 19/11/2026 16:12 WIB): (1) INVITE — Operator membuat akun Auth di
+ * Firebase console (Authentication → Add user, email + kata sandi),
+ * menyalin UID akun itu, mengisi form ini; form menulis dokumen
+ * profil `users/{uid}` (peran + klienId). (2) TAUTKAN AKUN SIGNUP —
+ * calon klien sudah daftar sendiri dari halaman login (profil client
+ * tanpa klienId sudah ada); Operator memasukkan UID akun itu
+ * (dilihat di console Authentication, dicocokkan lewat email) dan
+ * form HANYA menambah klienId ke profil yang sudah ada (email form
+ * harus sama dengan email profil — salah tautan ditolak). Akun yang
+ * sudah tertaut tidak bisa ditautkan ulang dari sini — perubahan
+ * peran dilakukan admin langsung di console.
  *
  * PERINGATAN EMAIL (temuan 19/11/2026): SEMUA 33 record klien seed
  * punya email KOSONG — email akun Auth TIDAK BISA diambil dari record
@@ -1233,7 +1237,7 @@ function BagianUndangKlien({
       return;
     }
     if (email.trim() === '' || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
-      setGalat('A valid Auth email is required — it must match the email used when creating the account in the console.');
+      setGalat('A valid Auth email is required — it must match the email of the account (the sign-up email, or the email used when creating the account in the console).');
       return;
     }
     if (nama.trim() === '') {
@@ -1279,13 +1283,15 @@ function BagianUndangKlien({
     <Kartu>
       <JudulBagian>Invite Client Account</JudulBagian>
       <p className="mt-2 text-sm text-[#0d2569]/70">
-        Create client and operator accounts. There is no public
-        sign-up: first create the Auth account in the Firebase console
-        (Authentication → Add user, email + password), copy its UID,
-        then link it here. A client account only sees the cooperation
-        linked to its client record. {sudahPunyaAkun} of{' '}
-        {daftarKlien?.length ?? 0} client records already have an
-        account.
+        Create client and operator accounts. Clients can also sign up
+        themselves from the login page — to link a signed-up account,
+        enter its Auth UID (from the Firebase console) and its sign-up
+        email here. Or invite: first create the Auth account in the
+        Firebase console (Authentication → Add user, email +
+        password), copy its UID, then link it here. A client account
+        only sees the cooperation linked to its client record.{' '}
+        {sudahPunyaAkun} of {daftarKlien?.length ?? 0} client records
+        already have an account.
       </p>
       <p className="mt-2 text-sm font-semibold text-[#0d2569]">
         No email on record: every client record in the seed has an empty

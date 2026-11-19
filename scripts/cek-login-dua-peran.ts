@@ -1,6 +1,15 @@
 // Verifikasi login dua peran + Client Portal (19/11/2026) — TANPA Firestore.
 // - Field peran + routing menurut peran (peranDariProfil murni; App.tsx
 //   merutekan client ke PortalKlien, operator ke admin portal).
+// - SIGNUP PUBLIK (keputusan pengguna 19/11/2026 16:12 WIB): halaman
+//   login punya jalur 'Create account' — signup SELALU menghasilkan
+//   peran 'client' (tanpa klienId, tanpa pilihan peran di form maupun
+//   di kode); akun baru yang belum tertaut menampilkan portal 'belum
+//   tertaut' + diarahkan ke Ajukan; self-create operator di rules
+//   dikunci ke profil userProfiles yang disiapkan (menutup jalan
+//   penaikan peran yang dibuka signup publik); akun belum tertaut
+//   boleh membuat submission Ajukan klienId '' yang dibuatOleh-nya
+//   sama dengan email akun Auth-nya (email Ajukan dikunci di portal).
 // - firestore.rules: baca client HANYA di bawah klienId-nya sendiri
 //   (kontrak/tagihan/pembayaran/denda/mou/commitment/dokumen/
 //   pengajuanKlien/klien), list klien dilarang, operator tidak berubah,
@@ -51,6 +60,12 @@ const login = baca('src/components/Login.tsx');
 const portal = baca('src/modules/PortalKlien.tsx');
 const ajukan = baca('src/modules/Ajukan.tsx');
 const store = baca('src/lib/firestoreStore.ts');
+const auth = baca('src/lib/auth.ts');
+const master = baca('src/modules/MasterPage.tsx');
+// Teks JSX terbelah baris (spasi/newline di sumber) — asersi salinan
+// memakai versi yang diratakan spasi-nya, bukan sumber mentah.
+const loginRata = login.replace(/\s+/g, ' ');
+const masterRata = master.replace(/\s+/g, ' ');
 const generatorMou = baca('scripts/impor-mou.py');
 
 let gagal = 0;
@@ -80,12 +95,22 @@ cek(
     return r.peran === 'client' && r.klienId === 'KLN-030';
   })(),
 );
-cekLempar('peranDariProfil client tanpa klienId ditolak', () =>
-  peranDariProfil({ peran: 'client' }),
-  true,
+cek(
+  'peranDariProfil client tanpa klienId LOLOS (belum tertaut)',
+  (() => {
+    const r = peranDariProfil({ peran: 'client' });
+    return r.peran === 'client' && r.klienId === undefined;
+  })(),
 );
-cekLempar('peranDariProfil client klienId kosong ditolak', () =>
-  peranDariProfil({ peran: 'client', klienId: '' }),
+cek(
+  'peranDariProfil client klienId kosong LOLOS (belum tertaut)',
+  (() => {
+    const r = peranDariProfil({ peran: 'client', klienId: '' });
+    return r.peran === 'client' && r.klienId === undefined;
+  })(),
+);
+cekLempar('peranDariProfil client klienId bukan string ditolak', () =>
+  peranDariProfil({ peran: 'client', klienId: 123 }),
   true,
 );
 cekLempar('peranDariProfil peran tidak dikenal ditolak', () =>
@@ -113,8 +138,8 @@ cek(
   !login.includes('Only designated officers'),
 );
 cek(
-  'Login menyebut client masuk di sini',
-  login.includes('Clients sign in here too'),
+  'Login menyebut operator + client masuk di sini',
+  loginRata.includes('Operators and clients sign in here'),
 );
 cek(
   'Login merender semua DUMMY_USERS',
@@ -171,6 +196,141 @@ cek(
 cek(
   'operator tetap boleh tambahKlien + kelolaMaster',
   bolehAksi('operator', 'tambahKlien') && bolehAksi('operator', 'kelolaMaster'),
+);
+
+// ---------- signup publik (keputusan 19/11/2026 16:12 WIB) ----------
+// Ambil badan daftarDenganEmail saja (sampai komentar Keluar) supaya
+// asersi 'tanpa klienId' tidak tertipu komentar di luar fungsi.
+const awalDaftar = auth.indexOf('export async function daftarDenganEmail');
+const akhirDaftar = auth.indexOf('/** Keluar', awalDaftar);
+const badanDaftar = auth.slice(awalDaftar, akhirDaftar);
+cek(
+  'daftarDenganEmail memakai createUserWithEmailAndPassword',
+  badanDaftar.includes('createUserWithEmailAndPassword('),
+);
+cek(
+  'daftarDenganEmail TIDAK punya parameter peran (selalu client)',
+  auth.includes(
+    'export async function daftarDenganEmail(\n  nama: string,\n  institusi: string,\n  email: string,\n  kataSandi: string,\n)',
+  ),
+);
+cek(
+  "daftarDenganEmail menulis peran 'client' (hardcode)",
+  badanDaftar.includes("peran: 'client'"),
+);
+cek(
+  'daftarDenganEmail TIDAK menulis klienId (tanpa tautan otomatis)',
+  !badanDaftar.includes('klienId:'),
+);
+cek(
+  'daftarDenganEmail menyimpan institusi pendaftar (untuk penautan)',
+  badanDaftar.includes('institusi: institusiBersih'),
+);
+cek(
+  'daftarDenganEmail menolak kata sandi < 6 karakter',
+  badanDaftar.includes('kataSandi.length < 6'),
+);
+cek(
+  'Login punya mode signup (Create account / Create your account)',
+  login.includes('Create account') && login.includes('Create your account'),
+);
+cek(
+  'Login form signup: nama + institusi + email + password',
+  login.includes('id="signup-nama"') &&
+    login.includes('id="signup-institusi"') &&
+    login.includes('id="signup-email"') &&
+    login.includes('id="signup-password"'),
+);
+cek(
+  'Login form signup TIDAK punya pemilih peran',
+  !login.includes('id="signup-peran"') && !login.includes('name="peran"'),
+);
+cek(
+  'Login signup menjelaskan: tanpa pilihan peran, operator menautkan',
+  loginRata.includes('no role to choose') &&
+    loginRata.includes('the Operator will link your account'),
+);
+cek(
+  'Login menerima prop onSignupAuth',
+  login.includes('onSignupAuth'),
+);
+cek(
+  'App menyambung onSignupAuth ke daftarDenganEmail',
+  app.includes('onSignupAuth={') && app.includes('daftarDenganEmail('),
+);
+cek(
+  'App: client belum tertaut TIDAK memanggil muatDataKlien',
+  app.includes('muatDataKlien TIDAK dipanggil tanpa klienId'),
+);
+cek(
+  'App session restore membawa institusi pendaftar',
+  app.includes('institusi:') && app.includes('d.institusi'),
+);
+cek(
+  "portal 'belum tertaut': kartu jujur + operator menautkan",
+  portal.includes('Your account is not linked to a client record yet.') &&
+    portal.includes('the Operator will link your account'),
+);
+cek(
+  "portal 'belum tertaut': tombol arahkan ke Ajukan",
+  portal.includes("setTab('ajukan')") && portal.includes('Submit a Request'),
+);
+cek(
+  'portal Ajukan memakai email akun (emailTetap)',
+  portal.includes('emailTetap={pengguna.email}'),
+);
+cek(
+  'Ajukan: emailTetap dikunci (disabled) + alasan',
+  ajukan.includes('emailTetap') &&
+    ajukan.includes('disabled={emailTetap !== undefined}') &&
+    ajukan.includes('Using your account email'),
+);
+cek(
+  "rules: client belum tertaut boleh buat Ajukan klienId '' (dibuatOleh == token email)",
+  rules.includes('BELUM TERTAUT') &&
+    rules.includes("request.resource.data.klienId == ''") &&
+    rules.includes(
+      'request.resource.data.dibuatOleh == request.auth.token.email',
+    ),
+);
+cek(
+  'rules update users: peran tidak bisa diubah (anti-eskalasi)',
+  rules.includes(
+    'request.resource.data.peran == resource.data.peran',
+  ),
+);
+cek(
+  'rules: operator boleh menautkan akun signup (update users, tambah klienId saja)',
+  (() => {
+    const awal = rules.indexOf('match /users/{uid}');
+    const akhir = rules.indexOf('match /userProfiles', awal);
+    const blok = rules.slice(awal, akhir);
+    return (
+      blok.includes('allow update: if adalahOperator()') &&
+      blok.includes("resource.data.peran == 'client'") &&
+      blok.includes("resource.data.get('klienId', '') == ''") &&
+      blok.includes('request.resource.data.klienId.size() > 0')
+    );
+  })(),
+);
+cek(
+  'App tanganiUndangKlien: tautkan akun signup (updateDoc klienId saja)',
+  app.includes('updateDoc(refProfil, { klienId: input.klienId })') &&
+    app.includes("'Akun client ditautkan'"),
+);
+cek(
+  'App tanganiUndangKlien: tautan menolak email yang tidak cocok',
+  app.includes('does not match the account that signed up'),
+);
+cek(
+  'App tanganiUndangKlien: tautan menolak akun yang sudah tertaut / operator',
+  app.includes('klienIdLama !== '),
+);
+cek(
+  'MasterPage invite: menyebut signup publik + penautan akun signup',
+  masterRata.includes('sign up themselves from the login page') &&
+    masterRata.includes('to link a signed-up account') &&
+    !masterRata.includes('There is no public'),
 );
 
 // ---------- firestore.rules: baca client ----------
@@ -231,9 +391,18 @@ cek(
   rules.includes('match /meta/backfill-klienId-2026'),
 );
 cek(
-  'rules self-create hanya operator (bukan client)',
-  rules.includes("request.resource.data.peran == 'operator'") &&
-    rules.includes('request.auth.uid == uid'),
+  'rules self-create operator dikunci ke userProfiles yang disiapkan',
+  rules.includes(
+    'exists(/databases/$(database)/documents/userProfiles/$(request.resource.data.email))',
+  ),
+);
+cek(
+  'rules self-create client: peran client + TANPA klienId + email == token',
+  rules.includes("request.resource.data.peran == 'client'") &&
+    rules.includes("!('klienId' in request.resource.data)") &&
+    rules.includes(
+      'request.resource.data.email == request.auth.token.email',
+    ),
 );
 cek(
   'rules operator boleh membuat profil client (klienId wajib)',
