@@ -100,6 +100,7 @@ const baca = (relatif: string) =>
   readFileSync(join(process.cwd(), relatif), 'utf8');
 const app = baca('src/App.tsx');
 const marklo = baca('src/modules/landing/Marklo.tsx');
+const comingSoon = baca('src/modules/ComingSoon.tsx');
 const dataMarklo = baca('src/lib/landingMarklo.ts');
 const logoMitra = baca('src/lib/logoMitra.ts');
 const fotoKampanye = baca('src/lib/fotoKampanye.ts');
@@ -889,6 +890,8 @@ cek(
         layanan.indexOf('Book a Venue') < layanan.indexOf('Rent a Space') &&
         layanan.indexOf('Rent a Space') < layanan.indexOf('Get a Journalism Training') &&
         layanan.indexOf('Get a Journalism Training') < layanan.indexOf('Collaborate with Us') &&
+        layanan.indexOf('Collaborate with Us') < layanan.indexOf('Support our Event') &&
+        layanan.indexOf('Support our Event') < layanan.indexOf('Invite as Media Partner') &&
         !layanan.includes('Plan a Campaign')
       );
     })(),
@@ -896,10 +899,37 @@ cek(
 cek(
   'Footer: "Track your Deal" membuka halaman Lacak via prop onLacak (pola onLogin) — bukan gulirKe',
   marklo.includes('onLacak: () => void') &&
-    marklo.includes('<Footer onLacak={onLacak} />') &&
-    marklo.includes('function Footer({ onLacak }') &&
+    marklo.includes('<Footer onLacak={onLacak} onComingSoon={onComingSoon} />') &&
+    marklo.includes('function Footer({ onLacak, onComingSoon }') &&
     footerMarklo.includes("label: 'Track your Deal'") &&
     footerMarklo.includes('onLacak()'),
+);
+cek(
+  'Footer: keenam item "Additional Service" membuka halaman "Coming Soon" via prop onComingSoon (pola onLacak) — BUKAN gulirKe booking; halaman Coming Soon gaya login page, TANPA logo (permintaan pengguna 2026-11-18 21:19–21:21 WIB)',
+  marklo.includes('onComingSoon: () => void') &&
+    marklo.includes('<Footer onLacak={onLacak} onComingSoon={onComingSoon} />') &&
+    marklo.includes('function Footer({ onLacak, onComingSoon }') &&
+    footerMarklo.includes("label: 'Support our Event'") &&
+    footerMarklo.includes("label: 'Invite as Media Partner'") &&
+    footerMarklo.includes('onClick={onComingSoon}') &&
+    !footerMarklo
+      .slice(
+        footerMarklo.indexOf('Additional Service'),
+        footerMarklo.indexOf('Jl. Medan Merdeka Barat'),
+      )
+      .includes('gulirKe') &&
+    app.includes("'coming-soon'") &&
+    app.includes("onComingSoon={() => setHalamanPublik('coming-soon')}") &&
+    app.includes('<ComingSoon') &&
+    app.includes("halamanPublik === 'coming-soon'") &&
+    comingSoon.includes('Coming Soon') &&
+    comingSoon.includes('max-w-[400px]') &&
+    comingSoon.includes('bg-[#f5f2f2]') &&
+    comingSoon.includes('Back to Landing Page') &&
+    !comingSoon.includes('logoRriLockup') &&
+    !comingSoon.includes('logo-rri.svg') &&
+    !comingSoon.includes('LOGO_') &&
+    !comingSoon.includes('<img'),
 );
 cek(
   'Footer: kontak RESMI Kantor Pusat RRI (alamat Jl. Medan Merdeka Barat, dua nomor telepon tel:, tanpa email sample)',
