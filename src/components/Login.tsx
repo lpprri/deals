@@ -9,8 +9,10 @@
 //   data URI di src/lib/logoRriLockup.ts) di tengah atas; teks terpisah
 //   di bawah logo DIHAPUS supaya tidak duplikat dengan teks di gambar.
 // - Heading "Welcome Back" + subjudul yang sama seperti sebelumnya.
-// - Keterangan akses (keputusan pengguna 15:53 WIB, versi LENGKAP,
-//   verbatim) dengan ikon gembok di bawah subjudul, di atas kolom email.
+// - Keterangan akses dengan ikon gembok di bawah subjudul, di atas kolom
+//   email (kalimat pertama verbatim keputusan pengguna 15:53 WIB;
+//   kalimat kedua direvisi pengguna 2026-11-19 08:45 WIB menjadi
+//   "please click here" dengan tautan ke halaman Lacak publik).
 // - Field Email + Password gaya Mixpanel: label tebal gelap di atas
 //   field, input pill putih, border tipis, placeholder abu-abu.
 // - Satu tombol pill full-width Biru "Sign in" (hover navy).
@@ -21,9 +23,10 @@
 // Google), TIDAK ada sign-up klien, TIDAK ada alur email-first (password
 // tetap di layar yang sama), TIDAK ada Forgot password (belum ada
 // alurnya), TIDAK ada checkbox Remember (persistensi Firebase sudah
-// default). Tautan publik Lacak/Ajukan TIDAK ada di halaman ini
-// (keputusan pengguna 2026-11-15) — halaman publik tersebut dijangkau
-// lewat landing page.
+// default). Tautan publik Ajukan TIDAK ada di halaman ini (keputusan
+// pengguna 2026-11-15). Lacak DIJANGKAU dari sini sejak 2026-11-19:
+// tautan "click here" di keterangan akses membuka halaman Lacak publik
+// (prop onLacak, disambungkan di App.tsx ke halamanPublik 'lacak').
 // KOREKSI 2026-11-15: klien tidak punya login/akun; halaman ini hanya
 // untuk Operator. Akses klien lewat Lacak (kode transaksi) dan Ajukan
 // Permohonan (form publik).
@@ -68,6 +71,7 @@ export default function Login({
   onLoginAuth,
   onLoginDummy,
   onKembali,
+  onLacak,
 }: {
   /** Dipanggil saat Firebase terkonfigurasi; kembalikan pesan error atau null bila sukses. */
   onLoginAuth: (email: string, kataSandi: string) => Promise<string | null>;
@@ -75,6 +79,8 @@ export default function Login({
   onLoginDummy: (user: DummyUser) => void;
   /** Dipanggil saat tombol kembali ditekan (kembali ke landing page). */
   onKembali?: () => void;
+  /** Dipanggil saat tautan "click here" di keterangan akses ditekan (buka halaman Lacak). */
+  onLacak?: () => void;
 }) {
   const [email, setEmail] = useState('');
   const [kataSandi, setKataSandi] = useState('');
@@ -140,7 +146,7 @@ export default function Login({
           Enter your credentials to access your account
         </p>
 
-        {/* Keterangan akses (versi lengkap, keputusan pengguna 15:53 WIB). */}
+        {/* Keterangan akses ("click here" ke Lacak, revisi pengguna 2026-11-19). */}
         <div className="mt-6 flex items-start gap-2.5 rounded-xl border border-[#2573e2]/25 bg-white px-3.5 py-3">
           <Lock
             className="mt-0.5 h-4 w-4 shrink-0 text-[#2573e2]"
@@ -148,7 +154,15 @@ export default function Login({
           />
           <p className="text-xs leading-relaxed text-[#0d2569]/80">
             Only designated officers can sign in here. If you&apos;re a
-            client, please use Track or Submit a Request on the landing page.
+            client, please{' '}
+            <button
+              type="button"
+              onClick={onLacak}
+              className="font-semibold text-[#2573e2] underline hover:text-[#0d2569]"
+            >
+              click here
+            </button>
+            .
           </p>
         </div>
 
