@@ -390,6 +390,62 @@ export interface Order {
   satker: SatkerRef;
 }
 
+/**
+ * Status permintaan dari form publik (Tally / Coming Soon) — panel Order,
+ * enam tabel (PR #115). 'Baru' = baru masuk, belum ditindaklanjuti.
+ */
+export type StatusPermintaan = 'Baru' | 'Diproses' | 'Selesai' | 'Ditolak';
+
+/**
+ * Permintaan quotation iklan dari form Tally "Plan a Campaign" (id ArpNAN,
+ * 29 pertanyaan dalam 8 kelompok). Kolom tabel: Request ID, Client,
+ * Company, Services, Budget, Submitted, Status. Diisi OTOMATIS oleh
+ * webhook Tally (PR terpisah — butuh upgrade Firebase ke Blaze); sampai
+ * webhook tersambung tabel ini kosong. TANPA data contoh — jangan
+ * mengarang permintaan.
+ * - namaLengkap = A1, perusahaan = A2, email = A3 (untuk follow-up).
+ * - layanan = B1 (checkboxes: Radio Ads, Social Media Ads, Digital
+ *   Platform Ads, Dialogue & Podcast).
+ * - anggaran = G1 (rentang klasifikasi, BUKAN harga — tarif tidak tampil
+ *   di form).
+ * NILAI MENTAH vs TAMPILAN (terverifikasi via API, submission laGXkbk):
+ * Tally menyimpan jawaban pilihan sebagai UUID BLOK OPSI, bukan teks
+ * (mis. B1 menyimpan 'd774d4c6-...' = 'Social Media Ads'). Record ini
+ * menyimpan nilai MENTAH apa adanya; tabel menyelesaikannya saat render
+ * lewat labelOpsiTally() (src/lib/petaOpsiTally.ts) — JANGAN pernah
+ * menampilkan UUID mentah ke operator. Webhook memakai peta yang sama.
+ */
+export interface AdsQuotationRequest {
+  /** Id submission Tally, mis. 'AQR-...' — dibuat webhook dari submissionId. */
+  id: string;
+  namaLengkap: string;
+  perusahaan: string;
+  email: string;
+  telepon?: string;
+  layanan: string[];
+  anggaran: string;
+  tanggalSubmit: string; // 'yyyy-mm-dd'
+  status: StatusPermintaan;
+  satker: SatkerRef;
+}
+
+/**
+ * Permintaan layanan dari form Coming Soon (Book a Venue / Rent a Space /
+ * Get a Journalism Training / Invite as Media Partner) — panel Order,
+ * enam tabel (PR #115). Keempat tabel memakai interface yang sama;
+ * koleksinya berbeda (venueBookOrder, spaceRentOrder, trainingOrder,
+ * mediaPartnerOrder). Form permintaannya masih Coming Soon, jadi keempat
+ * tabel mulai kosong. TANPA data contoh.
+ */
+export interface PermintaanLayanan {
+  /** Id permintaan, mis. 'VBR-...', 'SRR-...', 'TRN-...', 'MPR-...'. */
+  id: string;
+  namaKlien: string;
+  tanggalPermintaan: string; // 'yyyy-mm-dd'
+  status: StatusPermintaan;
+  satker: SatkerRef;
+}
+
 export interface Meeting {
   id: string;
   tanggal: string; // 'yyyy-mm-dd'
@@ -588,6 +644,17 @@ export interface AppData {
   prospect: Prospect[];
   quotation: Quotation[];
   order: Order[];
+  // Panel Order — enam tabel (PR #115, 19/11/2026): `order` di atas adalah
+  // "Manual Order"; lima tabel baru di bawah mulai kosong — Ads Quotation
+  // Request diisi webhook Tally (PR terpisah, butuh Blaze), empat tabel
+  // layanan diisi form Coming Soon (Book a Venue, Rent a Space, Get a
+  // Journalism Training, Invite as Media Partner). TIDAK ada tabel untuk
+  // Support our Event / Collaborate with Us.
+  adsQuotationRequest: AdsQuotationRequest[];
+  venueBookOrder: PermintaanLayanan[];
+  spaceRentOrder: PermintaanLayanan[];
+  trainingOrder: PermintaanLayanan[];
+  mediaPartnerOrder: PermintaanLayanan[];
   meeting: Meeting[];
   event: Event[];
   advertisement: Advertisement[];

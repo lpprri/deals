@@ -716,4 +716,10 @@ export const DATA_CONTOH: AppData = {
   faq: [],
   // Fase C — Chat antar operator (PR #45): tanpa pesan contoh.
   pesan: [],
+  // Panel Order — enam tabel (PR #115): lima tabel baru mulai kosong.
+  adsQuotationRequest: [],
+  venueBookOrder: [],
+  spaceRentOrder: [],
+  trainingOrder: [],
+  mediaPartnerOrder: [],
 };
