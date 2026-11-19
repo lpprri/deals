@@ -37,8 +37,10 @@
 //     manual setelah sync; PR landing-booking-email).
 //     Catatan pratinjau SUDAH DIHAPUS.
 //   - Kolom footer (revisi pengguna 2026-11-18): "Site Map" (navigasi
-//     section), "Client Portal" (Plan a Campaign → booking;
-//     Track your Deal → halaman Lacak via prop onLacak),
+//     section), "Client Portal" (Plan a Campaign → halaman Plan a
+//     Campaign via prop onPlanCampaign — sejak batch landing 2026-11-19,
+//     BUKAN lagi ke kartu booking; Track your Deal → halaman Lacak via
+//     prop onLacak),
 //     "Additional Service" (Book a Venue, Rent a Space, Get a
 //     Journalism Training, Collaborate with Us, Support our Event,
 //     Invite as Media Partner — keenamnya membuka halaman "Coming
@@ -110,6 +112,11 @@ export interface MarkloLandingProps {
       "Additional Service" (pola persis onLacak; permintaan pengguna
       2026-11-18 21:19–21:21 WIB — BUKAN ke kartu booking). */
   onComingSoon: () => void;
+  /** Buka halaman "Plan a Campaign" publik (form Tally embed) —
+      dipakai item footer "Plan a Campaign" (Client Portal) dan keempat
+      kotak layanan (pola persis onLacak; permintaan pengguna 2026-11-19
+      08:51–08:54 WIB — BUKAN lagi gulir ke kartu booking). */
+  onPlanCampaign: () => void;
   /** Kirim permintaan free call publik (form singkat kartu booking):
       menyimpan sebagai Meeting di Firestore; kembalikan null bila
       berhasil, pesan error bila gagal. */
@@ -227,7 +234,7 @@ function BintangLima({
   );
 }
 
-export default function MarkloLanding({ onLogin, onLacak, onComingSoon, onKirimBooking }: MarkloLandingProps) {
+export default function MarkloLanding({ onLogin, onLacak, onComingSoon, onPlanCampaign, onKirimBooking }: MarkloLandingProps) {
   return (
     <div className="min-h-screen bg-white text-black">
       <Header onLogin={onLogin} />
@@ -237,14 +244,14 @@ export default function MarkloLanding({ onLogin, onLacak, onComingSoon, onKirimB
         <Pernyataan />
         <Statistik />
         <Proses />
-        <Layanan />
+        <Layanan onPlanCampaign={onPlanCampaign} />
         <Perbandingan />
         <MengapaMarketing />
         <BookingKonsultasi onKirimBooking={onKirimBooking} />
         <Testimoni />
         <Faq />
       </main>
-      <Footer onLacak={onLacak} onComingSoon={onComingSoon} />
+      <Footer onLacak={onLacak} onComingSoon={onComingSoon} onPlanCampaign={onPlanCampaign} />
     </div>
   );
 }
@@ -422,7 +429,11 @@ function MarqueeKampanye() {
                   <div className="flex items-start justify-between gap-4 p-5">
                     <div>
                       <h3 className="text-lg font-extrabold text-black">{k.klien}</h3>
-                      <p className="mt-1 text-sm leading-relaxed text-slate-500">
+                      {/* Deskripsi max 3 baris (line-clamp) supaya tinggi
+                          kartu seragam — permintaan pengguna 2026-11-19
+                          08:51 WIB; copy byte-identik, hanya dipotong
+                          tampilannya. */}
+                      <p className="mt-1 line-clamp-3 text-sm leading-relaxed text-slate-500">
                         {k.ringkasan}
                       </p>
                     </div>
@@ -609,7 +620,14 @@ function Proses() {
 
 const OFFSET_FUNNEL = ['', 'sm:pl-10', 'sm:pl-20', 'sm:pl-32'];
 
-function Layanan() {
+/** Keempat kotak layanan BISA DI-KLIK (permintaan pengguna 2026-11-19
+    08:54 WIB): klik membuka halaman "Plan a Campaign" (form Tally
+    embed) lewat prop onPlanCampaign (pola onLacak). Kartu memakai
+    role="button" + tabIndex + onKeyDown (Enter/Spasi) supaya bisa
+    diakses keyboard — <article> dipertahankan (bukan <button>) karena
+    isinya blok (h3 + p); kursor pointer + hover naik seperti kartu
+    kampanye. Label langkah (PR #91) tetap menggulir ke kartu. */
+function Layanan({ onPlanCampaign }: { onPlanCampaign: () => void }) {
   const [sorot, setSorot] = useState<number | null>(null);
   const timerSorot = useRef<number | null>(null);
   useEffect(() => {
@@ -674,7 +692,17 @@ function Layanan() {
               >
                 <article
                   id={`layanan-${i}`}
-                  className={`scroll-mt-24 max-w-xl rounded-[20px] bg-gradient-to-br ${layanan.gradien} p-7 shadow-md transition hover:shadow-lg sm:p-8 ${
+                  role="button"
+                  tabIndex={0}
+                  aria-label={`Plan a Campaign — ${layanan.nama}`}
+                  onClick={onPlanCampaign}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault();
+                      onPlanCampaign();
+                    }
+                  }}
+                  className={`scroll-mt-24 max-w-xl cursor-pointer rounded-[20px] bg-gradient-to-br ${layanan.gradien} p-7 shadow-md transition hover:-translate-y-1 hover:shadow-lg focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-mk-aksen sm:p-8 ${
                     sorot === i ? 'ring-2 ring-mk-aksen' : 'ring-1 ring-white'
                   }`}
                 >
@@ -1584,7 +1612,7 @@ function Faq() {
 
 /* ================= Footer ================= */
 
-function Footer({ onLacak, onComingSoon }: { onLacak: () => void; onComingSoon: () => void }) {
+function Footer({ onLacak, onComingSoon, onPlanCampaign }: { onLacak: () => void; onComingSoon: () => void; onPlanCampaign: () => void }) {
   return (
     <footer className="relative bg-white">
       {/* Tepi atas bergelombang (SVG) menuju section gelap */}
@@ -1694,23 +1722,29 @@ function Footer({ onLacak, onComingSoon }: { onLacak: () => void; onComingSoon: 
             </ul>
           </nav>
           {/* Kolom Client Portal — pintu masuk klien (permintaan
-              pengguna 2026-11-18). Item pertama menggulir ke
-              kartu booking; item terakhir membuka halaman Lacak
-              lewat prop onLacak (pola onLogin). */}
+              pengguna 2026-11-18). Item pertama membuka halaman "Plan a
+              Campaign" lewat prop onPlanCampaign (pola onLacak; sejak
+              batch landing 2026-11-19 — BUKAN lagi gulir ke kartu
+              booking); item terakhir membuka halaman Lacak lewat prop
+              onLacak (pola onLogin). */}
           <div>
             <h3 className="text-sm font-bold uppercase tracking-widest text-white/50">
               Client Portal
             </h3>
             <ul className="mt-4 space-y-2.5 text-sm">
               {[
-                { label: 'Plan a Campaign', aksi: 'booking' },
+                { label: 'Plan a Campaign', aksi: 'plan-campaign' },
                 { label: 'Track your Deal', aksi: 'lacak' },
               ].map((item) => (
                 <li key={item.label}>
                   <button
                     type="button"
                     onClick={() =>
-                      item.aksi === 'lacak' ? onLacak() : gulirKe('booking')
+                      item.aksi === 'lacak'
+                        ? onLacak()
+                        : item.aksi === 'plan-campaign'
+                          ? onPlanCampaign()
+                          : gulirKe('booking')
                     }
                     className="text-white/80 transition hover:text-white hover:underline"
                   >

@@ -71,6 +71,13 @@
 //   Topik); submit menyimpan permintaan sebagai Meeting di Firestore.
 // - Teks social proof hero: "TRUSTED BY 100+ PARTNERS NATIONALLY"
 //   (avatar, bintang, 4.9/5.0 tidak berubah; teks lama tidak tersisa).
+// - Batch landing 2026-11-19 (permintaan pengguna 08:51–08:54 WIB):
+//   deskripsi kartu kampanye max 3 baris (line-clamp-3, tinggi kartu
+//   seragam, copy byte-identik); pill Alfamart "Promotion" → "Radio
+//   Spot"; keempat kotak layanan BISA DI-KLIK → halaman "Plan a
+//   Campaign" (role="button" + keyboard); halaman publik baru "Plan a
+//   Campaign" men-embed form Tally (id ArpNAN) dan footer "Plan a
+//   Campaign" membuka halaman itu — BUKAN lagi gulir ke kartu booking.
 // Skrip ini membaca berkas sebagai teks. Keluar bukan-nol bila ada
 // asersi gagal.
 import { readFileSync } from 'node:fs';
@@ -101,6 +108,7 @@ const baca = (relatif: string) =>
 const app = baca('src/App.tsx');
 const marklo = baca('src/modules/landing/Marklo.tsx');
 const comingSoon = baca('src/modules/ComingSoon.tsx');
+const planCampaign = baca('src/modules/PlanCampaign.tsx');
 const dataMarklo = baca('src/lib/landingMarklo.ts');
 const logoMitra = baca('src/lib/logoMitra.ts');
 const fotoKampanye = baca('src/lib/fotoKampanye.ts');
@@ -125,11 +133,19 @@ cek(
   app.includes("import MarkloLanding from './modules/landing/Marklo';"),
 );
 cek(
-  "App.tsx: beranda me-render <MarkloLanding onLogin + onLacak + onKirimBooking />",
+  "App.tsx: beranda me-render <MarkloLanding onLogin + onLacak + onPlanCampaign + onKirimBooking />",
   app.includes('<MarkloLanding') &&
     app.includes("onLogin={() => setHalamanPublik('login')}") &&
     app.includes("onLacak={() => setHalamanPublik('lacak')}") &&
+    app.includes("onPlanCampaign={() => setHalamanPublik('plan-campaign')}") &&
     app.includes('onKirimBooking={kirimBookingPublik}'),
+);
+cek(
+  "App.tsx: halaman 'plan-campaign' ada — import PlanCampaign + cabang halamanPublik + onKembali ke beranda",
+  app.includes("import PlanCampaign from './modules/PlanCampaign';") &&
+    app.includes("halamanPublik === 'plan-campaign'") &&
+    app.includes('<PlanCampaign') &&
+    app.includes("'beranda' | 'login' | 'lacak' | 'ajukan' | 'coming-soon' | 'plan-campaign'"),
 );
 cek(
   'App.tsx: TIDAK lagi me-render Beranda di route beranda',
@@ -236,12 +252,39 @@ cek(
     dataMarklo.includes('A public-service spot that takes rehabilitation on the road'),
 );
 cek(
-  'Carousel: layanan English (Radio Spot, Adlibs, Promotion, Adlibs & Interactive Dialogue, Interactive Dialogue)',
+  'Carousel: layanan English (Radio Spot, Adlibs, Adlibs & Interactive Dialogue, Interactive Dialogue) — "Promotion" HILANG (pill Alfamart jadi "Radio Spot", permintaan pengguna 2026-11-19 08:52 WIB)',
   dataMarklo.includes("layanan: 'Radio Spot'") &&
     dataMarklo.includes("layanan: 'Adlibs'") &&
-    dataMarklo.includes("layanan: 'Promotion'") &&
+    !dataMarklo.includes("layanan: 'Promotion'") &&
     dataMarklo.includes("layanan: 'Adlibs & Interactive Dialogue'") &&
     dataMarklo.includes("layanan: 'Interactive Dialogue'"),
+);
+cek(
+  'Carousel: pill Alfamart "Radio Spot" (bukan "Promotion") — dicek di blok Alfamart saja',
+  (() => {
+    const blokAlfamart = dataMarklo.slice(
+      dataMarklo.indexOf("klien: 'Alfamart'"),
+      dataMarklo.indexOf("klien: 'Medco'"),
+    );
+    return (
+      blokAlfamart.includes("layanan: 'Radio Spot'") &&
+      !blokAlfamart.includes("layanan: 'Promotion'")
+    );
+  })(),
+);
+cek(
+  'Carousel: deskripsi kartu max 3 baris (line-clamp-3) supaya tinggi kartu seragam — permintaan pengguna 2026-11-19 08:51 WIB; copy byte-identik',
+  (() => {
+    const kartu = marklo.slice(
+      marklo.indexOf('function MarqueeKampanye()'),
+      marklo.indexOf('function Pernyataan()'),
+    );
+    return (
+      kartu.includes('line-clamp-3') &&
+      kartu.includes('{k.ringkasan}') &&
+      kartu.includes('text-sm leading-relaxed text-slate-500')
+    );
+  })(),
 );
 // Blok data kampanye saja (bukan seluruh landingMarklo.ts — LAYANAN dan
 // TESTIMONI masih memakai gradien/inisial).
@@ -398,6 +441,29 @@ cek(
     ) &&
     marklo.includes('ring-mk-aksen') &&
     marklo.includes('window.setTimeout(() => setSorot(null), 1600)'),
+);
+cek(
+  'Services: keempat kotak layanan BISA DI-KLIK → halaman "Plan a Campaign" (permintaan pengguna 2026-11-19 08:54 WIB) — article role="button" + keyboard (Enter/Spasi) + kursor pointer + hover naik; label langkah (PR #91) tetap scroll',
+  (() => {
+    const blokLayanan = marklo.slice(
+      marklo.indexOf('function Layanan('),
+      marklo.indexOf('function Perbandingan()'),
+    );
+    return (
+      marklo.includes('onPlanCampaign: () => void') &&
+      marklo.includes('<Layanan onPlanCampaign={onPlanCampaign} />') &&
+      blokLayanan.includes('function Layanan({ onPlanCampaign }') &&
+      blokLayanan.includes('role="button"') &&
+      blokLayanan.includes('tabIndex={0}') &&
+      blokLayanan.includes("aria-label={`Plan a Campaign — ${layanan.nama}`}") &&
+      blokLayanan.includes('onClick={onPlanCampaign}') &&
+      blokLayanan.includes("e.key === 'Enter'") &&
+      blokLayanan.includes("e.key === ' '") &&
+      blokLayanan.includes('cursor-pointer') &&
+      blokLayanan.includes('hover:-translate-y-1') &&
+      blokLayanan.includes('onClick={() => pilihLayanan(i)}')
+    );
+  })(),
 );
 cek(
   'Services: logo per layanan ter-embed (programa 1-4, Instagram+TikTok, RRI Digital+rri.co.id, YouTube)',
@@ -899,16 +965,43 @@ cek(
 cek(
   'Footer: "Track your Deal" membuka halaman Lacak via prop onLacak (pola onLogin) — bukan gulirKe',
   marklo.includes('onLacak: () => void') &&
-    marklo.includes('<Footer onLacak={onLacak} onComingSoon={onComingSoon} />') &&
-    marklo.includes('function Footer({ onLacak, onComingSoon }') &&
+    marklo.includes('<Footer onLacak={onLacak} onComingSoon={onComingSoon} onPlanCampaign={onPlanCampaign} />') &&
+    marklo.includes('function Footer({ onLacak, onComingSoon, onPlanCampaign }') &&
     footerMarklo.includes("label: 'Track your Deal'") &&
     footerMarklo.includes('onLacak()'),
 );
 cek(
+  'Footer: "Plan a Campaign" membuka halaman Plan a Campaign via prop onPlanCampaign (pola onLacak) — BUKAN gulirKe booking (permintaan pengguna 2026-11-19 08:33 WIB)',
+  marklo.includes('onPlanCampaign: () => void') &&
+    marklo.includes('<Footer onLacak={onLacak} onComingSoon={onComingSoon} onPlanCampaign={onPlanCampaign} />') &&
+    marklo.includes('function Footer({ onLacak, onComingSoon, onPlanCampaign }') &&
+    footerMarklo.includes("label: 'Plan a Campaign'") &&
+    footerMarklo.includes("aksi: 'plan-campaign'") &&
+    footerMarklo.includes('onPlanCampaign()') &&
+    !footerMarklo.includes("aksi: 'booking'") &&
+    app.includes("onPlanCampaign={() => setHalamanPublik('plan-campaign')}") &&
+    app.includes("halamanPublik === 'plan-campaign'"),
+);
+cek(
+  'PlanCampaign: halaman publik embed form Tally "Plan a Campaign" (id ArpNAN) — iframe + script widget + Tally.loadEmbeds() (pola React docs Tally); gaya login page (kolom 400px, #f5f2f2, lockup RRI, "Back to Landing Page"); judul sendiri karena hideTitle=1',
+  planCampaign.includes('https://tally.so/embed/ArpNAN?alignLeft=1&hideTitle=1&transparentBackground=1&dynamicHeight=1') &&
+    planCampaign.includes('data-tally-src') &&
+    planCampaign.includes('https://tally.so/widgets/embed.js') &&
+    planCampaign.includes('Tally.loadEmbeds()') &&
+    planCampaign.includes('useEffect') &&
+    planCampaign.includes("querySelectorAll('iframe[data-tally-src]:not([src])')") &&
+    planCampaign.includes('export default function PlanCampaign') &&
+    planCampaign.includes('max-w-[400px]') &&
+    planCampaign.includes('bg-[#f5f2f2]') &&
+    planCampaign.includes('LOGO_RRI_LOCKUP_DATA_URI') &&
+    planCampaign.includes('Back to Landing Page') &&
+    planCampaign.includes('Plan a Campaign'),
+);
+cek(
   'Footer: keenam item "Additional Service" membuka halaman "Coming Soon" via prop onComingSoon (pola onLacak) — BUKAN gulirKe booking; halaman Coming Soon gaya login page, TANPA logo (permintaan pengguna 2026-11-18 21:19–21:21 WIB)',
   marklo.includes('onComingSoon: () => void') &&
-    marklo.includes('<Footer onLacak={onLacak} onComingSoon={onComingSoon} />') &&
-    marklo.includes('function Footer({ onLacak, onComingSoon }') &&
+    marklo.includes('<Footer onLacak={onLacak} onComingSoon={onComingSoon} onPlanCampaign={onPlanCampaign} />') &&
+    marklo.includes('function Footer({ onLacak, onComingSoon, onPlanCampaign }') &&
     footerMarklo.includes("label: 'Support our Event'") &&
     footerMarklo.includes("label: 'Invite as Media Partner'") &&
     footerMarklo.includes('onClick={onComingSoon}') &&
