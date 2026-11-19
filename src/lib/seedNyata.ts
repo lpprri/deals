@@ -48,6 +48,7 @@ import { SATKER_PILOT } from './master';
 import { ARTIKEL_REGULASI } from './artikelRegulasi';
 import { FAQ_REGULASI } from './faqRegulasi';
 import { MOU_NYATA } from './seedMou';
+import { COMMITMENT_NYATA } from './seedCommitment';
 
 const S = SATKER_PILOT;
 
@@ -6937,4 +6938,10 @@ export const DATA_NYATA: AppData = {
   // src/lib/seedMou.ts (dibuat scripts/impor-mou.py); JANGAN pindahkan
   // ke sini — impor.mjs menulis ulang file ini dan akan menghapusnya.
   mou: MOU_NYATA,
+  // Commitment (impor Commitment 19/11/2026): 4 record dukungan
+  // layanan dari file pengguna — data tersendiri seperti MoU, bukan
+  // kontrak. Isinya di src/lib/seedCommitment.ts (dibuat
+  // scripts/impor-commitment.py); JANGAN pindahkan ke sini — impor.mjs
+  // menulis ulang file ini dan akan menghapusnya.
+  commitment: COMMITMENT_NYATA,
 };

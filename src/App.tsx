@@ -65,6 +65,14 @@ import type {
   KemajuanMigrasiMou,
 } from './lib/migrasiMou';
 import {
+  bacaStatusMigrasiCommitment,
+  jalankanMigrasiCommitment,
+} from './lib/migrasiCommitment';
+import type {
+  HasilMigrasiCommitment,
+  KemajuanMigrasiCommitment,
+} from './lib/migrasiCommitment';
+import {
   cekSudahDimigrasi,
   kirimBookingPublik as kirimBookingPublikKeFirestore,
   kirimPengajuanPublik as kirimPengajuanPublikKeFirestore,
@@ -668,6 +676,9 @@ export default function App() {
   /** Status migrasi MoU (impor MoU 19/11/2026) — guard terpisah dari migrasi lain. */
   const [sudahMigrasiMou, setSudahMigrasiMou] = useState(false);
   const [tanggalMigrasiMou, setTanggalMigrasiMou] = useState<string | undefined>(undefined);
+  /** Status migrasi Commitment (impor Commitment 19/11/2026) — guard terpisah dari migrasi lain. */
+  const [sudahMigrasiCommitment, setSudahMigrasiCommitment] = useState(false);
+  const [tanggalMigrasiCommitment, setTanggalMigrasiCommitment] = useState<string | undefined>(undefined);
   const [galatMuat, setGalatMuat] = useState<string | null>(null);
   const [peringatanSimpan, setPeringatanSimpan] = useState<string | null>(null);
   /** Halaman publik tanpa login (lacak/ajukan) saat belum masuk. */
@@ -728,6 +739,10 @@ export default function App() {
           if (batal) return;
           setSudahMigrasiMou(statusMigrasiMou.sudah);
           setTanggalMigrasiMou(statusMigrasiMou.tanggal);
+          const statusMigrasiCommitment = await bacaStatusMigrasiCommitment(db);
+          if (batal) return;
+          setSudahMigrasiCommitment(statusMigrasiCommitment.sudah);
+          setTanggalMigrasiCommitment(statusMigrasiCommitment.tanggal);
         }
       } catch (e) {
         if (!batal) {
@@ -1020,6 +1035,8 @@ export default function App() {
     setTanggalRemigrasi(undefined);
     setSudahMigrasiMou(false);
     setTanggalMigrasiMou(undefined);
+    setSudahMigrasiCommitment(false);
+    setTanggalMigrasiCommitment(undefined);
     setHalamanPublik('beranda');
     setActive('home');
   };
@@ -2874,6 +2891,26 @@ export default function App() {
     return hasil;
   };
 
+  /** Jalankan migrasi Commitment (dari halaman Master & Pengguna). */
+  const tanganiMigrasiCommitment = async (
+    onKemajuan?: (k: KemajuanMigrasiCommitment) => void,
+  ): Promise<HasilMigrasiCommitment> => {
+    if (!db) {
+      throw new Error('Firebase is not yet configured.');
+    }
+    const hasil = await jalankanMigrasiCommitment(
+      db,
+      penggunaAktif,
+      SATKER_PILOT.kode,
+      onKemajuan,
+    );
+    setSudahMigrasiCommitment(true);
+    setTanggalMigrasiCommitment(hasil.tanggal);
+    const dariFirestore = await muatDariFirestore(db, SATKER_PILOT.kode);
+    if (dariFirestore) setData(dariFirestore);
+    return hasil;
+  };
+
   // Daftar utama sidebar: hanya item tanpa induk (sub-item tampil di
   // panel tambahan di samping sidebar, lihat panel di bawah).
   const navUtama = MODULES.filter((m) => m.phase !== 'Admin' && !m.induk);
@@ -3288,6 +3325,15 @@ export default function App() {
                     : 'tidak-tersedia'
                 }
                 tanggalMigrasiMou={tanggalMigrasiMou}
+                onMigrasiCommitment={tanganiMigrasiCommitment}
+                statusMigrasiCommitment={
+                  modeData === 'firestore'
+                    ? sudahMigrasiCommitment
+                      ? 'sudah'
+                      : 'belum'
+                    : 'tidak-tersedia'
+                }
+                tanggalMigrasiCommitment={tanggalMigrasiCommitment}
               />
             )}
             {active === 'service' && <Service {...propsModul} />}
