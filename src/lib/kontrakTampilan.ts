@@ -24,7 +24,7 @@
 // - Jenis Klien di data: 5 nilai, persis MASTER_JENIS_KLIEN
 //   (Pemerintah, BUMN/BUMD, Swasta, Perorangan, Lembaga/Organisasi).
 
-import type { Denda, Klien, Kontrak, Pembayaran, Tagihan } from './types';
+import type { Denda, Klien, Kontrak, Mou, Pembayaran, Tagihan } from './types';
 import { MASTER_JENIS_KLIEN } from './master';
 import { dibayarTerverifikasi, statusTagihan, tanggalAcuanKontrak } from './derive';
 import { piutangRealisasi } from './realisasi';
@@ -248,6 +248,24 @@ export function sisaHariKerjaSama(
 ): string {
   if (kontrak.status === 'Selesai') return 'Completed';
   const sisa = selisihHari(hariIni, kontrak.tanggalSelesai);
+  if (sisa === 1) return '1 day';
+  return `${sisa} days`;
+}
+
+/**
+ * Sisa hari MoU untuk kolom "Remaining Days" di tabel MoU (keputusan
+ * pengguna 19/11/2026 14:41 WIB): hitung mundur hari kalender dari hari
+ * ini sampai tanggalSelesai — FORMAT SAMA seperti sisaHariKerjaSama
+ * ("1 day" / "N days", tanggal akhir yang sudah lewat ditampilkan apa
+ * adanya, mis. "-5 days", supaya ketidakcocokan terlihat). MoU TIDAK
+ * punya status 'Selesai' seperti kontrak, jadi tidak ada cabang
+ * "Completed".
+ */
+export function sisaHariMou(
+  mou: Mou,
+  hariIni: string = hariIniIso(),
+): string {
+  const sisa = selisihHari(hariIni, mou.tanggalSelesai);
   if (sisa === 1) return '1 day';
   return `${sisa} days`;
 }

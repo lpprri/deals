@@ -15,7 +15,10 @@
 //   saat tulis Firestore seperti id kontrak).
 // - PIC apa adanya: 'Dessi' (5) dan 'Dessi Maya Sari' (2) TIDAK
 //   digabung; 'Selvia Lena' (4) bukan operator — tetap disimpan;
-//   1 PIC kosong -> '—'.
+//   PIC kosong di sumber (1 baris, 037) dikoreksi pengguna 19/11/2026
+//   menjadi 'Ja'far' (lihat KOREKSI_037 di scripts/impor-mou.py).
+// - Nama instansi 037 dibersihkan dari backtick nyasar di akhir
+//   ('Komunitas Wirausaha Tangan Di Atas`' -> tanpa backtick).
 // - DOKUMEN kosong (21 baris) -> '—'.
 // - Masa berlaku '2 tahun' dinormalisasi ke '2 Tahun'.
 // - Typo tahun sumber (2 baris): periode '7 April 0206' (baris 28) dan
@@ -765,7 +768,7 @@ export const MOU_NYATA: Mou[] = [
   {
     "id": "037/RRI-PLB/KJM.02.04/09/2026",
     "jenis": "Nota Kesepahaman",
-    "instansi": "Komunitas Wirausaha Tangan Di Atas`",
+    "instansi": "Komunitas Wirausaha Tangan Di Atas",
     "kategori": "Komunitas",
     "narahubung": "Muklis Rackman",
     "telepon": "08117181990",
@@ -777,7 +780,7 @@ export const MOU_NYATA: Mou[] = [
     "tanggalSelesai": "2028-09-21",
     "masaBerlaku": "2 Tahun",
     "dokumen": "—",
-    "pic": "—",
+    "pic": "Ja'far",
     "satker": {
       "kode": "41",
       "nama": "PALEMBANG"

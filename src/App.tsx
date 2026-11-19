@@ -65,6 +65,14 @@ import type {
   KemajuanMigrasiMou,
 } from './lib/migrasiMou';
 import {
+  bacaStatusPerbaikanMou037,
+  jalankanPerbaikanMou037,
+} from './lib/perbaikanMou037';
+import type {
+  HasilPerbaikanMou037,
+  KemajuanPerbaikanMou037,
+} from './lib/perbaikanMou037';
+import {
   cekSudahDimigrasi,
   kirimBookingPublik as kirimBookingPublikKeFirestore,
   kirimPengajuanPublik as kirimPengajuanPublikKeFirestore,
@@ -668,6 +676,8 @@ export default function App() {
   /** Status migrasi MoU (impor MoU 19/11/2026) — guard terpisah dari migrasi lain. */
   const [sudahMigrasiMou, setSudahMigrasiMou] = useState(false);
   const [tanggalMigrasiMou, setTanggalMigrasiMou] = useState<string | undefined>(undefined);
+  /** Status perbaikan satu kali MoU 037 (19/11/2026) — tanpa guard meta, dari nilai live. */
+  const [sudahPerbaikanMou037, setSudahPerbaikanMou037] = useState(false);
   const [galatMuat, setGalatMuat] = useState<string | null>(null);
   const [peringatanSimpan, setPeringatanSimpan] = useState<string | null>(null);
   /** Halaman publik tanpa login (lacak/ajukan) saat belum masuk. */
@@ -728,6 +738,9 @@ export default function App() {
           if (batal) return;
           setSudahMigrasiMou(statusMigrasiMou.sudah);
           setTanggalMigrasiMou(statusMigrasiMou.tanggal);
+          const statusPerbaikanMou037 = await bacaStatusPerbaikanMou037(db);
+          if (batal) return;
+          setSudahPerbaikanMou037(statusPerbaikanMou037.sudah);
         }
       } catch (e) {
         if (!batal) {
@@ -1020,6 +1033,7 @@ export default function App() {
     setTanggalRemigrasi(undefined);
     setSudahMigrasiMou(false);
     setTanggalMigrasiMou(undefined);
+    setSudahPerbaikanMou037(false);
     setHalamanPublik('beranda');
     setActive('home');
   };
@@ -2874,6 +2888,24 @@ export default function App() {
     return hasil;
   };
 
+  /** Jalankan perbaikan satu kali MoU 037 (dari halaman Master & Pengguna). */
+  const tanganiPerbaikanMou037 = async (
+    onKemajuan?: (k: KemajuanPerbaikanMou037) => void,
+  ): Promise<HasilPerbaikanMou037> => {
+    if (!db) {
+      throw new Error('Firebase is not yet configured.');
+    }
+    const hasil = await jalankanPerbaikanMou037(
+      db,
+      penggunaAktif,
+      onKemajuan,
+    );
+    setSudahPerbaikanMou037(true);
+    const dariFirestore = await muatDariFirestore(db, SATKER_PILOT.kode);
+    if (dariFirestore) setData(dariFirestore);
+    return hasil;
+  };
+
   // Daftar utama sidebar: hanya item tanpa induk (sub-item tampil di
   // panel tambahan di samping sidebar, lihat panel di bawah).
   const navUtama = MODULES.filter((m) => m.phase !== 'Admin' && !m.induk);
@@ -3288,6 +3320,14 @@ export default function App() {
                     : 'tidak-tersedia'
                 }
                 tanggalMigrasiMou={tanggalMigrasiMou}
+                onPerbaikanMou037={tanganiPerbaikanMou037}
+                statusPerbaikanMou037={
+                  modeData === 'firestore'
+                    ? sudahPerbaikanMou037
+                      ? 'sudah'
+                      : 'belum'
+                    : 'tidak-tersedia'
+                }
               />
             )}
             {active === 'service' && <Service {...propsModul} />}

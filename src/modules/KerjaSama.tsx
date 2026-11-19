@@ -40,6 +40,7 @@ import type {
   FilterStatusPembayaran,
   KunciUrutKontrak,
 } from '../lib/kontrakTampilan';
+import { sisaHariMou } from '../lib/kontrakTampilan';
 
 interface PropsKategori extends ModulProps {
   /**
@@ -192,6 +193,13 @@ function DetailMou({ mou, onKembali }: { mou: Mou; onKembali: () => void }) {
  * Daftar MoU — tabel dari data.mou (bukan kontrak). Diurutkan tanggal
  * penandatanganan terbaru dulu; pencarian `cari` memfilter nomor,
  * instansi, judul, PIC, jenis, kategori, narahubung, dan dokumen.
+ * Kolom "Remaining Days" (perbaikan 19/11/2026) di samping Period —
+ * hitung mundur ke tanggalSelesai, format sama seperti tabel Contract.
+ * Kolom "Document" paling kanan (perbaikan 19/11/2026): nilai `dokumen`
+ * record; bila bernilai label asli (bukan '—'), tombol View membuka
+ * detail MoU. `dokumen` saat ini hanya label jenis dokumen, BUKAN
+ * tautan file (tahap upload dokumen masih ditunda) — jangan dikarang
+ * menjadi tautan.
  */
 function DaftarMou({ data, cari }: Pick<ModulProps, 'data' | 'cari'>) {
   const [mouIdTerpilih, setMouIdTerpilih] = useState<string | null>(null);
@@ -246,8 +254,10 @@ function DaftarMou({ data, cari }: Pick<ModulProps, 'data' | 'cari'>) {
               <Th>Cooperation Title</Th>
               <Th>Signing Date</Th>
               <Th>Period</Th>
+              <Th>Remaining Days</Th>
               <Th>Validity</Th>
               <Th>PIC</Th>
+              <Th>Document</Th>
             </tr>
           </thead>
           <tbody>
@@ -264,8 +274,31 @@ function DaftarMou({ data, cari }: Pick<ModulProps, 'data' | 'cari'>) {
                   {formatTanggal(m.tanggalMulai)} —{' '}
                   {formatTanggal(m.tanggalSelesai)}
                 </Td>
+                <Td>{sisaHariMou(m)}</Td>
                 <Td>{m.masaBerlaku}</Td>
                 <Td>{m.pic}</Td>
+                <Td>
+                  {m.dokumen === '—' ? (
+                    '—'
+                  ) : (
+                    <>
+                      {m.dokumen}{' '}
+                      <button
+                        type="button"
+                        className="text-[#2573e2] underline hover:text-[#0d2569]"
+                        onClick={(e) => {
+                          // Jangan ikut membuka detail lewat klik baris
+                          // saja — tombol View membuka detail MoU yang
+                          // sama dengan klik baris.
+                          e.stopPropagation();
+                          setMouIdTerpilih(m.id);
+                        }}
+                      >
+                        View
+                      </button>
+                    </>
+                  )}
+                </Td>
               </Baris>
             ))}
           </tbody>

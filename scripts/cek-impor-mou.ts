@@ -1,12 +1,23 @@
-// Verifikasi impor MoU (19/11/2026) — TANPA Firestore.
+// Verifikasi impor MoU (19/11/2026) + perbaikan panel MoU (19/11/2026)
+// — TANPA Firestore.
 // - Seed: 44 record MoU dari file pengguna (26 Nota Kesepahaman, 17
 //   Perjanjian Kerjasama, 1 Pelaksanaan Kerja Sama), semua field wajib
 //   terisi, tanggal valid, typo tahun sumber '0206' sudah dikoreksi.
+// - Perbaikan 037 (keputusan pengguna 19/11/2026 14:41 WIB): PIC record
+//   037/RRI-PLB/KJM.02.04/09/2026 menjadi 'Ja'far' (di sumber kosong)
+//   dan backtick nyasar di nama instansinya dibersihkan — diterapkan di
+//   generator (scripts/impor-mou.py) supaya regenerasi seed tetap sama.
 // - Panel MoU membaca data.mou (bukan kontrak); teks empty-state lama
-//   tentang kategori 'Nota Kesepahaman' sudah tidak ada.
+//   tentang kategori 'Nota Kesepahaman' sudah tidak ada; kolom
+//   "Remaining Days" di samping Period dan kolom "Document" paling
+//   kanan (View membuka detail MoU).
+// - Patch live satu kali record 037 (tanpa guard meta baru — prakondisi
+//   nilai live): cakupan PERSIS 1 dokumen + 2 field, menolak bila sudah
+//   diperbaiki / dokumen hilang / nilai di luar dugaan.
 // - Total kontrak PNBP TIDAK berubah: 42 kontrak, Rp441.863.375.
 // - firestore.rules: koleksi `mou` di allowlist operator + blok guard
-//   `meta/migrasi-mou-2026`.
+//   `meta/migrasi-mou-2026`; TIDAK ADA perubahan rules di PR ini (patch
+//   menulis ke koleksi `mou` yang sudah diizinkan).
 // - Rencana migrasi MoU: cakupan PERSIS ['mou'], guard baru berbeda
 //   dari guard migrasi lain, prakondisi live 0, verifikasi lolos pada
 //   seed dan menolak bila data berubah.
@@ -27,6 +38,17 @@ import {
   periksaPrakondisiMou,
   verifikasiHasilMou,
 } from '../src/lib/migrasiMouRencana';
+import { sisaHariMou } from '../src/lib/kontrakTampilan';
+import {
+  ID_MOU_037,
+  INSTANSI_MOU_037_BARU,
+  INSTANSI_MOU_037_LAMA,
+  PERBAIKAN_MOU_037,
+  PIC_MOU_037_BARU,
+  PIC_MOU_037_LAMA,
+  periksaPrakondisiPerbaikanMou037,
+  verifikasiHasilPerbaikanMou037,
+} from '../src/lib/perbaikanMou037Rencana';
 
 // Dijalankan dari root repo — berkas dibaca saat runtime, jadi path
 // diambil dari cwd, bukan dari lokasi bundle.
@@ -112,8 +134,28 @@ cek(
   mou.filter((m) => m.pic === 'Selvia Lena').length === 4,
 );
 cek(
-  "seed mou PIC '—' tepat 1 baris",
-  mou.filter((m) => m.pic === '—').length === 1,
+  "seed mou PIC '—' tinggal 0 baris (037 dikoreksi pengguna menjadi Ja'far)",
+  mou.filter((m) => m.pic === '—').length === 0,
+  `${mou.filter((m) => m.pic === '—').length}`,
+);
+cek(
+  "seed mou PIC 'Ja'far' 2 baris (1 dari sumber + 037 dari koreksi)",
+  mou.filter((m) => m.pic === "Ja'far").length === 2,
+);
+cek(
+  "seed mou 037 PIC Ja'far + instansi tanpa backtick + dokumen tetap '—'",
+  (() => {
+    const r037 = mou.find((m) => m.id === ID_MOU_037);
+    return (
+      r037?.pic === PIC_MOU_037_BARU &&
+      r037?.instansi === INSTANSI_MOU_037_BARU &&
+      r037?.dokumen === '—'
+    );
+  })(),
+);
+cek(
+  'seed mou TIDAK ADA instansi berakhir backtick',
+  mou.every((m) => !m.instansi.endsWith('`')),
 );
 cek(
   "seed mou DOKUMEN '—' tepat 21 baris",
@@ -168,6 +210,70 @@ cek(
   kerjaSama.includes('kategori="Media Partner"'),
 );
 
+// ---------- kolom Remaining Days + Document di tabel MoU ----------
+const idxPeriod = kerjaSama.indexOf('<Th>Period</Th>');
+const idxSisa = kerjaSama.indexOf('<Th>Remaining Days</Th>');
+const idxValidity = kerjaSama.indexOf('<Th>Validity</Th>');
+const idxPic = kerjaSama.indexOf('<Th>PIC</Th>');
+const idxDokumen = kerjaSama.indexOf('<Th>Document</Th>');
+cek(
+  'kolom Remaining Days tepat sesudah Period (sebelum Validity)',
+  idxPeriod > -1 && idxPeriod < idxSisa && idxSisa < idxValidity,
+  `${idxPeriod}/${idxSisa}/${idxValidity}`,
+);
+cek(
+  'kolom Document PALING KANAN (sesudah PIC, penutup thead)',
+  idxPic > -1 &&
+    idxPic < idxDokumen &&
+    kerjaSama.includes('<Th>Document</Th>\n            </tr>'),
+  `${idxPic}/${idxDokumen}`,
+);
+const tabelMou = kerjaSama.slice(
+  kerjaSama.indexOf('function DaftarMou'),
+  kerjaSama.indexOf('export function MenuKomitmen'),
+);
+cek(
+  'baris MoU memakai sisaHariMou(m) untuk Remaining Days',
+  tabelMou.includes('sisaHariMou(m)'),
+);
+cek(
+  'kolom Document menampilkan nilai dokumen + tombol View (stopPropagation)',
+  tabelMou.includes('{m.dokumen}') &&
+    tabelMou.includes('View') &&
+    tabelMou.includes('e.stopPropagation();') &&
+    tabelMou.includes('setMouIdTerpilih(m.id)'),
+);
+cek(
+  "kolom Document menampilkan '—' bila dokumen kosong",
+  tabelMou.includes("m.dokumen === '—'"),
+);
+
+// ---------- helper sisaHariMou (format sama seperti kontrak) ----------
+const r037 = mou.find((m) => m.id === ID_MOU_037);
+cek(
+  'sisaHariMou 037 = 672 days pada 2026-11-19 (selesai 2028-09-21)',
+  r037 !== undefined && sisaHariMou(r037, '2026-11-19') === '672 days',
+  r037 ? sisaHariMou(r037, '2026-11-19') : '(037 tidak ada)',
+);
+cek(
+  'sisaHariMou tanggal akhir lewat tampil apa adanya (-5 days)',
+  r037 !== undefined &&
+    sisaHariMou({ ...r037, tanggalSelesai: '2026-11-14' }, '2026-11-19') ===
+      '-5 days',
+);
+cek(
+  'sisaHariMou bentuk tunggal 1 day',
+  r037 !== undefined &&
+    sisaHariMou({ ...r037, tanggalSelesai: '2026-11-20' }, '2026-11-19') ===
+      '1 day',
+);
+cek(
+  'sisaHariMou 0 days di hari terakhir',
+  r037 !== undefined &&
+    sisaHariMou({ ...r037, tanggalSelesai: '2026-11-19' }, '2026-11-19') ===
+      '0 days',
+);
+
 // ---------- total kontrak PNBP TIDAK berubah ----------
 cek(
   'kontrak seed tetap 42',
@@ -190,6 +296,10 @@ cek(
 cek(
   'rules blok guard meta/migrasi-mou-2026 ada',
   rules.includes('match /meta/migrasi-mou-2026 {'),
+);
+cek(
+  'rules TIDAK menambah guard meta baru untuk patch 037 (tanpa publish rules)',
+  !rules.includes('perbaikan-mou-037'),
 );
 cek(
   'rules hitungan koleksi bersatker diperbarui (20 di blok)',
@@ -264,6 +374,73 @@ cek(
   'MasterPage memuat kartu migrasi MoU',
   master.includes('BagianMigrasiMou') &&
     master.includes('Run MoU migration'),
+);
+
+// ---------- patch live satu kali MoU 037 ----------
+cek(
+  'target patch PERSIS dokumen 037',
+  ID_MOU_037 === '037/RRI-PLB/KJM.02.04/09/2026',
+  ID_MOU_037,
+);
+cek(
+  'patch hanya menulis 2 field (pic, instansi) dengan nilai baru',
+  Object.keys(PERBAIKAN_MOU_037).sort().join(',') === 'instansi,pic' &&
+    PERBAIKAN_MOU_037.pic === PIC_MOU_037_BARU &&
+    PERBAIKAN_MOU_037.instansi === INSTANSI_MOU_037_BARU,
+  JSON.stringify(PERBAIKAN_MOU_037),
+);
+const dok037Lama = {
+  id: ID_MOU_037,
+  pic: PIC_MOU_037_LAMA,
+  instansi: INSTANSI_MOU_037_LAMA,
+};
+const dok037Baru = {
+  id: ID_MOU_037,
+  pic: PIC_MOU_037_BARU,
+  instansi: INSTANSI_MOU_037_BARU,
+};
+cek(
+  'prakondisi patch LOLOS pada nilai lama',
+  periksaPrakondisiPerbaikanMou037(dok037Lama).length === 0,
+);
+cek(
+  'prakondisi patch MENOLAK bila dokumen hilang (null)',
+  periksaPrakondisiPerbaikanMou037(null).length > 0,
+);
+cek(
+  'prakondisi patch MENOLAK bila sudah diperbaiki (nilai baru = jalan kedua)',
+  periksaPrakondisiPerbaikanMou037(dok037Baru).length > 0,
+);
+cek(
+  'prakondisi patch MENOLAK bila nilai live di luar dugaan',
+  periksaPrakondisiPerbaikanMou037({
+    id: ID_MOU_037,
+    pic: 'Nadya Pratita',
+    instansi: INSTANSI_MOU_037_LAMA,
+  }).length > 0,
+);
+cek(
+  'verifikasi patch LOLOS pada nilai baru',
+  verifikasiHasilPerbaikanMou037(dok037Baru).length === 0,
+);
+cek(
+  'verifikasi patch MENOLAK pada nilai lama',
+  verifikasiHasilPerbaikanMou037(dok037Lama).length > 0,
+);
+cek(
+  'verifikasi patch MENOLAK bila dokumen hilang (null)',
+  verifikasiHasilPerbaikanMou037(null).length > 0,
+);
+cek(
+  'MasterPage memuat kartu perbaikan MoU 037',
+  master.includes('BagianPerbaikanMou037') &&
+    master.includes('Run MoU 037 fix'),
+);
+cek(
+  'App.tsx memasang handler + status perbaikan MoU 037',
+  app.includes('tanganiPerbaikanMou037') &&
+    app.includes('onPerbaikanMou037={tanganiPerbaikanMou037}') &&
+    app.includes('statusPerbaikanMou037'),
 );
 
 if (gagal > 0) {
