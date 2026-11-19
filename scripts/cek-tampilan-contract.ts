@@ -1943,8 +1943,10 @@ cek(
   !tabKontrak.includes('<Th>Reference Number</Th>'),
 );
 cek(
-  'sel gabungan: nomorPks tebal + referensi kecil di bawahnya',
-  tabKontrak.includes('<div className="font-semibold">{k.nomorPks}</div>') &&
+  'sel gabungan: nomorPks tebal + referensi kecil di bawahnya (masing-masing satu baris + ellipsis, perbaikan tabel Contract 19/11/2026)',
+  tabKontrak.includes('max-w-[240px] truncate font-semibold') &&
+    tabKontrak.includes('{k.nomorPks}') &&
+    tabKontrak.includes('max-w-[240px] truncate text-xs') &&
     tabKontrak.includes('nomorReferensiKontrak(k) ??'),
 );
 cek(

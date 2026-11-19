@@ -207,6 +207,69 @@ export function statusPembayaranKontrak(
 // bukan perbaikan bug.
 
 /**
+ * Kelas Tailwind pill Payment Status (perbaikan tabel Contract,
+ * keputusan pengguna 19/11/2026 16:19 WIB — dari audit UI: status
+ * teks biasa tidak terpindai). Label English TIDAK berubah; definisi
+ * dan nilai status TIDAK berubah (PR #60 / PR #66) — hanya tampilannya
+ * jadi pill teks + titik. Warna ekstra ini memang dibutuhkan untuk
+ * status (aturan palet: warna dasar saja, warna tambahan hanya bila
+ * benar-benar dibutuhkan):
+ * - Paid = biru solid #2573E2, teks putih.
+ * - Partially-Paid = biru pucat #E8F1FE, teks navy #0D2569.
+ * - Insufficient Payment = amber pucat #FEF3C7, teks #92400E.
+ * - Unpaid = abu-abu #F2F4F7, teks #475467.
+ * - Overdue = merah pucat #FEF3F2, teks #B42318.
+ */
+export const KELAS_PILL_STATUS_PEMBAYARAN: Record<
+  StatusPembayaranKontrak,
+  string
+> = {
+  Paid: 'bg-[#2573E2] text-white',
+  'Partially-Paid': 'bg-[#E8F1FE] text-[#0D2569]',
+  'Insufficient Payment': 'bg-[#FEF3C7] text-[#92400E]',
+  Unpaid: 'bg-[#F2F4F7] text-[#475467]',
+  Overdue: 'bg-[#FEF3F2] text-[#B42318]',
+};
+
+/** Kelas pill untuk satu nilai Payment Status (fallback abu-abu bila nilai tak dikenal). */
+export function kelasPillStatusPembayaran(
+  status: StatusPembayaranKontrak,
+): string {
+  return (
+    KELAS_PILL_STATUS_PEMBAYARAN[status] ?? 'bg-[#F2F4F7] text-[#475467]'
+  );
+}
+
+/**
+ * Cocokkan kata kunci pencarian tabel Contract (perbaikan tabel
+ * Contract, keputusan pengguna 19/11/2026 16:19 WIB): mencari di
+ * nomor kontrak, nomor referensi, judul kontrak, dan nama klien —
+ * TIDAK di jenis layanan atau field lain. Perbandingan tidak
+ * case-sensitive; kata kunci kosong cocok dengan semua baris.
+ */
+export function cocokPencarianKontrak(
+  bidang: {
+    nomorPks: string;
+    referensi?: string;
+    judul?: string;
+    namaKlien?: string;
+  },
+  kataKunci: string,
+): boolean {
+  const kunci = kataKunci.trim().toLowerCase();
+  if (kunci === '') return true;
+  const gabung = [
+    bidang.nomorPks,
+    bidang.referensi ?? '',
+    bidang.judul ?? '',
+    bidang.namaKlien ?? '',
+  ]
+    .join(' ')
+    .toLowerCase();
+  return gabung.includes(kunci);
+}
+
+/**
  * Status kerja sama per kontrak (keputusan pengguna 16/11/2026: filter
  * Cooperation Status):
  * - Completed: status tersimpan 'Selesai'.
@@ -268,6 +331,16 @@ export function sisaHariMou(
   const sisa = selisihHari(hariIni, mou.tanggalSelesai);
   if (sisa === 1) return '1 day';
   return `${sisa} days`;
+}
+
+/**
+ * true bila teks Remaining Days negatif ("-N days" / "-1 day") —
+ * tampil MERAH dengan penanda titik di tabel (perbaikan tabel Contract,
+ * keputusan pengguna 19/11/2026 16:19 WIB). "Completed", "1 day" dan
+ * "N days" (N >= 0) → false.
+ */
+export function sisaHariNegatif(teksSisaHari: string): boolean {
+  return /^-\d+ days?$/.test(teksSisaHari);
 }
 
 /**
