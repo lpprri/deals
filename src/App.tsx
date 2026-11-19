@@ -153,6 +153,7 @@ import Login from './components/Login';
 import MarkloLanding from './modules/landing/Marklo';
 import Lacak from './modules/Lacak';
 import ComingSoon from './modules/ComingSoon';
+import PlanCampaign from './modules/PlanCampaign';
 import Ajukan from './modules/Ajukan';
 import Dashboard from './modules/Dashboard';
 import Deals from './modules/Deals';
@@ -659,7 +660,7 @@ export default function App() {
   const [galatMuat, setGalatMuat] = useState<string | null>(null);
   const [peringatanSimpan, setPeringatanSimpan] = useState<string | null>(null);
   /** Halaman publik tanpa login (lacak/ajukan) saat belum masuk. */
-  const [halamanPublik, setHalamanPublik] = useState<'beranda' | 'login' | 'lacak' | 'ajukan' | 'coming-soon'>('beranda');
+  const [halamanPublik, setHalamanPublik] = useState<'beranda' | 'login' | 'lacak' | 'ajukan' | 'coming-soon' | 'plan-campaign'>('beranda');
   // Prefill form Ajukan dari landing page DIHAPUS sementara (PR
   // landing-marklo-clone): landing baru belum memanggil Ajukan; state
   // ajukanAwal + prop prefill akan dipasang lagi pada putaran penyesuaian.
@@ -895,6 +896,7 @@ export default function App() {
           onLogin={() => setHalamanPublik('login')}
           onLacak={() => setHalamanPublik('lacak')}
           onComingSoon={() => setHalamanPublik('coming-soon')}
+          onPlanCampaign={() => setHalamanPublik('plan-campaign')}
           onKirimBooking={kirimBookingPublik}
         />
       );
@@ -926,6 +928,20 @@ export default function App() {
       // kartu booking. Gaya login page, TANPA logo.
       return (
         <ComingSoon
+          onKembali={() => {
+            setHalamanPublik('beranda');
+          }}
+        />
+      );
+    }
+    if (halamanPublik === 'plan-campaign') {
+      // Halaman "Plan a Campaign" (permintaan pengguna 2026-11-19):
+      // form permintaan quotation iklan Tally (id ArpNAN) di-embed di
+      // halaman app — dibuka dari footer "Plan a Campaign" (Client
+      // Portal) dan keempat kotak layanan; BUKAN lagi gulir ke kartu
+      // booking. Gaya login page (pola Lacak).
+      return (
+        <PlanCampaign
           onKembali={() => {
             setHalamanPublik('beranda');
           }}

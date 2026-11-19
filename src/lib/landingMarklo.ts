@@ -45,7 +45,7 @@ export const KAMPANYE_MARKLO: KampanyeMarklo[] = [
   },
   {
     klien: 'Alfamart',
-    layanan: 'Promotion',
+    layanan: 'Radio Spot',
     ringkasan:
       "A cheerful on-air promo that keeps Alfamart's offers top of mind for everyday shoppers.",
   },
