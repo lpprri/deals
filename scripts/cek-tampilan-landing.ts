@@ -72,12 +72,15 @@
 // - Teks social proof hero: "TRUSTED BY 100+ PARTNERS NATIONALLY"
 //   (avatar, bintang, 4.9/5.0 tidak berubah; teks lama tidak tersisa).
 // - Batch landing 2026-11-19 (permintaan pengguna 08:51–08:54 WIB):
-//   deskripsi kartu kampanye max 3 baris (line-clamp-3, tinggi kartu
-//   seragam, copy byte-identik); pill Alfamart "Promotion" → "Radio
-//   Spot"; keempat kotak layanan BISA DI-KLIK → halaman "Plan a
-//   Campaign" (role="button" + keyboard); halaman publik baru "Plan a
-//   Campaign" men-embed form Tally (id ArpNAN) dan footer "Plan a
-//   Campaign" membuka halaman itu — BUKAN lagi gulir ke kartu booking.
+//   pill Alfamart "Promotion" → "Radio Spot"; keempat kotak layanan
+//   BISA DI-KLIK → halaman "Plan a Campaign" (role="button" +
+//   keyboard); halaman publik baru "Plan a Campaign" men-embed form
+//   Tally (id ArpNAN) dan footer "Plan a Campaign" membuka halaman
+//   itu — BUKAN lagi gulir ke kartu booking. Deskripsi kartu kampanye
+//   yang semula max 3 baris (line-clamp-3) DIHAPUS oleh koreksi
+//   pengguna 09:12 WIB (memotong kalimat) — deskripsi tampil UTUH
+//   tanpa elipsis, kartu sm:w-[520px] supaya teks maksimal sampai
+//   ujung box (Perempuan Indonesia Maju muat 2 baris).
 // Skrip ini membaca berkas sebagai teks. Keluar bukan-nol bila ada
 // asersi gagal.
 import { readFileSync } from 'node:fs';
@@ -273,16 +276,26 @@ cek(
   })(),
 );
 cek(
-  'Carousel: deskripsi kartu max 3 baris (line-clamp-3) supaya tinggi kartu seragam — permintaan pengguna 2026-11-19 08:51 WIB; copy byte-identik',
+  'Carousel: deskripsi kartu tampil UTUH tanpa pemotongan — TANPA line-clamp/truncation (koreksi pengguna 2026-11-19 09:12 WIB: line-clamp-3 dari PR #113 memotong kalimat dengan "..."); deskripsi di luar baris judul+pill (lebar penuh kartu), kartu sm:w-[520px] supaya teks maksimal sampai ujung box (Perempuan Indonesia Maju muat 2 baris); copy byte-identik',
   (() => {
     const kartu = marklo.slice(
       marklo.indexOf('function MarqueeKampanye()'),
       marklo.indexOf('function Pernyataan()'),
     );
+    // <p> deskripsi berada SETELAH penutup baris judul+pill (</span>
+    // lalu </div>), jadi memakai lebar penuh kartu — bukan kolom sempit
+    // di samping pill.
+    const pIdx = kartu.indexOf(
+      '<p className="mt-1 text-sm leading-relaxed text-slate-500">',
+    );
+    const spanTutup = kartu.indexOf('</span>', kartu.indexOf('{k.layanan}'));
     return (
-      kartu.includes('line-clamp-3') &&
+      !kartu.includes('line-clamp') &&
+      !kartu.includes('truncate') &&
       kartu.includes('{k.ringkasan}') &&
-      kartu.includes('text-sm leading-relaxed text-slate-500')
+      kartu.includes('sm:w-[520px]') &&
+      pIdx > spanTutup &&
+      kartu.slice(spanTutup, pIdx).includes('</div>')
     );
   })(),
 );
@@ -291,6 +304,13 @@ cek(
 const blokKampanye = dataMarklo.slice(
   dataMarklo.indexOf('export const KAMPANYE_MARKLO'),
   dataMarklo.indexOf('];', dataMarklo.indexOf('export const KAMPANYE_MARKLO')),
+);
+cek(
+  'Carousel: teks deskripsi lengkap ada di data (tidak dipotong di sumber) — PLN, Medco, BNN, Perempuan Indonesia Maju',
+  blokKampanye.includes('delivered loud and clear on air.') &&
+    blokKampanye.includes('in plain language, with room for real questions.') &&
+    blokKampanye.includes('explained simply for everyone listening.') &&
+    blokKampanye.includes('talked about live on air.'),
 );
 cek(
   'Carousel: foto tiap kartu (PR #95) — 7 data URI WebP di fotoKampanye.ts, dipetakan ke nama klien',
