@@ -130,7 +130,13 @@ function gulirKe(id: string) {
 
 /** Pembungkus reveal: blur + fade-in saat masuk viewport.
     Opsi ambang/margin hanya dipakai kartu layanan (PR #93) supaya
-    pemicunya lebih dalam di viewport; pemakaian lain tetap default. */
+    pemicunya lebih dalam di viewport; pemakaian lain tetap default.
+    DUA ARAH (perbaikan 19/11/2026 20:25 WIB — laporan pengguna:
+    animasi hanya jalan saat scroll-down, tidak saat scroll-up):
+    observer TIDAK disconnect setelah tampil pertama; keluar viewport
+    (ke arah mana pun) menghapus mk-tampil sehingga masuk lagi memutar
+    animasi dari awal. Sebelumnya sekali tampil + disconnect, jadi
+    scroll-up tidak pernah menganimasikan ulang. */
 function Reveal({
   children,
   className = '',
@@ -151,10 +157,11 @@ function Reveal({
     if (!el) return;
     const pengamat = new IntersectionObserver(
       (entri) => {
-        if (entri[0].isIntersecting) {
-          setTampil(true);
-          pengamat.disconnect();
-        }
+        // Dua arah: tampil saat masuk viewport, sembunyi lagi saat
+        // keluar — masuk ulang (scroll-down maupun scroll-up) memutar
+        // animasi dari awal. Jangan disconnect di sini; observer hanya
+        // dilepas saat komponen di-unmount (cleanup di bawah).
+        setTampil(entri[0].isIntersecting);
       },
       { threshold: ambang, rootMargin: margin },
     );
@@ -483,10 +490,11 @@ function Statistik() {
     if (!el) return;
     const pengamat = new IntersectionObserver(
       (entri) => {
-        if (entri[0].isIntersecting) {
-          setTerlihat(true);
-          pengamat.disconnect();
-        }
+        // Dua arah (seperti Reveal di atas, perbaikan 19/11/2026
+        // 20:25 WIB): counter jalan ulang tiap kali section masuk
+        // viewport, dari arah mana pun — keluar viewport mematikan
+        // `terlihat`, masuk lagi memulai useCountUp dari 0.
+        setTerlihat(entri[0].isIntersecting);
       },
       { threshold: 0.2 },
     );
