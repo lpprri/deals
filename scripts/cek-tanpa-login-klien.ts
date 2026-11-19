@@ -7,6 +7,12 @@
 //   tidak case-sensitive.
 // - Antrean pengajuanKlien di seed mulai kosong (submission publik baru
 //   masuk setelah form dipakai).
+// CATATAN DUA PERAN (19/11/2026): koreksi 15/11 di atas DIBALIK oleh
+// keputusan pengguna 15:45 WIB — klien kini JUGA bisa login (peran
+// 'client') dan masuk Client Portal. Yang diverifikasi skrip ini TIDAK
+// berubah: Lacak publik (tanpa login) TETAP ada dan tetap bekerja
+// seperti di atas. Verifikasi login dua peran ada di
+// scripts/cek-login-dua-peran.ts.
 import { DATA_NYATA } from '../src/lib/seedNyata';
 import { hitungTotalKontrol } from '../src/lib/derive';
 import { cariKerjaSama } from '../src/modules/Lacak';

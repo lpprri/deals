@@ -26,6 +26,12 @@
 //   dengan tanggal penandatanganan baris itu (2026-04-07 / 2026-05-06);
 //   Q baris 29 (masa '1 Hari') = 2026-05-06. Bila pengguna mengoreksi,
 //   ubah xlsx lalu jalankan ulang skrip ini.
+// - klienId (dua peran 19/11/2026): 3 record tertaut ke klien lewat
+//   pencocokan nama instansi PERSIS (035 → KLN-030 BNN Sumsel,
+//   043 → KLN-014 Diskominfo OKU Selatan, 045 → KLN-009 Diskominfo
+//   Banyuasin); 41 lainnya tanpa klienId — termasuk near-miss 039
+//   "…Ogan Komering Ulu" (tanpa "Selatan") yang SENGAJA tidak ditautkan
+//   ke KLN-014. Lihat KLIEN_MOU di scripts/impor-mou.py.
 
 import type { Mou } from './types';
 
@@ -742,7 +748,8 @@ export const MOU_NYATA: Mou[] = [
     "satker": {
       "kode": "41",
       "nama": "PALEMBANG"
-    }
+    },
+    "klienId": "KLN-030"
   },
   {
     "id": "036/RRI-PLB/KJM.02.04/08/2026",
@@ -910,7 +917,8 @@ export const MOU_NYATA: Mou[] = [
     "satker": {
       "kode": "41",
       "nama": "PALEMBANG"
-    }
+    },
+    "klienId": "KLN-014"
   },
   {
     "id": "044/RRI-PLB/KJM.02.04/11/2026",
@@ -952,6 +960,7 @@ export const MOU_NYATA: Mou[] = [
     "satker": {
       "kode": "41",
       "nama": "PALEMBANG"
-    }
+    },
+    "klienId": "KLN-009"
   }
 ];

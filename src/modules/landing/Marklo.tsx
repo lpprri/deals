@@ -1016,7 +1016,12 @@ const NAMA_BULAN = [
   'July', 'August', 'September', 'October', 'November', 'December',
 ];
 
-function BookingKonsultasi({
+/**
+ * Kartu booking "Book a Free Call" — diekspor (dua peran 19/11/2026)
+ * supaya Client Portal memakai kartu yang SAMA (bukan salinan):
+ * kalender + slot 30 menit + form singkat, zona WIB/WITA/WIT.
+ */
+export function BookingKonsultasi({
   onKirimBooking,
 }: {
   onKirimBooking: (input: BookingPublikInput) => Promise<string | null>;

@@ -10,28 +10,38 @@
 //   di bawah logo DIHAPUS supaya tidak duplikat dengan teks di gambar.
 // - Heading "Welcome Back" + subjudul yang sama seperti sebelumnya.
 // - Keterangan akses dengan ikon gembok di bawah subjudul, di atas kolom
-//   email (kalimat pertama verbatim keputusan pengguna 15:53 WIB;
-//   kalimat kedua direvisi pengguna 2026-11-19 08:45 WIB menjadi
-//   "please click here" dengan tautan ke halaman Lacak publik).
+//   email (DUA PERAN, keputusan pengguna 19/11/2026 15:45 WIB: client
+//   JUGA masuk lewat halaman ini — kalimat lama "Only designated
+//   officers can sign in here. If you're a client, please click here."
+//   (PR #112, revisi pengguna 19/11/2026 08:45 WIB) diganti karena
+//   client kini punya akun; "click here" tetap membuka halaman Lacak
+//   publik bagi client yang belum punya akun).
 // - Field Email + Password gaya Mixpanel: label tebal gelap di atas
 //   field, input pill putih, border tipis, placeholder abu-abu.
 // - Satu tombol pill full-width Biru "Sign in" (hover navy).
 // - Tombol sudut kiri atas kembali ke landing page (prop onKembali).
 // - Panel foto gedung RRI di kanan DIHAPUS (template tidak punya side
 //   panel); src/lib/gedungRri.ts tetap dipakai Beranda.tsx, jangan hapus.
-// HANYA login email operator: TIDAK ada login sosial (tanpa tombol
-// Google), TIDAK ada sign-up klien, TIDAK ada alur email-first (password
-// tetap di layar yang sama), TIDAK ada Forgot password (belum ada
-// alurnya), TIDAK ada checkbox Remember (persistensi Firebase sudah
-// default). Tautan publik Ajukan TIDAK ada di halaman ini (keputusan
-// pengguna 2026-11-15). Lacak DIJANGKAU dari sini sejak 2026-11-19:
-// tautan "click here" di keterangan akses membuka halaman Lacak publik
-// (prop onLacak, disambungkan di App.tsx ke halamanPublik 'lacak').
-// KOREKSI 2026-11-15: klien tidak punya login/akun; halaman ini hanya
-// untuk Operator. Akses klien lewat Lacak (kode transaksi) dan Ajukan
-// Permohonan (form publik).
+// HANYA login email: TIDAK ada login sosial (tanpa tombol Google),
+// TIDAK ada alur email-first (password tetap di layar yang sama),
+// TIDAK ada Forgot password (belum ada alurnya), TIDAK ada checkbox
+// Remember (persistensi Firebase sudah default). SIGNUP PUBLIK
+// (keputusan pengguna 19/11/2026 16:12 WIB, menggantikan default
+// invite-only): calon klien membuat akun sendiri dari halaman ini
+// (tautan "Create account") — signup SELALU menghasilkan peran
+// 'client'; TIDAK ADA pilihan peran di form dan TIDAK ADA jalan
+// membuat akun operator lewat signup (validasi client + rules).
+// Tautan publik Ajukan TIDAK ada di halaman ini (keputusan pengguna
+// 2026-11-15). Lacak DIJANGKAU dari sini sejak 2026-11-19: tautan
+// "click here" di keterangan akses membuka halaman Lacak publik (prop
+// onLacak, disambungkan di App.tsx ke halamanPublik 'lacak').
+// KOREKSI 2026-11-15 yang lama ("klien tidak punya login/akun;
+// halaman ini hanya untuk Operator") DIBALIK keputusan 19/11/2026 —
+// halaman ini kini melayani Operator DAN Client (peran dibedakan lewat
+// field `peran` di profil; routing di App.tsx). Akses klien TANPA akun
+// tetap lewat Lacak (kode transaksi) dan form Ajukan (publik).
 // Bila Firebase terkonfigurasi: form email + kata sandi (Firebase Auth).
-// Bila belum: mode contoh dengan 1 tombol Operator dummy saja.
+// Bila belum: mode contoh dengan tombol dummy Operator DAN Client.
 // Halaman ini TIDAK menampilkan konfigurasi Firebase apa pun.
 
 import { useState } from 'react';
@@ -69,12 +79,25 @@ function Kolom({
 
 export default function Login({
   onLoginAuth,
+  onSignupAuth,
   onLoginDummy,
   onKembali,
   onLacak,
 }: {
   /** Dipanggil saat Firebase terkonfigurasi; kembalikan pesan error atau null bila sukses. */
   onLoginAuth: (email: string, kataSandi: string) => Promise<string | null>;
+  /**
+   * Dipanggil saat mode signup (Firebase terkonfigurasi); SELALU
+   * membuat akun peran 'client' (lihat daftarDenganEmail di
+   * src/lib/auth.ts) — TIDAK ADA parameter peran. Kembalikan pesan
+   * error atau null bila sukses.
+   */
+  onSignupAuth: (
+    nama: string,
+    institusi: string,
+    email: string,
+    kataSandi: string,
+  ) => Promise<string | null>;
   /** Dipanggil saat mode contoh (Firebase belum terkonfigurasi). */
   onLoginDummy: (user: DummyUser) => void;
   /** Dipanggil saat tombol kembali ditekan (kembali ke landing page). */
@@ -82,10 +105,18 @@ export default function Login({
   /** Dipanggil saat tautan "click here" di keterangan akses ditekan (buka halaman Lacak). */
   onLacak?: () => void;
 }) {
+  const [mode, setMode] = useState<'masuk' | 'daftar'>('masuk');
   const [email, setEmail] = useState('');
   const [kataSandi, setKataSandi] = useState('');
+  const [nama, setNama] = useState('');
+  const [institusi, setInstitusi] = useState('');
   const [pesanError, setPesanError] = useState<string | null>(null);
   const [sedangMasuk, setSedangMasuk] = useState(false);
+
+  function gantiMode(modeBaru: 'masuk' | 'daftar') {
+    setMode(modeBaru);
+    setPesanError(null);
+  }
 
   async function kirimForm(e: FormEvent) {
     e.preventDefault();
@@ -99,7 +130,17 @@ export default function Login({
     }
   }
 
-  const operatorDummy = DUMMY_USERS[0];
+  async function kirimDaftar(e: FormEvent) {
+    e.preventDefault();
+    setPesanError(null);
+    setSedangMasuk(true);
+    try {
+      const error = await onSignupAuth(nama, institusi, email, kataSandi);
+      if (error) setPesanError(error);
+    } finally {
+      setSedangMasuk(false);
+    }
+  }
 
   return (
     <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-[#f5f2f2] px-4 py-16">
@@ -140,93 +181,191 @@ export default function Login({
         </div>
 
         <h1 className="mt-8 text-center text-3xl font-bold text-[#0d2569]">
-          Welcome Back
+          {mode === 'daftar' ? 'Create your account' : 'Welcome Back'}
         </h1>
         <p className="mt-2 text-center text-sm text-[#0d2569]/70">
-          Enter your credentials to access your account
+          {mode === 'daftar'
+            ? 'Create a client account to track your partnership'
+            : 'Enter your credentials to access your account'}
         </p>
 
-        {/* Keterangan akses ("click here" ke Lacak, revisi pengguna 2026-11-19). */}
+        {/* Keterangan akses (dua peran 19/11/2026: client JUGA masuk
+            di sini; "click here" ke Lacak publik bagi yang belum punya
+            akun; signup publik 19/11/2026 16:12 WIB — selalu client,
+            tanpa pilihan peran). */}
         <div className="mt-6 flex items-start gap-2.5 rounded-xl border border-[#2573e2]/25 bg-white px-3.5 py-3">
           <Lock
             className="mt-0.5 h-4 w-4 shrink-0 text-[#2573e2]"
             aria-hidden
           />
-          <p className="text-xs leading-relaxed text-[#0d2569]/80">
-            Only designated officers can sign in here. If you&apos;re a
-            client, please{' '}
-            <button
-              type="button"
-              onClick={onLacak}
-              className="font-semibold text-[#2573e2] underline hover:text-[#0d2569]"
-            >
-              click here
-            </button>
-            .
-          </p>
+          {mode === 'daftar' ? (
+            <p className="text-xs leading-relaxed text-[#0d2569]/80">
+              This creates a client account — there is no role to
+              choose. After signing up, the Operator will link your
+              account to your partnership data; until then you can
+              submit a request and book a free call from your portal.
+            </p>
+          ) : (
+            <p className="text-xs leading-relaxed text-[#0d2569]/80">
+              Sign in with your account — Operators and clients sign
+              in here. After signing in, clients see their own Client
+              Portal. No account yet? Create a client account below,
+              or track your partnership by PKS or invoice number —
+              please{' '}
+              <button
+                type="button"
+                onClick={onLacak}
+                className="font-semibold text-[#2573e2] underline hover:text-[#0d2569]"
+              >
+                click here
+              </button>
+              .
+            </p>
+          )}
         </div>
 
         {isFirebaseConfigured ? (
-          <form onSubmit={kirimForm} className="mt-6 space-y-5">
-            <Kolom
-              label="Email"
-              id="login-email"
-              type="email"
-              required
-              autoComplete="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="your email address"
-            />
-            <Kolom
-              label="Password"
-              id="login-password"
-              type="password"
-              required
-              autoComplete="current-password"
-              value={kataSandi}
-              onChange={(e) => setKataSandi(e.target.value)}
-              placeholder="Password"
-            />
-            {pesanError && (
-              <p className="rounded-md bg-[#2573e2]/10 px-3 py-2 text-sm font-semibold text-[#0d2569]">
-                {pesanError}
+          mode === 'daftar' ? (
+            <form onSubmit={kirimDaftar} className="mt-6 space-y-5">
+              <Kolom
+                label="Your name"
+                id="signup-nama"
+                type="text"
+                required
+                autoComplete="name"
+                value={nama}
+                onChange={(e) => setNama(e.target.value)}
+                placeholder="Your full name"
+              />
+              <Kolom
+                label="Company / institution"
+                id="signup-institusi"
+                type="text"
+                required
+                autoComplete="organization"
+                value={institusi}
+                onChange={(e) => setInstitusi(e.target.value)}
+                placeholder="Your company or institution"
+              />
+              <Kolom
+                label="Email"
+                id="signup-email"
+                type="email"
+                required
+                autoComplete="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="your email address"
+              />
+              <Kolom
+                label="Password"
+                id="signup-password"
+                type="password"
+                required
+                autoComplete="new-password"
+                minLength={6}
+                value={kataSandi}
+                onChange={(e) => setKataSandi(e.target.value)}
+                placeholder="At least 6 characters"
+              />
+              {pesanError && (
+                <p className="rounded-md bg-[#2573e2]/10 px-3 py-2 text-sm font-semibold text-[#0d2569]">
+                  {pesanError}
+                </p>
+              )}
+              <button
+                type="submit"
+                disabled={sedangMasuk}
+                className="w-full rounded-full bg-[#2573e2] px-4 py-3 text-sm font-bold text-white hover:bg-[#0d2569] disabled:opacity-60"
+              >
+                {sedangMasuk ? 'Creating…' : 'Create account'}
+              </button>
+              <p className="text-center text-sm text-[#0d2569]/70">
+                Already have an account?{' '}
+                <button
+                  type="button"
+                  onClick={() => gantiMode('masuk')}
+                  className="font-semibold text-[#2573e2] underline hover:text-[#0d2569]"
+                >
+                  Sign in
+                </button>
               </p>
-            )}
-            <button
-              type="submit"
-              disabled={sedangMasuk}
-              className="w-full rounded-full bg-[#2573e2] px-4 py-3 text-sm font-bold text-white hover:bg-[#0d2569] disabled:opacity-60"
-            >
-              {sedangMasuk ? 'Checking…' : 'Sign in'}
-            </button>
-          </form>
+            </form>
+          ) : (
+            <form onSubmit={kirimForm} className="mt-6 space-y-5">
+              <Kolom
+                label="Email"
+                id="login-email"
+                type="email"
+                required
+                autoComplete="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="your email address"
+              />
+              <Kolom
+                label="Password"
+                id="login-password"
+                type="password"
+                required
+                autoComplete="current-password"
+                value={kataSandi}
+                onChange={(e) => setKataSandi(e.target.value)}
+                placeholder="Password"
+              />
+              {pesanError && (
+                <p className="rounded-md bg-[#2573e2]/10 px-3 py-2 text-sm font-semibold text-[#0d2569]">
+                  {pesanError}
+                </p>
+              )}
+              <button
+                type="submit"
+                disabled={sedangMasuk}
+                className="w-full rounded-full bg-[#2573e2] px-4 py-3 text-sm font-bold text-white hover:bg-[#0d2569] disabled:opacity-60"
+              >
+                {sedangMasuk ? 'Checking…' : 'Sign in'}
+              </button>
+              <p className="text-center text-sm text-[#0d2569]/70">
+                No account yet?{' '}
+                <button
+                  type="button"
+                  onClick={() => gantiMode('daftar')}
+                  className="font-semibold text-[#2573e2] underline hover:text-[#0d2569]"
+                >
+                  Create account
+                </button>
+              </p>
+            </form>
+          )
         ) : (
           <>
             <div className="mt-6">
-              <Peringatan teks="Sample mode — sign in as Operator (Sample). In production, sign-in uses Firebase Auth; this dummy profile is only for development." />
+              <Peringatan teks="Sample mode — sign in as Operator (Sample) or Client (Sample). In production, sign-in uses Firebase Auth; these dummy profiles are only for development." />
             </div>
             <p className="mt-6 text-sm font-semibold text-[#0d2569]">
               Sign in as (Sample):
             </p>
-            <div className="mt-3">
-              <button
-                type="button"
-                onClick={() => onLoginDummy(operatorDummy)}
-                className="w-full rounded-md border border-[#2573e2]/20 bg-white p-4 text-left hover:border-[#2573e2] hover:bg-[#2573e2]/5"
-              >
-                <p className="text-sm font-bold text-[#0d2569]">
-                  {operatorDummy.nama}
-                </p>
-                <p className="mt-1 text-xs text-[#0d2569]/70">
-                  {labelJabatan(operatorDummy.jabatan)}
-                </p>
-                <p className="mt-2">
-                  <span className="inline-flex items-center gap-1 rounded bg-[#2573e2]/10 px-2 py-0.5 text-xs font-semibold text-[#0d2569]">
-                    {LABEL_PERAN[operatorDummy.peran]}
-                  </span>
-                </p>
-              </button>
+            <div className="mt-3 space-y-3">
+              {DUMMY_USERS.map((pengguna) => (
+                <button
+                  key={pengguna.peran}
+                  type="button"
+                  onClick={() => onLoginDummy(pengguna)}
+                  className="w-full rounded-md border border-[#2573e2]/20 bg-white p-4 text-left hover:border-[#2573e2] hover:bg-[#2573e2]/5"
+                >
+                  <p className="text-sm font-bold text-[#0d2569]">
+                    {pengguna.nama}
+                  </p>
+                  <p className="mt-1 text-xs text-[#0d2569]/70">
+                    {labelJabatan(pengguna.jabatan)}
+                  </p>
+                  <p className="mt-2">
+                    <span className="inline-flex items-center gap-1 rounded bg-[#2573e2]/10 px-2 py-0.5 text-xs font-semibold text-[#0d2569]">
+                      {LABEL_PERAN[pengguna.peran]}
+                    </span>
+                  </p>
+                </button>
+              ))}
             </div>
             <p className="mt-6 text-center text-xs text-[#0d2569]/60">
               No password — sample mode is for development only{' '}

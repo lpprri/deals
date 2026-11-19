@@ -1,7 +1,11 @@
 // Lapisan data Firestore — aktivasi Firebase aplikasi "Partnership LPP RRI".
 // (PRD v2.0 Final + Amandemen v2.1; keputusan pengguna 14/11/2026 21:29 WIB:
-// HANYA ADA 1 ROLE — Operator, staf Layanan & Pengembangan Usaha. Lapisan
-// ini tidak mengenal peran lain; yang dikenal hanya satker pengguna.)
+// HANYA ADA 1 ROLE — Operator, staf Layanan & Pengembangan Usaha — DIBALIK
+// keputusan pengguna 19/11/2026 15:45 WIB: DUA peran, operator + client,
+// satu halaman login; client membaca HANYA datanya sendiri lewat
+// muatDataKlien() di bawah, ditegakkan firestore.rules. Lapisan ini
+// mengenal peran lewat klienId yang dibawa pemanggil, bukan lewat
+// pengecekan peran sendiri.)
 //
 // TIGA MODE DATA (pemanggil — App.tsx — yang memilih; modul ini tidak
 // mengubah derive.ts atau logika hitung apa pun):
@@ -228,6 +232,127 @@ export async function muatDariFirestore(
       );
     }),
   );
+  return hasil as AppData;
+}
+
+/**
+ * Muat data SATU client dari Firestore (dua peran 19/11/2026).
+ * Dipakai App.tsx bila pengguna yang login berperan 'client'.
+ * - Bila `meta/migrasi` TIDAK ada → null (pemanggil memakai DATA_NYATA
+ *   dengan label mode (b), seperti operator).
+ * - Hanya koleksi yang punya `klienId` yang dibaca, dan hanya dokumen
+ *   dengan klienId sama dengan klienId akun ini: klien (get per id),
+ *   kontrak, tagihan, pembayaran, denda, mou, commitment, dokumen,
+ *   pengajuanKlien. Koleksi lain dikembalikan KOSONG — client tidak
+ *   melihat sewa, prospect, order, meeting, audit, master, dan
+ *   koleksi operator lainnya.
+ * - Query SELALU memfilter `klienId` + `satker.kode` (kecuali `dokumen`
+ *   yang tidak punya satker — filter klienId saja, dan `klien` yang
+ *   dibaca get per id): aturan Firestore baca-klien MENUNTUT filter
+ *   itu — query tanpa filter klienId DITOLAK rules meski datanya
+ *   memang milik client (aturan list tidak bisa membedakan). Indeks
+ *   komposit (klienId + satker.kode) WAJIB dibuat di console untuk
+ *   tiap koleksi di atas (kecuali dokumen/klien); tanpa indeks, query
+ *   gagal dengan tautan pembuatan indeks di pesan error.
+ * - pengajuanKlien dibaca dua query (klienId + satker, DAN dibuatOleh
+ *   + satker) lalu digabung tanpa duplikat: submission lama yang
+ *   dibuat client itu sebelum punya akun (klienId '') tetap terlihat
+ *   lewat email pembuatnya.
+ * - `klienId` di sini BUKAN input pengguna — pemanggil mengambilnya
+ *   dari profil `users/{uid}` yang sudah tervalidasi (peranDariProfil).
+ */
+export async function muatDataKlien(
+  db: Firestore,
+  satkerKode: string,
+  klienId: string,
+  dibuatOlehEmail?: string,
+): Promise<AppData | null> {
+  if (!(await cekSudahDimigrasi(db))) return null;
+  const hasil = {} as Record<keyof AppData, unknown[]>;
+  for (const kunci of Object.keys(KOLEKSI) as (keyof AppData)[]) {
+    hasil[kunci] = [];
+  }
+  const bacaTersaring = async <K extends keyof AppData>(
+    kunci: K,
+    filterKlien: boolean,
+  ): Promise<void> => {
+    const ref = collection(db, KOLEKSI[kunci]);
+    const snap = filterKlien
+      ? await getDocs(
+          query(
+            ref,
+            where('klienId', '==', klienId),
+            where('satker.kode', '==', satkerKode),
+          ),
+        )
+      : await getDocs(query(ref, where('klienId', '==', klienId)));
+    hasil[kunci] = snap.docs.map((d) =>
+      normalisasiEntitas(kunci, d.id, d.data() as Record<string, unknown>, satkerKode),
+    );
+  };
+  // Record klien sendiri — get per id (bukan list: aturan melarang
+  // list klien untuk client).
+  const snapKlien = await getDoc(doc(db, KOLEKSI.klien, kodeIdDokumen(klienId)));
+  if (snapKlien.exists()) {
+    const entitas = normalisasiEntitas(
+      'klien',
+      snapKlien.id,
+      snapKlien.data() as Record<string, unknown>,
+      satkerKode,
+    );
+    if ((entitas as { satker?: { kode?: string } }).satker?.kode === satkerKode) {
+      hasil.klien = [entitas];
+    }
+  }
+  await Promise.all([
+    bacaTersaring('kontrak', true),
+    bacaTersaring('tagihan', true),
+    bacaTersaring('pembayaran', true),
+    bacaTersaring('denda', true),
+    bacaTersaring('mou', true),
+    bacaTersaring('commitment', true),
+    // dokumen tidak punya field satker — filter klienId saja.
+    bacaTersaring('dokumen', false),
+  ]);
+  // pengajuanKlien: milik client lewat klienId ATAU lewat email
+  // pembuat (submission publik sebelum punya akun).
+  const snapPengajuanKlienId = await getDocs(
+    query(
+      collection(db, KOLEKSI.pengajuanKlien),
+      where('klienId', '==', klienId),
+      where('satker.kode', '==', satkerKode),
+    ),
+  );
+  const pengajuan = snapPengajuanKlienId.docs.map((d) =>
+    normalisasiEntitas(
+      'pengajuanKlien',
+      d.id,
+      d.data() as Record<string, unknown>,
+      satkerKode,
+    ),
+  );
+  if (dibuatOlehEmail) {
+    const snapPengajuanEmail = await getDocs(
+      query(
+        collection(db, KOLEKSI.pengajuanKlien),
+        where('dibuatOleh', '==', dibuatOlehEmail),
+        where('satker.kode', '==', satkerKode),
+      ),
+    );
+    const sudahAda = new Set(pengajuan.map((p) => p.id));
+    for (const d of snapPengajuanEmail.docs) {
+      if (sudahAda.has(d.id)) continue;
+      pengajuan.push(
+        normalisasiEntitas(
+          'pengajuanKlien',
+          d.id,
+          d.data() as Record<string, unknown>,
+          satkerKode,
+        ),
+      );
+    }
+  }
+  hasil.pengajuanKlien = pengajuan;
   return hasil as AppData;
 }
 

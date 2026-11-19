@@ -2312,24 +2312,28 @@ export const DATA_NYATA: AppData = {
   dokumen: [
   {
     "id": "DOK-1-K",
+    "klienId": "KLN-001",
     "kontrakId": "0603/PKS/RRI.PLB/01/2026",
     "jenisDokumen": "PKS (asli)",
     "status": "Ada"
   },
   {
     "id": "DOK-1-M",
+    "klienId": "KLN-001",
     "kontrakId": "0603/PKS/RRI.PLB/01/2026",
     "jenisDokumen": "Billing Pembayaran",
     "status": "Ada"
   },
   {
     "id": "DOK-1-N",
+    "klienId": "KLN-001",
     "kontrakId": "0603/PKS/RRI.PLB/01/2026",
     "jenisDokumen": "Kwitansi Pembayaran",
     "status": "Ada"
   },
   {
     "id": "DOK-1-O",
+    "klienId": "KLN-001",
     "kontrakId": "0603/PKS/RRI.PLB/01/2026",
     "jenisDokumen": "Surat Penagihan",
     "status": "Belum Ada",
@@ -2337,18 +2341,21 @@ export const DATA_NYATA: AppData = {
   },
   {
     "id": "DOK-2-K",
+    "klienId": "KLN-002",
     "kontrakId": "001/PKS/DIR.LPU/01/2026",
     "jenisDokumen": "PKS (asli)",
     "status": "Ada"
   },
   {
     "id": "DOK-2-M",
+    "klienId": "KLN-002",
     "kontrakId": "001/PKS/DIR.LPU/01/2026",
     "jenisDokumen": "Billing Pembayaran",
     "status": "Ada"
   },
   {
     "id": "DOK-2-N",
+    "klienId": "KLN-002",
     "kontrakId": "001/PKS/DIR.LPU/01/2026",
     "jenisDokumen": "Kwitansi Pembayaran",
     "status": "Belum Ada",
@@ -2356,6 +2363,7 @@ export const DATA_NYATA: AppData = {
   },
   {
     "id": "DOK-2-O",
+    "klienId": "KLN-002",
     "kontrakId": "001/PKS/DIR.LPU/01/2026",
     "jenisDokumen": "Surat Penagihan",
     "status": "Belum Ada",
@@ -2363,24 +2371,28 @@ export const DATA_NYATA: AppData = {
   },
   {
     "id": "DOK-3-K",
+    "klienId": "KLN-003",
     "kontrakId": "1051/PKS/RRI.PLB/02/2026",
     "jenisDokumen": "PKS (asli)",
     "status": "Ada"
   },
   {
     "id": "DOK-3-M",
+    "klienId": "KLN-003",
     "kontrakId": "1051/PKS/RRI.PLB/02/2026",
     "jenisDokumen": "Billing Pembayaran",
     "status": "Ada"
   },
   {
     "id": "DOK-3-N",
+    "klienId": "KLN-003",
     "kontrakId": "1051/PKS/RRI.PLB/02/2026",
     "jenisDokumen": "Kwitansi Pembayaran",
     "status": "Ada"
   },
   {
     "id": "DOK-3-O",
+    "klienId": "KLN-003",
     "kontrakId": "1051/PKS/RRI.PLB/02/2026",
     "jenisDokumen": "Surat Penagihan",
     "status": "Belum Ada",
@@ -2388,30 +2400,35 @@ export const DATA_NYATA: AppData = {
   },
   {
     "id": "DOK-3-S",
+    "klienId": "KLN-003",
     "kontrakId": "1051/PKS/RRI.PLB/02/2026",
     "jenisDokumen": "Permohonan Sewa",
     "status": "Ada"
   },
   {
     "id": "DOK-4-K",
+    "klienId": "KLN-004",
     "kontrakId": "1052/PKS/RRI.PLB/02/2026",
     "jenisDokumen": "PKS (asli)",
     "status": "Ada"
   },
   {
     "id": "DOK-4-M",
+    "klienId": "KLN-004",
     "kontrakId": "1052/PKS/RRI.PLB/02/2026",
     "jenisDokumen": "Billing Pembayaran",
     "status": "Ada"
   },
   {
     "id": "DOK-4-N",
+    "klienId": "KLN-004",
     "kontrakId": "1052/PKS/RRI.PLB/02/2026",
     "jenisDokumen": "Kwitansi Pembayaran",
     "status": "Ada"
   },
   {
     "id": "DOK-4-O",
+    "klienId": "KLN-004",
     "kontrakId": "1052/PKS/RRI.PLB/02/2026",
     "jenisDokumen": "Surat Penagihan",
     "status": "Belum Ada",
@@ -2419,30 +2436,35 @@ export const DATA_NYATA: AppData = {
   },
   {
     "id": "DOK-4-S",
+    "klienId": "KLN-004",
     "kontrakId": "1052/PKS/RRI.PLB/02/2026",
     "jenisDokumen": "Permohonan Sewa",
     "status": "Ada"
   },
   {
     "id": "DOK-5-K",
+    "klienId": "KLN-005",
     "kontrakId": "1053/PKS/RRI.PLB/02/2026",
     "jenisDokumen": "PKS (asli)",
     "status": "Ada"
   },
   {
     "id": "DOK-5-M",
+    "klienId": "KLN-005",
     "kontrakId": "1053/PKS/RRI.PLB/02/2026",
     "jenisDokumen": "Billing Pembayaran",
     "status": "Ada"
   },
   {
     "id": "DOK-5-N",
+    "klienId": "KLN-005",
     "kontrakId": "1053/PKS/RRI.PLB/02/2026",
     "jenisDokumen": "Kwitansi Pembayaran",
     "status": "Ada"
   },
   {
     "id": "DOK-5-O",
+    "klienId": "KLN-005",
     "kontrakId": "1053/PKS/RRI.PLB/02/2026",
     "jenisDokumen": "Surat Penagihan",
     "status": "Belum Ada",
@@ -2450,12 +2472,14 @@ export const DATA_NYATA: AppData = {
   },
   {
     "id": "DOK-5-S",
+    "klienId": "KLN-005",
     "kontrakId": "1053/PKS/RRI.PLB/02/2026",
     "jenisDokumen": "Permohonan Sewa",
     "status": "Ada"
   },
   {
     "id": "DOK-6-K",
+    "klienId": "KLN-006",
     "kontrakId": "1494/PKS/RRI.PLB/02/2026",
     "jenisDokumen": "PKS (asli)",
     "status": "Ada",
@@ -2463,12 +2487,14 @@ export const DATA_NYATA: AppData = {
   },
   {
     "id": "DOK-6-M",
+    "klienId": "KLN-006",
     "kontrakId": "1494/PKS/RRI.PLB/02/2026",
     "jenisDokumen": "Billing Pembayaran",
     "status": "Ada"
   },
   {
     "id": "DOK-6-N",
+    "klienId": "KLN-006",
     "kontrakId": "1494/PKS/RRI.PLB/02/2026",
     "jenisDokumen": "Kwitansi Pembayaran",
     "status": "Belum Ada",
@@ -2476,6 +2502,7 @@ export const DATA_NYATA: AppData = {
   },
   {
     "id": "DOK-6-O",
+    "klienId": "KLN-006",
     "kontrakId": "1494/PKS/RRI.PLB/02/2026",
     "jenisDokumen": "Surat Penagihan",
     "status": "Ada",
@@ -2483,24 +2510,28 @@ export const DATA_NYATA: AppData = {
   },
   {
     "id": "DOK-6-S",
+    "klienId": "KLN-006",
     "kontrakId": "1494/PKS/RRI.PLB/02/2026",
     "jenisDokumen": "Permohonan Sewa",
     "status": "Ada"
   },
   {
     "id": "DOK-7-K",
+    "klienId": "KLN-007",
     "kontrakId": "1497/PKS/RRI.PLB/02/2026",
     "jenisDokumen": "PKS (asli)",
     "status": "Ada"
   },
   {
     "id": "DOK-7-M",
+    "klienId": "KLN-007",
     "kontrakId": "1497/PKS/RRI.PLB/02/2026",
     "jenisDokumen": "Billing Pembayaran",
     "status": "Ada"
   },
   {
     "id": "DOK-7-N",
+    "klienId": "KLN-007",
     "kontrakId": "1497/PKS/RRI.PLB/02/2026",
     "jenisDokumen": "Kwitansi Pembayaran",
     "status": "Belum Ada",
@@ -2508,6 +2539,7 @@ export const DATA_NYATA: AppData = {
   },
   {
     "id": "DOK-7-O",
+    "klienId": "KLN-007",
     "kontrakId": "1497/PKS/RRI.PLB/02/2026",
     "jenisDokumen": "Surat Penagihan",
     "status": "Belum Ada",
@@ -2515,12 +2547,14 @@ export const DATA_NYATA: AppData = {
   },
   {
     "id": "DOK-7-S",
+    "klienId": "KLN-007",
     "kontrakId": "1497/PKS/RRI.PLB/02/2026",
     "jenisDokumen": "Permohonan Sewa",
     "status": "Ada"
   },
   {
     "id": "DOK-8-K",
+    "klienId": "KLN-008",
     "kontrakId": "1744/PKS/RRI.PLB/03/2026",
     "jenisDokumen": "PKS (asli)",
     "status": "Ada",
@@ -2528,6 +2562,7 @@ export const DATA_NYATA: AppData = {
   },
   {
     "id": "DOK-8-M",
+    "klienId": "KLN-008",
     "kontrakId": "1744/PKS/RRI.PLB/03/2026",
     "jenisDokumen": "Billing Pembayaran",
     "status": "Belum Ada",
@@ -2535,6 +2570,7 @@ export const DATA_NYATA: AppData = {
   },
   {
     "id": "DOK-8-N",
+    "klienId": "KLN-008",
     "kontrakId": "1744/PKS/RRI.PLB/03/2026",
     "jenisDokumen": "Kwitansi Pembayaran",
     "status": "Belum Ada",
@@ -2542,6 +2578,7 @@ export const DATA_NYATA: AppData = {
   },
   {
     "id": "DOK-8-O",
+    "klienId": "KLN-008",
     "kontrakId": "1744/PKS/RRI.PLB/03/2026",
     "jenisDokumen": "Surat Penagihan",
     "status": "Belum Ada",
@@ -2549,12 +2586,14 @@ export const DATA_NYATA: AppData = {
   },
   {
     "id": "DOK-9-K",
+    "klienId": "KLN-009",
     "kontrakId": "1745/PKS/RRI.PLB/03/2026",
     "jenisDokumen": "PKS (asli)",
     "status": "Ada"
   },
   {
     "id": "DOK-9-M",
+    "klienId": "KLN-009",
     "kontrakId": "1745/PKS/RRI.PLB/03/2026",
     "jenisDokumen": "Billing Pembayaran",
     "status": "Belum Ada",
@@ -2562,6 +2601,7 @@ export const DATA_NYATA: AppData = {
   },
   {
     "id": "DOK-9-N",
+    "klienId": "KLN-009",
     "kontrakId": "1745/PKS/RRI.PLB/03/2026",
     "jenisDokumen": "Kwitansi Pembayaran",
     "status": "Belum Ada",
@@ -2569,6 +2609,7 @@ export const DATA_NYATA: AppData = {
   },
   {
     "id": "DOK-9-O",
+    "klienId": "KLN-009",
     "kontrakId": "1745/PKS/RRI.PLB/03/2026",
     "jenisDokumen": "Surat Penagihan",
     "status": "Belum Ada",
@@ -2576,18 +2617,21 @@ export const DATA_NYATA: AppData = {
   },
   {
     "id": "DOK-10-K",
+    "klienId": "KLN-010",
     "kontrakId": "1746/PKS/RRI.PLB/03/2026",
     "jenisDokumen": "PKS (asli)",
     "status": "Ada"
   },
   {
     "id": "DOK-10-M",
+    "klienId": "KLN-010",
     "kontrakId": "1746/PKS/RRI.PLB/03/2026",
     "jenisDokumen": "Billing Pembayaran",
     "status": "Ada"
   },
   {
     "id": "DOK-10-N",
+    "klienId": "KLN-010",
     "kontrakId": "1746/PKS/RRI.PLB/03/2026",
     "jenisDokumen": "Kwitansi Pembayaran",
     "status": "Belum Ada",
@@ -2595,6 +2639,7 @@ export const DATA_NYATA: AppData = {
   },
   {
     "id": "DOK-10-O",
+    "klienId": "KLN-010",
     "kontrakId": "1746/PKS/RRI.PLB/03/2026",
     "jenisDokumen": "Surat Penagihan",
     "status": "Belum Ada",
@@ -2602,6 +2647,7 @@ export const DATA_NYATA: AppData = {
   },
   {
     "id": "DOK-11-K",
+    "klienId": "KLN-011",
     "kontrakId": "2036/PKS/RRI.PLB/03/2026#010",
     "jenisDokumen": "PKS (asli)",
     "status": "Ada",
@@ -2609,6 +2655,7 @@ export const DATA_NYATA: AppData = {
   },
   {
     "id": "DOK-11-M",
+    "klienId": "KLN-011",
     "kontrakId": "2036/PKS/RRI.PLB/03/2026#010",
     "jenisDokumen": "Billing Pembayaran",
     "status": "Belum Ada",
@@ -2616,6 +2663,7 @@ export const DATA_NYATA: AppData = {
   },
   {
     "id": "DOK-11-N",
+    "klienId": "KLN-011",
     "kontrakId": "2036/PKS/RRI.PLB/03/2026#010",
     "jenisDokumen": "Kwitansi Pembayaran",
     "status": "Belum Ada",
@@ -2623,6 +2671,7 @@ export const DATA_NYATA: AppData = {
   },
   {
     "id": "DOK-11-O",
+    "klienId": "KLN-011",
     "kontrakId": "2036/PKS/RRI.PLB/03/2026#010",
     "jenisDokumen": "Surat Penagihan",
     "status": "Belum Ada",
@@ -2630,6 +2679,7 @@ export const DATA_NYATA: AppData = {
   },
   {
     "id": "DOK-12-K",
+    "klienId": "KLN-012",
     "kontrakId": "2036/PKS/RRI.PLB/03/2026#011",
     "jenisDokumen": "PKS (asli)",
     "status": "Ada",
@@ -2637,12 +2687,14 @@ export const DATA_NYATA: AppData = {
   },
   {
     "id": "DOK-12-M",
+    "klienId": "KLN-012",
     "kontrakId": "2036/PKS/RRI.PLB/03/2026#011",
     "jenisDokumen": "Billing Pembayaran",
     "status": "Ada"
   },
   {
     "id": "DOK-12-N",
+    "klienId": "KLN-012",
     "kontrakId": "2036/PKS/RRI.PLB/03/2026#011",
     "jenisDokumen": "Kwitansi Pembayaran",
     "status": "Belum Ada",
@@ -2650,6 +2702,7 @@ export const DATA_NYATA: AppData = {
   },
   {
     "id": "DOK-12-O",
+    "klienId": "KLN-012",
     "kontrakId": "2036/PKS/RRI.PLB/03/2026#011",
     "jenisDokumen": "Surat Penagihan",
     "status": "Belum Ada",
@@ -2657,6 +2710,7 @@ export const DATA_NYATA: AppData = {
   },
   {
     "id": "DOK-12-M2",
+    "klienId": "KLN-012",
     "kontrakId": "2036/PKS/RRI.PLB/03/2026#011",
     "jenisDokumen": "Billing Pembayaran",
     "status": "Ada",
@@ -2664,30 +2718,35 @@ export const DATA_NYATA: AppData = {
   },
   {
     "id": "DOK-13-K",
+    "klienId": "KLN-013",
     "kontrakId": "2605/PKS/RRI.PLB/04/2026",
     "jenisDokumen": "PKS (asli)",
     "status": "Ada"
   },
   {
     "id": "DOK-13-M",
+    "klienId": "KLN-013",
     "kontrakId": "2605/PKS/RRI.PLB/04/2026",
     "jenisDokumen": "Billing Pembayaran",
     "status": "Ada"
   },
   {
     "id": "DOK-14-K",
+    "klienId": "KLN-014",
     "kontrakId": "2919/PKS/RRI.PLB/04/2026",
     "jenisDokumen": "PKS (asli)",
     "status": "Ada"
   },
   {
     "id": "DOK-14-M",
+    "klienId": "KLN-014",
     "kontrakId": "2919/PKS/RRI.PLB/04/2026",
     "jenisDokumen": "Billing Pembayaran",
     "status": "Ada"
   },
   {
     "id": "DOK-15-K",
+    "klienId": "KLN-015",
     "kontrakId": "2920/PKS/RRI.PLB/04/2026",
     "jenisDokumen": "PKS (asli)",
     "status": "Ada",
@@ -2695,60 +2754,70 @@ export const DATA_NYATA: AppData = {
   },
   {
     "id": "DOK-15-M",
+    "klienId": "KLN-015",
     "kontrakId": "2920/PKS/RRI.PLB/04/2026",
     "jenisDokumen": "Billing Pembayaran",
     "status": "Ada"
   },
   {
     "id": "DOK-16-K",
+    "klienId": "KLN-016",
     "kontrakId": "3669/PKS/RRI.PLB/04/2026",
     "jenisDokumen": "PKS (asli)",
     "status": "Ada"
   },
   {
     "id": "DOK-16-M",
+    "klienId": "KLN-016",
     "kontrakId": "3669/PKS/RRI.PLB/04/2026",
     "jenisDokumen": "Billing Pembayaran",
     "status": "Ada"
   },
   {
     "id": "DOK-17-K",
+    "klienId": "KLN-001",
     "kontrakId": "3981/PKS/RRI.PLB/05/2026",
     "jenisDokumen": "PKS (asli)",
     "status": "Ada"
   },
   {
     "id": "DOK-17-M",
+    "klienId": "KLN-001",
     "kontrakId": "3981/PKS/RRI.PLB/05/2026",
     "jenisDokumen": "Billing Pembayaran",
     "status": "Ada"
   },
   {
     "id": "DOK-18-K",
+    "klienId": "KLN-017",
     "kontrakId": "4720/PKS/RRI.PLB/06/2026",
     "jenisDokumen": "PKS (asli)",
     "status": "Ada"
   },
   {
     "id": "DOK-18-M",
+    "klienId": "KLN-017",
     "kontrakId": "4720/PKS/RRI.PLB/06/2026",
     "jenisDokumen": "Billing Pembayaran",
     "status": "Ada"
   },
   {
     "id": "DOK-18-S",
+    "klienId": "KLN-017",
     "kontrakId": "4720/PKS/RRI.PLB/06/2026",
     "jenisDokumen": "Permohonan Sewa",
     "status": "Ada"
   },
   {
     "id": "DOK-19-K",
+    "klienId": "KLN-018",
     "kontrakId": "4747/PKS/RRI.PLB/06/2026",
     "jenisDokumen": "PKS (asli)",
     "status": "Ada"
   },
   {
     "id": "DOK-19-M",
+    "klienId": "KLN-018",
     "kontrakId": "4747/PKS/RRI.PLB/06/2026",
     "jenisDokumen": "Billing Pembayaran",
     "status": "Belum Ada",
@@ -2756,12 +2825,14 @@ export const DATA_NYATA: AppData = {
   },
   {
     "id": "DOK-20-K",
+    "klienId": "KLN-019",
     "kontrakId": "4842/PKS/RRI.PLB/06/2026",
     "jenisDokumen": "PKS (asli)",
     "status": "Ada"
   },
   {
     "id": "DOK-20-M",
+    "klienId": "KLN-019",
     "kontrakId": "4842/PKS/RRI.PLB/06/2026",
     "jenisDokumen": "Billing Pembayaran",
     "status": "Belum Ada",
@@ -2769,6 +2840,7 @@ export const DATA_NYATA: AppData = {
   },
   {
     "id": "DOK-21-K",
+    "klienId": "KLN-020",
     "kontrakId": "4873/PKS/RRI.PLB/06/2026",
     "jenisDokumen": "PKS (asli)",
     "status": "Ada",
@@ -2776,6 +2848,7 @@ export const DATA_NYATA: AppData = {
   },
   {
     "id": "DOK-21-M",
+    "klienId": "KLN-020",
     "kontrakId": "4873/PKS/RRI.PLB/06/2026",
     "jenisDokumen": "Billing Pembayaran",
     "status": "Belum Ada",
@@ -2783,24 +2856,28 @@ export const DATA_NYATA: AppData = {
   },
   {
     "id": "DOK-22-K",
+    "klienId": "KLN-021",
     "kontrakId": "5350/PKS/RRI.PLB/06/2026",
     "jenisDokumen": "PKS (asli)",
     "status": "Ada"
   },
   {
     "id": "DOK-23-K",
+    "klienId": "KLN-022",
     "kontrakId": "5390/PKS/RRI.PLB/06/2026",
     "jenisDokumen": "PKS (asli)",
     "status": "Ada"
   },
   {
     "id": "DOK-24-K",
+    "klienId": "KLN-023",
     "kontrakId": "5391/PKS/RRI.PLB/06/2026",
     "jenisDokumen": "PKS (asli)",
     "status": "Ada"
   },
   {
     "id": "DOK-25-K",
+    "klienId": "KLN-013",
     "kontrakId": "5483/PKS/RRI.PLB/06/2026",
     "jenisDokumen": "PKS (asli)",
     "status": "Ada",
@@ -2808,18 +2885,21 @@ export const DATA_NYATA: AppData = {
   },
   {
     "id": "DOK-26-K",
+    "klienId": "KLN-012",
     "kontrakId": "5484/PKS/RRI.PLB/06/2026",
     "jenisDokumen": "PKS (asli)",
     "status": "Ada"
   },
   {
     "id": "DOK-27-K",
+    "klienId": "KLN-012",
     "kontrakId": "5592/PKS/RRI.PLB/06/2026",
     "jenisDokumen": "PKS (asli)",
     "status": "Ada"
   },
   {
     "id": "DOK-28-K",
+    "klienId": "KLN-024",
     "kontrakId": "6593/PKS/RRI.PLB/07/2026",
     "jenisDokumen": "PKS (asli)",
     "status": "Ada",
@@ -2827,6 +2907,7 @@ export const DATA_NYATA: AppData = {
   },
   {
     "id": "DOK-29-K",
+    "klienId": "KLN-025",
     "kontrakId": "7051/PKS/RRI.PLB/07/2026",
     "jenisDokumen": "PKS (asli)",
     "status": "Ada",
@@ -2834,12 +2915,14 @@ export const DATA_NYATA: AppData = {
   },
   {
     "id": "DOK-29-S",
+    "klienId": "KLN-025",
     "kontrakId": "7051/PKS/RRI.PLB/07/2026",
     "jenisDokumen": "Permohonan Sewa",
     "status": "Ada"
   },
   {
     "id": "DOK-30-K",
+    "klienId": "KLN-026",
     "kontrakId": "7052/PKS/RRI.PLB/07/2026",
     "jenisDokumen": "PKS (asli)",
     "status": "Ada",
@@ -2847,24 +2930,28 @@ export const DATA_NYATA: AppData = {
   },
   {
     "id": "DOK-30-S",
+    "klienId": "KLN-026",
     "kontrakId": "7052/PKS/RRI.PLB/07/2026",
     "jenisDokumen": "Permohonan Sewa",
     "status": "Ada"
   },
   {
     "id": "DOK-31-K",
+    "klienId": "KLN-026",
     "kontrakId": "7053/PKS/RRI.PLB/07/2026",
     "jenisDokumen": "PKS (asli)",
     "status": "Ada"
   },
   {
     "id": "DOK-31-S",
+    "klienId": "KLN-026",
     "kontrakId": "7053/PKS/RRI.PLB/07/2026",
     "jenisDokumen": "Permohonan Sewa",
     "status": "Ada"
   },
   {
     "id": "DOK-32-K",
+    "klienId": "KLN-027",
     "kontrakId": "7054/PKS/RRI.PLB/07/2026",
     "jenisDokumen": "PKS (asli)",
     "status": "Ada",
@@ -2872,24 +2959,28 @@ export const DATA_NYATA: AppData = {
   },
   {
     "id": "DOK-32-S",
+    "klienId": "KLN-027",
     "kontrakId": "7054/PKS/RRI.PLB/07/2026",
     "jenisDokumen": "Permohonan Sewa",
     "status": "Ada"
   },
   {
     "id": "DOK-33-K",
+    "klienId": "KLN-027",
     "kontrakId": "7055/PKS/RRI.PLB/07/2026",
     "jenisDokumen": "PKS (asli)",
     "status": "Ada"
   },
   {
     "id": "DOK-33-S",
+    "klienId": "KLN-027",
     "kontrakId": "7055/PKS/RRI.PLB/07/2026",
     "jenisDokumen": "Permohonan Sewa",
     "status": "Ada"
   },
   {
     "id": "DOK-34-K",
+    "klienId": "KLN-028",
     "kontrakId": "7060/PKS/RRI.PLB/07/2026",
     "jenisDokumen": "PKS (asli)",
     "status": "Ada",
@@ -2897,24 +2988,28 @@ export const DATA_NYATA: AppData = {
   },
   {
     "id": "DOK-34-S",
+    "klienId": "KLN-028",
     "kontrakId": "7060/PKS/RRI.PLB/07/2026",
     "jenisDokumen": "Permohonan Sewa",
     "status": "Ada"
   },
   {
     "id": "DOK-35-K",
+    "klienId": "KLN-028",
     "kontrakId": "7061/PKS/RRI.PLB/07/2026",
     "jenisDokumen": "PKS (asli)",
     "status": "Ada"
   },
   {
     "id": "DOK-35-S",
+    "klienId": "KLN-028",
     "kontrakId": "7061/PKS/RRI.PLB/07/2026",
     "jenisDokumen": "Permohonan Sewa",
     "status": "Ada"
   },
   {
     "id": "DOK-36-K",
+    "klienId": "KLN-029",
     "kontrakId": "018/PKS/DIR.LPU/08/2026",
     "jenisDokumen": "PKS (asli)",
     "status": "Ada",
@@ -2922,6 +3017,7 @@ export const DATA_NYATA: AppData = {
   },
   {
     "id": "DOK-37-K",
+    "klienId": "KLN-001",
     "kontrakId": "1158/PKS/RRI.PLB/10/2026",
     "jenisDokumen": "PKS (asli)",
     "status": "Belum Ada",
@@ -2929,6 +3025,7 @@ export const DATA_NYATA: AppData = {
   },
   {
     "id": "DOK-38-K",
+    "klienId": "KLN-030",
     "kontrakId": "10227/PKS/RRI.PLB/10/2026",
     "jenisDokumen": "PKS (asli)",
     "status": "Belum Ada",
@@ -2936,12 +3033,14 @@ export const DATA_NYATA: AppData = {
   },
   {
     "id": "DOK-39-S",
+    "klienId": "KLN-031",
     "kontrakId": "10828/PKS/RRI.PLB/10/2026",
     "jenisDokumen": "Permohonan Sewa",
     "status": "Ada"
   },
   {
     "id": "DOK-39-K",
+    "klienId": "KLN-031",
     "kontrakId": "10828/PKS/RRI.PLB/10/2026",
     "jenisDokumen": "PKS (asli)",
     "status": "Belum Ada",
@@ -2949,6 +3048,7 @@ export const DATA_NYATA: AppData = {
   },
   {
     "id": "DOK-40-K",
+    "klienId": "KLN-016",
     "kontrakId": "11290/PKS/RRI.PLB/10/2026",
     "jenisDokumen": "PKS (asli)",
     "status": "Belum Ada",
@@ -2956,6 +3056,7 @@ export const DATA_NYATA: AppData = {
   },
   {
     "id": "DOK-2025-40-K",
+    "klienId": "KLN-032",
     "kontrakId": "027/RRI.PLB/PKS.U/06/2025",
     "jenisDokumen": "PKS (asli)",
     "status": "Belum Ada",
@@ -2963,6 +3064,7 @@ export const DATA_NYATA: AppData = {
   },
   {
     "id": "DOK-2025-41-K",
+    "klienId": "KLN-033",
     "kontrakId": "016/PKS/DIR.LPU/06/2025",
     "jenisDokumen": "PKS (asli)",
     "status": "Belum Ada",
@@ -2972,6 +3074,7 @@ export const DATA_NYATA: AppData = {
   tagihan: [
   {
     "id": "TGH-001-RRI-PLB-PKS-F-01-2026",
+    "klienId": "KLN-001",
     "nomor": "001/RRI.PLB/PKS.F/01/2026",
     "kontrakId": "0603/PKS/RRI.PLB/01/2026",
     "uraian": "Tagihan Siaran Iklan (Spot) — 0603/PKS/RRI.PLB/01/2026",
@@ -2986,6 +3089,7 @@ export const DATA_NYATA: AppData = {
   },
   {
     "id": "TGH-001-PKS-DIR-LPU-01-2026",
+    "klienId": "KLN-002",
     "nomor": "001/PKS/DIR.LPU/01/2026",
     "kontrakId": "001/PKS/DIR.LPU/01/2026",
     "uraian": "Tagihan Ad-Lib / Jingle — 001/PKS/DIR.LPU/01/2026",
@@ -3000,6 +3104,7 @@ export const DATA_NYATA: AppData = {
   },
   {
     "id": "TGH-002-RRI-PLB-PKS-U-01-2026",
+    "klienId": "KLN-003",
     "nomor": "002/RRI.PLB/PKS.U/01/2026",
     "kontrakId": "1051/PKS/RRI.PLB/02/2026",
     "uraian": "Tagihan Sewa Lahan / BMN — 1051/PKS/RRI.PLB/02/2026",
@@ -3014,6 +3119,7 @@ export const DATA_NYATA: AppData = {
   },
   {
     "id": "TGH-003-RRI-PLB-PKS-U-01-2026",
+    "klienId": "KLN-004",
     "nomor": "003/RRI.PLB/PKS.U/01/2026",
     "kontrakId": "1052/PKS/RRI.PLB/02/2026",
     "uraian": "Tagihan Sewa Lahan / BMN — 1052/PKS/RRI.PLB/02/2026",
@@ -3028,6 +3134,7 @@ export const DATA_NYATA: AppData = {
   },
   {
     "id": "TGH-004-RRI-PLB-PKS-U-01-2026",
+    "klienId": "KLN-005",
     "nomor": "004/RRI.PLB/PKS.U/01/2026",
     "kontrakId": "1053/PKS/RRI.PLB/02/2026",
     "uraian": "Tagihan Sewa Lahan / BMN — 1053/PKS/RRI.PLB/02/2026",
@@ -3042,6 +3149,7 @@ export const DATA_NYATA: AppData = {
   },
   {
     "id": "TGH-005-RRI-PLB-PKS-U-02-2026",
+    "klienId": "KLN-006",
     "nomor": "005/RRI.PLB/PKS.U/02/2026",
     "kontrakId": "1494/PKS/RRI.PLB/02/2026",
     "uraian": "Tagihan Sewa Lahan / BMN — 1494/PKS/RRI.PLB/02/2026",
@@ -3056,6 +3164,7 @@ export const DATA_NYATA: AppData = {
   },
   {
     "id": "TGH-006-RRI-PLB-PKS-U-02-2026",
+    "klienId": "KLN-007",
     "nomor": "006/RRI.PLB/PKS.U/02/2026",
     "kontrakId": "1497/PKS/RRI.PLB/02/2026",
     "uraian": "Tagihan Sewa Lahan / BMN — 1497/PKS/RRI.PLB/02/2026",
@@ -3070,6 +3179,7 @@ export const DATA_NYATA: AppData = {
   },
   {
     "id": "TGH-007-RRI-PLB-PKS-F-02-2026",
+    "klienId": "KLN-008",
     "nomor": "007/RRI.PLB/PKS.F/02/2026",
     "kontrakId": "1744/PKS/RRI.PLB/03/2026",
     "uraian": "Tagihan Greeting / Tanda Waktu (Time Signal) — 1744/PKS/RRI.PLB/03/2026",
@@ -3084,6 +3194,7 @@ export const DATA_NYATA: AppData = {
   },
   {
     "id": "TGH-008-RRI-PLB-PKS-F-02-2026",
+    "klienId": "KLN-009",
     "nomor": "008/RRI.PLB/PKS.F/02/2026",
     "kontrakId": "1745/PKS/RRI.PLB/03/2026",
     "uraian": "Tagihan Greeting / Tanda Waktu (Time Signal) — 1745/PKS/RRI.PLB/03/2026",
@@ -3098,6 +3209,7 @@ export const DATA_NYATA: AppData = {
   },
   {
     "id": "TGH-009-RRI-PLB-PKS-F-02-2026",
+    "klienId": "KLN-010",
     "nomor": "009/RRI.PLB/PKS.F/02/2026",
     "kontrakId": "1746/PKS/RRI.PLB/03/2026",
     "uraian": "Tagihan Greeting / Tanda Waktu (Time Signal) — 1746/PKS/RRI.PLB/03/2026",
@@ -3112,6 +3224,7 @@ export const DATA_NYATA: AppData = {
   },
   {
     "id": "TGH-010-RRI-PLB-PKS-F-02-2026",
+    "klienId": "KLN-011",
     "nomor": "010/RRI.PLB/PKS.F/02/2026",
     "kontrakId": "2036/PKS/RRI.PLB/03/2026#010",
     "uraian": "Tagihan Greeting / Tanda Waktu (Time Signal) — 2036/PKS/RRI.PLB/03/2026",
@@ -3126,6 +3239,7 @@ export const DATA_NYATA: AppData = {
   },
   {
     "id": "TGH-011-RRI-PLB-PKS-F-02-2026",
+    "klienId": "KLN-012",
     "nomor": "011/RRI.PLB/PKS.F/02/2026",
     "kontrakId": "2036/PKS/RRI.PLB/03/2026#011",
     "uraian": "Tagihan Greeting / Tanda Waktu (Time Signal) — 2036/PKS/RRI.PLB/03/2026",
@@ -3140,6 +3254,7 @@ export const DATA_NYATA: AppData = {
   },
   {
     "id": "TGH-012-RRI-PLB-PKS-F-03-2026",
+    "klienId": "KLN-013",
     "nomor": "012/RRI.PLB/PKS.F/03/2026",
     "kontrakId": "2605/PKS/RRI.PLB/04/2026",
     "uraian": "Tagihan Siaran Iklan (Spot) — 2605/PKS/RRI.PLB/04/2026",
@@ -3154,6 +3269,7 @@ export const DATA_NYATA: AppData = {
   },
   {
     "id": "TGH-013-RRI-PLB-PKS-F-03-2026",
+    "klienId": "KLN-014",
     "nomor": "013/RRI.PLB/PKS.F/03/2026",
     "kontrakId": "2919/PKS/RRI.PLB/04/2026",
     "uraian": "Tagihan Greeting / Tanda Waktu (Time Signal) — 2919/PKS/RRI.PLB/04/2026",
@@ -3168,6 +3284,7 @@ export const DATA_NYATA: AppData = {
   },
   {
     "id": "TGH-014-RRI-PLB-PKS-F-03-2026",
+    "klienId": "KLN-015",
     "nomor": "014/RRI.PLB/PKS.F/03/2026",
     "kontrakId": "2920/PKS/RRI.PLB/04/2026",
     "uraian": "Tagihan Greeting / Tanda Waktu (Time Signal) — 2920/PKS/RRI.PLB/04/2026",
@@ -3182,6 +3299,7 @@ export const DATA_NYATA: AppData = {
   },
   {
     "id": "TGH-015-RRI-PLB-PKS-F-04-2026",
+    "klienId": "KLN-016",
     "nomor": "015/RRI.PLB/PKS.F/04/2026",
     "kontrakId": "3669/PKS/RRI.PLB/04/2026",
     "uraian": "Tagihan Dialog Interaktif Dalam Studio — 3669/PKS/RRI.PLB/04/2026",
@@ -3196,6 +3314,7 @@ export const DATA_NYATA: AppData = {
   },
   {
     "id": "TGH-016-RRI-PLB-PKS-F-04-2026",
+    "klienId": "KLN-001",
     "nomor": "016/RRI.PLB/PKS.F/04/2026",
     "kontrakId": "3981/PKS/RRI.PLB/05/2026",
     "uraian": "Tagihan Siaran Iklan (Spot) — 3981/PKS/RRI.PLB/05/2026",
@@ -3210,6 +3329,7 @@ export const DATA_NYATA: AppData = {
   },
   {
     "id": "TGH-017-RRI-PLB-PKS-F-05-2026",
+    "klienId": "KLN-017",
     "nomor": "017/RRI.PLB/PKS.F/05/2026",
     "kontrakId": "4720/PKS/RRI.PLB/06/2026",
     "uraian": "Tagihan Sewa Lahan / BMN — 4720/PKS/RRI.PLB/06/2026",
@@ -3224,6 +3344,7 @@ export const DATA_NYATA: AppData = {
   },
   {
     "id": "TGH-018-RRI-PLB-PKS-F-05-2026",
+    "klienId": "KLN-018",
     "nomor": "018/RRI.PLB/PKS.F/05/2026",
     "kontrakId": "4747/PKS/RRI.PLB/06/2026",
     "uraian": "Tagihan Instagram Reels — 4747/PKS/RRI.PLB/06/2026",
@@ -3238,6 +3359,7 @@ export const DATA_NYATA: AppData = {
   },
   {
     "id": "TGH-019-RRI-PLB-PKS-F-05-2026",
+    "klienId": "KLN-019",
     "nomor": "019/RRI.PLB/PKS.F/05/2026",
     "kontrakId": "4842/PKS/RRI.PLB/06/2026",
     "uraian": "Tagihan Siaran Iklan (Spot) — 4842/PKS/RRI.PLB/06/2026",
@@ -3252,6 +3374,7 @@ export const DATA_NYATA: AppData = {
   },
   {
     "id": "TGH-020-RRI-PLB-PKS-F-05-2026",
+    "klienId": "KLN-020",
     "nomor": "020/RRI.PLB/PKS.F/05/2026",
     "kontrakId": "4873/PKS/RRI.PLB/06/2026",
     "uraian": "Tagihan Siaran Iklan (Spot) — 4873/PKS/RRI.PLB/06/2026",
@@ -3266,6 +3389,7 @@ export const DATA_NYATA: AppData = {
   },
   {
     "id": "TGH-021-RRI-PLB-PKS-U-06-2026",
+    "klienId": "KLN-021",
     "nomor": "021/RRI.PLB/PKS.U/06/2026",
     "kontrakId": "5350/PKS/RRI.PLB/06/2026",
     "uraian": "Tagihan Sewa Aula — 5350/PKS/RRI.PLB/06/2026",
@@ -3280,6 +3404,7 @@ export const DATA_NYATA: AppData = {
   },
   {
     "id": "TGH-022-RRI-PLB-PKS-F-06-2026",
+    "klienId": "KLN-022",
     "nomor": "022/RRI.PLB/PKS.F/06/2026",
     "kontrakId": "5390/PKS/RRI.PLB/06/2026",
     "uraian": "Tagihan Greeting / Tanda Waktu (Time Signal) — 5390/PKS/RRI.PLB/06/2026",
@@ -3294,6 +3419,7 @@ export const DATA_NYATA: AppData = {
   },
   {
     "id": "TGH-023-RRI-PLB-PKS-F-06-2026",
+    "klienId": "KLN-023",
     "nomor": "023/RRI.PLB/PKS.F/06/2026",
     "kontrakId": "5391/PKS/RRI.PLB/06/2026",
     "uraian": "Tagihan Ad-Lib / Jingle — 5391/PKS/RRI.PLB/06/2026",
@@ -3308,6 +3434,7 @@ export const DATA_NYATA: AppData = {
   },
   {
     "id": "TGH-024-RRI-PLB-PKS-F-06-2026",
+    "klienId": "KLN-013",
     "nomor": "024/RRI.PLB/PKS.F/06/2026",
     "kontrakId": "5483/PKS/RRI.PLB/06/2026",
     "uraian": "Tagihan Siaran Iklan (Spot) — 5483/PKS/RRI.PLB/06/2026",
@@ -3322,6 +3449,7 @@ export const DATA_NYATA: AppData = {
   },
   {
     "id": "TGH-025-RRI-PLB-PKS-F-06-2026",
+    "klienId": "KLN-012",
     "nomor": "025/RRI.PLB/PKS.F/06/2026",
     "kontrakId": "5484/PKS/RRI.PLB/06/2026",
     "uraian": "Tagihan Dialog Interaktif Dalam Studio — 5484/PKS/RRI.PLB/06/2026",
@@ -3336,6 +3464,7 @@ export const DATA_NYATA: AppData = {
   },
   {
     "id": "TGH-026-RRI-PLB-PKS-F-06-2026",
+    "klienId": "KLN-012",
     "nomor": "026/RRI.PLB/PKS.F/06/2026",
     "kontrakId": "5592/PKS/RRI.PLB/06/2026",
     "uraian": "Tagihan Ad-Lib / Jingle — 5592/PKS/RRI.PLB/06/2026",
@@ -3350,6 +3479,7 @@ export const DATA_NYATA: AppData = {
   },
   {
     "id": "TGH-027-RRI-PLB-PKS-F-07-2026",
+    "klienId": "KLN-024",
     "nomor": "027/RRI.PLB/PKS.F/07/2026",
     "kontrakId": "6593/PKS/RRI.PLB/07/2026",
     "uraian": "Tagihan Dialog Interaktif Dalam Studio — 6593/PKS/RRI.PLB/07/2026",
@@ -3364,6 +3494,7 @@ export const DATA_NYATA: AppData = {
   },
   {
     "id": "TGH-028-RRI-PLB-PKS-U-07-2026",
+    "klienId": "KLN-025",
     "nomor": "028/RRI.PLB/PKS.U/07/2026",
     "kontrakId": "7051/PKS/RRI.PLB/07/2026",
     "uraian": "Tagihan Sewa Lahan / BMN — 7051/PKS/RRI.PLB/07/2026",
@@ -3378,6 +3509,7 @@ export const DATA_NYATA: AppData = {
   },
   {
     "id": "TGH-029-RRI-PLB-PKS-U-07-2026",
+    "klienId": "KLN-026",
     "nomor": "029/RRI.PLB/PKS.U/07/2026",
     "kontrakId": "7052/PKS/RRI.PLB/07/2026",
     "uraian": "Tagihan Sewa Lahan / BMN — 7052/PKS/RRI.PLB/07/2026",
@@ -3392,6 +3524,7 @@ export const DATA_NYATA: AppData = {
   },
   {
     "id": "TGH-030-RRI-PLB-PKS-U-07-2026",
+    "klienId": "KLN-026",
     "nomor": "030/RRI.PLB/PKS.U/07/2026",
     "kontrakId": "7053/PKS/RRI.PLB/07/2026",
     "uraian": "Tagihan Sewa Lahan / BMN — 7053/PKS/RRI.PLB/07/2026",
@@ -3406,6 +3539,7 @@ export const DATA_NYATA: AppData = {
   },
   {
     "id": "TGH-031-RRI-PLB-PKS-U-07-2026",
+    "klienId": "KLN-027",
     "nomor": "031/RRI.PLB/PKS.U/07/2026",
     "kontrakId": "7054/PKS/RRI.PLB/07/2026",
     "uraian": "Tagihan Sewa Lahan / BMN — 7054/PKS/RRI.PLB/07/2026",
@@ -3420,6 +3554,7 @@ export const DATA_NYATA: AppData = {
   },
   {
     "id": "TGH-032-RRI-PLB-PKS-U-07-2026",
+    "klienId": "KLN-027",
     "nomor": "032/RRI.PLB/PKS.U/07/2026",
     "kontrakId": "7055/PKS/RRI.PLB/07/2026",
     "uraian": "Tagihan Sewa Lahan / BMN — 7055/PKS/RRI.PLB/07/2026",
@@ -3434,6 +3569,7 @@ export const DATA_NYATA: AppData = {
   },
   {
     "id": "TGH-033-RRI-PLB-PKS-U-07-2026",
+    "klienId": "KLN-028",
     "nomor": "033/RRI.PLB/PKS.U/07/2026",
     "kontrakId": "7060/PKS/RRI.PLB/07/2026",
     "uraian": "Tagihan Sewa Lahan / BMN — 7060/PKS/RRI.PLB/07/2026",
@@ -3448,6 +3584,7 @@ export const DATA_NYATA: AppData = {
   },
   {
     "id": "TGH-034-RRI-PLB-PKS-U-07-2026",
+    "klienId": "KLN-028",
     "nomor": "034/RRI.PLB/PKS.U/07/2026",
     "kontrakId": "7061/PKS/RRI.PLB/07/2026",
     "uraian": "Tagihan Sewa Lahan / BMN — 7061/PKS/RRI.PLB/07/2026",
@@ -3462,6 +3599,7 @@ export const DATA_NYATA: AppData = {
   },
   {
     "id": "TGH-018-PKS-DIR-LPU-08-2026",
+    "klienId": "KLN-029",
     "nomor": "018/PKS/DIR.LPU/08/2026",
     "kontrakId": "018/PKS/DIR.LPU/08/2026",
     "uraian": "Tagihan Siaran Iklan (Spot) — 018/PKS/DIR.LPU/08/2026",
@@ -3476,6 +3614,7 @@ export const DATA_NYATA: AppData = {
   },
   {
     "id": "TGH-035-RRI-PLB-PKS-F-09-2026",
+    "klienId": "KLN-001",
     "nomor": "035/RRI.PLB/PKS.F/09/2026",
     "kontrakId": "1158/PKS/RRI.PLB/10/2026",
     "uraian": "Tagihan Siaran Iklan (Spot) — 1158/PKS/RRI.PLB/10/2026",
@@ -3490,6 +3629,7 @@ export const DATA_NYATA: AppData = {
   },
   {
     "id": "TGH-036-RRI-PLB-PKS-F-10-2026",
+    "klienId": "KLN-030",
     "nomor": "036/RRI.PLB/PKS.F/10/2026",
     "kontrakId": "10227/PKS/RRI.PLB/10/2026",
     "uraian": "Tagihan Siaran Iklan (Spot) — 10227/PKS/RRI.PLB/10/2026",
@@ -3504,6 +3644,7 @@ export const DATA_NYATA: AppData = {
   },
   {
     "id": "TGH-037-RRI-PLB-PKS-U-10-2026",
+    "klienId": "KLN-031",
     "nomor": "037/RRI.PLB/PKS.U/10/2026",
     "kontrakId": "10828/PKS/RRI.PLB/10/2026",
     "uraian": "Tagihan Sewa Lahan / BMN — 10828/PKS/RRI.PLB/10/2026",
@@ -3518,6 +3659,7 @@ export const DATA_NYATA: AppData = {
   },
   {
     "id": "TGH-038-RRI-PLB-PKS-F-10-2026",
+    "klienId": "KLN-016",
     "nomor": "038/RRI.PLB/PKS.F/10/2026",
     "kontrakId": "11290/PKS/RRI.PLB/10/2026",
     "uraian": "Tagihan Dialog Interaktif Dalam Studio — 11290/PKS/RRI.PLB/10/2026",
@@ -3532,6 +3674,7 @@ export const DATA_NYATA: AppData = {
   },
   {
     "id": "TGH-027-RRI-PLB-PKS-U-06-2025",
+    "klienId": "KLN-032",
     "nomor": "027/RRI.PLB/PKS.U/06/2025",
     "kontrakId": "027/RRI.PLB/PKS.U/06/2025",
     "uraian": "Tagihan Sewa Lahan / BMN — 027/RRI.PLB/PKS.U/06/2025",
@@ -3546,6 +3689,7 @@ export const DATA_NYATA: AppData = {
   },
   {
     "id": "TGH-016-PKS-DIR-LPU-06-2025",
+    "klienId": "KLN-033",
     "nomor": "016/PKS/DIR.LPU/06/2025",
     "kontrakId": "016/PKS/DIR.LPU/06/2025",
     "uraian": "Tagihan Sewa Lahan / BMN — 016/PKS/DIR.LPU/06/2025",
@@ -3562,6 +3706,7 @@ export const DATA_NYATA: AppData = {
   pembayaran: [
   {
     "id": "BYR-001",
+    "klienId": "KLN-001",
     "tagihanId": "TGH-001-RRI-PLB-PKS-F-01-2026",
     "tanggalBayar": "2026-02-05",
     "jumlah": 270000,
@@ -3576,6 +3721,7 @@ export const DATA_NYATA: AppData = {
   },
   {
     "id": "BYR-002",
+    "klienId": "KLN-002",
     "tagihanId": "TGH-001-PKS-DIR-LPU-01-2026",
     "tanggalBayar": "2026-03-27",
     "jumlah": 1550000,
@@ -3590,6 +3736,7 @@ export const DATA_NYATA: AppData = {
   },
   {
     "id": "BYR-003",
+    "klienId": "KLN-003",
     "tagihanId": "TGH-002-RRI-PLB-PKS-U-01-2026",
     "tanggalBayar": "2026-01-30",
     "jumlah": 6455000,
@@ -3604,6 +3751,7 @@ export const DATA_NYATA: AppData = {
   },
   {
     "id": "BYR-004",
+    "klienId": "KLN-004",
     "tagihanId": "TGH-003-RRI-PLB-PKS-U-01-2026",
     "tanggalBayar": "2026-01-30",
     "jumlah": 6455000,
@@ -3618,6 +3766,7 @@ export const DATA_NYATA: AppData = {
   },
   {
     "id": "BYR-005",
+    "klienId": "KLN-005",
     "tagihanId": "TGH-004-RRI-PLB-PKS-U-01-2026",
     "tanggalBayar": "2026-01-30",
     "jumlah": 5648000,
@@ -3632,6 +3781,7 @@ export const DATA_NYATA: AppData = {
   },
   {
     "id": "BYR-006",
+    "klienId": "KLN-006",
     "tagihanId": "TGH-005-RRI-PLB-PKS-U-02-2026",
     "tanggalBayar": "2026-02-10",
     "jumlah": 9199380,
@@ -3646,6 +3796,7 @@ export const DATA_NYATA: AppData = {
   },
   {
     "id": "BYR-007",
+    "klienId": "KLN-007",
     "tagihanId": "TGH-006-RRI-PLB-PKS-U-02-2026",
     "tanggalBayar": "2026-02-10",
     "jumlah": 6536000,
@@ -3660,6 +3811,7 @@ export const DATA_NYATA: AppData = {
   },
   {
     "id": "BYR-008",
+    "klienId": "KLN-008",
     "tagihanId": "TGH-007-RRI-PLB-PKS-F-02-2026",
     "tanggalBayar": "2026-06-26",
     "jumlah": 15000000,
@@ -3674,6 +3826,7 @@ export const DATA_NYATA: AppData = {
   },
   {
     "id": "BYR-009",
+    "klienId": "KLN-009",
     "tagihanId": "TGH-008-RRI-PLB-PKS-F-02-2026",
     "tanggalBayar": "2026-06-29",
     "jumlah": 5000000,
@@ -3688,6 +3841,7 @@ export const DATA_NYATA: AppData = {
   },
   {
     "id": "BYR-010",
+    "klienId": "KLN-009",
     "tagihanId": "TGH-008-RRI-PLB-PKS-F-02-2026",
     "tanggalBayar": "2026-07-14",
     "jumlah": 300000,
@@ -3702,6 +3856,7 @@ export const DATA_NYATA: AppData = {
   },
   {
     "id": "BYR-011",
+    "klienId": "KLN-010",
     "tagihanId": "TGH-009-RRI-PLB-PKS-F-02-2026",
     "tanggalBayar": "2026-04-22",
     "jumlah": 3000000,
@@ -3716,6 +3871,7 @@ export const DATA_NYATA: AppData = {
   },
   {
     "id": "BYR-012",
+    "klienId": "KLN-011",
     "tagihanId": "TGH-010-RRI-PLB-PKS-F-02-2026",
     "tanggalBayar": "2026-06-22",
     "jumlah": 7500000,
@@ -3730,6 +3886,7 @@ export const DATA_NYATA: AppData = {
   },
   {
     "id": "BYR-013",
+    "klienId": "KLN-011",
     "tagihanId": "TGH-010-RRI-PLB-PKS-F-02-2026",
     "tanggalBayar": "2026-07-14",
     "jumlah": 300000,
@@ -3744,6 +3901,7 @@ export const DATA_NYATA: AppData = {
   },
   {
     "id": "BYR-014",
+    "klienId": "KLN-012",
     "tagihanId": "TGH-011-RRI-PLB-PKS-F-02-2026",
     "tanggalBayar": "2026-05-13",
     "jumlah": 6200000,
@@ -3758,6 +3916,7 @@ export const DATA_NYATA: AppData = {
   },
   {
     "id": "BYR-015",
+    "klienId": "KLN-012",
     "tagihanId": "TGH-011-RRI-PLB-PKS-F-02-2026",
     "tanggalBayar": "2026-05-18",
     "jumlah": 124000,
@@ -3772,6 +3931,7 @@ export const DATA_NYATA: AppData = {
   },
   {
     "id": "BYR-016",
+    "klienId": "KLN-013",
     "tagihanId": "TGH-012-RRI-PLB-PKS-F-03-2026",
     "tanggalBayar": "2026-04-14",
     "jumlah": 4050000,
@@ -3786,6 +3946,7 @@ export const DATA_NYATA: AppData = {
   },
   {
     "id": "BYR-017",
+    "klienId": "KLN-014",
     "tagihanId": "TGH-013-RRI-PLB-PKS-F-03-2026",
     "tanggalBayar": "2026-04-23",
     "jumlah": 1500000,
@@ -3800,6 +3961,7 @@ export const DATA_NYATA: AppData = {
   },
   {
     "id": "BYR-018",
+    "klienId": "KLN-015",
     "tagihanId": "TGH-014-RRI-PLB-PKS-F-03-2026",
     "tanggalBayar": "2026-04-23",
     "jumlah": 1000000,
@@ -3814,6 +3976,7 @@ export const DATA_NYATA: AppData = {
   },
   {
     "id": "BYR-019",
+    "klienId": "KLN-016",
     "tagihanId": "TGH-015-RRI-PLB-PKS-F-04-2026",
     "tanggalBayar": "2026-05-12",
     "jumlah": 2000000,
@@ -3828,6 +3991,7 @@ export const DATA_NYATA: AppData = {
   },
   {
     "id": "BYR-020",
+    "klienId": "KLN-001",
     "tagihanId": "TGH-016-RRI-PLB-PKS-F-04-2026",
     "tanggalBayar": "2026-05-20",
     "jumlah": 270000,
@@ -3842,6 +4006,7 @@ export const DATA_NYATA: AppData = {
   },
   {
     "id": "BYR-021",
+    "klienId": "KLN-017",
     "tagihanId": "TGH-017-RRI-PLB-PKS-F-05-2026",
     "tanggalBayar": "2026-05-20",
     "jumlah": 5320000,
@@ -3856,6 +4021,7 @@ export const DATA_NYATA: AppData = {
   },
   {
     "id": "BYR-022",
+    "klienId": "KLN-018",
     "tagihanId": "TGH-018-RRI-PLB-PKS-F-05-2026",
     "tanggalBayar": "2026-05-26",
     "jumlah": 200000,
@@ -3870,6 +4036,7 @@ export const DATA_NYATA: AppData = {
   },
   {
     "id": "BYR-023",
+    "klienId": "KLN-019",
     "tagihanId": "TGH-019-RRI-PLB-PKS-F-05-2026",
     "tanggalBayar": "2026-06-14",
     "jumlah": 4050000,
@@ -3884,6 +4051,7 @@ export const DATA_NYATA: AppData = {
   },
   {
     "id": "BYR-024",
+    "klienId": "KLN-020",
     "tagihanId": "TGH-020-RRI-PLB-PKS-F-05-2026",
     "tanggalBayar": "2026-07-28",
     "jumlah": 990000,
@@ -3898,6 +4066,7 @@ export const DATA_NYATA: AppData = {
   },
   {
     "id": "BYR-025",
+    "klienId": "KLN-021",
     "tagihanId": "TGH-021-RRI-PLB-PKS-U-06-2026",
     "tanggalBayar": "2026-06-12",
     "jumlah": 3056000,
@@ -3912,6 +4081,7 @@ export const DATA_NYATA: AppData = {
   },
   {
     "id": "BYR-026",
+    "klienId": "KLN-022",
     "tagihanId": "TGH-022-RRI-PLB-PKS-F-06-2026",
     "tanggalBayar": "2026-07-07",
     "jumlah": 3500000,
@@ -3926,6 +4096,7 @@ export const DATA_NYATA: AppData = {
   },
   {
     "id": "BYR-027",
+    "klienId": "KLN-023",
     "tagihanId": "TGH-023-RRI-PLB-PKS-F-06-2026",
     "tanggalBayar": "2026-07-14",
     "jumlah": 3500000,
@@ -3940,6 +4111,7 @@ export const DATA_NYATA: AppData = {
   },
   {
     "id": "BYR-028",
+    "klienId": "KLN-013",
     "tagihanId": "TGH-024-RRI-PLB-PKS-F-06-2026",
     "tanggalBayar": "2026-07-27",
     "jumlah": 4050000,
@@ -3954,6 +4126,7 @@ export const DATA_NYATA: AppData = {
   },
   {
     "id": "BYR-029",
+    "klienId": "KLN-012",
     "tagihanId": "TGH-025-RRI-PLB-PKS-F-06-2026",
     "tanggalBayar": "2026-07-16",
     "jumlah": 2000000,
@@ -3968,6 +4141,7 @@ export const DATA_NYATA: AppData = {
   },
   {
     "id": "BYR-030",
+    "klienId": "KLN-012",
     "tagihanId": "TGH-026-RRI-PLB-PKS-F-06-2026",
     "tanggalBayar": "2026-07-02",
     "jumlah": 1000000,
@@ -3982,6 +4156,7 @@ export const DATA_NYATA: AppData = {
   },
   {
     "id": "BYR-031",
+    "klienId": "KLN-024",
     "tagihanId": "TGH-027-RRI-PLB-PKS-F-07-2026",
     "tanggalBayar": "2026-09-14",
     "jumlah": 2000000,
@@ -3996,6 +4171,7 @@ export const DATA_NYATA: AppData = {
   },
   {
     "id": "BYR-032",
+    "klienId": "KLN-025",
     "tagihanId": "TGH-028-RRI-PLB-PKS-U-07-2026",
     "tanggalBayar": "2026-07-17",
     "jumlah": 6536000,
@@ -4010,6 +4186,7 @@ export const DATA_NYATA: AppData = {
   },
   {
     "id": "BYR-033",
+    "klienId": "KLN-026",
     "tagihanId": "TGH-029-RRI-PLB-PKS-U-07-2026",
     "tanggalBayar": "2026-07-30",
     "jumlah": 6000000,
@@ -4024,6 +4201,7 @@ export const DATA_NYATA: AppData = {
   },
   {
     "id": "BYR-034",
+    "klienId": "KLN-026",
     "tagihanId": "TGH-030-RRI-PLB-PKS-U-07-2026",
     "tanggalBayar": "2026-07-30",
     "jumlah": 12000000,
@@ -4038,6 +4216,7 @@ export const DATA_NYATA: AppData = {
   },
   {
     "id": "BYR-035",
+    "klienId": "KLN-027",
     "tagihanId": "TGH-031-RRI-PLB-PKS-U-07-2026",
     "tanggalBayar": "2026-07-30",
     "jumlah": 7904292,
@@ -4052,6 +4231,7 @@ export const DATA_NYATA: AppData = {
   },
   {
     "id": "BYR-036",
+    "klienId": "KLN-027",
     "tagihanId": "TGH-032-RRI-PLB-PKS-U-07-2026",
     "tanggalBayar": "2026-07-30",
     "jumlah": 15808583,
@@ -4066,6 +4246,7 @@ export const DATA_NYATA: AppData = {
   },
   {
     "id": "BYR-037",
+    "klienId": "KLN-028",
     "tagihanId": "TGH-033-RRI-PLB-PKS-U-07-2026",
     "tanggalBayar": "2026-07-31",
     "jumlah": 4116000,
@@ -4080,6 +4261,7 @@ export const DATA_NYATA: AppData = {
   },
   {
     "id": "BYR-038",
+    "klienId": "KLN-028",
     "tagihanId": "TGH-034-RRI-PLB-PKS-U-07-2026",
     "tanggalBayar": "2026-07-31",
     "jumlah": 8232000,
@@ -4094,6 +4276,7 @@ export const DATA_NYATA: AppData = {
   },
   {
     "id": "BYR-039",
+    "klienId": "KLN-032",
     "tagihanId": "TGH-027-RRI-PLB-PKS-U-06-2025",
     "tanggalBayar": "2025-06-18",
     "jumlah": 11246250,
@@ -4108,6 +4291,7 @@ export const DATA_NYATA: AppData = {
   },
   {
     "id": "BYR-040",
+    "klienId": "KLN-032",
     "tagihanId": "TGH-027-RRI-PLB-PKS-U-06-2025",
     "tanggalBayar": "2026-06-18",
     "jumlah": 11246250,
@@ -4122,6 +4306,7 @@ export const DATA_NYATA: AppData = {
   },
   {
     "id": "BYR-041",
+    "klienId": "KLN-033",
     "tagihanId": "TGH-016-PKS-DIR-LPU-06-2025",
     "tanggalBayar": "2025-07-01",
     "jumlah": 17146250,
@@ -4136,6 +4321,7 @@ export const DATA_NYATA: AppData = {
   },
   {
     "id": "BYR-042",
+    "klienId": "KLN-033",
     "tagihanId": "TGH-016-PKS-DIR-LPU-06-2025",
     "tanggalBayar": "2026-08-13",
     "jumlah": 17146250,
@@ -4150,6 +4336,7 @@ export const DATA_NYATA: AppData = {
   },
   {
     "id": "BYR-043",
+    "klienId": "KLN-001",
     "tagihanId": "TGH-035-RRI-PLB-PKS-F-09-2026",
     "tanggalBayar": "2026-10-07",
     "jumlah": 180000,
@@ -4164,6 +4351,7 @@ export const DATA_NYATA: AppData = {
   },
   {
     "id": "BYR-044",
+    "klienId": "KLN-024",
     "tagihanId": "TGH-027-RRI-PLB-PKS-F-07-2026",
     "tanggalBayar": "2026-10-13",
     "jumlah": 40000,
@@ -4178,6 +4366,7 @@ export const DATA_NYATA: AppData = {
   },
   {
     "id": "BYR-045",
+    "klienId": "KLN-031",
     "tagihanId": "TGH-037-RRI-PLB-PKS-U-10-2026",
     "tanggalBayar": "2026-10-16",
     "jumlah": 132704000,
@@ -4194,6 +4383,7 @@ export const DATA_NYATA: AppData = {
   denda: [
   {
     "id": "DND-001",
+    "klienId": "KLN-002",
     "tagihanId": "TGH-001-PKS-DIR-LPU-01-2026",
     "dasar": "Terlambat 9 hari dari jatuh tempo; denda Rp0 — Tidak Dikenakan Denda (per sumber).",
     "jumlah": 0,
@@ -4206,6 +4396,7 @@ export const DATA_NYATA: AppData = {
   },
   {
     "id": "DND-002",
+    "klienId": "KLN-006",
     "tagihanId": "TGH-005-RRI-PLB-PKS-U-02-2026",
     "dasar": "Terlambat 10 hari (jatuh tempo 2026-01-31, dibayar 2026-02-10); Terlambang Melakukan Pembayaran | SPn-1",
     "jumlah": 180380,
@@ -4218,6 +4409,7 @@ export const DATA_NYATA: AppData = {
   },
   {
     "id": "DND-003",
+    "klienId": "KLN-008",
     "tagihanId": "TGH-007-RRI-PLB-PKS-F-02-2026",
     "dasar": "Terlambat 65 hari (jatuh tempo 2026-04-22, dibayar 2026-06-26); Terlambang Melakukan Pembayaran | SPn-3",
     "jumlah": 900000,
@@ -4230,6 +4422,7 @@ export const DATA_NYATA: AppData = {
   },
   {
     "id": "DND-004",
+    "klienId": "KLN-009",
     "tagihanId": "TGH-008-RRI-PLB-PKS-F-02-2026",
     "dasar": "Terlambat 68 hari (jatuh tempo 2026-04-22, dibayar 2026-06-29); Terlambang Melakukan Pembayaran | SPn-3",
     "jumlah": 300000,
@@ -4242,6 +4435,7 @@ export const DATA_NYATA: AppData = {
   },
   {
     "id": "DND-005",
+    "klienId": "KLN-011",
     "tagihanId": "TGH-010-RRI-PLB-PKS-F-02-2026",
     "dasar": "Terlambat 61 hari (jatuh tempo 2026-04-22, dibayar 2026-06-22); Terlambang Melakukan Pembayaran | SPn-2",
     "jumlah": 300000,
@@ -4254,6 +4448,7 @@ export const DATA_NYATA: AppData = {
   },
   {
     "id": "DND-006",
+    "klienId": "KLN-012",
     "tagihanId": "TGH-011-RRI-PLB-PKS-F-02-2026",
     "dasar": "Terlambat 21 hari (jatuh tempo 2026-04-22, dibayar 2026-05-13); Terlambang Melakukan Pembayaran | SPn-1",
     "jumlah": 124000,
@@ -4266,6 +4461,7 @@ export const DATA_NYATA: AppData = {
   },
   {
     "id": "DND-007",
+    "klienId": "KLN-014",
     "tagihanId": "TGH-013-RRI-PLB-PKS-F-03-2026",
     "dasar": "Terlambat 1 hari (jatuh tempo 2026-04-22, dibayar 2026-04-23); Terlambang Melakukan Pembayaran | SPn-1",
     "jumlah": 30000,
@@ -4278,6 +4474,7 @@ export const DATA_NYATA: AppData = {
   },
   {
     "id": "DND-008",
+    "klienId": "KLN-015",
     "tagihanId": "TGH-014-RRI-PLB-PKS-F-03-2026",
     "dasar": "Terlambat 1 hari (jatuh tempo 2026-04-22, dibayar 2026-04-23); Terlambang Melakukan Pembayaran | SPn-1",
     "jumlah": 20000,
@@ -4290,6 +4487,7 @@ export const DATA_NYATA: AppData = {
   },
   {
     "id": "DND-009",
+    "klienId": "KLN-024",
     "tagihanId": "TGH-027-RRI-PLB-PKS-F-07-2026",
     "dasar": "Terlambat 31 hari (jatuh tempo 2026-08-14, dibayar 2026-09-14); Keterlambatan Pembayaran | SPn-1",
     "jumlah": 40000,
@@ -4302,6 +4500,7 @@ export const DATA_NYATA: AppData = {
   },
   {
     "id": "DND-010",
+    "klienId": "KLN-026",
     "tagihanId": "TGH-029-RRI-PLB-PKS-U-07-2026",
     "dasar": "Terlambat 180 hari (jatuh tempo 2026-01-31, dibayar 2026-07-30); Keterlambatan Pembayaran | SPn-6",
     "jumlah": 1440000,
@@ -4314,6 +4513,7 @@ export const DATA_NYATA: AppData = {
   },
   {
     "id": "DND-011",
+    "klienId": "KLN-027",
     "tagihanId": "TGH-031-RRI-PLB-PKS-U-07-2026",
     "dasar": "Terlambat 180 hari (jatuh tempo 2026-01-31, dibayar 2026-07-30); Keterlambatan Pembayaran | SPn-6",
     "jumlah": 1897030,
@@ -4326,6 +4526,7 @@ export const DATA_NYATA: AppData = {
   },
   {
     "id": "DND-012",
+    "klienId": "KLN-028",
     "tagihanId": "TGH-033-RRI-PLB-PKS-U-07-2026",
     "dasar": "Terlambat 181 hari (jatuh tempo 2026-01-31, dibayar 2026-07-31); Keterlambatan Pembayaran | SPn-6",
     "jumlah": 987840,

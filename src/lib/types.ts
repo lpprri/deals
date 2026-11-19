@@ -63,6 +63,16 @@ export interface Klien {
   satker: SatkerRef;
   dibuatOleh: string;
   dibuatPada: string;
+  /**
+   * Akun klien SUDAH dibuat untuk record ini (invite oleh Operator,
+   * dua peran 19/11/2026) — BUKAN alamat email klien. Semua 33 record
+   * seed masih punya email KOSONG, jadi field ini yang menandai record
+   * yang sudah punya akun (diisi true oleh Operator saat akun Auth
+   * klien dibuat dan ditautkan ke record ini; lihat kartu "Invite
+   * Client Account" di MasterPage). Klien tanpa akun tetap tidak bisa
+   * login — mereka memakai Lacak publik (nomor PKS/tagihan).
+   */
+  akunKlienDibuat?: boolean;
 }
 
 export interface Kontrak {
@@ -120,6 +130,16 @@ export interface Kontrak {
 export interface DokumenItem {
   id: string;
   kontrakId: string;
+  /**
+   * Id klien pemilik dokumen — denormalisasi dari kontrak lewat
+   * kontrakId (dua peran 19/11/2026). Dipakai aturan Firestore
+   * baca-klien: klien hanya membaca dokumen yang klienId-nya sama
+   * dengan klienId di profilnya (users/{uid}.klienId). Diisi di seed
+   * (scripts/isi-klienId-seed.py) dan di data live oleh backfill
+   * satu kali (src/lib/backfillKlienId.ts); dokumen lama tanpa field
+   * ini tidak terbaca klien.
+   */
+  klienId?: string;
   jenisDokumen: string;
   status: StatusDokumen;
   catatan?: string;
@@ -138,6 +158,15 @@ export interface Tagihan {
   id: string;
   nomor: string;
   kontrakId: string;
+  /**
+   * Id klien pemilik tagihan — denormalisasi dari kontrak lewat
+   * kontrakId (dua peran 19/11/2026). Dipakai aturan Firestore
+   * baca-klien (lihat komentar klienId di DokumenItem): klien hanya
+   * membaca tagihan miliknya sendiri. Diisi di seed
+   * (scripts/isi-klienId-seed.py) dan di data live oleh backfill
+   * satu kali (src/lib/backfillKlienId.ts).
+   */
+  klienId?: string;
   uraian: string;
   nilai: number;
   tanggalTerbit: string;
@@ -149,6 +178,14 @@ export interface Tagihan {
 export interface Pembayaran {
   id: string;
   tagihanId: string;
+  /**
+   * Id klien pemilik pembayaran — denormalisasi dari tagihan lewat
+   * tagihanId → kontrak (dua peran 19/11/2026). Dipakai aturan
+   * Firestore baca-klien (lihat komentar klienId di DokumenItem).
+   * Diisi di seed (scripts/isi-klienId-seed.py) dan di data live
+   * oleh backfill satu kali (src/lib/backfillKlienId.ts).
+   */
+  klienId?: string;
   tanggalBayar: string;
   jumlah: number;
   metode: string;
@@ -161,6 +198,14 @@ export interface Pembayaran {
 export interface Denda {
   id: string;
   tagihanId: string;
+  /**
+   * Id klien pemilik denda — denormalisasi dari tagihan lewat
+   * tagihanId → kontrak (dua peran 19/11/2026). Dipakai aturan
+   * Firestore baca-klien (lihat komentar klienId di DokumenItem).
+   * Diisi di seed (scripts/isi-klienId-seed.py) dan di data live
+   * oleh backfill satu kali (src/lib/backfillKlienId.ts).
+   */
+  klienId?: string;
   /** Dasar keterlambatan — wajib diisi; denda dicatat manual sampai Q-03 terjawab. */
   dasar: string;
   jumlah: number;
@@ -486,6 +531,19 @@ export interface Mou {
   masaBerlaku: string;
   dokumen: string;
   pic: string;
+  /**
+   * Id klien pemilik MoU — ditautkan HANYA bila nama instansi MoU sama
+   * PERSIS dengan nama record klien (dua peran 19/11/2026; pencocokan
+   * nama persis, bukan kemiripan — lihat KLIEN_MOU di
+   * scripts/impor-mou.py). Dipakai aturan Firestore baca-klien: klien
+   * hanya membaca MoU yang klienId-nya sama dengan klienId di
+   * profilnya. 3 dari 44 record seed punya klienId (035 → KLN-030,
+   * 043 → KLN-014, 045 → KLN-009); 41 lainnya kosong — termasuk
+   * near-miss 039 "…Ogan Komering Ulu" (tanpa "Selatan") yang SENGAJA
+   * tidak ditautkan ke KLN-014. MoU tanpa klienId tidak tampil di
+   * portal klien mana pun.
+   */
+  klienId?: string;
   satker: SatkerRef;
 }
 
@@ -549,6 +607,16 @@ export interface Commitment {
   dokumen: string;
   /** Nomor dokumen pendek (kolom U file: '001'–'004'). */
   nomorDokumen: string;
+  /**
+   * Id klien pemilik Commitment — ditautkan HANYA bila nama mitra sama
+   * PERSIS dengan nama record klien (dua peran 19/11/2026; pencocokan
+   * nama persis, bukan kemiripan). NOL dari 4 record seed punya
+   * klienId: tidak satu pun nama mitra cocok persis dengan record
+   * klien ("Bank Sumsel Babel Syariah" vs klien "Bank Sumsel Babel"
+   * SENGAJA tidak ditautkan). Commitment tanpa klienId tidak tampil di
+   * portal klien mana pun sampai Operator menautkannya manual.
+   */
+  klienId?: string;
   satker: SatkerRef;
 }
 

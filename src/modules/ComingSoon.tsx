@@ -14,9 +14,14 @@ import { ArrowLeft } from 'lucide-react';
 
 export interface ComingSoonProps {
   onKembali: () => void;
+  /**
+   * Label tombol kembali — default "Back to Landing Page" (publik).
+   * Client Portal (dua peran 19/11/2026) memakai "Back to Client Portal".
+   */
+  labelKembali?: string;
 }
 
-export default function ComingSoon({ onKembali }: ComingSoonProps) {
+export default function ComingSoon({ onKembali, labelKembali }: ComingSoonProps) {
   return (
     <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-[#f5f2f2] px-4 py-16">
       {/* Gradasi pucat biru/navy di bagian bawah (pola yang sama seperti
@@ -33,7 +38,7 @@ export default function ComingSoon({ onKembali }: ComingSoonProps) {
         className="absolute left-4 top-4 z-10 inline-flex items-center gap-1.5 rounded-full border border-[#0d2569]/15 bg-white/80 px-3 py-2 text-xs font-semibold text-[#0d2569] hover:border-[#2573e2] hover:text-[#2573e2] sm:left-6 sm:top-6"
       >
         <ArrowLeft className="h-3.5 w-3.5" aria-hidden />
-        Back to Landing Page
+        {labelKembali ?? 'Back to Landing Page'}
       </button>
 
       {/* Kolom terpusat ~400px (pola login). */}
