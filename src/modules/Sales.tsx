@@ -30,6 +30,7 @@ import {
 } from '../lib/master';
 import { hitungAnalitikSales } from '../lib/derive';
 import { formatRupiah, formatTanggal, hariIniIso } from '../lib/format';
+import { labelOpsiTally } from '../lib/petaOpsiTally';
 import {
   hubungkanGoogleCalendar,
   perbaruiEventKalender,
@@ -1562,8 +1563,8 @@ export function TabOrder({ data, user, actions, cari }: ModulProps) {
                     <Td tebal>{r.id}</Td>
                     <Td>{r.namaLengkap}</Td>
                     <Td>{r.perusahaan}</Td>
-                    <Td>{r.layanan.join(', ')}</Td>
-                    <Td>{r.anggaran}</Td>
+                    <Td>{r.layanan.map(labelOpsiTally).join(', ')}</Td>
+                    <Td>{labelOpsiTally(r.anggaran)}</Td>
                     <Td>{formatTanggal(r.tanggalSubmit)}</Td>
                     <Td>
                       <StatusBadge status={labelStatusPermintaan(r.status)} />

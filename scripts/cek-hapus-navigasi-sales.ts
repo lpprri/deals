@@ -305,6 +305,39 @@ cek(
   labels.includes('export function labelStatusPermintaan('),
 );
 
+// --- Asersi pemetaan UUID opsi Tally -> label (PR #115, amandemen). ---
+// Tally menyimpan jawaban pilihan sebagai UUID blok opsi (terverifikasi
+// via API pada submission laGXkbk); tabel Ads Quotation Request WAJIB
+// menampilkan labelnya, bukan UUID mentah.
+const petaOpsi = baca('src/lib/petaOpsiTally.ts');
+const jumlahEntriPeta = (
+  petaOpsi.match(
+    /'[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}': '/g,
+  ) ?? []
+).length;
+cek(
+  'petaOpsiTally: 49 entri UUID -> label dari form ArpNAN',
+  jumlahEntriPeta === 49,
+  String(jumlahEntriPeta),
+);
+cek(
+  'petaOpsiTally: contoh terverifikasi d774d4c6-... -> Social Media Ads',
+  petaOpsi.includes(
+    "'d774d4c6-9d38-5e4d-8f30-4b0470608ebf': 'Social Media Ads'",
+  ),
+);
+cek(
+  'petaOpsiTally: helper labelOpsiTally ada + fallback nilai asli',
+  petaOpsi.includes('export function labelOpsiTally(') &&
+    petaOpsi.includes('PETA_OPSI_TALLY[nilai] ?? nilai'),
+);
+cek(
+  'Ads Quotation Request: layanan + anggaran dirender lewat labelOpsiTally (bukan UUID mentah)',
+  tabOrder.includes('r.layanan.map(labelOpsiTally)') &&
+    tabOrder.includes('labelOpsiTally(r.anggaran)') &&
+    sales.includes("from '../lib/petaOpsiTally'"),
+);
+
 if (gagal > 0) {
   console.log(`\n${gagal} asersi GAGAL`);
   process.exit(1);

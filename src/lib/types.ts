@@ -408,6 +408,12 @@ export type StatusPermintaan = 'Baru' | 'Diproses' | 'Selesai' | 'Ditolak';
  *   Platform Ads, Dialogue & Podcast).
  * - anggaran = G1 (rentang klasifikasi, BUKAN harga — tarif tidak tampil
  *   di form).
+ * NILAI MENTAH vs TAMPILAN (terverifikasi via API, submission laGXkbk):
+ * Tally menyimpan jawaban pilihan sebagai UUID BLOK OPSI, bukan teks
+ * (mis. B1 menyimpan 'd774d4c6-...' = 'Social Media Ads'). Record ini
+ * menyimpan nilai MENTAH apa adanya; tabel menyelesaikannya saat render
+ * lewat labelOpsiTally() (src/lib/petaOpsiTally.ts) — JANGAN pernah
+ * menampilkan UUID mentah ke operator. Webhook memakai peta yang sama.
  */
 export interface AdsQuotationRequest {
   /** Id submission Tally, mis. 'AQR-...' — dibuat webhook dari submissionId. */
