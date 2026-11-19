@@ -42,9 +42,11 @@ import {
 } from 'lucide-react';
 import { auth, db, isFirebaseConfigured } from './lib/firebaseApp';
 import {
+  buatAkunInternal,
   daftarDenganEmail,
   keluar,
   masukDenganEmail,
+  peranDikenal,
 } from './lib/auth';
 import { EMAIL_OPERATOR_USULAN, jalankanMigrasi } from './lib/migrasi';
 import {
@@ -202,7 +204,10 @@ import Chat from './modules/Chat';
 import Service from './modules/Service';
 import AuditPage from './modules/AuditPage';
 import MasterPage from './modules/MasterPage';
-import type { UndangKlienInput } from './modules/MasterPage';
+import type {
+  BuatAkunInternalInput,
+  UndangKlienInput,
+} from './modules/MasterPage';
 import PortalKlien from './modules/PortalKlien';
 import HomePage from './modules/Home';
 import {
@@ -713,9 +718,11 @@ export default function App() {
   // ajukanAwal + prop prefill akan dipasang lagi pada putaran penyesuaian.
 
   // Pulihkan sesi Auth yang sudah masuk (bila Firebase terkonfigurasi).
-  // DUA PERAN (19/11/2026): pulihkan Operator DAN Client — peran
-  // dibedakan lewat field `peran` di users/{uid}; client membawa
-  // klienId (tanpa itu portal tidak tahu data siapa yang ditampilkan).
+  // EMPAT PERAN (19/11/2026): pulihkan Operator, User, Verifikator,
+  // DAN Client — peran dibedakan lewat field `peran` di users/{uid};
+  // client membawa klienId (tanpa itu portal tidak tahu data siapa
+  // yang ditampilkan). Routing: client → Client Portal, tiga peran
+  // internal → admin portal (lihat di bawah).
   useEffect(() => {
     if (!isFirebaseConfigured || !auth || !db) return;
     const berhenti = onAuthStateChanged(auth, async (fbUser) => {
@@ -725,7 +732,7 @@ export default function App() {
         if (snap.exists()) {
           const d = snap.data();
           const peran = d.peran;
-          if (peran === 'operator' || peran === 'client') {
+          if (peranDikenal(peran)) {
             setUser({
               nama: String(d.nama ?? ''),
               jabatan: String(d.jabatan ?? ''),
@@ -1169,11 +1176,13 @@ export default function App() {
     setActive('home');
   };
 
-  // DUA PERAN (19/11/2026): client yang login masuk Client Portal —
+  // EMPAT PERAN (19/11/2026): client yang login masuk Client Portal —
   // BUKAN admin portal. Portal hanya menerima data client itu
   // (di mode Firestore sudah tersaring lewat muatDataKlien; di mode
   // contoh portal menyaring seed penuh di dalamnya). Client tidak
   // pernah mencapai shell admin di bawah (nav, modul, MasterPage).
+  // Operator, user, dan verifikator masuk admin portal yang sama —
+  // bedanya di matriks hak akses (permissions.ts) + firestore.rules.
   if (user.peran === 'client') {
     return (
       <PortalKlien
@@ -1202,10 +1211,17 @@ export default function App() {
       ...d,
       audit: [entri, ...d.audit],
     }));
-    // Tulis audit ke Firestore HANYA untuk Operator: audit hanya
-    // ditulis dari sesi Operator; submission publik tidak menulis
-    // audit (audit dicatat saat Operator memprosesnya).
-    if (modeData === 'firestore' && db && penggunaAktif.peran === 'operator') {
+    // Tulis audit ke Firestore HANYA untuk Operator dan User:
+    // audit hanya ditulis dari sesi internal yang bekerja
+    // operasional; submission publik tidak menulis audit (audit
+    // dicatat saat Operator/User memprosesnya). Verifikator tidak
+    // menulis audit — perubahan checklist-nya tercatat di dokumen
+    // checklist itu sendiri (diperiksaOleh + diperbaruiPada).
+    if (
+      modeData === 'firestore' &&
+      db &&
+      (penggunaAktif.peran === 'operator' || penggunaAktif.peran === 'user')
+    ) {
       tulisAudit(db, entri).catch((e) => {
         console.error('Gagal menulis audit ke Firestore:', e);
         setPeringatanSimpan(
@@ -1698,8 +1714,8 @@ export default function App() {
     // submission berasal dari calon klien yang belum tercatat (klienId
     // kosong), Operator menyetujui sekaligus dibuatkan Klien baru.
     setujuiPengajuanKlien: (submission: PengajuanKlien, catatan?: string) => {
-      if (penggunaAktif.peran !== 'operator') {
-        return 'Only the Operator can approve portal submissions.';
+      if (!bolehAksi(penggunaAktif.peran, 'setujuiPengajuanKlien')) {
+        return 'Only the Operator or User can approve portal submissions.';
       }
       if (submission.status !== 'Menunggu') {
         return 'This submission has already been processed.';
@@ -1792,8 +1808,8 @@ export default function App() {
     },
 
     tolakPengajuanKlien: (submission: PengajuanKlien, catatan: string) => {
-      if (penggunaAktif.peran !== 'operator') {
-        return 'Only the Operator can reject portal submissions.';
+      if (!bolehAksi(penggunaAktif.peran, 'tolakPengajuanKlien')) {
+        return 'Only the Operator or User can reject portal submissions.';
       }
       if (submission.status !== 'Menunggu') {
         return 'This submission has already been processed.';
@@ -3220,6 +3236,56 @@ export default function App() {
     }
   };
 
+  /**
+   * Buat akun internal (empat peran 19/11/2026; dari kartu "Create
+   * Internal Account" di MasterPage). HANYA operator — guard
+   * bolehAksi di sini (kartu juga hanya tampil untuk operator).
+   * Memakai `buatAkunInternal` (secondary FirebaseApp) supaya sesi
+   * operator yang sedang login TIDAK terganti. Akun client TIDAK
+   * BISA dibuat dari sini (ditolak di auth.ts) — client hanya lewat
+   * signup publik atau invite + tautan. Di luar mode Firestore
+   * (mode contoh), akun tidak benar-benar dibuat — kartu memberi
+   * tahu operator untuk memakai mode Firestore.
+   */
+  const tanganiBuatAkunInternal = async (
+    input: BuatAkunInternalInput,
+  ): Promise<{ galat: string | null; uid?: string }> => {
+    if (!bolehAksi(penggunaAktif.peran, 'kelolaAkun')) {
+      return { galat: 'Only the Operator can create internal accounts.' };
+    }
+    if (!isFirebaseConfigured || !db) {
+      return {
+        galat:
+          'Firebase is not configured in this mode — internal accounts can only be created in Firestore mode.',
+      };
+    }
+    try {
+      const { uid } = await buatAkunInternal(
+        input.nama,
+        input.jabatan,
+        input.email,
+        input.kataSandi,
+        input.peran,
+      );
+      tambahAudit(
+        'Akun internal dibuat',
+        'users',
+        uid,
+        '—',
+        `${input.nama} (${input.email}) — ${input.peran}`,
+      );
+      return { galat: null, uid };
+    } catch (e) {
+      console.error('Gagal membuat akun internal:', e);
+      return {
+        galat:
+          e instanceof Error
+            ? e.message
+            : 'Failed to create the account — try again.',
+      };
+    }
+  };
+
   // Daftar utama sidebar: hanya item tanpa induk (sub-item tampil di
   // panel tambahan di samping sidebar, lihat panel di bawah).
   const navUtama = MODULES.filter((m) => m.phase !== 'Admin' && !m.induk);
@@ -3658,6 +3724,7 @@ export default function App() {
                   akunKlienDibuat: k.akunKlienDibuat,
                 }))}
                 onUndangKlien={tanganiUndangKlien}
+                onBuatAkunInternal={tanganiBuatAkunInternal}
                 onBackfillKlienId={tanganiBackfillKlienId}
                 statusBackfillKlienId={
                   modeData === 'firestore'

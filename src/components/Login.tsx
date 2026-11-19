@@ -10,8 +10,9 @@
 //   di bawah logo DIHAPUS supaya tidak duplikat dengan teks di gambar.
 // - Heading "Welcome Back" + subjudul yang sama seperti sebelumnya.
 // - Keterangan akses dengan ikon gembok di bawah subjudul, di atas kolom
-//   email (DUA PERAN, keputusan pengguna 19/11/2026 15:45 WIB: client
-//   JUGA masuk lewat halaman ini — kalimat lama "Only designated
+//   email (EMPAT PERAN, keputusan pengguna 19/11/2026 20:41 + 20:43 WIB:
+//   client, operator, user, dan verifikator masuk lewat halaman ini —
+//   kalimat lama "Only designated
 //   officers can sign in here. If you're a client, please click here."
 //   (PR #112, revisi pengguna 19/11/2026 08:45 WIB) diganti karena
 //   client kini punya akun; "click here" tetap membuka halaman Lacak
@@ -26,18 +27,19 @@
 // TIDAK ada alur email-first (password tetap di layar yang sama),
 // TIDAK ada Forgot password (belum ada alurnya), TIDAK ada checkbox
 // Remember (persistensi Firebase sudah default). SIGNUP PUBLIK
-// (keputusan pengguna 19/11/2026 16:12 WIB, menggantikan default
-// invite-only): calon klien membuat akun sendiri dari halaman ini
+// (keputusan pengguna 19/11/2026 16:12 WIB, TIDAK berubah oleh empat
+// peran): calon klien membuat akun sendiri dari halaman ini
 // (tautan "Create account") — signup SELALU menghasilkan peran
 // 'client'; TIDAK ADA pilihan peran di form dan TIDAK ADA jalan
-// membuat akun operator lewat signup (validasi client + rules).
+// membuat akun operator/user/verifikator lewat signup (validasi
+// client + rules). Akun internal dibuat operator dari Master & Users.
 // Tautan publik Ajukan TIDAK ada di halaman ini (keputusan pengguna
 // 2026-11-15). Lacak DIJANGKAU dari sini sejak 2026-11-19: tautan
 // "click here" di keterangan akses membuka halaman Lacak publik (prop
 // onLacak, disambungkan di App.tsx ke halamanPublik 'lacak').
 // KOREKSI 2026-11-15 yang lama ("klien tidak punya login/akun;
 // halaman ini hanya untuk Operator") DIBALIK keputusan 19/11/2026 —
-// halaman ini kini melayani Operator DAN Client (peran dibedakan lewat
+// halaman ini kini melayani keempat peran (peran dibedakan lewat
 // field `peran` di profil; routing di App.tsx). Akses klien TANPA akun
 // tetap lewat Lacak (kode transaksi) dan form Ajukan (publik).
 // Bila Firebase terkonfigurasi: form email + kata sandi (Firebase Auth).
@@ -189,10 +191,10 @@ export default function Login({
             : 'Enter your credentials to access your account'}
         </p>
 
-        {/* Keterangan akses (dua peran 19/11/2026: client JUGA masuk
-            di sini; "click here" ke Lacak publik bagi yang belum punya
-            akun; signup publik 19/11/2026 16:12 WIB — selalu client,
-            tanpa pilihan peran). */}
+        {/* Keterangan akses (empat peran 19/11/2026: client, operator,
+            user, dan verifikator masuk di sini; "click here" ke Lacak
+            publik bagi yang belum punya akun; signup publik
+            19/11/2026 16:12 WIB — selalu client, tanpa pilihan peran). */}
         <div className="mt-6 flex items-start gap-2.5 rounded-xl border border-[#2573e2]/25 bg-white px-3.5 py-3">
           <Lock
             className="mt-0.5 h-4 w-4 shrink-0 text-[#2573e2]"
@@ -207,9 +209,10 @@ export default function Login({
             </p>
           ) : (
             <p className="text-xs leading-relaxed text-[#0d2569]/80">
-              Sign in with your account — Operators and clients sign
-              in here. After signing in, clients see their own Client
-              Portal. No account yet? Create a client account below,
+              Sign in with your account — Operators, Users,
+              Verifikators, and clients sign in here. After signing in,
+              clients see their own Client Portal; staff see the admin
+              portal. No account yet? Create a client account below,
               or track your partnership by PKS or invoice number —
               please{' '}
               <button

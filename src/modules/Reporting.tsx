@@ -5,7 +5,7 @@
 // baris-baris laporan yang sama, sehingga total selalu sama dengan
 // jumlah baris. Sel yang tidak ada nilainya diisi "0" (aturan kantor pusat).
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import type { ModulProps } from '../lib/store';
 import type { JenisPnBP } from '../lib/types';
 import {
@@ -16,7 +16,18 @@ import {
   kelompokUmurPiutang,
 } from '../lib/derive';
 import { formatRupiah, formatPeriode, formatAngka, periodeDariTanggal } from '../lib/format';
-import { jenisPnBPDariKodeAkun, uraianKodeAkun } from '../lib/master';
+import {
+  SATKER_PILOT,
+  jenisPnBPDariKodeAkun,
+  uraianKodeAkun,
+} from '../lib/master';
+import { isFirebaseConfigured } from '../lib/firebaseApp';
+import {
+  muatChecklist,
+  simpanChecklist,
+  type ChecklistVerifikasi,
+  type JenisLaporanChecklist,
+} from '../lib/verifikasiLaporan';
 import {
   labelJenisPnBP,
   labelStatusTagihan,
@@ -159,6 +170,144 @@ function unduhCsv(namaFile: string, baris: string[][]) {
   a.download = namaFile;
   a.click();
   URL.revokeObjectURL(url);
+}
+
+/**
+ * Panel checklist verifikasi laporan — EMPAT PERAN (keputusan
+ * pengguna 19/11/2026 20:43 WIB): verifikator (ahli madya /
+ * supervisor) mengecek laporan dan memberi checklist; operator
+ * dan user hanya MELIHAT keadaan checklist (read-only). Satu
+ * checklist per jenis laporan + periode, tersimpan di koleksi
+ * `verifikasiLaporan` (lihat src/lib/verifikasiLaporan.ts).
+ * Checklist TIDAK memblokir apa pun — tidak ada alur
+ * approve/reject. Di mode contoh (Firebase belum terkonfigurasi),
+ * checklist hanya hidup di sesi ini.
+ */
+function PanelChecklistVerifikasi({
+  jenis,
+  periode,
+  user,
+}: {
+  jenis: JenisLaporanChecklist;
+  periode: string;
+  user: ModulProps['user'];
+}) {
+  const bolehUbah = bolehAksi(user.peran, 'verifikasiLaporan');
+  const [checklist, setChecklist] = useState<ChecklistVerifikasi | null>(null);
+  const [memuat, setMemuat] = useState(true);
+  const [menyimpan, setMenyimpan] = useState(false);
+  const [galat, setGalat] = useState<string | null>(null);
+  const [sukses, setSukses] = useState<string | null>(null);
+
+  useEffect(() => {
+    let batal = false;
+    setMemuat(true);
+    setGalat(null);
+    setSukses(null);
+    muatChecklist(jenis, periode, user.satker ?? SATKER_PILOT)
+      .then((c) => {
+        if (!batal) setChecklist(c);
+      })
+      .catch((e) => {
+        if (!batal)
+          setGalat(e instanceof Error ? e.message : 'Failed to load the checklist.');
+      })
+      .finally(() => {
+        if (!batal) setMemuat(false);
+      });
+    return () => {
+      batal = true;
+    };
+  }, [jenis, periode, user.satker]);
+
+  async function tanganiSimpan() {
+    if (!checklist || !bolehUbah || menyimpan) return;
+    setMenyimpan(true);
+    setGalat(null);
+    setSukses(null);
+    try {
+      await simpanChecklist(checklist, user.nama || user.email || 'Verifikator');
+      setSukses('Checklist saved.');
+    } catch (e) {
+      setGalat(
+        e instanceof Error ? e.message : 'Failed to save the checklist.',
+      );
+    } finally {
+      setMenyimpan(false);
+    }
+  }
+
+  const tercapai = checklist?.item.filter((i) => i.dicentang).length ?? 0;
+  const total = checklist?.item.length ?? 0;
+
+  return (
+    <Kartu>
+      <JudulBagian>Verification Checklist</JudulBagian>
+      <p className="mt-2 text-sm text-[#0d2569]/70">
+        Checked by the Verifikator (Ahli Madya / Supervisor) for this
+        report and period. {bolehUbah ? 'Tick the items you have checked, then save.' : 'You can view the checklist state — only the Verifikator can change it.'}
+      </p>
+      {!isFirebaseConfigured && (
+        <p className="mt-2 text-xs text-[#0d2569]/60">
+          Sample mode — the checklist is kept in this session only and is not saved to Firestore.
+        </p>
+      )}
+      {memuat || !checklist ? (
+        <p className="mt-3 text-sm text-[#0d2569]/70">Loading checklist…</p>
+      ) : (
+        <>
+          <div className="mt-3 space-y-2">
+            {checklist.item.map((it) => (
+              <label key={it.id} className="flex items-start gap-2 text-sm text-[#0d2569]">
+                <input
+                  type="checkbox"
+                  className="mt-0.5 h-4 w-4 accent-[#2573e2]"
+                  checked={it.dicentang}
+                  disabled={!bolehUbah || menyimpan}
+                  onChange={(e) =>
+                    setChecklist((c) =>
+                      c
+                        ? {
+                            ...c,
+                            item: c.item.map((x) =>
+                              x.id === it.id
+                                ? { ...x, dicentang: e.target.checked }
+                                : x,
+                            ),
+                          }
+                        : c,
+                    )
+                  }
+                />
+                <span>{it.label}</span>
+              </label>
+            ))}
+          </div>
+          <p className="mt-3 text-xs text-[#0d2569]/60">
+            {tercapai} of {total} items checked
+            {checklist.diperiksaOleh ? ` — last saved by ${checklist.diperiksaOleh}` : ''}
+            {checklist.diperbaruiPada ? ` on ${checklist.diperbaruiPada.slice(0, 10)}` : ''}
+            .
+          </p>
+          {bolehUbah && (
+            <div className="mt-3">
+              <TombolUtama onClick={tanganiSimpan} disabled={menyimpan}>
+                {menyimpan ? 'Saving…' : 'Save Checklist'}
+              </TombolUtama>
+            </div>
+          )}
+        </>
+      )}
+      {galat && (
+        <div className="mt-3">
+          <Peringatan teks={galat} />
+        </div>
+      )}
+      {sukses && (
+        <p className="mt-3 text-sm font-semibold text-[#0d2569]">{sukses}</p>
+      )}
+    </Kartu>
+  );
 }
 
 export default function Reporting(props: ModulProps) {
@@ -509,6 +658,8 @@ export default function Reporting(props: ModulProps) {
           </div>
         )}
       </Kartu>
+
+      <PanelChecklistVerifikasi jenis={jenis} periode={periode} user={user} />
 
       {/* TOTAL KONTROL — dihitung dari baris-baris laporan yang sama */}
       <Kartu>

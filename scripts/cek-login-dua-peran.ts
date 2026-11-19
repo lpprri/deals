@@ -1,21 +1,30 @@
-// Verifikasi login dua peran + Client Portal (19/11/2026) — TANPA Firestore.
+// Verifikasi login EMPAT PERAN + Client Portal (19/11/2026; model dua
+// peran PR #121 diganti keputusan pengguna 19/11/2026 20:41 + 20:43 WIB
+// — nama berkas dipertahankan, isinya kini mengasersi model empat
+// peran; cek-empat-peran.ts mengasersi matriks hak + checklist) —
+// TANPA Firestore.
 // - Field peran + routing menurut peran (peranDariProfil murni; App.tsx
-//   merutekan client ke PortalKlien, operator ke admin portal).
-// - SIGNUP PUBLIK (keputusan pengguna 19/11/2026 16:12 WIB): halaman
-//   login punya jalur 'Create account' — signup SELALU menghasilkan
-//   peran 'client' (tanpa klienId, tanpa pilihan peran di form maupun
-//   di kode); akun baru yang belum tertaut menampilkan portal 'belum
-//   tertaut' + diarahkan ke Ajukan; self-create operator di rules
-//   dikunci ke profil userProfiles yang disiapkan (menutup jalan
-//   penaikan peran yang dibuka signup publik); akun belum tertaut
-//   boleh membuat submission Ajukan klienId '' yang dibuatOleh-nya
-//   sama dengan email akun Auth-nya (email Ajukan dikunci di portal).
+//   merutekan client ke PortalKlien, operator/user/verifikator ke
+//   admin portal).
+// - SIGNUP PUBLIK (keputusan pengguna 19/11/2026 16:12 WIB, TIDAK
+//   berubah oleh empat peran): halaman login punya jalur 'Create
+//   account' — signup SELALU menghasilkan peran 'client' (tanpa
+//   klienId, tanpa pilihan peran di form maupun di kode); akun baru
+//   yang belum tertaut menampilkan portal 'belum tertaut' + diarahkan
+//   ke Ajukan; self-create operator di rules dikunci ke profil
+//   userProfiles yang disiapkan (menutup jalan penaikan peran yang
+//   dibuka signup publik); akun belum tertaut boleh membuat
+//   submission Ajukan klienId '' yang dibuatOleh-nya sama dengan
+//   email akun Auth-nya (email Ajukan dikunci di portal).
 // - firestore.rules: baca client HANYA di bawah klienId-nya sendiri
 //   (kontrak/tagihan/pembayaran/denda/mou/commitment/dokumen/
-//   pengajuanKlien/klien), list klien dilarang, operator tidak berubah,
-//   Lacak publik tetap get-by-ID tanpa login, guard backfill baru,
-//   profil users: self-create hanya operator, operator boleh membuat
-//   profil client dengan klienId, peran/satker/klienId tidak bisa diubah.
+//   pengajuanKlien/klien), list klien dilarang, baca operasional untuk
+//   tiga peran internal (operator/user/verifikator), tulis operasional
+//   hanya operator + user, verifikator tulis HANYA checklist
+//   verifikasiLaporan, Lacak publik tetap get-by-ID tanpa login, guard
+//   backfill baru, profil users: self-create hanya operator, operator
+//   boleh membuat profil operator/user/verifikator/client (klienId
+//   wajib hanya untuk client), peran/satker/klienId tidak bisa diubah.
 // - Seed: klienId terdenormalisasi di tagihan/pembayaran/denda/dokumen
 //   (rantai induk benar), MoU tepat 3 tertaut (035→KLN-030, 043→KLN-014,
 //   045→KLN-009; near-miss 039 TIDAK tertaut), Commitment 0 tertaut.
@@ -138,8 +147,8 @@ cek(
   !login.includes('Only designated officers'),
 );
 cek(
-  'Login menyebut operator + client masuk di sini',
-  loginRata.includes('Operators and clients sign in here'),
+  'Login menyebut empat peran masuk di sini',
+  loginRata.includes('Operators, Users, Verifikators, and clients sign in here'),
 );
 cek(
   'Login merender semua DUMMY_USERS',
@@ -165,8 +174,8 @@ cek(
     app.indexOf("user.peran === 'client'") < app.indexOf('navUtama'),
 );
 cek(
-  'session restore menerima operator DAN client',
-  app.includes("peran === 'operator' || peran === 'client'"),
+  'session restore menerima keempat peran (peranDikenal)',
+  app.includes('peranDikenal(peran)'),
 );
 cek(
   'Lacak publik tetap ada (halamanPublik lacak)',
@@ -405,9 +414,10 @@ cek(
     ),
 );
 cek(
-  'rules operator boleh membuat profil client (klienId wajib)',
-  rules.includes("request.resource.data.peran in ['operator', 'client']") &&
-    rules.includes('request.resource.data.klienId is string'),
+  'rules operator boleh membuat profil operator/user/verifikator/client (klienId wajib untuk client)',
+  rules.includes(
+    "request.resource.data.peran in ['operator', 'user', 'verifikator', 'client']",
+  ) && rules.includes('request.resource.data.klienId is string'),
 );
 cek(
   'rules update users: klienId tidak bisa diubah',

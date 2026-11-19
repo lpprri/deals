@@ -84,6 +84,7 @@ import {
   Th,
   TombolUtama,
 } from '../components/ui';
+import { LABEL_PERAN, bolehAksi } from '../lib/permissions';
 
 function DaftarNilai({
   judul,
@@ -200,6 +201,16 @@ export interface MasterPageProps extends ModulProps {
     galat: string | null;
   }>;
   /**
+   * Dipanggil saat form buat akun internal dikirim. Koordinator
+   * menyambungkannya ke handler App.tsx yang membuat akun Auth +
+   * dokumen profil `users/{uid}` lewat secondary FirebaseApp
+   * (sesi operator tidak terganti). Halaman ini TIDAK memanggil
+   * Firebase langsung.
+   */
+  onBuatAkunInternal?: (
+    input: BuatAkunInternalInput,
+  ) => Promise<{ galat: string | null; uid?: string }>;
+  /**
    * Dipanggil saat tombol jalankan backfill klienId diklik, dengan
    * callback progres per tahap. Koordinator menyambungkannya ke
    * `jalankanBackfillKlienId` (src/lib/backfillKlienId.ts).
@@ -211,6 +222,16 @@ export interface MasterPageProps extends ModulProps {
   statusBackfillKlienId?: 'belum' | 'sudah' | 'tidak-tersedia';
   /** Tanggal backfill klienId (bila diketahui dari luar sesi ini). */
   tanggalBackfillKlienId?: string;
+}
+
+/** Input form buat akun internal (empat peran 19/11/2026). */
+export interface BuatAkunInternalInput {
+  /** Peran internal — client TIDAK BISA dibuat dari jalur ini. */
+  peran: 'operator' | 'user' | 'verifikator';
+  email: string;
+  kataSandi: string;
+  nama: string;
+  jabatan: string;
 }
 
 /** Input form undang akun (dua peran 19/11/2026). */
@@ -1410,8 +1431,189 @@ function BagianUndangKlien({
   );
 }
 
+/**
+ * Bagian "Create Internal Account" — HANYA Operator (empat peran
+ * 19/11/2026 20:43 WIB: operator yang membuat akses untuk akun
+ * lain). Operator mengisi nama, jabatan, email, kata sandi, dan
+ * peran internal (operator / user / verifikator) — akun Auth +
+ * profil dibuat dari dalam aplikasi lewat secondary FirebaseApp,
+ * jadi operator TIDAK perlu ke Firebase console dan sesinya TIDAK
+ * terganti. Akun CLIENT tidak bisa dibuat dari sini — client hanya
+ * lewat signup publik (selalu 'client') atau kartu "Invite Client
+ * Account" di bawah (invite + tautan). Kartu ini hanya tampil bila
+ * pengguna punya aksi 'kelolaAkun' (operator saja); halaman
+ * Master & Users sendiri juga hanya tampil untuk operator (nav
+ * admin di App.tsx).
+ */
+function BagianBuatAkunInternal({
+  user,
+  onBuatAkunInternal,
+}: {
+  user: ModulProps['user'];
+  onBuatAkunInternal?: (
+    input: BuatAkunInternalInput,
+  ) => Promise<{ galat: string | null; uid?: string }>;
+}) {
+  const [peran, setPeran] =
+    useState<BuatAkunInternalInput['peran']>('user');
+  const [email, setEmail] = useState('');
+  const [kataSandi, setKataSandi] = useState('');
+  const [nama, setNama] = useState('');
+  const [jabatan, setJabatan] = useState('');
+  const [proses, setProses] = useState(false);
+  const [galat, setGalat] = useState<string | null>(null);
+  const [sukses, setSukses] = useState<string | null>(null);
+
+  if (!bolehAksi(user.peran, 'kelolaAkun')) return null;
+
+  async function tanganiBuat() {
+    if (!onBuatAkunInternal || proses) return;
+    setGalat(null);
+    setSukses(null);
+    if (nama.trim() === '') {
+      setGalat('Name is required.');
+      return;
+    }
+    if (email.trim() === '' || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
+      setGalat('A valid email is required.');
+      return;
+    }
+    if (kataSandi.length < 6) {
+      setGalat('Password must be at least 6 characters.');
+      return;
+    }
+    setProses(true);
+    try {
+      const hasil = await onBuatAkunInternal({
+        peran,
+        email: email.trim(),
+        kataSandi,
+        nama: nama.trim(),
+        jabatan:
+          jabatan.trim() ||
+          (peran === 'operator'
+            ? 'Staf Layanan & Pengembangan Usaha'
+            : peran === 'verifikator'
+              ? 'Ahli Madya Layanan & Pengembangan Usaha'
+              : 'Staf Layanan & Pengembangan Usaha'),
+      });
+      if (hasil.galat !== null) {
+        setGalat(hasil.galat);
+        return;
+      }
+      setSukses(
+        `${LABEL_PERAN[peran]} account created for ${email.trim()} (Auth UID ${hasil.uid ?? '—'}). They can now sign in and will see the admin portal.`,
+      );
+      setEmail('');
+      setKataSandi('');
+      setNama('');
+      setJabatan('');
+    } catch (e) {
+      setGalat(e instanceof Error ? e.message : 'Create failed. Try again.');
+    } finally {
+      setProses(false);
+    }
+  }
+
+  return (
+    <Kartu>
+      <JudulBagian>Create Internal Account</JudulBagian>
+      <p className="mt-2 text-sm text-[#0d2569]/70">
+        Create an Operator, User, or Verifikator account. The account
+        is created here in the app — no need to open the Firebase
+        console, and your own session stays signed in. Client accounts
+        cannot be created here: clients sign up themselves from the
+        login page, or use &ldquo;Invite Client Account&rdquo; below.
+      </p>
+      <div className="mt-4 grid gap-3 md:grid-cols-2">
+        <div>
+          <label className="mb-1.5 block text-sm font-bold text-[#0d2569]">
+            Role *
+          </label>
+          <select
+            className="w-full rounded-md border border-[#0d2569]/20 bg-white px-3 py-2 text-sm text-[#0d2569]"
+            value={peran}
+            onChange={(e) =>
+              setPeran(e.target.value as BuatAkunInternalInput['peran'])
+            }
+            disabled={proses}
+          >
+            <option value="user">User — Admin Staff, Layanan &amp; Pengembangan Usaha</option>
+            <option value="verifikator">Verifikator — Ahli Madya / Supervisor</option>
+            <option value="operator">Operator — App Administrator</option>
+          </select>
+        </div>
+        <div>
+          <label className="mb-1.5 block text-sm font-bold text-[#0d2569]">
+            Email *
+          </label>
+          <input
+            className="w-full rounded-md border border-[#0d2569]/20 bg-white px-3 py-2 text-sm text-[#0d2569]"
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="email for the new account"
+            disabled={proses}
+          />
+        </div>
+        <div>
+          <label className="mb-1.5 block text-sm font-bold text-[#0d2569]">
+            Password *
+          </label>
+          <input
+            className="w-full rounded-md border border-[#0d2569]/20 bg-white px-3 py-2 text-sm text-[#0d2569]"
+            type="password"
+            value={kataSandi}
+            onChange={(e) => setKataSandi(e.target.value)}
+            placeholder="at least 6 characters"
+            disabled={proses}
+          />
+        </div>
+        <div>
+          <label className="mb-1.5 block text-sm font-bold text-[#0d2569]">
+            Name *
+          </label>
+          <input
+            className="w-full rounded-md border border-[#0d2569]/20 bg-white px-3 py-2 text-sm text-[#0d2569]"
+            value={nama}
+            onChange={(e) => setNama(e.target.value)}
+            placeholder="Account holder name"
+            disabled={proses}
+          />
+        </div>
+        <div>
+          <label className="mb-1.5 block text-sm font-bold text-[#0d2569]">
+            Job title
+          </label>
+          <input
+            className="w-full rounded-md border border-[#0d2569]/20 bg-white px-3 py-2 text-sm text-[#0d2569]"
+            value={jabatan}
+            onChange={(e) => setJabatan(e.target.value)}
+            placeholder="Staf Layanan & Pengembangan Usaha"
+            disabled={proses}
+          />
+        </div>
+      </div>
+      <div className="mt-4">
+        <TombolUtama onClick={tanganiBuat} disabled={proses || !onBuatAkunInternal}>
+          {proses ? 'Creating account…' : 'Create account'}
+        </TombolUtama>
+      </div>
+      {galat && (
+        <div className="mt-3">
+          <Peringatan teks={galat} />
+        </div>
+      )}
+      {sukses && (
+        <p className="mt-3 text-sm font-semibold text-[#0d2569]">{sukses}</p>
+      )}
+    </Kartu>
+  );
+}
+
 export default function MasterPage(props: MasterPageProps) {
   const {
+    user,
     onMigrasi,
     statusMigrasi = 'tidak-tersedia',
     tanggalMigrasi,
@@ -1429,6 +1631,7 @@ export default function MasterPage(props: MasterPageProps) {
     tanggalMigrasiCommitment,
     daftarKlien,
     onUndangKlien,
+    onBuatAkunInternal,
     onBackfillKlienId,
     statusBackfillKlienId = 'tidak-tersedia',
     tanggalBackfillKlienId,
@@ -1480,6 +1683,11 @@ export default function MasterPage(props: MasterPageProps) {
       <BagianUndangKlien
         daftarKlien={daftarKlien}
         onUndangKlien={onUndangKlien}
+      />
+
+      <BagianBuatAkunInternal
+        user={user}
+        onBuatAkunInternal={onBuatAkunInternal}
       />
 
       <Peringatan teks="Master data is only changed by the Operator; values already used by transactions cannot be deleted, only deactivated." />

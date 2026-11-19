@@ -218,11 +218,12 @@ cek(
   rules.includes('match /pesan/{id} {'),
 );
 cek(
-  'firestore.rules: pesan mengikuti pola tiket (Operator + satker sama)',
+  'firestore.rules: pesan mengikuti pola tiket (staf internal baca, operator + user tulis, satker sama)',
   rules.includes('match /pesan/{id} {') &&
-    /match \/pesan\/\{id\} \{[\s\S]{0,600}?adalahOperator\(\) && satkerMilikPemanggil\(resource\.data\)/.test(
+    /match \/pesan\/\{id\} \{[\s\S]{0,600}?adalahStafInternal\(\) && satkerMilikPemanggil\(resource\.data\)/.test(
       rules,
-    ),
+    ) &&
+    /match \/pesan\/\{id\} \{[\s\S]{0,600}?bolehTulisOperasional\(\)/.test(rules),
 );
 
 if (gagal > 0) {
