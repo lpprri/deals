@@ -53,6 +53,15 @@ import type {
   TahapMigrasiMou,
 } from '../lib/migrasiMou';
 import {
+  ID_MOU_037,
+  PIC_MOU_037_BARU,
+} from '../lib/perbaikanMou037Rencana';
+import type {
+  HasilPerbaikanMou037,
+  KemajuanPerbaikanMou037,
+  TahapPerbaikanMou037,
+} from '../lib/perbaikanMou037';
+import {
   Baris,
   JudulBagian,
   Kartu,
@@ -136,6 +145,20 @@ export interface MasterPageProps extends ModulProps {
   statusMigrasiMou?: 'belum' | 'sudah' | 'tidak-tersedia';
   /** Tanggal migrasi MoU (bila diketahui dari luar sesi ini). */
   tanggalMigrasiMou?: string;
+  /**
+   * Dipanggil saat tombol jalankan perbaikan MoU 037 diklik, dengan
+   * callback progres per tahap. Koordinator menyambungkannya ke
+   * `jalankanPerbaikanMou037` (src/lib/perbaikanMou037.ts).
+   */
+  onPerbaikanMou037?: (
+    onKemajuan?: (k: KemajuanPerbaikanMou037) => void,
+  ) => Promise<HasilPerbaikanMou037>;
+  /**
+   * Status perbaikan MoU 037 dari Firestore (nilai live dokumen 037
+   * sudah bernilai baru atau belum). TIDAK memakai dokumen guard
+   * `meta/` — lihat src/lib/perbaikanMou037.ts.
+   */
+  statusPerbaikanMou037?: 'belum' | 'sudah' | 'tidak-tersedia';
 }
 
 function formatTanggalIso(iso: string): string {
@@ -651,6 +674,149 @@ function BagianMigrasiMou({
   );
 }
 
+const LABEL_TAHAP_PERBAIKAN_MOU_037: Record<TahapPerbaikanMou037, string> = {
+  'baca-live': 'Reading live MoU record 037…',
+  prakondisi: 'Checking preconditions…',
+  tulis: 'Writing the fix to MoU 037…',
+  verifikasi: 'Verifying the fixed record…',
+  audit: 'Writing the audit record…',
+  selesai: 'Done.',
+};
+
+/**
+ * Bagian "Fix MoU Record 037 (One-off)" — perbaikan satu kali record
+ * MoU 037/RRI-PLB/KJM.02.04/09/2026 di Firestore (keputusan pengguna
+ * 19/11/2026 14:41 WIB): PIC menjadi 'Ja'far' dan nama instansi
+ * dibersihkan dari backtick nyasar di akhir. PERSIS 1 dokumen dan
+ * PERSIS 2 field; dokumen lain dan koleksi lain TIDAK disentuh, total
+ * kontrak PNBP tidak berubah. Sekali jalan TANPA dokumen guard `meta/`
+ * baru — perlindungan jalan-dua-kali berasal dari prakondisi nilai
+ * live (bila dokumen 037 sudah bernilai baru, patch MENOLAK sebelum
+ * menulis apa pun).
+ */
+function BagianPerbaikanMou037({
+  onPerbaikanMou037,
+  statusPerbaikanMou037,
+}: {
+  onPerbaikanMou037?: (
+    onKemajuan?: (k: KemajuanPerbaikanMou037) => void,
+  ) => Promise<HasilPerbaikanMou037>;
+  statusPerbaikanMou037: 'belum' | 'sudah' | 'tidak-tersedia';
+}) {
+  const [setuju, setSetuju] = useState(false);
+  const [proses, setProses] = useState(false);
+  const [kemajuan, setKemajuan] = useState<KemajuanPerbaikanMou037 | null>(
+    null,
+  );
+  const [hasil, setHasil] = useState<HasilPerbaikanMou037 | null>(null);
+  const [galat, setGalat] = useState<string | null>(null);
+
+  const sudah = statusPerbaikanMou037 === 'sudah' || hasil !== null;
+
+  async function tanganiPerbaikanMou037() {
+    if (!onPerbaikanMou037 || proses || sudah || !setuju) return;
+    setProses(true);
+    setGalat(null);
+    setKemajuan(null);
+    try {
+      const r = await onPerbaikanMou037((k) => setKemajuan(k));
+      setHasil(r);
+    } catch (e) {
+      setGalat(
+        e instanceof Error ? e.message : 'MoU 037 fix failed. Try again.',
+      );
+    } finally {
+      setProses(false);
+    }
+  }
+
+  return (
+    <Kartu>
+      <JudulBagian>Fix MoU Record 037 (One-off)</JudulBagian>
+      {statusPerbaikanMou037 === 'tidak-tersedia' ? (
+        <p className="mt-2 text-sm text-[#0d2569]/70">
+          This fix only works on live Firestore data. Open this page after
+          signing in while the app is in Firestore mode — in sample mode
+          the data already comes from the corrected seed.
+        </p>
+      ) : sudah ? (
+        <p className="mt-2 text-sm text-[#0d2569]/70">
+          Already fixed
+          {hasil ? ` on ${formatTanggalIso(hasil.tanggal)}` : ''} — PIC of
+          MoU {ID_MOU_037} is {PIC_MOU_037_BARU} and the institution name
+          is clean. This fix can only be done once.
+        </p>
+      ) : (
+        <>
+          <p className="mt-2 text-sm text-[#0d2569]/70">
+            Sets the PIC of MoU {ID_MOU_037} to {PIC_MOU_037_BARU} and
+            removes the stray trailing backtick from its institution name.
+            Only that one document and only those two fields are changed;
+            no other document or collection is touched, and the PNBP
+            contract totals do not change. Before writing anything, the
+            fix checks that the live record still has the old values; it
+            can only be done once.
+          </p>
+          <label className="mt-3 flex items-start gap-2 text-sm text-[#0d2569]">
+            <input
+              type="checkbox"
+              checked={setuju}
+              onChange={(e) => setSetuju(e.target.checked)}
+              disabled={proses}
+              className="mt-0.5"
+            />
+            <span>
+              I understand this updates one MoU document ({ID_MOU_037})
+              in Firestore. This cannot be undone from the app.
+            </span>
+          </label>
+          <div className="mt-3">
+            <TombolUtama
+              onClick={tanganiPerbaikanMou037}
+              disabled={proses || !setuju || !onPerbaikanMou037}
+            >
+              {proses ? 'Fixing MoU 037…' : 'Run MoU 037 fix'}
+            </TombolUtama>
+          </div>
+        </>
+      )}
+
+      {(proses || kemajuan) && !hasil && (
+        <div className="mt-3">
+          <p className="text-sm font-semibold text-[#0d2569]">
+            {kemajuan
+              ? LABEL_TAHAP_PERBAIKAN_MOU_037[kemajuan.tahap]
+              : 'Starting…'}
+          </p>
+        </div>
+      )}
+
+      {galat && (
+        <div className="mt-3">
+          <Peringatan teks={galat} />
+          {kemajuan && (
+            <p className="mt-2 text-sm text-[#0d2569]/70">
+              Stopped at: {LABEL_TAHAP_PERBAIKAN_MOU_037[kemajuan.tahap]}.
+              Do not run it again — report this to Digi with the message
+              above.
+            </p>
+          )}
+        </div>
+      )}
+
+      {hasil && (
+        <div className="mt-3">
+          <p className="text-sm font-semibold text-[#0d2569]">
+            MoU 037 fix succeeded on {formatTanggalIso(hasil.tanggal)}.
+            PIC: {hasil.sebelum.pic} → {hasil.sesudah.pic}. Verify the
+            Memorandum of Understanding panel in Firestore mode.
+          </p>
+        </div>
+      )}
+    </Kartu>
+  );
+}
+
 export default function MasterPage(props: MasterPageProps) {
   const {
     onMigrasi,
@@ -663,6 +829,8 @@ export default function MasterPage(props: MasterPageProps) {
     onMigrasiMou,
     statusMigrasiMou = 'tidak-tersedia',
     tanggalMigrasiMou,
+    onPerbaikanMou037,
+    statusPerbaikanMou037 = 'tidak-tersedia',
   } = props;
   return (
     <div className="space-y-6">
@@ -689,6 +857,11 @@ export default function MasterPage(props: MasterPageProps) {
         onMigrasiMou={onMigrasiMou}
         statusMigrasiMou={statusMigrasiMou}
         tanggalMigrasiMou={tanggalMigrasiMou}
+      />
+
+      <BagianPerbaikanMou037
+        onPerbaikanMou037={onPerbaikanMou037}
+        statusPerbaikanMou037={statusPerbaikanMou037}
       />
 
       <Peringatan teks="Master data is only changed by the Operator; values already used by transactions cannot be deleted, only deactivated." />

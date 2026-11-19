@@ -12,8 +12,13 @@ User decisions (2026-11-19, do not change without the user):
   Kesepahaman, 17 Perjanjian Kerjasama, 1 Pelaksanaan Kerja Sama);
   the original JENIS value is kept as the `jenis` field.
 - PIC names exactly as written: 'Dessi' and 'Dessi Maya Sari' are NOT
-  merged; 'Selvia Lena' kept as-is; 1 missing PIC -> '—'.
+  merged; 'Selvia Lena' kept as-is; 1 missing PIC -> '—' in the source,
+  BUT user correction 19/11/2026 14:41 WIB sets record
+  037/RRI-PLB/KJM.02.04/09/2026 PIC to 'Ja'far' (see KOREKSI_037 below).
 - 21 empty DOKUMEN -> '—'. '2 tahun' normalized to '2 Tahun'.
+- Institution name of record 037 has a stray trailing backtick in the
+  source ('Komunitas Wirausaha Tangan Di Atas`') — cleaned by the same
+  user correction (KOREKSI_037 below).
 
 Usage:
   python3 scripts/impor-mou.py
@@ -45,7 +50,10 @@ HEADER = """// Data MoU NYATA Palembang — hasil impor file pengguna
 //   saat tulis Firestore seperti id kontrak).
 // - PIC apa adanya: 'Dessi' (5) dan 'Dessi Maya Sari' (2) TIDAK
 //   digabung; 'Selvia Lena' (4) bukan operator — tetap disimpan;
-//   1 PIC kosong -> '—'.
+//   PIC kosong di sumber (1 baris, 037) dikoreksi pengguna 19/11/2026
+//   menjadi 'Ja'far' (lihat KOREKSI_037 di scripts/impor-mou.py).
+// - Nama instansi 037 dibersihkan dari backtick nyasar di akhir
+//   ('Komunitas Wirausaha Tangan Di Atas`' -> tanpa backtick).
 // - DOKUMEN kosong (21 baris) -> '—'.
 // - Masa berlaku '2 tahun' dinormalisasi ke '2 Tahun'.
 // - Typo tahun sumber (2 baris): periode '7 April 0206' (baris 28) dan
@@ -127,6 +135,25 @@ def main() -> int:
             return 1
         records.append(rec)
 
+    # --- koreksi pengguna 19/11/2026 14:41 WIB (BUKAN dari file) ---
+    # Record 037/RRI-PLB/KJM.02.04/09/2026: PIC kosong di sumber ('—')
+    # menjadi 'Ja'far'; nama instansi ada backtick nyasar di akhir
+    # ('Komunitas Wirausaha Tangan Di Atas`') dibersihkan. Diterapkan DI
+    # GENERATOR (bukan edit manual seed) supaya jalankan ulang skrip ini
+    # tetap menghasilkan seed yang sama.
+    KOREKSI_037 = {
+        "id": "037/RRI-PLB/KJM.02.04/09/2026",
+        "pic_lama": "—",
+        "pic_baru": "Ja'far",
+        "instansi_lama": "Komunitas Wirausaha Tangan Di Atas`",
+        "instansi_baru": "Komunitas Wirausaha Tangan Di Atas",
+    }
+    rec037 = next(x for x in records if x["id"] == KOREKSI_037["id"])
+    assert rec037["pic"] == KOREKSI_037["pic_lama"], rec037
+    assert rec037["instansi"] == KOREKSI_037["instansi_lama"], rec037
+    rec037["pic"] = KOREKSI_037["pic_baru"]
+    rec037["instansi"] = KOREKSI_037["instansi_baru"]
+
     # --- verification summary (must match the parent's analysis) ---
     from collections import Counter
     jenis = Counter(x["jenis"] for x in records)
@@ -135,7 +162,12 @@ def main() -> int:
                      "Pelaksanaan Kerja Sama": 1}, jenis
     assert len({x["id"] for x in records}) == 44, "duplicate nomor dokumen"
     assert sum(1 for x in records if x["dokumen"] == "—") == 21
-    assert sum(1 for x in records if x["pic"] == "—") == 1
+    # PIC '—' di sumber tepat 1 baris (037), tapi koreksi pengguna di
+    # atas mengubahnya menjadi 'Ja'far' — seed akhir: 0 baris '—'.
+    assert sum(1 for x in records if x["pic"] == "—") == 0
+    # 'Ja'far' sudah ada 1 baris di sumber + 037 dari koreksi = 2.
+    assert Counter(x["pic"] for x in records)["Ja'far"] == 2
+    assert all(not x["instansi"].endswith("`") for x in records)
     assert Counter(x["pic"] for x in records)["Dessi"] == 5
     assert Counter(x["pic"] for x in records)["Dessi Maya Sari"] == 2
     assert Counter(x["pic"] for x in records)["Selvia Lena"] == 4
@@ -153,6 +185,10 @@ def main() -> int:
     assert per_id["023/RRI-PLB/KJM.02.04/05/2026"]["tanggalSelesai"] == "2028-04-07"
     assert per_id["024/RRI-PLB/KJM.02.04/05/2026"]["tanggalMulai"] == "2026-05-06"
     assert per_id["024/RRI-PLB/KJM.02.04/05/2026"]["tanggalSelesai"] == "2026-05-06"
+    # Koreksi pengguna 19/11/2026 (KOREKSI_037 di atas).
+    assert per_id["037/RRI-PLB/KJM.02.04/09/2026"]["pic"] == "Ja'far"
+    assert per_id["037/RRI-PLB/KJM.02.04/09/2026"]["instansi"] == \
+        "Komunitas Wirausaha Tangan Di Atas"
 
     body = json.dumps(records, ensure_ascii=False, indent=2)
     OUT.write_text(HEADER + body + ";\n", encoding="utf-8")
