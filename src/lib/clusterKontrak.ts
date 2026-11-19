@@ -133,6 +133,65 @@ export const KUNCI_LOCALSTORAGE_CLUSTER_KONTRAK =
   'rri-contract-cluster-tersembunyi';
 
 /**
+ * Kolom tampilan ramping default tabel Contract (perbaikan tabel
+ * Contract, keputusan pengguna 19/11/2026 16:19 WIB — dari audit UI:
+ * tabel 32 kolom tidak terpindai, jadi default hanya 10 kolom yang
+ * muat tanpa scroll horizontal di 1485px). Ke-32 kolom TETAP ADA —
+ * tampilan ramping hanya menyembunyikan kolom di luar daftar ini;
+ * matikan "Slim view" untuk menampilkan semua kolom cluster yang
+ * tampil. Urutan = urutan tampil.
+ */
+export const KOLOM_KONTRAK_TAMPILAN_RAMPING: string[] = [
+  'no',
+  'nomor',
+  'judul',
+  'tanggalTandaTangan',
+  'klien',
+  'periode',
+  'sisaHari',
+  'totalRevenue',
+  'statusPembayaran',
+  'lihatDokumen',
+];
+
+/** Kunci localStorage untuk pilihan tampilan ramping ('1' = ramping, '0' = penuh). */
+export const KUNCI_LOCALSTORAGE_TAMPILAN_RAMPING_KONTRAK =
+  'rri-contract-tampilan-ramping';
+
+/**
+ * Baca pilihan tampilan ramping dari localStorage (default TRUE bila
+ * tidak ada / rusak / bukan browser — tampilan ramping adalah default
+ * baru per keputusan 19/11/2026). Kunci ini TERPISAH dari kunci cluster
+ * (rri-contract-cluster-tersembunyi): preferensi cluster lama yang
+ * sudah tersimpan tetap dihormati, bukan ditimpa.
+ */
+export function bacaTampilanRampingKontrak(): boolean {
+  try {
+    if (typeof localStorage === 'undefined') return true;
+    const mentah = localStorage.getItem(
+      KUNCI_LOCALSTORAGE_TAMPILAN_RAMPING_KONTRAK,
+    );
+    if (mentah === null) return true;
+    return mentah !== '0';
+  } catch {
+    return true;
+  }
+}
+
+/** Simpan pilihan tampilan ramping ke localStorage (diam bila penyimpanan tidak tersedia). */
+export function simpanTampilanRampingKontrak(ramping: boolean): void {
+  try {
+    if (typeof localStorage === 'undefined') return;
+    localStorage.setItem(
+      KUNCI_LOCALSTORAGE_TAMPILAN_RAMPING_KONTRAK,
+      ramping ? '1' : '0',
+    );
+  } catch {
+    // Penyimpanan tidak tersedia (mode privat, dsb.) — abaikan saja.
+  }
+}
+
+/**
  * Saring nilai mentah menjadi daftar id cluster tersembunyi yang valid:
  * hanya id cluster yang BOLEH disembunyikan (selaluTampil === false),
  * tanpa duplikat, urutan mengikuti CLUSTER_KONTRAK. Nilai bukan array,
@@ -180,6 +239,32 @@ export function simpanClusterKontrakTersembunyi(ids: string[]): void {
 /** Cluster yang tampil (semua kecuali yang disembunyikan), urutan tetap. */
 export function clusterKontrakTerlihat(tersembunyi: string[]): ClusterKontrak[] {
   return CLUSTER_KONTRAK.filter((c) => !tersembunyi.includes(c.id));
+}
+
+/**
+ * Cluster yang tampil dalam tampilan ramping (perbaikan tabel Contract,
+ * keputusan pengguna 19/11/2026 16:19 WIB): seperti
+ * clusterKontrakTerlihat, tetapi tiap cluster hanya berisi kolom-kolom
+ * di KOLOM_KONTRAK_TAMPILAN_RAMPING; cluster yang tidak punya kolom
+ * default (Notes) hilang dari baris header grup. ramping === false =
+ * sama persis dengan clusterKontrakTerlihat (semua kolom cluster yang
+ * tampil). Preferensi cluster lama (tersembunyi) tetap dihormati di
+ * kedua mode.
+ */
+export function clusterKontrakTerlihatRamping(
+  tersembunyi: string[],
+  ramping: boolean,
+): ClusterKontrak[] {
+  const terlihat = clusterKontrakTerlihat(tersembunyi);
+  if (!ramping) return terlihat;
+  return terlihat
+    .map((c) => ({
+      ...c,
+      kolom: c.kolom.filter((k) =>
+        KOLOM_KONTRAK_TAMPILAN_RAMPING.includes(k.id),
+      ),
+    }))
+    .filter((c) => c.kolom.length > 0);
 }
 
 /** Kolom yang tampil, diratakan mengikuti urutan cluster, urutan tetap. */

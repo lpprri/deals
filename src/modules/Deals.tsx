@@ -28,9 +28,12 @@ import {
   jenisKlienYangAda,
   jatuhTempoPembayaranKontrak,
   judulKontrak,
+  kelasPillStatusPembayaran,
+  cocokPencarianKontrak,
   labelArahUrutKontrak,
   nomorReferensiKontrak,
   sisaHariKerjaSama,
+  sisaHariNegatif,
   statusKerjaSamaKontrak,
   statusPembayaranKontrak,
   tanggalPenandatangananKontrak,
@@ -62,8 +65,10 @@ import { daftarDokumenKontrak, kelengkapanDokumen } from '../lib/dokumenKontrak'
 import {
   CLUSTER_KONTRAK,
   bacaClusterKontrakTersembunyi,
-  clusterKontrakTerlihat,
+  bacaTampilanRampingKontrak,
+  clusterKontrakTerlihatRamping,
   simpanClusterKontrakTersembunyi,
+  simpanTampilanRampingKontrak,
 } from '../lib/clusterKontrak';
 import { bolehAksi } from '../lib/permissions';
 import {
@@ -685,14 +690,48 @@ export function TabKontrak({
       return baru;
     });
   };
-  const clusterTerlihat = clusterKontrakTerlihat(clusterTersembunyi);
+  // Tampilan ramping (perbaikan tabel Contract, keputusan pengguna
+  // 19/11/2026 16:19 WIB): default hanya 10 kolom; pilihan disimpan
+  // di localStorage (kunci terpisah dari kunci cluster — preferensi
+  // cluster lama tetap dihormati, bukan ditimpa).
+  const [tampilanRamping, setTampilanRamping] = useState<boolean>(() =>
+    bacaTampilanRampingKontrak(),
+  );
+  const toggleTampilanRamping = () => {
+    setTampilanRamping((lama) => {
+      const baru = !lama;
+      simpanTampilanRampingKontrak(baru);
+      return baru;
+    });
+  };
+  const clusterTerlihat = clusterKontrakTerlihatRamping(
+    clusterTersembunyi,
+    tampilanRamping,
+  );
   const tampilCluster = (idCluster: string) =>
     !clusterTersembunyi.includes(idCluster);
+  // Kolom tampil = cluster-nya tampil DAN (tampilan penuh ATAU kolom
+  // termasuk 10 kolom default tampilan ramping). Dipakai sebagai
+  // penjaga tiap <Th>/<Td> supaya tampilan ramping menyembunyikan
+  // kolom di luar default tanpa menghapus definisinya.
+  const tampilKolom = (idKolom: string) =>
+    clusterTerlihat.some((c) => c.kolom.some((k) => k.id === idKolom));
+  // Kolom pertama menempel (perbaikan tabel Contract, keputusan
+  // pengguna 19/11/2026 16:19 WIB): sel No. (header + tiap baris)
+  // sticky saat scroll horizontal, latar putih menutupi sel yang
+  // bergeser + bayangan pemisah di tepi kanan.
+  const KELAS_KOLOM_PERTAMA_MENEMPEL =
+    'sticky left-0 z-10 bg-white shadow-[1px_0_0_0_rgba(37,115,226,0.15)]';
   // "View" di Cluster 6 Documents: buka DetailKontrak lalu gulir ke
   // cluster Document (fokusCluster diteruskan ke DetailKontrak).
   const [fokusClusterDetail, setFokusClusterDetail] = useState<string | null>(
     null,
   );
+  // Pencarian teks tabel Contract (perbaikan tabel Contract, keputusan
+  // pengguna 19/11/2026 16:19 WIB): nomor kontrak, nomor referensi,
+  // judul kontrak, nama klien — bekerja bersama filter dropdown dan
+  // pencarian global (cocokCari).
+  const [pencarianKontrak, setPencarianKontrak] = useState('');
 
   if (kontrakTerpilih) {
     return (
@@ -770,6 +809,15 @@ export function TabKontrak({
             filterStatusPembayaran) &&
         (filterStatusKerjaSama === 'Semua' ||
           statusKerjaSamaKontrak(k) === filterStatusKerjaSama) &&
+        cocokPencarianKontrak(
+          {
+            nomorPks: k.nomorPks,
+            referensi: nomorReferensiKontrak(k),
+            judul: judulKontrak(k),
+            namaKlien: namaKlien(data, k.klienId),
+          },
+          pencarianKontrak,
+        ) &&
         cocokCari(
           `${k.nomorPks} ${namaKlien(data, k.klienId)} ${k.kategoriLayanan} ${judulKontrak(k) ?? ''} ${nomorReferensiKontrak(k) ?? ''}`,
         ),
@@ -790,6 +838,17 @@ export function TabKontrak({
       </div>
 
       <div className="flex flex-wrap gap-4">
+        <div className="min-w-[240px]">
+          <Label>Search</Label>
+          <input
+            className={inputClass}
+            type="search"
+            value={pencarianKontrak}
+            onChange={(e) => setPencarianKontrak(e.target.value)}
+            placeholder="Contract number, title, client…"
+            aria-label="Search contracts by number, reference, title, or client"
+          />
+        </div>
         <div>
           <Label>Client Type</Label>
           <select
@@ -897,6 +956,23 @@ export function TabKontrak({
         <span className="font-semibold text-[#0d2569]">
           View
         </span>
+        {/*
+          Tampilan ramping (perbaikan tabel Contract, keputusan pengguna
+          19/11/2026 16:19 WIB): bila aktif, tiap cluster hanya
+          menampilkan kolom-kolom default (10 kolom); bila nonaktif,
+          semua kolom cluster yang tampil kembali. Centang cluster di
+          bawah tetap berfungsi seperti sebelumnya (sembunyikan/
+          tampilkan cluster utuh) di kedua mode.
+        */}
+        <label className="flex cursor-pointer items-center gap-1.5 font-semibold text-[#0d2569]">
+          <input
+            type="checkbox"
+            checked={tampilanRamping}
+            onChange={toggleTampilanRamping}
+            aria-label="Slim view: show only the 10 default columns"
+          />
+          Slim view
+        </label>
         {CLUSTER_KONTRAK.map((c) => (
           <label
             key={c.id}
@@ -942,60 +1018,88 @@ export function TabKontrak({
               <tr>
                 {tampilCluster('kontrak') && (
                   <>
-                    <Th>No.</Th>
-                    <Th>Contract &amp; Reference Number</Th>
-                    <Th>Contract Title</Th>
-                    <Th>Signing Date</Th>
-                    <Th>Owner</Th>
+                    {tampilKolom('no') && (
+                      <Th className={KELAS_KOLOM_PERTAMA_MENEMPEL}>No.</Th>
+                    )}
+                    {tampilKolom('nomor') && (
+                      <Th>Contract &amp; Reference Number</Th>
+                    )}
+                    {tampilKolom('judul') && <Th>Contract Title</Th>}
+                    {tampilKolom('tanggalTandaTangan') && (
+                      <Th>Signing Date</Th>
+                    )}
+                    {tampilKolom('owner') && <Th>Owner</Th>}
                   </>
                 )}
                 {tampilCluster('klien') && (
                   <>
-                    <Th>Type</Th>
-                    <Th>Client</Th>
-                    <Th>Address</Th>
-                    <Th>Signatory</Th>
-                    <Th>Signatory Title</Th>
-                    <Th>Contact Person</Th>
-                    <Th>Contact</Th>
-                    <Th>Email</Th>
+                    {tampilKolom('jenisKlien') && <Th>Type</Th>}
+                    {tampilKolom('klien') && <Th>Client</Th>}
+                    {tampilKolom('alamat') && <Th>Address</Th>}
+                    {tampilKolom('penandatangan') && <Th>Signatory</Th>}
+                    {tampilKolom('jabatanPenandatangan') && (
+                      <Th>Signatory Title</Th>
+                    )}
+                    {tampilKolom('kontakNama') && <Th>Contact Person</Th>}
+                    {tampilKolom('kontakTelepon') && <Th>Contact</Th>}
+                    {tampilKolom('email') && <Th>Email</Th>}
                   </>
                 )}
                 {tampilCluster('layanan') && (
                   <>
-                    <Th>Service Type</Th>
-                    <Th>Service Detail</Th>
-                    <Th>Contract Period</Th>
-                    <Th>Remaining Days</Th>
-                    <Th kanan>Realisation</Th>
+                    {tampilKolom('kategoriLayanan') && <Th>Service Type</Th>}
+                    {tampilKolom('detailLayanan') && <Th>Service Detail</Th>}
+                    {tampilKolom('periode') && <Th>Contract Period</Th>}
+                    {tampilKolom('sisaHari') && <Th>Remaining Days</Th>}
+                    {tampilKolom('realisasi') && <Th kanan>Realisation</Th>}
                   </>
                 )}
                 {tampilCluster('revenue') && (
                   <>
-                    <Th kanan>Contract Value</Th>
-                    <Th kanan>Fine Value</Th>
-                    <Th kanan>Total Revenue</Th>
-                    <Th kanan>Receivable Value</Th>
+                    {tampilKolom('nilaiKontrak') && (
+                      <Th kanan>Contract Value</Th>
+                    )}
+                    {tampilKolom('denda') && <Th kanan>Fine Value</Th>}
+                    {tampilKolom('totalRevenue') && (
+                      <Th kanan>Total Revenue</Th>
+                    )}
+                    {tampilKolom('piutang') && (
+                      <Th kanan>Receivable Value</Th>
+                    )}
                   </>
                 )}
                 {tampilCluster('pembayaran') && (
                   <>
-                    <Th>Payment Deadline</Th>
-                    <Th>Payment Status</Th>
-                    <Th>Payment Date</Th>
-                    <Th kanan>Payment Amount</Th>
-                    <Th kanan>Total Payment</Th>
-                    <Th kanan>Remaining Receivable</Th>
-                    <Th kanan>Remaining Value</Th>
+                    {tampilKolom('jatuhTempo') && <Th>Payment Deadline</Th>}
+                    {tampilKolom('statusPembayaran') && (
+                      <Th>Payment Status</Th>
+                    )}
+                    {tampilKolom('tanggalBayar') && <Th>Payment Date</Th>}
+                    {tampilKolom('jumlahBayar') && (
+                      <Th kanan>Payment Amount</Th>
+                    )}
+                    {tampilKolom('totalBayar') && (
+                      <Th kanan>Total Payment</Th>
+                    )}
+                    {tampilKolom('sisaPiutangBaru') && (
+                      <Th kanan>Remaining Receivable</Th>
+                    )}
+                    {tampilKolom('sisaNilaiBaru') && (
+                      <Th kanan>Remaining Value</Th>
+                    )}
                   </>
                 )}
                 {tampilCluster('dokumen') && (
                   <>
-                    <Th kanan>Availability Rate</Th>
-                    <Th>View</Th>
+                    {tampilKolom('ketersediaanDokumen') && (
+                      <Th kanan>Availability Rate</Th>
+                    )}
+                    {tampilKolom('lihatDokumen') && <Th>View</Th>}
                   </>
                 )}
-                {tampilCluster('catatan') && <Th>Notes</Th>}
+                {tampilCluster('catatan') && tampilKolom('catatan') && (
+                  <Th>Notes</Th>
+                )}
               </tr>
             </thead>
             <tbody>
@@ -1027,6 +1131,16 @@ export function TabKontrak({
                   data.pembayaran,
                   hariIni,
                 );
+                // Status pembayaran + sisa hari dihitung sekali di sini
+                // (dipakai sel pill + sel Remaining Days di bawah) —
+                // nilainya helper yang SAMA, definisi tidak berubah.
+                const statusBayar = statusPembayaranKontrak(
+                  k,
+                  data.tagihan,
+                  data.pembayaran,
+                  data.denda,
+                );
+                const sisaHari = sisaHariKerjaSama(k);
                 // Kolom baru Cluster 5 (keputusan pengguna 17/11/2026
                 // 11:41 WIB, dikoreksi Arahan 3 11:57 WIB):
                 // pembayaran Terverifikasi terakhir, total pembayaran,
@@ -1083,20 +1197,34 @@ export function TabKontrak({
                       13:31 WIB.)
                     */}
                     {/* ---- Cluster 1 "Contract" (selalu tampil) ---- */}
-                    <Td>{indeks + 1}</Td>
+                    <Td className={KELAS_KOLOM_PERTAMA_MENEMPEL}>
+                      {indeks + 1}
+                    </Td>
                     {/*
                       Nomor kontrak + nomor referensi digabung dalam satu
                       kolom (keputusan pengguna 16/11/2026 13:35 WIB):
                       nomor kontrak tebal di baris pertama, nomor referensi
                       lebih kecil di baris kedua; "—" bila tanpa referensi.
+                      Masing-masing satu baris dengan ellipsis (perbaikan
+                      tabel Contract, 19/11/2026).
                     */}
-                    <Td>
-                      <div className="font-semibold">{k.nomorPks}</div>
-                      <div className="text-xs text-[#0d2569]/70">
-                        {nomorReferensiKontrak(k) ?? '—'}
-                      </div>
-                    </Td>
-                    <Td>{judulKontrak(k) ?? '—'}</Td>
+                    {tampilKolom('nomor') && (
+                      <Td>
+                        <div className="max-w-[240px] truncate font-semibold">
+                          {k.nomorPks}
+                        </div>
+                        <div className="max-w-[240px] truncate text-xs text-[#0d2569]/70">
+                          {nomorReferensiKontrak(k) ?? '—'}
+                        </div>
+                      </Td>
+                    )}
+                    {tampilKolom('judul') && (
+                      <Td>
+                        <span className="line-clamp-2">
+                          {judulKontrak(k) ?? '—'}
+                        </span>
+                      </Td>
+                    )}
                     {/*
                       Kolom tanggal penandatanganan — per keputusan pengguna
                       16/11/2026 13:29 WIB, kolom ini menggantikan kolom
@@ -1104,76 +1232,137 @@ export function TabKontrak({
                       tanggalMulai — pola yang sama dengan kunci sort
                       'tandaTangan' (tanggalAcuanKontrak).
                     */}
-                    <Td>{formatTanggal(tanggalPenandatangananKontrak(k))}</Td>
-                    <Td>{k.operatorPenutup ?? '—'}</Td>
+                    {tampilKolom('tanggalTandaTangan') && (
+                      <Td>
+                        {formatTanggal(tanggalPenandatangananKontrak(k))}
+                      </Td>
+                    )}
+                    {tampilKolom('owner') && (
+                      <Td>{k.operatorPenutup ?? '—'}</Td>
+                    )}
                     {/* ---- Cluster 2 "Client Details" (hideable) ---- */}
                     {tampilCluster('klien') && (
                       <>
-                        <Td>
-                          {klien ? labelJenisKlien(klien.jenis) : '—'}
-                        </Td>
-                        <Td>
-                          {klien && onNavigasiKlien ? (
-                            <button
-                              type="button"
-                              className="text-left text-[#2573e2] underline hover:text-[#0d2569]"
-                              onClick={(e) => {
-                                // Jangan ikut membuka DetailKontrak
-                                // (klik baris) — tujuannya Clients.
-                                e.stopPropagation();
-                                onNavigasiKlien(klien.id);
-                              }}
-                            >
-                              {klien.nama}
-                            </button>
-                          ) : (
-                            namaKlien(data, k.klienId)
-                          )}
-                        </Td>
-                        <Td>
-                          {klien?.alamat && klien.alamat !== ''
-                            ? klien.alamat
-                            : '—'}
-                        </Td>
-                        <Td>{k.penandatanganNama ?? '—'}</Td>
-                        <Td>{k.penandatanganJabatan ?? '—'}</Td>
-                        <Td>{kontakTampil !== '' ? kontakTampil : '—'}</Td>
-                        <Td>
-                          {klien?.telepon && klien.telepon !== ''
-                            ? klien.telepon
-                            : '—'}
-                        </Td>
-                        <Td>
-                          {klien?.email && klien.email !== ''
-                            ? klien.email
-                            : '—'}
-                        </Td>
+                        {tampilKolom('jenisKlien') && (
+                          <Td>
+                            {klien ? labelJenisKlien(klien.jenis) : '—'}
+                          </Td>
+                        )}
+                        {tampilKolom('klien') && (
+                          <Td>
+                            {klien && onNavigasiKlien ? (
+                              <button
+                                type="button"
+                                className="line-clamp-2 text-left text-[#2573e2] underline hover:text-[#0d2569]"
+                                onClick={(e) => {
+                                  // Jangan ikut membuka DetailKontrak
+                                  // (klik baris) — tujuannya Clients.
+                                  e.stopPropagation();
+                                  onNavigasiKlien(klien.id);
+                                }}
+                              >
+                                {klien.nama}
+                              </button>
+                            ) : (
+                              <span className="line-clamp-2">
+                                {namaKlien(data, k.klienId)}
+                              </span>
+                            )}
+                          </Td>
+                        )}
+                        {tampilKolom('alamat') && (
+                          <Td>
+                            {klien?.alamat && klien.alamat !== ''
+                              ? klien.alamat
+                              : '—'}
+                          </Td>
+                        )}
+                        {tampilKolom('penandatangan') && (
+                          <Td>{k.penandatanganNama ?? '—'}</Td>
+                        )}
+                        {tampilKolom('jabatanPenandatangan') && (
+                          <Td>{k.penandatanganJabatan ?? '—'}</Td>
+                        )}
+                        {tampilKolom('kontakNama') && (
+                          <Td>{kontakTampil !== '' ? kontakTampil : '—'}</Td>
+                        )}
+                        {tampilKolom('kontakTelepon') && (
+                          <Td>
+                            <div className="max-w-[160px] truncate">
+                              {klien?.telepon && klien.telepon !== ''
+                                ? klien.telepon
+                                : '—'}
+                            </div>
+                          </Td>
+                        )}
+                        {tampilKolom('email') && (
+                          <Td>
+                            {klien?.email && klien.email !== ''
+                              ? klien.email
+                              : '—'}
+                          </Td>
+                        )}
                       </>
                     )}
                     {/* ---- Cluster 3 "Service Details" (hideable) ---- */}
                     {tampilCluster('layanan') && (
                       <>
-                        <Td>{labelKategoriLayanan(k.kategoriLayanan)}</Td>
-                        <Td>{detailLayananKontrak(k) ?? '—'}</Td>
-                        <Td>
-                          {formatTanggal(k.tanggalMulai)} – {formatTanggal(k.tanggalSelesai)}
-                        </Td>
+                        {tampilKolom('kategoriLayanan') && (
+                          <Td>{labelKategoriLayanan(k.kategoriLayanan)}</Td>
+                        )}
+                        {tampilKolom('detailLayanan') && (
+                          <Td>{detailLayananKontrak(k) ?? '—'}</Td>
+                        )}
+                        {tampilKolom('periode') && (
+                          <Td>
+                            {formatTanggal(k.tanggalMulai)} –{' '}
+                            {formatTanggal(k.tanggalSelesai)}
+                          </Td>
+                        )}
                         {/*
                           Sisa hari kerja sama — hitung mundur sampai tanggal
                           akhir (keputusan pengguna 16/11/2026 15:29 WIB);
                           kontrak yang sudah selesai tertulis "Completed".
+                          Nilai NEGATIF ("-N days": tanggal akhir lewat
+                          tetapi status belum Selesai) tampil merah dengan
+                          titik penanda (perbaikan tabel Contract,
+                          19/11/2026) supaya ketidakcocokan terlihat.
                         */}
-                        <Td>{sisaHariKerjaSama(k)}</Td>
-                        <Td kanan>{formatPersenRealisasi(realisasi)}</Td>
+                        {tampilKolom('sisaHari') && (
+                          <Td>
+                            {sisaHariNegatif(sisaHari) ? (
+                              <span className="inline-flex items-center gap-1.5 font-semibold whitespace-nowrap text-[#B42318]">
+                                <span
+                                  className="h-1.5 w-1.5 shrink-0 rounded-full bg-current"
+                                  aria-hidden
+                                />
+                                {sisaHari}
+                              </span>
+                            ) : (
+                              sisaHari
+                            )}
+                          </Td>
+                        )}
+                        {tampilKolom('realisasi') && (
+                          <Td kanan>{formatPersenRealisasi(realisasi)}</Td>
+                        )}
                       </>
                     )}
                     {/* ---- Cluster 4 "Revenue Details" (hideable) ---- */}
                     {tampilCluster('revenue') && (
                       <>
-                        <Td kanan>{formatRupiah(k.nilaiKontrak)}</Td>
-                        <Td kanan>{totalDenda === 0 ? '—' : formatRupiah(totalDenda)}</Td>
-                        <Td kanan>{formatRupiah(nilaiPlusDenda)}</Td>
-                        <Td kanan>{formatRupiah(piutang)}</Td>
+                        {tampilKolom('nilaiKontrak') && (
+                          <Td kanan>{formatRupiah(k.nilaiKontrak)}</Td>
+                        )}
+                        {tampilKolom('denda') && (
+                          <Td kanan>{totalDenda === 0 ? '—' : formatRupiah(totalDenda)}</Td>
+                        )}
+                        {tampilKolom('totalRevenue') && (
+                          <Td kanan>{formatRupiah(nilaiPlusDenda)}</Td>
+                        )}
+                        {tampilKolom('piutang') && (
+                          <Td kanan>{formatRupiah(piutang)}</Td>
+                        )}
                       </>
                     )}
                     {/* ---- Cluster 5 "Payment Details" (hideable) ---- */}
@@ -1184,7 +1373,11 @@ export function TabKontrak({
                           yang belum lunas, bila semua lunas tagihan
                           terakhir, "—" bila tanpa tagihan.
                         */}
-                        <Td>{jatuhTempo ? formatTanggal(jatuhTempo) : '—'}</Td>
+                        {tampilKolom('jatuhTempo') && (
+                          <Td>
+                            {jatuhTempo ? formatTanggal(jatuhTempo) : '—'}
+                          </Td>
+                        )}
                         {/*
                           Status pembayaran — English (keputusan pengguna
                           17/11/2026 08:34 WIB; membatalkan label Indonesia
@@ -1192,55 +1385,81 @@ export function TabKontrak({
                           statusPembayaranKontrak (REDEFINISI 17/11/2026
                           08:33 WIB: Partially-Paid = dibayar == Piutang
                           realisasi; ditambah Insufficient Payment).
+                          Tampil sebagai pill teks + titik (perbaikan tabel
+                          Contract, keputusan pengguna 19/11/2026
+                          16:19 WIB) — definisi dan nilai status TIDAK
+                          berubah, hanya tampilannya.
                         */}
-                        <Td>
-                          {statusPembayaranKontrak(k, data.tagihan, data.pembayaran, data.denda)}
-                        </Td>
-                        <Td>{bayarTerakhir ? formatTanggal(bayarTerakhir.tanggalBayar) : '—'}</Td>
-                        <Td kanan>{bayarTerakhir ? formatRupiah(bayarTerakhir.jumlah) : '—'}</Td>
-                        <Td kanan>
-                          {totalBayar === 0 ? '—' : formatRupiah(totalBayar)}
-                        </Td>
+                        {tampilKolom('statusPembayaran') && (
+                          <Td>
+                            <span
+                              className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-semibold whitespace-nowrap ${kelasPillStatusPembayaran(statusBayar)}`}
+                            >
+                              <span
+                                className="h-1.5 w-1.5 shrink-0 rounded-full bg-current"
+                                aria-hidden
+                              />
+                              {statusBayar}
+                            </span>
+                          </Td>
+                        )}
+                        {tampilKolom('tanggalBayar') && (
+                          <Td>{bayarTerakhir ? formatTanggal(bayarTerakhir.tanggalBayar) : '—'}</Td>
+                        )}
+                        {tampilKolom('jumlahBayar') && (
+                          <Td kanan>{bayarTerakhir ? formatRupiah(bayarTerakhir.jumlah) : '—'}</Td>
+                        )}
+                        {tampilKolom('totalBayar') && (
+                          <Td kanan>{totalBayar === 0 ? '—' : formatRupiah(totalBayar)}</Td>
+                        )}
                         {/*
                           Remaining Receivable = Sisa Piutang = Piutang
                           − Total Payment (koreksi Arahan 3, 17/11/2026
                           11:57 WIB — urutan dibalik dari rumus harfiah
                           pengguna; tidak ada nilai negatif).
                         */}
-                        <Td kanan>{formatRupiah(sisaPiutangBaru)}</Td>
+                        {tampilKolom('sisaPiutangBaru') && (
+                          <Td kanan>{formatRupiah(sisaPiutangBaru)}</Td>
+                        )}
                         {/*
                           Remaining Value = Sisa Kontrak = Total Revenue
                           − Piutang (koreksi Arahan 3, 17/11/2026
                           11:57 WIB — REDEFINISI 11:41 WIB dibatalkan;
                           sama dengan DetailKontrak).
                         */}
-                        <Td kanan>{formatRupiah(sisaNilaiBaru)}</Td>
+                        {tampilKolom('sisaNilaiBaru') && (
+                          <Td kanan>{formatRupiah(sisaNilaiBaru)}</Td>
+                        )}
                       </>
                     )}
                     {/* ---- Cluster 6 "Documents" (hideable) ---- */}
                     {tampilCluster('dokumen') && (
                       <>
-                        <Td kanan>{formatPersenRealisasi(kelengkapan.fraksi)}</Td>
-                        <Td>
-                          <button
-                            type="button"
-                            className="text-[#2573e2] underline hover:text-[#0d2569]"
-                            onClick={(e) => {
-                              // Jangan ikut membuka DetailKontrak lewat
-                              // klik baris saja — tandai fokus ke cluster
-                              // Document supaya detail menggulir ke sana.
-                              e.stopPropagation();
-                              setFokusClusterDetail('document');
-                              onPilihKontrak(k.id);
-                            }}
-                          >
-                            View
-                          </button>
-                        </Td>
+                        {tampilKolom('ketersediaanDokumen') && (
+                          <Td kanan>{formatPersenRealisasi(kelengkapan.fraksi)}</Td>
+                        )}
+                        {tampilKolom('lihatDokumen') && (
+                          <Td>
+                            <button
+                              type="button"
+                              className="text-[#2573e2] underline hover:text-[#0d2569]"
+                              onClick={(e) => {
+                                // Jangan ikut membuka DetailKontrak lewat
+                                // klik baris saja — tandai fokus ke cluster
+                                // Document supaya detail menggulir ke sana.
+                                e.stopPropagation();
+                                setFokusClusterDetail('document');
+                                onPilihKontrak(k.id);
+                              }}
+                            >
+                              View
+                            </button>
+                          </Td>
+                        )}
                       </>
                     )}
                     {/* ---- Cluster 7 "Notes" (hideable) ---- */}
-                    {tampilCluster('catatan') && (
+                    {tampilCluster('catatan') && tampilKolom('catatan') && (
                       <Td className="max-w-md">{'—'}</Td>
                     )}
                   </Baris>
