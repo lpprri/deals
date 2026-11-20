@@ -1,19 +1,30 @@
 // Aturan keamanan Firestore — Partnership LPP RRI.
-// Model DUA PERAN (keputusan pengguna 19/11/2026 15:45 WIB): Operator
-// (Staf Layanan & Pengembangan Usaha) DAN Client — satu halaman login,
-// peran dibedakan lewat field `peran` di dokumen `users/{uid}`.
-// Keputusan ini MEMBALIK dua keputusan sebelumnya: (1) model 1 ROLE
-// 14 Nov 2026 21:29 WIB ("buang semua role"); (2) KOREKSI 2026-11-15
-// yang menghapus peran klien (tidak ada akses klien terautentikasi).
+// Model TIGA PERAN (keputusan pengguna 20/11/2026 21:06 WIB):
+// client (mitra kerjasama RRI), operator (petugas bidang Layanan &
+// Pengembangan Usaha — kerja operasional harian), dan admin (super
+// user yang mengelola web app). Peran dibedakan lewat field `peran`
+// di dokumen `users/{uid}`. Keputusan ini menggantikan model EMPAT
+// PERAN PR #124 (tidak jadi di-merge 20/11/2026): dua peran
+// tambahan model empat peran DIHAPUS dan checklist verifikasi
+// DIHAPUS — tidak ada koleksi checklist di aturan ini. 'operator'
+// kembali berarti staf LPU (seperti PR #121); 'admin' mengambil
+// alih kuasa penuh operator model empat peran. Akun
+// lpu.lpprripalembang@gmail.com akan menjadi 'admin' SETELAH merge +
+// publish rules (saat ini masih 'operator' di Firestore — aturan
+// ini tetap memberi operator akses baca/tulis operasional penuh,
+// jadi login tidak putus sebelum profil dibalik).
 // Client hanya membaca data yang `klienId`-nya sama dengan klienId di
 // profilnya (blok "Akses baca klien" di bawah) — routing client-side
 // saja BUKAN keamanan. SIGNUP PUBLIK (keputusan pengguna 19/11/2026
 // 16:12 WIB): calon klien membuat akun sendiri dari halaman login —
-// signup SELALU menghasilkan peran 'client' (tanpa klienId; operator
-// menautkan setelah verifikasi), tidak ada jalan membuat akun operator
-// lewat signup. Akun client tanpa klienId TIDAK BISA membaca data
-// klien mana pun (aturan baca menuntut klienId yang cocok) dan TIDAK
-// BISA menaikkan perannya (update menuntut peran/klienId tak berubah);
+// signup SELALU menghasilkan peran 'client' (tanpa klienId; admin
+// menautkan setelah verifikasi), tidak ada jalan membuat akun
+// operator/admin lewat signup. Akun internal dibuat admin dari
+// dalam aplikasi (secondary FirebaseApp, lihat src/lib/auth.ts
+// `buatAkunInternal`) atau kartu invite di Master & Users. Akun
+// client tanpa klienId TIDAK BISA membaca data klien mana pun
+// (aturan baca menuntut klienId yang cocok) dan TIDAK BISA
+// menaikkan perannya (update menuntut peran/klienId tak berubah);
 // satu-satunya yang bisa dilakukan akun belum tertaut adalah membuat
 // submission Ajukan dengan klienId '' yang dibuatOleh-nya sama dengan
 // email akun Auth-nya (lihat blok pengajuanKlien). Akses publik (Lacak
@@ -28,10 +39,11 @@
 // CARA AKTIFKAN: tempel seluruh isi file ini di Firebase console →
 // Firestore Database → Rules → Publish. File ini saja BELUM mengaktifkan
 // aturan apa pun di proyek pengguna.
-// PERINGATAN: file ini BERUBAH di PR ini (dua peran) — publikasikan
-// rules ini di console SEBELUM merge PR, seperti PR #115/#116/#117:
-// bila merge dulu, muatDataKlien gagal total (aturan lama menolak
-// baca client) dan client tidak bisa masuk.
+// PERINGATAN: file ini BERUBAH di PR ini (tiga peran) — publikasikan
+// rules ini di console SEBELUM merge PR: bila merge dulu, pembuatan
+// akun Admin ditolak (aturan lama hanya mengenal peran
+// operator/client) dan akun admin tidak bisa membaca data
+// operasional.
 
 rules_version = '2';
 
@@ -50,12 +62,32 @@ service cloud.firestore {
       return get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
     }
 
-    // Pemanggil adalah Operator (satu-satunya peran tahap ini).
+    // Pemanggil adalah Operator (petugas bidang Layanan &
+    // Pengembangan Usaha — kerja operasional harian).
     function adalahOperator() {
       return sudahLogin() && profilPemanggil().peran == 'operator';
     }
 
-    // Pemanggil adalah Client (dua peran, 19/11/2026).
+    // Pemanggil adalah Admin (super user yang mengelola web app —
+    // membuat akun dan akses peran lain, migrasi, master data,
+    // konfigurasi, audit, kunci laporan).
+    function adalahAdmin() {
+      return sudahLogin() && profilPemanggil().peran == 'admin';
+    }
+
+    // Pemanggil adalah salah satu peran internal (admin portal) —
+    // operator atau admin. Dipakai untuk BACA data operasional:
+    // keduanya melihat data yang sama.
+    function adalahStafInternal() {
+      return adalahOperator() || adalahAdmin();
+    }
+
+    // Pemanggil boleh MENULIS data operasional (operator + admin).
+    function bolehTulisOperasional() {
+      return adalahOperator() || adalahAdmin();
+    }
+
+    // Pemanggil adalah Client (tiga peran, 20/11/2026).
     function adalahClient() {
       return sudahLogin() && profilPemanggil().peran == 'client';
     }
@@ -78,12 +110,13 @@ service cloud.firestore {
     }
 
     // ---------- Koleksi data bersatker (21 koleksi di blok ini) ----------
-    // Baca/tulis hanya Operator dari satker yang sama. Saat membuat data
+    // Baca: staf internal (operator + admin) dari satker yang sama.
+    // Tulis: operator + admin. Saat membuat data
     // baru, satker dicek dari data yang dikirim; saat mengubah, dicek dari
     // data lama DAN data baru (tidak boleh pindah satker). Tiket &
     // umpanBalik (Fase C) memakai aturan yang sama di blok tersendiri di
     // bawah, jadi total koleksi bersatker menjadi 23. Chat antar
-    // operator (Fase C, PR #45) memakai aturan yang sama di blok
+    // internal (Fase C, PR #45) memakai aturan yang sama di blok
     // tersendiri juga, jadi total koleksi bersatker menjadi 24.
     match /{koleksi}/{id} {
       allow read: if koleksi in [
@@ -105,7 +138,7 @@ service cloud.firestore {
           // migrasi lain).
           'commitment'
         ]
-        && adalahOperator()
+        && bolehTulisOperasional()
         && satkerMilikPemanggil(resource.data);
       allow create: if koleksi in [
           'klien', 'kontrak', 'tagihan', 'pembayaran', 'denda',
@@ -123,7 +156,7 @@ service cloud.firestore {
           // migrasi lain).
           'commitment'
         ]
-        && adalahOperator()
+        && bolehTulisOperasional()
         && satkerMilikPemanggil(request.resource.data);
       allow update: if koleksi in [
           'klien', 'kontrak', 'tagihan', 'pembayaran', 'denda',
@@ -141,7 +174,7 @@ service cloud.firestore {
           // migrasi lain).
           'commitment'
         ]
-        && adalahOperator()
+        && bolehTulisOperasional()
         && satkerMilikPemanggil(resource.data)
         && satkerMilikPemanggil(request.resource.data);
       allow delete: if koleksi in [
@@ -160,11 +193,11 @@ service cloud.firestore {
           // migrasi lain).
           'commitment'
         ]
-        && adalahOperator()
+        && bolehTulisOperasional()
         && satkerMilikPemanggil(resource.data);
     }
 
-    // ---------- Akses baca klien (dua peran, 19/11/2026) ----------
+    // ---------- Akses baca klien (tiga peran, 20/11/2026) ----------
     // Client hanya membaca data yang klienId-nya sama dengan klienId di
     // profilnya (users/{uid}.klienId) DAN satker yang sama. TIDAK ADA
     // create/update/delete klien, dan TIDAK ADA list lintas klien:
@@ -183,7 +216,8 @@ service cloud.firestore {
     // - `pengajuanKlien`: milik client lewat klienId ATAU lewat email
     //   pembuat (submission publik sebelum punya akun).
     // Aturan Firestore bersifat OR antar blok match yang sama — blok
-    // generik operator di atas tetap mengatur akses Operator; blok ini
+    // generik staf internal di atas tetap mengatur akses Operator dan
+    // Admin; blok ini
     // HANYA menambah jalur baca client. Client yang menebak id
     // dokumen klien lain tetap DITOLAK (klienId tidak cocok).
     match /klien/{id} {
@@ -238,12 +272,12 @@ service cloud.firestore {
     // create/update/delete — data ini milik Keuangan; aplikasi hanya
     // menampilkan dan merekonsiliasi. Satu-satunya pengecualian adalah
     // migrasi satu kali (src/lib/migrasi.ts): sebelum dokumen
-    // `meta/migrasi` ada, Operator boleh create (menulis 62 baris acuan
+    // `meta/migrasi` ada, Admin boleh create (menulis 62 baris acuan
     // awal). Begitu penanda migrasi ada, create ikut tertutup.
     match /penerimaanAcuan/{id} {
-      allow read: if adalahOperator()
+      allow read: if adalahStafInternal()
         && satkerMilikPemanggil(resource.data);
-      allow create: if adalahOperator()
+      allow create: if bolehTulisOperasional()
         && !exists(/databases/$(database)/documents/meta/migrasi)
         && satkerMilikPemanggil(request.resource.data);
       allow update, delete: if false;
@@ -251,9 +285,10 @@ service cloud.firestore {
 
     // ---------- Dokumen: tanpa field satker ----------
     // Koleksi dokumen tidak menyimpan field satker (tautan ke kontrak),
-    // jadi hanya dicek peran Operator.
+    // jadi hanya dicek peran internal (operator + admin).
     match /dokumen/{id} {
-      allow read, create, update, delete: if adalahOperator();
+      allow read: if adalahStafInternal();
+      allow create, update, delete: if bolehTulisOperasional();
     }
 
     // ---------- Help-Desk & Feedback: bersatker (Fase C) ----------
@@ -263,22 +298,22 @@ service cloud.firestore {
     // Tiket ditujukan ke Direktorat Layanan & Pengembangan Usaha (Q-12);
     // PIC per kategori belum ditentukan, jadi tidak ada aturan per PIC.
     match /tiket/{id} {
-      allow read: if adalahOperator() && satkerMilikPemanggil(resource.data);
-      allow create: if adalahOperator()
+      allow read: if adalahStafInternal() && satkerMilikPemanggil(resource.data);
+      allow create: if bolehTulisOperasional()
         && satkerMilikPemanggil(request.resource.data);
-      allow update: if adalahOperator()
+      allow update: if bolehTulisOperasional()
         && satkerMilikPemanggil(resource.data)
         && satkerMilikPemanggil(request.resource.data);
-      allow delete: if adalahOperator() && satkerMilikPemanggil(resource.data);
+      allow delete: if bolehTulisOperasional() && satkerMilikPemanggil(resource.data);
     }
     match /umpanBalik/{id} {
-      allow read: if adalahOperator() && satkerMilikPemanggil(resource.data);
-      allow create: if adalahOperator()
+      allow read: if adalahStafInternal() && satkerMilikPemanggil(resource.data);
+      allow create: if bolehTulisOperasional()
         && satkerMilikPemanggil(request.resource.data);
-      allow update: if adalahOperator()
+      allow update: if bolehTulisOperasional()
         && satkerMilikPemanggil(resource.data)
         && satkerMilikPemanggil(request.resource.data);
-      allow delete: if adalahOperator() && satkerMilikPemanggil(resource.data);
+      allow delete: if bolehTulisOperasional() && satkerMilikPemanggil(resource.data);
     }
 
     // ---------- Chat antar operator 1-to-1: bersatker (Fase C, PR #45) ----------
@@ -290,33 +325,36 @@ service cloud.firestore {
     // tempel ulang seluruh isi file ini di Firebase console ->
     // Firestore Database -> Rules -> Publish (lihat catatan di atas).
     match /pesan/{id} {
-      allow read: if adalahOperator() && satkerMilikPemanggil(resource.data);
-      allow create: if adalahOperator()
+      allow read: if adalahStafInternal() && satkerMilikPemanggil(resource.data);
+      allow create: if bolehTulisOperasional()
         && satkerMilikPemanggil(request.resource.data);
-      allow update: if adalahOperator()
+      allow update: if bolehTulisOperasional()
         && satkerMilikPemanggil(resource.data)
         && satkerMilikPemanggil(request.resource.data);
-      allow delete: if adalahOperator() && satkerMilikPemanggil(resource.data);
+      allow delete: if bolehTulisOperasional() && satkerMilikPemanggil(resource.data);
     }
 
     // ---------- Knowledge Base: nasional, tanpa field satker (Fase C) ----------
-    // Artikel Regulasi & SOP dibaca Operator mana pun (nasional, seperti
-    // dokumen) dan ditulis Operator. Tidak ada filter satker karena entitas
+    // Artikel Regulasi & SOP dibaca staf internal mana pun (nasional, seperti
+    // dokumen) dan ditulis operator/admin. Tidak ada filter satker karena entitas
     // artikelKB memang tidak menyimpan field satker.
     match /artikelKB/{id} {
-      allow read, create, update, delete: if adalahOperator();
+      allow read: if adalahStafInternal();
+      allow create, update, delete: if bolehTulisOperasional();
     }
 
     // ---------- FAQ Resources: nasional, tanpa field satker (PR #49) ----------
-    // Sama seperti artikelKB: dibaca Operator mana pun, ditulis Operator.
+    // Sama seperti artikelKB: dibaca staf internal mana pun, ditulis operator/admin.
     match /faq/{id} {
-      allow read, create, update, delete: if adalahOperator();
+      allow read: if adalahStafInternal();
+      allow create, update, delete: if bolehTulisOperasional();
     }
 
     // ---------- Audit: hanya tambah (append-only) ----------
     // Entri audit tidak boleh diubah atau dihapus setelah ditulis.
     match /audit/{id} {
-      allow read, create: if adalahOperator();
+      allow read: if adalahAdmin();
+      allow create: if bolehTulisOperasional();
       allow update, delete: if false;
     }
 
@@ -324,8 +362,8 @@ service cloud.firestore {
     // Migrasi satu kali (src/lib/migrasi.ts) membuat dokumen ini; bila
     // sudah ada, create ditolak.
     match /meta/migrasi {
-      allow read: if adalahOperator();
-      allow create: if adalahOperator()
+      allow read: if adalahStafInternal();
+      allow create: if adalahAdmin()
         && !exists(/databases/$(database)/documents/meta/migrasi);
       allow update, delete: if false;
     }
@@ -337,8 +375,8 @@ service cloud.firestore {
     // ditolak. Terpisah dari `meta/migrasi` — migrasi pertama tetap
     // tidak bisa jalan dua kali.
     match /meta/migrasi-kontrak-2026 {
-      allow read: if adalahOperator();
-      allow create: if adalahOperator()
+      allow read: if adalahStafInternal();
+      allow create: if adalahAdmin()
         && !exists(/databases/$(database)/documents/meta/migrasi-kontrak-2026);
       allow update, delete: if false;
     }
@@ -349,8 +387,8 @@ service cloud.firestore {
     // Penanda ini dibuat sekali; bila sudah ada, create ditolak.
     // Terpisah dari `meta/migrasi` dan `meta/migrasi-kontrak-2026`.
     match /meta/migrasi-mou-2026 {
-      allow read: if adalahOperator();
-      allow create: if adalahOperator()
+      allow read: if adalahStafInternal();
+      allow create: if adalahAdmin()
         && !exists(/databases/$(database)/documents/meta/migrasi-mou-2026);
       allow update, delete: if false;
     }
@@ -362,8 +400,8 @@ service cloud.firestore {
     // ada, create ditolak. Terpisah dari `meta/migrasi`,
     // `meta/migrasi-kontrak-2026`, dan `meta/migrasi-mou-2026`.
     match /meta/migrasi-commitment-2026 {
-      allow read: if adalahOperator();
-      allow create: if adalahOperator()
+      allow read: if adalahStafInternal();
+      allow create: if adalahAdmin()
         && !exists(/databases/$(database)/documents/meta/migrasi-commitment-2026);
       allow update, delete: if false;
     }
@@ -375,31 +413,32 @@ service cloud.firestore {
     // Terpisah dari `meta/migrasi`, `meta/migrasi-kontrak-2026`,
     // `meta/migrasi-mou-2026`, dan `meta/migrasi-commitment-2026`.
     match /meta/backfill-klienId-2026 {
-      allow read: if adalahOperator();
-      allow create: if adalahOperator()
+      allow read: if adalahStafInternal();
+      allow create: if adalahAdmin()
         && !exists(/databases/$(database)/documents/meta/backfill-klienId-2026);
       allow update, delete: if false;
     }
 
     // ---------- Profil pengguna (koleksi users) ----------
-    // Pengguna hanya boleh membaca dokumennya sendiri. Dua peran
-    // (19/11/2026) + SIGNUP PUBLIK (19/11/2026 16:12 WIB):
+    // Pengguna hanya boleh membaca dokumennya sendiri. Tiga peran
+    // (20/11/2026) + SIGNUP PUBLIK (19/11/2026 16:12 WIB):
     // - Self-create OPERATOR (login pertama dari profil userProfiles
     //   yang disiapkan): HANYA bila ada dokumen userProfiles untuk
     //   email yang ditulis (exists(...) di bawah). Sebelum perubahan
     //   ini aturan mengizinkan pengguna mana pun membuat profil
     //   operator untuk dirinya sendiri — dengan signup publik itu
     //   menjadi jalan penaikan peran (role escalation) yang sepele,
-    //   jadi sekarang dikunci ke profil yang sudah disiapkan operator.
+    //   jadi sekarang dikunci ke profil yang sudah disiapkan admin.
     // - Self-create CLIENT (signup publik di halaman login): peran
     //   'client', TANPA klienId, email HARUS sama dengan email akun
     //   Auth-nya. Signup selalu menghasilkan client (lihat
     //   daftarDenganEmail di src/lib/auth.ts); tidak ada jalan
     //   membuat akun operator lewat signup.
-    // - Operator boleh membuat profil akun lain (invite): peran
-    //   'operator' (tanpa klienId) atau 'client' (klienId WAJIB
-    //   non-kosong — menautkan akun ke record klien).
-    // - Operator boleh MENAUTKAN akun client hasil signup publik
+    // - Admin boleh membuat profil akun lain (invite + buat akun
+    //   internal): peran 'operator' atau 'admin' (tanpa klienId)
+    //   atau 'client' (klienId WAJIB non-kosong — menautkan akun ke
+    //   record klien).
+    // - Admin boleh MENAUTKAN akun client hasil signup publik
     //   (profil sudah ada sebagai client TANPA klienId): HANYA
     //   menambah klienId (lihat klausa update operator di bawah).
     // Peran, satker, dan klienId TIDAK boleh diubah setelah dibuat —
@@ -422,11 +461,11 @@ service cloud.firestore {
         && request.resource.data.email is string
         && request.resource.data.email == request.auth.token.email
         && request.resource.data.satker.kode is string;
-      allow create: if adalahOperator()
-        && request.resource.data.peran in ['operator', 'client']
+      allow create: if adalahAdmin()
+        && request.resource.data.peran in ['operator', 'admin', 'client']
         && request.resource.data.email is string
         && request.resource.data.satker.kode is string
-        && (request.resource.data.peran == 'operator'
+        && (request.resource.data.peran in ['operator', 'admin']
           || (request.resource.data.klienId is string
             && request.resource.data.klienId.size() > 0));
       allow update: if sudahLogin()
@@ -434,13 +473,13 @@ service cloud.firestore {
         && request.resource.data.peran == resource.data.peran
         && request.resource.data.satker == resource.data.satker
         && request.resource.data.get('klienId', '') == resource.data.get('klienId', '');
-      // Operator menautkan akun client hasil signup publik (profil
+      // Admin menautkan akun client hasil signup publik (profil
       // sudah ada sebagai client TANPA klienId): HANYA menambah
       // klienId — peran harus tetap 'client', satker tetap, klienId
       // lama harus kosong (akun yang sudah tertaut TIDAK bisa
       // ditautkan ulang dari sini). Dipakai kartu "Invite Client
       // Account" saat UID yang dimasukkan adalah akun hasil signup.
-      allow update: if adalahOperator()
+      allow update: if adalahAdmin()
         && resource.data.peran == 'client'
         && request.resource.data.peran == 'client'
         && request.resource.data.satker == resource.data.satker
@@ -452,30 +491,30 @@ service cloud.firestore {
 
     // ---------- Profil pengguna (koleksi userProfiles, dipakai migrasi) ----------
     // Pengguna hanya boleh membaca dokumennya sendiri (dicocokkan lewat
-    // email akun Auth). Hanya Operator boleh menulis — dipakai untuk
+    // email akun Auth). Hanya Admin boleh menulis — dipakai untuk
     // bootstrap profil saat migrasi satu kali.
     match /userProfiles/{email} {
       allow get: if sudahLogin() && request.auth.token.email == email;
-      allow create, update, delete: if adalahOperator();
+      allow create, update, delete: if adalahAdmin();
     }
 
-    // ---------- Pengajuan publik — antrean approval (Operator) ----------
+    // ---------- Pengajuan publik — antrean approval (Operator + Admin) ----------
     // KOREKSI 2026-11-15 yang lama ("peran klien dihapus") DIBALIK
     // keputusan 19/11/2026: submission publik (pengajuanKlien) tetap
-    // dibaca/diproses Operator dari satkernya, DAN client yang login
+    // dibaca/diproses Operator dan Admin dari satkernya, DAN client yang login
     // boleh membuat submission yang tertaut ke akunnya (klienId milik
     // sendiri) serta membaca submission miliknya. Aturan Firestore
     // bersifat OR antar blok match yang sama.
 
     // Submission publik (form Ajukan Permohonan, tanpa login).
     match /pengajuanKlien/{id} {
-      // Operator: baca penuh satkernya (dipakai muatDariFirestore).
-      allow read: if adalahOperator()
+      // Staf internal: baca penuh satkernya (dipakai muatDariFirestore).
+      allow read: if adalahStafInternal()
         && satkerMilikPemanggil(resource.data);
-      // Operator boleh membuat (tidak dipakai aplikasi saat ini).
-      allow create: if adalahOperator()
+      // Staf internal boleh membuat (tidak dipakai aplikasi saat ini).
+      allow create: if bolehTulisOperasional()
         && satkerMilikPemanggil(request.resource.data);
-      // Client yang login (dua peran 19/11/2026): HANYA create
+      // Client yang login (tiga peran 20/11/2026): HANYA create
       // submission yang klienId-nya sama dengan klienId di profilnya
       // (dipakai form Ajukan di dalam Client Portal — submission
       // tertaut ke akun client dan tampil di "My Requests"). Validasi
@@ -542,7 +581,7 @@ service cloud.firestore {
       // Dipakai form Ajukan Permohonan (src/modules/Ajukan.tsx lewat
       // kirimPengajuanPublik di firestoreStore.ts). TIDAK ada read /
       // update / delete publik — antrean hanya dibaca dan diproses
-      // Operator. Validasi: field wajib terisi, jenis dari daftar yang
+      // Operator dan Admin. Validasi: field wajib terisi, jenis dari daftar yang
       // dikenal, status SELALU 'Menunggu', klienId SELALU '' (calon klien
       // belum tercatat; diisi Operator saat approval).
       allow create: if request.auth == null
@@ -568,8 +607,8 @@ service cloud.firestore {
           || request.resource.data.nilaiPerkiraan is number)
         && (!('telepon' in request.resource.data)
           || request.resource.data.telepon is string);
-      // Hanya Operator yang mengubah (approval): satker tidak boleh pindah.
-      allow update: if adalahOperator()
+      // Hanya Operator dan Admin yang mengubah (approval): satker tidak boleh pindah.
+      allow update: if bolehTulisOperasional()
         && satkerMilikPemanggil(resource.data)
         && satkerMilikPemanggil(request.resource.data);
       allow delete: if false;

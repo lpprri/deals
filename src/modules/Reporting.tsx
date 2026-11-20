@@ -437,7 +437,9 @@ export default function Reporting(props: ModulProps) {
     }
   };
 
-  const verifikasiLaporan = () => {
+  // Tandai laporan Diverifikasi (aksi 'sahkanLaporan' — operasional:
+  // operator + admin). BUKAN checklist verifikasi (dihapus 20/11/2026).
+  const sahkanLaporan = () => {
     setStatus('Diverifikasi');
     setVerifikasiInfo(`${user.nama} — ${waktuSekarang()}`);
   };
@@ -481,8 +483,8 @@ export default function Reporting(props: ModulProps) {
             </div>
           </div>
           <div className="flex flex-wrap gap-2">
-            {status === 'Draft' && bolehAksi(user.peran, 'verifikasiLaporan') && (
-              <TombolUtama onClick={verifikasiLaporan}>Verify Report</TombolUtama>
+            {status === 'Draft' && bolehAksi(user.peran, 'sahkanLaporan') && (
+              <TombolUtama onClick={sahkanLaporan}>Verify Report</TombolUtama>
             )}
             {status === 'Diverifikasi' && bolehAksi(user.peran, 'kunciLaporan') && (
               <TombolUtama onClick={kunciLaporan}>Lock Report</TombolUtama>

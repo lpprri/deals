@@ -9,13 +9,10 @@
 //   data URI di src/lib/logoRriLockup.ts) di tengah atas; teks terpisah
 //   di bawah logo DIHAPUS supaya tidak duplikat dengan teks di gambar.
 // - Heading "Welcome Back" + subjudul yang sama seperti sebelumnya.
-// - Keterangan akses dengan ikon gembok di bawah subjudul, di atas kolom
-//   email (DUA PERAN, keputusan pengguna 19/11/2026 15:45 WIB: client
-//   JUGA masuk lewat halaman ini — kalimat lama "Only designated
-//   officers can sign in here. If you're a client, please click here."
-//   (PR #112, revisi pengguna 19/11/2026 08:45 WIB) diganti karena
-//   client kini punya akun; "click here" tetap membuka halaman Lacak
-//   publik bagi client yang belum punya akun).
+// - Kotak keterangan akses mode login DIHAPUS 2026-11-20 22:05 WIB
+//   (keputusan pengguna: semua user termasuk client sudah bisa masuk
+//   di sini, jadi keterangan itu tidak diperlukan). Kotak penjelasan
+//   mode signup (tanpa pilihan peran, selalu client) dipertahankan.
 // - Field Email + Password gaya Mixpanel: label tebal gelap di atas
 //   field, input pill putih, border tipis, placeholder abu-abu.
 // - Satu tombol pill full-width Biru "Sign in" (hover navy).
@@ -32,9 +29,9 @@
 // 'client'; TIDAK ADA pilihan peran di form dan TIDAK ADA jalan
 // membuat akun operator lewat signup (validasi client + rules).
 // Tautan publik Ajukan TIDAK ada di halaman ini (keputusan pengguna
-// 2026-11-15). Lacak DIJANGKAU dari sini sejak 2026-11-19: tautan
-// "click here" di keterangan akses membuka halaman Lacak publik (prop
-// onLacak, disambungkan di App.tsx ke halamanPublik 'lacak').
+// 2026-11-15). Tautan ke Lacak dari halaman ini DIHAPUS 2026-11-20
+// 22:05 WIB bersama kotak keterangan akses (keputusan pengguna);
+// Lacak tetap dijangkau dari landing page (footer "Track your Deal").
 // KOREKSI 2026-11-15 yang lama ("klien tidak punya login/akun;
 // halaman ini hanya untuk Operator") DIBALIK keputusan 19/11/2026 —
 // halaman ini kini melayani Operator DAN Client (peran dibedakan lewat
@@ -82,7 +79,6 @@ export default function Login({
   onSignupAuth,
   onLoginDummy,
   onKembali,
-  onLacak,
 }: {
   /** Dipanggil saat Firebase terkonfigurasi; kembalikan pesan error atau null bila sukses. */
   onLoginAuth: (email: string, kataSandi: string) => Promise<string | null>;
@@ -102,8 +98,6 @@ export default function Login({
   onLoginDummy: (user: DummyUser) => void;
   /** Dipanggil saat tombol kembali ditekan (kembali ke landing page). */
   onKembali?: () => void;
-  /** Dipanggil saat tautan "click here" di keterangan akses ditekan (buka halaman Lacak). */
-  onLacak?: () => void;
 }) {
   const [mode, setMode] = useState<'masuk' | 'daftar'>('masuk');
   const [email, setEmail] = useState('');
@@ -189,40 +183,25 @@ export default function Login({
             : 'Enter your credentials to access your account'}
         </p>
 
-        {/* Keterangan akses (dua peran 19/11/2026: client JUGA masuk
-            di sini; "click here" ke Lacak publik bagi yang belum punya
-            akun; signup publik 19/11/2026 16:12 WIB — selalu client,
-            tanpa pilihan peran). */}
-        <div className="mt-6 flex items-start gap-2.5 rounded-xl border border-[#2573e2]/25 bg-white px-3.5 py-3">
-          <Lock
-            className="mt-0.5 h-4 w-4 shrink-0 text-[#2573e2]"
-            aria-hidden
-          />
-          {mode === 'daftar' ? (
+        {/* Kotak penjelasan mode signup saja (tanpa pilihan peran —
+            selalu client; Admin menautkan akun). Kotak keterangan
+            akses mode login DIHAPUS 2026-11-20 22:05 WIB (keputusan
+            pengguna: semua user termasuk client sudah bisa masuk di
+            sini); tautan ke Lacak dari halaman ini ikut hilang. */}
+        {mode === 'daftar' && (
+          <div className="mt-6 flex items-start gap-2.5 rounded-xl border border-[#2573e2]/25 bg-white px-3.5 py-3">
+            <Lock
+              className="mt-0.5 h-4 w-4 shrink-0 text-[#2573e2]"
+              aria-hidden
+            />
             <p className="text-xs leading-relaxed text-[#0d2569]/80">
               This creates a client account — there is no role to
-              choose. After signing up, the Operator will link your
+              choose. After signing up, the Admin will link your
               account to your partnership data; until then you can
               submit a request and book a free call from your portal.
             </p>
-          ) : (
-            <p className="text-xs leading-relaxed text-[#0d2569]/80">
-              Sign in with your account — Operators and clients sign
-              in here. After signing in, clients see their own Client
-              Portal. No account yet? Create a client account below,
-              or track your partnership by PKS or invoice number —
-              please{' '}
-              <button
-                type="button"
-                onClick={onLacak}
-                className="font-semibold text-[#2573e2] underline hover:text-[#0d2569]"
-              >
-                click here
-              </button>
-              .
-            </p>
-          )}
-        </div>
+          </div>
+        )}
 
         {isFirebaseConfigured ? (
           mode === 'daftar' ? (

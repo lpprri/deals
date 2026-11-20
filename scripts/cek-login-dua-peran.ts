@@ -1,6 +1,10 @@
-// Verifikasi login dua peran + Client Portal (19/11/2026) — TANPA Firestore.
+// Verifikasi login TIGA PERAN + Client Portal (20/11/2026; model dua
+// peran PR #121 dan model empat peran PR #124 diganti keputusan
+// pengguna 20/11/2026 21:06 + 21:09 WIB — nama berkas dipertahankan,
+// isinya kini mengasersi model tiga peran; cek-tiga-peran.ts mengasersi
+// matriks hak) — TANPA Firestore.
 // - Field peran + routing menurut peran (peranDariProfil murni; App.tsx
-//   merutekan client ke PortalKlien, operator ke admin portal).
+//   merutekan client ke PortalKlien, operator/admin ke admin portal).
 // - SIGNUP PUBLIK (keputusan pengguna 19/11/2026 16:12 WIB): halaman
 //   login punya jalur 'Create account' — signup SELALU menghasilkan
 //   peran 'client' (tanpa klienId, tanpa pilihan peran di form maupun
@@ -12,10 +16,12 @@
 //   sama dengan email akun Auth-nya (email Ajukan dikunci di portal).
 // - firestore.rules: baca client HANYA di bawah klienId-nya sendiri
 //   (kontrak/tagihan/pembayaran/denda/mou/commitment/dokumen/
-//   pengajuanKlien/klien), list klien dilarang, operator tidak berubah,
-//   Lacak publik tetap get-by-ID tanpa login, guard backfill baru,
-//   profil users: self-create hanya operator, operator boleh membuat
-//   profil client dengan klienId, peran/satker/klienId tidak bisa diubah.
+//   pengajuanKlien/klien), list klien dilarang, baca operasional untuk
+//   staf internal (operator + admin), tulis operasional operator +
+//   admin, Lacak publik tetap get-by-ID tanpa login, guard backfill baru,
+//   profil users: self-create hanya operator, admin boleh membuat
+//   profil operator/admin/client (klienId wajib hanya untuk client),
+//   peran/satker/klienId tidak bisa diubah.
 // - Seed: klienId terdenormalisasi di tagihan/pembayaran/denda/dokumen
 //   (rantai induk benar), MoU tepat 3 tertaut (035→KLN-030, 043→KLN-014,
 //   045→KLN-009; near-miss 039 TIDAK tertaut), Commitment 0 tertaut.
@@ -114,7 +120,7 @@ cekLempar('peranDariProfil client klienId bukan string ditolak', () =>
   true,
 );
 cekLempar('peranDariProfil peran tidak dikenal ditolak', () =>
-  peranDariProfil({ peran: 'admin' }),
+  peranDariProfil({ peran: 'supervisor' }),
   true,
 );
 cekLempar('peranDariProfil tanpa peran ditolak', () => peranDariProfil({}), true);
@@ -130,16 +136,19 @@ cek(
   DUMMY_USERS.some((u) => u.peran === 'client' && u.klienId === 'KLN-030'),
 );
 cek(
-  'LABEL_PERAN operator + client',
-  LABEL_PERAN.operator === 'Operator' && LABEL_PERAN.client === 'Client',
+  'LABEL_PERAN tiga peran',
+  LABEL_PERAN.operator === 'Operator' &&
+    LABEL_PERAN.admin === 'Admin' &&
+    LABEL_PERAN.client === 'Client',
 );
 cek(
   'Login tidak lagi menyebut "Only designated officers"',
   !login.includes('Only designated officers'),
 );
 cek(
-  'Login menyebut operator + client masuk di sini',
-  loginRata.includes('Operators and clients sign in here'),
+  'Login tidak lagi menyebut tiga peran masuk di sini (kotak keterangan dihapus 22:05 WIB)',
+  !loginRata.includes('Operators, Admins, and clients sign in here') &&
+    !loginRata.includes('Sign in with your account'),
 );
 cek(
   'Login merender semua DUMMY_USERS',
@@ -165,8 +174,8 @@ cek(
     app.indexOf("user.peran === 'client'") < app.indexOf('navUtama'),
 );
 cek(
-  'session restore menerima operator DAN client',
-  app.includes("peran === 'operator' || peran === 'client'"),
+  'session restore menerima ketiga peran (peranDikenal)',
+  app.includes('peranDikenal(peran)'),
 );
 cek(
   'Lacak publik tetap ada (halamanPublik lacak)',
@@ -194,8 +203,10 @@ cek(
   `${AKSI_OPERATOR.length} aksi dicek`,
 );
 cek(
-  'operator tetap boleh tambahKlien + kelolaMaster',
-  bolehAksi('operator', 'tambahKlien') && bolehAksi('operator', 'kelolaMaster'),
+  'operator boleh tambahKlien; kelolaMaster hanya admin',
+  bolehAksi('operator', 'tambahKlien') &&
+    !bolehAksi('operator', 'kelolaMaster') &&
+    bolehAksi('admin', 'kelolaMaster'),
 );
 
 // ---------- signup publik (keputusan 19/11/2026 16:12 WIB) ----------
@@ -246,9 +257,9 @@ cek(
   !login.includes('id="signup-peran"') && !login.includes('name="peran"'),
 );
 cek(
-  'Login signup menjelaskan: tanpa pilihan peran, operator menautkan',
+  'Login signup menjelaskan: tanpa pilihan peran, Admin menautkan',
   loginRata.includes('no role to choose') &&
-    loginRata.includes('the Operator will link your account'),
+    loginRata.includes('the Admin will link your account'),
 );
 cek(
   'Login menerima prop onSignupAuth',
@@ -300,13 +311,13 @@ cek(
   ),
 );
 cek(
-  'rules: operator boleh menautkan akun signup (update users, tambah klienId saja)',
+  'rules: admin boleh menautkan akun signup (update users, tambah klienId saja)',
   (() => {
     const awal = rules.indexOf('match /users/{uid}');
     const akhir = rules.indexOf('match /userProfiles', awal);
     const blok = rules.slice(awal, akhir);
     return (
-      blok.includes('allow update: if adalahOperator()') &&
+      blok.includes('allow update: if adalahAdmin()') &&
       blok.includes("resource.data.peran == 'client'") &&
       blok.includes("resource.data.get('klienId', '') == ''") &&
       blok.includes('request.resource.data.klienId.size() > 0')
@@ -405,9 +416,10 @@ cek(
     ),
 );
 cek(
-  'rules operator boleh membuat profil client (klienId wajib)',
-  rules.includes("request.resource.data.peran in ['operator', 'client']") &&
-    rules.includes('request.resource.data.klienId is string'),
+  'rules admin boleh membuat profil operator/admin/client (klienId wajib untuk client)',
+  rules.includes(
+    "request.resource.data.peran in ['operator', 'admin', 'client']",
+  ) && rules.includes('request.resource.data.klienId is string'),
 );
 cek(
   'rules update users: klienId tidak bisa diubah',
