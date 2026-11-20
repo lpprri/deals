@@ -13,17 +13,19 @@
 //   sudah ada di dalam gambar logo (duplikat bila dipertahankan).
 // - Heading "Welcome Back" + subjudul lama dipertahankan.
 // - Keterangan akses dengan ikon gembok, di bawah subjudul, di atas kolom
-//   email. DUA PERAN (keputusan pengguna 19/11/2026 15:45 WIB): kalimat
+//   email. TIGA PERAN (keputusan pengguna 20/11/2026 21:06 WIB,
+//   menggantikan dua peran PR #121 dan empat peran PR #124): kalimat
 //   lama "Only designated officers can sign in here. If you're a client,
 //   please click here." (PR #112, revisi pengguna 2026-11-19 08:45 WIB)
-//   diganti — client kini JUGA masuk lewat halaman ini; "click here"
+//   diganti — operator, admin, dan client masuk lewat halaman ini;
+//   "click here"
 //   tetap membuka halaman Lacak publik bagi client yang belum punya
 //   akun (prop onLacak, disambungkan di App.tsx ke halamanPublik 'lacak').
 //   SIGNUP PUBLIK (keputusan pengguna 19/11/2026 16:12 WIB): kalimat
-//   akses mode login kini "Sign in with your account — Operators and
-//   clients sign in here." + tautan "Create account" ke mode signup
+//   akses mode login kini "Sign in with your account — Operators,
+//   Admins, and clients sign in here." + tautan "Create account" ke mode signup
 //   ("Create your account"); mode signup menjelaskan tanpa pilihan
-//   peran ("no role to choose") dan operator menautkan akunnya.
+//   peran ("no role to choose") dan Admin menautkan akunnya.
 // - Field Email + Password gaya Mixpanel: label tebal gelap di atas,
 //   input pill putih (rounded-full), border tipis, placeholder abu-abu;
 //   password tetap di layar yang sama (TIDAK ada alur email-first).
@@ -97,9 +99,9 @@ cek(
     login.includes('Enter your credentials to access your account'),
 );
 cek(
-  'Login: keterangan akses dua peran + signup (operator & client masuk di sini; "click here" ke Lacak bagi yang belum punya akun; kalimat lama 0x)',
+  'Login: keterangan akses tiga peran + signup (operator, admin & client masuk di sini; "click here" ke Lacak bagi yang belum punya akun; kalimat lama 0x)',
   loginRata.includes('Sign in with your account') &&
-    loginRata.includes('Operators and clients sign in here') &&
+    loginRata.includes('Operators, Admins, and clients sign in here') &&
     loginRata.includes('click here') &&
     loginRata.includes('Create account') &&
     loginRata.includes('Create your account') &&

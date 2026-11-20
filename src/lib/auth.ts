@@ -1,21 +1,32 @@
 // Autentikasi Firebase Auth (email + kata sandi) — aktivasi Firebase.
-// DUA PERAN (keputusan pengguna 19/11/2026 15:45 WIB): Operator (Staf
-// Layanan & Pengembangan Usaha) DAN Client — satu halaman login; peran
-// dibedakan lewat field `peran` di dokumen profil `users/{uid}`;
-// setelah masuk, client masuk Client Portal, operator masuk admin
-// portal. Keputusan ini MEMBALIK dua keputusan sebelumnya: (1)
-// keputusan pengguna 14/11/2026 21:29 WIB "buang semua role" (hanya 1
-// role Operator); (2) koreksi 15/11/2026 (PRD v2.3) yang menghapus
-// peran klien. Lacak publik (nomor PKS/tagihan, tanpa login) TETAP ada.
+// TIGA PERAN (keputusan pengguna 20/11/2026 21:06 WIB): client
+// (mitra kerjasama RRI), operator (petugas bidang Layanan &
+// Pengembangan Usaha — kerja operasional harian), dan admin (super
+// user yang mengelola web app) — satu halaman login; peran dibedakan
+// lewat field `peran` di dokumen profil `users/{uid}`; setelah
+// masuk, client masuk Client Portal, operator/admin masuk admin
+// portal. Keputusan ini menggantikan model EMPAT PERAN PR #124
+// (tidak jadi di-merge 20/11/2026): dua peran tambahan model
+// empat peran DIHAPUS, checklist verifikasi DIHAPUS, dan 'operator'
+// kembali berarti staf LPU (seperti PR #121). Akun
+// lpu.lpprripalembang@gmail.com akan menjadi 'admin' SETELAH merge +
+// publish rules — saat ini masih 'operator' di Firestore, dan kode
+// ini TETAP menerima 'operator' (sebagai Operator) supaya login
+// tidak putus sebelum profil dibalik (lihat peranDariProfil).
+// Lacak publik (nomor PKS/tagihan, tanpa login) TETAP ada.
 // Akun client dibuat DUA JALUR (keputusan pengguna 19/11/2026 16:12 WIB,
 // menggantikan default invite-only): (1) SIGNUP PUBLIK di halaman login
 // — calon klien membuat akun sendiri, selalu peran 'client' (lihat
 // `daftarDenganEmail` di bawah; peran TIDAK bisa dipilih pendaftar,
-// tidak ada jalan membuat akun operator lewat signup); (2) INVITE oleh
-// operator lewat kartu "Invite Client Account" di MasterPage (operator
+// tidak ada jalan membuat akun operator/admin lewat signup); (2) INVITE
+// oleh admin lewat kartu "Invite Client Account" di MasterPage (admin
 // membuat akun Auth di console, lalu menautkan UID ke record klien).
+// Akun INTERNAL (operator/admin) dibuat admin dari dalam aplikasi
+// lewat `buatAkunInternal` di bawah — memakai FirebaseApp KEDUA
+// (secondary app) supaya sesi admin yang sedang login TIDAK terganti;
+// akun client TIDAK BISA dibuat lewat jalur itu.
 // Akun client baru yang belum tertaut menampilkan portal 'belum
-// tertaut' yang jujur sampai operator menautkan. TIDAK ADA tautan
+// tertaut' yang jujur sampai admin menautkan. TIDAK ADA tautan
 // otomatis berdasarkan email — lihat `daftarDenganEmail`.
 //
 // Profil peran disimpan di Firestore: dokumen `users/{uid}`.
@@ -24,23 +35,27 @@
 // migrasi satu kali (src/lib/migrasi.ts), lalu disalin ke `users/{uid}`.
 // Bila tidak ada profil untuk email itu, bootstrap MENOLAK (bukan
 // membuat profil Operator otomatis seperti sebelum 19/11/2026) —
-// alasannya keamanan dua peran: akun client yang dibuat di console
-// tapi belum ditautkan Operator TIDAK BOLEH login pertama kali sebagai
+// alasannya keamanan: akun client yang dibuat di console
+// tapi belum ditautkan Admin TIDAK BOLEH login pertama kali sebagai
 // Operator. Akun baru (operator maupun client) ditautkan dulu lewat
-// kartu "Invite Client Account" di MasterPage (operator menulis
+// kartu "Invite Client Account" di MasterPage (admin menulis
 // users/{uid} dengan peran + klienId yang benar), baru akun itu bisa
 // login. firestore.rules menegakkan hal yang sama di sisi server
 // (self-create hanya boleh peran 'operator' dari profil yang disiapkan;
-// operator boleh membuat profil client dengan klienId).
+// admin boleh membuat profil operator/admin/client dengan klienId
+// untuk client).
 
 import {
   createUserWithEmailAndPassword,
+  getAuth,
   signInWithEmailAndPassword,
   signOut,
   type User,
 } from 'firebase/auth';
+import { deleteApp, initializeApp } from 'firebase/app';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { auth, db, isFirebaseConfigured } from './firebaseApp';
+import { firebaseConfig } from '../config/firebase';
 import { SATKER_PILOT } from './master';
 import type { Role } from './dummyUsers';
 import type { SatkerRef } from './types';
@@ -55,18 +70,26 @@ export interface AppUser {
   /**
    * Id record klien yang ditautkan ke akun ini — HANYA untuk peran
    * 'client'. Boleh KOSONG untuk akun client yang baru daftar (signup
-   publik) dan belum ditautkan operator — portal menampilkan keadaan
+   publik) dan belum ditautkan admin — portal menampilkan keadaan
    'belum tertaut'; lihat peranDariProfil. Menentukan data apa yang
    boleh dibaca client di portalnya.
    */
   klienId?: string;
   /**
    * Institusi yang dideklarasikan sendiri saat signup publik — dipakai
-   * operator untuk mencocokkan pendaftar ke record klien yang benar
+   * admin untuk mencocokkan pendaftar ke record klien yang benar
    * saat menautkan. BUKAN bukti kepemilikan record klien (bisa diisi
-   * siapa pun); penautan tetap keputusan operator setelah verifikasi.
+   * siapa pun); penautan tetap keputusan admin setelah verifikasi.
    */
   institusi?: string;
+}
+
+/** Peran internal (operator/admin) — masuk admin portal. */
+export type PeranInternal = 'operator' | 'admin';
+
+/** Nilai `peran` yang dikenal aplikasi (tiga peran, huruf kecil persis). */
+export function peranDikenal(peran: unknown): peran is Role {
+  return peran === 'operator' || peran === 'admin' || peran === 'client';
 }
 
 function pastikanTerkonfigurasi(): void {
@@ -79,14 +102,18 @@ function pastikanTerkonfigurasi(): void {
 
 /**
  * Validasi peran dari dokumen profil `users/{uid}` — MURNI, tanpa
- * Firebase (dipakai skrip cek). 'operator' lolos apa adanya; 'client'
- * lolos DENGAN atau TANPA `klienId` — akun client yang baru daftar
- * (signup publik, 19/11/2026) belum tertaut ke record klien mana pun
- * dan portal menampilkan keadaan 'belum tertaut' yang jujur; akun
- * client tanpa klienId TIDAK BISA membaca data klien (aturan
- * Firestore menolak baca tanpa klienId yang cocok, dan muatDataKlien
- * tidak pernah dipanggil tanpa klienId — lihat App.tsx). Peran lain /
- * peran kosong DITOLAK.
+ * Firebase (dipakai skrip cek). 'operator' dan 'admin' lolos apa
+ * adanya (tanpa klienId); 'client' lolos DENGAN atau TANPA `klienId`
+ * — akun client yang baru daftar (signup publik, 19/11/2026) belum
+ * tertaut ke record klien mana pun dan portal menampilkan keadaan
+ * 'belum tertaut' yang jujur; akun client tanpa klienId TIDAK BISA
+ * membaca data klien (aturan Firestore menolak baca tanpa klienId
+ * yang cocok, dan muatDataKlien tidak pernah dipanggil tanpa
+ * klienId — lihat App.tsx). Peran lain / peran kosong DITOLAK —
+ * termasuk 'Operator' huruf besar dan peran model empat peran
+ * dua peran tambahan model empat peran yang sudah dihapus
+ * (temuan 19/11/2026:
+ * field peran HARUS huruf kecil persis).
  */
 export function peranDariProfil(data: Record<string, unknown>): {
   peran: Role;
@@ -94,6 +121,7 @@ export function peranDariProfil(data: Record<string, unknown>): {
 } {
   const peran = data.peran;
   if (peran === 'operator') return { peran: 'operator' };
+  if (peran === 'admin') return { peran: 'admin' };
   if (peran === 'client') {
     const klienId = data.klienId;
     if (klienId === undefined || klienId === null || klienId === '') {
@@ -106,7 +134,7 @@ export function peranDariProfil(data: Record<string, unknown>): {
     }
     return { peran: 'client', klienId: klienId.trim() };
   }
-  throw new Error('Akun belum diberi peran yang dikenal — hubungi Operator.');
+  throw new Error('Akun belum diberi peran yang dikenal — hubungi Admin.');
 }
 
 function bacaAppUser(uid: string, data: Record<string, unknown>): AppUser {
@@ -166,8 +194,8 @@ export async function bootstrapProfil(
  * sesi ditutup dan dilempar Error. Akun client TANPA klienId BOLEH
  * masuk — portal menampilkan keadaan 'belum tertaut' (lihat
  * peranDariProfil + PortalKlien). Routing setelah masuk (client →
- * Client Portal, operator → admin portal) diputuskan pemanggil dari
- * AppUser.peran (App.tsx).
+ * Client Portal, operator/admin → admin portal) diputuskan pemanggil
+ * dari AppUser.peran (App.tsx).
  */
 export async function masukDenganEmail(
   email: string,
@@ -209,8 +237,9 @@ export async function masukDenganEmail(
  *
  * PERAN TIDAK BISA DIPILIH PENDAFTAR — fungsi ini SELALU menulis
  * `peran: 'client'`; tidak ada parameter peran dan tidak ada jalan
- * membuat akun operator lewat signup. Akun operator hanya bisa dibuat
- * lewat kartu invite di Master & Users (oleh operator yang sudah login).
+ * membuat akun operator/admin lewat signup. Akun internal hanya bisa
+ * dibuat admin lewat `buatAkunInternal` (MasterPage) atau kartu
+ * invite di Master & Users (oleh admin yang sudah login).
  *
  * TIDAK ADA TAUTAN OTOMATIS ke record klien: `klienId` sengaja TIDAK
  * ditulis. Alasannya dua: (1) ke-33 record klien di seed semuanya
@@ -218,7 +247,7 @@ export async function masukDenganEmail(
  * pernah cocok hari ini; (2) tanpa verifikasi email, pencocokan
  * berdasarkan email yang dideklarasikan sendiri akan membiarkan siapa
  * pun mengklaim data klien lain hanya dengan mengetik alamat emailnya.
- * Operator menautkan akun baru dari Master & Users setelah memverifikasi
+ * Admin menautkan akun baru dari Master & Users setelah memverifikasi
  * identitas pendaftar (lihat kartu "Invite Client Account" + komentar
  * di `tambahProfilKlien`); sampai ditautkan, portal menampilkan keadaan
  * 'belum tertaut' yang jujur.
@@ -264,6 +293,83 @@ export async function daftarDenganEmail(
     institusi: institusiBersih,
     satker: SATKER_PILOT,
   };
+}
+
+/**
+ * BUAT AKUN INTERNAL (tiga peran, 20/11/2026) — HANYA dipanggil
+ * admin dari kartu "Create Internal Account" di MasterPage. Membuat
+ * akun Firebase Auth + dokumen profil `users/{uid}` dengan peran
+ * 'operator' | 'admin'.
+ *
+ * AKUN CLIENT TIDAK BISA DIBUAT DI SINI — client hanya lewat signup
+ * publik (selalu 'client') atau invite + tautan admin; memanggil
+ * fungsi ini dengan peran 'client' ditolak.
+ *
+ * SESI ADMIN TIDAK TERGANTI: pembuatan akun memakai FirebaseApp
+ * KEDUA (nama 'buat-akun-internal') dengan Auth-nya sendiri —
+ * createUserWithEmailAndPassword di Auth utama akan mengganti sesi
+ * yang sedang login menjadi akun baru, jadi JANGAN dipakai di sini.
+ * Setelah profil ditulis, Auth sekunder di-sign-out dan app-nya
+ * dihapus (finally — selalu, termasuk bila penulisan profil gagal;
+ * bila profil gagal ditulis, akun Auth sudah terlanjur dibuat dan
+ * galat menyebutkannya supaya admin bisa menghapusnya di console
+ * atau mengulang dari kartu invite).
+ */
+export async function buatAkunInternal(
+  nama: string,
+  jabatan: string,
+  email: string,
+  kataSandi: string,
+  peran: PeranInternal,
+): Promise<{ uid: string }> {
+  pastikanTerkonfigurasi();
+  const namaBersih = nama.trim();
+  const emailBersih = email.trim().toLowerCase();
+  if (namaBersih === '' || emailBersih === '') {
+    throw new Error('Nama dan email wajib diisi.');
+  }
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailBersih)) {
+    throw new Error('Alamat email tidak valid.');
+  }
+  if (kataSandi.length < 6) {
+    throw new Error('Kata sandi minimal 6 karakter.');
+  }
+  if (peran !== 'operator' && peran !== 'admin') {
+    throw new Error('Peran internal harus operator atau admin.');
+  }
+  const appKedua = initializeApp(firebaseConfig, 'buat-akun-internal');
+  const authKedua = getAuth(appKedua);
+  try {
+    const kredensial = await createUserWithEmailAndPassword(
+      authKedua,
+      emailBersih,
+      kataSandi,
+    );
+    const uidBaru = kredensial.user.uid;
+    try {
+      await setDoc(doc(db!, 'users', uidBaru), {
+        email: emailBersih,
+        nama: namaBersih,
+        jabatan: jabatan.trim() || 'Staf Layanan & Pengembangan Usaha',
+        peran,
+        satker: SATKER_PILOT,
+        dibuatPada: new Date().toISOString(),
+      });
+    } catch (e) {
+      throw new Error(
+        'Akun Auth sudah dibuat tetapi profilnya gagal ditulis — hapus akun ini di Firebase console → Authentication, lalu ulangi. ' +
+          (e instanceof Error ? e.message : ''),
+      );
+    }
+    return { uid: uidBaru };
+  } finally {
+    await signOut(authKedua).catch(() => {
+      // Abaikan — app tetap dihapus di bawah.
+    });
+    await deleteApp(appKedua).catch(() => {
+      // Abaikan — app sekunder tidak dipakai lagi.
+    });
+  }
 }
 
 /** Keluar (signOut Firebase Auth). */

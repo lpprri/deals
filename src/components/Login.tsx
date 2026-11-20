@@ -10,12 +10,12 @@
 //   di bawah logo DIHAPUS supaya tidak duplikat dengan teks di gambar.
 // - Heading "Welcome Back" + subjudul yang sama seperti sebelumnya.
 // - Keterangan akses dengan ikon gembok di bawah subjudul, di atas kolom
-//   email (DUA PERAN, keputusan pengguna 19/11/2026 15:45 WIB: client
-//   JUGA masuk lewat halaman ini — kalimat lama "Only designated
-//   officers can sign in here. If you're a client, please click here."
-//   (PR #112, revisi pengguna 19/11/2026 08:45 WIB) diganti karena
-//   client kini punya akun; "click here" tetap membuka halaman Lacak
-//   publik bagi client yang belum punya akun).
+//   email (TIGA PERAN, keputusan pengguna 20/11/2026 21:06 WIB:
+//   client, operator, dan admin masuk lewat halaman ini — kalimat
+//   akses lama PR #112 (hanya petugas yang ditunjuk; client diarahkan
+//   ke Lacak) diganti karena client kini punya akun;
+//   "click here" tetap membuka halaman Lacak publik bagi client
+//   yang belum punya akun).
 // - Field Email + Password gaya Mixpanel: label tebal gelap di atas
 //   field, input pill putih, border tipis, placeholder abu-abu.
 // - Satu tombol pill full-width Biru "Sign in" (hover navy).
@@ -189,10 +189,10 @@ export default function Login({
             : 'Enter your credentials to access your account'}
         </p>
 
-        {/* Keterangan akses (dua peran 19/11/2026: client JUGA masuk
-            di sini; "click here" ke Lacak publik bagi yang belum punya
-            akun; signup publik 19/11/2026 16:12 WIB — selalu client,
-            tanpa pilihan peran). */}
+        {/* Keterangan akses (tiga peran 20/11/2026: client, operator,
+            dan admin masuk di sini; "click here" ke Lacak publik bagi
+            yang belum punya akun; signup publik 19/11/2026 16:12 WIB
+            — selalu client, tanpa pilihan peran). */}
         <div className="mt-6 flex items-start gap-2.5 rounded-xl border border-[#2573e2]/25 bg-white px-3.5 py-3">
           <Lock
             className="mt-0.5 h-4 w-4 shrink-0 text-[#2573e2]"
@@ -201,15 +201,16 @@ export default function Login({
           {mode === 'daftar' ? (
             <p className="text-xs leading-relaxed text-[#0d2569]/80">
               This creates a client account — there is no role to
-              choose. After signing up, the Operator will link your
+              choose. After signing up, the Admin will link your
               account to your partnership data; until then you can
               submit a request and book a free call from your portal.
             </p>
           ) : (
             <p className="text-xs leading-relaxed text-[#0d2569]/80">
-              Sign in with your account — Operators and clients sign
-              in here. After signing in, clients see their own Client
-              Portal. No account yet? Create a client account below,
+              Sign in with your account — Operators, Admins, and clients
+              sign in here. After signing in, clients see their own
+              Client Portal; staff see the admin portal. No account
+              yet? Create a client account below,
               or track your partnership by PKS or invoice number —
               please{' '}
               <button

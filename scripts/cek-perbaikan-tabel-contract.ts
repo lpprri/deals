@@ -468,15 +468,20 @@ const k = hitungTotalKontrol(DATA_NYATA);
 cek('total kontrol tagihan 376.414.124', k.totalTagihan === 376414124, `${k.totalTagihan}`);
 cek('total kontrol sisa piutang 14.084.869', k.sisaPiutang === 14084869, `${k.sisaPiutang}`);
 cek('total kontrol denda 6.219.250', k.totalDenda === 6219250, `${k.totalDenda}`);
-// firestore.rules TIDAK berubah: blob SHA-1 sama dengan main 56e0736c.
+// firestore.rules BERUBAH di PR tiga peran (bukan lagi byte-identik
+// dengan main 56e0736c — hash lama 593ee968...): penanda tiga peran
+// harus ada, supaya rules lama (dua peran) tidak terpakai lagi.
 const rules = fs.readFileSync('firestore.rules');
+const rulesText = rules.toString('utf8');
 const blobSha1 = crypto
   .createHash('sha1')
   .update(Buffer.concat([Buffer.from(`blob ${rules.length}\0`), rules]))
   .digest('hex');
 cek(
-  'firestore.rules byte-identik dengan main 56e0736c (tanpa perubahan rules)',
-  blobSha1 === '593ee9685dc7d50f9588b0d9861deeefb8d92bfd',
+  'firestore.rules BERUBAH dari main 56e0736c (tiga peran) + penanda admin ada',
+  blobSha1 !== '593ee9685dc7d50f9588b0d9861deeefb8d92bfd' &&
+    rulesText.includes('function adalahAdmin()') &&
+    rulesText.includes('function adalahStafInternal()'),
   blobSha1,
 );
 
