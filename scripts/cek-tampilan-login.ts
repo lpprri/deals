@@ -12,20 +12,15 @@
 //   "Radio Republik Indonesia" DIHAPUS dari Login.tsx karena teks itu
 //   sudah ada di dalam gambar logo (duplikat bila dipertahankan).
 // - Heading "Welcome Back" + subjudul lama dipertahankan.
-// - Keterangan akses dengan ikon gembok, di bawah subjudul, di atas kolom
-//   email. TIGA PERAN (keputusan pengguna 20/11/2026 21:06 WIB,
-//   menggantikan dua peran PR #121 dan empat peran PR #124): kalimat
-//   lama "Only designated officers can sign in here. If you're a client,
-//   please click here." (PR #112, revisi pengguna 2026-11-19 08:45 WIB)
-//   diganti — operator, admin, dan client masuk lewat halaman ini;
-//   "click here"
-//   tetap membuka halaman Lacak publik bagi client yang belum punya
-//   akun (prop onLacak, disambungkan di App.tsx ke halamanPublik 'lacak').
-//   SIGNUP PUBLIK (keputusan pengguna 19/11/2026 16:12 WIB): kalimat
-//   akses mode login kini "Sign in with your account — Operators,
-//   Admins, and clients sign in here." + tautan "Create account" ke mode signup
-//   ("Create your account"); mode signup menjelaskan tanpa pilihan
-//   peran ("no role to choose") dan Admin menautkan akunnya.
+// - Kotak keterangan akses mode login DIHAPUS 2026-11-20 22:05 WIB
+//   (keputusan pengguna: semua user termasuk client sudah bisa masuk
+//   di sini). Tidak ada lagi kalimat akses, ikon gembok di mode login,
+//   maupun tautan ke Lacak dari halaman ini (Lacak tetap dijangkau
+//   dari landing page). Kotak penjelasan mode signup dipertahankan:
+//   tanpa pilihan peran ("no role to choose"), Admin menautkan akunnya.
+//   SIGNUP PUBLIK (keputusan pengguna 19/11/2026 16:12 WIB): tautan
+//   "Create account" ke mode signup ("Create your account"); mode
+//   signup menjelaskan tanpa pilihan peran dan Admin menautkan akunnya.
 // - Field Email + Password gaya Mixpanel: label tebal gelap di atas,
 //   input pill putih (rounded-full), border tipis, placeholder abu-abu;
 //   password tetap di layar yang sama (TIDAK ada alur email-first).
@@ -41,8 +36,9 @@
 // - Mode contoh/dummy TETAP dipertahankan (tombol dummy Operator DAN
 //   Client sejak dua peran 19/11/2026).
 // - Tautan publik Ajukan TETAP tidak ada di halaman login (keputusan
-//   pengguna 2026-11-15). Lacak DIJANGKAU dari sini sejak 2026-11-19
-//   lewat tautan "click here" di keterangan akses.
+//   pengguna 2026-11-15). Tautan ke Lacak dari halaman login DIHAPUS
+//   2026-11-20 22:05 WIB bersama kotak keterangan akses; Lacak tetap
+//   dijangkau dari landing page (footer "Track your Deal").
 // Skrip ini membaca berkas sebagai teks. Keluar bukan-nol bila ada
 // asersi gagal.
 import { readFileSync } from 'node:fs';
@@ -99,12 +95,13 @@ cek(
     login.includes('Enter your credentials to access your account'),
 );
 cek(
-  'Login: keterangan akses tiga peran + signup (operator, admin & client masuk di sini; "click here" ke Lacak bagi yang belum punya akun; kalimat lama 0x)',
-  loginRata.includes('Sign in with your account') &&
-    loginRata.includes('Operators, Admins, and clients sign in here') &&
-    loginRata.includes('click here') &&
+  'Login: kotak keterangan akses mode login DIHAPUS (22:05 WIB) — tidak ada kalimat akses / "click here"; signup tetap ada',
+  !loginRata.includes('Sign in with your account') &&
+    !loginRata.includes('Operators, Admins, and clients sign in here') &&
+    !loginRata.includes('click here') &&
     loginRata.includes('Create account') &&
     loginRata.includes('Create your account') &&
+    loginRata.includes('This creates a client account') &&
     !loginRata.includes('Only designated officers can sign in here.') &&
     !loginRata.includes(
       'please use Track or Submit a Request on the landing page.',
@@ -112,14 +109,12 @@ cek(
     login.includes('Lock'),
 );
 cek(
-  'Login: "click here" adalah tautan biru ke halaman Lacak (prop onLacak, onClick, gaya tautan aplikasi)',
-  login.includes('onLacak?: () => void') &&
-    login.includes('onClick={onLacak}') &&
-    login.includes('click here') &&
-    login.includes("className=\"font-semibold text-[#2573e2] underline hover:text-[#0d2569]\"") &&
-    app
-      .slice(app.indexOf('<Login'))
-      .includes("onLacak={() => setHalamanPublik('lacak')}"),
+  'Login: prop onLacak DIHAPUS — tidak ada lagi tautan ke Lacak dari halaman login (wiring onLacak di App.tsx tinggal 1x, untuk landing)',
+  !login.includes('onLacak') &&
+    !login.includes('click here') &&
+    !login.includes('onClick={onLacak}') &&
+    app.split("onLacak={() => setHalamanPublik('lacak')}").length - 1 ===
+      1,
 );
 cek(
   'Login: field Email + Password gaya Mixpanel (label tebal di atas, input pill putih)',
@@ -178,11 +173,12 @@ cek(
     login.includes('Sign in as (Sample):'),
 );
 cek(
-  'Login: tautan publik Ajukan TETAP tidak ada; satu-satunya tautan publik adalah "click here" ke Lacak',
+  'Login: TIDAK ADA tautan publik sama sekali (Ajukan tetap tidak ada; tautan ke Lacak sudah dihapus)',
   !login.includes("setHalamanPublik('ajukan')") &&
     !login.includes('Ajukan Permohonan') &&
     !login.includes('<a ') &&
-    login.includes('onLacak'),
+    !login.includes('onLacak') &&
+    !login.includes('click here'),
 );
 
 if (gagal > 0) {

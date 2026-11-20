@@ -296,8 +296,10 @@ cek(
 
 // ---------- Login: tiga peran, signup tetap client saja ----------
 cek(
-  'Login: keterangan akses menyebut tiga peran',
-  loginRata.includes('Operators, Admins, and clients sign in here'),
+  'Login: kotak keterangan akses mode login DIHAPUS (22:05 WIB)',
+  !loginRata.includes('Operators, Admins, and clients sign in here') &&
+    !loginRata.includes('Sign in with your account') &&
+    !loginRata.includes('click here'),
 );
 cek(
   'Login: signup tetap membuat akun client (tanpa pilihan peran)',

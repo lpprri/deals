@@ -146,8 +146,9 @@ cek(
   !login.includes('Only designated officers'),
 );
 cek(
-  'Login menyebut tiga peran masuk di sini',
-  loginRata.includes('Operators, Admins, and clients sign in here'),
+  'Login tidak lagi menyebut tiga peran masuk di sini (kotak keterangan dihapus 22:05 WIB)',
+  !loginRata.includes('Operators, Admins, and clients sign in here') &&
+    !loginRata.includes('Sign in with your account'),
 );
 cek(
   'Login merender semua DUMMY_USERS',
