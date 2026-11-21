@@ -258,6 +258,14 @@ function BintangLima({
 }
 
 export default function MarkloLanding({ onLogin, onLacak, onComingSoon, onPlanCampaign, onBookVenue, onRentSpace, onTraining, onKirimBooking }: MarkloLandingProps) {
+  // Kembali ke landing dari halaman publik yang di-scroll: SPA
+  // mempertahankan posisi scroll window, jadi landing mendarat di
+  // tengah halaman. Scroll ke atas saat mount (perintah user
+  // 2026-11-21 13:18 WIB "lanjutkan" — kelanjutan perbaikan
+  // scroll-to-top 7 halaman publik di PR #127).
+  useEffect(() => {
+    window.scrollTo({ top: 0 });
+  }, []);
   return (
     <div className="min-h-screen bg-white text-black">
       <Header onLogin={onLogin} />

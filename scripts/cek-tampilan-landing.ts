@@ -1261,6 +1261,11 @@ cek(
     rules.includes("!('googleEventId' in request.resource.data)"),
 );
 
+cek(
+  'Landing: scroll ke atas saat mount (kembali dari halaman publik yang di-scroll tidak mendarat di tengah — user 2026-11-21 13:18 WIB)',
+  marklo.includes('window.scrollTo({ top: 0 })'),
+);
+
 if (gagal > 0) {
   console.log(`\n${gagal} asersi GAGAL`);
   process.exit(1);
