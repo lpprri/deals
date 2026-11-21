@@ -127,7 +127,7 @@ service cloud.firestore {
           // kosong. Webhook Tally menulis adsQuotationRequest lewat Admin
           // SDK (bypass rules); aturan di sini untuk baca operator.
           'adsQuotationRequest', 'venueBookOrder', 'spaceRentOrder',
-          'trainingOrder', 'mediaPartnerOrder',
+          'trainingOrder', 'partnershipRequest',
           // Impor MoU 19/11/2026: koleksi `mou` (44 record dari file
           // pengguna); ditulis lewat migrasi MoU (Admin SDK tidak
           // dipakai — client SDK operator, seperti migrasi lain).
@@ -145,7 +145,7 @@ service cloud.firestore {
           'sewa', 'pengajuan', 'prospect', 'quotation', 'order', 'meeting',
           'event', 'advertisement', 'task',
           'adsQuotationRequest', 'venueBookOrder', 'spaceRentOrder',
-          'trainingOrder', 'mediaPartnerOrder',
+          'trainingOrder', 'partnershipRequest',
           // Impor MoU 19/11/2026: koleksi `mou` (44 record dari file
           // pengguna); ditulis lewat migrasi MoU (Admin SDK tidak
           // dipakai — client SDK operator, seperti migrasi lain).
@@ -163,7 +163,7 @@ service cloud.firestore {
           'sewa', 'pengajuan', 'prospect', 'quotation', 'order', 'meeting',
           'event', 'advertisement', 'task',
           'adsQuotationRequest', 'venueBookOrder', 'spaceRentOrder',
-          'trainingOrder', 'mediaPartnerOrder',
+          'trainingOrder', 'partnershipRequest',
           // Impor MoU 19/11/2026: koleksi `mou` (44 record dari file
           // pengguna); ditulis lewat migrasi MoU (Admin SDK tidak
           // dipakai — client SDK operator, seperti migrasi lain).
@@ -182,7 +182,7 @@ service cloud.firestore {
           'sewa', 'pengajuan', 'prospect', 'quotation', 'order', 'meeting',
           'event', 'advertisement', 'task',
           'adsQuotationRequest', 'venueBookOrder', 'spaceRentOrder',
-          'trainingOrder', 'mediaPartnerOrder',
+          'trainingOrder', 'partnershipRequest',
           // Impor MoU 19/11/2026: koleksi `mou` (44 record dari file
           // pengguna); ditulis lewat migrasi MoU (Admin SDK tidak
           // dipakai — client SDK operator, seperti migrasi lain).
@@ -737,6 +737,34 @@ service cloud.firestore {
         && request.resource.data.tanggalLayanan.matches('^\\d{4}-\\d{2}-\\d{2}$')
         && request.resource.data.kontak is string
         && request.resource.data.kontak.size() > 0
+        && request.resource.data.email is string
+        && request.resource.data.email.matches('^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$');
+    }
+    match /partnershipRequest/{id} {
+      // Publik (tanpa login): HANYA create, append-only, tervalidasi.
+      // Dipakai form Partnership Request halaman "Partner with RRI"
+      // (2026-11-21; koleksi diganti nama dari mediaPartnerOrder).
+      // Pola sama dengan blok spaceRentOrder di atas — TANPA kontak
+      // telepon (form tidak meminta nomor telepon) dan TANPA
+      // tanggalLayanan (bukan booking berjadwal); institusi dan pesan
+      // wajib diisi form. PENTING: terbitkan rules ini di console
+      // SEBELUM merge PR halaman Partner with RRI (aturan
+      // publish-before-merge) — bila belum terbit, submit publik
+      // ditolak dan muatDariFirestore gagal total (satu koleksi
+      // tidak diizinkan menggagalkan seluruh load).
+      allow create: if request.auth == null
+        && request.resource.data.namaKlien is string
+        && request.resource.data.namaKlien.size() > 0
+        && request.resource.data.institusi is string
+        && request.resource.data.institusi.size() > 0
+        && request.resource.data.tanggalPermintaan is string
+        && request.resource.data.tanggalPermintaan.matches('^\\d{4}-\\d{2}-\\d{2}$')
+        && request.resource.data.status == 'Baru'
+        && request.resource.data.satker.kode == '41'
+        && request.resource.data.layanan is string
+        && request.resource.data.layanan.size() > 0
+        && request.resource.data.keperluan is string
+        && request.resource.data.keperluan.size() > 0
         && request.resource.data.email is string
         && request.resource.data.email.matches('^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$');
     }

@@ -95,6 +95,7 @@ import {
   cekSudahDimigrasi,
   kirimBookingPublik as kirimBookingPublikKeFirestore,
   kirimPengajuanPublik as kirimPengajuanPublikKeFirestore,
+  kirimPermintaanPartnershipPublik as kirimPermintaanPartnershipPublikKeFirestore,
   kirimPermintaanSpacePublik as kirimPermintaanSpacePublikKeFirestore,
   kirimPermintaanTrainingPublik as kirimPermintaanTrainingPublikKeFirestore,
   kirimPermintaanVenuePublik as kirimPermintaanVenuePublikKeFirestore,
@@ -181,6 +182,7 @@ import type {
   PembayaranInput,
   PengajuanInput,
   PengajuanPublikInput,
+  PermintaanPartnershipPublikInput,
   PermintaanSpacePublikInput,
   PermintaanTrainingPublikInput,
   PermintaanVenuePublikInput,
@@ -197,6 +199,7 @@ import MarkloLanding from './modules/landing/Marklo';
 import Lacak from './modules/Lacak';
 import ComingSoon from './modules/ComingSoon';
 import PlanCampaign from './modules/PlanCampaign';
+import PartnerWithRri from './modules/PartnerWithRri';
 import BookVenue from './modules/BookVenue';
 import RentSpace from './modules/RentSpace';
 import Training from './modules/Training';
@@ -724,7 +727,7 @@ export default function App() {
   const [galatMuat, setGalatMuat] = useState<string | null>(null);
   const [peringatanSimpan, setPeringatanSimpan] = useState<string | null>(null);
   /** Halaman publik tanpa login (lacak/ajukan) saat belum masuk. */
-  const [halamanPublik, setHalamanPublik] = useState<'beranda' | 'login' | 'lacak' | 'ajukan' | 'coming-soon' | 'plan-campaign' | 'book-venue' | 'rent-space' | 'training' | 'learning-centre' | 'e-learning'>('beranda');
+  const [halamanPublik, setHalamanPublik] = useState<'beranda' | 'login' | 'lacak' | 'ajukan' | 'coming-soon' | 'plan-campaign' | 'book-venue' | 'rent-space' | 'training' | 'learning-centre' | 'e-learning' | 'partner-with-rri'>('beranda');
   // Prefill form Ajukan dari landing page DIHAPUS sementara (PR
   // landing-marklo-clone): landing baru belum memanggil Ajukan; state
   // ajukanAwal + prop prefill akan dipasang lagi pada putaran penyesuaian.
@@ -959,6 +962,85 @@ export default function App() {
    * diam-diam). Di luar mode Firestore, permintaan hanya tersimpan di
    * sesi ini — sama seperti aksi lain sebelum migrasi.
    */
+  /**
+   * Kirim permintaan kemitraan publik dari form Partnership Request
+   * halaman "Partner with RRI" (2026-11-21) — pola sama dengan tiga form
+   * layanan PR #126: id 'PTR-…', status 'Baru', satker PALEMBANG 41,
+   * tanggal = hari ini. Jenis kemitraan + institusi pemohon disimpan di
+   * field `layanan` dan `institusi` (PermintaanLayanan) supaya tabel
+   * Partnership Request panel Order menampilkannya di kolom Details;
+   * pesan disimpan di `keperluan`. Validasi nama/institusi/email/pesan
+   * juga dilakukan modulnya; di sini dicek ulang (pola
+   * kirimPermintaanTrainingPublik). Bila mode Firestore aktif, tulis
+   * juga ke Firestore; bila tulis itu gagal, kembalikan pesan error.
+   * Di luar mode Firestore, permintaan hanya tersimpan di sesi ini.
+   */
+  const kirimPermintaanPartnershipPublik = async (
+    input: PermintaanPartnershipPublikInput,
+  ): Promise<{ galat: string | null; id?: string }> => {
+    if (!input.nama.trim()) return { galat: 'Name is required.' };
+    if (!input.institusi.trim())
+      return { galat: 'Institution / Organisation is required.' };
+    if (!input.email.trim()) return { galat: 'Email is required.' };
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(input.email.trim()))
+      return { galat: 'Email format is not valid.' };
+    if (!input.pesan.trim()) return { galat: 'Message is required.' };
+    const id = idBerikutnya(
+      'PTR-',
+      data.partnershipRequest.map((r) => r.id),
+    );
+    const permintaan: PermintaanLayanan = {
+      id,
+      namaKlien: input.nama.trim(),
+      institusi: input.institusi.trim(),
+      tanggalPermintaan: hariIniIso(),
+      status: 'Baru',
+      satker: SATKER_PILOT,
+      layanan: input.jenisKemitraan,
+      keperluan: input.pesan.trim(),
+      email: input.email.trim(),
+    };
+    setData((d) => ({
+      ...d,
+      partnershipRequest: [...d.partnershipRequest, permintaan],
+    }));
+    if (isFirebaseConfigured && db) {
+      try {
+        await kirimPermintaanPartnershipPublikKeFirestore(db, permintaan);
+      } catch (e) {
+        console.error(
+          'Gagal menyimpan partnership request ke Firestore:',
+          e,
+        );
+        return {
+          galat:
+            'Request recorded locally, but failed to save to Firestore — contact the Operator.',
+        };
+      }
+    }
+    return { galat: null, id };
+  };
+
+  /**
+   * "Book a Free Call" dari halaman publik lain (Partner with RRI):
+   * kartu booking HANYA ada di landing (section id="booking",
+   * Marklo.tsx) dan mekanisme gulirnya (`gulirKe('booking')`) lokal
+   * di MarkloLanding — tidak ada state gulir-ke-booking di App. Jadi
+   * App mengarahkan ke beranda (MarkloLanding mount → gulir ke atas,
+   * PR #129), lalu setelah render selesai menggulir ke kartu booking.
+   * Penjaga: elemen id="booking" hanya ada di landing — bila
+   * pengunjung sudah pindah halaman lain sebelum timeout jalan,
+   * getElementById mengembalikan null dan tidak terjadi apa-apa.
+   */
+  const bukaBookingLanding = () => {
+    setHalamanPublik('beranda');
+    window.setTimeout(() => {
+      document
+        .getElementById('booking')
+        ?.scrollIntoView({ behavior: 'smooth' });
+    }, 100);
+  };
+
   const kirimBookingPublik = async (
     input: BookingPublikInput,
   ): Promise<string | null> => {
@@ -1204,12 +1286,15 @@ export default function App() {
       // tapi sejak 2026-11-21 17:57 WIB tidak ada lagi tombol masuk dari
       // landing — kolom footer "Client Portal" ("Track your Deal") DIHAPUS
       // atas permintaan pengguna; prop onLacak di MarkloLanding ikut
-      // dihapus.
+      // dihapus. Halaman "Partner with RRI" (2026-11-21) dibuka dari
+      // pill footer (onPartnerWithRri) — satu-satunya entri landing ke
+      // halaman itu.
       return (
         <MarkloLanding
           onLogin={() => setHalamanPublik('login')}
           onComingSoon={() => setHalamanPublik('coming-soon')}
           onPlanCampaign={() => setHalamanPublik('plan-campaign')}
+          onPartnerWithRri={() => setHalamanPublik('partner-with-rri')}
           onBookVenue={() => setHalamanPublik('book-venue')}
           onRentSpace={() => setHalamanPublik('rent-space')}
           onTraining={() => setHalamanPublik('learning-centre')}
@@ -1306,6 +1391,29 @@ export default function App() {
           }}
           onELearning={() => setHalamanPublik('e-learning')}
           onTraining={() => setHalamanPublik('training')}
+        />
+      );
+    }
+    if (halamanPublik === 'partner-with-rri') {
+      // Halaman "Partner with RRI" (2026-11-21): halaman publik kemitraan
+      // (studi Traveloka, spec partner-with-rri-spec.md) — dibuka dari
+      // pill footer "Partner with RRI". Submit form Partnership Request
+      // → tabel Partnership Request panel Order (id 'PTR-…').
+      // Book a Free Call: kartu booking hanya ada di landing — App
+      // mengarahkan ke beranda lalu menggulir ke kartu booking
+      // (bukaBookingLanding di atas; tidak ada mekanisme
+      // gulir-ke-booking antar-halaman).
+      return (
+        <PartnerWithRri
+          onKembali={() => {
+            setHalamanPublik('beranda');
+          }}
+          onPlanCampaign={() => setHalamanPublik('plan-campaign')}
+          onBookVenue={() => setHalamanPublik('book-venue')}
+          onRentSpace={() => setHalamanPublik('rent-space')}
+          onTraining={() => setHalamanPublik('learning-centre')}
+          onBookFreeCall={bukaBookingLanding}
+          onKirim={kirimPermintaanPartnershipPublik}
         />
       );
     }

@@ -7133,7 +7133,7 @@ export const DATA_NYATA: AppData = {
   venueBookOrder: [],
   spaceRentOrder: [],
   trainingOrder: [],
-  mediaPartnerOrder: [],
+  partnershipRequest: [],
   // Memorandum of Understanding (impor MoU 19/11/2026): 44 record
   // dari file pengguna — data tersendiri, bukan kontrak. Isinya di
   // src/lib/seedMou.ts (dibuat scripts/impor-mou.py); JANGAN pindahkan

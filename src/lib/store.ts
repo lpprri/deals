@@ -184,6 +184,19 @@ export interface PermintaanTrainingPublikInput {
   telepon: string;
 }
 
+export interface PermintaanPartnershipPublikInput {
+  /** Nama pemohon. */
+  nama: string;
+  /** Institusi/organisasi pemohon. */
+  institusi: string;
+  /** Email pemohon. */
+  email: string;
+  /** Jenis kemitraan: Media Partner / Join Our Event / MoU / Event Support / Other. */
+  jenisKemitraan: string;
+  /** Pesan pengajuan kemitraan. */
+  pesan: string;
+}
+
 export interface DendaInput {
   tagihanId: string;
   dasar: string;
