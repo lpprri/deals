@@ -20,7 +20,7 @@
 //   angka-angka landing (proyek/klien/kepuasan) TIDAK dipakai).
 // - MoU: agregat dari src/lib/seedMou.ts (44 record, Palembang pilot),
 //   dihitung ulang dari file 2026-11-21 (bukan disalin dari spec):
-//   kategori 18/9/7/5/2/1/1/1, jenis 26/17/1, tema 7/6/6/4/3/3/3/3/5
+//   kategori 18/9/7/5/2/1/1/1, jenis 26/17/1, tema 7/6/6/5/4/3/3/3/3
 //   (tema "Pengarusutamaan Gender dan Inklusi" 5 = 3 + 2 — sumber
 //   menulisnya dengan dua ejaan, "Program Siaran ..." dan
 //   "Program siaran ..."). NAMA institusi TIDAK ditampilkan (keputusan
@@ -110,12 +110,12 @@ const TEMA_MOU: { nama: string; jumlah: number }[] = [
   { nama: 'Portal RRI.CO.ID', jumlah: 7 },
   { nama: 'Kepala Daerah Menyapa', jumlah: 6 },
   { nama: 'UMKM Bicara', jumlah: 6 },
+  { nama: 'Pengarusutamaan Gender dan Inklusi', jumlah: 5 },
   { nama: 'Indonesia Cerdas', jumlah: 4 },
   { nama: 'Mutiara Pagi', jumlah: 3 },
   { nama: 'Palembang Menyapa', jumlah: 3 },
   { nama: 'Literasi Digital', jumlah: 3 },
   { nama: 'Ruang Disabilitas dan Inklusi', jumlah: 3 },
-  { nama: 'Pengarusutamaan Gender dan Inklusi', jumlah: 5 },
 ];
 
 /** Checklist proposal 7 poin (adaptasi pro-tip Traveloka — spec §9). */

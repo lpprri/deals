@@ -998,8 +998,8 @@ cek(
       return (
         layanan.indexOf('Plan a Campaign') < layanan.indexOf('Book a Venue') &&
         layanan.indexOf('Book a Venue') < layanan.indexOf('Rent a Space') &&
-        layanan.indexOf('Rent a Space') < layanan.indexOf('Learning Centre') &&
-        layanan.indexOf('Learning Centre') < layanan.indexOf('Join our Event') &&
+        layanan.indexOf('Rent a Space') < layanan.indexOf('Improve your Skill') &&
+        layanan.indexOf('Improve your Skill') < layanan.indexOf('Join our Event') &&
         !layanan.includes('Collaborate with Us') &&
         !layanan.includes('Invite as Media Partner') &&
         !layanan.includes('Support our Event') &&
@@ -1056,7 +1056,7 @@ cek(
     planCampaign.includes('Plan a Campaign'),
 );
 cek(
-  'Footer: lima item "What to Do" (Plan a Campaign pertama, Book a Venue, Rent a Space, Learning Centre, Join our Event) — empat pertama membuka halaman aslinya via prop; "Join our Event" (dulu "Support our Event") tetap "Coming Soon" via onComingSoon; "Collaborate with Us" dan "Invite as Media Partner" DIHAPUS (perintah user 2026-11-21 16:17 WIB; halaman Coming Soon gaya login page, TANPA logo; permintaan pengguna 2026-11-18 21:19–21:21 WIB)',
+  'Footer: lima item "What to Do" (Plan a Campaign pertama, Book a Venue, Rent a Space, Improve your Skill, Join our Event) — empat pertama membuka halaman aslinya via prop; "Join our Event" (dulu "Support our Event") tetap "Coming Soon" via onComingSoon; "Collaborate with Us" dan "Invite as Media Partner" DIHAPUS (perintah user 2026-11-21 16:17 WIB; halaman Coming Soon gaya login page, TANPA logo; permintaan pengguna 2026-11-18 21:19–21:21 WIB)',
   marklo.includes('onComingSoon: () => void') &&
     marklo.includes('<Footer onComingSoon={onComingSoon} onPlanCampaign={onPlanCampaign} onPartnerWithRri={onPartnerWithRri} onBookVenue={onBookVenue} onRentSpace={onRentSpace} onTraining={onTraining} />') &&
     marklo.includes('function Footer({ onComingSoon, onPlanCampaign, onPartnerWithRri, onBookVenue, onRentSpace, onTraining }') &&
@@ -1067,7 +1067,7 @@ cek(
     footerMarklo.includes('onClick: onBookVenue') &&
     footerMarklo.includes("label: 'Rent a Space'") &&
     footerMarklo.includes('onClick: onRentSpace') &&
-    footerMarklo.includes("label: 'Learning Centre'") &&
+    footerMarklo.includes("label: 'Improve your Skill'") &&
     footerMarklo.includes('onClick: onTraining') &&
     footerMarklo.includes('onClick: onComingSoon') &&
     !footerMarklo.includes('Collaborate with Us') &&

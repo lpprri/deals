@@ -133,7 +133,7 @@ cek(
   marklo.includes("{ label: 'Book a Venue', onClick: onBookVenue }") &&
     marklo.includes("{ label: 'Rent a Space', onClick: onRentSpace }") &&
     marklo.includes(
-      "{ label: 'Learning Centre', onClick: onTraining }",
+      "{ label: 'Improve your Skill', onClick: onTraining }",
     ),
 );
 cek(

@@ -119,7 +119,7 @@ export interface MarkloLandingProps {
   onRentSpace: () => void;
   /** Buka hub "Learning Centre" publik (Fase 1 rebuild 2026-11-21;
       label footer lama "Get a Journalism Training") — dipakai item
-      footer "Learning Centre" (pola persis onLacak; permintaan pengguna
+      footer "Improve your Skill" (dulu "Learning Centre", diubah 2026-11-21; pola persis onLacak; permintaan pengguna
       2026-11-21
       10:52 WIB). */
   onTraining: () => void;
@@ -1782,7 +1782,7 @@ function Footer({ onComingSoon, onPlanCampaign, onPartnerWithRri, onBookVenue, o
               Campaign" pindah ke sini dari kolom portal klien yang DIHAPUS
               (item pertama). Lima item: Plan a Campaign → halaman Plan a
               Campaign via onPlanCampaign; Book a Venue → onBookVenue,
-              Rent a Space → onRentSpace, Learning Centre → onTraining;
+              Rent a Space → onRentSpace, Improve your Skill → onTraining;
               "Join our Event" membuka halaman "Coming Soon" via
               onComingSoon — BUKAN ke kartu booking. */}
           <div>
@@ -1794,7 +1794,7 @@ function Footer({ onComingSoon, onPlanCampaign, onPartnerWithRri, onBookVenue, o
                 { label: 'Plan a Campaign', onClick: onPlanCampaign },
                 { label: 'Book a Venue', onClick: onBookVenue },
                 { label: 'Rent a Space', onClick: onRentSpace },
-                { label: 'Learning Centre', onClick: onTraining },
+                { label: 'Improve your Skill', onClick: onTraining },
                 { label: 'Join our Event', onClick: onComingSoon },
               ].map((item) => (
                 <li key={item.label}>
