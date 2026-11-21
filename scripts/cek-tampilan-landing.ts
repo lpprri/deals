@@ -1004,13 +1004,23 @@ cek(
       );
       return (
         layanan.indexOf('Book a Venue') < layanan.indexOf('Rent a Space') &&
-        layanan.indexOf('Rent a Space') < layanan.indexOf('Get a Journalism Training') &&
-        layanan.indexOf('Get a Journalism Training') < layanan.indexOf('Collaborate with Us') &&
-        layanan.indexOf('Collaborate with Us') < layanan.indexOf('Support our Event') &&
-        layanan.indexOf('Support our Event') < layanan.indexOf('Invite as Media Partner') &&
+        layanan.indexOf('Rent a Space') < layanan.indexOf('Learning Centre') &&
+        layanan.indexOf('Learning Centre') < layanan.indexOf('Join our Event') &&
+        !layanan.includes('Collaborate with Us') &&
+        !layanan.includes('Invite as Media Partner') &&
+        !layanan.includes('Support our Event') &&
         !layanan.includes('Plan a Campaign')
       );
     })(),
+);
+cek(
+  'Footer: pill "Partner with RRI" (biru RRI + ikon Handshake) di sebelah "Back to top" di kolom brand, membuka halaman Plan a Campaign (perintah user 2026-11-21 16:20 WIB, contoh Traveloka)',
+  footerMarklo.includes('Partner with RRI') &&
+    footerMarklo.includes('Handshake') &&
+    footerMarklo.includes('bg-[#2573e2]') &&
+    footerMarklo.includes('onPlanCampaign()') &&
+    footerMarklo.indexOf('<ArrowUp') < footerMarklo.indexOf('<Handshake') &&
+    marklo.includes('Handshake,'),
 );
 cek(
   'Footer: "Track your Deal" membuka halaman Lacak via prop onLacak (pola onLogin) — bukan gulirKe',
@@ -1048,19 +1058,21 @@ cek(
     planCampaign.includes('Plan a Campaign'),
 );
 cek(
-  'Footer: tiga item "Additional Service" (Book a Venue, Rent a Space, Get a Journalism Training) membuka halaman aslinya via prop baru; tiga sisanya tetap "Coming Soon" via onComingSoon (perubahan 2026-11-21; halaman Coming Soon gaya login page, TANPA logo; permintaan pengguna 2026-11-18 21:19–21:21 WIB)',
+  'Footer: tiga item "Additional Service" (Book a Venue, Rent a Space, Learning Centre) membuka halaman aslinya via prop baru; "Join our Event" (dulu "Support our Event") tetap "Coming Soon" via onComingSoon; "Collaborate with Us" dan "Invite as Media Partner" DIHAPUS (perintah user 2026-11-21 16:17 WIB; halaman Coming Soon gaya login page, TANPA logo; permintaan pengguna 2026-11-18 21:19–21:21 WIB)',
   marklo.includes('onComingSoon: () => void') &&
     marklo.includes('<Footer onLacak={onLacak} onComingSoon={onComingSoon} onPlanCampaign={onPlanCampaign} onBookVenue={onBookVenue} onRentSpace={onRentSpace} onTraining={onTraining} />') &&
     marklo.includes('function Footer({ onLacak, onComingSoon, onPlanCampaign, onBookVenue, onRentSpace, onTraining }') &&
-    footerMarklo.includes("label: 'Support our Event'") &&
+    footerMarklo.includes("label: 'Join our Event'") &&
     footerMarklo.includes("label: 'Book a Venue'") &&
     footerMarklo.includes('onClick: onBookVenue') &&
     footerMarklo.includes("label: 'Rent a Space'") &&
     footerMarklo.includes('onClick: onRentSpace') &&
-    footerMarklo.includes("label: 'Get a Journalism Training'") &&
+    footerMarklo.includes("label: 'Learning Centre'") &&
     footerMarklo.includes('onClick: onTraining') &&
-    footerMarklo.includes("label: 'Invite as Media Partner'") &&
     footerMarklo.includes('onClick: onComingSoon') &&
+    !footerMarklo.includes('Collaborate with Us') &&
+    !footerMarklo.includes('Invite as Media Partner') &&
+    !footerMarklo.includes('Support our Event') &&
     !footerMarklo
       .slice(
         footerMarklo.indexOf('Additional Service'),

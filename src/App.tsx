@@ -200,6 +200,8 @@ import PlanCampaign from './modules/PlanCampaign';
 import BookVenue from './modules/BookVenue';
 import RentSpace from './modules/RentSpace';
 import Training from './modules/Training';
+import LearningCentre from './modules/LearningCentre';
+import ELearning from './modules/ELearning';
 import Ajukan from './modules/Ajukan';
 import Dashboard from './modules/Dashboard';
 import Deals from './modules/Deals';
@@ -722,7 +724,7 @@ export default function App() {
   const [galatMuat, setGalatMuat] = useState<string | null>(null);
   const [peringatanSimpan, setPeringatanSimpan] = useState<string | null>(null);
   /** Halaman publik tanpa login (lacak/ajukan) saat belum masuk. */
-  const [halamanPublik, setHalamanPublik] = useState<'beranda' | 'login' | 'lacak' | 'ajukan' | 'coming-soon' | 'plan-campaign' | 'book-venue' | 'rent-space' | 'training'>('beranda');
+  const [halamanPublik, setHalamanPublik] = useState<'beranda' | 'login' | 'lacak' | 'ajukan' | 'coming-soon' | 'plan-campaign' | 'book-venue' | 'rent-space' | 'training' | 'learning-centre' | 'e-learning'>('beranda');
   // Prefill form Ajukan dari landing page DIHAPUS sementara (PR
   // landing-marklo-clone): landing baru belum memanggil Ajukan; state
   // ajukanAwal + prop prefill akan dipasang lagi pada putaran penyesuaian.
@@ -1208,7 +1210,7 @@ export default function App() {
           onPlanCampaign={() => setHalamanPublik('plan-campaign')}
           onBookVenue={() => setHalamanPublik('book-venue')}
           onRentSpace={() => setHalamanPublik('rent-space')}
-          onTraining={() => setHalamanPublik('training')}
+          onTraining={() => setHalamanPublik('learning-centre')}
           onKirimBooking={kirimBookingPublik}
         />
       );
@@ -1286,6 +1288,34 @@ export default function App() {
             setHalamanPublik('beranda');
           }}
           onKirim={kirimPermintaanSpacePublik}
+        />
+      );
+    }
+    if (halamanPublik === 'learning-centre') {
+      // Halaman "Learning Centre" (Fase 1 rebuild, 2026-11-21): hub
+      // edukasi Pusbangkom Penyiaran Radio — dibuka dari footer
+      // "Additional Service" (label lama "Get a Journalism Training").
+      // Bootcamp & sertifikasi masih mengarah ke halaman Training lama
+      // sampai Fase 2/3. Data dummy dulu.
+      return (
+        <LearningCentre
+          onKembali={() => {
+            setHalamanPublik('beranda');
+          }}
+          onELearning={() => setHalamanPublik('e-learning')}
+          onTraining={() => setHalamanPublik('training')}
+        />
+      );
+    }
+    if (halamanPublik === 'e-learning') {
+      // Halaman "E-Learning" (Fase 1 rebuild, 2026-11-21): listing
+      // Learning Path + detail Path + detail Materi (player dummy).
+      // Data dummy dulu; tanpa langganan dan tanpa My Learning (Fase 4).
+      return (
+        <ELearning
+          onKembali={() => {
+            setHalamanPublik('learning-centre');
+          }}
         />
       );
     }
