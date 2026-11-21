@@ -90,7 +90,7 @@ const labelTanggalPenuh = (iso: string): string =>
 const labelLuas = (n: number): string => n.toLocaleString('en-GB');
 
 /** Peruntukan lahan (definisi user) + opsi 'All'. */
-const PENGGUNAAN = ['All', 'Shop', 'Cafe', 'Parking', 'Showroom', 'Other'];
+const PENGGUNAAN = ['All', 'Shop', 'Cafe', 'Parking', 'Showroom', 'Sport Center', 'Warehouse', 'Plantation', 'Other'];
 
 /** 8 mata angin (Brighton memakai 12; 8 cukup untuk lahan RRI). */
 const ARAH_HADAP = [
@@ -523,7 +523,11 @@ export default function RentSpace({ onKembali, onKirim }: RentSpaceProps) {
 
         {/* Isi detail: kiri tabel + deskripsi + serupa; kanan kartu kontak. */}
         <div className="mt-8 grid gap-10 lg:grid-cols-[1fr_360px]">
-          <div>
+          {/* min-w-0 di kedua anak grid: tanpa ini, carousel Similar
+              properties (9 kartu w-64) memaksa track 1fr melebar melewati
+              viewport (grid blowout) — nilai tabel + kartu kontak terdorong
+              keluar layar (PR #130, preview 2026-11-21). */}
+          <div className="min-w-0">
             {/* Satker pemilik lahan. */}
             <div className="flex items-center gap-3">
               <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[#0d2569] text-white">
@@ -625,7 +629,7 @@ export default function RentSpace({ onKembali, onKirim }: RentSpaceProps) {
           </div>
 
           {/* Kartu kontak satker (sticky) + form inquiry. */}
-          <div>
+          <div className="min-w-0">
             <div className="sticky top-6 rounded-2xl border border-[#0d2569]/10 bg-white p-6 shadow-sm">
               <div className="flex items-center gap-3">
                 <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[#0d2569] text-white">
@@ -832,7 +836,7 @@ export default function RentSpace({ onKembali, onKirim }: RentSpaceProps) {
                 <h2 className="text-xl font-bold text-[#0d2569]">
                   {kotaTerpilih
                     ? `${hasil.length} plot${hasil.length === 1 ? '' : 's'} in ${judulKota(kotaTerpilih)}`
-                    : 'Available plots'}
+                    : 'Available Space'}
                 </h2>
                 <p className="mt-1 text-sm text-[#0d2569]/70">
                   {filterAktif

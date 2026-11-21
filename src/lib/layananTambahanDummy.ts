@@ -65,7 +65,7 @@ export interface SpaceDummy {
   luasTanah: number;
   /** Dimensi, mis. '50 x 50 m' (luas = hasil kali dimensi). */
   dimensi: string;
-  /** Peruntukan (definisi user): Shop / Cafe / Parking / Showroom / Other. */
+  /** Peruntukan (definisi user): Shop / Cafe / Parking / Showroom / Sport Center / Warehouse / Plantation / Other. */
   peruntukan: string;
   /** Arah hadap: 8 mata angin (Inggris). */
   hadap: string;
@@ -271,8 +271,9 @@ export const VENUE_DUMMY: VenueDummy[] = [
 // DUMMY — ganti data asli. Lahan (10) di 8 kota satker (pola Book a
 // Venue: 10 listing/8 kota). Luas 250–5000 m², dimensi = hasil kali
 // luas; peruntukan dari definisi user (Shop / Cafe / Parking /
-// Showroom / Other). Kota memakai nama kanonis DAFTAR_SATKER (huruf
-// besar). Tiap plot 5 foto: 1 foto utama + 4 foto galeri bersama.
+// Showroom / Sport Center / Warehouse / Plantation / Other). Kota
+// memakai nama kanonis DAFTAR_SATKER (huruf besar). Tiap plot 5 foto:
+// 1 foto utama + 4 foto galeri bersama.
 // TIDAK ada tarif KB untuk sewa lahan → semua 'Price on request'.
 export const SPACE_DUMMY: SpaceDummy[] = [
   {
@@ -355,13 +356,13 @@ export const SPACE_DUMMY: SpaceDummy[] = [
     lokasi: 'Dago, Bandung',
     luasTanah: 2000,
     dimensi: '40 x 50 m',
-    peruntukan: 'Cafe',
+    peruntukan: 'Sport Center',
     hadap: 'Southeast',
     aksesJalan: 'Main road, 6 m wide',
     alamat: 'Jl. Ir. H. Juanda No. 90, Bandung',
     harga: 'Price on request',
     deskripsi:
-      'Open grassy land on Dago’s main road, a good spot for a garden cafe or weekend market.',
+      'Open grassy land on Dago’s main road, a good spot for a sport center or weekend market.',
     tanggalDaftar: '2026-11-10',
     foto: ['lahan-rumput', ...FOTO_GALERI_LAHAN],
   },
@@ -373,13 +374,13 @@ export const SPACE_DUMMY: SpaceDummy[] = [
     lokasi: 'Kalimas, Surabaya',
     luasTanah: 5000,
     dimensi: '100 x 50 m',
-    peruntukan: 'Other',
+    peruntukan: 'Plantation',
     hadap: 'Northeast',
     aksesJalan: 'Riverside road, 6 m wide',
     alamat: 'Jl. Kalimas Baru No. 3, Surabaya',
     harga: 'Price on request',
     deskripsi:
-      'Large riverside plot on the Kalimas, suitable for outdoor events, a food court, or a parking area.',
+      'Large riverside plot on the Kalimas, suitable for plantation or agriculture use.',
     tanggalDaftar: '2026-11-08',
     foto: ['lahan-sungai', ...FOTO_GALERI_LAHAN],
   },
@@ -391,7 +392,7 @@ export const SPACE_DUMMY: SpaceDummy[] = [
     lokasi: 'Polonia, Medan',
     luasTanah: 3500,
     dimensi: '50 x 70 m',
-    peruntukan: 'Shop',
+    peruntukan: 'Warehouse',
     hadap: 'Southwest',
     aksesJalan: 'Main road, 8 m wide',
     alamat: 'Jl. Polonia No. 21, Medan',

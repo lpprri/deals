@@ -300,12 +300,12 @@ cek(
   })(),
 );
 cek(
-  'Dummy lahan: peruntukan hanya 5 opsi definisi user (Shop/Cafe/Parking/Showroom/Other)',
+  'Dummy lahan: peruntukan hanya 8 opsi definisi user (Shop/Cafe/Parking/Showroom/Sport Center/Warehouse/Plantation/Other)',
   (() => {
     const semua = [...spaceBagian.matchAll(/peruntukan: '([^']+)'/g)].map(
       (m) => m[1],
     );
-    const boleh = new Set(['Shop', 'Cafe', 'Parking', 'Showroom', 'Other']);
+    const boleh = new Set(['Shop', 'Cafe', 'Parking', 'Showroom', 'Sport Center', 'Warehouse', 'Plantation', 'Other']);
     return semua.length === 10 && semua.every((p) => boleh.has(p));
   })(),
 );
@@ -581,8 +581,9 @@ cek(
     !rentSpace.includes('Lowest price'),
 );
 cek(
-  'Brighton: heading hasil "N plots in [kota]" / "Available plots" + kosong + Clear filters',
-  rentSpace.includes('Available plots') &&
+  'Brighton: heading hasil "N plots in [kota]" / "Available Space" + subjudul dipertahankan + kosong + Clear filters',
+  rentSpace.includes('Available Space') &&
+    rentSpace.includes('Land owned by RRI, for your business — shops, cafes, parking, and more.') &&
     rentSpace.includes("plot${hasil.length === 1 ? '' : 's'} in") &&
     rentSpace.includes('No plots match your search') &&
     rentSpace.includes('Clear filters') &&
@@ -642,6 +643,14 @@ cek(
   rentSpace.includes('sticky top-6') &&
     rentSpace.includes('Send an inquiry about this plot') &&
     rentSpace.includes('formInquiry'),
+);
+cek(
+  'Brighton: detail — kedua anak grid detail punya min-w-0 (anti grid blowout PR #130: carousel Similar 9 kartu w-64 tidak boleh memaksa track 1fr melebar)',
+  rentSpace.includes('lg:grid-cols-[1fr_360px]') &&
+    rentSpace.includes('<div className="min-w-0">') &&
+    (rentSpace.match(/<div className="min-w-0">/g) ?? []).length === 2 &&
+    rentSpace.indexOf('<div className="min-w-0">') >
+      rentSpace.indexOf('lg:grid-cols-[1fr_360px]'),
 );
 cek(
   'Brighton: lightbox — Close + panah prev/next + counter "n of N" + strip thumbnail',
