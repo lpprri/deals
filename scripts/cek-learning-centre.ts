@@ -13,6 +13,10 @@
 // - Header pola Book a Venue di kedua modul baru (logo h-10, judul
 //   text-2xl font-black, aria-label "Back to Landing Page", tanpa teks
 //   back yang terlihat).
+// - Thumbnail: 9 foto generate (WebP data URI, satu per id path) dipakai
+//   di listing + detail path + poster player + Recommended (E-Learning)
+//   dan di Popular Learning Paths + Upcoming Bootcamps (hub); tidak ada
+//   lagi header kartu gradien-only + GraduationCap di kartu path.
 // - Rute: App.tsx mengenal 'learning-centre' | 'e-learning', merender
 //   LearningCentre + ELearning, footer onTraining membuka hub.
 // - E-Learning: search box, chip kategori, Pre-Test/Post Test,
@@ -30,6 +34,7 @@ const marklo = baca('src/modules/landing/Marklo.tsx');
 const dummy = baca('src/lib/learningCentreDummy.ts');
 const hub = baca('src/modules/LearningCentre.tsx');
 const elearning = baca('src/modules/ELearning.tsx');
+const foto = baca('src/lib/fotoLearningCentre.ts');
 const baru = dummy + hub + elearning;
 
 let gagal = 0;
@@ -237,6 +242,58 @@ cek(
 cek(
   'E-Learning: tombol Join Community + Subscribe dummy (tanpa aksi, Fase 4)',
   elearning.includes('Join Community') && elearning.includes('Subscribe'),
+);
+
+// --- 8. Thumbnail foto per Learning Path (perintah pengguna 2026-11-21 17:34 WIB). ---
+cek(
+  'Foto: 9 entri data URI WebP, satu per id path',
+  ID_PATH.every((id) =>
+    foto.includes(`'${id}': 'data:image/webp;base64,`),
+  ) && hitung(foto, 'data:image/webp;base64,') === 9,
+);
+cek(
+  'Foto: export FOTO_LEARNING_CENTRE + sumber generate + ditandai DUMMY',
+  foto.includes('export const FOTO_LEARNING_CENTRE: Record<string, string>') &&
+    foto.includes('DI-GENERATE') &&
+    foto.includes('DUMMY sampai pengguna memberikan foto aslinya'),
+);
+cek(
+  'E-Learning: 4 foto — listing + cover path + poster player + Recommended (alt = judul path)',
+  hitung(elearning, 'FOTO_LEARNING_CENTRE[') === 4 &&
+    elearning.includes('<img') &&
+    elearning.includes('FOTO_LEARNING_CENTRE[path.id]') &&
+    elearning.includes('FOTO_LEARNING_CENTRE[pathTerpilih.id]') &&
+    elearning.includes('alt={path.judul}') &&
+    elearning.includes('alt={pathTerpilih.judul}') &&
+    elearning.includes(
+      "import { FOTO_LEARNING_CENTRE } from '../lib/fotoLearningCentre';",
+    ),
+);
+cek(
+  'E-Learning: player memakai foto path sebagai poster + overlay gelap + tombol play + caption Sample player tetap',
+  elearning.includes('bg-black/25') &&
+    elearning.includes('Sample player — the full video will be available here.'),
+);
+cek(
+  'Hub: 2 foto — Popular Learning Paths (per path) + Upcoming Bootcamps (foto path terdekat)',
+  hitung(hub, 'FOTO_LEARNING_CENTRE[') === 2 &&
+    hub.includes('<img') &&
+    hub.includes('FOTO_LEARNING_CENTRE[path.id]') &&
+    hub.includes('FOTO_BOOTCAMP[course.id]') &&
+    hub.includes("'pelatihan-jurnalistik': 'jurnalistik-radio'") &&
+    hub.includes("'workshop-penulisan': 'penulisan-naskah'") &&
+    hub.includes(
+      "import { FOTO_LEARNING_CENTRE } from '../lib/fotoLearningCentre';",
+    ),
+);
+cek(
+  'Kartu path: tidak ada lagi header gradien-only + GraduationCap di ELearning + hub',
+  !elearning.includes('GraduationCap') &&
+    !hub.includes('GraduationCap') &&
+    !elearning.includes('flex h-36 items-center justify-center bg-gradient-to-br') &&
+    !elearning.includes('flex h-48 items-center justify-center bg-gradient-to-br') &&
+    !elearning.includes('flex h-24 items-center justify-center bg-gradient-to-br') &&
+    !hub.includes('flex h-36 items-center justify-center bg-gradient-to-br'),
 );
 
 // --- Ringkasan. ---
