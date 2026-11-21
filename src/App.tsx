@@ -1036,6 +1036,14 @@ export default function App() {
     ) {
       return { galat: 'Booking date is not valid.' };
     }
+    if (
+      input.tanggalSelesai !== undefined &&
+      input.tanggalSelesai.trim() !== '' &&
+      (!/^\d{4}-\d{2}-\d{2}$/.test(input.tanggalSelesai.trim()) ||
+        input.tanggalSelesai.trim() < input.tanggal.trim())
+    ) {
+      return { galat: 'Check-out date is not valid.' };
+    }
     if (!input.keperluan.trim()) return { galat: 'Occasion is required.' };
     if (!input.nama.trim()) return { galat: 'Name is required.' };
     if (!input.kontak.trim()) return { galat: 'Contact is required.' };
@@ -1057,6 +1065,12 @@ export default function App() {
       satker: SATKER_PILOT,
       layanan: input.venue.trim(),
       tanggalLayanan: input.tanggal.trim(),
+      tanggalSelesai:
+        input.tanggalSelesai !== undefined &&
+        input.tanggalSelesai.trim() !== '' &&
+        input.tanggalSelesai.trim() !== input.tanggal.trim()
+          ? input.tanggalSelesai.trim()
+          : undefined,
       keperluan: input.keperluan.trim(),
       kontak: input.kontak.trim(),
       email: input.email.trim(),

@@ -13,7 +13,7 @@
 // Dipakai juga dari dalam Client Portal (client yang login) dengan
 // label kembali yang berbeda.
 
-import { useState, type FormEvent } from 'react';
+import { useEffect, useState, type FormEvent } from 'react';
 import { DAFTAR_JENIS_PENGAJUAN_KLIEN } from '../lib/types';
 import type { PengajuanPublikInput } from '../lib/store';
 import {
@@ -86,6 +86,12 @@ export default function Ajukan({
   const [nilaiTeks, setNilaiTeks] = useState('');
   const [error, setError] = useState('');
   const [pesanSukses, setPesanSukses] = useState('');
+
+  // Halaman publik dibuka dari landing (SPA: posisi gulir window TIDAK
+  // reset saat komponen mount) — selalu mulai dari atas.
+  useEffect(() => {
+    window.scrollTo({ top: 0 });
+  }, []);
 
   const kirim = async (e: FormEvent) => {
     e.preventDefault();

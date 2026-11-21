@@ -1621,9 +1621,15 @@ export function TabOrder({ data, user, actions, cari }: ModulProps) {
  * (baris lama tanpa detail).
  */
 function rincianPermintaan(r: PermintaanLayananItem): string {
+  const tanggal =
+    r.tanggalLayanan && r.tanggalSelesai
+      ? `${formatTanggal(r.tanggalLayanan)} – ${formatTanggal(r.tanggalSelesai)}`
+      : r.tanggalLayanan
+        ? formatTanggal(r.tanggalLayanan)
+        : undefined;
   const bagian = [
     r.layanan,
-    r.tanggalLayanan ? formatTanggal(r.tanggalLayanan) : undefined,
+    tanggal,
     r.keperluan,
     r.jumlahPeserta
       ? `${r.jumlahPeserta} participant${r.jumlahPeserta > 1 ? 's' : ''}`

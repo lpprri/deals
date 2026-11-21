@@ -10,6 +10,7 @@
 // (keputusan pengguna 21:21 WIB — jangan pakai lockup RRI maupun
 // mark RRI di sini).
 
+import { useEffect } from 'react';
 import { ArrowLeft } from 'lucide-react';
 
 export interface ComingSoonProps {
@@ -22,6 +23,12 @@ export interface ComingSoonProps {
 }
 
 export default function ComingSoon({ onKembali, labelKembali }: ComingSoonProps) {
+  // Halaman publik dibuka dari footer landing (SPA: posisi gulir window
+  // TIDAK reset saat komponen mount) — selalu mulai dari atas.
+  useEffect(() => {
+    window.scrollTo({ top: 0 });
+  }, []);
+
   return (
     <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-[#f5f2f2] px-4 py-16">
       {/* Gradasi pucat biru/navy di bagian bawah (pola yang sama seperti

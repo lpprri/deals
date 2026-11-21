@@ -32,6 +32,8 @@ export interface VenueDummy {
   kapasitas: number;
   /** Rating klien (DUMMY — angka contoh, 4.8–4.97). */
   rating: number;
+  /** Jumlah ulasan klien (DUMMY — angka contoh). */
+  ulasan: number;
   /** Kunci foto di FOTO_VENUE (satu foto per jenis venue). */
   foto: string;
   /** Fasilitas (DUMMY — contoh). */
@@ -95,6 +97,7 @@ export const VENUE_DUMMY: VenueDummy[] = [
     kota: 'PALEMBANG',
     kapasitas: 500,
     rating: 4.95,
+    ulasan: 214,
     foto: 'auditorium',
     fasilitas: ['Sound system', 'Stage', 'Seating'],
     // Tarif KB PP 68/2020: paket sound system Rp7.500.000/4 jam.
@@ -111,6 +114,7 @@ export const VENUE_DUMMY: VenueDummy[] = [
     kota: 'JAKARTA',
     kapasitas: 800,
     rating: 4.91,
+    ulasan: 187,
     foto: 'auditorium',
     fasilitas: ['Sound system', 'Stage', 'LED screen'],
     // Tarif KB PP 68/2020: paket sound system Rp7.500.000/4 jam.
@@ -125,6 +129,7 @@ export const VENUE_DUMMY: VenueDummy[] = [
     kota: 'MAKASSAR',
     kapasitas: 450,
     rating: 4.88,
+    ulasan: 96,
     foto: 'auditorium',
     fasilitas: ['Sound system', 'Stage', 'Seating'],
     // Tarif KB PP 68/2020: paket sound system Rp7.500.000/4 jam.
@@ -139,6 +144,7 @@ export const VENUE_DUMMY: VenueDummy[] = [
     kota: 'BANDUNG',
     kapasitas: 300,
     rating: 4.93,
+    ulasan: 143,
     foto: 'hall',
     fasilitas: ['Sound system', 'Stage'],
     // TIDAK ada tarif KB untuk Hall → Price on request.
@@ -152,6 +158,7 @@ export const VENUE_DUMMY: VenueDummy[] = [
     kota: 'SURABAYA',
     kapasitas: 250,
     rating: 4.85,
+    ulasan: 121,
     foto: 'hall',
     fasilitas: ['Sound system', 'Stage', 'Parking'],
     // TIDAK ada tarif KB untuk Hall → Price on request.
@@ -165,6 +172,7 @@ export const VENUE_DUMMY: VenueDummy[] = [
     kota: 'YOGYAKARTA',
     kapasitas: 150,
     rating: 4.9,
+    ulasan: 88,
     foto: 'multipurpose',
     fasilitas: ['Sound system', 'Projector'],
     // TIDAK ada tarif KB untuk Multipurpose Room → Price on request.
@@ -179,6 +187,7 @@ export const VENUE_DUMMY: VenueDummy[] = [
     kota: 'MEDAN',
     kapasitas: 120,
     rating: 4.82,
+    ulasan: 76,
     foto: 'multipurpose',
     fasilitas: ['Sound system', 'Projector', 'Whiteboard'],
     // TIDAK ada tarif KB untuk Multipurpose Room → Price on request.
@@ -193,6 +202,7 @@ export const VENUE_DUMMY: VenueDummy[] = [
     kota: 'PALEMBANG',
     kapasitas: 20,
     rating: 4.97,
+    ulasan: 203,
     foto: 'meeting',
     fasilitas: ['Projector', 'Whiteboard'],
     // TIDAK ada tarif KB untuk Meeting Room → Price on request.
@@ -206,6 +216,7 @@ export const VENUE_DUMMY: VenueDummy[] = [
     kota: 'SEMARANG',
     kapasitas: 25,
     rating: 4.89,
+    ulasan: 159,
     foto: 'meeting',
     fasilitas: ['Projector', 'Whiteboard', 'Video conference'],
     // TIDAK ada tarif KB untuk Meeting Room → Price on request.
@@ -219,6 +230,7 @@ export const VENUE_DUMMY: VenueDummy[] = [
     kota: 'PALEMBANG',
     kapasitas: 10,
     rating: 4.94,
+    ulasan: 134,
     foto: 'studio',
     fasilitas: ['Recording equipment', 'Soundproofing'],
     // Tarif KB PP 68/2020: Studio Rp2.000.000/3 jam.

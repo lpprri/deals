@@ -51,7 +51,7 @@
 // StatCard 4 kolom jadi 2 kolom dan tabel dokumen dibungkus
 // overflow-x-auto supaya muat di kolom 400px.
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import type { FormEvent } from 'react';
 import { ArrowLeft, FileText } from 'lucide-react';
 import { LOGO_RRI_LOCKUP_DATA_URI } from '../lib/logoRriLockup';
@@ -429,6 +429,12 @@ export default function Lacak({ data, onKembali, modeLive = false }: LacakProps)
   const [mencari, setMencari] = useState(false);
   /** 'fungsi' = data live Firestore; 'contoh' = fallback data seed. */
   const [sumber, setSumber] = useState<'fungsi' | 'contoh' | null>(null);
+
+  // Halaman publik dibuka dari footer landing (SPA: posisi gulir window
+  // TIDAK reset saat komponen mount) — selalu mulai dari atas.
+  useEffect(() => {
+    window.scrollTo({ top: 0 });
+  }, []);
 
   const lacak = async (e: FormEvent) => {
     e.preventDefault();

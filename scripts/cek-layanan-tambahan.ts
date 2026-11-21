@@ -27,6 +27,16 @@
 //   '41'); blok /meeting dan blok generik operator TIDAK berubah;
 //   TIDAK ada hasOnly — field opsional jumlahPeserta tidak butuh
 //   perubahan rules (tidak perlu re-publish untuk PR ini).
+//
+// REVISI 2026-11-21 12:24–12:28 WIB (form booking pindah ke halaman
+// detail, kartu clickable, tombol "Book this venue" dihapus, header logo
+// kanan + judul gaya logo Deals, tanpa deskripsi) + temuan preview
+// 12:34 WIB (scroll-to-top saat halaman publik mount) + studi Airbnb
+// saat login 12:35–12:36 WIB (tombol Save = hati + teks "Save",
+// galeri 5 foto mosaic tiap foto tombol, kartu booking Reserve +
+// "You won't be charged yet", kalender di bawah kartu booking).
+// "Message host" dan "Report this listing" SENGAJA tidak dibangun
+// (tidak ada messaging host di RRI).
 
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
@@ -46,6 +56,10 @@ const bookVenue = baca('src/modules/BookVenue.tsx');
 const rentSpace = baca('src/modules/RentSpace.tsx');
 const training = baca('src/modules/Training.tsx');
 const fotoVenue = baca('src/lib/fotoVenue.ts');
+const lacak = baca('src/modules/Lacak.tsx');
+const ajukan = baca('src/modules/Ajukan.tsx');
+const comingSoon = baca('src/modules/ComingSoon.tsx');
+const planCampaign = baca('src/modules/PlanCampaign.tsx');
 
 let gagal = 0;
 const cek = (nama: string, lolos: boolean, detail = '') => {
@@ -209,10 +223,14 @@ cek('Dummy: tidak ada tarif harian turunan', !dummy.includes('/ day'));
 
 // --- 3b. Foto venue (generated, data URI WebP). ---
 cek(
-  'FotoVenue: 5 foto data URI WebP (satu per jenis)',
+  'FotoVenue: 9 foto data URI WebP (5 jenis + 4 galeri detail)',
   ['auditorium', 'hall', 'multipurpose', 'meeting', 'studio'].every((k) =>
     fotoVenue.includes(`'${k}': 'data:image/webp;base64,`),
-  ),
+  ) &&
+    ['galeri-panggung', 'galeri-kursi', 'galeri-lobi', 'galeri-meja'].every(
+      (k) => fotoVenue.includes(`'${k}': 'data:image/webp;base64,`),
+    ) &&
+    hitung(fotoVenue, 'data:image/webp;base64,') === 9,
 );
 cek(
   'FotoVenue: file menjelaskan sumber generated (bukan stok)',
@@ -290,8 +308,7 @@ cek(
   bookVenue.includes('aspect-[4/3]') &&
     bookVenue.includes('Client favourite') &&
     bookVenue.includes('rating >= 4.9') &&
-    bookVenue.includes('toFixed(2)') &&
-    bookVenue.includes('Book this venue'),
+    bookVenue.includes('toFixed(2)'),
 );
 cek(
   'Airbnb: judul kartu "Auditorium in Palembang" + kapasitas + harga KB',
@@ -300,15 +317,93 @@ cek(
     bookVenue.includes('Price on request'),
 );
 
+// --- 3d. Revisi detail page (12:24–12:28 WIB) + studi login Airbnb. ---
+cek(
+  'Revisi: TIDAK ada tombol "Book this venue" / form inline di listing / deskripsi lama',
+  !bookVenue.includes('Book this venue') &&
+    !bookVenue.includes('form-book-venue') &&
+    !bookVenue.includes('Book our auditorium, hall, and meeting spaces'),
+);
+cek(
+  'Revisi: kartu clickable ke halaman detail (article role=button + bukaDetail + detailId)',
+  bookVenue.includes('role="button"') &&
+    bookVenue.includes('onClick={() => bukaDetail(venue.id)}') &&
+    bookVenue.includes('const [detailId, setDetailId]') &&
+    bookVenue.includes('kembaliKeListing'),
+);
+cek(
+  'Revisi: header — panah saja di kiri, logo h-10 + judul gaya Deals di kanan, tanpa teks back',
+  bookVenue.includes("'Back to venues'") &&
+    bookVenue.includes('className="h-10 w-auto"') &&
+    bookVenue.includes('text-2xl font-black tracking-tight text-[#0d2569]') &&
+    !bookVenue.includes('>Back to Landing Page<'),
+);
+cek(
+  'Revisi: detail — galeri 1 besar + 4 kecil (tiap foto tombol) + Show all photos',
+  bookVenue.includes('FOTO_GALERI') &&
+    bookVenue.includes('aria-label="Open photos"') &&
+    bookVenue.includes('Open photos of ${judulVenue(venue)}') &&
+    bookVenue.includes('Show all photos') &&
+    bookVenue.includes('col-span-2 row-span-2'),
+);
+cek(
+  'Revisi: detail — Share + Save (hati + teks, aria-label Save to wishlist)',
+  bookVenue.includes('Link copied') &&
+    bookVenue.includes('aria-label="Save to wishlist"') &&
+    bookVenue.includes("{disimpan ? 'Saved' : 'Save'}"),
+);
+cek(
+  'Revisi: detail — info + rating + highlights + amenities + kartu booking',
+  bookVenue.includes('Hosted by RRI') &&
+    bookVenue.includes('reviews') &&
+    bookVenue.includes('Top rated venue') &&
+    bookVenue.includes('What this place offers') &&
+    bookVenue.includes('Show all') &&
+    bookVenue.includes('amenities') &&
+    bookVenue.includes('CHECK-IN') &&
+    bookVenue.includes('CHECK-OUT') &&
+    bookVenue.includes('GUESTS') &&
+    bookVenue.includes('Send booking request'),
+);
+cek(
+  "Revisi: kartu booking — \"You won't be charged yet\" di bawah tombol + catatan tim",
+  bookVenue.includes("You won&apos;t be charged yet") &&
+    bookVenue.includes('Your request goes to our team'),
+);
+cek(
+  'Revisi: kalender detail di bawah kartu booking (rentang check-in/check-out ditandai)',
+  bookVenue.includes('Select your dates') &&
+    bookVenue.includes('pilihTanggalDetail') &&
+    bookVenue.includes("renderBulan(bulanAwal, 'detail')") &&
+    bookVenue.includes('Pick a check-in date first'),
+);
+
+// --- 3e. Check-out date + jumlah ulasan (revisi detail). ---
+cek(
+  'Revisi: tanggalSelesai di types/store/App/Sales',
+  types.includes('tanggalSelesai?: string') &&
+    store.includes('tanggalSelesai?: string') &&
+    app.includes('Check-out date is not valid.') &&
+    sales.includes('tanggalSelesai'),
+);
+cek(
+  'Revisi: dummy ulasan 10x (76–214)',
+  (() => {
+    const semua = [...dummy.matchAll(/ulasan: ([0-9]+)/g)].map((m) =>
+      Number(m[1]),
+    );
+    return semua.length === 10 && semua.every((u) => u >= 76 && u <= 214);
+  })(),
+);
+
 // --- 4. Modul halaman baru. ---
 cek(
-  'BookVenue: form venue/tanggal/peserta/occasion/nama/kontak/email + referensi',
-  bookVenue.includes('Book this venue') &&
+  'BookVenue: form booking di kartu booking halaman detail (tanggal/peserta/occasion/nama/kontak/email + referensi)',
+  bookVenue.includes('Send booking request') &&
     bookVenue.includes('Occasion') &&
     bookVenue.includes('Participants') &&
     bookVenue.includes('Select an occasion') &&
-    bookVenue.includes('Your reference number is') &&
-    bookVenue.includes('Back to Landing Page'),
+    bookVenue.includes('Your reference number is'),
 );
 cek(
   'BookVenue: peserta + occasion terkirim sebagai jumlahPeserta',
@@ -423,6 +518,24 @@ cek(
 cek(
   'Rules: TIDAK ada hasOnly — field opsional jumlahPeserta tidak butuh perubahan rules',
   !rules.includes('hasOnly'),
+);
+
+// --- 8. Scroll-to-top saat halaman publik mount (temuan preview 12:34 WIB). ---
+cek(
+  'Scroll: 7 halaman publik mount dari atas (BookVenue/RentSpace/Training/Lacak/Ajukan/ComingSoon/PlanCampaign)',
+  [
+    bookVenue,
+    rentSpace,
+    training,
+    lacak,
+    ajukan,
+    comingSoon,
+    planCampaign,
+  ].every((f) => f.includes('window.scrollTo({ top: 0 })')),
+);
+cek(
+  'Scroll: BookVenue — bukaDetail + kembaliKeListing juga gulir ke atas (3x scrollTo)',
+  hitung(bookVenue, 'window.scrollTo({ top: 0 })') >= 3,
 );
 
 // --- Ringkasan. ---

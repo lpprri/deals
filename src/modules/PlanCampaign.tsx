@@ -45,6 +45,10 @@ export default function PlanCampaign({ onKembali, labelKembali }: PlanCampaignPr
   // Muat script widget Tally sekali, lalu muat embed (pola React dari
   // dokumentasi Tally — contoh react.md).
   useEffect(() => {
+    // Halaman publik dibuka dari footer landing (SPA: posisi gulir
+    // window TIDAK reset saat komponen mount) — mulai dari atas.
+    window.scrollTo({ top: 0 });
+
     const widgetScriptSrc = 'https://tally.so/widgets/embed.js';
 
     const load = () => {
