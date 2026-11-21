@@ -109,12 +109,12 @@ cek(
     login.includes('Lock'),
 );
 cek(
-  'Login: prop onLacak DIHAPUS — tidak ada lagi tautan ke Lacak dari halaman login (wiring onLacak di App.tsx tinggal 1x, untuk landing)',
+  'Login: prop onLacak DIHAPUS — tidak ada lagi tautan ke Lacak dari halaman login; wiring onLacak di App.tsx kini 0x (kolom footer Client Portal dihapus 2026-11-21, Lacak tanpa tombol masuk dari landing)',
   !login.includes('onLacak') &&
     !login.includes('click here') &&
     !login.includes('onClick={onLacak}') &&
     app.split("onLacak={() => setHalamanPublik('lacak')}").length - 1 ===
-      1,
+      0,
 );
 cek(
   'Login: field Email + Password gaya Mixpanel (label tebal di atas, input pill putih)',

@@ -657,7 +657,7 @@ export default function RentSpace({ onKembali, onKirim }: RentSpaceProps) {
   };
 
   return (
-    <div className="relative min-h-screen overflow-hidden bg-[#f5f2f2] px-4 py-16">
+    <div className="relative min-h-screen overflow-hidden bg-white px-4 py-16">
       {/* Gradasi pucat biru/navy di bagian bawah (pola halaman publik). */}
       <div
         aria-hidden

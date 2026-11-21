@@ -2,7 +2,7 @@
 // (PR landing-marklo-clone, 2026-11-17).
 // (PR landing-footer-navy-putih, 2026-11-17: footer gradien navy RRI
 // #0D2569 (bukan maroon), logo RRI + Deals di footer dibuat putih,
-// kolom "Site Map" / "Client Portal" / "Additional Service", header
+// kolom "Site Map" / "Our Service", header
 // seamless tanpa garis bawah.
 // PR ini JUGA me-revert PR #75 (ukuran landing kembali ke PR #74)
 // karena pengguna menilai ukuran PR #75 kebesaran di zoom 100% —
@@ -36,18 +36,16 @@
 //     admin. Email wajib — kanal kirim link Google Meet (operator kirim
 //     manual setelah sync; PR landing-booking-email).
 //     Catatan pratinjau SUDAH DIHAPUS.
-//   - Kolom footer (revisi pengguna 2026-11-18): "Site Map" (navigasi
-//     section), "Client Portal" (Plan a Campaign → halaman Plan a
-//     Campaign via prop onPlanCampaign — sejak batch landing 2026-11-19,
-//     BUKAN lagi ke kartu booking; Track your Deal → halaman Lacak via
-//     prop onLacak),
-//     "Additional Service" (Book a Venue → halaman Book a Venue via
-//     prop onBookVenue, Rent a Space → halaman Rent a Space via prop
+//   - Kolom footer (revisi pengguna 2026-11-21 17:57 WIB): "Site Map"
+//     (navigasi section), "Our Service" (Plan a Campaign → halaman Plan a
+//     Campaign via prop onPlanCampaign — pindah dari kolom "Client Portal"
+//     yang DIHAPUS; Book a Venue → halaman Book a Venue via prop
+//     onBookVenue, Rent a Space → halaman Rent a Space via prop
 //     onRentSpace, Learning Centre → hub Learning Centre via prop
-//     onTraining — sejak halaman layanan tambahan 2026-11-21; "Join our
-//     Event" (diganti nama atas permintaan pengguna 2026-11-21 16:17 WIB)
-//     membuka halaman "Coming Soon" via prop onComingSoon; dua item lain
-//     DIHAPUS dari footer atas permintaan yang sama.
+//     onTraining; "Join our Event" membuka halaman "Coming Soon" via prop
+//     onComingSoon). Kolom "Client Portal" DIHAPUS — "Track your Deal"
+//     ikut hilang dari footer; halaman Lacak tetap ada (App.tsx, state
+//     'lacak') tapi tanpa lagi tombol masuk dari landing.
 //   - Kartu booking memakai nama "Deals" + logo RRI (bukan "Marklo").
 //   - Teks social proof hero diubah atas permintaan pengguna 2026-11-17:
 //     "TRUSTED BY 100+ PARTNERS NATIONALLY"; avatar, bintang, dan 4.9/5.0
@@ -107,14 +105,9 @@ import type { BookingPublikInput } from '../../lib/store';
 export interface MarkloLandingProps {
   /** Buka halaman login Operator (infrastruktur aplikasi). */
   onLogin: () => void;
-  /** Buka halaman Lacak (Track) publik — klien memasukkan nomor PKS/
-      invoice (tanpa login). Dipakai footer "Track your Deal"
-      (Client Portal); pola persis onLogin. */
-  onLacak: () => void;
   /** Buka halaman "Coming Soon" publik — dipakai SATU item footer
-      "Additional Service" yang tersisa ("Join our Event"; pola persis
-      onLacak; permintaan pengguna 2026-11-18 21:19–21:21 WIB — BUKAN ke
-      kartu booking). */
+      "Our Service" ("Join our Event"; pola persis onLogin; permintaan
+      pengguna 2026-11-18 21:19–21:21 WIB — BUKAN ke kartu booking). */
   onComingSoon: () => void;
   /** Buka halaman "Book a Venue" publik (daftar venue + form booking) —
       dipakai item footer "Book a Venue" (pola persis onLacak;
@@ -131,9 +124,10 @@ export interface MarkloLandingProps {
       10:52 WIB). */
   onTraining: () => void;
   /** Buka halaman "Plan a Campaign" publik (form Tally embed) —
-      dipakai item footer "Plan a Campaign" (Client Portal) dan keempat
-      kotak layanan (pola persis onLacak; permintaan pengguna 2026-11-19
-      08:51–08:54 WIB — BUKAN lagi gulir ke kartu booking). */
+      dipakai item footer "Plan a Campaign" (Our Service, pindah dari
+      Client Portal 2026-11-21) dan keempat kotak layanan (pola persis
+      onLogin; permintaan pengguna 2026-11-19 08:51–08:54 WIB — BUKAN
+      lagi gulir ke kartu booking). */
   onPlanCampaign: () => void;
   /** Kirim permintaan free call publik (form singkat kartu booking):
       menyimpan sebagai Meeting di Firestore; kembalikan null bila
@@ -259,7 +253,7 @@ function BintangLima({
   );
 }
 
-export default function MarkloLanding({ onLogin, onLacak, onComingSoon, onPlanCampaign, onBookVenue, onRentSpace, onTraining, onKirimBooking }: MarkloLandingProps) {
+export default function MarkloLanding({ onLogin, onComingSoon, onPlanCampaign, onBookVenue, onRentSpace, onTraining, onKirimBooking }: MarkloLandingProps) {
   // Kembali ke landing dari halaman publik yang di-scroll: SPA
   // mempertahankan posisi scroll window, jadi landing mendarat di
   // tengah halaman. Scroll ke atas saat mount (perintah user
@@ -284,7 +278,7 @@ export default function MarkloLanding({ onLogin, onLacak, onComingSoon, onPlanCa
         <Testimoni />
         <Faq />
       </main>
-      <Footer onLacak={onLacak} onComingSoon={onComingSoon} onPlanCampaign={onPlanCampaign} onBookVenue={onBookVenue} onRentSpace={onRentSpace} onTraining={onTraining} />
+      <Footer onComingSoon={onComingSoon} onPlanCampaign={onPlanCampaign} onBookVenue={onBookVenue} onRentSpace={onRentSpace} onTraining={onTraining} />
     </div>
   );
 }
@@ -1655,7 +1649,7 @@ function Faq() {
 
 /* ================= Footer ================= */
 
-function Footer({ onLacak, onComingSoon, onPlanCampaign, onBookVenue, onRentSpace, onTraining }: { onLacak: () => void; onComingSoon: () => void; onPlanCampaign: () => void; onBookVenue: () => void; onRentSpace: () => void; onTraining: () => void }) {
+function Footer({ onComingSoon, onPlanCampaign, onBookVenue, onRentSpace, onTraining }: { onComingSoon: () => void; onPlanCampaign: () => void; onBookVenue: () => void; onRentSpace: () => void; onTraining: () => void }) {
   return (
     <footer className="relative bg-white">
       {/* Tepi atas bergelombang (SVG) menuju section gelap */}
@@ -1671,7 +1665,7 @@ function Footer({ onLacak, onComingSoon, onPlanCampaign, onBookVenue, onRentSpac
         />
       </svg>
       <div className="bg-gradient-to-b from-[#0D2569] to-[#04122e] text-white">
-        <div className="mx-auto grid max-w-7xl gap-10 px-4 py-14 sm:px-6 md:grid-cols-6">
+        <div className="mx-auto grid max-w-7xl gap-10 px-4 py-14 sm:px-6 md:grid-cols-5">
           <div className="md:col-span-2">
             <div className="mt-5 flex items-center gap-3">
               {/* Logo dibuat putih khusus footer (permintaan eksplisit
@@ -1777,56 +1771,21 @@ function Footer({ onLacak, onComingSoon, onPlanCampaign, onBookVenue, onRentSpac
               ))}
             </ul>
           </nav>
-          {/* Kolom Client Portal — pintu masuk klien (permintaan
-              pengguna 2026-11-18). Item pertama membuka halaman "Plan a
-              Campaign" lewat prop onPlanCampaign (pola onLacak; sejak
-              batch landing 2026-11-19 — BUKAN lagi gulir ke kartu
-              booking); item terakhir membuka halaman Lacak lewat prop
-              onLacak (pola onLogin). */}
+          {/* Kolom Our Service — judul diubah atas permintaan pengguna
+              2026-11-21 17:57 WIB; "Plan a Campaign" pindah ke sini dari
+              kolom portal klien yang DIHAPUS (item pertama). Lima item:
+              Plan a Campaign → halaman Plan a Campaign via onPlanCampaign;
+              Book a Venue → onBookVenue, Rent a Space → onRentSpace,
+              Learning Centre → onTraining; "Join our Event" membuka
+              halaman "Coming Soon" via onComingSoon — BUKAN ke kartu
+              booking. */}
           <div>
             <h3 className="text-sm font-bold uppercase tracking-widest text-white/50">
-              Client Portal
+              Our Service
             </h3>
             <ul className="mt-4 space-y-2.5 text-sm">
               {[
-                { label: 'Plan a Campaign', aksi: 'plan-campaign' },
-                { label: 'Track your Deal', aksi: 'lacak' },
-              ].map((item) => (
-                <li key={item.label}>
-                  <button
-                    type="button"
-                    onClick={() =>
-                      item.aksi === 'lacak'
-                        ? onLacak()
-                        : item.aksi === 'plan-campaign'
-                          ? onPlanCampaign()
-                          : gulirKe('booking')
-                    }
-                    className="text-white/80 transition hover:text-white hover:underline"
-                  >
-                    {item.label}
-                  </button>
-                </li>
-              ))}
-            </ul>
-          </div>
-          {/* Kolom Additional Service — di antara Client Portal dan
-              Contact (judul lama diubah atas permintaan
-              pengguna 2026-11-18; satu item pindah ke Client Portal,
-              satu item baru ditambahkan). Tiga item membuka halaman
-              aslinya (Book a Venue → onBookVenue, Rent a Space →
-              onRentSpace, Learning Centre → onTraining;
-              halaman layanan tambahan 2026-11-21); satu item
-              ("Join our Event") membuka halaman "Coming Soon" lewat
-              prop onComingSoon (pola onLacak) — BUKAN ke kartu booking;
-              dua item lain DIHAPUS atas permintaan pengguna
-              2026-11-21 16:17 WIB. */}
-          <div>
-            <h3 className="text-sm font-bold uppercase tracking-widest text-white/50">
-              Additional Service
-            </h3>
-            <ul className="mt-4 space-y-2.5 text-sm">
-              {[
+                { label: 'Plan a Campaign', onClick: onPlanCampaign },
                 { label: 'Book a Venue', onClick: onBookVenue },
                 { label: 'Rent a Space', onClick: onRentSpace },
                 { label: 'Learning Centre', onClick: onTraining },

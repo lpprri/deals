@@ -296,6 +296,15 @@ cek(
     !hub.includes('flex h-36 items-center justify-center bg-gradient-to-br'),
 );
 
+// --- 9. Latar: putih seperti Book a Venue (perintah user 2026-11-21 17:55 WIB). ---
+cek(
+  'Latar halaman: Learning Centre (hub) + E-Learning latar putih bg-white seperti Book a Venue — bukan lagi abu #f5f2f2',
+  hub.includes('relative min-h-screen overflow-hidden bg-white px-4 py-16') &&
+    elearning.includes('relative min-h-screen overflow-hidden bg-white px-4 py-16') &&
+    !hub.includes("bg-[#f5f2f2]") &&
+    !elearning.includes('min-h-screen overflow-hidden bg-[#f5f2f2]'),
+);
+
 // --- Ringkasan. ---
 if (gagal > 0) {
   console.error(`\n${gagal} asersi GAGAL.`);
