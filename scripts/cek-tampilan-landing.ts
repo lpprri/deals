@@ -19,13 +19,14 @@
 //   tetap merah (fungsional), logo merek Instagram/TikTok/YouTube tetap
 //   warna merek.
 //   KECUALI footer: gradien navy RRI + logo putih + kolom "Site Map" /
-//   "Our Service" + header seamless, atas permintaan eksplisit pengguna
+//   "What to Do" + header seamless, atas permintaan eksplisit pengguna
 //   2026-11-17 (PR landing-footer-navy-putih; judul kolom "Our Service")
 //   dan revisi 2026-11-18 (PR footer-site-map-client-portal: "Navigation"
 //   → "Site Map", kolom baru "Client Portal", "Our Service" → "Additional
 //   Service") dan revisi 2026-11-21 17:57 WIB (kolom "Client Portal"
 //   DIHAPUS, "Additional Service" kembali jadi "Our Service", "Plan a
-//   Campaign" pindah ke "Our Service").
+//   Campaign" pindah ke "Our Service") dan revisi 2026-11-21 18:27 WIB
+//   (judul kolom "Our Service" diubah jadi "What to Do").
 //   KECUALI section Comparison + strip logo (PR #97): latar gradasi
 //   diagonal NAVY RRI (#1a3a8a -> #0D2569 -> #04122e, gaya gradasi latar
 //   gelap template, BUKAN maroon template — koreksi pengguna 15:48 WIB);
@@ -970,9 +971,9 @@ cek(
     marklo.includes('className="h-9 w-auto shrink-0"'),
 );
 cek(
-  'Footer: urutan kolom "Site Map" < "Our Service" < Contact — kolom "Client Portal" DIHAPUS, "Additional Service" kembali jadi "Our Service" (perintah user 2026-11-21 17:57 WIB); isi tiap kolom berurutan + "Book a Free Call" hilang dari footer',
-  footerMarklo.indexOf('Site Map') < footerMarklo.indexOf('Our Service') &&
-    footerMarklo.indexOf('Our Service') < footerMarklo.indexOf('Jl. Medan Merdeka Barat') &&
+  'Footer: urutan kolom "Site Map" < "What to Do" < Contact — kolom "Client Portal" DIHAPUS, "Additional Service" kembali jadi "Our Service" lalu judul diubah jadi "What to Do" (perintah user 2026-11-21 17:57 + 18:27 WIB); isi tiap kolom berurutan + "Book a Free Call" hilang dari footer',
+  footerMarklo.indexOf('Site Map') < footerMarklo.indexOf('What to Do') &&
+    footerMarklo.indexOf('What to Do') < footerMarklo.indexOf('Jl. Medan Merdeka Barat') &&
     !footerMarklo.includes('Client Portal') &&
     !footerMarklo.includes('Additional Service') &&
     !footerMarklo.includes('Navigation') &&
@@ -980,7 +981,7 @@ cek(
     (() => {
       const peta = footerMarklo.slice(
         footerMarklo.indexOf('Site Map'),
-        footerMarklo.indexOf('Our Service'),
+        footerMarklo.indexOf('What to Do'),
       );
       return (
         peta.indexOf('About') < peta.indexOf('Service') &&
@@ -991,7 +992,7 @@ cek(
     })() &&
     (() => {
       const layanan = footerMarklo.slice(
-        footerMarklo.indexOf('Our Service'),
+        footerMarklo.indexOf('What to Do'),
         footerMarklo.indexOf('Jl. Medan Merdeka Barat'),
       );
       return (
@@ -1027,7 +1028,7 @@ cek(
     app.includes('<Lacak'),
 );
 cek(
-  'Footer: "Plan a Campaign" (item PERTAMA "Our Service", pindah dari Client Portal 2026-11-21) membuka halaman Plan a Campaign via prop onPlanCampaign — BUKAN gulirKe booking (permintaan pengguna 2026-11-19 08:33 WIB)',
+  'Footer: "Plan a Campaign" (item PERTAMA "What to Do", pindah dari Client Portal 2026-11-21) membuka halaman Plan a Campaign via prop onPlanCampaign — BUKAN gulirKe booking (permintaan pengguna 2026-11-19 08:33 WIB)',
   marklo.includes('onPlanCampaign: () => void') &&
     marklo.includes('<Footer onComingSoon={onComingSoon} onPlanCampaign={onPlanCampaign} onBookVenue={onBookVenue} onRentSpace={onRentSpace} onTraining={onTraining} />') &&
     marklo.includes('function Footer({ onComingSoon, onPlanCampaign, onBookVenue, onRentSpace, onTraining }') &&
@@ -1055,7 +1056,7 @@ cek(
     planCampaign.includes('Plan a Campaign'),
 );
 cek(
-  'Footer: lima item "Our Service" (Plan a Campaign pertama, Book a Venue, Rent a Space, Learning Centre, Join our Event) — empat pertama membuka halaman aslinya via prop; "Join our Event" (dulu "Support our Event") tetap "Coming Soon" via onComingSoon; "Collaborate with Us" dan "Invite as Media Partner" DIHAPUS (perintah user 2026-11-21 16:17 WIB; halaman Coming Soon gaya login page, TANPA logo; permintaan pengguna 2026-11-18 21:19–21:21 WIB)',
+  'Footer: lima item "What to Do" (Plan a Campaign pertama, Book a Venue, Rent a Space, Learning Centre, Join our Event) — empat pertama membuka halaman aslinya via prop; "Join our Event" (dulu "Support our Event") tetap "Coming Soon" via onComingSoon; "Collaborate with Us" dan "Invite as Media Partner" DIHAPUS (perintah user 2026-11-21 16:17 WIB; halaman Coming Soon gaya login page, TANPA logo; permintaan pengguna 2026-11-18 21:19–21:21 WIB)',
   marklo.includes('onComingSoon: () => void') &&
     marklo.includes('<Footer onComingSoon={onComingSoon} onPlanCampaign={onPlanCampaign} onBookVenue={onBookVenue} onRentSpace={onRentSpace} onTraining={onTraining} />') &&
     marklo.includes('function Footer({ onComingSoon, onPlanCampaign, onBookVenue, onRentSpace, onTraining }') &&
@@ -1074,7 +1075,7 @@ cek(
     !footerMarklo.includes('Support our Event') &&
     !footerMarklo
       .slice(
-        footerMarklo.indexOf('Our Service'),
+        footerMarklo.indexOf('What to Do'),
         footerMarklo.indexOf('Jl. Medan Merdeka Barat'),
       )
       .includes('gulirKe') &&

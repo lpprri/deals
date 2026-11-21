@@ -2,7 +2,7 @@
 // (PR landing-marklo-clone, 2026-11-17).
 // (PR landing-footer-navy-putih, 2026-11-17: footer gradien navy RRI
 // #0D2569 (bukan maroon), logo RRI + Deals di footer dibuat putih,
-// kolom "Site Map" / "Our Service", header
+// kolom "Site Map" / "What to Do", header
 // seamless tanpa garis bawah.
 // PR ini JUGA me-revert PR #75 (ukuran landing kembali ke PR #74)
 // karena pengguna menilai ukuran PR #75 kebesaran di zoom 100% —
@@ -37,7 +37,7 @@
 //     manual setelah sync; PR landing-booking-email).
 //     Catatan pratinjau SUDAH DIHAPUS.
 //   - Kolom footer (revisi pengguna 2026-11-21 17:57 WIB): "Site Map"
-//     (navigasi section), "Our Service" (Plan a Campaign → halaman Plan a
+//     (navigasi section), "What to Do" (Plan a Campaign → halaman Plan a
 //     Campaign via prop onPlanCampaign — pindah dari kolom "Client Portal"
 //     yang DIHAPUS; Book a Venue → halaman Book a Venue via prop
 //     onBookVenue, Rent a Space → halaman Rent a Space via prop
@@ -106,7 +106,7 @@ export interface MarkloLandingProps {
   /** Buka halaman login Operator (infrastruktur aplikasi). */
   onLogin: () => void;
   /** Buka halaman "Coming Soon" publik — dipakai SATU item footer
-      "Our Service" ("Join our Event"; pola persis onLogin; permintaan
+      "What to Do" ("Join our Event"; pola persis onLogin; permintaan
       pengguna 2026-11-18 21:19–21:21 WIB — BUKAN ke kartu booking). */
   onComingSoon: () => void;
   /** Buka halaman "Book a Venue" publik (daftar venue + form booking) —
@@ -124,7 +124,7 @@ export interface MarkloLandingProps {
       10:52 WIB). */
   onTraining: () => void;
   /** Buka halaman "Plan a Campaign" publik (form Tally embed) —
-      dipakai item footer "Plan a Campaign" (Our Service, pindah dari
+      dipakai item footer "Plan a Campaign" (What to Do, pindah dari
       Client Portal 2026-11-21) dan keempat kotak layanan (pola persis
       onLogin; permintaan pengguna 2026-11-19 08:51–08:54 WIB — BUKAN
       lagi gulir ke kartu booking). */
@@ -1771,17 +1771,17 @@ function Footer({ onComingSoon, onPlanCampaign, onBookVenue, onRentSpace, onTrai
               ))}
             </ul>
           </nav>
-          {/* Kolom Our Service — judul diubah atas permintaan pengguna
-              2026-11-21 17:57 WIB; "Plan a Campaign" pindah ke sini dari
-              kolom portal klien yang DIHAPUS (item pertama). Lima item:
-              Plan a Campaign → halaman Plan a Campaign via onPlanCampaign;
-              Book a Venue → onBookVenue, Rent a Space → onRentSpace,
-              Learning Centre → onTraining; "Join our Event" membuka
-              halaman "Coming Soon" via onComingSoon — BUKAN ke kartu
-              booking. */}
+          {/* Kolom What to Do — judul "Our Service" diubah jadi "What to
+              Do" atas permintaan pengguna 2026-11-21 18:27 WIB; "Plan a
+              Campaign" pindah ke sini dari kolom portal klien yang DIHAPUS
+              (item pertama). Lima item: Plan a Campaign → halaman Plan a
+              Campaign via onPlanCampaign; Book a Venue → onBookVenue,
+              Rent a Space → onRentSpace, Learning Centre → onTraining;
+              "Join our Event" membuka halaman "Coming Soon" via
+              onComingSoon — BUKAN ke kartu booking. */}
           <div>
             <h3 className="text-sm font-bold uppercase tracking-widest text-white/50">
-              Our Service
+              What to Do
             </h3>
             <ul className="mt-4 space-y-2.5 text-sm">
               {[
