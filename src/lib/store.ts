@@ -132,6 +132,9 @@ export interface PermintaanVenuePublikInput {
   venue: string;
   /** Tanggal booking, 'yyyy-mm-dd'. */
   tanggal: string;
+  /** Tanggal selesai (CHECK-OUT), 'yyyy-mm-dd' — opsional, hanya bila
+      berbeda dari tanggal (booking multi-hari). */
+  tanggalSelesai?: string;
   /** Occasion/keperluan penggunaan venue. */
   keperluan: string;
   /** Nama pengunjung. */
@@ -140,6 +143,8 @@ export interface PermintaanVenuePublikInput {
   kontak: string;
   /** Email pengunjung. */
   email: string;
+  /** Jumlah peserta — dari stepper Who / form booking (opsional). */
+  jumlahPeserta?: number;
 }
 
 /**

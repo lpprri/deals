@@ -1036,12 +1036,26 @@ export default function App() {
     ) {
       return { galat: 'Booking date is not valid.' };
     }
+    if (
+      input.tanggalSelesai !== undefined &&
+      input.tanggalSelesai.trim() !== '' &&
+      (!/^\d{4}-\d{2}-\d{2}$/.test(input.tanggalSelesai.trim()) ||
+        input.tanggalSelesai.trim() < input.tanggal.trim())
+    ) {
+      return { galat: 'Check-out date is not valid.' };
+    }
     if (!input.keperluan.trim()) return { galat: 'Occasion is required.' };
     if (!input.nama.trim()) return { galat: 'Name is required.' };
     if (!input.kontak.trim()) return { galat: 'Contact is required.' };
     if (!input.email.trim()) return { galat: 'Email is required.' };
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(input.email.trim()))
       return { galat: 'Email format is not valid.' };
+    if (
+      input.jumlahPeserta !== undefined &&
+      (!Number.isInteger(input.jumlahPeserta) || input.jumlahPeserta < 1)
+    ) {
+      return { galat: 'Participants is not valid.' };
+    }
     const id = idBerikutnya('VBR-', data.venueBookOrder.map((r) => r.id));
     const permintaan: PermintaanLayanan = {
       id,
@@ -1051,9 +1065,16 @@ export default function App() {
       satker: SATKER_PILOT,
       layanan: input.venue.trim(),
       tanggalLayanan: input.tanggal.trim(),
+      tanggalSelesai:
+        input.tanggalSelesai !== undefined &&
+        input.tanggalSelesai.trim() !== '' &&
+        input.tanggalSelesai.trim() !== input.tanggal.trim()
+          ? input.tanggalSelesai.trim()
+          : undefined,
       keperluan: input.keperluan.trim(),
       kontak: input.kontak.trim(),
       email: input.email.trim(),
+      jumlahPeserta: input.jumlahPeserta,
     };
     setData((d) => ({
       ...d,

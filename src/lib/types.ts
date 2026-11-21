@@ -498,12 +498,17 @@ export interface PermintaanLayanan {
   layanan?: string;
   /** Tanggal layanan yang diminta / tanggal jadwal course, 'yyyy-mm-dd'. */
   tanggalLayanan?: string;
+  /** Tanggal selesai booking venue (CHECK-OUT), 'yyyy-mm-dd' — opsional,
+      hanya bila berbeda dari tanggalLayanan (booking multi-hari). */
+  tanggalSelesai?: string;
   /** Occasion (venue) / pesan inquiry (space). */
   keperluan?: string;
   /** Kontak pengunjung (WA/telepon). */
   kontak?: string;
   /** Email pengunjung. */
   email?: string;
+  /** Jumlah peserta (booking venue) — dari stepper Who / form booking. */
+  jumlahPeserta?: number;
 }
 
 /**

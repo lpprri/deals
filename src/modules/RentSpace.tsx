@@ -18,7 +18,7 @@
 // off-white #f5f2f2 + gradasi pucat biru/navy di bawah, logo lockup RRI
 // lengkap h-20, tombol "Back to Landing Page" di kiri atas.
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { ArrowLeft, MapPin } from 'lucide-react';
 import { LOGO_RRI_LOCKUP_DATA_URI } from '../lib/logoRriLockup';
 import { SPACE_DUMMY } from '../lib/layananTambahanDummy';
@@ -43,6 +43,13 @@ export default function RentSpace({ onKembali, onKirim }: RentSpaceProps) {
   const [mengirim, setMengirim] = useState(false);
   const [galat, setGalat] = useState<string | null>(null);
   const [referensi, setReferensi] = useState<string | null>(null);
+
+  // Halaman publik dibuka dari footer landing (SPA: posisi gulir window
+  // TIDAK reset saat komponen mount — footer di bawah landing membuat
+  // halaman baru mendarat di bawah, di form). Selalu mulai dari atas.
+  useEffect(() => {
+    window.scrollTo({ top: 0 });
+  }, []);
 
   const pilihSpace = (id: string) => {
     setSpaceId(id);
