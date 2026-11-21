@@ -137,12 +137,11 @@ cek(
     ),
 );
 cek(
-  'Marklo: 3 item lain tetap onComingSoon',
-  marklo.includes("{ label: 'Collaborate with Us', onClick: onComingSoon }") &&
-    marklo.includes("{ label: 'Support our Event', onClick: onComingSoon }") &&
-    marklo.includes(
-      "{ label: 'Invite as Media Partner', onClick: onComingSoon }",
-    ),
+  'Marklo: "Join our Event" (dulu "Support our Event") tetap onComingSoon; "Collaborate with Us" dan "Invite as Media Partner" DIHAPUS dari footer (perintah user 2026-11-21 16:17 WIB)',
+  marklo.includes("{ label: 'Join our Event', onClick: onComingSoon }") &&
+    !marklo.includes('Collaborate with Us') &&
+    !marklo.includes('Invite as Media Partner') &&
+    !marklo.includes('Support our Event'),
 );
 cek(
   'Marklo: tidak ada lagi keenam item ke onComingSoon',

@@ -44,10 +44,10 @@
 //     "Additional Service" (Book a Venue → halaman Book a Venue via
 //     prop onBookVenue, Rent a Space → halaman Rent a Space via prop
 //     onRentSpace, Learning Centre → hub Learning Centre via prop
-//     onTraining — sejak halaman layanan tambahan 2026-11-21; tiga
-//     sisanya (Collaborate with Us, Support our Event, Invite as Media
-//     Partner) masih membuka halaman "Coming Soon" via prop onComingSoon;
-//     permintaan pengguna 2026-11-18 21:19–21:21 WIB).
+//     onTraining — sejak halaman layanan tambahan 2026-11-21; "Join our
+//     Event" (diganti nama atas permintaan pengguna 2026-11-21 16:17 WIB)
+//     membuka halaman "Coming Soon" via prop onComingSoon; dua item lain
+//     DIHAPUS dari footer atas permintaan yang sama.
 //   - Kartu booking memakai nama "Deals" + logo RRI (bukan "Marklo").
 //   - Teks social proof hero diubah atas permintaan pengguna 2026-11-17:
 //     "TRUSTED BY 100+ PARTNERS NATIONALLY"; avatar, bintang, dan 4.9/5.0
@@ -74,6 +74,7 @@ import {
   Clock,
   Facebook,
   Globe,
+  Handshake,
   Instagram,
   Linkedin,
   MapPin,
@@ -110,10 +111,10 @@ export interface MarkloLandingProps {
       invoice (tanpa login). Dipakai footer "Track your Deal"
       (Client Portal); pola persis onLogin. */
   onLacak: () => void;
-  /** Buka halaman "Coming Soon" publik — dipakai TIGA item footer
-      "Additional Service" yang tersisa (Collaborate with Us, Support our
-      Event, Invite as Media Partner; pola persis onLacak; permintaan
-      pengguna 2026-11-18 21:19–21:21 WIB — BUKAN ke kartu booking). */
+  /** Buka halaman "Coming Soon" publik — dipakai SATU item footer
+      "Additional Service" yang tersisa ("Join our Event"; pola persis
+      onLacak; permintaan pengguna 2026-11-18 21:19–21:21 WIB — BUKAN ke
+      kartu booking). */
   onComingSoon: () => void;
   /** Buka halaman "Book a Venue" publik (daftar venue + form booking) —
       dipakai item footer "Book a Venue" (pola persis onLacak;
@@ -1694,14 +1695,27 @@ function Footer({ onLacak, onComingSoon, onPlanCampaign, onBookVenue, onRentSpac
               Republik Indonesia — advertising, events, programmes, rooms, and
               land, across Indonesia.
             </p>
-            <button
-              type="button"
-              onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-              className="mt-6 inline-flex items-center gap-2 rounded-full border border-white/30 px-4 py-2 text-sm font-semibold text-white transition hover:bg-white hover:text-black"
-            >
-              <ArrowUp className="h-4 w-4" aria-hidden="true" />
-              Back to top
-            </button>
+            {/* Tombol "Partner with RRI" (perintah user 2026-11-21 16:20 WIB,
+                contoh Traveloka): pill biru RRI di sebelah "Back to top",
+                membuka halaman Plan a Campaign. */}
+            <div className="mt-6 flex flex-wrap items-center gap-3">
+              <button
+                type="button"
+                onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+                className="inline-flex items-center gap-2 rounded-full border border-white/30 px-4 py-2 text-sm font-semibold text-white transition hover:bg-white hover:text-black"
+              >
+                <ArrowUp className="h-4 w-4" aria-hidden="true" />
+                Back to top
+              </button>
+              <button
+                type="button"
+                onClick={onPlanCampaign}
+                className="inline-flex items-center gap-2 rounded-full bg-[#2573e2] px-4 py-2 text-sm font-semibold text-white transition hover:bg-[#0d2569]"
+              >
+                <Handshake className="h-4 w-4" aria-hidden="true" />
+                Partner with RRI
+              </button>
+            </div>
           </div>
           <nav aria-label="Footer navigation">
             <h3 className="text-sm font-bold uppercase tracking-widest text-white/50">
@@ -1802,11 +1816,11 @@ function Footer({ onLacak, onComingSoon, onPlanCampaign, onBookVenue, onRentSpac
               satu item baru ditambahkan). Tiga item membuka halaman
               aslinya (Book a Venue → onBookVenue, Rent a Space →
               onRentSpace, Learning Centre → onTraining;
-              halaman layanan tambahan 2026-11-21); tiga sisanya masih
-              membuka halaman "Coming Soon" lewat prop onComingSoon
-              (pola onLacak) — BUKAN ke kartu booking; permintaan
-              pengguna 2026-11-18 21:19–21:21 WIB (dua item baru
-              ditambahkan di akhir daftar). */}
+              halaman layanan tambahan 2026-11-21); satu item
+              ("Join our Event") membuka halaman "Coming Soon" lewat
+              prop onComingSoon (pola onLacak) — BUKAN ke kartu booking;
+              dua item lain DIHAPUS atas permintaan pengguna
+              2026-11-21 16:17 WIB. */}
           <div>
             <h3 className="text-sm font-bold uppercase tracking-widest text-white/50">
               Additional Service
@@ -1816,9 +1830,7 @@ function Footer({ onLacak, onComingSoon, onPlanCampaign, onBookVenue, onRentSpac
                 { label: 'Book a Venue', onClick: onBookVenue },
                 { label: 'Rent a Space', onClick: onRentSpace },
                 { label: 'Learning Centre', onClick: onTraining },
-                { label: 'Collaborate with Us', onClick: onComingSoon },
-                { label: 'Support our Event', onClick: onComingSoon },
-                { label: 'Invite as Media Partner', onClick: onComingSoon },
+                { label: 'Join our Event', onClick: onComingSoon },
               ].map((item) => (
                 <li key={item.label}>
                   <button
