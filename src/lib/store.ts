@@ -140,6 +140,8 @@ export interface PermintaanVenuePublikInput {
   kontak: string;
   /** Email pengunjung. */
   email: string;
+  /** Jumlah peserta — dari stepper Who / form booking (opsional). */
+  jumlahPeserta?: number;
 }
 
 /**

@@ -504,6 +504,8 @@ export interface PermintaanLayanan {
   kontak?: string;
   /** Email pengunjung. */
   email?: string;
+  /** Jumlah peserta (booking venue) — dari stepper Who / form booking. */
+  jumlahPeserta?: number;
 }
 
 /**

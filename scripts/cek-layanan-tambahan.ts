@@ -1,20 +1,32 @@
 // Verifikasi halaman 3 layanan tambahan (Book a Venue / Rent a Space /
 // Get a Journalism Training) — keputusan pengguna 2026-11-21 10:52 WIB:
-// bangun ketiganya sekaligus, data dummy dulu.
+// bangun ketiganya sekaligus, data dummy dulu. PLUS rebuild Book a Venue
+// ala Airbnb (2026-11-21 12:01 WIB, 5 screenshot airbnb.com + studi live
+// airbnb.com 12:03–12:06 WIB): tab kategori, search bar Where/When/Who,
+// kartu foto generated + wishlist localStorage + rating.
 //
 // Asersi:
 // - Rute: App.tsx mengenal 'book-venue' | 'rent-space' | 'training',
 //   merender ketiga modul baru, dan meneruskan prop baru ke Marklo.
 // - Footer: Marklo hanya 3 item baru yang memakai prop baru; 3 item
 //   lainnya tetap onComingSoon.
-// - Dummy: 5 venue + 4 lahan + 4 course, semua id ada; harga HANYA
-//   tarif KB PP 68/2020 (4 harga) + 'Price on request' (9x); tidak ada
-//   angka Rp lain; file jelas ditandai DUMMY.
+// - Dummy: 10 venue + 4 lahan + 4 course, semua id ada; harga HANYA
+//   tarif KB PP 68/2020 (5 harga) + 'Price on request' (12x); tidak ada
+//   angka Rp lain; file jelas ditandai DUMMY; venue punya kota satker +
+//   rating + foto.
+// - Foto venue: 5 data URI WebP di fotoVenue.ts (satu per jenis);
+//   BookVenue memakai foto itu di kartu (bukan placeholder gradien).
+// - Airbnb: tab kategori, 3 segmen search bar, kalender 2 bulan +
+//   Dates/Flexible + Exact/±, wishlist localStorage, kartu (foto 4:3,
+//   badge Client favourite, hati, rating), form peserta + occasion
+//   dropdown, jumlahPeserta sampai ke Order Details.
 // - Tulis publik: 3 fungsi kirim di firestoreStore.ts + 3 handler di
 //   App.tsx (id VBR-/SRR-/TRN-…, status 'Baru'); tabel Order punya
 //   kolom Details; 4 kolom lama tetap ada.
 // - Rules: 3 blok create publik (auth == null, status 'Baru', satker
-//   '41'); blok /meeting dan blok generik operator TIDAK berubah.
+//   '41'); blok /meeting dan blok generik operator TIDAK berubah;
+//   TIDAK ada hasOnly — field opsional jumlahPeserta tidak butuh
+//   perubahan rules (tidak perlu re-publish untuk PR ini).
 
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
@@ -33,6 +45,7 @@ const rules = baca('firestore.rules');
 const bookVenue = baca('src/modules/BookVenue.tsx');
 const rentSpace = baca('src/modules/RentSpace.tsx');
 const training = baca('src/modules/Training.tsx');
+const fotoVenue = baca('src/lib/fotoVenue.ts');
 
 let gagal = 0;
 const cek = (nama: string, lolos: boolean, detail = '') => {
@@ -102,7 +115,18 @@ cek(
 );
 
 // --- 3. Data dummy: jumlah + harga KB saja. ---
-const idVenue = ['auditorium', 'hall', 'multipurpose-room', 'meeting-room', 'studio'];
+const idVenue = [
+  'auditorium-palembang',
+  'auditorium-jakarta',
+  'auditorium-makassar',
+  'hall-bandung',
+  'hall-surabaya',
+  'multipurpose-yogyakarta',
+  'multipurpose-medan',
+  'meeting-palembang',
+  'meeting-semarang',
+  'studio-palembang',
+];
 const idSpace = ['lahan-kenten', 'lahan-demang', 'lahan-musi', 'lahan-kompleks'];
 const idCourse = [
   'pelatihan-jurnalistik',
@@ -111,7 +135,7 @@ const idCourse = [
   'wawancara-reportase',
 ];
 cek(
-  'Dummy: 5 venue + 4 lahan + 4 course (semua id ada)',
+  'Dummy: 10 venue + 4 lahan + 4 course (semua id ada)',
   [...idVenue, ...idSpace, ...idCourse].every((id) =>
     dummy.includes(`id: '${id}'`),
   ),
@@ -129,12 +153,12 @@ cek(
     dummy.includes("harga: 'Rp1,500,000 / person / 3 days'"),
 );
 cek(
-  "Dummy: 'Price on request' tepat 9x (3 venue + 4 lahan + 2 course)",
-  hitung(dummy, "harga: 'Price on request'") === 9,
+  "Dummy: 'Price on request' tepat 12x (6 venue + 4 lahan + 2 course)",
+  hitung(dummy, "harga: 'Price on request'") === 12,
 );
 cek(
-  'Dummy: total 13 baris harga (5 venue + 4 lahan + 4 course)',
-  hitung(dummy, "harga: '") === 13,
+  'Dummy: total 18 baris harga (10 venue + 4 lahan + 4 course)',
+  hitung(dummy, "harga: '") === 18,
 );
 cek(
   'Dummy: tidak ada angka Rp lain selain tarif KB',
@@ -153,15 +177,142 @@ cek(
     return semua.length > 0 && semua.every((r) => boleh.has(r));
   })(),
 );
-cek('Dummy: tidak ada foto (tidak ada <img)', !dummy.includes('<img'));
+cek(
+  'Dummy: venue punya kota satker + rating + foto (10x tiap field)',
+  hitung(dummy, "kota: '") === 10 &&
+    hitung(dummy, "foto: '") === 10 &&
+    (dummy.match(/rating: [0-9]/g) ?? []).length === 10,
+);
+cek(
+  'Dummy: kota venue nama kanonis satker (8 kota)',
+  ['PALEMBANG', 'JAKARTA', 'MAKASSAR', 'BANDUNG', 'SURABAYA', 'YOGYAKARTA', 'MEDAN', 'SEMARANG'].every(
+    (k) => dummy.includes(`kota: '${k}'`),
+  ),
+);
+cek(
+  'Dummy: rating venue 4.8–4.97 (semua dalam rentang)',
+  (() => {
+    const semua = [...dummy.matchAll(/rating: ([0-9.]+)/g)].map((m) =>
+      Number(m[1]),
+    );
+    return (
+      semua.length === 10 && semua.every((r) => r >= 4.8 && r <= 4.97)
+    );
+  })(),
+);
+cek(
+  'Dummy: tarif KB Auditorium muncul 3x (3 auditorium), Studio 1x',
+  hitung(dummy, "harga: 'Rp7,500,000 / 4 hours'") === 3 &&
+    hitung(dummy, "harga: 'Rp2,000,000 / 3 hours'") === 1,
+);
+cek('Dummy: tidak ada tarif harian turunan', !dummy.includes('/ day'));
+
+// --- 3b. Foto venue (generated, data URI WebP). ---
+cek(
+  'FotoVenue: 5 foto data URI WebP (satu per jenis)',
+  ['auditorium', 'hall', 'multipurpose', 'meeting', 'studio'].every((k) =>
+    fotoVenue.includes(`'${k}': 'data:image/webp;base64,`),
+  ),
+);
+cek(
+  'FotoVenue: file menjelaskan sumber generated (bukan stok)',
+  fotoVenue.includes('DI-GENERATE') && fotoVenue.includes('FOTO_VENUE'),
+);
+cek(
+  'BookVenue: kartu memakai foto (img + FOTO_VENUE), bukan placeholder gradien',
+  bookVenue.includes('FOTO_VENUE[venue.foto]') &&
+    bookVenue.includes('<img') &&
+    !bookVenue.includes('bg-gradient-to-br from-[#2573e2] to-[#0d2569]'),
+);
+
+// --- 3c. Rebuild ala Airbnb: tab, search bar, kalender, wishlist, kartu. ---
+cek(
+  'Airbnb: tab kategori All/Auditorium/Hall/Multipurpose Room/Meeting Room',
+  bookVenue.includes("id: 'All'") &&
+    bookVenue.includes("id: 'Auditorium'") &&
+    bookVenue.includes("id: 'Hall'") &&
+    bookVenue.includes("id: 'Multipurpose Room'") &&
+    bookVenue.includes("id: 'Meeting Room'") &&
+    !bookVenue.includes("id: 'Studio'"),
+);
+cek(
+  'Airbnb: search bar 3 segmen Where/When/Who + tombol Search',
+  bookVenue.includes("'Where'") &&
+    bookVenue.includes("'When'") &&
+    bookVenue.includes("'Who'") &&
+    bookVenue.includes('Search') &&
+    bookVenue.includes('Search destinations'),
+);
+cek(
+  'Airbnb: panel Where — Suggested destinations + Nearby + daftar kota satker',
+  bookVenue.includes('Suggested destinations') &&
+    bookVenue.includes('Nearby') &&
+    bookVenue.includes('around you') &&
+    bookVenue.includes('DAFTAR_SATKER'),
+);
+cek(
+  'Airbnb: panel When — toggle Dates/Flexible + kalender 2 bulan + Exact/±',
+  bookVenue.includes("'Dates'") &&
+    bookVenue.includes("'Flexible'") &&
+    bookVenue.includes('Exact dates') &&
+    bookVenue.includes('± 1 day') &&
+    bookVenue.includes('± 14 days') &&
+    bookVenue.includes('How long?'),
+);
+cek(
+  'Airbnb: panel Who — stepper peserta + dropdown occasion',
+  bookVenue.includes('Participants') &&
+    bookVenue.includes('How many people will attend?') &&
+    bookVenue.includes('Wedding / Reception') &&
+    bookVenue.includes('Concert / Performance'),
+);
+cek(
+  'Airbnb: Search menerapkan filter + pil ringkas + Clear filters',
+  bookVenue.includes('terapkanPencarian') &&
+    bookVenue.includes('labelRingkas') &&
+    bookVenue.includes('Clear filters') &&
+    bookVenue.includes('bersihkanFilter'),
+);
+cek(
+  'Airbnb: heading hasil "N venues in [kota]" / "Available venues"',
+  bookVenue.includes('Available venues') &&
+    bookVenue.includes("venue${hasil.length === 1 ? '' : 's'} in"),
+);
+cek(
+  'Airbnb: wishlist localStorage tanpa login (hati toggle + persist)',
+  bookVenue.includes("KUNCI_WISHLIST = 'rri-venue-wishlist'") &&
+    bookVenue.includes('localStorage.getItem(KUNCI_WISHLIST)') &&
+    bookVenue.includes('localStorage.setItem(KUNCI_WISHLIST,') &&
+    bookVenue.includes('toggleSimpan'),
+);
+cek(
+  'Airbnb: kartu — foto 4:3 + badge Client favourite + hati + rating ★',
+  bookVenue.includes('aspect-[4/3]') &&
+    bookVenue.includes('Client favourite') &&
+    bookVenue.includes('rating >= 4.9') &&
+    bookVenue.includes('toFixed(2)') &&
+    bookVenue.includes('Book this venue'),
+);
+cek(
+  'Airbnb: judul kartu "Auditorium in Palembang" + kapasitas + harga KB',
+  bookVenue.includes('judulVenue') &&
+    bookVenue.includes('Capacity') &&
+    bookVenue.includes('Price on request'),
+);
 
 // --- 4. Modul halaman baru. ---
 cek(
-  'BookVenue: form venue/tanggal/occasion/nama/kontak/email + referensi',
+  'BookVenue: form venue/tanggal/peserta/occasion/nama/kontak/email + referensi',
   bookVenue.includes('Book this venue') &&
     bookVenue.includes('Occasion') &&
+    bookVenue.includes('Participants') &&
+    bookVenue.includes('Select an occasion') &&
     bookVenue.includes('Your reference number is') &&
     bookVenue.includes('Back to Landing Page'),
+);
+cek(
+  'BookVenue: peserta + occasion terkirim sebagai jumlahPeserta',
+  bookVenue.includes('jumlahPeserta: peserta > 0 ? peserta : undefined'),
 );
 cek(
   'RentSpace: form space/nama/kontak/email/pesan + referensi',
@@ -186,12 +337,22 @@ cek(
 
 // --- 5. Tipe + store + firestoreStore. ---
 cek(
-  'types: 5 field opsional di PermintaanLayanan',
+  'types: 6 field opsional di PermintaanLayanan (termasuk jumlahPeserta)',
   types.includes('layanan?: string') &&
     types.includes('tanggalLayanan?: string') &&
     types.includes('keperluan?: string') &&
     types.includes('kontak?: string') &&
-    types.includes('email?: string'),
+    types.includes('email?: string') &&
+    types.includes('jumlahPeserta?: number'),
+);
+cek(
+  'store: input venue membawa jumlahPeserta opsional',
+  store.includes('jumlahPeserta?: number'),
+);
+cek(
+  'App: handler venue menulis jumlahPeserta + validasi',
+  app.includes('jumlahPeserta: input.jumlahPeserta') &&
+    app.includes('Participants is not valid.'),
 );
 cek(
   'store: 3 interface input publik ada',
@@ -216,9 +377,11 @@ cek(
     sales.includes('<Th>Status</Th>'),
 );
 cek(
-  'Sales: rincianPermintaan menampilkan layanan + tanggal + keperluan',
+  'Sales: rincianPermintaan menampilkan layanan + tanggal + keperluan + peserta',
   sales.includes('function rincianPermintaan') &&
-    sales.includes("join(' · ')"),
+    sales.includes("join(' · ')") &&
+    sales.includes('jumlahPeserta') &&
+    sales.includes('participant'),
 );
 cek(
   'Sales: teks kosong 3 tabel diperbarui (form sudah hidup)',
@@ -256,6 +419,10 @@ cek(
 cek(
   'Rules: regex tanggal memakai escape ganda yang benar (2 backslash, bukan 4)',
   !rules.includes('\\\\\\\\d') && rules.includes('\\\\d{4}'),
+);
+cek(
+  'Rules: TIDAK ada hasOnly — field opsional jumlahPeserta tidak butuh perubahan rules',
+  !rules.includes('hasOnly'),
 );
 
 // --- Ringkasan. ---

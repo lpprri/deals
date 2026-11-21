@@ -1616,14 +1616,18 @@ export function TabOrder({ data, user, actions, cari }: ModulProps) {
 
 /**
  * Rincian permintaan untuk kolom Details (halaman layanan tambahan,
- * 2026-11-21): nama layanan + tanggal layanan (dd/mm/yyyy) + keperluan,
- * dipisah ' · '; '—' bila tidak ada detail (baris lama tanpa detail).
+ * 2026-11-21): nama layanan + tanggal layanan (dd/mm/yyyy) + keperluan +
+ * jumlah peserta (booking venue), dipisah ' · '; '—' bila tidak ada detail
+ * (baris lama tanpa detail).
  */
 function rincianPermintaan(r: PermintaanLayananItem): string {
   const bagian = [
     r.layanan,
     r.tanggalLayanan ? formatTanggal(r.tanggalLayanan) : undefined,
     r.keperluan,
+    r.jumlahPeserta
+      ? `${r.jumlahPeserta} participant${r.jumlahPeserta > 1 ? 's' : ''}`
+      : undefined,
   ].filter((b): b is string => Boolean(b));
   return bagian.length > 0 ? bagian.join(' · ') : '—';
 }

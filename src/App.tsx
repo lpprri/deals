@@ -1042,6 +1042,12 @@ export default function App() {
     if (!input.email.trim()) return { galat: 'Email is required.' };
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(input.email.trim()))
       return { galat: 'Email format is not valid.' };
+    if (
+      input.jumlahPeserta !== undefined &&
+      (!Number.isInteger(input.jumlahPeserta) || input.jumlahPeserta < 1)
+    ) {
+      return { galat: 'Participants is not valid.' };
+    }
     const id = idBerikutnya('VBR-', data.venueBookOrder.map((r) => r.id));
     const permintaan: PermintaanLayanan = {
       id,
@@ -1054,6 +1060,7 @@ export default function App() {
       keperluan: input.keperluan.trim(),
       kontak: input.kontak.trim(),
       email: input.email.trim(),
+      jumlahPeserta: input.jumlahPeserta,
     };
     setData((d) => ({
       ...d,
