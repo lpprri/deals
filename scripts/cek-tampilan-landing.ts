@@ -1015,16 +1015,16 @@ cek(
 cek(
   'Footer: "Track your Deal" membuka halaman Lacak via prop onLacak (pola onLogin) — bukan gulirKe',
   marklo.includes('onLacak: () => void') &&
-    marklo.includes('<Footer onLacak={onLacak} onComingSoon={onComingSoon} onPlanCampaign={onPlanCampaign} />') &&
-    marklo.includes('function Footer({ onLacak, onComingSoon, onPlanCampaign }') &&
+    marklo.includes('<Footer onLacak={onLacak} onComingSoon={onComingSoon} onPlanCampaign={onPlanCampaign} onBookVenue={onBookVenue} onRentSpace={onRentSpace} onTraining={onTraining} />') &&
+    marklo.includes('function Footer({ onLacak, onComingSoon, onPlanCampaign, onBookVenue, onRentSpace, onTraining }') &&
     footerMarklo.includes("label: 'Track your Deal'") &&
     footerMarklo.includes('onLacak()'),
 );
 cek(
   'Footer: "Plan a Campaign" membuka halaman Plan a Campaign via prop onPlanCampaign (pola onLacak) — BUKAN gulirKe booking (permintaan pengguna 2026-11-19 08:33 WIB)',
   marklo.includes('onPlanCampaign: () => void') &&
-    marklo.includes('<Footer onLacak={onLacak} onComingSoon={onComingSoon} onPlanCampaign={onPlanCampaign} />') &&
-    marklo.includes('function Footer({ onLacak, onComingSoon, onPlanCampaign }') &&
+    marklo.includes('<Footer onLacak={onLacak} onComingSoon={onComingSoon} onPlanCampaign={onPlanCampaign} onBookVenue={onBookVenue} onRentSpace={onRentSpace} onTraining={onTraining} />') &&
+    marklo.includes('function Footer({ onLacak, onComingSoon, onPlanCampaign, onBookVenue, onRentSpace, onTraining }') &&
     footerMarklo.includes("label: 'Plan a Campaign'") &&
     footerMarklo.includes("aksi: 'plan-campaign'") &&
     footerMarklo.includes('onPlanCampaign()') &&
@@ -1048,13 +1048,19 @@ cek(
     planCampaign.includes('Plan a Campaign'),
 );
 cek(
-  'Footer: keenam item "Additional Service" membuka halaman "Coming Soon" via prop onComingSoon (pola onLacak) — BUKAN gulirKe booking; halaman Coming Soon gaya login page, TANPA logo (permintaan pengguna 2026-11-18 21:19–21:21 WIB)',
+  'Footer: tiga item "Additional Service" (Book a Venue, Rent a Space, Get a Journalism Training) membuka halaman aslinya via prop baru; tiga sisanya tetap "Coming Soon" via onComingSoon (perubahan 2026-11-21; halaman Coming Soon gaya login page, TANPA logo; permintaan pengguna 2026-11-18 21:19–21:21 WIB)',
   marklo.includes('onComingSoon: () => void') &&
-    marklo.includes('<Footer onLacak={onLacak} onComingSoon={onComingSoon} onPlanCampaign={onPlanCampaign} />') &&
-    marklo.includes('function Footer({ onLacak, onComingSoon, onPlanCampaign }') &&
+    marklo.includes('<Footer onLacak={onLacak} onComingSoon={onComingSoon} onPlanCampaign={onPlanCampaign} onBookVenue={onBookVenue} onRentSpace={onRentSpace} onTraining={onTraining} />') &&
+    marklo.includes('function Footer({ onLacak, onComingSoon, onPlanCampaign, onBookVenue, onRentSpace, onTraining }') &&
     footerMarklo.includes("label: 'Support our Event'") &&
+    footerMarklo.includes("label: 'Book a Venue'") &&
+    footerMarklo.includes('onClick: onBookVenue') &&
+    footerMarklo.includes("label: 'Rent a Space'") &&
+    footerMarklo.includes('onClick: onRentSpace') &&
+    footerMarklo.includes("label: 'Get a Journalism Training'") &&
+    footerMarklo.includes('onClick: onTraining') &&
     footerMarklo.includes("label: 'Invite as Media Partner'") &&
-    footerMarklo.includes('onClick={onComingSoon}') &&
+    footerMarklo.includes('onClick: onComingSoon') &&
     !footerMarklo
       .slice(
         footerMarklo.indexOf('Additional Service'),

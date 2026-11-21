@@ -95,6 +95,9 @@ import {
   cekSudahDimigrasi,
   kirimBookingPublik as kirimBookingPublikKeFirestore,
   kirimPengajuanPublik as kirimPengajuanPublikKeFirestore,
+  kirimPermintaanSpacePublik as kirimPermintaanSpacePublikKeFirestore,
+  kirimPermintaanTrainingPublik as kirimPermintaanTrainingPublikKeFirestore,
+  kirimPermintaanVenuePublik as kirimPermintaanVenuePublikKeFirestore,
   muatDariFirestore,
   muatDataKlien,
   simpanDokumen,
@@ -148,6 +151,7 @@ import type {
   Order,
   Pengajuan as PengajuanData,
   PengajuanKlien,
+  PermintaanLayanan,
   Pesan,
   Prospect,
   Quotation,
@@ -177,6 +181,9 @@ import type {
   PembayaranInput,
   PengajuanInput,
   PengajuanPublikInput,
+  PermintaanSpacePublikInput,
+  PermintaanTrainingPublikInput,
+  PermintaanVenuePublikInput,
   PesanInput,
   ProspectInput,
   QuotationInput,
@@ -190,6 +197,9 @@ import MarkloLanding from './modules/landing/Marklo';
 import Lacak from './modules/Lacak';
 import ComingSoon from './modules/ComingSoon';
 import PlanCampaign from './modules/PlanCampaign';
+import BookVenue from './modules/BookVenue';
+import RentSpace from './modules/RentSpace';
+import Training from './modules/Training';
 import Ajukan from './modules/Ajukan';
 import Dashboard from './modules/Dashboard';
 import Deals from './modules/Deals';
@@ -712,7 +722,7 @@ export default function App() {
   const [galatMuat, setGalatMuat] = useState<string | null>(null);
   const [peringatanSimpan, setPeringatanSimpan] = useState<string | null>(null);
   /** Halaman publik tanpa login (lacak/ajukan) saat belum masuk. */
-  const [halamanPublik, setHalamanPublik] = useState<'beranda' | 'login' | 'lacak' | 'ajukan' | 'coming-soon' | 'plan-campaign'>('beranda');
+  const [halamanPublik, setHalamanPublik] = useState<'beranda' | 'login' | 'lacak' | 'ajukan' | 'coming-soon' | 'plan-campaign' | 'book-venue' | 'rent-space' | 'training'>('beranda');
   // Prefill form Ajukan dari landing page DIHAPUS sementara (PR
   // landing-marklo-clone): landing baru belum memanggil Ajukan; state
   // ajukanAwal + prop prefill akan dipasang lagi pada putaran penyesuaian.
@@ -1003,6 +1013,164 @@ export default function App() {
     return null;
   };
 
+  /**
+   * Kirim permintaan booking venue publik dari halaman "Book a Venue"
+   * (2026-11-21): pengunjung memilih venue + tanggal lalu menyampaikan
+   * occasion. Didefinisikan SEBELUM cabang `if (!user)` karena dipakai
+   * halaman publik saat belum login. Permintaan disimpan sebagai dokumen
+   * PermintaanLayanan (koleksi 'venueBookOrder', id 'VBR-…') agar muncul
+   * di tabel Venue Book Order panel admin. Mengembalikan { galat, id } —
+   * id = nomor referensi yang ditampilkan ke pengunjung (pola
+   * kirimPengajuanPublik). Audit TIDAK ditulis di sini (audit hanya sesi
+   * Operator). Bila mode Firestore aktif, tulis juga ke Firestore (gate
+   * isFirebaseConfigured seperti kirimPengajuanPublik); bila tulis itu
+   * gagal, kembalikan pesan error (jangan menelan diam-diam).
+   */
+  const kirimPermintaanVenuePublik = async (
+    input: PermintaanVenuePublikInput,
+  ): Promise<{ galat: string | null; id?: string }> => {
+    if (!input.venue.trim()) return { galat: 'Venue is required.' };
+    if (
+      !input.tanggal.trim() ||
+      !/^\d{4}-\d{2}-\d{2}$/.test(input.tanggal.trim())
+    ) {
+      return { galat: 'Booking date is not valid.' };
+    }
+    if (!input.keperluan.trim()) return { galat: 'Occasion is required.' };
+    if (!input.nama.trim()) return { galat: 'Name is required.' };
+    if (!input.kontak.trim()) return { galat: 'Contact is required.' };
+    if (!input.email.trim()) return { galat: 'Email is required.' };
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(input.email.trim()))
+      return { galat: 'Email format is not valid.' };
+    const id = idBerikutnya('VBR-', data.venueBookOrder.map((r) => r.id));
+    const permintaan: PermintaanLayanan = {
+      id,
+      namaKlien: input.nama.trim(),
+      tanggalPermintaan: hariIniIso(),
+      status: 'Baru',
+      satker: SATKER_PILOT,
+      layanan: input.venue.trim(),
+      tanggalLayanan: input.tanggal.trim(),
+      keperluan: input.keperluan.trim(),
+      kontak: input.kontak.trim(),
+      email: input.email.trim(),
+    };
+    setData((d) => ({
+      ...d,
+      venueBookOrder: [...d.venueBookOrder, permintaan],
+    }));
+    if (isFirebaseConfigured && db) {
+      try {
+        await kirimPermintaanVenuePublikKeFirestore(db, permintaan);
+      } catch (e) {
+        console.error(
+          'Gagal menyimpan permintaan venue ke Firestore:',
+          e,
+        );
+        return { galat: 'Request recorded locally, but failed to save to Firestore — contact the Operator.' };
+      }
+    }
+    return { galat: null, id };
+  };
+
+  /**
+   * Kirim inquiry lahan publik dari halaman "Rent a Space" (2026-11-21):
+   * pengunjung memilih lahan lalu mengirim inquiry ("chat ke admin" yang
+   * dimaksud pengguna — chat client→admin TIDAK ADA di aplikasi).
+   * Pola sama dengan kirimPermintaanVenuePublik; koleksi
+   * 'spaceRentOrder', id 'SRR-…'; pesan inquiry opsional.
+   */
+  const kirimPermintaanSpacePublik = async (
+    input: PermintaanSpacePublikInput,
+  ): Promise<{ galat: string | null; id?: string }> => {
+    if (!input.space.trim()) return { galat: 'Space is required.' };
+    if (!input.nama.trim()) return { galat: 'Name is required.' };
+    if (!input.kontak.trim()) return { galat: 'Contact is required.' };
+    if (!input.email.trim()) return { galat: 'Email is required.' };
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(input.email.trim()))
+      return { galat: 'Email format is not valid.' };
+    const id = idBerikutnya('SRR-', data.spaceRentOrder.map((r) => r.id));
+    const permintaan: PermintaanLayanan = {
+      id,
+      namaKlien: input.nama.trim(),
+      tanggalPermintaan: hariIniIso(),
+      status: 'Baru',
+      satker: SATKER_PILOT,
+      layanan: input.space.trim(),
+      keperluan: input.pesan?.trim() || undefined,
+      kontak: input.kontak.trim(),
+      email: input.email.trim(),
+    };
+    setData((d) => ({
+      ...d,
+      spaceRentOrder: [...d.spaceRentOrder, permintaan],
+    }));
+    if (isFirebaseConfigured && db) {
+      try {
+        await kirimPermintaanSpacePublikKeFirestore(db, permintaan);
+      } catch (e) {
+        console.error(
+          'Gagal menyimpan inquiry lahan ke Firestore:',
+          e,
+        );
+        return { galat: 'Request recorded locally, but failed to save to Firestore — contact the Operator.' };
+      }
+    }
+    return { galat: null, id };
+  };
+
+  /**
+   * Kirim pendaftaran course publik dari halaman "Get a Journalism
+   * Training" (2026-11-21): pengunjung memilih Scheduled Course lalu
+   * mendaftar sebagai peserta. Pola sama dengan
+   * kirimPermintaanVenuePublik; koleksi 'trainingOrder', id 'TRN-…';
+   * tanggalLayanan = tanggal jadwal course yang dipilih.
+   */
+  const kirimPermintaanTrainingPublik = async (
+    input: PermintaanTrainingPublikInput,
+  ): Promise<{ galat: string | null; id?: string }> => {
+    if (!input.course.trim()) return { galat: 'Course is required.' };
+    if (
+      !input.tanggalCourse.trim() ||
+      !/^\d{4}-\d{2}-\d{2}$/.test(input.tanggalCourse.trim())
+    ) {
+      return { galat: 'Course date is not valid.' };
+    }
+    if (!input.nama.trim()) return { galat: 'Name is required.' };
+    if (!input.email.trim()) return { galat: 'Email is required.' };
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(input.email.trim()))
+      return { galat: 'Email format is not valid.' };
+    if (!input.telepon.trim()) return { galat: 'Phone is required.' };
+    const id = idBerikutnya('TRN-', data.trainingOrder.map((r) => r.id));
+    const permintaan: PermintaanLayanan = {
+      id,
+      namaKlien: input.nama.trim(),
+      tanggalPermintaan: hariIniIso(),
+      status: 'Baru',
+      satker: SATKER_PILOT,
+      layanan: input.course.trim(),
+      tanggalLayanan: input.tanggalCourse.trim(),
+      kontak: input.telepon.trim(),
+      email: input.email.trim(),
+    };
+    setData((d) => ({
+      ...d,
+      trainingOrder: [...d.trainingOrder, permintaan],
+    }));
+    if (isFirebaseConfigured && db) {
+      try {
+        await kirimPermintaanTrainingPublikKeFirestore(db, permintaan);
+      } catch (e) {
+        console.error(
+          'Gagal menyimpan pendaftaran training ke Firestore:',
+          e,
+        );
+        return { galat: 'Request recorded locally, but failed to save to Firestore — contact the Operator.' };
+      }
+    }
+    return { galat: null, id };
+  };
+
   if (!user) {
     if (halamanPublik === 'beranda') {
       // Landing page tiruan template Marklo (PR landing-marklo-clone).
@@ -1017,6 +1185,9 @@ export default function App() {
           onLacak={() => setHalamanPublik('lacak')}
           onComingSoon={() => setHalamanPublik('coming-soon')}
           onPlanCampaign={() => setHalamanPublik('plan-campaign')}
+          onBookVenue={() => setHalamanPublik('book-venue')}
+          onRentSpace={() => setHalamanPublik('rent-space')}
+          onTraining={() => setHalamanPublik('training')}
           onKirimBooking={kirimBookingPublik}
         />
       );
@@ -1065,6 +1236,50 @@ export default function App() {
           onKembali={() => {
             setHalamanPublik('beranda');
           }}
+        />
+      );
+    }
+    if (halamanPublik === 'book-venue') {
+      // Halaman "Book a Venue" (permintaan pengguna 2026-11-21):
+      // daftar venue + form booking (venue, tanggal, occasion, nama,
+      // kontak, email) — dibuka dari footer "Additional Service".
+      // Submit → tabel Venue Book Order panel admin (id 'VBR-…').
+      // Data dummy dulu; harga hanya tarif KB PP 68/2020.
+      return (
+        <BookVenue
+          onKembali={() => {
+            setHalamanPublik('beranda');
+          }}
+          onKirim={kirimPermintaanVenuePublik}
+        />
+      );
+    }
+    if (halamanPublik === 'rent-space') {
+      // Halaman "Rent a Space" (permintaan pengguna 2026-11-21):
+      // daftar lahan + form inquiry — dibuka dari footer "Additional
+      // Service". Submit → tabel Space Rent Order panel admin
+      // (id 'SRR-…'). Data dummy dulu; harga "Price on request".
+      return (
+        <RentSpace
+          onKembali={() => {
+            setHalamanPublik('beranda');
+          }}
+          onKirim={kirimPermintaanSpacePublik}
+        />
+      );
+    }
+    if (halamanPublik === 'training') {
+      // Halaman "Get a Journalism Training" (permintaan pengguna
+      // 2026-11-21): daftar Scheduled Course + form registrasi —
+      // dibuka dari footer "Additional Service". Submit → tabel
+      // Training Order panel admin (id 'TRN-…'). Data dummy dulu;
+      // harga hanya tarif KB PP 68/2020.
+      return (
+        <Training
+          onKembali={() => {
+            setHalamanPublik('beranda');
+          }}
+          onKirim={kirimPermintaanTrainingPublik}
         />
       );
     }

@@ -213,15 +213,15 @@ cek(
 const tabelLayanan: [string, string][] = [
   [
     'Venue Book Order',
-    'No venue booking orders yet. Requests from the Book a Venue form will appear here once it is available.',
+    'No venue booking orders yet. Requests from the Book a Venue form will appear here.',
   ],
   [
     'Space Rent Order',
-    'No space rental orders yet. Requests from the Rent a Space form will appear here once it is available.',
+    'No space rental orders yet. Requests from the Rent a Space form will appear here.',
   ],
   [
     'Training Order',
-    'No journalism training orders yet. Requests from the Get a Journalism Training form will appear here once it is available.',
+    'No journalism training orders yet. Requests from the Get a Journalism Training form will appear here.',
   ],
   [
     'Media Partner Order',

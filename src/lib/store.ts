@@ -121,6 +121,64 @@ export interface BookingPublikInput {
   topik: string;
 }
 
+/**
+ * Input permintaan booking venue dari halaman publik "Book a Venue"
+ * (2026-11-21): pengunjung memilih venue + tanggal lalu menyampaikan
+ * occasion/keperluan. Ditulis sebagai PermintaanLayanan (koleksi
+ * 'venueBookOrder', id 'VBR-…').
+ */
+export interface PermintaanVenuePublikInput {
+  /** Nama venue yang dipilih, mis. 'Auditorium'. */
+  venue: string;
+  /** Tanggal booking, 'yyyy-mm-dd'. */
+  tanggal: string;
+  /** Occasion/keperluan penggunaan venue. */
+  keperluan: string;
+  /** Nama pengunjung. */
+  nama: string;
+  /** Kontak pengunjung (WA/telepon). */
+  kontak: string;
+  /** Email pengunjung. */
+  email: string;
+}
+
+/**
+ * Input inquiry lahan dari halaman publik "Rent a Space" (2026-11-21):
+ * pengunjung memilih lahan lalu mengirim inquiry. Ditulis sebagai
+ * PermintaanLayanan (koleksi 'spaceRentOrder', id 'SRR-…').
+ */
+export interface PermintaanSpacePublikInput {
+  /** Nama lahan yang dipilih, mis. 'Open Land — Kenten'. */
+  space: string;
+  /** Nama pengunjung. */
+  nama: string;
+  /** Kontak pengunjung (WA/telepon). */
+  kontak: string;
+  /** Email pengunjung. */
+  email: string;
+  /** Pesan inquiry (opsional). */
+  pesan?: string;
+}
+
+/**
+ * Input pendaftaran dari halaman publik "Get a Journalism Training"
+ * (2026-11-21): pengunjung memilih Scheduled Course lalu mendaftar
+ * sebagai peserta. Ditulis sebagai PermintaanLayanan (koleksi
+ * 'trainingOrder', id 'TRN-…').
+ */
+export interface PermintaanTrainingPublikInput {
+  /** Judul course yang dipilih. */
+  course: string;
+  /** Tanggal jadwal course yang dipilih, 'yyyy-mm-dd'. */
+  tanggalCourse: string;
+  /** Nama pengunjung. */
+  nama: string;
+  /** Email pengunjung. */
+  email: string;
+  /** Telepon pengunjung. */
+  telepon: string;
+}
+
 export interface DendaInput {
   tagihanId: string;
   dasar: string;
