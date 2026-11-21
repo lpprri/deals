@@ -149,10 +149,13 @@ cek(
 
 // --- Asersi panel Order — enam tabel (PR #115, 19/11/2026). ---
 // Urutan: Manual Order, Ads Quotation Request, Venue Book Order,
-// Space Rent Order, Training Order, Media Partner Order. Manual Order
+// Space Rent Order, Training Order, Partnership Request. Manual Order
 // adalah tabel Order yang sudah ada (judul saja yang berubah); lima
 // tabel baru mulai kosong dengan empty state jujur; TIDAK ada tabel
 // untuk Support our Event / Collaborate with Us.
+// "Partnership Request" diganti nama dari "Media Partner Order"
+// 2026-11-21 (halaman "Partner with RRI"; koleksi diganti nama dari
+// mediaPartnerOrder — seed kosong, tanpa data yang dipindah).
 const tabOrder = sales.slice(sales.indexOf('export function TabOrder('));
 const types = baca('src/lib/types.ts');
 const store = baca('src/lib/firestoreStore.ts');
@@ -167,11 +170,11 @@ const urutanJudul = [
   'Venue Book Order',
   'Space Rent Order',
   'Training Order',
-  'Media Partner Order',
+  'Partnership Request',
 ];
 const posisiJudul = urutanJudul.map((j) => tabOrder.indexOf(j));
 cek(
-  'panel Order: enam judul tabel berurutan (Manual, Ads Quotation Request, Venue, Space, Training, Media Partner)',
+  'panel Order: enam judul tabel berurutan (Manual, Ads Quotation Request, Venue, Space, Training, Partnership Request)',
   posisiJudul.every((p) => p >= 0) &&
     posisiJudul.every((p, i) => i === 0 || p > posisiJudul[i - 1]),
   posisiJudul.join(', '),
@@ -224,8 +227,8 @@ const tabelLayanan: [string, string][] = [
     'No journalism training orders yet. Requests from the Get a Journalism Training form will appear here.',
   ],
   [
-    'Media Partner Order',
-    'No media partner orders yet. Requests from the Invite as Media Partner form will appear here once it is available.',
+    'Partnership Request',
+    'No partnership requests yet. Requests from the Partner with RRI form will appear here.',
   ],
 ];
 for (const [judul, kosong] of tabelLayanan) {
@@ -257,7 +260,7 @@ cek(
     tabOrder.includes('data.venueBookOrder.filter') &&
     tabOrder.includes('data.spaceRentOrder.filter') &&
     tabOrder.includes('data.trainingOrder.filter') &&
-    tabOrder.includes('data.mediaPartnerOrder.filter'),
+    tabOrder.includes('data.partnershipRequest.filter'),
 );
 cek(
   'types: AdsQuotationRequest + PermintaanLayanan + StatusPermintaan + 5 kunci AppData',
@@ -268,7 +271,7 @@ cek(
     types.includes('venueBookOrder: PermintaanLayanan[];') &&
     types.includes('spaceRentOrder: PermintaanLayanan[];') &&
     types.includes('trainingOrder: PermintaanLayanan[];') &&
-    types.includes('mediaPartnerOrder: PermintaanLayanan[];'),
+    types.includes('partnershipRequest: PermintaanLayanan[];'),
 );
 cek(
   'firestoreStore: KOLEKSI memetakan 5 koleksi baru',
@@ -277,7 +280,7 @@ cek(
     'venueBookOrder',
     'spaceRentOrder',
     'trainingOrder',
-    'mediaPartnerOrder',
+    'partnershipRequest',
   ].every((k) => store.includes(`${k}: '${k}',`)),
 );
 cek(
@@ -287,7 +290,7 @@ cek(
     'venueBookOrder: [],',
     'spaceRentOrder: [],',
     'trainingOrder: [],',
-    'mediaPartnerOrder: [],',
+    'partnershipRequest: [],',
   ].every((s) => seed.includes(s) && contoh.includes(s)),
 );
 cek(
@@ -297,7 +300,7 @@ cek(
     'venueBookOrder',
     'spaceRentOrder',
     'trainingOrder',
-    'mediaPartnerOrder',
+    'partnershipRequest',
   ].every((k) => rules.includes(`'${k}'`)),
 );
 cek(

@@ -1450,8 +1450,8 @@ export function TabOrder({ data, user, actions, cari }: ModulProps) {
   const trainingTersaring = data.trainingOrder.filter((r) =>
     cocokCari(`${r.id} ${r.namaKlien} ${r.status}`),
   );
-  const mediaPartnerTersaring = data.mediaPartnerOrder.filter((r) =>
-    cocokCari(`${r.id} ${r.namaKlien} ${r.status}`),
+  const partnershipTersaring = data.partnershipRequest.filter((r) =>
+    cocokCari(`${r.id} ${r.namaKlien} ${r.institusi ?? ''} ${r.status}`),
   );
 
   const orderTerpilih = orderIdTerpilih
@@ -1601,14 +1601,15 @@ export function TabOrder({ data, user, actions, cari }: ModulProps) {
         teksKosong="No journalism training orders yet. Requests from the Get a Journalism Training form will appear here."
       />
 
-      {/* Media Partner Order — permintaan Invite as Media Partner.
-          Form-nya masih Coming Soon, jadi tabel mulai kosong (empty state
-          jujur). TIDAK ada tabel untuk dua item Additional Service
-          lainnya (keputusan pengguna 19/11/2026). */}
+      {/* Partnership Request — permintaan dari form Partnership Request
+          halaman "Partner with RRI" (2026-11-21; diganti nama dari
+          "Media Partner Order", koleksi diganti nama dari
+          mediaPartnerOrder — seed kosong, tanpa data yang dipindah).
+          Empty state jujur sampai ada permintaan masuk. */}
       <TabelPermintaanLayanan
-        judul="Media Partner Order"
-        daftar={mediaPartnerTersaring}
-        teksKosong="No media partner orders yet. Requests from the Invite as Media Partner form will appear here once it is available."
+        judul="Partnership Request"
+        daftar={partnershipTersaring}
+        teksKosong="No partnership requests yet. Requests from the Partner with RRI form will appear here."
       />
     </div>
   );
@@ -1616,9 +1617,9 @@ export function TabOrder({ data, user, actions, cari }: ModulProps) {
 
 /**
  * Rincian permintaan untuk kolom Details (halaman layanan tambahan,
- * 2026-11-21): nama layanan + tanggal layanan (dd/mm/yyyy) + keperluan +
- * jumlah peserta (booking venue), dipisah ' · '; '—' bila tidak ada detail
- * (baris lama tanpa detail).
+ * 2026-11-21): nama layanan + institusi (Partnership Request) + tanggal
+ * layanan (dd/mm/yyyy) + keperluan + jumlah peserta (booking venue),
+ * dipisah ' · '; '—' bila tidak ada detail (baris lama tanpa detail).
  */
 function rincianPermintaan(r: PermintaanLayananItem): string {
   const tanggal =
@@ -1629,6 +1630,7 @@ function rincianPermintaan(r: PermintaanLayananItem): string {
         : undefined;
   const bagian = [
     r.layanan,
+    r.institusi,
     tanggal,
     r.keperluan,
     r.jumlahPeserta
@@ -1640,7 +1642,7 @@ function rincianPermintaan(r: PermintaanLayananItem): string {
 
 /**
  * Tabel permintaan layanan (PR #115) — dipakai keempat tabel layanan panel
- * Order (Venue Book, Space Rent, Training, Media Partner). Kolom: Request
+ * Order (Venue Book, Space Rent, Training, Partnership Request). Kolom: Request
  * ID / Client / Details / Request Date / Status. Kolom Details (baru
  * 2026-11-21) menampilkan detail permintaan dari form publiknya; empat
  * kolom lama TIDAK berubah. TANPA tombol create — baris hanya muncul

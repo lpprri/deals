@@ -476,24 +476,28 @@ export interface AdsQuotationRequest {
 
 /**
  * Permintaan layanan dari form Coming Soon (Book a Venue / Rent a Space /
- * Get a Journalism Training / Invite as Media Partner) — panel Order,
+ * Get a Journalism Training / Partner with RRI) — panel Order,
  * enam tabel (PR #115). Keempat tabel memakai interface yang sama;
  * koleksinya berbeda (venueBookOrder, spaceRentOrder, trainingOrder,
- * mediaPartnerOrder). TANPA data contoh.
+ * partnershipRequest). TANPA data contoh.
  *
  * Sejak halaman layanan tambahan (2026-11-21): tiga form publik sudah
  * hidup (Book a Venue, Rent a Space, Get a Journalism Training) dan
  * menulis detail permintaan ke field OPSIONAL di bawah — opsional supaya
  * baris lama (tanpa detail) tetap jalan; tabel Order menampilkan detail
- * di kolom Details.
+ * di kolom Details. Form Partnership Request (2026-11-21) menulis
+ * institusi pemohon ke field `institusi` (opsional di tipe — tabel lain
+ * tidak memakainya).
  */
 export interface PermintaanLayanan {
-  /** Id permintaan, mis. 'VBR-...', 'SRR-...', 'TRN-...', 'MPR-...'. */
+  /** Id permintaan, mis. 'VBR-...', 'SRR-...', 'TRN-...', 'PTR-...'. */
   id: string;
   namaKlien: string;
   tanggalPermintaan: string; // 'yyyy-mm-dd'
   status: StatusPermintaan;
   satker: SatkerRef;
+  /** Institusi/organisasi pemohon (form Partnership Request). */
+  institusi?: string;
   /** Nama venue / lahan / course yang dipilih. */
   layanan?: string;
   /** Tanggal layanan yang diminta / tanggal jadwal course, 'yyyy-mm-dd'. */
@@ -841,14 +845,17 @@ export interface AppData {
   // Panel Order — enam tabel (PR #115, 19/11/2026): `order` di atas adalah
   // "Manual Order"; lima tabel baru di bawah mulai kosong — Ads Quotation
   // Request diisi webhook Tally (PR terpisah, butuh Blaze), empat tabel
-  // layanan diisi form Coming Soon (Book a Venue, Rent a Space, Get a
-  // Journalism Training, Invite as Media Partner). TIDAK ada tabel untuk
+  // layanan diisi form publik (Book a Venue, Rent a Space, Get a
+  // Journalism Training, Partner with RRI — tabel terakhir diganti nama
+  // dari "Media Partner Order" 2026-11-21, koleksi diganti nama dari
+  // mediaPartnerOrder ke partnershipRequest, tanpa data yang dipindah
+  // karena seed-nya kosong). TIDAK ada tabel untuk
   // Support our Event / Collaborate with Us.
   adsQuotationRequest: AdsQuotationRequest[];
   venueBookOrder: PermintaanLayanan[];
   spaceRentOrder: PermintaanLayanan[];
   trainingOrder: PermintaanLayanan[];
-  mediaPartnerOrder: PermintaanLayanan[];
+  partnershipRequest: PermintaanLayanan[];
   // Memorandum of Understanding (impor MoU 19/11/2026): 44 record dari
   // file pengguna — data tersendiri, BUKAN kontrak (total PNBP tidak
   // berubah). Panel MoU membaca koleksi ini; sebelum migrasi MoU

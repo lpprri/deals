@@ -1,6 +1,6 @@
 // Verifikasi Learning Centre Fase 1 (hub + E-Learning) — spec
 // learning-centre-spec.md, disetujui pengguna 2026-11-21 15:35 WIB
-// (defaults: footer "Learning Centre", konten kursus English, video
+// (defaults: footer "Improve your Skill" (dulu "Learning Centre", diubah 2026-11-21), konten kursus English, video
 // player dummy, TANPA langganan dan TANPA My Learning di Fase 1).
 //
 // Asersi:
@@ -181,8 +181,8 @@ cek(
     app.includes("onELearning={() => setHalamanPublik('e-learning')}"),
 );
 cek(
-  "Marklo: footer 'Learning Centre' memakai onTraining",
-  marklo.includes("{ label: 'Learning Centre', onClick: onTraining }"),
+  "Marklo: footer 'Improve your Skill' memakai onTraining",
+  marklo.includes("{ label: 'Improve your Skill', onClick: onTraining }"),
 );
 
 // --- 6. Hub: tiga fitur + path populer + bootcamp + banner sertifikasi. ---

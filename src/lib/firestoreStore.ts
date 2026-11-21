@@ -81,7 +81,10 @@ export const KOLEKSI: Record<keyof AppData, string> = {
   venueBookOrder: 'venueBookOrder',
   spaceRentOrder: 'spaceRentOrder',
   trainingOrder: 'trainingOrder',
-  mediaPartnerOrder: 'mediaPartnerOrder',
+  // Panel Order — tabel "Partnership Request" (diganti nama dari
+  // "Media Partner Order" 2026-11-21; koleksi diganti nama dari
+  // mediaPartnerOrder — seed kosong, tanpa data yang dipindah).
+  partnershipRequest: 'partnershipRequest',
   // Memorandum of Understanding (impor MoU 19/11/2026): 44 record
   // dari file pengguna; ditulis ke Firestore lewat migrasi MoU
   // (src/lib/migrasiMou.ts) setelah PR ini merge.
@@ -457,6 +460,24 @@ export async function kirimPermintaanTrainingPublik(
 ): Promise<void> {
   await setDoc(
     doc(db, KOLEKSI.trainingOrder, permintaan.id),
+    bersihkanUndefined(permintaan),
+  );
+}
+
+/**
+ * Tulis satu permintaan kemitraan publik sebagai dokumen
+ * PermintaanLayanan ke Firestore (halaman "Partner with RRI",
+ * 2026-11-21: dipakai kirim publik tanpa login dari form Partnership
+ * Request; aturan Firestore mengizinkan create publik tervalidasi untuk
+ * koleksi ini — lihat blok publik partnershipRequest di
+ * firestore.rules). Pola sama dengan kirimBookingPublik.
+ */
+export async function kirimPermintaanPartnershipPublik(
+  db: Firestore,
+  permintaan: PermintaanLayanan,
+): Promise<void> {
+  await setDoc(
+    doc(db, KOLEKSI.partnershipRequest, permintaan.id),
     bersihkanUndefined(permintaan),
   );
 }

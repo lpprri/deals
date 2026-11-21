@@ -133,7 +133,7 @@ cek(
   marklo.includes("{ label: 'Book a Venue', onClick: onBookVenue }") &&
     marklo.includes("{ label: 'Rent a Space', onClick: onRentSpace }") &&
     marklo.includes(
-      "{ label: 'Learning Centre', onClick: onTraining }",
+      "{ label: 'Improve your Skill', onClick: onTraining }",
     ),
 );
 cek(
@@ -817,10 +817,10 @@ cek(
     rules.includes('match /trainingOrder/{id}'),
 );
 cek(
-  'Rules: ketiga blok hanya create publik tervalidasi',
-  hitung(rules, 'request.auth == null') >= 4 && // meeting + 3 baru
-    hitung(rules, "status == 'Baru'") === 3 &&
-    hitung(rules, "satker.kode == '41'") >= 3,
+  'Rules: keempat blok hanya create publik tervalidasi',
+  hitung(rules, 'request.auth == null') >= 5 && // meeting + 4 baru
+    hitung(rules, "status == 'Baru'") === 4 &&
+    hitung(rules, "satker.kode == '41'") >= 4,
 );
 cek(
   'Rules: blok /meeting tidak berubah (tanggal + email + peserta)',
