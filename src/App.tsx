@@ -1200,12 +1200,14 @@ export default function App() {
       // Komponen landing lama (Beranda.tsx + landing/*) tetap di repo,
       // tidak dipakai di route `/` untuk sementara — putaran penyesuaian
       // akan mengintegrasikan kembali Ajukan/statistik live/dua bahasa;
-      // Lacak SUDAH terhubung lewat footer "Track your Deal" (Client
-      // Portal) sejak PR footer-site-map-client-portal.
+      // Lacak: halaman publik tetap ada (state 'lacak' + modul Lacak),
+      // tapi sejak 2026-11-21 17:57 WIB tidak ada lagi tombol masuk dari
+      // landing — kolom footer "Client Portal" ("Track your Deal") DIHAPUS
+      // atas permintaan pengguna; prop onLacak di MarkloLanding ikut
+      // dihapus.
       return (
         <MarkloLanding
           onLogin={() => setHalamanPublik('login')}
-          onLacak={() => setHalamanPublik('lacak')}
           onComingSoon={() => setHalamanPublik('coming-soon')}
           onPlanCampaign={() => setHalamanPublik('plan-campaign')}
           onBookVenue={() => setHalamanPublik('book-venue')}

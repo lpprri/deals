@@ -861,6 +861,13 @@ cek(
 );
 
 // --- Ringkasan. ---
+// --- Latar: Rent a Space putih seperti Book a Venue (perintah user 2026-11-21 17:55 WIB). ---
+cek(
+  'Latar halaman: Rent a Space latar putih bg-white seperti Book a Venue (bg-white, BookVenue.tsx:1092) — bukan lagi abu #f5f2f2',
+  rentSpace.includes('relative min-h-screen overflow-hidden bg-white px-4 py-16') &&
+    !rentSpace.includes("bg-[#f5f2f2]"),
+);
+
 if (gagal > 0) {
   console.error(`\n${gagal} asersi GAGAL.`);
   process.exit(1);

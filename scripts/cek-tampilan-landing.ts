@@ -19,11 +19,14 @@
 //   tetap merah (fungsional), logo merek Instagram/TikTok/YouTube tetap
 //   warna merek.
 //   KECUALI footer: gradien navy RRI + logo putih + kolom "Site Map" /
-//   "Client Portal" / "Additional Service" + header seamless, atas
-//   permintaan eksplisit pengguna 2026-11-17 (PR landing-footer-navy-
-//   putih; judul kolom "Our Service") dan revisi 2026-11-18 (PR footer-
-//   site-map-client-portal: "Navigation" → "Site Map", kolom baru
-//   "Client Portal", "Our Service" → "Additional Service").
+//   "What to Do" + header seamless, atas permintaan eksplisit pengguna
+//   2026-11-17 (PR landing-footer-navy-putih; judul kolom "Our Service")
+//   dan revisi 2026-11-18 (PR footer-site-map-client-portal: "Navigation"
+//   → "Site Map", kolom baru "Client Portal", "Our Service" → "Additional
+//   Service") dan revisi 2026-11-21 17:57 WIB (kolom "Client Portal"
+//   DIHAPUS, "Additional Service" kembali jadi "Our Service", "Plan a
+//   Campaign" pindah ke "Our Service") dan revisi 2026-11-21 18:27 WIB
+//   (judul kolom "Our Service" diubah jadi "What to Do").
 //   KECUALI section Comparison + strip logo (PR #97): latar gradasi
 //   diagonal NAVY RRI (#1a3a8a -> #0D2569 -> #04122e, gaya gradasi latar
 //   gelap template, BUKAN maroon template — koreksi pengguna 15:48 WIB);
@@ -141,10 +144,10 @@ cek(
   app.includes("import MarkloLanding from './modules/landing/Marklo';"),
 );
 cek(
-  "App.tsx: beranda me-render <MarkloLanding onLogin + onLacak + onPlanCampaign + onKirimBooking />",
+  "App.tsx: beranda me-render <MarkloLanding onLogin + onPlanCampaign + onKirimBooking /> (prop onLacak DIHAPUS 2026-11-21 — kolom footer Client Portal dihapus, Lacak tanpa tombol masuk dari landing)",
   app.includes('<MarkloLanding') &&
     app.includes("onLogin={() => setHalamanPublik('login')}") &&
-    app.includes("onLacak={() => setHalamanPublik('lacak')}") &&
+    !app.includes("onLacak={() => setHalamanPublik('lacak')}") &&
     app.includes("onPlanCampaign={() => setHalamanPublik('plan-campaign')}") &&
     app.includes('onKirimBooking={kirimBookingPublik}'),
 );
@@ -968,17 +971,17 @@ cek(
     marklo.includes('className="h-9 w-auto shrink-0"'),
 );
 cek(
-  'Footer: urutan kolom "Site Map" < "Client Portal" < "Additional Service" < Contact — isi tiap kolom berurutan + "Our Service" hilang dari footer + "Book a Free Call" hilang dari footer',
-  footerMarklo.indexOf('Site Map') < footerMarklo.indexOf('Client Portal') &&
-    footerMarklo.indexOf('Client Portal') < footerMarklo.indexOf('Additional Service') &&
-    footerMarklo.indexOf('Additional Service') < footerMarklo.indexOf('Jl. Medan Merdeka Barat') &&
-    !footerMarklo.includes('Our Service') &&
+  'Footer: urutan kolom "Site Map" < "What to Do" < Contact — kolom "Client Portal" DIHAPUS, "Additional Service" kembali jadi "Our Service" lalu judul diubah jadi "What to Do" (perintah user 2026-11-21 17:57 + 18:27 WIB); isi tiap kolom berurutan + "Book a Free Call" hilang dari footer',
+  footerMarklo.indexOf('Site Map') < footerMarklo.indexOf('What to Do') &&
+    footerMarklo.indexOf('What to Do') < footerMarklo.indexOf('Jl. Medan Merdeka Barat') &&
+    !footerMarklo.includes('Client Portal') &&
+    !footerMarklo.includes('Additional Service') &&
     !footerMarklo.includes('Navigation') &&
     !footerMarklo.includes('Book a Free Call') &&
     (() => {
       const peta = footerMarklo.slice(
         footerMarklo.indexOf('Site Map'),
-        footerMarklo.indexOf('Client Portal'),
+        footerMarklo.indexOf('What to Do'),
       );
       return (
         peta.indexOf('About') < peta.indexOf('Service') &&
@@ -988,28 +991,19 @@ cek(
       );
     })() &&
     (() => {
-      const portal = footerMarklo.slice(
-        footerMarklo.indexOf('Client Portal'),
-        footerMarklo.indexOf('Additional Service'),
-      );
-      return (
-        portal.indexOf('Plan a Campaign') < portal.indexOf('Track your Deal') &&
-        !portal.includes('Book a Free Call')
-      );
-    })() &&
-    (() => {
       const layanan = footerMarklo.slice(
-        footerMarklo.indexOf('Additional Service'),
+        footerMarklo.indexOf('What to Do'),
         footerMarklo.indexOf('Jl. Medan Merdeka Barat'),
       );
       return (
+        layanan.indexOf('Plan a Campaign') < layanan.indexOf('Book a Venue') &&
         layanan.indexOf('Book a Venue') < layanan.indexOf('Rent a Space') &&
         layanan.indexOf('Rent a Space') < layanan.indexOf('Learning Centre') &&
         layanan.indexOf('Learning Centre') < layanan.indexOf('Join our Event') &&
         !layanan.includes('Collaborate with Us') &&
         !layanan.includes('Invite as Media Partner') &&
         !layanan.includes('Support our Event') &&
-        !layanan.includes('Plan a Campaign')
+        !layanan.includes('Track your Deal')
       );
     })(),
 );
@@ -1018,26 +1012,30 @@ cek(
   footerMarklo.includes('Partner with RRI') &&
     footerMarklo.includes('Handshake') &&
     footerMarklo.includes('bg-[#2573e2]') &&
-    footerMarklo.includes('onPlanCampaign()') &&
+    footerMarklo.includes('onClick={onPlanCampaign}') &&
     footerMarklo.indexOf('<ArrowUp') < footerMarklo.indexOf('<Handshake') &&
     marklo.includes('Handshake,'),
 );
 cek(
-  'Footer: "Track your Deal" membuka halaman Lacak via prop onLacak (pola onLogin) — bukan gulirKe',
-  marklo.includes('onLacak: () => void') &&
-    marklo.includes('<Footer onLacak={onLacak} onComingSoon={onComingSoon} onPlanCampaign={onPlanCampaign} onBookVenue={onBookVenue} onRentSpace={onRentSpace} onTraining={onTraining} />') &&
-    marklo.includes('function Footer({ onLacak, onComingSoon, onPlanCampaign, onBookVenue, onRentSpace, onTraining }') &&
-    footerMarklo.includes("label: 'Track your Deal'") &&
-    footerMarklo.includes('onLacak()'),
+  'Footer: "Track your Deal" + kolom "Client Portal" DIHAPUS (perintah user 2026-11-21 17:57 WIB) — footer tanpa onLacak; halaman Lacak TETAP ada di App.tsx (state lacak + modul Lacak), hanya tanpa tombol masuk dari landing',
+  !footerMarklo.includes('Track your Deal') &&
+    !footerMarklo.includes('Client Portal') &&
+    !footerMarklo.includes('onLacak') &&
+    !marklo.includes('onLacak: () => void') &&
+    !marklo.includes('onLacak={onLacak}') &&
+    app.includes("'beranda' | 'login' | 'lacak' | 'ajukan'") &&
+    app.includes("halamanPublik === 'lacak'") &&
+    app.includes('<Lacak'),
 );
 cek(
-  'Footer: "Plan a Campaign" membuka halaman Plan a Campaign via prop onPlanCampaign (pola onLacak) — BUKAN gulirKe booking (permintaan pengguna 2026-11-19 08:33 WIB)',
+  'Footer: "Plan a Campaign" (item PERTAMA "What to Do", pindah dari Client Portal 2026-11-21) membuka halaman Plan a Campaign via prop onPlanCampaign — BUKAN gulirKe booking (permintaan pengguna 2026-11-19 08:33 WIB)',
   marklo.includes('onPlanCampaign: () => void') &&
-    marklo.includes('<Footer onLacak={onLacak} onComingSoon={onComingSoon} onPlanCampaign={onPlanCampaign} onBookVenue={onBookVenue} onRentSpace={onRentSpace} onTraining={onTraining} />') &&
-    marklo.includes('function Footer({ onLacak, onComingSoon, onPlanCampaign, onBookVenue, onRentSpace, onTraining }') &&
+    marklo.includes('<Footer onComingSoon={onComingSoon} onPlanCampaign={onPlanCampaign} onBookVenue={onBookVenue} onRentSpace={onRentSpace} onTraining={onTraining} />') &&
+    marklo.includes('function Footer({ onComingSoon, onPlanCampaign, onBookVenue, onRentSpace, onTraining }') &&
     footerMarklo.includes("label: 'Plan a Campaign'") &&
-    footerMarklo.includes("aksi: 'plan-campaign'") &&
-    footerMarklo.includes('onPlanCampaign()') &&
+    footerMarklo.includes('onClick: onPlanCampaign') &&
+    footerMarklo.includes('onClick={onPlanCampaign}') &&
+    !footerMarklo.includes("aksi: 'plan-campaign'") &&
     !footerMarklo.includes("aksi: 'booking'") &&
     app.includes("onPlanCampaign={() => setHalamanPublik('plan-campaign')}") &&
     app.includes("halamanPublik === 'plan-campaign'"),
@@ -1058,10 +1056,12 @@ cek(
     planCampaign.includes('Plan a Campaign'),
 );
 cek(
-  'Footer: tiga item "Additional Service" (Book a Venue, Rent a Space, Learning Centre) membuka halaman aslinya via prop baru; "Join our Event" (dulu "Support our Event") tetap "Coming Soon" via onComingSoon; "Collaborate with Us" dan "Invite as Media Partner" DIHAPUS (perintah user 2026-11-21 16:17 WIB; halaman Coming Soon gaya login page, TANPA logo; permintaan pengguna 2026-11-18 21:19–21:21 WIB)',
+  'Footer: lima item "What to Do" (Plan a Campaign pertama, Book a Venue, Rent a Space, Learning Centre, Join our Event) — empat pertama membuka halaman aslinya via prop; "Join our Event" (dulu "Support our Event") tetap "Coming Soon" via onComingSoon; "Collaborate with Us" dan "Invite as Media Partner" DIHAPUS (perintah user 2026-11-21 16:17 WIB; halaman Coming Soon gaya login page, TANPA logo; permintaan pengguna 2026-11-18 21:19–21:21 WIB)',
   marklo.includes('onComingSoon: () => void') &&
-    marklo.includes('<Footer onLacak={onLacak} onComingSoon={onComingSoon} onPlanCampaign={onPlanCampaign} onBookVenue={onBookVenue} onRentSpace={onRentSpace} onTraining={onTraining} />') &&
-    marklo.includes('function Footer({ onLacak, onComingSoon, onPlanCampaign, onBookVenue, onRentSpace, onTraining }') &&
+    marklo.includes('<Footer onComingSoon={onComingSoon} onPlanCampaign={onPlanCampaign} onBookVenue={onBookVenue} onRentSpace={onRentSpace} onTraining={onTraining} />') &&
+    marklo.includes('function Footer({ onComingSoon, onPlanCampaign, onBookVenue, onRentSpace, onTraining }') &&
+    footerMarklo.includes("label: 'Plan a Campaign'") &&
+    footerMarklo.includes('onClick: onPlanCampaign') &&
     footerMarklo.includes("label: 'Join our Event'") &&
     footerMarklo.includes("label: 'Book a Venue'") &&
     footerMarklo.includes('onClick: onBookVenue') &&
@@ -1075,7 +1075,7 @@ cek(
     !footerMarklo.includes('Support our Event') &&
     !footerMarklo
       .slice(
-        footerMarklo.indexOf('Additional Service'),
+        footerMarklo.indexOf('What to Do'),
         footerMarklo.indexOf('Jl. Medan Merdeka Barat'),
       )
       .includes('gulirKe') &&
@@ -1240,7 +1240,7 @@ cek(
     marklo.includes('Book 30 Min Free Call'),
 );
 cek(
-  'Revert78: footer SUDAH TIDAK punya tautan "Book a Free Call" (dihapus dari Site Map + Client Portal atas permintaan pengguna 2026-11-18; tombol booking di header/hero/kartu gelap tetap ada)',
+  'Revert78: footer SUDAH TIDAK punya tautan "Book a Free Call" (dihapus dari Site Map + Client Portal atas permintaan pengguna 2026-11-18; kolom Client Portal sendiri dihapus 2026-11-21; tombol booking di header/hero/kartu gelap tetap ada)',
   !footerMarklo.includes('Book a Free Call') &&
     marklo.includes('Book a Free Call'),
 );
