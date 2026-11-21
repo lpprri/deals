@@ -43,7 +43,7 @@
 //     prop onLacak),
 //     "Additional Service" (Book a Venue → halaman Book a Venue via
 //     prop onBookVenue, Rent a Space → halaman Rent a Space via prop
-//     onRentSpace, Get a Journalism Training → halaman Training via prop
+//     onRentSpace, Learning Centre → hub Learning Centre via prop
 //     onTraining — sejak halaman layanan tambahan 2026-11-21; tiga
 //     sisanya (Collaborate with Us, Support our Event, Invite as Media
 //     Partner) masih membuka halaman "Coming Soon" via prop onComingSoon;
@@ -123,9 +123,10 @@ export interface MarkloLandingProps {
       dipakai item footer "Rent a Space" (pola persis onLacak;
       permintaan pengguna 2026-11-21 10:52 WIB). */
   onRentSpace: () => void;
-  /** Buka halaman "Get a Journalism Training" publik (daftar Scheduled
-      Course + form registrasi) — dipakai item footer "Get a Journalism
-      Training" (pola persis onLacak; permintaan pengguna 2026-11-21
+  /** Buka hub "Learning Centre" publik (Fase 1 rebuild 2026-11-21;
+      label footer lama "Get a Journalism Training") — dipakai item
+      footer "Learning Centre" (pola persis onLacak; permintaan pengguna
+      2026-11-21
       10:52 WIB). */
   onTraining: () => void;
   /** Buka halaman "Plan a Campaign" publik (form Tally embed) —
@@ -1800,7 +1801,7 @@ function Footer({ onLacak, onComingSoon, onPlanCampaign, onBookVenue, onRentSpac
               pengguna 2026-11-18; satu item pindah ke Client Portal,
               satu item baru ditambahkan). Tiga item membuka halaman
               aslinya (Book a Venue → onBookVenue, Rent a Space →
-              onRentSpace, Get a Journalism Training → onTraining;
+              onRentSpace, Learning Centre → onTraining;
               halaman layanan tambahan 2026-11-21); tiga sisanya masih
               membuka halaman "Coming Soon" lewat prop onComingSoon
               (pola onLacak) — BUKAN ke kartu booking; permintaan
@@ -1814,7 +1815,7 @@ function Footer({ onLacak, onComingSoon, onPlanCampaign, onBookVenue, onRentSpac
               {[
                 { label: 'Book a Venue', onClick: onBookVenue },
                 { label: 'Rent a Space', onClick: onRentSpace },
-                { label: 'Get a Journalism Training', onClick: onTraining },
+                { label: 'Learning Centre', onClick: onTraining },
                 { label: 'Collaborate with Us', onClick: onComingSoon },
                 { label: 'Support our Event', onClick: onComingSoon },
                 { label: 'Invite as Media Partner', onClick: onComingSoon },

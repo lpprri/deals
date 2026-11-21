@@ -1004,8 +1004,8 @@ cek(
       );
       return (
         layanan.indexOf('Book a Venue') < layanan.indexOf('Rent a Space') &&
-        layanan.indexOf('Rent a Space') < layanan.indexOf('Get a Journalism Training') &&
-        layanan.indexOf('Get a Journalism Training') < layanan.indexOf('Collaborate with Us') &&
+        layanan.indexOf('Rent a Space') < layanan.indexOf('Learning Centre') &&
+        layanan.indexOf('Learning Centre') < layanan.indexOf('Collaborate with Us') &&
         layanan.indexOf('Collaborate with Us') < layanan.indexOf('Support our Event') &&
         layanan.indexOf('Support our Event') < layanan.indexOf('Invite as Media Partner') &&
         !layanan.includes('Plan a Campaign')
@@ -1048,7 +1048,7 @@ cek(
     planCampaign.includes('Plan a Campaign'),
 );
 cek(
-  'Footer: tiga item "Additional Service" (Book a Venue, Rent a Space, Get a Journalism Training) membuka halaman aslinya via prop baru; tiga sisanya tetap "Coming Soon" via onComingSoon (perubahan 2026-11-21; halaman Coming Soon gaya login page, TANPA logo; permintaan pengguna 2026-11-18 21:19–21:21 WIB)',
+  'Footer: tiga item "Additional Service" (Book a Venue, Rent a Space, Learning Centre) membuka halaman aslinya via prop baru; tiga sisanya tetap "Coming Soon" via onComingSoon (perubahan 2026-11-21; halaman Coming Soon gaya login page, TANPA logo; permintaan pengguna 2026-11-18 21:19–21:21 WIB)',
   marklo.includes('onComingSoon: () => void') &&
     marklo.includes('<Footer onLacak={onLacak} onComingSoon={onComingSoon} onPlanCampaign={onPlanCampaign} onBookVenue={onBookVenue} onRentSpace={onRentSpace} onTraining={onTraining} />') &&
     marklo.includes('function Footer({ onLacak, onComingSoon, onPlanCampaign, onBookVenue, onRentSpace, onTraining }') &&
@@ -1057,7 +1057,7 @@ cek(
     footerMarklo.includes('onClick: onBookVenue') &&
     footerMarklo.includes("label: 'Rent a Space'") &&
     footerMarklo.includes('onClick: onRentSpace') &&
-    footerMarklo.includes("label: 'Get a Journalism Training'") &&
+    footerMarklo.includes("label: 'Learning Centre'") &&
     footerMarklo.includes('onClick: onTraining') &&
     footerMarklo.includes("label: 'Invite as Media Partner'") &&
     footerMarklo.includes('onClick: onComingSoon') &&
