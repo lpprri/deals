@@ -15,8 +15,9 @@
 // DATA DUMMY (src/lib/learningCentreDummy.ts) — ganti data asli. HARGA
 // hanya tarif KB PP 68/2020 (Pelatihan Rp2.000.000/orang/3 hari,
 // Sertifikasi Wartawan Radio Rp1.500.000/orang/3 hari); sisanya
-// "Price on request". TIDAK ADA foto: kartu memakai blok placeholder
-// gradien biru RRI (tanpa foto stok).
+// "Price on request". Foto thumbnail: gambar generate per Learning Path
+// (src/lib/fotoLearningCentre.ts, DUMMY sampai foto asli tersedia);
+// kartu Bootcamp memakai foto Learning Path yang paling dekat.
 //
 // Gaya mengikuti halaman publik lain: latar off-white #f5f2f2 + gradasi
 // pucat biru/navy di bawah. Header ala Book a Venue: kiri panah + logo
@@ -24,8 +25,9 @@
 // "Back to Landing Page".
 
 import { useEffect } from 'react';
-import { ArrowLeft, Award, BookOpen, GraduationCap, Star, Users } from 'lucide-react';
+import { ArrowLeft, Award, BookOpen, Star, Users } from 'lucide-react';
 import { LOGO_RRI_LOCKUP_DATA_URI } from '../lib/logoRriLockup';
+import { FOTO_LEARNING_CENTRE } from '../lib/fotoLearningCentre';
 import {
   COURSE_DUMMY,
   type CourseDummy,
@@ -51,6 +53,14 @@ const PATH_POPULER: LearningPathDummy[] = [...LEARNING_PATH_DUMMY]
 
 /** 3 bootcamp terdekat dari COURSE_DUMMY lama (DUMMY — contoh). */
 const BOOTCAMP_TERDEKAT: CourseDummy[] = COURSE_DUMMY.slice(0, 3);
+
+/** Foto thumbnail bootcamp: foto Learning Path yang paling dekat
+    (bootcamp memakai COURSE_DUMMY lama — belum punya foto sendiri). */
+const FOTO_BOOTCAMP: Record<string, string> = {
+  'pelatihan-jurnalistik': 'jurnalistik-radio',
+  'sertifikasi-wartawan': 'jurnalistik-radio',
+  'workshop-penulisan': 'penulisan-naskah',
+};
 
 const jumlahMateri = (path: LearningPathDummy) =>
   path.topik.reduce((total, topik) => total + topik.materi.length, 0);
@@ -173,11 +183,12 @@ export default function LearningCentre({
               key={path.id}
               className="overflow-hidden rounded-2xl border border-[#0d2569]/10 bg-white shadow-sm"
             >
-              {/* Placeholder gradien (TIDAK ADA foto) — blok visual biru RRI. */}
-              <div className="flex h-36 items-center justify-center bg-gradient-to-br from-[#2573e2] to-[#0d2569]">
-                <GraduationCap
-                  className="h-12 w-12 text-white/70"
-                  aria-hidden
+              {/* Foto thumbnail path (gradien biru sebagai latar). */}
+              <div className="h-36 overflow-hidden bg-gradient-to-br from-[#2573e2] to-[#0d2569]">
+                <img
+                  src={FOTO_LEARNING_CENTRE[path.id] ?? ''}
+                  alt={path.judul}
+                  className="h-full w-full object-cover"
                 />
               </div>
               <div className="p-5">
@@ -220,11 +231,15 @@ export default function LearningCentre({
               key={course.id}
               className="overflow-hidden rounded-2xl border border-[#0d2569]/10 bg-white shadow-sm"
             >
-              {/* Placeholder gradien (TIDAK ADA foto) — blok visual biru RRI. */}
-              <div className="flex h-36 items-center justify-center bg-gradient-to-br from-[#2573e2] to-[#0d2569]">
-                <GraduationCap
-                  className="h-12 w-12 text-white/70"
-                  aria-hidden
+              {/* Foto thumbnail bootcamp: foto Learning Path terdekat
+                  (gradien biru sebagai latar). */}
+              <div className="h-36 overflow-hidden bg-gradient-to-br from-[#2573e2] to-[#0d2569]">
+                <img
+                  src={
+                    FOTO_LEARNING_CENTRE[FOTO_BOOTCAMP[course.id] ?? ''] ?? ''
+                  }
+                  alt={course.judul}
+                  className="h-full w-full object-cover"
                 />
               </div>
               <div className="p-5">

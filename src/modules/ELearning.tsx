@@ -12,12 +12,13 @@
 // modul (materi → path, path → daftar, daftar → hub Learning Centre).
 //
 // DATA DUMMY (src/lib/learningCentreDummy.ts) — ganti data asli. Video
-// player DUMMY (panel gradien + ikon play, TIDAK memutar video sungguhan,
-// TIDAK ada URL video). Tombol "Join Community" dan "Subscribe" DUMMY
-// (tanpa aksi — langganan dan komunitas tiba di Fase 4). Sertifikat
-// DUMMY (pratinjau contoh, tidak membuat dokumen). TIDAK ADA foto: kartu
-// memakai blok placeholder gradien biru RRI (tanpa foto stok). TIDAK ADA
-// harga di halaman ini (langganan video belum ada tarif KB-nya).
+// player DUMMY (foto path sebagai poster + ikon play, TIDAK memutar video
+// sungguhan, TIDAK ada URL video). Tombol "Join Community" dan "Subscribe"
+// DUMMY (tanpa aksi — langganan dan komunitas tiba di Fase 4). Sertifikat
+// DUMMY (pratinjau contoh, tidak membuat dokumen). Foto thumbnail: gambar
+// generate per Learning Path (src/lib/fotoLearningCentre.ts, DUMMY sampai
+// foto asli tersedia). TIDAK ADA harga di halaman ini (langganan video
+// belum ada tarif KB-nya).
 
 import { useEffect, useMemo, useState } from 'react';
 import {
@@ -27,13 +28,13 @@ import {
   Check,
   ChevronDown,
   Clock,
-  GraduationCap,
   Play,
   Search,
   Star,
   Users,
 } from 'lucide-react';
 import { LOGO_RRI_LOCKUP_DATA_URI } from '../lib/logoRriLockup';
+import { FOTO_LEARNING_CENTRE } from '../lib/fotoLearningCentre';
 import {
   LEARNING_PATH_DUMMY,
   type LearningPathDummy,
@@ -247,11 +248,13 @@ export default function ELearning({ onKembali }: ELearningProps) {
                     key={path.id}
                     className="overflow-hidden rounded-2xl border border-[#0d2569]/10 bg-white shadow-sm"
                   >
-                    {/* Placeholder gradien (TIDAK ADA foto) — blok visual biru RRI. */}
-                    <div className="flex h-36 items-center justify-center bg-gradient-to-br from-[#2573e2] to-[#0d2569]">
-                      <GraduationCap
-                        className="h-12 w-12 text-white/70"
-                        aria-hidden
+                    {/* Foto thumbnail path (data URI, src/lib/fotoLearningCentre.ts);
+                        gradien biru tetap sebagai latar di bawah foto. */}
+                    <div className="h-36 overflow-hidden bg-gradient-to-br from-[#2573e2] to-[#0d2569]">
+                      <img
+                        src={FOTO_LEARNING_CENTRE[path.id] ?? ''}
+                        alt={path.judul}
+                        className="h-full w-full object-cover"
                       />
                     </div>
                     <div className="p-5">
@@ -294,10 +297,12 @@ export default function ELearning({ onKembali }: ELearningProps) {
 
             {/* Cover + info path. */}
             <div className="mt-8 overflow-hidden rounded-2xl border border-[#0d2569]/10 bg-white shadow-sm">
-              <div className="flex h-48 items-center justify-center bg-gradient-to-br from-[#2573e2] to-[#0d2569]">
-                <GraduationCap
-                  className="h-16 w-16 text-white/70"
-                  aria-hidden
+              {/* Cover path: foto thumbnail (gradien biru sebagai latar). */}
+              <div className="h-48 overflow-hidden bg-gradient-to-br from-[#2573e2] to-[#0d2569]">
+                <img
+                  src={FOTO_LEARNING_CENTRE[pathTerpilih.id] ?? ''}
+                  alt={pathTerpilih.judul}
+                  className="h-full w-full object-cover"
                 />
               </div>
               <div className="p-6 sm:p-8">
@@ -471,14 +476,21 @@ export default function ELearning({ onKembali }: ELearningProps) {
             <div className="mt-4 grid gap-6 lg:grid-cols-[1fr_360px]">
               {/* Kolom kiri: player dummy + hasil belajar. */}
               <div className="min-w-0">
-                {/* Video player DUMMY — panel gradien + ikon play; TIDAK
+                {/* Video player DUMMY — foto path sebagai poster + ikon play; TIDAK
                     memutar video sungguhan, TIDAK ada URL video. */}
-                <div className="relative flex aspect-video items-center justify-center overflow-hidden rounded-2xl bg-gradient-to-br from-[#2573e2] to-[#0d2569] shadow-sm">
-                  <div className="flex h-20 w-20 items-center justify-center rounded-full bg-white/20">
-                    <Play
-                      className="h-10 w-10 fill-white text-white"
-                      aria-hidden
-                    />
+                <div className="relative aspect-video overflow-hidden rounded-2xl bg-gradient-to-br from-[#2573e2] to-[#0d2569] shadow-sm">
+                  <img
+                    src={FOTO_LEARNING_CENTRE[pathTerpilih.id] ?? ''}
+                    alt={pathTerpilih.judul}
+                    className="absolute inset-0 h-full w-full object-cover"
+                  />
+                  <div className="absolute inset-0 flex items-center justify-center bg-black/25">
+                    <div className="flex h-20 w-20 items-center justify-center rounded-full bg-white/20">
+                      <Play
+                        className="h-10 w-10 fill-white text-white"
+                        aria-hidden
+                      />
+                    </div>
                   </div>
                   <span className="absolute bottom-4 right-4 rounded-full bg-black/40 px-3 py-1 text-xs font-semibold text-white">
                     {materiTerpilih.durasi}
@@ -609,10 +621,11 @@ export default function ELearning({ onKembali }: ELearningProps) {
                       key={path.id}
                       className="overflow-hidden rounded-2xl border border-[#0d2569]/10 bg-white shadow-sm"
                     >
-                      <div className="flex h-24 items-center justify-center bg-gradient-to-br from-[#2573e2] to-[#0d2569]">
-                        <BookOpen
-                          className="h-8 w-8 text-white/70"
-                          aria-hidden
+                      <div className="h-24 overflow-hidden bg-gradient-to-br from-[#2573e2] to-[#0d2569]">
+                        <img
+                          src={FOTO_LEARNING_CENTRE[path.id] ?? ''}
+                          alt={path.judul}
+                          className="h-full w-full object-cover"
                         />
                       </div>
                       <div className="p-4">
