@@ -3977,26 +3977,15 @@ export default function App() {
             {current.description}
           </p>
 
-          {modeData !== 'firestore' && (
+          {modeData === 'tidak-terkonfigurasi' && (
             <div className="mt-4 max-w-2xl rounded-md border border-[#2573e2]/40 bg-[#2573e2]/5 px-4 py-3 text-sm">
-              {modeData === 'tidak-terkonfigurasi' ? (
-                <>
-                  <strong>Real Palembang data — sample mode.</strong> The data
-                  below is real data imported from the working spreadsheet on{' '}
-                  {formatTanggal(TANGGAL_IMPOR)}. Firebase is not configured
-                  yet (see <code>.env.example</code>), so changes are only
-                  saved in this session and not stored permanently. Sample
-                  data (prospects, quotations, orders, events, tasks) remains
-                  labelled &quot;(Sample)&quot;.
-                </>
-              ) : (
-                <>
-                  <strong>Sample data — not yet migrated to Firestore.</strong>{' '}
-                  The data below is still sample data from the working
-                  spreadsheet. Run the migration on the Master Data &amp;
-                  Users page so changes are stored permanently in Firestore.
-                </>
-              )}
+              <strong>Real Palembang data — sample mode.</strong> The data
+              below is real data imported from the working spreadsheet on{' '}
+              {formatTanggal(TANGGAL_IMPOR)}. Firebase is not configured
+              yet (see <code>.env.example</code>), so changes are only
+              saved in this session and not stored permanently. Sample
+              data (prospects, quotations, orders, events, tasks) remains
+              labelled &quot;(Sample)&quot;.
             </div>
           )}
           {modeData === 'firestore' && (
