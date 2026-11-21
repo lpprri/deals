@@ -7,7 +7,10 @@
 //
 // FOTO (Book a Venue): 5 foto interior yang DI-GENERATE, satu per jenis
 // venue, di src/lib/fotoVenue.ts (data URI WebP). BUKAN foto stok.
-// Rent a Space + Training masih tanpa foto (placeholder gradien).
+// FOTO (Rent a Space): 12 foto lahan yang DI-GENERATE di
+// src/lib/fotoLahan.ts (data URI WebP) — 8 foto utama (satu per sudut
+// lahan) + 4 foto galeri bersama; tiap plot memakai 5 foto (1 utama +
+// 4 galeri). Training masih tanpa foto (placeholder gradien).
 //
 // HARGA: hanya tarif terverifikasi dari Knowledge Base (PP 68/2020,
 // artikelRegulasi.ts) — Auditorium Rp7.500.000/4 jam (sound system) atau
@@ -48,21 +51,47 @@ export interface VenueDummy {
 
 /** Satu lahan yang ditawarkan untuk disewa (dummy). */
 export interface SpaceDummy {
-  /** Id stabil untuk select form, mis. 'lahan-kenten'. */
+  /** Id stabil, mis. 'SPC-001'. */
   id: string;
-  /** Nama tampil, mis. 'Open Land — Kenten'. */
+  /** Nama tampil, mis. 'Commercial Plot — Kenten'. */
   nama: string;
-  /** Lokasi (DUMMY — contoh). */
+  /** Kota satker (nama kanonis dari DAFTAR_SATKER, mis. 'PALEMBANG'). */
+  kota: string;
+  /** Provinsi (nama Inggris), mis. 'South Sumatra'. */
+  provinsi: string;
+  /** Lokasi singkat tampil di kartu, mis. 'Kenten, Palembang'. */
   lokasi: string;
-  /** Luas (DUMMY — contoh), mis. '2,500 m²'. */
-  luas: string;
-  /** Jenis lahan (DUMMY — contoh), mis. 'Open land'. */
-  jenis: string;
+  /** Luas tanah dalam m² (DUMMY — angka contoh), 250–5000. */
+  luasTanah: number;
+  /** Dimensi, mis. '50 x 50 m' (luas = hasil kali dimensi). */
+  dimensi: string;
+  /** Peruntukan (definisi user): Shop / Cafe / Parking / Showroom / Other. */
+  peruntukan: string;
+  /** Arah hadap: 8 mata angin (Inggris). */
+  hadap: string;
+  /** Akses jalan, mis. 'Main road, 8 m wide'. */
+  aksesJalan: string;
+  /** Alamat lengkap tampil di tabel detail. */
+  alamat: string;
   /** Harga tampil — TIDAK ada tarif KB untuk sewa lahan → 'Price on request'. */
   harga: string;
   /** Deskripsi singkat (DUMMY — contoh). */
   deskripsi: string;
+  /** Tanggal listing, 'yyyy-mm-dd' (DUMMY — contoh), untuk sort Newest/Oldest. */
+  tanggalDaftar: string;
+  /** Kunci foto di FOTO_LAHAN (5 per plot: 1 utama + 4 sudut galeri). */
+  foto: string[];
 }
+
+/** Foto galeri bersama semua plot (kunci di FOTO_LAHAN) — sudut lain
+    lahan RRI (udara, jalan depan, patok ukur, lingkungan). DUMMY:
+    ilustrasi umum, bukan foto lahan yang sama persis. */
+const FOTO_GALERI_LAHAN = [
+  'galeri-udara',
+  'galeri-jalan',
+  'galeri-patok',
+  'galeri-lingkungan',
+];
 
 /** Satu Scheduled Course (dummy). */
 export interface CourseDummy {
@@ -239,44 +268,192 @@ export const VENUE_DUMMY: VenueDummy[] = [
   },
 ];
 
-// DUMMY — ganti data asli. Lahan (4). Luas + lokasi angka contoh.
+// DUMMY — ganti data asli. Lahan (10) di 8 kota satker (pola Book a
+// Venue: 10 listing/8 kota). Luas 250–5000 m², dimensi = hasil kali
+// luas; peruntukan dari definisi user (Shop / Cafe / Parking /
+// Showroom / Other). Kota memakai nama kanonis DAFTAR_SATKER (huruf
+// besar). Tiap plot 5 foto: 1 foto utama + 4 foto galeri bersama.
 // TIDAK ada tarif KB untuk sewa lahan → semua 'Price on request'.
 export const SPACE_DUMMY: SpaceDummy[] = [
   {
-    id: 'lahan-kenten',
-    nama: 'Open Land — Kenten',
+    id: 'SPC-001',
+    nama: 'Commercial Plot — Kenten',
+    kota: 'PALEMBANG',
+    provinsi: 'South Sumatra',
     lokasi: 'Kenten, Palembang',
-    luas: '2,500 m²',
-    jenis: 'Open land',
+    luasTanah: 2500,
+    dimensi: '50 x 50 m',
+    peruntukan: 'Shop',
+    hadap: 'South',
+    aksesJalan: 'Main road, 8 m wide',
+    alamat: 'Jl. Kenten Raya No. 12, Palembang',
     harga: 'Price on request',
-    deskripsi: 'Open land suitable for events, parking, or temporary use.',
+    deskripsi:
+      'Corner plot on a main road in Kenten, suitable for a shop or small retail building with high visibility.',
+    tanggalDaftar: '2026-11-18',
+    foto: ['lahan-sudut', ...FOTO_GALERI_LAHAN],
   },
   {
-    id: 'lahan-demang',
-    nama: 'Commercial Plot — Demang Lebar Daun',
+    id: 'SPC-002',
+    nama: 'Open Land — Demang Lebar Daun',
+    kota: 'PALEMBANG',
+    provinsi: 'South Sumatra',
     lokasi: 'Demang Lebar Daun, Palembang',
-    luas: '1,200 m²',
-    jenis: 'Commercial plot',
+    luasTanah: 1200,
+    dimensi: '30 x 40 m',
+    peruntukan: 'Cafe',
+    hadap: 'East',
+    aksesJalan: 'Main road, 6 m wide',
+    alamat: 'Jl. Demang Lebar Daun No. 45, Palembang',
     harga: 'Price on request',
-    deskripsi: 'Commercial plot in a busy area, ideal for business use.',
+    deskripsi:
+      'Grassy open plot in a busy residential area, ideal for a cafe with outdoor seating.',
+    tanggalDaftar: '2026-11-15',
+    foto: ['lahan-taman', ...FOTO_GALERI_LAHAN],
   },
   {
-    id: 'lahan-musi',
-    nama: 'Riverside Land — Musi Riverbank',
-    lokasi: 'Musi riverbank, Palembang',
-    luas: '5,000 m²',
-    jenis: 'Riverside land',
+    id: 'SPC-003',
+    nama: 'Commercial Plot — Sudirman',
+    kota: 'JAKARTA',
+    provinsi: 'Jakarta',
+    lokasi: 'Sudirman, Jakarta',
+    luasTanah: 800,
+    dimensi: '20 x 40 m',
+    peruntukan: 'Showroom',
+    hadap: 'West',
+    aksesJalan: 'Main road, 10 m wide',
+    alamat: 'Jl. Jenderal Sudirman Kav. 52, Jakarta',
     harga: 'Price on request',
-    deskripsi: 'Riverside land with open views, suitable for outdoor events.',
+    deskripsi:
+      'Street-front plot in the Sudirman business district, suitable for a showroom or brand outlet.',
+    tanggalDaftar: '2026-11-20',
+    foto: ['lahan-ruko', ...FOTO_GALERI_LAHAN],
   },
   {
-    id: 'lahan-kompleks',
-    nama: 'Courtyard Space — RRI Complex',
-    lokasi: 'RRI Palembang complex',
-    luas: '800 m²',
-    jenis: 'Courtyard / event space',
+    id: 'SPC-004',
+    nama: 'Parking Lot — Kemang',
+    kota: 'JAKARTA',
+    provinsi: 'Jakarta',
+    lokasi: 'Kemang, Jakarta',
+    luasTanah: 1500,
+    dimensi: '30 x 50 m',
+    peruntukan: 'Parking',
+    hadap: 'North',
+    aksesJalan: 'Main road, 7 m wide',
+    alamat: 'Jl. Kemang Raya No. 8, Jakarta',
     harga: 'Price on request',
-    deskripsi: 'Courtyard space inside the RRI complex for gatherings.',
+    deskripsi:
+      'Flat paved lot in Kemang, ready to use as paid parking for nearby offices and restaurants.',
+    tanggalDaftar: '2026-11-12',
+    foto: ['lahan-parkir', ...FOTO_GALERI_LAHAN],
+  },
+  {
+    id: 'SPC-005',
+    nama: 'Open Land — Dago',
+    kota: 'BANDUNG',
+    provinsi: 'West Java',
+    lokasi: 'Dago, Bandung',
+    luasTanah: 2000,
+    dimensi: '40 x 50 m',
+    peruntukan: 'Cafe',
+    hadap: 'Southeast',
+    aksesJalan: 'Main road, 6 m wide',
+    alamat: 'Jl. Ir. H. Juanda No. 90, Bandung',
+    harga: 'Price on request',
+    deskripsi:
+      'Open grassy land on Dago’s main road, a good spot for a garden cafe or weekend market.',
+    tanggalDaftar: '2026-11-10',
+    foto: ['lahan-rumput', ...FOTO_GALERI_LAHAN],
+  },
+  {
+    id: 'SPC-006',
+    nama: 'Riverside Land — Kalimas',
+    kota: 'SURABAYA',
+    provinsi: 'East Java',
+    lokasi: 'Kalimas, Surabaya',
+    luasTanah: 5000,
+    dimensi: '100 x 50 m',
+    peruntukan: 'Other',
+    hadap: 'Northeast',
+    aksesJalan: 'Riverside road, 6 m wide',
+    alamat: 'Jl. Kalimas Baru No. 3, Surabaya',
+    harga: 'Price on request',
+    deskripsi:
+      'Large riverside plot on the Kalimas, suitable for outdoor events, a food court, or a parking area.',
+    tanggalDaftar: '2026-11-08',
+    foto: ['lahan-sungai', ...FOTO_GALERI_LAHAN],
+  },
+  {
+    id: 'SPC-007',
+    nama: 'Open Land — Polonia',
+    kota: 'MEDAN',
+    provinsi: 'North Sumatra',
+    lokasi: 'Polonia, Medan',
+    luasTanah: 3500,
+    dimensi: '50 x 70 m',
+    peruntukan: 'Shop',
+    hadap: 'Southwest',
+    aksesJalan: 'Main road, 8 m wide',
+    alamat: 'Jl. Polonia No. 21, Medan',
+    harga: 'Price on request',
+    deskripsi:
+      'Wide open field in Polonia, suitable for a shop, warehouse yard, or open-air market.',
+    tanggalDaftar: '2026-11-06',
+    foto: ['lahan-lapang', ...FOTO_GALERI_LAHAN],
+  },
+  {
+    id: 'SPC-008',
+    nama: 'Courtyard Space — Malioboro',
+    kota: 'YOGYAKARTA',
+    provinsi: 'Yogyakarta',
+    lokasi: 'Malioboro, Yogyakarta',
+    luasTanah: 250,
+    dimensi: '10 x 25 m',
+    peruntukan: 'Cafe',
+    hadap: 'Northwest',
+    aksesJalan: 'Side street, 4 m wide',
+    alamat: 'Jl. Malioboro No. 137, Yogyakarta',
+    harga: 'Price on request',
+    deskripsi:
+      'Small courtyard plot steps from Malioboro, ideal for a coffee stall or souvenir shop.',
+    tanggalDaftar: '2026-11-05',
+    foto: ['lahan-kota', ...FOTO_GALERI_LAHAN],
+  },
+  {
+    id: 'SPC-009',
+    nama: 'Open Land — Pettarani',
+    kota: 'MAKASSAR',
+    provinsi: 'South Sulawesi',
+    lokasi: 'Pettarani, Makassar',
+    luasTanah: 3000,
+    dimensi: '50 x 60 m',
+    peruntukan: 'Parking',
+    hadap: 'South',
+    aksesJalan: 'Main road, 8 m wide',
+    alamat: 'Jl. A. P. Pettarani No. 77, Makassar',
+    harga: 'Price on request',
+    deskripsi:
+      'Open land on Pettarani’s main road, suitable for parking or a car showroom yard.',
+    tanggalDaftar: '2026-11-03',
+    foto: ['lahan-rumput', ...FOTO_GALERI_LAHAN],
+  },
+  {
+    id: 'SPC-010',
+    nama: 'Commercial Plot — Pandanaran',
+    kota: 'SEMARANG',
+    provinsi: 'Central Java',
+    lokasi: 'Pandanaran, Semarang',
+    luasTanah: 1800,
+    dimensi: '30 x 60 m',
+    peruntukan: 'Showroom',
+    hadap: 'East',
+    aksesJalan: 'Main road, 7 m wide',
+    alamat: 'Jl. Pandanaran No. 30, Semarang',
+    harga: 'Price on request',
+    deskripsi:
+      'Street-front plot on Pandanaran, suitable for a showroom or retail outlet.',
+    tanggalDaftar: '2026-11-01',
+    foto: ['lahan-sudut', ...FOTO_GALERI_LAHAN],
   },
 ];
 

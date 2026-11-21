@@ -39,6 +39,16 @@
 // ke kiri, di samping panah back; judul tetap di kanan).
 // "Message host" dan "Report this listing" SENGAJA tidak dibangun
 // (tidak ada messaging host di RRI).
+//
+// PLUS rebuild Rent a Space ala Brighton (2026-11-21 14:16 WIB,
+// perintah user "Ya, rebuild sekarang"; referensi studi browser
+// brighton.co.id/disewa 14:06 WIB): search band (lokasi + penggunaan
+// + Filter modal), sort, kartu foto 16:9 carousel 3/baris, halaman
+// detail (galeri + lightbox, tabel Property Details, deskripsi,
+// Similar properties, kartu kontak satker sticky + form inquiry),
+// 10 lahan di 8 kota, 12 foto lahan generated (fotoLahan.ts), semua
+// "Price on request". Header baru (panah + logo RRI kiri, judul kanan)
+// ikut masuk PR ini — widget push terpisah header TIDAK berlaku lagi.
 
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
@@ -58,10 +68,19 @@ const bookVenue = baca('src/modules/BookVenue.tsx');
 const rentSpace = baca('src/modules/RentSpace.tsx');
 const training = baca('src/modules/Training.tsx');
 const fotoVenue = baca('src/lib/fotoVenue.ts');
+const fotoLahan = baca('src/lib/fotoLahan.ts');
 const lacak = baca('src/modules/Lacak.tsx');
 const ajukan = baca('src/modules/Ajukan.tsx');
 const comingSoon = baca('src/modules/ComingSoon.tsx');
 const planCampaign = baca('src/modules/PlanCampaign.tsx');
+
+// Potongan file dummy per bagian (venue sebelum SPACE_DUMMY, lahan
+// antara SPACE_DUMMY dan COURSE_DUMMY) — dipakai asersi jumlah field.
+const venueBagian = dummy.slice(0, dummy.indexOf('export const SPACE_DUMMY'));
+const spaceBagian = dummy.slice(
+  dummy.indexOf('export const SPACE_DUMMY'),
+  dummy.indexOf('export const COURSE_DUMMY'),
+);
 
 let gagal = 0;
 const cek = (nama: string, lolos: boolean, detail = '') => {
@@ -143,7 +162,18 @@ const idVenue = [
   'meeting-semarang',
   'studio-palembang',
 ];
-const idSpace = ['lahan-kenten', 'lahan-demang', 'lahan-musi', 'lahan-kompleks'];
+const idSpace = [
+  'SPC-001',
+  'SPC-002',
+  'SPC-003',
+  'SPC-004',
+  'SPC-005',
+  'SPC-006',
+  'SPC-007',
+  'SPC-008',
+  'SPC-009',
+  'SPC-010',
+];
 const idCourse = [
   'pelatihan-jurnalistik',
   'sertifikasi-wartawan',
@@ -151,7 +181,7 @@ const idCourse = [
   'wawancara-reportase',
 ];
 cek(
-  'Dummy: 10 venue + 4 lahan + 4 course (semua id ada)',
+  'Dummy: 10 venue + 10 lahan + 4 course (semua id ada)',
   [...idVenue, ...idSpace, ...idCourse].every((id) =>
     dummy.includes(`id: '${id}'`),
   ),
@@ -169,12 +199,12 @@ cek(
     dummy.includes("harga: 'Rp1,500,000 / person / 3 days'"),
 );
 cek(
-  "Dummy: 'Price on request' tepat 12x (6 venue + 4 lahan + 2 course)",
-  hitung(dummy, "harga: 'Price on request'") === 12,
+  "Dummy: 'Price on request' tepat 18x (6 venue + 10 lahan + 2 course)",
+  hitung(dummy, "harga: 'Price on request'") === 18,
 );
 cek(
-  'Dummy: total 18 baris harga (10 venue + 4 lahan + 4 course)',
-  hitung(dummy, "harga: '") === 18,
+  'Dummy: total 24 baris harga (10 venue + 10 lahan + 4 course)',
+  hitung(dummy, "harga: '") === 24,
 );
 cek(
   'Dummy: tidak ada angka Rp lain selain tarif KB',
@@ -195,9 +225,9 @@ cek(
 );
 cek(
   'Dummy: venue punya kota satker + rating + foto (10x tiap field)',
-  hitung(dummy, "kota: '") === 10 &&
-    hitung(dummy, "foto: '") === 10 &&
-    (dummy.match(/rating: [0-9]/g) ?? []).length === 10,
+  hitung(venueBagian, "kota: '") === 10 &&
+    hitung(venueBagian, "foto: '") === 10 &&
+    (venueBagian.match(/rating: [0-9]/g) ?? []).length === 10,
 );
 cek(
   'Dummy: kota venue nama kanonis satker (8 kota)',
@@ -222,6 +252,92 @@ cek(
     hitung(dummy, "harga: 'Rp2,000,000 / 3 hours'") === 1,
 );
 cek('Dummy: tidak ada tarif harian turunan', !dummy.includes('/ day'));
+
+// --- 3e2. Data lahan (rebuild ala Brighton: 10 plot, 8 kota). ---
+cek(
+  'Dummy lahan: 10 plot SPC-001–SPC-010 di 8 kota satker',
+  idSpace.every((id) => spaceBagian.includes(`id: '${id}'`)) &&
+    [
+      'PALEMBANG',
+      'JAKARTA',
+      'BANDUNG',
+      'SURABAYA',
+      'MEDAN',
+      'YOGYAKARTA',
+      'MAKASSAR',
+      'SEMARANG',
+    ].every((k) => spaceBagian.includes(`kota: '${k}'`)),
+);
+cek(
+  'Dummy lahan: semua plot punya provinsi + luasTanah + dimensi + peruntukan + hadap + aksesJalan + alamat + tanggalDaftar + foto (10x)',
+  ['provinsi: ', 'luasTanah: ', 'dimensi: ', 'peruntukan: ', 'hadap: ', 'aksesJalan: ', 'alamat: ', "tanggalDaftar: '", 'foto: ['].every(
+    (f) => hitung(spaceBagian, f) === 10,
+  ),
+);
+cek(
+  'Dummy lahan: luas 250–5000 m² (semua dalam rentang)',
+  (() => {
+    const semua = [...spaceBagian.matchAll(/luasTanah: ([0-9]+)/g)].map((m) =>
+      Number(m[1]),
+    );
+    return semua.length === 10 && semua.every((l) => l >= 250 && l <= 5000);
+  })(),
+);
+cek(
+  'Dummy lahan: dimensi cocok dengan luas (a x b = luasTanah, 10x)',
+  (() => {
+    const luas = [...spaceBagian.matchAll(/luasTanah: ([0-9]+)/g)].map((m) =>
+      Number(m[1]),
+    );
+    const dimensi = [
+      ...spaceBagian.matchAll(/dimensi: '([0-9]+) x ([0-9]+) m'/g),
+    ].map((m) => Number(m[1]) * Number(m[2]));
+    return (
+      luas.length === 10 &&
+      dimensi.length === 10 &&
+      luas.every((l, i) => l === dimensi[i])
+    );
+  })(),
+);
+cek(
+  'Dummy lahan: peruntukan hanya 5 opsi definisi user (Shop/Cafe/Parking/Showroom/Other)',
+  (() => {
+    const semua = [...spaceBagian.matchAll(/peruntukan: '([^']+)'/g)].map(
+      (m) => m[1],
+    );
+    const boleh = new Set(['Shop', 'Cafe', 'Parking', 'Showroom', 'Other']);
+    return semua.length === 10 && semua.every((p) => boleh.has(p));
+  })(),
+);
+cek(
+  'Dummy lahan: hadap hanya 8 mata angin',
+  (() => {
+    const semua = [...spaceBagian.matchAll(/hadap: '([^']+)'/g)].map(
+      (m) => m[1],
+    );
+    const boleh = new Set([
+      'North',
+      'Northeast',
+      'East',
+      'Southeast',
+      'South',
+      'Southwest',
+      'West',
+      'Northwest',
+    ]);
+    return semua.length === 10 && semua.every((h) => boleh.has(h));
+  })(),
+);
+cek(
+  'Dummy lahan: tanggalDaftar Nov 2026 (10x, format yyyy-mm-dd)',
+  (spaceBagian.match(/tanggalDaftar: '2026-11-[0-9]{2}'/g) ?? []).length ===
+    10,
+);
+cek(
+  'Dummy lahan: semua plot "Price on request" (10x, tidak ada tarif lahan)',
+  hitung(spaceBagian, "harga: 'Price on request'") === 10 &&
+    !/harga: 'Rp/.test(spaceBagian),
+);
 
 // --- 3b. Foto venue (generated, data URI WebP). ---
 cek(
@@ -402,6 +518,173 @@ cek(
   })(),
 );
 
+// --- 3f. Foto lahan (generated, data URI WebP). ---
+cek(
+  'FotoLahan: 12 foto data URI WebP (8 utama + 4 galeri)',
+  [
+    'lahan-sudut',
+    'lahan-taman',
+    'lahan-ruko',
+    'lahan-parkir',
+    'lahan-rumput',
+    'lahan-sungai',
+    'lahan-lapang',
+    'lahan-kota',
+  ].every((k) => fotoLahan.includes(`'${k}': 'data:image/webp;base64,`)) &&
+    ['galeri-udara', 'galeri-jalan', 'galeri-patok', 'galeri-lingkungan'].every(
+      (k) => fotoLahan.includes(`'${k}': 'data:image/webp;base64,`),
+    ) &&
+    hitung(fotoLahan, 'data:image/webp;base64,') === 12,
+);
+cek(
+  'FotoLahan: file menjelaskan sumber generated (bukan stok)',
+  fotoLahan.includes('DI-GENERATE') && fotoLahan.includes('FOTO_LAHAN'),
+);
+cek(
+  'RentSpace: kartu + detail memakai foto (img + FOTO_LAHAN), bukan placeholder gradien',
+  rentSpace.includes('FOTO_LAHAN[') &&
+    rentSpace.includes('<img') &&
+    !rentSpace.includes('bg-gradient-to-br from-[#2573e2] to-[#0d2569]'),
+);
+
+// --- 3g. Rebuild ala Brighton: search band, filter modal, sort, kartu, detail. ---
+cek(
+  'Brighton: search band — input lokasi + saran kota satker + saran plot + dropdown penggunaan',
+  rentSpace.includes('Search by city or plot name') &&
+    rentSpace.includes('DAFTAR_SATKER') &&
+    rentSpace.includes('Cities') &&
+    rentSpace.includes('Plots') &&
+    rentSpace.includes("'All uses'") &&
+    rentSpace.includes('Showroom') &&
+    rentSpace.includes('SlidersHorizontal'),
+);
+cek(
+  'Brighton: Filter modal — luas tanah min/max (m²) + arah hadap 8 + Clear/Apply',
+  rentSpace.includes('Land area (m²)') &&
+    rentSpace.includes('Minimum land area in square metres') &&
+    rentSpace.includes('Maximum land area in square metres') &&
+    rentSpace.includes('All directions') &&
+    rentSpace.includes('Northwest') &&
+    rentSpace.includes('Southeast') &&
+    rentSpace.includes('Apply') &&
+    rentSpace.includes('Clear') &&
+    rentSpace.includes('terapkanFilter'),
+);
+cek(
+  'Brighton: sort Newest/Oldest/Largest area/Smallest area (tanpa sort harga)',
+  rentSpace.includes('Sort plots') &&
+    rentSpace.includes('>Newest<') &&
+    rentSpace.includes('>Oldest<') &&
+    rentSpace.includes('>Largest area<') &&
+    rentSpace.includes('>Smallest area<') &&
+    !rentSpace.includes('Highest price') &&
+    !rentSpace.includes('Lowest price'),
+);
+cek(
+  'Brighton: heading hasil "N plots in [kota]" / "Available plots" + kosong + Clear filters',
+  rentSpace.includes('Available plots') &&
+    rentSpace.includes("plot${hasil.length === 1 ? '' : 's'} in") &&
+    rentSpace.includes('No plots match your search') &&
+    rentSpace.includes('Clear filters') &&
+    rentSpace.includes('bersihkanFilter'),
+);
+cek(
+  'Brighton: kartu 3/baris — foto 16:9 carousel (panah + dot) + pill LAND biru RRI + harga + tanggal + LT + dimensi',
+  rentSpace.includes('lg:grid-cols-3') &&
+    rentSpace.includes('aspect-[16/9]') &&
+    rentSpace.includes('Previous photo') &&
+    rentSpace.includes('Next photo') &&
+    rentSpace.includes('LAND') &&
+    rentSpace.includes('bg-[#2573e2]') &&
+    rentSpace.includes('Price on request') &&
+    rentSpace.includes('LT: ') &&
+    rentSpace.includes('View details of'),
+);
+cek(
+  'Brighton: kartu clickable ke halaman detail (article role=button + bukaDetail + detailId)',
+  rentSpace.includes('role="button"') &&
+    rentSpace.includes('onClick={() => bukaDetail(space.id)}') &&
+    rentSpace.includes('const [detailId, setDetailId]') &&
+    rentSpace.includes('kembaliKeListing'),
+);
+cek(
+  'Brighton: detail — galeri 1 besar + 4 kecil (tiap foto tombol) + Show all photos',
+  rentSpace.includes('aria-label={`Open photos of ${space.nama}`}') &&
+    rentSpace.includes('aria-label="Open photos"') &&
+    rentSpace.includes('Show all photos') &&
+    rentSpace.includes('col-span-2 row-span-2'),
+);
+cek(
+  'Brighton: detail — pill LAND + lokasi + harga besar + Share (Link copied) + judul + satker',
+  rentSpace.includes('Link copied') &&
+    rentSpace.includes('Share') &&
+    rentSpace.includes('RRI {judulKota(space.kota)}') &&
+    rentSpace.includes('LPP Radio Republik Indonesia'),
+);
+cek(
+  'Brighton: detail — tabel Property Details (luas, dimensi, peruntukan, hadap, akses, alamat, lokasi, sertifikat —, tanggal, ID) + Description + Similar properties',
+  rentSpace.includes('Property Details') &&
+    rentSpace.includes("'Land area'") &&
+    rentSpace.includes("'Dimensions'") &&
+    rentSpace.includes("'Permitted use'") &&
+    rentSpace.includes("'Facing'") &&
+    rentSpace.includes("'Road access'") &&
+    rentSpace.includes("'Address'") &&
+    rentSpace.includes("'Location'") &&
+    rentSpace.includes("'Certificate'") &&
+    rentSpace.includes("'Listed on'") &&
+    rentSpace.includes("'Listing ID'") &&
+    rentSpace.includes('Description') &&
+    rentSpace.includes('Similar properties'),
+);
+cek(
+  'Brighton: detail — kartu kontak satker sticky + form inquiry di dalamnya',
+  rentSpace.includes('sticky top-6') &&
+    rentSpace.includes('Send an inquiry about this plot') &&
+    rentSpace.includes('formInquiry'),
+);
+cek(
+  'Brighton: lightbox — Close + panah prev/next + counter "n of N" + strip thumbnail',
+  rentSpace.includes('Close photos') &&
+    rentSpace.includes('} of {detail.foto.length}') &&
+    rentSpace.includes('Show photo') &&
+    rentSpace.includes('ring-2 ring-white'),
+);
+cek(
+  'Brighton: TIDAK ADA harga (Rp, /year, per m²) di RentSpace',
+  !rentSpace.includes('Rp') &&
+    !rentSpace.includes('/year') &&
+    !rentSpace.includes('per m²') &&
+    !rentSpace.includes('/ day'),
+);
+cek(
+  'Brighton: TIDAK ADA field rumah / KPR / badge berbayar di RentSpace',
+  !rentSpace.includes('Kamar Tidur') &&
+    !rentSpace.includes('Kamar Mandi') &&
+    !rentSpace.includes('Luas Bangunan') &&
+    !rentSpace.includes('Listrik') &&
+    !rentSpace.includes('Furnish') &&
+    !rentSpace.includes('KPR') &&
+    !rentSpace.includes('Premier') &&
+    !rentSpace.includes('Featured'),
+);
+cek(
+  'Brighton: "WhatsApp" hanya 1x — label field kontak pengunjung, BUKAN tombol agen',
+  hitung(rentSpace, 'WhatsApp') === 1 &&
+    rentSpace.includes('Contact (phone / WhatsApp)'),
+);
+cek(
+  'Brighton: TIDAK ADA seksi peta (tanpa koordinat) di RentSpace',
+  !rentSpace.toLowerCase().includes('google map') &&
+    !rentSpace.includes('koordinat') &&
+    !rentSpace.includes('latitude') &&
+    !rentSpace.includes('longitude'),
+);
+cek(
+  'Brighton: scroll ke atas saat buka/tutup detail (3x scrollTo di RentSpace)',
+  hitung(rentSpace, 'window.scrollTo({ top: 0 })') >= 3,
+);
+
 // --- 4. Modul halaman baru. ---
 cek(
   'BookVenue: form booking di kartu booking halaman detail (tanggal/peserta/occasion/nama/kontak/email + referensi)',
@@ -421,6 +704,19 @@ cek(
     rentSpace.includes('Message (optional)') &&
     rentSpace.includes('Your reference number is') &&
     rentSpace.includes('Back to Landing Page'),
+);
+cek(
+  'RentSpace: header ala Book a Venue — panah + logo RRI di kiri, judul gaya Deals di kanan, tanpa deskripsi, tanpa teks back (user 2026-11-21 14:03 WIB; detail → "Back to spaces")',
+  rentSpace.includes("'Back to spaces'") &&
+    rentSpace.includes("'Back to Landing Page'") &&
+    rentSpace.includes('className="h-10 w-auto"') &&
+    rentSpace.includes('text-2xl font-black tracking-tight text-[#0d2569]') &&
+    !rentSpace.includes('>Back to Landing Page<') &&
+    !rentSpace.includes('Land and spaces for your business') &&
+    rentSpace.indexOf('<ArrowLeft') <
+      rentSpace.indexOf('src={LOGO_RRI_LOCKUP_DATA_URI}') &&
+    rentSpace.indexOf('src={LOGO_RRI_LOCKUP_DATA_URI}') <
+      rentSpace.indexOf('text-2xl font-black tracking-tight text-[#0d2569]'),
 );
 cek(
   'Training: daftar course + form course/nama/email/telepon + referensi',
