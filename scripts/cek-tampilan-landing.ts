@@ -1041,7 +1041,7 @@ cek(
     app.includes("halamanPublik === 'plan-campaign'"),
 );
 cek(
-  'PlanCampaign: halaman publik embed form Tally "Plan a Campaign" (id ArpNAN) — iframe + script widget + Tally.loadEmbeds() (pola React docs Tally); gaya login page (kolom 400px, #f5f2f2, lockup RRI, "Back to Landing Page"); judul sendiri karena hideTitle=1',
+  'PlanCampaign: halaman publik embed form Tally "Plan a Campaign" (id ArpNAN) — iframe + script widget + Tally.loadEmbeds() (pola React docs Tally); gaya Book a Venue (latar putih, header panah + logo h-10, judul di header, tanpa teks kembali terlihat); kolom form 400px tetap di tengah; judul sendiri karena hideTitle=1 (perintah pengguna 2026-11-21)',
   planCampaign.includes('https://tally.so/embed/ArpNAN?alignLeft=1&hideTitle=1&transparentBackground=1&dynamicHeight=1') &&
     planCampaign.includes('data-tally-src') &&
     planCampaign.includes('https://tally.so/widgets/embed.js') &&
@@ -1050,10 +1050,16 @@ cek(
     planCampaign.includes("querySelectorAll('iframe[data-tally-src]:not([src])')") &&
     planCampaign.includes('export default function PlanCampaign') &&
     planCampaign.includes('max-w-[400px]') &&
-    planCampaign.includes('bg-[#f5f2f2]') &&
     planCampaign.includes('LOGO_RRI_LOCKUP_DATA_URI') &&
-    planCampaign.includes('Back to Landing Page') &&
-    planCampaign.includes('Plan a Campaign'),
+    planCampaign.includes('Plan a Campaign') &&
+    planCampaign.includes('relative min-h-screen overflow-x-clip bg-white px-4 py-6') &&
+    planCampaign.includes("aria-label={labelKembali ?? 'Back to Landing Page'}") &&
+    planCampaign.includes('className="h-10 w-auto"') &&
+    planCampaign.includes('text-2xl font-black tracking-tight text-[#0d2569]') &&
+    !planCampaign.includes('bg-[#f5f2f2]') &&
+    !planCampaign.includes('h-20 w-auto') &&
+    !planCampaign.includes('bg-gradient-to-t from-[#2573e2]') &&
+    !planCampaign.includes("rounded-full border border-[#0d2569]/15 bg-white/80"),
 );
 cek(
   'Footer: lima item "What to Do" (Plan a Campaign pertama, Book a Venue, Rent a Space, Improve your Skill, Join our Event) — empat pertama membuka halaman aslinya via prop; "Join our Event" (dulu "Support our Event") tetap "Coming Soon" via onComingSoon; "Collaborate with Us" dan "Invite as Media Partner" DIHAPUS (perintah user 2026-11-21 16:17 WIB; halaman Coming Soon gaya login page, TANPA logo; permintaan pengguna 2026-11-18 21:19–21:21 WIB)',

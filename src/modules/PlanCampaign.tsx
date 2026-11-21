@@ -17,9 +17,10 @@
 // window.Tally tidak tersedia). Judul form disembunyikan di embed
 // (hideTitle=1), jadi halaman ini memakai judulnya sendiri.
 //
-// Gaya mengikuti halaman Lacak (PR #109): kolom tengah ~400px, latar
-// off-white #f5f2f2 + gradasi pucat biru/navy di bawah, logo lockup RRI
-// lengkap h-20, tombol "Back to Landing Page" di kiri atas.
+// Gaya mengikuti Book a Venue / Rent a Space (perintah pengguna
+// 2026-11-21): latar putih, header panah + logo RRI h-10 di kiri dan
+// judul di kanan (tanpa teks kembali yang terlihat); kolom form ~400px
+// tetap di tengah.
 
 import { useEffect } from 'react';
 import { ArrowLeft } from 'lucide-react';
@@ -35,8 +36,10 @@ const TALLY_EMBED_SRC =
 export interface PlanCampaignProps {
   onKembali: () => void;
   /**
-   * Label tombol kembali — default "Back to Landing Page" (publik).
-   * Client Portal (dua peran 19/11/2026) memakai "Back to Client Portal".
+   * Label tombol kembali — dipakai sebagai aria-label (tidak ada teks
+   * kembali yang terlihat, pola Book a Venue); default
+   * "Back to Landing Page" (publik). Client Portal (dua peran
+   * 19/11/2026) memakai "Back to Client Portal".
    */
   labelKembali?: string;
 }
@@ -85,47 +88,33 @@ export default function PlanCampaign({ onKembali, labelKembali }: PlanCampaignPr
   }, []);
 
   return (
-    <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-[#f5f2f2] px-4 py-16">
-      {/* Gradasi pucat biru/navy di bagian bawah (pola yang sama seperti
-          halaman login dan Lacak) — dekoratif saja. */}
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-x-0 bottom-0 h-80 bg-gradient-to-t from-[#2573e2]/15 via-[#0d2569]/10 to-transparent"
-      />
-
-      {/* Tombol sudut kiri atas kembali ke landing page (pola login). */}
-      <button
-        type="button"
-        onClick={onKembali}
-        className="absolute left-4 top-4 z-10 inline-flex items-center gap-1.5 rounded-full border border-[#0d2569]/15 bg-white/80 px-3 py-2 text-xs font-semibold text-[#0d2569] hover:border-[#2573e2] hover:text-[#2573e2] sm:left-6 sm:top-6"
-      >
-        <ArrowLeft className="h-3.5 w-3.5" aria-hidden />
-        {labelKembali ?? 'Back to Landing Page'}
-      </button>
-
-      {/* Kolom terpusat ~400px (pola login/Lacak). */}
-      <div className="relative w-full max-w-[400px]">
-        <div className="text-center">
-          {/* Logo lockup lengkap RRI (mark + teks di dalam gambar),
-              h-20 seperti login dan Lacak. */}
-          <img
-            src={LOGO_RRI_LOCKUP_DATA_URI}
-            alt="Logo RRI"
-            className="mx-auto h-20 w-auto"
-          />
-        </div>
-
-        <h1 className="mt-8 text-center text-3xl font-bold text-[#0d2569]">
-          Plan a Campaign
-        </h1>
-        <p className="mt-2 text-center text-sm text-[#0d2569]/70">
-          Request an advertising quotation — fill in your campaign brief
-          below.
-        </p>
+    <div className="relative min-h-screen overflow-x-clip bg-white px-4 py-6">
+      <div className="relative mx-auto w-full max-w-7xl">
+        {/* Header pola Book a Venue: panah + logo RRI di kiri, judul di kanan. */}
+        <header className="flex items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <button
+              type="button"
+              onClick={onKembali}
+              aria-label={labelKembali ?? 'Back to Landing Page'}
+              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-[#ddd] bg-white text-[#222] transition hover:border-[#0d2569] hover:text-[#0d2569]"
+            >
+              <ArrowLeft className="h-5 w-5" aria-hidden />
+            </button>
+            <img
+              src={LOGO_RRI_LOCKUP_DATA_URI}
+              alt="Logo RRI"
+              className="h-10 w-auto"
+            />
+          </div>
+          <h1 className="text-2xl font-black tracking-tight text-[#0d2569]">
+            Plan a Campaign
+          </h1>
+        </header>
 
         {/* Form Tally (embed): judul form disembunyikan (hideTitle=1),
             tinggi menyesuaikan isi (dynamicHeight=1). */}
-        <div className="mt-6">
+        <div className="mx-auto mt-8 w-full max-w-[400px]">
           <iframe
             data-tally-src={TALLY_EMBED_SRC}
             loading="lazy"

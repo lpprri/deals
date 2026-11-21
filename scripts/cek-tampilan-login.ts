@@ -180,6 +180,11 @@ cek(
     !login.includes('onLacak') &&
     !login.includes('click here'),
 );
+cek(
+  'App: baris "Sample data — not yet migrated to Firestore." DIHAPUS dari shell admin (perintah pengguna 2026-11-21) — datanya sudah di Firestore; banner contoh hanya muncul bila Firebase tidak terkonfigurasi',
+  !app.includes('Sample data — not yet migrated to Firestore.') &&
+    app.includes("modeData === 'tidak-terkonfigurasi'"),
+);
 
 if (gagal > 0) {
   console.log(`\n${gagal} asersi GAGAL`);
