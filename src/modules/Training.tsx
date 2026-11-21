@@ -16,8 +16,10 @@
 // gradien biru RRI (tanpa foto stok).
 //
 // Gaya mengikuti halaman publik lain (PlanCampaign/Lacak): latar
-// off-white #f5f2f2 + gradasi pucat biru/navy di bawah, logo lockup RRI
-// lengkap h-20, tombol "Back to Landing Page" di kiri atas.
+// off-white #f5f2f2 + gradasi pucat biru/navy di bawah. Header ala
+// Book a Venue (perintah user 2026-11-21 15:12 WIB): kiri panah +
+// logo RRI h-10, kanan judul "Get a Journalism Training" gaya logo
+// Deals, tanpa deskripsi, tanpa teks "Back to Landing Page".
 
 import { useEffect, useState } from 'react';
 import { ArrowLeft, GraduationCap } from 'lucide-react';
@@ -106,32 +108,30 @@ export default function Training({ onKembali, onKirim }: TrainingProps) {
         className="pointer-events-none absolute inset-x-0 bottom-0 h-80 bg-gradient-to-t from-[#2573e2]/15 via-[#0d2569]/10 to-transparent"
       />
 
-      {/* Tombol sudut kiri atas kembali ke landing page (pola login). */}
-      <button
-        type="button"
-        onClick={onKembali}
-        className="absolute left-4 top-4 z-10 inline-flex items-center gap-1.5 rounded-full border border-[#0d2569]/15 bg-white/80 px-3 py-2 text-xs font-semibold text-[#0d2569] hover:border-[#2573e2] hover:text-[#2573e2] sm:left-6 sm:top-6"
-      >
-        <ArrowLeft className="h-3.5 w-3.5" aria-hidden />
-        Back to Landing Page
-      </button>
-
       <div className="relative mx-auto w-full max-w-6xl">
-        <div className="text-center">
-          <img
-            src={LOGO_RRI_LOCKUP_DATA_URI}
-            alt="Logo RRI"
-            className="mx-auto h-20 w-auto"
-          />
-        </div>
-
-        <h1 className="mt-8 text-center text-3xl font-bold text-[#0d2569]">
-          Get a Journalism Training
-        </h1>
-        <p className="mx-auto mt-2 max-w-xl text-center text-sm text-[#0d2569]/70">
-          Scheduled courses for journalists and broadcasters — pick a
-          course and register as a participant.
-        </p>
+        {/* Header ala Book a Venue (perintah user 2026-11-21 15:12 WIB):
+            kiri panah + logo RRI; kanan judul gaya logo Deals; tanpa
+            deskripsi; tanpa teks "Back to Landing Page". */}
+        <header className="flex items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <button
+              type="button"
+              onClick={onKembali}
+              aria-label="Back to Landing Page"
+              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-[#ddd] bg-white text-[#222] transition hover:border-[#0d2569] hover:text-[#0d2569]"
+            >
+              <ArrowLeft className="h-5 w-5" aria-hidden />
+            </button>
+            <img
+              src={LOGO_RRI_LOCKUP_DATA_URI}
+              alt="Logo RRI"
+              className="h-10 w-auto"
+            />
+          </div>
+          <h1 className="text-2xl font-black tracking-tight text-[#0d2569]">
+            Get a Journalism Training
+          </h1>
+        </header>
 
         {/* Daftar Scheduled Course (DUMMY — ganti data asli). */}
         <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">

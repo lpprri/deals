@@ -735,6 +735,18 @@ cek(
     training.includes('Back to Landing Page'),
 );
 cek(
+  'Training: header ala Book a Venue — panah + logo RRI di kiri, judul gaya Deals di kanan, tanpa deskripsi, tanpa teks back (user 2026-11-21 15:12 WIB)',
+  training.includes('aria-label="Back to Landing Page"') &&
+    training.includes('className="h-10 w-auto"') &&
+    training.includes('text-2xl font-black tracking-tight text-[#0d2569]') &&
+    !training.includes('>Back to Landing Page<') &&
+    !training.includes('Scheduled courses for journalists and broadcasters') &&
+    training.indexOf('<ArrowLeft') <
+      training.indexOf('src={LOGO_RRI_LOCKUP_DATA_URI}') &&
+    training.indexOf('src={LOGO_RRI_LOCKUP_DATA_URI}') <
+      training.indexOf('text-2xl font-black tracking-tight text-[#0d2569]'),
+);
+cek(
   'Halaman baru: gagal tulis Firestore tampil apa adanya',
   bookVenue.includes('galat') &&
     rentSpace.includes('galat') &&
