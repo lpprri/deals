@@ -41,10 +41,12 @@
 //     Campaign via prop onPlanCampaign — sejak batch landing 2026-11-19,
 //     BUKAN lagi ke kartu booking; Track your Deal → halaman Lacak via
 //     prop onLacak),
-//     "Additional Service" (Book a Venue, Rent a Space, Get a
-//     Journalism Training, Collaborate with Us, Support our Event,
-//     Invite as Media Partner — keenamnya membuka halaman "Coming
-//     Soon" via prop onComingSoon, BUKAN ke kartu booking;
+//     "Additional Service" (Book a Venue → halaman Book a Venue via
+//     prop onBookVenue, Rent a Space → halaman Rent a Space via prop
+//     onRentSpace, Get a Journalism Training → halaman Training via prop
+//     onTraining — sejak halaman layanan tambahan 2026-11-21; tiga
+//     sisanya (Collaborate with Us, Support our Event, Invite as Media
+//     Partner) masih membuka halaman "Coming Soon" via prop onComingSoon;
 //     permintaan pengguna 2026-11-18 21:19–21:21 WIB).
 //   - Kartu booking memakai nama "Deals" + logo RRI (bukan "Marklo").
 //   - Teks social proof hero diubah atas permintaan pengguna 2026-11-17:
@@ -108,10 +110,24 @@ export interface MarkloLandingProps {
       invoice (tanpa login). Dipakai footer "Track your Deal"
       (Client Portal); pola persis onLogin. */
   onLacak: () => void;
-  /** Buka halaman "Coming Soon" publik — dipakai keenam item footer
-      "Additional Service" (pola persis onLacak; permintaan pengguna
-      2026-11-18 21:19–21:21 WIB — BUKAN ke kartu booking). */
+  /** Buka halaman "Coming Soon" publik — dipakai TIGA item footer
+      "Additional Service" yang tersisa (Collaborate with Us, Support our
+      Event, Invite as Media Partner; pola persis onLacak; permintaan
+      pengguna 2026-11-18 21:19–21:21 WIB — BUKAN ke kartu booking). */
   onComingSoon: () => void;
+  /** Buka halaman "Book a Venue" publik (daftar venue + form booking) —
+      dipakai item footer "Book a Venue" (pola persis onLacak;
+      permintaan pengguna 2026-11-21 10:52 WIB). */
+  onBookVenue: () => void;
+  /** Buka halaman "Rent a Space" publik (daftar lahan + form inquiry) —
+      dipakai item footer "Rent a Space" (pola persis onLacak;
+      permintaan pengguna 2026-11-21 10:52 WIB). */
+  onRentSpace: () => void;
+  /** Buka halaman "Get a Journalism Training" publik (daftar Scheduled
+      Course + form registrasi) — dipakai item footer "Get a Journalism
+      Training" (pola persis onLacak; permintaan pengguna 2026-11-21
+      10:52 WIB). */
+  onTraining: () => void;
   /** Buka halaman "Plan a Campaign" publik (form Tally embed) —
       dipakai item footer "Plan a Campaign" (Client Portal) dan keempat
       kotak layanan (pola persis onLacak; permintaan pengguna 2026-11-19
@@ -241,7 +257,7 @@ function BintangLima({
   );
 }
 
-export default function MarkloLanding({ onLogin, onLacak, onComingSoon, onPlanCampaign, onKirimBooking }: MarkloLandingProps) {
+export default function MarkloLanding({ onLogin, onLacak, onComingSoon, onPlanCampaign, onBookVenue, onRentSpace, onTraining, onKirimBooking }: MarkloLandingProps) {
   return (
     <div className="min-h-screen bg-white text-black">
       <Header onLogin={onLogin} />
@@ -258,7 +274,7 @@ export default function MarkloLanding({ onLogin, onLacak, onComingSoon, onPlanCa
         <Testimoni />
         <Faq />
       </main>
-      <Footer onLacak={onLacak} onComingSoon={onComingSoon} onPlanCampaign={onPlanCampaign} />
+      <Footer onLacak={onLacak} onComingSoon={onComingSoon} onPlanCampaign={onPlanCampaign} onBookVenue={onBookVenue} onRentSpace={onRentSpace} onTraining={onTraining} />
     </div>
   );
 }
@@ -1629,7 +1645,7 @@ function Faq() {
 
 /* ================= Footer ================= */
 
-function Footer({ onLacak, onComingSoon, onPlanCampaign }: { onLacak: () => void; onComingSoon: () => void; onPlanCampaign: () => void }) {
+function Footer({ onLacak, onComingSoon, onPlanCampaign, onBookVenue, onRentSpace, onTraining }: { onLacak: () => void; onComingSoon: () => void; onPlanCampaign: () => void; onBookVenue: () => void; onRentSpace: () => void; onTraining: () => void }) {
   return (
     <footer className="relative bg-white">
       {/* Tepi atas bergelombang (SVG) menuju section gelap */}
@@ -1774,28 +1790,31 @@ function Footer({ onLacak, onComingSoon, onPlanCampaign }: { onLacak: () => void
           {/* Kolom Additional Service — di antara Client Portal dan
               Contact (judul lama diubah atas permintaan
               pengguna 2026-11-18; satu item pindah ke Client Portal,
-              satu item baru ditambahkan). Keenam item membuka halaman
-              "Coming Soon" lewat prop onComingSoon (pola onLacak) —
-              BUKAN ke kartu booking; permintaan pengguna 2026-11-18
-              21:19–21:21 WIB (dua item baru ditambahkan di akhir
-              daftar). */}
+              satu item baru ditambahkan). Tiga item membuka halaman
+              aslinya (Book a Venue → onBookVenue, Rent a Space →
+              onRentSpace, Get a Journalism Training → onTraining;
+              halaman layanan tambahan 2026-11-21); tiga sisanya masih
+              membuka halaman "Coming Soon" lewat prop onComingSoon
+              (pola onLacak) — BUKAN ke kartu booking; permintaan
+              pengguna 2026-11-18 21:19–21:21 WIB (dua item baru
+              ditambahkan di akhir daftar). */}
           <div>
             <h3 className="text-sm font-bold uppercase tracking-widest text-white/50">
               Additional Service
             </h3>
             <ul className="mt-4 space-y-2.5 text-sm">
               {[
-                { label: 'Book a Venue' },
-                { label: 'Rent a Space' },
-                { label: 'Get a Journalism Training' },
-                { label: 'Collaborate with Us' },
-                { label: 'Support our Event' },
-                { label: 'Invite as Media Partner' },
+                { label: 'Book a Venue', onClick: onBookVenue },
+                { label: 'Rent a Space', onClick: onRentSpace },
+                { label: 'Get a Journalism Training', onClick: onTraining },
+                { label: 'Collaborate with Us', onClick: onComingSoon },
+                { label: 'Support our Event', onClick: onComingSoon },
+                { label: 'Invite as Media Partner', onClick: onComingSoon },
               ].map((item) => (
                 <li key={item.label}>
                   <button
                     type="button"
-                    onClick={onComingSoon}
+                    onClick={item.onClick}
                     className="text-white/80 transition hover:text-white hover:underline"
                   >
                     {item.label}

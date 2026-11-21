@@ -663,6 +663,84 @@ service cloud.firestore {
           || request.resource.data.alamatKlien is string);
     }
 
+    // ---------- Akses publik halaman layanan tambahan (2026-11-21) ----------
+    // Form publik Book a Venue / Rent a Space / Get a Journalism Training
+    // menulis ke venueBookOrder / spaceRentOrder / trainingOrder (id
+    // 'VBR-…'/'SRR-…'/'TRN-…'; kirimPermintaan*Publik di App.tsx lewat
+    // kirimPermintaan*Publik di firestoreStore.ts). Aturan Firestore
+    // bersifat OR antar blok match yang sama — blok generik di atas tetap
+    // mengatur baca/tulis Operator untuk ketiga koleksi; blok-blok ini
+    // HANYA menambah jalur create publik. TIDAK ada read / update /
+    // delete publik.
+    // Validasi (pola blok /meeting): status SELALU 'Baru', satker SELALU
+    // '41' (PALEMBANG, pilot), tanggal 'yyyy-mm-dd', email format dasar
+    // (ada '@' dan titik setelahnya). Field detail (layanan,
+    // tanggalLayanan, keperluan, kontak, email) mengikuti yang ditulis
+    // aplikasi — keperluan (pesan inquiry Space) opsional: boleh tidak
+    // ada, bila ada harus string.
+    // PERINGATAN: blok-blok ini BELUM TERVALIDASI COMPILER — ditulis dari
+    // dokumentasi aturan Firestore dan belum diuji di Rules Playground /
+    // emulator. Tempel di console, periksa tidak ada error, baru Publish.
+    match /venueBookOrder/{id} {
+      // Publik (tanpa login): HANYA create, append-only, tervalidasi.
+      // Dipakai form booking halaman Book a Venue.
+      allow create: if request.auth == null
+        && request.resource.data.namaKlien is string
+        && request.resource.data.namaKlien.size() > 0
+        && request.resource.data.tanggalPermintaan is string
+        && request.resource.data.tanggalPermintaan.matches('^\\d{4}-\\d{2}-\\d{2}$')
+        && request.resource.data.status == 'Baru'
+        && request.resource.data.satker.kode == '41'
+        && request.resource.data.layanan is string
+        && request.resource.data.layanan.size() > 0
+        && request.resource.data.tanggalLayanan is string
+        && request.resource.data.tanggalLayanan.matches('^\\d{4}-\\d{2}-\\d{2}$')
+        && request.resource.data.keperluan is string
+        && request.resource.data.keperluan.size() > 0
+        && request.resource.data.kontak is string
+        && request.resource.data.kontak.size() > 0
+        && request.resource.data.email is string
+        && request.resource.data.email.matches('^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$');
+    }
+    match /spaceRentOrder/{id} {
+      // Publik (tanpa login): HANYA create, append-only, tervalidasi.
+      // Dipakai form inquiry halaman Rent a Space.
+      allow create: if request.auth == null
+        && request.resource.data.namaKlien is string
+        && request.resource.data.namaKlien.size() > 0
+        && request.resource.data.tanggalPermintaan is string
+        && request.resource.data.tanggalPermintaan.matches('^\\d{4}-\\d{2}-\\d{2}$')
+        && request.resource.data.status == 'Baru'
+        && request.resource.data.satker.kode == '41'
+        && request.resource.data.layanan is string
+        && request.resource.data.layanan.size() > 0
+        && request.resource.data.kontak is string
+        && request.resource.data.kontak.size() > 0
+        && request.resource.data.email is string
+        && request.resource.data.email.matches('^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$')
+        && (!('keperluan' in request.resource.data)
+          || request.resource.data.keperluan is string);
+    }
+    match /trainingOrder/{id} {
+      // Publik (tanpa login): HANYA create, append-only, tervalidasi.
+      // Dipakai form registrasi halaman Get a Journalism Training.
+      allow create: if request.auth == null
+        && request.resource.data.namaKlien is string
+        && request.resource.data.namaKlien.size() > 0
+        && request.resource.data.tanggalPermintaan is string
+        && request.resource.data.tanggalPermintaan.matches('^\\d{4}-\\d{2}-\\d{2}$')
+        && request.resource.data.status == 'Baru'
+        && request.resource.data.satker.kode == '41'
+        && request.resource.data.layanan is string
+        && request.resource.data.layanan.size() > 0
+        && request.resource.data.tanggalLayanan is string
+        && request.resource.data.tanggalLayanan.matches('^\\d{4}-\\d{2}-\\d{2}$')
+        && request.resource.data.kontak is string
+        && request.resource.data.kontak.size() > 0
+        && request.resource.data.email is string
+        && request.resource.data.email.matches('^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$');
+    }
+
     // ---------- Akses publik Lacak — get-by-ID saja, TANPA list ----------
     // KOREKSI 2026-11-15: klien mengakses dokumen kerja samanya dengan
     // memasukkan nomor PKS / nomor tagihan (keputusan 11:22 WIB).

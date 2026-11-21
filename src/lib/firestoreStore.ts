@@ -58,7 +58,7 @@ import {
   where,
 } from 'firebase/firestore';
 import type { Firestore } from 'firebase/firestore';
-import type { AppData, AuditEntry, Meeting, PengajuanKlien } from './types';
+import type { AppData, AuditEntry, Meeting, PengajuanKlien, PermintaanLayanan } from './types';
 
 /** Nama koleksi Firestore untuk tiap kunci AppData (nama kunci = nama koleksi). */
 export const KOLEKSI: Record<keyof AppData, string> = {
@@ -404,6 +404,60 @@ export async function kirimBookingPublik(
   await setDoc(
     doc(db, KOLEKSI.meeting, meeting.id),
     bersihkanUndefined(meeting),
+  );
+}
+
+/**
+ * Tulis satu permintaan booking venue publik sebagai dokumen
+ * PermintaanLayanan ke Firestore (halaman "Book a Venue", 2026-11-21:
+ * dipakai kirim publik tanpa login dari halaman Book a Venue; aturan
+ * Firestore mengizinkan create publik tervalidasi untuk koleksi ini —
+ * lihat blok publik venueBookOrder di firestore.rules). Pola sama dengan
+ * kirimBookingPublik.
+ */
+export async function kirimPermintaanVenuePublik(
+  db: Firestore,
+  permintaan: PermintaanLayanan,
+): Promise<void> {
+  await setDoc(
+    doc(db, KOLEKSI.venueBookOrder, permintaan.id),
+    bersihkanUndefined(permintaan),
+  );
+}
+
+/**
+ * Tulis satu inquiry lahan publik sebagai dokumen PermintaanLayanan ke
+ * Firestore (halaman "Rent a Space", 2026-11-21: dipakai kirim publik
+ * tanpa login dari halaman Rent a Space; aturan Firestore mengizinkan
+ * create publik tervalidasi untuk koleksi ini — lihat blok publik
+ * spaceRentOrder di firestore.rules). Pola sama dengan
+ * kirimBookingPublik.
+ */
+export async function kirimPermintaanSpacePublik(
+  db: Firestore,
+  permintaan: PermintaanLayanan,
+): Promise<void> {
+  await setDoc(
+    doc(db, KOLEKSI.spaceRentOrder, permintaan.id),
+    bersihkanUndefined(permintaan),
+  );
+}
+
+/**
+ * Tulis satu pendaftaran course publik sebagai dokumen PermintaanLayanan
+ * ke Firestore (halaman "Get a Journalism Training", 2026-11-21: dipakai
+ * kirim publik tanpa login dari halaman Training; aturan Firestore
+ * mengizinkan create publik tervalidasi untuk koleksi ini — lihat blok
+ * publik trainingOrder di firestore.rules). Pola sama dengan
+ * kirimBookingPublik.
+ */
+export async function kirimPermintaanTrainingPublik(
+  db: Firestore,
+  permintaan: PermintaanLayanan,
+): Promise<void> {
+  await setDoc(
+    doc(db, KOLEKSI.trainingOrder, permintaan.id),
+    bersihkanUndefined(permintaan),
   );
 }
 

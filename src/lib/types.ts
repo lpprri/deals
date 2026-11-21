@@ -479,8 +479,13 @@ export interface AdsQuotationRequest {
  * Get a Journalism Training / Invite as Media Partner) — panel Order,
  * enam tabel (PR #115). Keempat tabel memakai interface yang sama;
  * koleksinya berbeda (venueBookOrder, spaceRentOrder, trainingOrder,
- * mediaPartnerOrder). Form permintaannya masih Coming Soon, jadi keempat
- * tabel mulai kosong. TANPA data contoh.
+ * mediaPartnerOrder). TANPA data contoh.
+ *
+ * Sejak halaman layanan tambahan (2026-11-21): tiga form publik sudah
+ * hidup (Book a Venue, Rent a Space, Get a Journalism Training) dan
+ * menulis detail permintaan ke field OPSIONAL di bawah — opsional supaya
+ * baris lama (tanpa detail) tetap jalan; tabel Order menampilkan detail
+ * di kolom Details.
  */
 export interface PermintaanLayanan {
   /** Id permintaan, mis. 'VBR-...', 'SRR-...', 'TRN-...', 'MPR-...'. */
@@ -489,6 +494,16 @@ export interface PermintaanLayanan {
   tanggalPermintaan: string; // 'yyyy-mm-dd'
   status: StatusPermintaan;
   satker: SatkerRef;
+  /** Nama venue / lahan / course yang dipilih. */
+  layanan?: string;
+  /** Tanggal layanan yang diminta / tanggal jadwal course, 'yyyy-mm-dd'. */
+  tanggalLayanan?: string;
+  /** Occasion (venue) / pesan inquiry (space). */
+  keperluan?: string;
+  /** Kontak pengunjung (WA/telepon). */
+  kontak?: string;
+  /** Email pengunjung. */
+  email?: string;
 }
 
 /**

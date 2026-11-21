@@ -1577,28 +1577,28 @@ export function TabOrder({ data, user, actions, cari }: ModulProps) {
         )}
       </div>
 
-      {/* Venue Book Order — permintaan Book a Venue. Form-nya masih
-          Coming Soon, jadi tabel mulai kosong (empty state jujur). */}
+      {/* Venue Book Order — permintaan Book a Venue (halaman publik
+          2026-11-21; sebelumnya form-nya masih Coming Soon). */}
       <TabelPermintaanLayanan
         judul="Venue Book Order"
         daftar={venueTersaring}
-        teksKosong="No venue booking orders yet. Requests from the Book a Venue form will appear here once it is available."
+        teksKosong="No venue booking orders yet. Requests from the Book a Venue form will appear here."
       />
 
-      {/* Space Rent Order — permintaan Rent a Space. Form-nya masih
-          Coming Soon, jadi tabel mulai kosong (empty state jujur). */}
+      {/* Space Rent Order — permintaan Rent a Space (halaman publik
+          2026-11-21; sebelumnya form-nya masih Coming Soon). */}
       <TabelPermintaanLayanan
         judul="Space Rent Order"
         daftar={spaceTersaring}
-        teksKosong="No space rental orders yet. Requests from the Rent a Space form will appear here once it is available."
+        teksKosong="No space rental orders yet. Requests from the Rent a Space form will appear here."
       />
 
-      {/* Training Order — permintaan Get a Journalism Training. Form-nya
-          masih Coming Soon, jadi tabel mulai kosong (empty state jujur). */}
+      {/* Training Order — permintaan Get a Journalism Training (halaman
+          publik 2026-11-21; sebelumnya form-nya masih Coming Soon). */}
       <TabelPermintaanLayanan
         judul="Training Order"
         daftar={trainingTersaring}
-        teksKosong="No journalism training orders yet. Requests from the Get a Journalism Training form will appear here once it is available."
+        teksKosong="No journalism training orders yet. Requests from the Get a Journalism Training form will appear here."
       />
 
       {/* Media Partner Order — permintaan Invite as Media Partner.
@@ -1615,11 +1615,27 @@ export function TabOrder({ data, user, actions, cari }: ModulProps) {
 }
 
 /**
+ * Rincian permintaan untuk kolom Details (halaman layanan tambahan,
+ * 2026-11-21): nama layanan + tanggal layanan (dd/mm/yyyy) + keperluan,
+ * dipisah ' · '; '—' bila tidak ada detail (baris lama tanpa detail).
+ */
+function rincianPermintaan(r: PermintaanLayananItem): string {
+  const bagian = [
+    r.layanan,
+    r.tanggalLayanan ? formatTanggal(r.tanggalLayanan) : undefined,
+    r.keperluan,
+  ].filter((b): b is string => Boolean(b));
+  return bagian.length > 0 ? bagian.join(' · ') : '—';
+}
+
+/**
  * Tabel permintaan layanan (PR #115) — dipakai keempat tabel layanan panel
  * Order (Venue Book, Space Rent, Training, Media Partner). Kolom: Request
- * ID / Client / Request Date / Status. TANPA tombol create — baris hanya
- * muncul dari form permintaannya (masih Coming Soon); sampai ada
- * permintaan, empty state jujur yang tampil. TANPA data contoh.
+ * ID / Client / Details / Request Date / Status. Kolom Details (baru
+ * 2026-11-21) menampilkan detail permintaan dari form publiknya; empat
+ * kolom lama TIDAK berubah. TANPA tombol create — baris hanya muncul
+ * dari form permintaannya; sampai ada permintaan, empty state jujur
+ * yang tampil. TANPA data contoh.
  */
 function TabelPermintaanLayanan({
   judul,
@@ -1642,6 +1658,7 @@ function TabelPermintaanLayanan({
               <tr>
                 <Th>Request ID</Th>
                 <Th>Client</Th>
+                <Th>Details</Th>
                 <Th>Request Date</Th>
                 <Th>Status</Th>
               </tr>
@@ -1651,6 +1668,7 @@ function TabelPermintaanLayanan({
                 <Baris key={r.id}>
                   <Td tebal>{r.id}</Td>
                   <Td>{r.namaKlien}</Td>
+                  <Td>{rincianPermintaan(r)}</Td>
                   <Td>{formatTanggal(r.tanggalPermintaan)}</Td>
                   <Td>
                     <StatusBadge status={labelStatusPermintaan(r.status)} />
