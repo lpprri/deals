@@ -34,7 +34,9 @@
 // 12:34 WIB (scroll-to-top saat halaman publik mount) + studi Airbnb
 // saat login 12:35–12:36 WIB (tombol Save = hati + teks "Save",
 // galeri 5 foto mosaic tiap foto tombol, kartu booking Reserve +
-// "You won't be charged yet", kalender di bawah kartu booking).
+// "You won't be charged yet", kalender di kartu booking, check-out
+// multi-hari) + REVISI HEADER 2026-11-21 13:04 WIB (logo RRI pindah
+// ke kiri, di samping panah back; judul tetap di kanan).
 // "Message host" dan "Report this listing" SENGAJA tidak dibangun
 // (tidak ada messaging host di RRI).
 
@@ -332,11 +334,15 @@ cek(
     bookVenue.includes('kembaliKeListing'),
 );
 cek(
-  'Revisi: header — panah saja di kiri, logo h-10 + judul gaya Deals di kanan, tanpa teks back',
+  'Revisi: header — panah + logo RRI di kiri, judul gaya Deals di kanan, tanpa teks back (user 2026-11-21 13:04 WIB)',
   bookVenue.includes("'Back to venues'") &&
     bookVenue.includes('className="h-10 w-auto"') &&
     bookVenue.includes('text-2xl font-black tracking-tight text-[#0d2569]') &&
-    !bookVenue.includes('>Back to Landing Page<'),
+    !bookVenue.includes('>Back to Landing Page<') &&
+    bookVenue.indexOf('<ArrowLeft') <
+      bookVenue.indexOf('src={LOGO_RRI_LOCKUP_DATA_URI}') &&
+    bookVenue.indexOf('src={LOGO_RRI_LOCKUP_DATA_URI}') <
+      bookVenue.indexOf('text-2xl font-black tracking-tight text-[#0d2569]'),
 );
 cek(
   'Revisi: detail — galeri 1 besar + 4 kecil (tiap foto tombol) + Show all photos',

@@ -1100,33 +1100,34 @@ export default function BookVenue({ onKembali, onKirim }: BookVenueProps) {
       ) : null}
 
       <div className="relative mx-auto w-full max-w-7xl">
-        {/* Header: kiri panah saja; kanan logo RRI + judul gaya logo
-            Deals. Logo Deals adalah gambar PNG (src/lib/logoDeals.ts),
+        {/* Header: kiri panah + logo RRI; kanan judul gaya logo Deals.
+            Logo Deals adalah gambar PNG (src/lib/logoDeals.ts),
             BUKAN file font — judul memakai pendekatan visualnya: navy
             #0D2569, extra-bold/black, letter-spacing rapat, font stack
             sistem aplikasi. Deskripsi halaman dihapus (perintah user
-            2026-11-21 12:28 WIB). */}
+            2026-11-21 12:28 WIB). Logo pindah ke kiri, di samping panah
+            (perintah user 2026-11-21 13:04 WIB). */}
         <header className="flex items-center justify-between gap-4">
-          <button
-            type="button"
-            onClick={detail ? kembaliKeListing : onKembali}
-            aria-label={
-              detail ? 'Back to venues' : 'Back to Landing Page'
-            }
-            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-[#ddd] bg-white text-[#222] transition hover:border-[#0d2569] hover:text-[#0d2569]"
-          >
-            <ArrowLeft className="h-5 w-5" aria-hidden />
-          </button>
           <div className="flex items-center gap-3">
+            <button
+              type="button"
+              onClick={detail ? kembaliKeListing : onKembali}
+              aria-label={
+                detail ? 'Back to venues' : 'Back to Landing Page'
+              }
+              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-[#ddd] bg-white text-[#222] transition hover:border-[#0d2569] hover:text-[#0d2569]"
+            >
+              <ArrowLeft className="h-5 w-5" aria-hidden />
+            </button>
             <img
               src={LOGO_RRI_LOCKUP_DATA_URI}
               alt="Logo RRI"
               className="h-10 w-auto"
             />
-            <h1 className="text-2xl font-black tracking-tight text-[#0d2569]">
-              Book a Venue
-            </h1>
           </div>
+          <h1 className="text-2xl font-black tracking-tight text-[#0d2569]">
+            Book a Venue
+          </h1>
         </header>
 
         {detail ? (
