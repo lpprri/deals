@@ -47,11 +47,11 @@ import { ArrowLeft, Lock } from 'lucide-react';
 import type { DummyUser } from '../lib/dummyUsers';
 import { DUMMY_USERS } from '../lib/dummyUsers';
 import { isFirebaseConfigured } from '../lib/firebaseApp';
+import { useBahasa } from '../lib/bahasa';
+import { kamusUmum } from '../lib/i18n/kamusUmum';
 import { labelJabatan } from '../lib/labels';
 import { LOGO_RRI_LOCKUP_DATA_URI } from '../lib/logoRriLockup';
-import { FASE_TERBANGUN } from '../lib/master';
-import { LABEL_PERAN } from '../lib/permissions';
-import { Peringatan } from './ui';
+import { Peringatan, ToggleBahasa } from './ui';
 
 /** Field gaya Mixpanel: label tebal gelap di atas, input pill putih. */
 function Kolom({
@@ -106,6 +106,8 @@ export default function Login({
   const [institusi, setInstitusi] = useState('');
   const [pesanError, setPesanError] = useState<string | null>(null);
   const [sedangMasuk, setSedangMasuk] = useState(false);
+  const { bahasa } = useBahasa();
+  const t = kamusUmum[bahasa].login;
 
   function gantiMode(modeBaru: 'masuk' | 'daftar') {
     setMode(modeBaru);
@@ -153,12 +155,17 @@ export default function Login({
           className="absolute left-4 top-4 z-10 inline-flex items-center gap-1.5 rounded-full border border-[#0d2569]/15 bg-white/80 px-3 py-2 text-xs font-semibold text-[#0d2569] hover:border-[#2573e2] hover:text-[#2573e2] sm:left-6 sm:top-6"
         >
           <ArrowLeft className="h-3.5 w-3.5" aria-hidden />
-          Back to Landing Page
+          {t.kembaliKeLanding}
         </button>
       )}
 
       {/* Kolom terpusat ~400px. */}
       <div className="relative w-full max-w-[400px]">
+        {/* Toggle bahasa ID | EN (Fase 1 dual bahasa) — di atas kartu
+            login, supaya pilihan sebelum login terbawa ke admin. */}
+        <div className="mb-6 flex justify-center">
+          <ToggleBahasa />
+        </div>
         <div className="text-center">
           {/* Logo lockup lengkap (PR login-logo-lockup): mark "rri" +
               teks sudah di dalam gambar; h-20 (80px) → lebar ~254px
@@ -175,12 +182,10 @@ export default function Login({
         </div>
 
         <h1 className="mt-8 text-center text-3xl font-bold text-[#0d2569]">
-          {mode === 'daftar' ? 'Create your account' : 'Welcome Back'}
+          {mode === 'daftar' ? t.judulDaftar : t.judulMasuk}
         </h1>
         <p className="mt-2 text-center text-sm text-[#0d2569]/70">
-          {mode === 'daftar'
-            ? 'Create a client account to track your partnership'
-            : 'Enter your credentials to access your account'}
+          {mode === 'daftar' ? t.subDaftar : t.subMasuk}
         </p>
 
         {/* Kotak penjelasan mode signup saja (tanpa pilihan peran —
@@ -195,10 +200,7 @@ export default function Login({
               aria-hidden
             />
             <p className="text-xs leading-relaxed text-[#0d2569]/80">
-              This creates a client account — there is no role to
-              choose. After signing up, the Admin will link your
-              account to your partnership data; until then you can
-              submit a request and book a free call from your portal.
+              {t.kotakDaftar}
             </p>
           </div>
         )}
@@ -207,37 +209,37 @@ export default function Login({
           mode === 'daftar' ? (
             <form onSubmit={kirimDaftar} className="mt-6 space-y-5">
               <Kolom
-                label="Your name"
+                label={t.labelNama}
                 id="signup-nama"
                 type="text"
                 required
                 autoComplete="name"
                 value={nama}
                 onChange={(e) => setNama(e.target.value)}
-                placeholder="Your full name"
+                placeholder={t.phNama}
               />
               <Kolom
-                label="Company / institution"
+                label={t.labelInstitusi}
                 id="signup-institusi"
                 type="text"
                 required
                 autoComplete="organization"
                 value={institusi}
                 onChange={(e) => setInstitusi(e.target.value)}
-                placeholder="Your company or institution"
+                placeholder={t.phInstitusi}
               />
               <Kolom
-                label="Email"
+                label={t.labelEmail}
                 id="signup-email"
                 type="email"
                 required
                 autoComplete="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="your email address"
+                placeholder={t.phEmail}
               />
               <Kolom
-                label="Password"
+                label={t.labelKataSandi}
                 id="signup-password"
                 type="password"
                 required
@@ -245,7 +247,7 @@ export default function Login({
                 minLength={6}
                 value={kataSandi}
                 onChange={(e) => setKataSandi(e.target.value)}
-                placeholder="At least 6 characters"
+                placeholder={t.phKataSandiBaru}
               />
               {pesanError && (
                 <p className="rounded-md bg-[#2573e2]/10 px-3 py-2 text-sm font-semibold text-[#0d2569]">
@@ -257,40 +259,40 @@ export default function Login({
                 disabled={sedangMasuk}
                 className="w-full rounded-full bg-[#2573e2] px-4 py-3 text-sm font-bold text-white hover:bg-[#0d2569] disabled:opacity-60"
               >
-                {sedangMasuk ? 'Creating…' : 'Create account'}
+                {sedangMasuk ? t.tombolMembuat : t.tombolBuatAkun}
               </button>
               <p className="text-center text-sm text-[#0d2569]/70">
-                Already have an account?{' '}
+                {t.sudahPunyaAkun}{' '}
                 <button
                   type="button"
                   onClick={() => gantiMode('masuk')}
                   className="font-semibold text-[#2573e2] underline hover:text-[#0d2569]"
                 >
-                  Sign in
+                  {t.tombolMasuk}
                 </button>
               </p>
             </form>
           ) : (
             <form onSubmit={kirimForm} className="mt-6 space-y-5">
               <Kolom
-                label="Email"
+                label={t.labelEmail}
                 id="login-email"
                 type="email"
                 required
                 autoComplete="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="your email address"
+                placeholder={t.phEmail}
               />
               <Kolom
-                label="Password"
+                label={t.labelKataSandi}
                 id="login-password"
                 type="password"
                 required
                 autoComplete="current-password"
                 value={kataSandi}
                 onChange={(e) => setKataSandi(e.target.value)}
-                placeholder="Password"
+                placeholder={t.phKataSandi}
               />
               {pesanError && (
                 <p className="rounded-md bg-[#2573e2]/10 px-3 py-2 text-sm font-semibold text-[#0d2569]">
@@ -302,16 +304,16 @@ export default function Login({
                 disabled={sedangMasuk}
                 className="w-full rounded-full bg-[#2573e2] px-4 py-3 text-sm font-bold text-white hover:bg-[#0d2569] disabled:opacity-60"
               >
-                {sedangMasuk ? 'Checking…' : 'Sign in'}
+                {sedangMasuk ? t.tombolMemeriksa : t.tombolMasuk}
               </button>
               <p className="text-center text-sm text-[#0d2569]/70">
-                No account yet?{' '}
+                {t.belumPunyaAkun}{' '}
                 <button
                   type="button"
                   onClick={() => gantiMode('daftar')}
                   className="font-semibold text-[#2573e2] underline hover:text-[#0d2569]"
                 >
-                  Create account
+                  {t.tombolBuatAkun}
                 </button>
               </p>
             </form>
@@ -319,10 +321,10 @@ export default function Login({
         ) : (
           <>
             <div className="mt-6">
-              <Peringatan teks="Sample mode — sign in as Operator (Sample) or Client (Sample). In production, sign-in uses Firebase Auth; these dummy profiles are only for development." />
+              <Peringatan teks={t.peringatanContoh} />
             </div>
             <p className="mt-6 text-sm font-semibold text-[#0d2569]">
-              Sign in as (Sample):
+              {t.masukSebagaiContoh}
             </p>
             <div className="mt-3 space-y-3">
               {DUMMY_USERS.map((pengguna) => (
@@ -336,19 +338,18 @@ export default function Login({
                     {pengguna.nama}
                   </p>
                   <p className="mt-1 text-xs text-[#0d2569]/70">
-                    {labelJabatan(pengguna.jabatan)}
+                    {labelJabatan(pengguna.jabatan, bahasa)}
                   </p>
                   <p className="mt-2">
                     <span className="inline-flex items-center gap-1 rounded bg-[#2573e2]/10 px-2 py-0.5 text-xs font-semibold text-[#0d2569]">
-                      {LABEL_PERAN[pengguna.peran]}
+                      {kamusUmum[bahasa].peran[pengguna.peran]}
                     </span>
                   </p>
                 </button>
               ))}
             </div>
             <p className="mt-6 text-center text-xs text-[#0d2569]/60">
-              No password — sample mode is for development only{' '}
-              {FASE_TERBANGUN}.
+              {t.tanpaKataSandi}
             </p>
           </>
         )}

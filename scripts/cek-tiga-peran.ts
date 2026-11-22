@@ -48,6 +48,8 @@ const rules = baca('firestore.rules');
 const app = baca('src/App.tsx');
 const auth = baca('src/lib/auth.ts');
 const login = baca('src/components/Login.tsx');
+// Fase 1 dual bahasa: teks Login pindah ke kamusUmum.ts (EN verbatim).
+const kamusUmum = baca('src/lib/i18n/kamusUmum.ts');
 const master = baca('src/modules/MasterPage.tsx');
 const reporting = baca('src/modules/Reporting.tsx');
 const permissions = baca('src/lib/permissions.ts');
@@ -302,8 +304,9 @@ cek(
     !loginRata.includes('click here'),
 );
 cek(
-  'Login: signup tetap membuat akun client (tanpa pilihan peran)',
-  loginRata.includes('This creates a client account'),
+  'Login: signup tetap membuat akun client (tanpa pilihan peran; teks di kamusUmum)',
+  kamusUmum.includes('This creates a client account') &&
+    login.includes('t.kotakDaftar'),
 );
 
 // ---------- firestore.rules ----------

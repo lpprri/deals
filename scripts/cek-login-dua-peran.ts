@@ -63,6 +63,8 @@ const baca = (relatif: string) =>
 const rules = baca('firestore.rules');
 const app = baca('src/App.tsx');
 const login = baca('src/components/Login.tsx');
+// Fase 1 dual bahasa: teks Login pindah ke kamusUmum.ts (EN verbatim).
+const kamusUmum = baca('src/lib/i18n/kamusUmum.ts');
 const portal = baca('src/modules/PortalKlien.tsx');
 const ajukan = baca('src/modules/Ajukan.tsx');
 const store = baca('src/lib/firestoreStore.ts');
@@ -242,8 +244,10 @@ cek(
   badanDaftar.includes('kataSandi.length < 6'),
 );
 cek(
-  'Login punya mode signup (Create account / Create your account)',
-  login.includes('Create account') && login.includes('Create your account'),
+  'Login punya mode signup (Create account / Create your account, di kamusUmum; Login memakai kamus)',
+  kamusUmum.includes('Create account') &&
+    kamusUmum.includes('Create your account') &&
+    login.includes('kamusUmum[bahasa]'),
 );
 cek(
   'Login form signup: nama + institusi + email + password',
@@ -257,9 +261,10 @@ cek(
   !login.includes('id="signup-peran"') && !login.includes('name="peran"'),
 );
 cek(
-  'Login signup menjelaskan: tanpa pilihan peran, Admin menautkan',
-  loginRata.includes('no role to choose') &&
-    loginRata.includes('the Admin will link your account'),
+  'Login signup menjelaskan: tanpa pilihan peran, Admin menautkan (teks di kamusUmum, EN verbatim)',
+  kamusUmum.includes('no role to choose') &&
+    kamusUmum.includes('the Admin will link your account') &&
+    login.includes('t.kotakDaftar'),
 );
 cek(
   'Login menerima prop onSignupAuth',

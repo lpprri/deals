@@ -3,7 +3,16 @@
 // bukan warna baru: semua badge memakai tint Biru/Navy yang sama.
 
 import type { ReactNode } from 'react';
-import { AlertTriangle, CheckCircle2, Clock, Info, XCircle } from 'lucide-react';
+import {
+  AlertTriangle,
+  CheckCircle2,
+  Clock,
+  Globe,
+  Info,
+  XCircle,
+} from 'lucide-react';
+import type { Bahasa } from '../lib/bahasa';
+import { useBahasa } from '../lib/bahasa';
 import {
   labelStatusDenda,
   labelStatusDokumen,
@@ -22,13 +31,16 @@ import {
 } from '../lib/labels';
 
 /**
- * Label Inggris untuk nilai status tersimpan apa pun yang tampil di badge.
- * Setiap helper mengembalikan nilai asli bila tidak mengenalnya, jadi
- * rantai ini aman untuk semua domain status (kontrak, tagihan, dokumen,
- * pembayaran, denda, sewa, temuan, persetujuan, order, task, tiket,
- * tahap pengajuan/pipeline). Nilai yang sudah Inggris lolos apa adanya.
+ * Label untuk nilai status tersimpan apa pun yang tampil di badge —
+ * DUAL BAHASA Fase 1: arah Inggris memakai peta labels.ts, arah
+ * Indonesia mengembalikan nilai tersimpan itu sendiri (lihat labels.ts:
+ * audit Fase 1 tidak menemukan pengecualian). Setiap helper
+ * mengembalikan nilai asli bila tidak mengenalnya, jadi rantai ini aman
+ * untuk semua domain status (kontrak, tagihan, dokumen, pembayaran,
+ * denda, sewa, temuan, persetujuan, order, task, tiket, tahap
+ * pengajuan/pipeline). Nilai yang sudah Inggris lolos apa adanya.
  */
-function labelStatusTampilan(status: string): string {
+function labelStatusTampilan(status: string, bahasa: Bahasa): string {
   for (const fn of [
     labelStatusKontrak,
     labelStatusKlien,
@@ -45,10 +57,75 @@ function labelStatusTampilan(status: string): string {
     labelTahapPipeline,
     labelTahapPengajuan,
   ]) {
-    const mapped = fn(status);
+    const mapped = fn(status, bahasa);
     if (mapped !== status) return mapped;
   }
   return status;
+}
+
+/**
+ * Toggle bahasa ID | EN (Fase 1 dual bahasa, meniru toggle Beranda dulu:
+ * pil ID | EN, `aria-pressed`, yang aktif berlatar navy #0D2569).
+ * Bentuk penuh dipakai di login dan footer sidebar terbuka; `ringkas`
+ * dipakai saat sidebar dilipat — satu tombol globe yang mengganti bahasa
+ * tiap ketukan, supaya toggle tetap bisa dijangkau (T6).
+ */
+export function ToggleBahasa({
+  ringkas = false,
+  className = '',
+}: {
+  ringkas?: boolean;
+  className?: string;
+}) {
+  const { bahasa, setBahasa } = useBahasa();
+  if (ringkas) {
+    return (
+      <button
+        type="button"
+        onClick={() => setBahasa(bahasa === 'id' ? 'en' : 'id')}
+        title={
+          bahasa === 'id'
+            ? 'Bahasa: Indonesia — ketuk untuk English'
+            : 'Language: English — tap for Bahasa Indonesia'
+        }
+        aria-label="Ganti bahasa / Change language"
+        className={`flex h-9 w-9 flex-col items-center justify-center rounded-md border border-[#0d2569]/15 text-[#0d2569]/70 hover:bg-[#2573e2]/10 hover:text-[#2573e2] ${className}`}
+      >
+        <Globe size={15} aria-hidden />
+        <span className="text-[9px] font-bold leading-none">
+          {bahasa.toUpperCase()}
+        </span>
+      </button>
+    );
+  }
+  const tombolAktif =
+    'flex-1 bg-[#0d2569] px-2.5 py-1.5 text-white';
+  const tombolNonaktif =
+    'flex-1 bg-white px-2.5 py-1.5 text-[#0d2569] hover:bg-slate-100';
+  return (
+    <div
+      className={`inline-flex items-center rounded-lg border border-[#0d2569]/20 text-xs font-semibold ${className}`}
+      role="group"
+      aria-label="Bahasa / Language"
+    >
+      <button
+        type="button"
+        onClick={() => setBahasa('id')}
+        aria-pressed={bahasa === 'id'}
+        className={`rounded-l-lg ${bahasa === 'id' ? tombolAktif : tombolNonaktif}`}
+      >
+        ID
+      </button>
+      <button
+        type="button"
+        onClick={() => setBahasa('en')}
+        aria-pressed={bahasa === 'en'}
+        className={`rounded-r-lg ${bahasa === 'en' ? tombolAktif : tombolNonaktif}`}
+      >
+        EN
+      </button>
+    </div>
+  );
 }
 
 export function Kartu({ children, className = '' }: { children: ReactNode; className?: string }) {
@@ -103,14 +180,17 @@ export function StatCard({
   );
 }
 
-/** Badge status: teks + ikon, latar tint Biru/Navy saja (Bab 8.2). */
+/** Badge status: teks + ikon, latar tint Biru/Navy saja (Bab 8.2).
+ * Bahasa dibaca dari konteks (Fase 1) — semua pemakai StatusBadge di
+ * modul otomatis mengikuti toggle tanpa prop berantai. */
 export function StatusBadge({ status }: { status: string }) {
-  // Ikon dipilih dari nilai mentah (Indonesia) ATAU label tampil (Inggris)
-  // — call-site boleh meneruskan keduanya. 'Clock' dicek sebelum centang
+  const { bahasa } = useBahasa();
+  // Ikon dipilih dari nilai mentah (Indonesia) ATAU label tampil —
+  // call-site boleh meneruskan keduanya. 'Clock' dicek sebelum centang
   // supaya 'Belum Ada' ('Not yet available') tidak mendapat ikon centang
   // karena mengandung 'ada'/'available'.
   const s = status.toLowerCase();
-  const t = labelStatusTampilan(status).toLowerCase();
+  const t = labelStatusTampilan(status, bahasa).toLowerCase();
   const negatif =
     s.includes('lewat') ||
     s.includes('ditolak') ||
@@ -158,7 +238,7 @@ export function StatusBadge({ status }: { status: string }) {
   return (
     <span className="inline-flex items-center gap-1 rounded bg-[#2573e2]/10 px-2 py-0.5 text-xs font-semibold text-[#0d2569]">
       <Icon size={13} className="text-[#2573e2]" />
-      {labelStatusTampilan(status)}
+      {labelStatusTampilan(status, bahasa)}
     </span>
   );
 }
