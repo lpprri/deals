@@ -78,6 +78,7 @@ import {
   MapPin,
   Phone,
   Star,
+  User,
   Video,
   X,
 } from 'lucide-react';
@@ -385,16 +386,20 @@ function Header({ onLogin }: { onLogin: () => void }) {
           <button
             type="button"
             onClick={() => gulirKe('booking')}
-            className="hidden rounded-full bg-mk-aksen px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-mk-aksen-gelap sm:inline-flex"
+            title="Book a Free Call"
+            aria-label="Book a Free Call"
+            className="hidden h-10 w-10 items-center justify-center rounded-full bg-mk-aksen text-white shadow-sm transition hover:bg-mk-aksen-gelap sm:inline-flex"
           >
-            Book a Free Call
+            <Video className="h-5 w-5" aria-hidden="true" />
           </button>
           <button
             type="button"
             onClick={onLogin}
-            className="rounded-full border-2 border-black px-4 py-2 text-sm font-semibold text-black transition hover:bg-black hover:text-white"
+            title="Login"
+            aria-label="Login"
+            className="flex h-10 w-10 items-center justify-center rounded-full border-2 border-black text-black transition hover:bg-black hover:text-white"
           >
-            Login
+            <User className="h-5 w-5" aria-hidden="true" />
           </button>
         </div>
       </div>

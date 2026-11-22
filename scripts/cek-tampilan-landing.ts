@@ -205,8 +205,14 @@ cek(
     marklo.includes('aria-haspopup="true"'),
 );
 cek(
-  'Header: tombol Book a Free Call + Login (onLogin)',
-  marklo.includes('Book a Free Call') && marklo.includes('onClick={onLogin}'),
+  'Header: ikon video-call (Book a Free Call) + ikon profil (Login, onLogin) — hanya di header',
+  marklo
+    .slice(marklo.indexOf('function Header('), marklo.indexOf('</header>'))
+    .includes('aria-label="Book a Free Call"') &&
+    marklo
+      .slice(marklo.indexOf('function Header('), marklo.indexOf('</header>'))
+      .includes('aria-label="Login"') &&
+    marklo.includes('onClick={onLogin}'),
 );
 cek(
   'Header: brand RRI Deals (logo RRI + Deals, apa adanya)',
