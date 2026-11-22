@@ -74,6 +74,7 @@ import {
   Globe,
   Handshake,
   Instagram,
+  Lamp,
   Linkedin,
   MapPin,
   Phone,
@@ -286,13 +287,40 @@ export default function MarkloLanding({ onLogin, onComingSoon, onPlanCampaign, o
 
 function Header({ onLogin }: { onLogin: () => void }) {
   const [menuTerbuka, setMenuTerbuka] = useState(false);
+  const [bahasa, setBahasa] = useState<'id' | 'en'>(() =>
+    localStorage.getItem('rri-bahasa') === 'id' ? 'id' : 'en',
+  );
+  const [temaGelap, setTemaGelap] = useState(
+    () => localStorage.getItem('rri-tema') === 'gelap',
+  );
+  useEffect(() => {
+    localStorage.setItem('rri-bahasa', bahasa);
+  }, [bahasa]);
+  useEffect(() => {
+    localStorage.setItem('rri-tema', temaGelap ? 'gelap' : 'terang');
+  }, [temaGelap]);
+  const label = {
+    home: bahasa === 'id' ? 'Beranda' : 'Home',
+    options: bahasa === 'id' ? 'Opsi' : 'Options',
+    about: bahasa === 'id' ? 'Tentang' : 'About',
+    service: bahasa === 'id' ? 'Layanan' : 'Service',
+    testimonials: bahasa === 'id' ? 'Testimoni' : 'Testimonials',
+    process: bahasa === 'id' ? 'Proses' : 'Process',
+  } as const;
+  const gelap = temaGelap;
   return (
-    <header className="sticky top-0 z-50 bg-white/90 backdrop-blur">
+    <header
+      className={`sticky top-0 z-50 backdrop-blur ${
+        gelap ? 'bg-[#0b1220]/95 text-white' : 'bg-white/90 text-slate-900'
+      }`}
+    >
       <div className="mx-auto flex max-w-7xl items-center gap-4 px-4 py-3 sm:px-6">
         <button
           type="button"
           onClick={() => gulirKe('atas')}
-          className="flex min-w-0 items-center gap-2"
+          className={`flex min-w-0 items-center gap-2 rounded-full border px-3 py-1.5 shadow-sm backdrop-blur ${
+            gelap ? 'border-white/15 bg-white/10' : 'border-slate-200 bg-white/90'
+          }`}
           aria-label="RRI Deals — back to top"
         >
           <img
@@ -308,23 +336,38 @@ function Header({ onLogin }: { onLogin: () => void }) {
         </button>
         <div className="hidden flex-1 justify-center md:flex">
           <nav aria-label="Main navigation" className="relative">
-            <div className="flex items-center gap-1 rounded-full border border-slate-200 bg-white/90 px-2 py-1 shadow-sm backdrop-blur">
+            <div
+              className={`flex items-center gap-1 rounded-full border px-2 py-1 shadow-sm backdrop-blur ${
+                gelap ? 'border-white/15 bg-white/10' : 'border-slate-200 bg-white/90'
+              }`}
+            >
               <button
                 type="button"
                 onClick={() => gulirKe('atas')}
-                className="rounded-full px-3 py-1.5 text-sm font-medium text-slate-700 transition hover:bg-slate-100 hover:text-mk-aksen"
+                className={`rounded-full px-3 py-1.5 text-sm font-medium transition ${
+                  gelap
+                    ? 'text-slate-200 hover:bg-white/10 hover:text-white'
+                    : 'text-slate-700 hover:bg-slate-100 hover:text-mk-aksen'
+                }`}
               >
-                Home
+                {label.home}
               </button>
-              <span aria-hidden="true" className="h-5 w-px bg-slate-200" />
+              <span
+                aria-hidden="true"
+                className={`h-5 w-px ${gelap ? 'bg-white/20' : 'bg-slate-200'}`}
+              />
               <button
                 type="button"
                 onClick={() => setMenuTerbuka(!menuTerbuka)}
                 aria-haspopup="true"
                 aria-expanded={menuTerbuka}
-                className="flex items-center gap-1 rounded-full px-3 py-1.5 text-sm font-medium text-slate-700 transition hover:bg-slate-100 hover:text-mk-aksen"
+                className={`flex items-center gap-1 rounded-full px-3 py-1.5 text-sm font-medium transition ${
+                  gelap
+                    ? 'text-slate-200 hover:bg-white/10 hover:text-white'
+                    : 'text-slate-700 hover:bg-slate-100 hover:text-mk-aksen'
+                }`}
               >
-                Options
+                {label.options}
                 <ChevronDown className="h-4 w-4" aria-hidden="true" />
               </button>
             </div>
@@ -336,16 +379,24 @@ function Header({ onLogin }: { onLogin: () => void }) {
                   onClick={() => setMenuTerbuka(false)}
                   className="fixed inset-0 z-40 cursor-default"
                 />
-                <div className="absolute left-1/2 z-50 mt-2 w-48 -translate-x-1/2 rounded-2xl border border-slate-200 bg-white p-1.5 shadow-lg">
+                <div
+                  className={`absolute left-1/2 z-50 mt-2 w-48 -translate-x-1/2 rounded-2xl border p-1.5 shadow-lg ${
+                    gelap ? 'border-white/15 bg-[#0b1220]' : 'border-slate-200 bg-white'
+                  }`}
+                >
                   <button
                     type="button"
                     onClick={() => {
                       setMenuTerbuka(false);
                       gulirKe('about');
                     }}
-                    className="block w-full rounded-xl px-3 py-2 text-left text-sm font-medium text-slate-700 transition hover:bg-slate-100 hover:text-mk-aksen"
+                    className={`block w-full rounded-xl px-3 py-2 text-left text-sm font-medium transition ${
+                      gelap
+                        ? 'text-slate-200 hover:bg-white/10 hover:text-white'
+                        : 'text-slate-700 hover:bg-slate-100 hover:text-mk-aksen'
+                    }`}
                   >
-                    About
+                    {label.about}
                   </button>
                   <button
                     type="button"
@@ -353,9 +404,13 @@ function Header({ onLogin }: { onLogin: () => void }) {
                       setMenuTerbuka(false);
                       gulirKe('services');
                     }}
-                    className="block w-full rounded-xl px-3 py-2 text-left text-sm font-medium text-slate-700 transition hover:bg-slate-100 hover:text-mk-aksen"
+                    className={`block w-full rounded-xl px-3 py-2 text-left text-sm font-medium transition ${
+                      gelap
+                        ? 'text-slate-200 hover:bg-white/10 hover:text-white'
+                        : 'text-slate-700 hover:bg-slate-100 hover:text-mk-aksen'
+                    }`}
                   >
-                    Service
+                    {label.service}
                   </button>
                   <button
                     type="button"
@@ -363,9 +418,13 @@ function Header({ onLogin }: { onLogin: () => void }) {
                       setMenuTerbuka(false);
                       gulirKe('testimonials');
                     }}
-                    className="block w-full rounded-xl px-3 py-2 text-left text-sm font-medium text-slate-700 transition hover:bg-slate-100 hover:text-mk-aksen"
+                    className={`block w-full rounded-xl px-3 py-2 text-left text-sm font-medium transition ${
+                      gelap
+                        ? 'text-slate-200 hover:bg-white/10 hover:text-white'
+                        : 'text-slate-700 hover:bg-slate-100 hover:text-mk-aksen'
+                    }`}
                   >
-                    Testimonials
+                    {label.testimonials}
                   </button>
                   <button
                     type="button"
@@ -373,9 +432,13 @@ function Header({ onLogin }: { onLogin: () => void }) {
                       setMenuTerbuka(false);
                       gulirKe('process');
                     }}
-                    className="block w-full rounded-xl px-3 py-2 text-left text-sm font-medium text-slate-700 transition hover:bg-slate-100 hover:text-mk-aksen"
+                    className={`block w-full rounded-xl px-3 py-2 text-left text-sm font-medium transition ${
+                      gelap
+                        ? 'text-slate-200 hover:bg-white/10 hover:text-white'
+                        : 'text-slate-700 hover:bg-slate-100 hover:text-mk-aksen'
+                    }`}
                   >
-                    Process
+                    {label.process}
                   </button>
                 </div>
               </>
@@ -397,9 +460,62 @@ function Header({ onLogin }: { onLogin: () => void }) {
             onClick={onLogin}
             title="Login"
             aria-label="Login"
-            className="flex h-10 w-10 items-center justify-center rounded-full border-2 border-black text-black transition hover:bg-black hover:text-white"
+            className={`flex h-10 w-10 items-center justify-center rounded-full border-2 transition ${
+              gelap
+                ? 'border-white text-white hover:bg-white hover:text-black'
+                : 'border-black text-black hover:bg-black hover:text-white'
+            }`}
           >
             <User className="h-5 w-5" aria-hidden="true" />
+          </button>
+          <button
+            type="button"
+            onClick={() => setTemaGelap(!temaGelap)}
+            title={temaGelap ? 'Light mode' : 'Dark mode'}
+            aria-label="Toggle theme"
+            aria-pressed={temaGelap}
+            className={`flex h-10 w-10 items-center justify-center rounded-full border-2 transition ${
+              gelap
+                ? 'border-white text-white hover:bg-white hover:text-black'
+                : 'border-black text-black hover:bg-black hover:text-white'
+            }`}
+          >
+            <Lamp className="h-5 w-5" aria-hidden="true" />
+          </button>
+          <button
+            type="button"
+            onClick={() => setBahasa(bahasa === 'id' ? 'en' : 'id')}
+            title={bahasa === 'id' ? 'Switch to English' : 'Ganti ke Bahasa Indonesia'}
+            aria-label="Switch language"
+            className={`flex h-10 items-center justify-center gap-1.5 rounded-full border-2 px-3 transition ${
+              gelap
+                ? 'border-white text-white hover:bg-white hover:text-black'
+                : 'border-black text-black hover:bg-black hover:text-white'
+            }`}
+          >
+            {bahasa === 'id' ? (
+              <svg
+                viewBox="0 0 24 16"
+                className="h-4 w-6 overflow-hidden rounded-[2px] ring-1 ring-black/10"
+                aria-hidden="true"
+              >
+                <rect width="24" height="8" fill="#E11D2E" />
+                <rect y="8" width="24" height="8" fill="#ffffff" />
+              </svg>
+            ) : (
+              <svg
+                viewBox="0 0 24 16"
+                className="h-4 w-6 overflow-hidden rounded-[2px] ring-1 ring-black/10"
+                aria-hidden="true"
+              >
+                <rect width="24" height="16" fill="#012169" />
+                <path d="M0 0L24 16M24 0L0 16" stroke="#ffffff" strokeWidth="3" />
+                <path d="M0 0L24 16M24 0L0 16" stroke="#C8102E" strokeWidth="1" />
+                <path d="M12 0V16M0 8H24" stroke="#ffffff" strokeWidth="5" />
+                <path d="M12 0V16M0 8H24" stroke="#C8102E" strokeWidth="3" />
+              </svg>
+            )}
+            <span className="text-xs font-bold uppercase">{bahasa}</span>
           </button>
         </div>
       </div>
