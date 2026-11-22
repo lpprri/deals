@@ -1431,8 +1431,8 @@ export function TabOrder({ data, user, actions, cari }: ModulProps) {
         .includes(kataKunci),
   );
 
-  // Panel Order — enam tabel (PR #115): filter panel yang sama (`cari`)
-  // berlaku juga untuk lima tabel baru (berdasarkan id / klien / layanan /
+  // Panel Order — lima tabel (PR #115): filter panel yang sama (`cari`)
+  // berlaku juga untuk empat tabel baru (berdasarkan id / klien / layanan /
   // status); tabel kosong tidak terpengaruh.
   const cocokCari = (teks: string) =>
     kataKunci === '' || teks.toLowerCase().includes(kataKunci);
@@ -1445,9 +1445,6 @@ export function TabOrder({ data, user, actions, cari }: ModulProps) {
     cocokCari(`${r.id} ${r.namaKlien} ${r.status}`),
   );
   const spaceTersaring = data.spaceRentOrder.filter((r) =>
-    cocokCari(`${r.id} ${r.namaKlien} ${r.status}`),
-  );
-  const trainingTersaring = data.trainingOrder.filter((r) =>
     cocokCari(`${r.id} ${r.namaKlien} ${r.status}`),
   );
   const partnershipTersaring = data.partnershipRequest.filter((r) =>
@@ -1593,14 +1590,6 @@ export function TabOrder({ data, user, actions, cari }: ModulProps) {
         teksKosong="No space rental orders yet. Requests from the Rent a Space form will appear here."
       />
 
-      {/* Training Order — permintaan Get a Journalism Training (halaman
-          publik 2026-11-21; sebelumnya form-nya masih Coming Soon). */}
-      <TabelPermintaanLayanan
-        judul="Training Order"
-        daftar={trainingTersaring}
-        teksKosong="No journalism training orders yet. Requests from the Get a Journalism Training form will appear here."
-      />
-
       {/* Partnership Request — permintaan dari form Partnership Request
           halaman "Partner with RRI" (2026-11-21; diganti nama dari
           "Media Partner Order", koleksi diganti nama dari
@@ -1641,8 +1630,8 @@ function rincianPermintaan(r: PermintaanLayananItem): string {
 }
 
 /**
- * Tabel permintaan layanan (PR #115) — dipakai keempat tabel layanan panel
- * Order (Venue Book, Space Rent, Training, Partnership Request). Kolom: Request
+ * Tabel permintaan layanan (PR #115) — dipakai ketiga tabel layanan panel
+ * Order (Venue Book, Space Rent, Partnership Request). Kolom: Request
  * ID / Client / Details / Request Date / Status. Kolom Details (baru
  * 2026-11-21) menampilkan detail permintaan dari form publiknya; empat
  * kolom lama TIDAK berubah. TANPA tombol create — baris hanya muncul

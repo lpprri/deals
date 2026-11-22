@@ -147,10 +147,12 @@ cek(
   !notifikasi.includes("modul: 'sales'"),
 );
 
-// --- Asersi panel Order — enam tabel (PR #115, 19/11/2026). ---
+// --- Asersi panel Order — lima tabel (PR #115, 19/11/2026; Training
+// Order DIHAPUS perintah pengguna 2026-11-22 — halaman Training +
+// Learning Centre dibuang, panel Order tinggal 5 tabel). ---
 // Urutan: Manual Order, Ads Quotation Request, Venue Book Order,
-// Space Rent Order, Training Order, Partnership Request. Manual Order
-// adalah tabel Order yang sudah ada (judul saja yang berubah); lima
+// Space Rent Order, Partnership Request. Manual Order
+// adalah tabel Order yang sudah ada (judul saja yang berubah); empat
 // tabel baru mulai kosong dengan empty state jujur; TIDAK ada tabel
 // untuk Support our Event / Collaborate with Us.
 // "Partnership Request" diganti nama dari "Media Partner Order"
@@ -169,12 +171,11 @@ const urutanJudul = [
   'Ads Quotation Request',
   'Venue Book Order',
   'Space Rent Order',
-  'Training Order',
   'Partnership Request',
 ];
 const posisiJudul = urutanJudul.map((j) => tabOrder.indexOf(j));
 cek(
-  'panel Order: enam judul tabel berurutan (Manual, Ads Quotation Request, Venue, Space, Training, Partnership Request)',
+  'panel Order: lima judul tabel berurutan (Manual, Ads Quotation Request, Venue, Space, Partnership Request)',
   posisiJudul.every((p) => p >= 0) &&
     posisiJudul.every((p, i) => i === 0 || p > posisiJudul[i - 1]),
   posisiJudul.join(', '),
@@ -223,10 +224,6 @@ const tabelLayanan: [string, string][] = [
     'No space rental orders yet. Requests from the Rent a Space form will appear here.',
   ],
   [
-    'Training Order',
-    'No journalism training orders yet. Requests from the Get a Journalism Training form will appear here.',
-  ],
-  [
     'Partnership Request',
     'No partnership requests yet. Requests from the Partner with RRI form will appear here.',
   ],
@@ -246,7 +243,6 @@ cek(
   'tabel layanan: tanpa tombol create',
   !tabOrder.includes('Create Venue') &&
     !tabOrder.includes('Create Space') &&
-    !tabOrder.includes('Create Training') &&
     !tabOrder.includes('Create Media'),
 );
 cek(
@@ -255,11 +251,10 @@ cek(
     !tabOrder.includes('Collaborate with Us'),
 );
 cek(
-  'filter panel (cari) berlaku untuk lima tabel baru',
+  'filter panel (cari) berlaku untuk empat tabel baru',
   tabOrder.includes('data.adsQuotationRequest.filter') &&
     tabOrder.includes('data.venueBookOrder.filter') &&
     tabOrder.includes('data.spaceRentOrder.filter') &&
-    tabOrder.includes('data.trainingOrder.filter') &&
     tabOrder.includes('data.partnershipRequest.filter'),
 );
 cek(

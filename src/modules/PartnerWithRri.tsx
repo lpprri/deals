@@ -11,7 +11,7 @@
 // Who partners with RRI → media-partner audiences → 4 Easy Steps → FAQ →
 // form Partnership Request + checklist proposal. Footer landing TIDAK
 // dirender di halaman ini (pola ketiga halaman layanan lain — Book a
-// Venue / Rent a Space / Learning Centre juga tanpa footer; footer
+// Venue / Rent a Space juga tanpa footer; footer
 // sendiri tidak berubah kecuali pill "Partner with RRI" yang dipindah
 // ke halaman ini).
 //
@@ -65,8 +65,6 @@ export interface PartnerWithRriProps {
   onBookVenue: () => void;
   /** Buka halaman "Rent a Space" publik. */
   onRentSpace: () => void;
-  /** Buka hub "Learning Centre" publik. */
-  onTraining: () => void;
   /** Buka kartu booking landing ("Book a Free Call") — App mengarahkan
       ke beranda lalu menggulir ke kartu booking. */
   onBookFreeCall: () => void;
@@ -138,7 +136,7 @@ const CHECKLIST_PROPOSAL = [
   },
   {
     judul: 'Resources you need from RRI',
-    isi: 'Airtime, venue, space, training, or media coverage.',
+    isi: 'Airtime, venue, space, or media coverage.',
   },
   {
     judul: 'Performance estimates',
@@ -155,7 +153,6 @@ export default function PartnerWithRri({
   onPlanCampaign,
   onBookVenue,
   onRentSpace,
-  onTraining,
   onBookFreeCall,
   onKirim,
 }: PartnerWithRriProps) {
@@ -176,11 +173,11 @@ export default function PartnerWithRri({
   }[] = [
     {
       q: 'Who can become an RRI partner?',
-      a: 'Any business or institution — advertisers, event organisers, media, and training participants. No account is needed to enquire.',
+      a: 'Any business or institution — advertisers, event organisers, and media. No account is needed to enquire.',
     },
     {
       q: 'What forms of cooperation exist?',
-      a: 'Advertising, venue and space rental, training, media partnership, and event or programme support through an MoU or Commitment.',
+      a: 'Advertising, venue and space rental, media partnership, and event or programme support through an MoU or Commitment.',
     },
     {
       q: 'How do I advertise?',
@@ -188,12 +185,11 @@ export default function PartnerWithRri({
       tautan: [{ label: 'Plan a Campaign', onClick: onPlanCampaign }],
     },
     {
-      q: 'How do I book a venue, rent space, or join training?',
-      a: 'Use the three service pages below.',
+      q: 'How do I book a venue or rent space?',
+      a: 'Use the two service pages below.',
       tautan: [
         { label: 'Book a Venue', onClick: onBookVenue },
         { label: 'Rent a Space', onClick: onRentSpace },
-        { label: 'Learning Centre', onClick: onTraining },
       ],
     },
     {
@@ -372,7 +368,7 @@ export default function PartnerWithRri({
                 Use RRI&apos;s Spaces &amp; Services
               </h3>
               <p className="mt-2 text-sm leading-relaxed text-[#475467]">
-                Venues, land, and training from Indonesia&apos;s public
+                Venues and land from Indonesia&apos;s public
                 broadcaster.
               </p>
               <div className="mt-4 flex flex-col items-start gap-2">
@@ -390,14 +386,6 @@ export default function PartnerWithRri({
                   className="inline-flex items-center gap-1.5 text-sm font-semibold text-[#2573e2] transition hover:text-[#0d2569] hover:underline"
                 >
                   Rent a Space
-                  <ArrowRight className="h-4 w-4" aria-hidden />
-                </button>
-                <button
-                  type="button"
-                  onClick={onTraining}
-                  className="inline-flex items-center gap-1.5 text-sm font-semibold text-[#2573e2] transition hover:text-[#0d2569] hover:underline"
-                >
-                  Learning Centre
                   <ArrowRight className="h-4 w-4" aria-hidden />
                 </button>
               </div>

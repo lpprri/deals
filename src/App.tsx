@@ -97,7 +97,6 @@ import {
   kirimPengajuanPublik as kirimPengajuanPublikKeFirestore,
   kirimPermintaanPartnershipPublik as kirimPermintaanPartnershipPublikKeFirestore,
   kirimPermintaanSpacePublik as kirimPermintaanSpacePublikKeFirestore,
-  kirimPermintaanTrainingPublik as kirimPermintaanTrainingPublikKeFirestore,
   kirimPermintaanVenuePublik as kirimPermintaanVenuePublikKeFirestore,
   muatDariFirestore,
   muatDataKlien,
@@ -184,7 +183,6 @@ import type {
   PengajuanPublikInput,
   PermintaanPartnershipPublikInput,
   PermintaanSpacePublikInput,
-  PermintaanTrainingPublikInput,
   PermintaanVenuePublikInput,
   PesanInput,
   ProspectInput,
@@ -202,9 +200,6 @@ import PlanCampaign from './modules/PlanCampaign';
 import PartnerWithRri from './modules/PartnerWithRri';
 import BookVenue from './modules/BookVenue';
 import RentSpace from './modules/RentSpace';
-import Training from './modules/Training';
-import LearningCentre from './modules/LearningCentre';
-import ELearning from './modules/ELearning';
 import Ajukan from './modules/Ajukan';
 import Dashboard from './modules/Dashboard';
 import Deals from './modules/Deals';
@@ -727,7 +722,7 @@ export default function App() {
   const [galatMuat, setGalatMuat] = useState<string | null>(null);
   const [peringatanSimpan, setPeringatanSimpan] = useState<string | null>(null);
   /** Halaman publik tanpa login (lacak/ajukan) saat belum masuk. */
-  const [halamanPublik, setHalamanPublik] = useState<'beranda' | 'login' | 'lacak' | 'ajukan' | 'coming-soon' | 'plan-campaign' | 'book-venue' | 'rent-space' | 'training' | 'learning-centre' | 'e-learning' | 'partner-with-rri'>('beranda');
+  const [halamanPublik, setHalamanPublik] = useState<'beranda' | 'login' | 'lacak' | 'ajukan' | 'coming-soon' | 'plan-campaign' | 'book-venue' | 'rent-space' | 'partner-with-rri'>('beranda');
   // Prefill form Ajukan dari landing page DIHAPUS sementara (PR
   // landing-marklo-clone): landing baru belum memanggil Ajukan; state
   // ajukanAwal + prop prefill akan dipasang lagi pada putaran penyesuaian.
@@ -970,8 +965,7 @@ export default function App() {
    * field `layanan` dan `institusi` (PermintaanLayanan) supaya tabel
    * Partnership Request panel Order menampilkannya di kolom Details;
    * pesan disimpan di `keperluan`. Validasi nama/institusi/email/pesan
-   * juga dilakukan modulnya; di sini dicek ulang (pola
-   * kirimPermintaanTrainingPublik). Bila mode Firestore aktif, tulis
+   * juga dilakukan modulnya; di sini dicek ulang. Bila mode Firestore aktif, tulis
    * juga ke Firestore; bila tulis itu gagal, kembalikan pesan error.
    * Di luar mode Firestore, permintaan hanya tersimpan di sesi ini.
    */
@@ -1224,58 +1218,6 @@ export default function App() {
     return { galat: null, id };
   };
 
-  /**
-   * Kirim pendaftaran course publik dari halaman "Get a Journalism
-   * Training" (2026-11-21): pengunjung memilih Scheduled Course lalu
-   * mendaftar sebagai peserta. Pola sama dengan
-   * kirimPermintaanVenuePublik; koleksi 'trainingOrder', id 'TRN-…';
-   * tanggalLayanan = tanggal jadwal course yang dipilih.
-   */
-  const kirimPermintaanTrainingPublik = async (
-    input: PermintaanTrainingPublikInput,
-  ): Promise<{ galat: string | null; id?: string }> => {
-    if (!input.course.trim()) return { galat: 'Course is required.' };
-    if (
-      !input.tanggalCourse.trim() ||
-      !/^\d{4}-\d{2}-\d{2}$/.test(input.tanggalCourse.trim())
-    ) {
-      return { galat: 'Course date is not valid.' };
-    }
-    if (!input.nama.trim()) return { galat: 'Name is required.' };
-    if (!input.email.trim()) return { galat: 'Email is required.' };
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(input.email.trim()))
-      return { galat: 'Email format is not valid.' };
-    if (!input.telepon.trim()) return { galat: 'Phone is required.' };
-    const id = idBerikutnya('TRN-', data.trainingOrder.map((r) => r.id));
-    const permintaan: PermintaanLayanan = {
-      id,
-      namaKlien: input.nama.trim(),
-      tanggalPermintaan: hariIniIso(),
-      status: 'Baru',
-      satker: SATKER_PILOT,
-      layanan: input.course.trim(),
-      tanggalLayanan: input.tanggalCourse.trim(),
-      kontak: input.telepon.trim(),
-      email: input.email.trim(),
-    };
-    setData((d) => ({
-      ...d,
-      trainingOrder: [...d.trainingOrder, permintaan],
-    }));
-    if (isFirebaseConfigured && db) {
-      try {
-        await kirimPermintaanTrainingPublikKeFirestore(db, permintaan);
-      } catch (e) {
-        console.error(
-          'Gagal menyimpan pendaftaran training ke Firestore:',
-          e,
-        );
-        return { galat: 'Request recorded locally, but failed to save to Firestore — contact the Operator.' };
-      }
-    }
-    return { galat: null, id };
-  };
-
   if (!user) {
     if (halamanPublik === 'beranda') {
       // Landing page tiruan template Marklo (PR landing-marklo-clone).
@@ -1297,7 +1239,6 @@ export default function App() {
           onPartnerWithRri={() => setHalamanPublik('partner-with-rri')}
           onBookVenue={() => setHalamanPublik('book-venue')}
           onRentSpace={() => setHalamanPublik('rent-space')}
-          onTraining={() => setHalamanPublik('learning-centre')}
           onKirimBooking={kirimBookingPublik}
         />
       );
@@ -1378,22 +1319,6 @@ export default function App() {
         />
       );
     }
-    if (halamanPublik === 'learning-centre') {
-      // Halaman "Learning Centre" (Fase 1 rebuild, 2026-11-21): hub
-      // edukasi Pusbangkom Penyiaran Radio — dibuka dari footer
-      // "Additional Service" (label lama "Get a Journalism Training").
-      // Bootcamp & sertifikasi masih mengarah ke halaman Training lama
-      // sampai Fase 2/3. Data dummy dulu.
-      return (
-        <LearningCentre
-          onKembali={() => {
-            setHalamanPublik('beranda');
-          }}
-          onELearning={() => setHalamanPublik('e-learning')}
-          onTraining={() => setHalamanPublik('training')}
-        />
-      );
-    }
     if (halamanPublik === 'partner-with-rri') {
       // Halaman "Partner with RRI" (2026-11-21): halaman publik kemitraan
       // (studi Traveloka, spec partner-with-rri-spec.md) — dibuka dari
@@ -1411,36 +1336,8 @@ export default function App() {
           onPlanCampaign={() => setHalamanPublik('plan-campaign')}
           onBookVenue={() => setHalamanPublik('book-venue')}
           onRentSpace={() => setHalamanPublik('rent-space')}
-          onTraining={() => setHalamanPublik('learning-centre')}
           onBookFreeCall={bukaBookingLanding}
           onKirim={kirimPermintaanPartnershipPublik}
-        />
-      );
-    }
-    if (halamanPublik === 'e-learning') {
-      // Halaman "E-Learning" (Fase 1 rebuild, 2026-11-21): listing
-      // Learning Path + detail Path + detail Materi (player dummy).
-      // Data dummy dulu; tanpa langganan dan tanpa My Learning (Fase 4).
-      return (
-        <ELearning
-          onKembali={() => {
-            setHalamanPublik('learning-centre');
-          }}
-        />
-      );
-    }
-    if (halamanPublik === 'training') {
-      // Halaman "Get a Journalism Training" (permintaan pengguna
-      // 2026-11-21): daftar Scheduled Course + form registrasi —
-      // dibuka dari footer "Additional Service". Submit → tabel
-      // Training Order panel admin (id 'TRN-…'). Data dummy dulu;
-      // harga hanya tarif KB PP 68/2020.
-      return (
-        <Training
-          onKembali={() => {
-            setHalamanPublik('beranda');
-          }}
-          onKirim={kirimPermintaanTrainingPublik}
         />
       );
     }
