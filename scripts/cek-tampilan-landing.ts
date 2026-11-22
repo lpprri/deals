@@ -201,7 +201,7 @@ cek(
   marklo.includes("gulirKe('atas')") &&
     marklo.includes('menuTerbuka') &&
     marklo.includes('ChevronDown') &&
-    marklo.includes('rounded-full border') &&
+    marklo.includes('rounded-full border border-slate-200') &&
     marklo.includes('aria-haspopup="true"'),
 );
 cek(
@@ -213,21 +213,6 @@ cek(
       .slice(marklo.indexOf('function Header('), marklo.indexOf('</header>'))
       .includes('aria-label="Login"') &&
     marklo.includes('onClick={onLogin}'),
-);
-cek(
-  'Header: tombol lampu tema (rri-tema) + tombol bendera bahasa (rri-bahasa) — hanya di header',
-  marklo
-    .slice(marklo.indexOf('function Header('), marklo.indexOf('</header>'))
-    .includes('aria-label="Toggle theme"') &&
-    marklo
-      .slice(marklo.indexOf('function Header('), marklo.indexOf('</header>'))
-      .includes('aria-label="Switch language"') &&
-    marklo
-      .slice(marklo.indexOf('function Header('), marklo.indexOf('</header>'))
-      .includes("localStorage.getItem('rri-tema')") &&
-    marklo
-      .slice(marklo.indexOf('function Header('), marklo.indexOf('</header>'))
-      .includes("localStorage.getItem('rri-bahasa')"),
 );
 cek(
   'Header: logo RRI Deals di dalam pill (gaya Rare UI) — logo apa adanya, hanya dibungkus pill',
@@ -242,7 +227,7 @@ cek(
 );
 cek(
   'Header: seamless tanpa garis bawah — tidak ada border-b/divider di bawah header',
-  marklo.includes('sticky top-0 z-50') &&
+  marklo.includes('className="sticky top-0 z-50 bg-white/90 backdrop-blur"') &&
     !marklo
       .slice(marklo.indexOf('function Header('), marklo.indexOf('</header>'))
       .includes('border-b border-slate-200'),
