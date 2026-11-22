@@ -288,22 +288,22 @@ function Header({ onLogin }: { onLogin: () => void }) {
   const [menuTerbuka, setMenuTerbuka] = useState(false);
   return (
     <header className="sticky top-0 z-50 bg-white/90 backdrop-blur">
-      <div className="mx-auto flex max-w-7xl items-center gap-4 px-4 py-3 sm:px-6">
+      <div className="mx-auto flex max-w-7xl items-center gap-4 px-4 py-2 sm:px-6 sm:py-3">
         <button
           type="button"
           onClick={() => gulirKe('atas')}
-          className="flex min-w-0 items-center gap-2 rounded-full border border-slate-200 bg-white/90 px-3 py-1.5 shadow-sm backdrop-blur"
+          className="flex min-w-0 items-center gap-2 rounded-full border border-slate-200 bg-white/90 px-2.5 py-1 shadow-sm backdrop-blur sm:px-3 sm:py-1.5"
           aria-label="RRI Deals — back to top"
         >
           <img
             src={LOGO_RRI_LANDING_DATA_URI}
             alt="Radio Republik Indonesia"
-            className="h-9 w-auto shrink-0"
+            className="h-7 w-auto shrink-0 sm:h-9"
           />
           <img
             src={LOGO_DEALS_DATA_URI}
             alt="Deals"
-            className="h-9 w-auto shrink-0"
+            className="h-7 w-auto shrink-0 sm:h-9"
           />
         </button>
         <div className="hidden flex-1 justify-center md:flex">
@@ -397,7 +397,7 @@ function Header({ onLogin }: { onLogin: () => void }) {
             onClick={onLogin}
             title="Login"
             aria-label="Login"
-            className="flex h-10 w-10 items-center justify-center rounded-full border-2 border-black text-black transition hover:bg-black hover:text-white"
+            className="flex h-9 w-9 items-center justify-center rounded-full border-2 border-black text-black transition hover:bg-black hover:text-white sm:h-10 sm:w-10"
           >
             <User className="h-5 w-5" aria-hidden="true" />
           </button>

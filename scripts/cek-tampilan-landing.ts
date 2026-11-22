@@ -221,6 +221,12 @@ cek(
     marklo.includes('LOGO_DEALS_DATA_URI'),
 );
 cek(
+  'Header: ukuran logo + ikon mengecil di mobile, normal di desktop',
+  marklo.includes('h-7 w-auto shrink-0 sm:h-9') &&
+    marklo.includes('h-9 w-9 items-center justify-center rounded-full border-2') &&
+    marklo.includes('px-2.5 py-1 shadow-sm backdrop-blur sm:px-3 sm:py-1.5'),
+);
+cek(
   'Header: brand RRI Deals (logo RRI + Deals, apa adanya)',
   marklo.includes('LOGO_RRI_LANDING_DATA_URI') &&
     marklo.includes('LOGO_DEALS_DATA_URI'),
@@ -988,7 +994,7 @@ cek(
 cek(
   'Footer: logo RRI + Deals putih (filter brightness(0) invert(1) di kedua img footer; logo header tanpa filter)',
   (marklo.match(/\[filter:brightness\(0\)_invert\(1\)\]/g) || []).length === 2 &&
-    marklo.includes('className="h-9 w-auto shrink-0"'),
+    marklo.includes('className="h-7 w-auto shrink-0 sm:h-9"'),
 );
 cek(
   'Footer: urutan kolom "Site Map" < "What to Do" < Contact — kolom "Client Portal" DIHAPUS, "Additional Service" kembali jadi "Our Service" lalu judul diubah jadi "What to Do" (perintah user 2026-11-21 17:57 + 18:27 WIB); isi tiap kolom berurutan + "Book a Free Call" hilang dari footer',
