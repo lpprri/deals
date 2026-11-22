@@ -52,8 +52,8 @@
 //     di landing ini.
 //   - Gambar: tidak ada hotlink eksternal — visual kartu memakai
 //     gradien CSS; avatar memakai lingkaran inisial.
-// Komponen landing lama (Beranda.tsx + landing/*) TETAP di repo dan
-// tidak dipakai di route `/` untuk sementara.
+// Landing lama (Beranda + landing/* + kamus landing lama) DIHAPUS
+// 2026-11-22 atas permintaan pengguna — Marklo tetap jadi landing.
 
 import {
   useEffect,

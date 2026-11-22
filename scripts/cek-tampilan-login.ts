@@ -6,7 +6,8 @@
 // - Kolom terpusat max-w-[400px]; split-screen lama HILANG (tidak ada
 //   lagi kolom form lg:w-[49%] / panel foto lg:w-[51%]); panel foto
 //   gedung RRI DIHAPUS dari Login.tsx (GEDUNG_RRI_DATA_URI tidak lagi
-//   diimpor di sini; src/lib/gedungRri.ts tetap dipakai Beranda.tsx).
+//   diimpor di sini; src/lib/gedungRri.ts TIDAK lagi dipakai siapa pun
+//   sejak Beranda dihapus 2026-11-22 — dipertahankan sebagai aset foto).
 // - Logo lockup lengkap RRI di tengah atas (data URI terpisah
 //   src/lib/logoRriLockup.ts, h-20); teks terpisah
 //   "Radio Republik Indonesia" DIHAPUS dari Login.tsx karena teks itu

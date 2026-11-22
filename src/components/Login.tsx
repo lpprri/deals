@@ -18,7 +18,9 @@
 // - Satu tombol pill full-width Biru "Sign in" (hover navy).
 // - Tombol sudut kiri atas kembali ke landing page (prop onKembali).
 // - Panel foto gedung RRI di kanan DIHAPUS (template tidak punya side
-//   panel); src/lib/gedungRri.ts tetap dipakai Beranda.tsx, jangan hapus.
+//   panel); src/lib/gedungRri.ts TIDAK lagi dipakai siapa pun sejak
+//   Beranda dihapus 2026-11-22 — dipertahankan dulu sebagai aset foto
+//   pengguna, diputuskan nanti (file tak diimpor tidak masuk bundle).
 // HANYA login email: TIDAK ada login sosial (tanpa tombol Google),
 // TIDAK ada alur email-first (password tetap di layar yang sama),
 // TIDAK ada Forgot password (belum ada alurnya), TIDAK ada checkbox
