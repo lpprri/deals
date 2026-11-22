@@ -91,10 +91,10 @@ cek(
   page.includes("getElementById('partnership-form')"),
 );
 cek(
-  'Pintu 2: tautan Book a Venue / Rent a Space / Learning Centre',
+  'Pintu 2: tautan Book a Venue / Rent a Space (tanpa Learning Centre — dihapus 2026-11-22)',
   page.includes('Book a Venue') &&
     page.includes('Rent a Space') &&
-    page.includes('Learning Centre'),
+    !page.includes('Learning Centre'),
 );
 
 // --- 3. Why Partner with RRI — hanya angka terverifikasi. ---
@@ -206,7 +206,7 @@ const FAQ = [
   'Who can become an RRI partner?',
   'What forms of cooperation exist?',
   'How do I advertise?',
-  'How do I book a venue, rent space, or join training?',
+  'How do I book a venue or rent space?',
   'How do I become a media partner or support an event?',
   'What does it cost?',
   'How do I track my cooperation?',

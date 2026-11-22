@@ -82,11 +82,10 @@ const TAB_LABEL: { id: TabPortal; label: string }[] = [
   { id: 'bantuan', label: 'Help & Contact' },
 ];
 
-/** Enam item Additional Service (sama seperti footer — Coming Soon). */
+/** Lima item Additional Service (sama seperti footer — Coming Soon). */
 const LAYANAN_TAMBAHAN = [
   'Book a Venue',
   'Rent a Space',
-  'Get a Journalism Training',
   'Collaborate with Us',
   'Support our Event',
   'Invite as Media Partner',

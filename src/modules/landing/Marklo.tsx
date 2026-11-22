@@ -41,8 +41,7 @@
 //     Campaign via prop onPlanCampaign — pindah dari kolom "Client Portal"
 //     yang DIHAPUS; Book a Venue → halaman Book a Venue via prop
 //     onBookVenue, Rent a Space → halaman Rent a Space via prop
-//     onRentSpace, Learning Centre → hub Learning Centre via prop
-//     onTraining; "Join our Event" membuka halaman "Coming Soon" via prop
+//     onRentSpace; "Join our Event" membuka halaman "Coming Soon" via prop
 //     onComingSoon). Kolom "Client Portal" DIHAPUS — "Track your Deal"
 //     ikut hilang dari footer; halaman Lacak tetap ada (App.tsx, state
 //     'lacak') tapi tanpa lagi tombol masuk dari landing.
@@ -117,12 +116,6 @@ export interface MarkloLandingProps {
       dipakai item footer "Rent a Space" (pola persis onLacak;
       permintaan pengguna 2026-11-21 10:52 WIB). */
   onRentSpace: () => void;
-  /** Buka hub "Learning Centre" publik (Fase 1 rebuild 2026-11-21;
-      label footer lama "Get a Journalism Training") — dipakai item
-      footer "Improve your Skill" (dulu "Learning Centre", diubah 2026-11-21; pola persis onLacak; permintaan pengguna
-      2026-11-21
-      10:52 WIB). */
-  onTraining: () => void;
   /** Buka halaman "Plan a Campaign" publik (form Tally embed) —
       dipakai item footer "Plan a Campaign" (What to Do, pindah dari
       Client Portal 2026-11-21) dan keempat kotak layanan (pola persis
@@ -257,7 +250,7 @@ function BintangLima({
   );
 }
 
-export default function MarkloLanding({ onLogin, onComingSoon, onPlanCampaign, onPartnerWithRri, onBookVenue, onRentSpace, onTraining, onKirimBooking }: MarkloLandingProps) {
+export default function MarkloLanding({ onLogin, onComingSoon, onPlanCampaign, onPartnerWithRri, onBookVenue, onRentSpace, onKirimBooking }: MarkloLandingProps) {
   // Kembali ke landing dari halaman publik yang di-scroll: SPA
   // mempertahankan posisi scroll window, jadi landing mendarat di
   // tengah halaman. Scroll ke atas saat mount (perintah user
@@ -282,7 +275,7 @@ export default function MarkloLanding({ onLogin, onComingSoon, onPlanCampaign, o
         <Testimoni />
         <Faq />
       </main>
-      <Footer onComingSoon={onComingSoon} onPlanCampaign={onPlanCampaign} onPartnerWithRri={onPartnerWithRri} onBookVenue={onBookVenue} onRentSpace={onRentSpace} onTraining={onTraining} />
+      <Footer onComingSoon={onComingSoon} onPlanCampaign={onPlanCampaign} onPartnerWithRri={onPartnerWithRri} onBookVenue={onBookVenue} onRentSpace={onRentSpace} />
     </div>
   );
 }
@@ -1653,7 +1646,7 @@ function Faq() {
 
 /* ================= Footer ================= */
 
-function Footer({ onComingSoon, onPlanCampaign, onPartnerWithRri, onBookVenue, onRentSpace, onTraining }: { onComingSoon: () => void; onPlanCampaign: () => void; onPartnerWithRri: () => void; onBookVenue: () => void; onRentSpace: () => void; onTraining: () => void }) {
+function Footer({ onComingSoon, onPlanCampaign, onPartnerWithRri, onBookVenue, onRentSpace }: { onComingSoon: () => void; onPlanCampaign: () => void; onPartnerWithRri: () => void; onBookVenue: () => void; onRentSpace: () => void }) {
   return (
     <footer className="relative bg-white">
       {/* Tepi atas bergelombang (SVG) menuju section gelap */}
@@ -1780,11 +1773,10 @@ function Footer({ onComingSoon, onPlanCampaign, onPartnerWithRri, onBookVenue, o
           {/* Kolom What to Do — judul "Our Service" diubah jadi "What to
               Do" atas permintaan pengguna 2026-11-21 18:27 WIB; "Plan a
               Campaign" pindah ke sini dari kolom portal klien yang DIHAPUS
-              (item pertama). Lima item: Plan a Campaign → halaman Plan a
+              (item pertama). Empat item: Plan a Campaign → halaman Plan a
               Campaign via onPlanCampaign; Book a Venue → onBookVenue,
-              Rent a Space → onRentSpace, Improve your Skill → onTraining;
-              "Join our Event" membuka halaman "Coming Soon" via
-              onComingSoon — BUKAN ke kartu booking. */}
+              Rent a Space → onRentSpace; "Join our Event" membuka halaman
+              "Coming Soon" via onComingSoon — BUKAN ke kartu booking. */}
           <div>
             <h3 className="text-sm font-bold uppercase tracking-widest text-white/50">
               What to Do
@@ -1794,7 +1786,6 @@ function Footer({ onComingSoon, onPlanCampaign, onPartnerWithRri, onBookVenue, o
                 { label: 'Plan a Campaign', onClick: onPlanCampaign },
                 { label: 'Book a Venue', onClick: onBookVenue },
                 { label: 'Rent a Space', onClick: onRentSpace },
-                { label: 'Improve your Skill', onClick: onTraining },
                 { label: 'Join our Event', onClick: onComingSoon },
               ].map((item) => (
                 <li key={item.label}>

@@ -1,17 +1,20 @@
-// Verifikasi halaman 3 layanan tambahan (Book a Venue / Rent a Space /
-// Get a Journalism Training) — keputusan pengguna 2026-11-21 10:52 WIB:
-// bangun ketiganya sekaligus, data dummy dulu. PLUS rebuild Book a Venue
-// ala Airbnb (2026-11-21 12:01 WIB, 5 screenshot airbnb.com + studi live
-// airbnb.com 12:03–12:06 WIB): tab kategori, search bar Where/When/Who,
-// kartu foto generated + wishlist localStorage + rating.
+// Verifikasi halaman 2 layanan tambahan (Book a Venue / Rent a Space) —
+// keputusan pengguna 2026-11-21 10:52 WIB: bangun keduanya sekaligus,
+// data dummy dulu. (Layanan ketiga, Get a Journalism Training, + hub
+// Learning Centre DIHAPUS perintah pengguna 2026-11-22 — aplikasi
+// kembali fokus ke manajemen kerja sama & kanal pemasaran jasa RRI.)
+// PLUS rebuild Book a Venue ala Airbnb (2026-11-21 12:01 WIB,
+// 5 screenshot airbnb.com + studi live airbnb.com 12:03–12:06 WIB):
+// tab kategori, search bar Where/When/Who, kartu foto generated +
+// wishlist localStorage + rating.
 //
 // Asersi:
-// - Rute: App.tsx mengenal 'book-venue' | 'rent-space' | 'training',
-//   merender ketiga modul baru, dan meneruskan prop baru ke Marklo.
-// - Footer: Marklo hanya 3 item baru yang memakai prop baru; 3 item
+// - Rute: App.tsx mengenal 'book-venue' | 'rent-space', merender kedua
+//   modul baru, dan meneruskan prop baru ke Marklo.
+// - Footer: Marklo hanya 2 item baru yang memakai prop baru; 2 item
 //   lainnya tetap onComingSoon.
-// - Dummy: 10 venue + 4 lahan + 4 course, semua id ada; harga HANYA
-//   tarif KB PP 68/2020 (5 harga) + 'Price on request' (12x); tidak ada
+// - Dummy: 10 venue + 10 lahan, semua id ada; harga HANYA
+//   tarif KB PP 68/2020 (3 harga: Auditorium 2 paket + Studio) + 'Price on request' (16x); tidak ada
 //   angka Rp lain; file jelas ditandai DUMMY; venue punya kota satker +
 //   rating + foto.
 // - Foto venue: 5 data URI WebP di fotoVenue.ts (satu per jenis);
@@ -20,9 +23,11 @@
 //   Dates/Flexible + Exact/±, wishlist localStorage, kartu (foto 4:3,
 //   badge Client favourite, hati, rating), form peserta + occasion
 //   dropdown, jumlahPeserta sampai ke Order Details.
-// - Tulis publik: 3 fungsi kirim di firestoreStore.ts + 3 handler di
-//   App.tsx (id VBR-/SRR-/TRN-…, status 'Baru'); tabel Order punya
-//   kolom Details; 4 kolom lama tetap ada.
+// - Tulis publik: 2 fungsi kirim di firestoreStore.ts + 2 handler di
+//   App.tsx (id VBR-/SRR-…, status 'Baru'); tabel Order punya
+//   kolom Details; 4 kolom lama tetap ada. (Fungsi kirim training di
+//   firestoreStore + koleksi trainingOrder TETAP ada untuk data lama;
+//   hanya halaman + tabelnya yang dihapus 2026-11-22.)
 // - Rules: 3 blok create publik (auth == null, status 'Baru', satker
 //   '41'); blok /meeting dan blok generik operator TIDAK berubah;
 //   TIDAK ada hasOnly — field opsional jumlahPeserta tidak butuh
@@ -66,7 +71,6 @@ const sales = baca('src/modules/Sales.tsx');
 const rules = baca('firestore.rules');
 const bookVenue = baca('src/modules/BookVenue.tsx');
 const rentSpace = baca('src/modules/RentSpace.tsx');
-const training = baca('src/modules/Training.tsx');
 const fotoVenue = baca('src/lib/fotoVenue.ts');
 const fotoLahan = baca('src/lib/fotoLahan.ts');
 const lacak = baca('src/modules/Lacak.tsx');
@@ -74,13 +78,10 @@ const ajukan = baca('src/modules/Ajukan.tsx');
 const comingSoon = baca('src/modules/ComingSoon.tsx');
 const planCampaign = baca('src/modules/PlanCampaign.tsx');
 
-// Potongan file dummy per bagian (venue sebelum SPACE_DUMMY, lahan
-// antara SPACE_DUMMY dan COURSE_DUMMY) — dipakai asersi jumlah field.
+// Potongan file dummy per bagian (venue sebelum SPACE_DUMMY, lahan dari
+// SPACE_DUMMY sampai akhir file) — dipakai asersi jumlah field.
 const venueBagian = dummy.slice(0, dummy.indexOf('export const SPACE_DUMMY'));
-const spaceBagian = dummy.slice(
-  dummy.indexOf('export const SPACE_DUMMY'),
-  dummy.indexOf('export const COURSE_DUMMY'),
-);
+const spaceBagian = dummy.slice(dummy.indexOf('export const SPACE_DUMMY'));
 
 let gagal = 0;
 const cek = (nama: string, lolos: boolean, detail = '') => {
@@ -92,49 +93,40 @@ const hitung = (teks: string, jarum: string) =>
 
 // --- 1. Rute + handler App.tsx. ---
 cek(
-  "App: union halamanPublik mengenal 'book-venue' | 'rent-space' | 'training'",
-  app.includes("'book-venue' | 'rent-space' | 'training'"),
+  "App: union halamanPublik mengenal 'book-venue' | 'rent-space'",
+  app.includes("'book-venue' | 'rent-space'"),
 );
 cek(
-  'App: render BookVenue + RentSpace + Training',
-  app.includes('<BookVenue') &&
-    app.includes('<RentSpace') &&
-    app.includes('<Training'),
+  'App: render BookVenue + RentSpace',
+  app.includes('<BookVenue') && app.includes('<RentSpace'),
 );
 cek(
-  'App: 3 handler kirim publik ada',
+  'App: 2 handler kirim publik ada',
   app.includes('kirimPermintaanVenuePublik') &&
-    app.includes('kirimPermintaanSpacePublik') &&
-    app.includes('kirimPermintaanTrainingPublik'),
+    app.includes('kirimPermintaanSpacePublik'),
 );
 cek(
-  "App: id VBR-/SRR-/TRN- + status 'Baru'",
+  "App: id VBR-/SRR- + status 'Baru'",
   app.includes("idBerikutnya('VBR-'") &&
     app.includes("idBerikutnya('SRR-'") &&
-    app.includes("idBerikutnya('TRN-'") &&
     hitung(app, "status: 'Baru'") >= 3,
 );
 cek(
   'App: prop baru diteruskan ke Marklo',
   app.includes("onBookVenue={() => setHalamanPublik('book-venue')}") &&
-    app.includes("onRentSpace={() => setHalamanPublik('rent-space')}") &&
-    app.includes("onTraining={() => setHalamanPublik('training')}"),
+    app.includes("onRentSpace={() => setHalamanPublik('rent-space')}"),
 );
 
 // --- 2. Footer Marklo. ---
 cek(
-  'Marklo: prop onBookVenue/onRentSpace/onTraining ada di interface',
+  'Marklo: prop onBookVenue/onRentSpace ada di interface',
   marklo.includes('onBookVenue: () => void') &&
-    marklo.includes('onRentSpace: () => void') &&
-    marklo.includes('onTraining: () => void'),
+    marklo.includes('onRentSpace: () => void'),
 );
 cek(
-  'Marklo: 3 item baru memakai prop baru',
+  'Marklo: 2 item baru memakai prop baru',
   marklo.includes("{ label: 'Book a Venue', onClick: onBookVenue }") &&
-    marklo.includes("{ label: 'Rent a Space', onClick: onRentSpace }") &&
-    marklo.includes(
-      "{ label: 'Improve your Skill', onClick: onTraining }",
-    ),
+    marklo.includes("{ label: 'Rent a Space', onClick: onRentSpace }"),
 );
 cek(
   'Marklo: "Join our Event" (dulu "Support our Event") tetap onComingSoon; "Collaborate with Us" dan "Invite as Media Partner" DIHAPUS dari footer (perintah user 2026-11-21 16:17 WIB)',
@@ -173,37 +165,27 @@ const idSpace = [
   'SPC-009',
   'SPC-010',
 ];
-const idCourse = [
-  'pelatihan-jurnalistik',
-  'sertifikasi-wartawan',
-  'workshop-penulisan',
-  'wawancara-reportase',
-];
 cek(
-  'Dummy: 10 venue + 10 lahan + 4 course (semua id ada)',
-  [...idVenue, ...idSpace, ...idCourse].every((id) =>
-    dummy.includes(`id: '${id}'`),
-  ),
+  'Dummy: 10 venue + 10 lahan (semua id ada)',
+  [...idVenue, ...idSpace].every((id) => dummy.includes(`id: '${id}'`)),
 );
 cek(
   'Dummy: file jelas ditandai DUMMY',
   dummy.includes('DUMMY — ganti data asli') && hitung(dummy, 'DUMMY') >= 5,
 );
 cek(
-  'Dummy: harga KB hadir (Auditorium 2 paket, Studio, Pelatihan, Sertifikasi)',
+  'Dummy: harga KB hadir (Auditorium 2 paket, Studio)',
   dummy.includes("harga: 'Rp7,500,000 / 4 hours'") &&
     dummy.includes('Rp10,000,000 / 4 hours') &&
-    dummy.includes("harga: 'Rp2,000,000 / 3 hours'") &&
-    dummy.includes("harga: 'Rp2,000,000 / person / 3 days'") &&
-    dummy.includes("harga: 'Rp1,500,000 / person / 3 days'"),
+    dummy.includes("harga: 'Rp2,000,000 / 3 hours'"),
 );
 cek(
-  "Dummy: 'Price on request' tepat 18x (6 venue + 10 lahan + 2 course)",
-  hitung(dummy, "harga: 'Price on request'") === 18,
+  "Dummy: 'Price on request' tepat 16x (6 venue + 10 lahan)",
+  hitung(dummy, "harga: 'Price on request'") === 16,
 );
 cek(
-  'Dummy: total 24 baris harga (10 venue + 10 lahan + 4 course)',
-  hitung(dummy, "harga: '") === 24,
+  'Dummy: total 20 baris harga (10 venue + 10 lahan)',
+  hitung(dummy, "harga: '") === 20,
 );
 cek(
   'Dummy: tidak ada angka Rp lain selain tarif KB',
@@ -212,11 +194,9 @@ cek(
       'Rp7.500.000',
       'Rp10.000.000',
       'Rp2.000.000',
-      'Rp1.500.000',
       'Rp7,500,000',
       'Rp10,000,000',
       'Rp2,000,000',
-      'Rp1,500,000',
     ]);
     const semua = dummy.match(/Rp[0-9.,]+/g) ?? [];
     return semua.length > 0 && semua.every((r) => boleh.has(r));
@@ -727,29 +707,8 @@ cek(
       rentSpace.indexOf('text-2xl font-black tracking-tight text-[#0d2569]'),
 );
 cek(
-  'Training: daftar course + form course/nama/email/telepon + referensi',
-  training.includes('Register') &&
-    training.includes('Schedule:') &&
-    training.includes('Your reference number is') &&
-    training.includes('Back to Landing Page'),
-);
-cek(
-  'Training: header ala Book a Venue — panah + logo RRI di kiri, judul gaya Deals di kanan, tanpa deskripsi, tanpa teks back (user 2026-11-21 15:12 WIB)',
-  training.includes('aria-label="Back to Landing Page"') &&
-    training.includes('className="h-10 w-auto"') &&
-    training.includes('text-2xl font-black tracking-tight text-[#0d2569]') &&
-    !training.includes('>Back to Landing Page<') &&
-    !training.includes('Scheduled courses for journalists and broadcasters') &&
-    training.indexOf('<ArrowLeft') <
-      training.indexOf('src={LOGO_RRI_LOCKUP_DATA_URI}') &&
-    training.indexOf('src={LOGO_RRI_LOCKUP_DATA_URI}') <
-      training.indexOf('text-2xl font-black tracking-tight text-[#0d2569]'),
-);
-cek(
   'Halaman baru: gagal tulis Firestore tampil apa adanya',
-  bookVenue.includes('galat') &&
-    rentSpace.includes('galat') &&
-    training.includes('galat'),
+  bookVenue.includes('galat') && rentSpace.includes('galat'),
 );
 
 // --- 5. Tipe + store + firestoreStore. ---
@@ -801,12 +760,9 @@ cek(
     sales.includes('participant'),
 );
 cek(
-  'Sales: teks kosong 3 tabel diperbarui (form sudah hidup)',
+  'Sales: teks kosong 2 tabel diperbarui (form sudah hidup)',
   sales.includes('Requests from the Book a Venue form will appear here.') &&
-    sales.includes('Requests from the Rent a Space form will appear here.') &&
-    sales.includes(
-      'Requests from the Get a Journalism Training form will appear here.',
-    ),
+    sales.includes('Requests from the Rent a Space form will appear here.'),
 );
 
 // --- 7. Rules: 3 blok publik baru; blok lain tidak berubah. ---
@@ -844,11 +800,10 @@ cek(
 
 // --- 8. Scroll-to-top saat halaman publik mount (temuan preview 12:34 WIB). ---
 cek(
-  'Scroll: 7 halaman publik mount dari atas (BookVenue/RentSpace/Training/Lacak/Ajukan/ComingSoon/PlanCampaign)',
+  'Scroll: 6 halaman publik mount dari atas (BookVenue/RentSpace/Lacak/Ajukan/ComingSoon/PlanCampaign)',
   [
     bookVenue,
     rentSpace,
-    training,
     lacak,
     ajukan,
     comingSoon,
