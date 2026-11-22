@@ -197,8 +197,28 @@ cek(
     marklo.includes("gulirKe('process')"),
 );
 cek(
-  'Header: tombol Book a Free Call + Login (onLogin)',
-  marklo.includes('Book a Free Call') && marklo.includes('onClick={onLogin}'),
+  'Header: pill tengah Home + Options (dropdown, bukan 4 tautan langsung)',
+  marklo.includes("gulirKe('atas')") &&
+    marklo.includes('menuTerbuka') &&
+    marklo.includes('ChevronDown') &&
+    marklo.includes('rounded-full border border-slate-200') &&
+    marklo.includes('aria-haspopup="true"'),
+);
+cek(
+  'Header: ikon video-call (Book a Free Call) + ikon profil (Login, onLogin) — hanya di header',
+  marklo
+    .slice(marklo.indexOf('function Header('), marklo.indexOf('</header>'))
+    .includes('aria-label="Book a Free Call"') &&
+    marklo
+      .slice(marklo.indexOf('function Header('), marklo.indexOf('</header>'))
+      .includes('aria-label="Login"') &&
+    marklo.includes('onClick={onLogin}'),
+);
+cek(
+  'Header: logo RRI Deals di dalam pill (gaya Rare UI) — logo apa adanya, hanya dibungkus pill',
+  marklo.includes('min-w-0 items-center gap-2 rounded-full border') &&
+    marklo.includes('LOGO_RRI_LANDING_DATA_URI') &&
+    marklo.includes('LOGO_DEALS_DATA_URI'),
 );
 cek(
   'Header: brand RRI Deals (logo RRI + Deals, apa adanya)',

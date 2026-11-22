@@ -66,6 +66,7 @@ import {
   ArrowRight,
   ArrowUp,
   Check,
+  ChevronDown,
   ChevronLeft,
   ChevronRight,
   Clock,
@@ -77,6 +78,7 @@ import {
   MapPin,
   Phone,
   Star,
+  User,
   Video,
   X,
 } from 'lucide-react';
@@ -283,13 +285,14 @@ export default function MarkloLanding({ onLogin, onComingSoon, onPlanCampaign, o
 /* ================= Header ================= */
 
 function Header({ onLogin }: { onLogin: () => void }) {
+  const [menuTerbuka, setMenuTerbuka] = useState(false);
   return (
     <header className="sticky top-0 z-50 bg-white/90 backdrop-blur">
       <div className="mx-auto flex max-w-7xl items-center gap-4 px-4 py-3 sm:px-6">
         <button
           type="button"
           onClick={() => gulirKe('atas')}
-          className="flex min-w-0 items-center gap-2"
+          className="flex min-w-0 items-center gap-2 rounded-full border border-slate-200 bg-white/90 px-3 py-1.5 shadow-sm backdrop-blur"
           aria-label="RRI Deals — back to top"
         >
           <img
@@ -303,41 +306,100 @@ function Header({ onLogin }: { onLogin: () => void }) {
             className="h-9 w-auto shrink-0"
           />
         </button>
-        <nav
-          aria-label="Main navigation"
-          className="ml-auto hidden items-center gap-7 text-sm font-medium text-slate-700 md:flex"
-        >
-          <button type="button" onClick={() => gulirKe('about')} className="hover:text-mk-aksen">
-            About
-          </button>
-          <button type="button" onClick={() => gulirKe('services')} className="hover:text-mk-aksen">
-            Service
-          </button>
-          <button
-            type="button"
-            onClick={() => gulirKe('testimonials')}
-            className="hover:text-mk-aksen"
-          >
-            Testimonials
-          </button>
-          <button type="button" onClick={() => gulirKe('process')} className="hover:text-mk-aksen">
-            Process
-          </button>
-        </nav>
-        <div className="ml-auto flex shrink-0 items-center gap-2 md:ml-0">
+        <div className="hidden flex-1 justify-center md:flex">
+          <nav aria-label="Main navigation" className="relative">
+            <div className="flex items-center gap-1 rounded-full border border-slate-200 bg-white/90 px-2 py-1 shadow-sm backdrop-blur">
+              <button
+                type="button"
+                onClick={() => gulirKe('atas')}
+                className="rounded-full px-3 py-1.5 text-sm font-medium text-slate-700 transition hover:bg-slate-100 hover:text-mk-aksen"
+              >
+                Home
+              </button>
+              <span aria-hidden="true" className="h-5 w-px bg-slate-200" />
+              <button
+                type="button"
+                onClick={() => setMenuTerbuka(!menuTerbuka)}
+                aria-haspopup="true"
+                aria-expanded={menuTerbuka}
+                className="flex items-center gap-1 rounded-full px-3 py-1.5 text-sm font-medium text-slate-700 transition hover:bg-slate-100 hover:text-mk-aksen"
+              >
+                Options
+                <ChevronDown className="h-4 w-4" aria-hidden="true" />
+              </button>
+            </div>
+            {menuTerbuka && (
+              <>
+                <button
+                  type="button"
+                  aria-label="Close menu"
+                  onClick={() => setMenuTerbuka(false)}
+                  className="fixed inset-0 z-40 cursor-default"
+                />
+                <div className="absolute left-1/2 z-50 mt-2 w-48 -translate-x-1/2 rounded-2xl border border-slate-200 bg-white p-1.5 shadow-lg">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setMenuTerbuka(false);
+                      gulirKe('about');
+                    }}
+                    className="block w-full rounded-xl px-3 py-2 text-left text-sm font-medium text-slate-700 transition hover:bg-slate-100 hover:text-mk-aksen"
+                  >
+                    About
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setMenuTerbuka(false);
+                      gulirKe('services');
+                    }}
+                    className="block w-full rounded-xl px-3 py-2 text-left text-sm font-medium text-slate-700 transition hover:bg-slate-100 hover:text-mk-aksen"
+                  >
+                    Service
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setMenuTerbuka(false);
+                      gulirKe('testimonials');
+                    }}
+                    className="block w-full rounded-xl px-3 py-2 text-left text-sm font-medium text-slate-700 transition hover:bg-slate-100 hover:text-mk-aksen"
+                  >
+                    Testimonials
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setMenuTerbuka(false);
+                      gulirKe('process');
+                    }}
+                    className="block w-full rounded-xl px-3 py-2 text-left text-sm font-medium text-slate-700 transition hover:bg-slate-100 hover:text-mk-aksen"
+                  >
+                    Process
+                  </button>
+                </div>
+              </>
+            )}
+          </nav>
+        </div>
+        <div className="flex shrink-0 items-center gap-2">
           <button
             type="button"
             onClick={() => gulirKe('booking')}
-            className="hidden rounded-full bg-mk-aksen px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-mk-aksen-gelap sm:inline-flex"
+            title="Book a Free Call"
+            aria-label="Book a Free Call"
+            className="hidden h-10 w-10 items-center justify-center rounded-full bg-mk-aksen text-white shadow-sm transition hover:bg-mk-aksen-gelap sm:inline-flex"
           >
-            Book a Free Call
+            <Video className="h-5 w-5" aria-hidden="true" />
           </button>
           <button
             type="button"
             onClick={onLogin}
-            className="rounded-full border-2 border-black px-4 py-2 text-sm font-semibold text-black transition hover:bg-black hover:text-white"
+            title="Login"
+            aria-label="Login"
+            className="flex h-10 w-10 items-center justify-center rounded-full border-2 border-black text-black transition hover:bg-black hover:text-white"
           >
-            Login
+            <User className="h-5 w-5" aria-hidden="true" />
           </button>
         </div>
       </div>
