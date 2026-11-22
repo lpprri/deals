@@ -197,6 +197,14 @@ cek(
     marklo.includes("gulirKe('process')"),
 );
 cek(
+  'Header: pill tengah Home + Options (dropdown, bukan 4 tautan langsung)',
+  marklo.includes("gulirKe('atas')") &&
+    marklo.includes('menuTerbuka') &&
+    marklo.includes('ChevronDown') &&
+    marklo.includes('rounded-full border border-slate-200') &&
+    marklo.includes('aria-haspopup="true"'),
+);
+cek(
   'Header: tombol Book a Free Call + Login (onLogin)',
   marklo.includes('Book a Free Call') && marklo.includes('onClick={onLogin}'),
 );
