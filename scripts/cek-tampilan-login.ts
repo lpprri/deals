@@ -49,6 +49,8 @@ const baca = (relatif: string) =>
   readFileSync(join(process.cwd(), relatif), 'utf8');
 const login = baca('src/components/Login.tsx');
 const app = baca('src/App.tsx');
+// Fase 1 dual bahasa: teks Login pindah ke kamusUmum.ts (EN verbatim).
+const kamusUmum = baca('src/lib/i18n/kamusUmum.ts');
 // Teks JSX terbelah baris — asersi salinan memakai versi yang
 // diratakan spasi-nya.
 const loginRata = login.replace(/\s+/g, ' ');
@@ -90,18 +92,19 @@ cek(
   !login.includes('Radio Republik Indonesia'),
 );
 cek(
-  'Login: heading "Welcome Back" + subjudul lama dipertahankan',
-  login.includes('Welcome Back') &&
-    login.includes('Enter your credentials to access your account'),
+  'Login: heading "Welcome Back" + subjudul lama dipertahankan (di kamusUmum, EN verbatim; Login memakai kamus)',
+  kamusUmum.includes('Welcome Back') &&
+    kamusUmum.includes('Enter your credentials to access your account') &&
+    login.includes('kamusUmum[bahasa]'),
 );
 cek(
   'Login: kotak keterangan akses mode login DIHAPUS (22:05 WIB) — tidak ada kalimat akses / "click here"; signup tetap ada',
   !loginRata.includes('Sign in with your account') &&
     !loginRata.includes('Operators, Admins, and clients sign in here') &&
     !loginRata.includes('click here') &&
-    loginRata.includes('Create account') &&
-    loginRata.includes('Create your account') &&
-    loginRata.includes('This creates a client account') &&
+    kamusUmum.includes('Create account') &&
+    kamusUmum.includes('Create your account') &&
+    kamusUmum.includes('This creates a client account') &&
     !loginRata.includes('Only designated officers can sign in here.') &&
     !loginRata.includes(
       'please use Track or Submit a Request on the landing page.',
@@ -133,12 +136,14 @@ cek(
   'Login: tombol pill full-width Biru "Sign in" (hover navy)',
   login.includes('rounded-full bg-[#2573e2]') &&
     login.includes("hover:bg-[#0d2569]") &&
-    login.includes("'Sign in'") &&
-    login.includes("'Checking…'"),
+    kamusUmum.includes("'Sign in'") &&
+    kamusUmum.includes("'Checking…'") &&
+    login.includes('t.tombolMasuk'),
 );
 cek(
   'Login: tombol sudut kiri atas "Back to Landing Page" (prop onKembali)',
-  login.includes('Back to Landing Page') &&
+  kamusUmum.includes('Back to Landing Page') &&
+    login.includes('t.kembaliKeLanding') &&
     login.includes('onKembali?: () => void') &&
     login.includes('absolute left-4 top-4'),
 );
@@ -170,7 +175,8 @@ cek(
   'Login: mode contoh/dummy TETAP dipertahankan',
   login.includes('onLoginDummy') &&
     login.includes('DUMMY_USERS') &&
-    login.includes('Sign in as (Sample):'),
+    kamusUmum.includes('Sign in as (Sample):') &&
+    login.includes('t.masukSebagaiContoh'),
 );
 cek(
   'Login: TIDAK ADA tautan publik sama sekali (Ajukan tetap tidak ada; tautan ke Lacak sudah dihapus)',

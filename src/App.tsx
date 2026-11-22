@@ -7,7 +7,7 @@
 // setiap aksi menulis audit trail. Bila Firestore sudah dimigrasi, aksi
 // tulis juga disimpan ke Firestore; bila belum, perubahan session-only.
 
-import { Fragment, useEffect, useState } from 'react';
+import { Fragment, useEffect, useMemo, useState } from 'react';
 import { onAuthStateChanged } from 'firebase/auth';
 import { doc, getDoc, setDoc, updateDoc } from 'firebase/firestore';
 import {
@@ -127,7 +127,7 @@ import { buatEntriAudit } from './lib/audit';
 import { idPercakapan, kunciAlamatOperator } from './lib/pesan';
 import Notifikasi from './components/Notifikasi';
 import { DAFTAR_JENIS_PENGAJUAN_KLIEN } from './lib/types';
-import { bolehAksi, LABEL_PERAN } from './lib/permissions';
+import { bolehAksi } from './lib/permissions';
 import { formatRupiah, formatTanggal, hariIniIso } from './lib/format';
 import { LOGO_DEALS_DATA_URI } from './lib/logoDeals';
 import {
@@ -137,6 +137,11 @@ import {
   labelStatusPersetujuan,
   labelTahapPipeline,
 } from './lib/labels';
+import { LanguageProvider, useBahasa } from './lib/bahasa';
+import { kamusNavigasi } from './lib/i18n/kamusNavigasi';
+import type { IdModul } from './lib/i18n/kamusNavigasi';
+import { kamusUmum } from './lib/i18n/kamusUmum';
+import { ToggleBahasa } from './components/ui';
 import type {
   Advertisement,
   AppData,
@@ -622,8 +627,24 @@ function buatChecklistDokumen(kontrakId: string, dokumenLama: DokumenItem[]): Do
   return baru;
 }
 
-export default function App() {
+function AppIsi() {
   const [user, setUser] = useState<DummyUser | null>(null);
+  /** Bahasa aktif (Fase 1 dual bahasa) — dibaca dari konteks. */
+  const { bahasa } = useBahasa();
+  /** Modul dengan label/deskripsi mengikuti bahasa aktif (kamusNavigasi);
+      fallback ke label/deskripsi MODULES bila terjemahan belum ada. */
+  const modules = useMemo(
+    () =>
+      MODULES.map((m) => {
+        const terjemahan = kamusNavigasi[bahasa][m.id as IdModul];
+        return {
+          ...m,
+          label: terjemahan?.label ?? m.label,
+          description: terjemahan?.description ?? m.description,
+        };
+      }),
+    [bahasa],
+  );
   const [data, setData] = useState<AppData>(DATA_NYATA);
   const [active, setActive] = useState<ModuleId>('home');
   /**
@@ -657,10 +678,10 @@ export default function App() {
       tampilan adalah sub-item, dirinya sendiri bila punya sub-item,
       null bila tidak punya sub-navigasi. */
   const panelUntukTampilan = (id: ModuleId): ModuleId | null => {
-    const m = MODULES.find((x) => x.id === id);
+    const m = modules.find((x) => x.id === id);
     if (!m) return null;
     if (m.induk) return m.induk;
-    return MODULES.some((c) => c.induk === m.id) ? m.id : null;
+    return modules.some((c) => c.induk === m.id) ? m.id : null;
   };
   /** Panel mengikuti tampilan aktif: bila tampilan adalah sub-item
       (atau induk yang punya sub-item) — mis. navigasi dari notifikasi,
@@ -3556,19 +3577,19 @@ export default function App() {
 
   // Daftar utama sidebar: hanya item tanpa induk (sub-item tampil di
   // panel tambahan di samping sidebar, lihat panel di bawah).
-  const navUtama = MODULES.filter((m) => m.phase !== 'Admin' && !m.induk);
+  const navUtama = modules.filter((m) => m.phase !== 'Admin' && !m.induk);
   /** Nav utama dikelompokkan per CLUSTER_SIDEBAR (PR #36): urutan
       cluster = urutan tampil; urutan di dalam cluster mengikuti
       MODULES (navUtama). */
   const navUtamaCluster: NavItem[][] = CLUSTER_SIDEBAR.map((ids) =>
     navUtama.filter((m) => ids.includes(m.id)),
   );
-  const navAdmin = MODULES.filter((m) => m.phase === 'Admin').filter((m) =>
+  const navAdmin = modules.filter((m) => m.phase === 'Admin').filter((m) =>
     m.id === 'audit'
       ? bolehAksi(penggunaAktif.peran, 'lihatAudit')
       : bolehAksi(penggunaAktif.peran, 'kelolaMaster'),
   );
-  const current = MODULES.find((m) => m.id === active) ?? MODULES[0];
+  const current = modules.find((m) => m.id === active) ?? MODULES[0];
   const Icon = current.icon;
   const propsModul = {
     data,
@@ -3585,9 +3606,9 @@ export default function App() {
   /** Panel tambahan yang sedang terbuka: HANYA sub-item induknya
       (perbaikan 15/11/2026 19:16 WIB — nama induk tidak dicantumkan
       lagi di dalam panelnya sendiri; judul panel sudah memuatnya). */
-  const panelInduk = MODULES.find((m) => m.id === panelTerbuka);
+  const panelInduk = modules.find((m) => m.id === panelTerbuka);
   const panelItem: NavItem[] = panelInduk
-    ? MODULES.filter((c) => c.induk === panelInduk.id)
+    ? modules.filter((c) => c.induk === panelInduk.id)
     : [];
 
   /** Klik item nav utama (perbaikan 15/11/2026 19:16 WIB): induk yang
@@ -3597,7 +3618,7 @@ export default function App() {
       tutup panel saja, tetap di halaman induk. Tanpa sub-item ->
       navigasi langsung dan panel tertutup. */
   const tanganiKlikNav = (m: NavItem) => {
-    const anak = MODULES.filter((c) => c.induk === m.id);
+    const anak = modules.filter((c) => c.induk === m.id);
     if (anak.length > 0) {
       if (active === m.id) {
         // Sudah di halaman induk: alihkan panel saja. `active` tidak
@@ -3636,7 +3657,7 @@ export default function App() {
   /** Tombol satu item nav utama sidebar (dipakai per cluster di bawah). */
   const tombolNavUtama = (m: NavItem) => {
     const ItemIcon = m.icon;
-    const anak = MODULES.filter((c) => c.induk === m.id);
+    const anak = modules.filter((c) => c.induk === m.id);
     // Induk ikut ter-highlight saat sub-item-nya yang aktif.
     const isActive = m.id === active || anak.some((c) => c.id === active);
     return (
@@ -3793,7 +3814,11 @@ export default function App() {
           )}
         </nav>
         {sidebarCiut ? (
-          <div className="flex shrink-0 justify-center border-t border-[#0d2569]/10 px-2 py-3">
+          <div className="flex shrink-0 flex-col items-center gap-2 border-t border-[#0d2569]/10 px-2 py-3">
+            {/* Toggle bahasa ringkas (Fase 1, T6): tetap bisa dijangkau
+                saat sidebar dilipat — satu tombol globe, ketuk untuk
+                ganti bahasa. */}
+            <ToggleBahasa ringkas />
             <button
               onClick={tanganiKeluar}
               title="Sign out"
@@ -3805,11 +3830,15 @@ export default function App() {
           </div>
         ) : (
           <div className="shrink-0 border-t border-[#0d2569]/10 px-5 py-4 text-xs text-[#0d2569]/60">
-            <p className="mt-1">{LABEL_PERAN[penggunaAktif.peran]}</p>
-            <p>{labelJabatan(penggunaAktif.jabatan)}</p>
+            <p className="mt-1">{kamusUmum[bahasa].peran[penggunaAktif.peran]}</p>
+            <p>{labelJabatan(penggunaAktif.jabatan, bahasa)}</p>
+            {/* Toggle bahasa ID | EN (Fase 1) — di atas Sign out. */}
+            <div className="mt-3">
+              <ToggleBahasa className="w-full" />
+            </div>
             <button
               onClick={tanganiKeluar}
-              className="mt-3 flex items-center gap-2 rounded-md border border-[#0d2569]/20 px-3 py-1.5 text-xs font-semibold text-[#0d2569] hover:bg-[#2573e2]/10 hover:text-[#2573e2]"
+              className="mt-2 flex items-center gap-2 rounded-md border border-[#0d2569]/20 px-3 py-1.5 text-xs font-semibold text-[#0d2569] hover:bg-[#2573e2]/10 hover:text-[#2573e2]"
             >
               <LogOut size={13} /> Sign out
             </button>
@@ -4010,5 +4039,16 @@ export default function App() {
       </div>
       </div>
     </div>
+  );
+}
+
+/** Root aplikasi (Fase 1 dual bahasa): LanguageProvider membungkus
+ * seluruh App supaya satu pilihan bahasa menjangkau landing, halaman
+ * publik, login, dan admin. */
+export default function App() {
+  return (
+    <LanguageProvider>
+      <AppIsi />
+    </LanguageProvider>
   );
 }

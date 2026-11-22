@@ -180,11 +180,11 @@ cek(
 cek(
   "logika panelUntukTampilan generik tidak berubah",
   sumber.includes('if (m.induk) return m.induk;') &&
-    sumber.includes('MODULES.some((c) => c.induk === m.id) ? m.id : null'),
+    sumber.includes('modules.some((c) => c.induk === m.id) ? m.id : null'),
 );
 cek(
   'navUtama tetap memfilter modul ber-induk',
-  sumber.includes("MODULES.filter((m) => m.phase !== 'Admin' && !m.induk)"),
+  sumber.includes("modules.filter((m) => m.phase !== 'Admin' && !m.induk)"),
 );
 cek(
   'efek auto-open panel saat tampilan berubah tetap ada',

@@ -1,6 +1,11 @@
-// Display labels (English) for stored Indonesian values — TERJEMAHAN
-// BAHASA INGGRIS 2026-11-15 (keputusan pengguna: seluruh web app memakai
-// bahasa Inggris secara full).
+// Display labels for stored Indonesian values — TERJEMAHAN BAHASA
+// INGGRIS 2026-11-15 (keputusan pengguna: seluruh web app memakai bahasa
+// Inggris secara full) + DUAL BAHASA 2026-11-22 (Fase 1): setiap fungsi
+// mendapat parameter bahasa eksplisit (default 'en'). Arah Indonesia
+// TIDAK butuh kamus baru — tampilan Indonesia adalah nilai tersimpan itu
+// sendiri (audit Fase 1: tidak ada pengecualian; semua kunci peta sudah
+// berupa tampilan Indonesia yang wajar, termasuk 'ON GOING' yang memang
+// sudah Inggris dan tidak diterjemahkan).
 //
 // ATURAN YANG DIKUNCI: nilai yang DISIMPAN di Firestore (status enum,
 // tahap pipeline, jenis, kategori master) TIDAK PERNAH diubah — hanya
@@ -13,6 +18,8 @@
 // nama programa, "Partnership LPP RRI", "Radio Republik Indonesia",
 // kode akun, NPWP, NIB/SIUP, QRIS, "ON GOING".
 
+import type { Bahasa } from './bahasa';
+
 /** Pemetaan umum: nilai tersimpan -> label Inggris, fallback nilai asli. */
 function petakan(
   peta: Record<string, string>,
@@ -23,7 +30,8 @@ function petakan(
 }
 
 /** Status kontrak (StatusKontrak): Draft, Aktif, Selesai, Dibatalkan, Berakhir. */
-export function labelStatusKontrak(status: string): string {
+export function labelStatusKontrak(status: string, bahasa: Bahasa = 'en'): string {
+  if (bahasa === 'id') return status ?? '';
   return petakan(
     {
       Draft: 'Draft',
@@ -37,12 +45,14 @@ export function labelStatusKontrak(status: string): string {
 }
 
 /** Status klien: Aktif / Nonaktif. */
-export function labelStatusKlien(status: string): string {
+export function labelStatusKlien(status: string, bahasa: Bahasa = 'en'): string {
+  if (bahasa === 'id') return status ?? '';
   return petakan({ Aktif: 'Active', Nonaktif: 'Inactive' }, status);
 }
 
 /** Status dokumen checklist: Ada / Belum Ada / Tidak Berlaku. */
-export function labelStatusDokumen(status: string): string {
+export function labelStatusDokumen(status: string, bahasa: Bahasa = 'en'): string {
+  if (bahasa === 'id') return status ?? '';
   return petakan(
     {
       Ada: 'Available',
@@ -54,7 +64,8 @@ export function labelStatusDokumen(status: string): string {
 }
 
 /** Status tagihan (dihitung derive.ts, nilai tersimpan): 5 nilai. */
-export function labelStatusTagihan(status: string): string {
+export function labelStatusTagihan(status: string, bahasa: Bahasa = 'en'): string {
+  if (bahasa === 'id') return status ?? '';
   return petakan(
     {
       'Belum Jatuh Tempo': 'Not yet due',
@@ -68,7 +79,8 @@ export function labelStatusTagihan(status: string): string {
 }
 
 /** Status verifikasi pembayaran: Terverifikasi / Menunggu Verifikasi. */
-export function labelStatusVerifikasi(status: string): string {
+export function labelStatusVerifikasi(status: string, bahasa: Bahasa = 'en'): string {
+  if (bahasa === 'id') return status ?? '';
   return petakan(
     {
       Terverifikasi: 'Verified',
@@ -79,7 +91,8 @@ export function labelStatusVerifikasi(status: string): string {
 }
 
 /** Status denda: Terhitung / Ditagihkan / Dibayar / Dihapus. */
-export function labelStatusDenda(status: string): string {
+export function labelStatusDenda(status: string, bahasa: Bahasa = 'en'): string {
+  if (bahasa === 'id') return status ?? '';
   return petakan(
     {
       Terhitung: 'Calculated',
@@ -92,7 +105,8 @@ export function labelStatusDenda(status: string): string {
 }
 
 /** Status sewa: ON GOING (sudah Inggris) / Berakhir / Pengajuan / Bermasalah. */
-export function labelStatusSewa(status: string): string {
+export function labelStatusSewa(status: string, bahasa: Bahasa = 'en'): string {
+  if (bahasa === 'id') return status ?? '';
   return petakan(
     {
       'ON GOING': 'ON GOING',
@@ -105,7 +119,8 @@ export function labelStatusSewa(status: string): string {
 }
 
 /** Status temuan lapangan: Dalam Tindak Lanjut / Selesai. */
-export function labelStatusTemuan(status: string): string {
+export function labelStatusTemuan(status: string, bahasa: Bahasa = 'en'): string {
+  if (bahasa === 'id') return status ?? '';
   return petakan(
     { 'Dalam Tindak Lanjut': 'In follow-up', Selesai: 'Resolved' },
     status,
@@ -116,7 +131,8 @@ export function labelStatusTemuan(status: string): string {
  * Status persetujuan (pengajuan, pengajuanKlien, quotation):
  * Menunggu / Disetujui / Ditolak (+ Draft / Dikirim untuk quotation).
  */
-export function labelStatusPersetujuan(status: string): string {
+export function labelStatusPersetujuan(status: string, bahasa: Bahasa = 'en'): string {
+  if (bahasa === 'id') return status ?? '';
   return petakan(
     {
       Menunggu: 'Pending',
@@ -130,7 +146,8 @@ export function labelStatusPersetujuan(status: string): string {
 }
 
 /** Status order: Draft / Diproses / Selesai / Dibatalkan. */
-export function labelStatusOrder(status: string): string {
+export function labelStatusOrder(status: string, bahasa: Bahasa = 'en'): string {
+  if (bahasa === 'id') return status ?? '';
   return petakan(
     {
       Draft: 'Draft',
@@ -146,7 +163,8 @@ export function labelStatusOrder(status: string): string {
  * Status permintaan form publik (panel Order, enam tabel — PR #115):
  * Baru / Diproses / Selesai / Ditolak.
  */
-export function labelStatusPermintaan(status: string): string {
+export function labelStatusPermintaan(status: string, bahasa: Bahasa = 'en'): string {
+  if (bahasa === 'id') return status ?? '';
   return petakan(
     {
       Baru: 'New',
@@ -159,7 +177,8 @@ export function labelStatusPermintaan(status: string): string {
 }
 
 /** Status task: Belum Dikerjakan / Berjalan / Selesai / Ditutup. */
-export function labelStatusTask(status: string): string {
+export function labelStatusTask(status: string, bahasa: Bahasa = 'en'): string {
+  if (bahasa === 'id') return status ?? '';
   return petakan(
     {
       'Belum Dikerjakan': 'Not started',
@@ -172,7 +191,8 @@ export function labelStatusTask(status: string): string {
 }
 
 /** Status tiket Help-Desk: Terbuka / Dijawab / Ditutup. */
-export function labelStatusTiket(status: string): string {
+export function labelStatusTiket(status: string, bahasa: Bahasa = 'en'): string {
+  if (bahasa === 'id') return status ?? '';
   return petakan(
     { Terbuka: 'Open', Dijawab: 'Answered', Ditutup: 'Closed' },
     status,
@@ -180,7 +200,8 @@ export function labelStatusTiket(status: string): string {
 }
 
 /** Tahap pipeline (Q-11, 7 tahap final). */
-export function labelTahapPipeline(tahap: string): string {
+export function labelTahapPipeline(tahap: string, bahasa: Bahasa = 'en'): string {
+  if (bahasa === 'id') return tahap ?? '';
   return petakan(
     {
       'Prospek Baru': 'New Prospect',
@@ -196,7 +217,8 @@ export function labelTahapPipeline(tahap: string): string {
 }
 
 /** Tahap pengajuan internal: Masuk / Ditelaah / Menunggu Dokumen / Disetujui / Ditolak / Dikonversi. */
-export function labelTahapPengajuan(tahap: string): string {
+export function labelTahapPengajuan(tahap: string, bahasa: Bahasa = 'en'): string {
+  if (bahasa === 'id') return tahap ?? '';
   return petakan(
     {
       Masuk: 'Received',
@@ -211,7 +233,8 @@ export function labelTahapPengajuan(tahap: string): string {
 }
 
 /** Jenis klien (master): Pemerintah / BUMN/BUMD / Swasta / Perorangan / Lembaga-Organisasi. */
-export function labelJenisKlien(jenis: string): string {
+export function labelJenisKlien(jenis: string, bahasa: Bahasa = 'en'): string {
+  if (bahasa === 'id') return jenis ?? '';
   return petakan(
     {
       Pemerintah: 'Government',
@@ -225,7 +248,8 @@ export function labelJenisKlien(jenis: string): string {
 }
 
 /** Jenis dokumen (master checklist + varian impor): nama dokumen yang ditampilkan. */
-export function labelJenisDokumen(jenis: string): string {
+export function labelJenisDokumen(jenis: string, bahasa: Bahasa = 'en'): string {
+  if (bahasa === 'id') return jenis ?? '';
   return petakan(
     {
       'PKS (asli)': 'PKS (original)',
@@ -248,12 +272,14 @@ export function labelJenisDokumen(jenis: string): string {
 }
 
 /** Jenis PNBP: Fungsional / Umum. */
-export function labelJenisPnBP(jenis: string): string {
+export function labelJenisPnBP(jenis: string, bahasa: Bahasa = 'en'): string {
+  if (bahasa === 'id') return jenis ?? '';
   return petakan({ Fungsional: 'Functional', Umum: 'General' }, jenis);
 }
 
 /** Kategori layanan (master + varian impor): nama layanan yang ditampilkan. */
-export function labelKategoriLayanan(kategori: string): string {
+export function labelKategoriLayanan(kategori: string, bahasa: Bahasa = 'en'): string {
+  if (bahasa === 'id') return kategori ?? '';
   return petakan(
     {
       'Siaran Iklan (Spot/Jingle/Filler/Advetorial)':
@@ -281,7 +307,8 @@ export function labelKategoriLayanan(kategori: string): string {
  * 'Direktorat Layanan & Pengembangan Usaha' — tampil sebagai prosa di
  * Service (intro Help-Desk dan detail tiket).
  */
-export function labelTujuanTiket(tujuan: string): string {
+export function labelTujuanTiket(tujuan: string, bahasa: Bahasa = 'en'): string {
+  if (bahasa === 'id') return tujuan ?? '';
   return petakan(
     {
       'Direktorat Layanan & Pengembangan Usaha':
@@ -297,7 +324,8 @@ export function labelTujuanTiket(tujuan: string): string {
  * contoh di Login, daftar penerima tugas, dan kolom Role di Audit.
  * Nama akun (penggunaAktif.nama) TIDAK dipetakan — itu nama, bukan prosa.
  */
-export function labelJabatan(jabatan: string): string {
+export function labelJabatan(jabatan: string, bahasa: Bahasa = 'en'): string {
+  if (bahasa === 'id') return jabatan ?? '';
   return petakan(
     {
       'Staf Layanan & Pengembangan Usaha':
@@ -311,7 +339,8 @@ export function labelJabatan(jabatan: string): string {
 }
 
 /** Kategori tiket Help-Desk (master Q-12). */
-export function labelKategoriTiket(kategori: string): string {
+export function labelKategoriTiket(kategori: string, bahasa: Bahasa = 'en'): string {
+  if (bahasa === 'id') return kategori ?? '';
   return petakan(
     {
       'Tarif & Kode Akun PNBP': 'PNBP Tariffs & Account Codes',
@@ -327,7 +356,8 @@ export function labelKategoriTiket(kategori: string): string {
 }
 
 /** Tampilan Inggris untuk kategori dokumen Knowledge Base (nilai tersimpan tetap Indonesia). */
-export function labelKategoriKB(kategori: string): string {
+export function labelKategoriKB(kategori: string, bahasa: Bahasa = 'en'): string {
+  if (bahasa === 'id') return kategori ?? '';
   return petakan(
     {
       Regulasi: 'Regulation',
@@ -338,7 +368,8 @@ export function labelKategoriKB(kategori: string): string {
 }
 
 /** Sumber prospek (master): Pengajuan / Kunjungan / Referensi / Event / Media Sosial / Telepon / Lainnya. */
-export function labelSumberProspek(sumber: string): string {
+export function labelSumberProspek(sumber: string, bahasa: Bahasa = 'en'): string {
+  if (bahasa === 'id') return sumber ?? '';
   return petakan(
     {
       Pengajuan: 'Submission',
@@ -354,7 +385,8 @@ export function labelSumberProspek(sumber: string): string {
 }
 
 /** Metode pembayaran (master): Transfer Bank / Tunai / QRIS. */
-export function labelMetodePembayaran(metode: string): string {
+export function labelMetodePembayaran(metode: string, bahasa: Bahasa = 'en'): string {
+  if (bahasa === 'id') return metode ?? '';
   return petakan(
     { 'Transfer Bank': 'Bank Transfer', Tunai: 'Cash', QRIS: 'QRIS' },
     metode,
@@ -362,7 +394,8 @@ export function labelMetodePembayaran(metode: string): string {
 }
 
 /** Uraian kode akun (master): tampil di UI sebagai label kode akun. */
-export function labelUraianKodeAkun(uraian: string): string {
+export function labelUraianKodeAkun(uraian: string, bahasa: Bahasa = 'en'): string {
+  if (bahasa === 'id') return uraian ?? '';
   return petakan(
     {
       'PNBP Umum': 'General PNBP',
@@ -379,7 +412,8 @@ export function labelUraianKodeAkun(uraian: string): string {
  * Kelompok umur piutang (dihitung derive.ts kelompokUmurPiutang):
  * 'Belum jatuh tempo' / '1–30 hari' / '31–60 hari' / 'Lebih dari 60 hari'.
  */
-export function labelUmurPiutang(umur: string): string {
+export function labelUmurPiutang(umur: string, bahasa: Bahasa = 'en'): string {
+  if (bahasa === 'id') return umur ?? '';
   return petakan(
     {
       'Belum jatuh tempo': 'Not yet due',
@@ -396,7 +430,8 @@ export function labelUmurPiutang(umur: string): string {
  * Dipakai Dashboard (aktivitas terakhir) dan AuditPage — fallback nilai
  * asli bila ada aksi baru yang belum dipetakan.
  */
-export function labelAksiAudit(aksi: string): string {
+export function labelAksiAudit(aksi: string, bahasa: Bahasa = 'en'): string {
+  if (bahasa === 'id') return aksi ?? '';
   return petakan(
     {
       'Klien dicatat': 'Client recorded',
@@ -439,7 +474,8 @@ export function labelAksiAudit(aksi: string): string {
 }
 
 /** Entitas audit (nilai tersimpan, ditulis App.tsx tambahAudit). */
-export function labelEntitasAudit(entitas: string): string {
+export function labelEntitasAudit(entitas: string, bahasa: Bahasa = 'en'): string {
+  if (bahasa === 'id') return entitas ?? '';
   return petakan(
     {
       Klien: 'Client',
