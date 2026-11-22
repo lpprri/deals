@@ -76,6 +76,7 @@ import {
   Instagram,
   Linkedin,
   MapPin,
+  Menu,
   Phone,
   Star,
   User,
@@ -286,9 +287,21 @@ export default function MarkloLanding({ onLogin, onComingSoon, onPlanCampaign, o
 
 function Header({ onLogin }: { onLogin: () => void }) {
   const [menuTerbuka, setMenuTerbuka] = useState(false);
+  const [menuMobileTerbuka, setMenuMobileTerbuka] = useState(false);
+  const [sudahScroll, setSudahScroll] = useState(false);
+  useEffect(() => {
+    const perbarui = () => setSudahScroll(window.scrollY > 24);
+    perbarui();
+    window.addEventListener('scroll', perbarui, { passive: true });
+    return () => window.removeEventListener('scroll', perbarui);
+  }, []);
   return (
-    <header className="sticky top-0 z-50 bg-white/90 backdrop-blur">
-      <div className="mx-auto flex max-w-7xl items-center gap-4 px-4 py-2 sm:px-6 sm:py-3">
+    <header
+      className={`sticky top-0 z-50 transition-all duration-300 ${sudahScroll ? 'bg-transparent' : 'bg-white/90 backdrop-blur'}`}
+    >
+      <div
+        className={`mx-auto flex items-center gap-4 px-4 py-2 transition-all duration-300 sm:px-6 sm:py-3 ${sudahScroll ? 'mt-2 w-fit gap-2' : 'max-w-7xl'}`}
+      >
         <button
           type="button"
           onClick={() => gulirKe('atas')}
@@ -383,6 +396,84 @@ function Header({ onLogin }: { onLogin: () => void }) {
           </nav>
         </div>
         <div className="flex shrink-0 items-center gap-2">
+          <div className="relative md:hidden">
+            <button
+              type="button"
+              onClick={() => setMenuMobileTerbuka(!menuMobileTerbuka)}
+              aria-label="Menu"
+              aria-haspopup="true"
+              aria-expanded={menuMobileTerbuka}
+              className="flex h-9 w-9 items-center justify-center rounded-full border-2 border-black text-black transition hover:bg-black hover:text-white sm:h-10 sm:w-10"
+            >
+              {menuMobileTerbuka ? (
+                <X className="h-5 w-5" aria-hidden="true" />
+              ) : (
+                <Menu className="h-5 w-5" aria-hidden="true" />
+              )}
+            </button>
+            {menuMobileTerbuka && (
+              <>
+                <button
+                  type="button"
+                  aria-label="Close menu"
+                  onClick={() => setMenuMobileTerbuka(false)}
+                  className="fixed inset-0 z-40 cursor-default"
+                />
+                <div className="absolute right-0 z-50 mt-2 w-56 rounded-2xl border border-slate-200 bg-white p-1.5 shadow-lg">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setMenuMobileTerbuka(false);
+                      gulirKe('atas');
+                    }}
+                    className="block w-full rounded-xl px-3 py-2 text-left text-sm font-medium text-slate-700 transition hover:bg-slate-100 hover:text-mk-aksen"
+                  >
+                    Home
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setMenuMobileTerbuka(false);
+                      gulirKe('about');
+                    }}
+                    className="block w-full rounded-xl px-3 py-2 text-left text-sm font-medium text-slate-700 transition hover:bg-slate-100 hover:text-mk-aksen"
+                  >
+                    About
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setMenuMobileTerbuka(false);
+                      gulirKe('services');
+                    }}
+                    className="block w-full rounded-xl px-3 py-2 text-left text-sm font-medium text-slate-700 transition hover:bg-slate-100 hover:text-mk-aksen"
+                  >
+                    Service
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setMenuMobileTerbuka(false);
+                      gulirKe('testimonials');
+                    }}
+                    className="block w-full rounded-xl px-3 py-2 text-left text-sm font-medium text-slate-700 transition hover:bg-slate-100 hover:text-mk-aksen"
+                  >
+                    Testimonials
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setMenuMobileTerbuka(false);
+                      gulirKe('process');
+                    }}
+                    className="block w-full rounded-xl px-3 py-2 text-left text-sm font-medium text-slate-700 transition hover:bg-slate-100 hover:text-mk-aksen"
+                  >
+                    Process
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
           <button
             type="button"
             onClick={() => gulirKe('booking')}

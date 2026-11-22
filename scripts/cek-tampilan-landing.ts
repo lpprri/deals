@@ -215,6 +215,22 @@ cek(
     marklo.includes('onClick={onLogin}'),
 );
 cek(
+  'Header: saat di-scroll, grup header merapat jadi cluster pill mengambang di tengah (gaya Rare UI)',
+  marklo
+    .slice(marklo.indexOf('function Header('), marklo.indexOf('</header>'))
+    .includes('sudahScroll') &&
+    marklo.includes('window.scrollY > 24') &&
+    marklo.includes('mt-2 w-fit gap-2'),
+);
+cek(
+  'Header: menu hamburger di mobile (<md) berisi Home, About, Service, Testimonials, Process; pill tengah tetap desktop',
+  marklo
+    .slice(marklo.indexOf('function Header('), marklo.indexOf('</header>'))
+    .includes('menuMobileTerbuka') &&
+    marklo.includes('aria-label="Menu"') &&
+    marklo.includes('hidden flex-1 justify-center md:flex'),
+);
+cek(
   'Header: logo RRI Deals di dalam pill (gaya Rare UI) — logo apa adanya, hanya dibungkus pill',
   marklo.includes('min-w-0 items-center gap-2 rounded-full border') &&
     marklo.includes('LOGO_RRI_LANDING_DATA_URI') &&
@@ -233,7 +249,8 @@ cek(
 );
 cek(
   'Header: seamless tanpa garis bawah — tidak ada border-b/divider di bawah header',
-  marklo.includes('className="sticky top-0 z-50 bg-white/90 backdrop-blur"') &&
+  marklo.includes('sticky top-0 z-50 transition-all duration-300') &&
+    marklo.includes("'bg-white/90 backdrop-blur'") &&
     !marklo
       .slice(marklo.indexOf('function Header('), marklo.indexOf('</header>'))
       .includes('border-b border-slate-200'),
