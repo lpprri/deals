@@ -237,14 +237,14 @@ cek(
       marklo.indexOf('aria-label="RRI Deals — back to top"'),
 );
 cek(
-  'Header: saat di-scroll, grup header merapat jadi cluster pill mengambang di tengah dengan transisi halus 500ms (gaya Rare UI)',
+  'Header: saat di-scroll, grup header merapat jadi cluster pill mengambang di tengah dengan transisi halus 500ms ease-in-out (gaya Rare UI; easeOutQuint 2026-11-22 diganti karena gerakannya 95% selesai dalam ~200ms pertama sehingga terbaca menjentak di dua cek preview)',
   marklo
     .slice(marklo.indexOf('function Header('), marklo.indexOf('</header>'))
     .includes('sudahScroll') &&
     marklo.includes('window.scrollY > 24') &&
     marklo.includes('max-w-[360px]') &&
     marklo.includes('grow-0') &&
-    marklo.includes('cubic-bezier(0.22,1,0.36,1)'),
+    marklo.includes('ease-in-out'),
 );
 cek(
   'Header: menu hamburger di mobile (<md) berisi Home, About, Service, Testimonials, Process; pill tengah tetap desktop',

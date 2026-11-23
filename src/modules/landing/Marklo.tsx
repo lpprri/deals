@@ -357,10 +357,10 @@ function Header({
   }, []);
   return (
     <header
-      className={`sticky top-0 z-50 transition-[background-color,backdrop-filter] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] ${sudahScroll ? 'bg-transparent' : 'bg-white/90 backdrop-blur'}`}
+      className={`sticky top-0 z-50 transition-[background-color,backdrop-filter] duration-500 ease-in-out ${sudahScroll ? 'bg-transparent' : 'bg-white/90 backdrop-blur'}`}
     >
       <div
-        className={`mx-auto flex items-center gap-4 px-4 py-2 transition-[max-width,margin-top,gap] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] sm:px-6 sm:py-3 ${sudahScroll ? 'mt-2 max-w-[360px] gap-2 sm:max-w-[460px] md:max-w-[640px]' : 'max-w-7xl'}`}
+        className={`mx-auto flex items-center gap-4 px-4 py-2 transition-[max-width,margin-top,gap] duration-500 ease-in-out sm:px-6 sm:py-3 ${sudahScroll ? 'mt-2 max-w-[360px] gap-2 sm:max-w-[460px] md:max-w-[640px]' : 'max-w-7xl'}`}
       >
 
         <div className="relative md:hidden">
@@ -463,7 +463,7 @@ function Header({
         </button>
 
         <div
-          className={`hidden justify-center transition-[flex-grow] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] md:flex ${sudahScroll ? 'grow-0' : 'grow'}`}
+          className={`hidden justify-center transition-[flex-grow] duration-500 ease-in-out md:flex ${sudahScroll ? 'grow-0' : 'grow'}`}
         >
           <nav aria-label="Main navigation" className="relative">
             <div className="flex items-center gap-1 rounded-full border border-slate-200 bg-white/90 px-2 py-1 shadow-sm backdrop-blur">
