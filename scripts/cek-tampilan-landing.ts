@@ -215,12 +215,14 @@ cek(
     marklo.includes('onClick={onLogin}'),
 );
 cek(
-  'Header: di mobile, logo di tengah (hamburger kiri, ikon profil kanan) — seimbang, tidak berat ke kiri',
+  'Header: di mobile, hamburger di tengah (logo kiri, ikon profil kanan)',
   marklo
     .slice(marklo.indexOf('function Header('), marklo.indexOf('</header>'))
-    .includes('max-md:mx-auto') &&
-    marklo.indexOf('aria-label="Menu"') <
-      marklo.indexOf('aria-label="RRI Deals — back to top"'),
+    .includes('max-md:absolute max-md:left-1/2 max-md:-translate-x-1/2') &&
+    marklo.includes('max-md:ml-auto') &&
+    !marklo
+      .slice(marklo.indexOf('function Header('), marklo.indexOf('</header>'))
+      .includes('max-md:mx-auto'),
 );
 cek(
   'Header: saat di-scroll, grup header merapat jadi cluster pill mengambang di tengah dengan transisi halus 500ms (gaya Rare UI)',
@@ -250,7 +252,7 @@ cek(
   'Header: ukuran logo + ikon mengecil di mobile, normal di desktop',
   marklo.includes('h-7 w-auto shrink-0 sm:h-9') &&
     marklo.includes('h-9 w-9 items-center justify-center rounded-full border-2') &&
-    marklo.includes('px-2.5 py-1 shadow-sm backdrop-blur max-md:mx-auto sm:px-3 sm:py-1.5'),
+    marklo.includes('px-2.5 py-1 shadow-sm backdrop-blur sm:px-3 sm:py-1.5'),
 );
 cek(
   'Header: brand RRI Deals (logo RRI + Deals, apa adanya)',

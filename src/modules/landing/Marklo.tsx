@@ -300,9 +300,27 @@ function Header({ onLogin }: { onLogin: () => void }) {
       className={`sticky top-0 z-50 transition-[background-color,backdrop-filter] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] ${sudahScroll ? 'bg-transparent' : 'bg-white/90 backdrop-blur'}`}
     >
       <div
-        className={`mx-auto flex items-center gap-4 px-4 py-2 transition-[max-width,margin-top,gap] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] sm:px-6 sm:py-3 ${sudahScroll ? 'mt-2 max-w-[360px] gap-2 sm:max-w-[460px] md:max-w-[640px]' : 'max-w-7xl'}`}
+        className={`relative mx-auto flex items-center gap-4 px-4 py-2 transition-[max-width,margin-top,gap] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] sm:px-6 sm:py-3 ${sudahScroll ? 'mt-2 max-w-[360px] gap-2 sm:max-w-[460px] md:max-w-[640px]' : 'max-w-7xl'}`}
       >
-        <div className="relative md:hidden">
+
+        <button
+          type="button"
+          onClick={() => gulirKe('atas')}
+          className="flex min-w-0 items-center gap-2 rounded-full border border-slate-200 bg-white/90 px-2.5 py-1 shadow-sm backdrop-blur sm:px-3 sm:py-1.5"
+          aria-label="RRI Deals — back to top"
+        >
+          <img
+            src={LOGO_RRI_LANDING_DATA_URI}
+            alt="Radio Republik Indonesia"
+            className="h-7 w-auto shrink-0 sm:h-9"
+          />
+          <img
+            src={LOGO_DEALS_DATA_URI}
+            alt="Deals"
+            className="h-7 w-auto shrink-0 sm:h-9"
+          />
+        </button>
+        <div className="max-md:absolute max-md:left-1/2 max-md:-translate-x-1/2 md:hidden">
           <button
             type="button"
             onClick={() => setMenuMobileTerbuka(!menuMobileTerbuka)}
@@ -325,7 +343,7 @@ function Header({ onLogin }: { onLogin: () => void }) {
                 onClick={() => setMenuMobileTerbuka(false)}
                 className="fixed inset-0 z-40 cursor-default"
               />
-              <div className="absolute left-0 z-50 mt-2 w-56 rounded-2xl border border-slate-200 bg-white p-1.5 shadow-lg">
+              <div className="absolute left-1/2 z-50 mt-2 w-56 -translate-x-1/2 rounded-2xl border border-slate-200 bg-white p-1.5 shadow-lg">
                 <button
                   type="button"
                   onClick={() => {
@@ -380,23 +398,6 @@ function Header({ onLogin }: { onLogin: () => void }) {
             </>
           )}
         </div>
-        <button
-          type="button"
-          onClick={() => gulirKe('atas')}
-          className="flex min-w-0 items-center gap-2 rounded-full border border-slate-200 bg-white/90 px-2.5 py-1 shadow-sm backdrop-blur max-md:mx-auto sm:px-3 sm:py-1.5"
-          aria-label="RRI Deals — back to top"
-        >
-          <img
-            src={LOGO_RRI_LANDING_DATA_URI}
-            alt="Radio Republik Indonesia"
-            className="h-7 w-auto shrink-0 sm:h-9"
-          />
-          <img
-            src={LOGO_DEALS_DATA_URI}
-            alt="Deals"
-            className="h-7 w-auto shrink-0 sm:h-9"
-          />
-        </button>
         <div
           className={`hidden justify-center transition-[flex-grow] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] md:flex ${sudahScroll ? 'grow-0' : 'grow'}`}
         >
@@ -475,7 +476,7 @@ function Header({ onLogin }: { onLogin: () => void }) {
             )}
           </nav>
         </div>
-        <div className="flex shrink-0 items-center gap-2">
+        <div className="flex shrink-0 items-center gap-2 max-md:ml-auto">
 
           <button
             type="button"
