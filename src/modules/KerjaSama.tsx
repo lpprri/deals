@@ -104,7 +104,7 @@ function DaftarKontrakKategori({
   if (kategori !== null && kontrakTersaring.length === 0) {
     return (
       <div className="space-y-3">
-        <PesanKosong teks={teksKosong ?? 'No records yet.'} />
+        <PesanKosong teks={teksKosong ?? 'Belum ada catatan.'} />
         {penjelasanKosong && (
           <p className="max-w-2xl text-sm text-[#0d2569]/70">{penjelasanKosong}</p>
         )}
@@ -156,28 +156,28 @@ export function MenuMoU({ data, cari }: ModulProps) {
 /** Detail satu MoU — semua field dari file sumber. */
 function DetailMou({ mou, onKembali }: { mou: Mou; onKembali: () => void }) {
   const baris: [string, string][] = [
-    ['Document Number', mou.id],
-    ['Type', mou.jenis],
-    ['Institution', mou.instansi],
-    ['Category', mou.kategori],
-    ['Contact Person', mou.narahubung],
-    ['Phone', mou.telepon],
-    ['Theme', mou.tematik],
+    ['Nomor dokumen', mou.id],
+    ['Jenis', mou.jenis],
+    ['Instansi', mou.instansi],
+    ['Kategori', mou.kategori],
+    ['Narahubung', mou.narahubung],
+    ['Telepon', mou.telepon],
+    ['Tema', mou.tematik],
     ['Asta Cita', mou.astaCita],
-    ['Cooperation Title', mou.judul],
-    ['Signing Date', formatTanggal(mou.tanggalTandaTangan)],
+    ['Judul kerja sama', mou.judul],
+    ['Tanggal tanda tangan', formatTanggal(mou.tanggalTandaTangan)],
     [
-      'Cooperation Period',
+      'Periode kerja sama',
       `${formatTanggal(mou.tanggalMulai)} — ${formatTanggal(mou.tanggalSelesai)}`,
     ],
-    ['Validity Period', mou.masaBerlaku],
-    ['Document', mou.dokumen],
+    ['Masa berlaku', mou.masaBerlaku],
+    ['Dokumen', mou.dokumen],
     ['PIC', mou.pic],
   ];
   return (
     <div className="space-y-4">
       <div>
-        <TombolSekunder onClick={onKembali}>← Back to list</TombolSekunder>
+        <TombolSekunder onClick={onKembali}>← Kembali ke daftar</TombolSekunder>
       </div>
       <Kartu>
         <JudulBagian>{mou.judul}</JudulBagian>
@@ -235,10 +235,10 @@ function DaftarMou({ data, cari }: Pick<ModulProps, 'data' | 'cari'>) {
   if (mouTersaring.length === 0) {
     return (
       <div className="space-y-3">
-        <PesanKosong teks="No Memorandum of Understanding yet." />
+        <PesanKosong teks="Belum ada Nota Kesepahaman." />
         <p className="max-w-2xl text-sm text-[#0d2569]/70">
-          No MoU records in Firestore yet. Run the MoU migration from the
-          Master &amp; Users page to import the 44 records from
+          Belum ada catatan MoU di Firestore. Jalankan migrasi MoU dari
+          halaman Master Data &amp; Users untuk mengimpor 44 catatan dari
           &lsquo;Rekapitulasi Nota Kesepahaman&rsquo;.
         </p>
       </div>
@@ -248,24 +248,24 @@ function DaftarMou({ data, cari }: Pick<ModulProps, 'data' | 'cari'>) {
   return (
     <div className="space-y-4">
       <p className="text-sm text-[#0d2569]/70">
-        {mouTersaring.length} Memorandum of Understanding records.
+        {mouTersaring.length} catatan Nota Kesepahaman.
       </p>
       <Kartu>
         <Tabel>
           <thead>
             <tr>
               <Th>No.</Th>
-              <Th>Document Number</Th>
-              <Th>Type</Th>
-              <Th>Institution</Th>
-              <Th>Category</Th>
-              <Th>Cooperation Title</Th>
-              <Th>Signing Date</Th>
-              <Th>Period</Th>
-              <Th>Remaining Days</Th>
-              <Th>Validity</Th>
+              <Th>Nomor dokumen</Th>
+              <Th>Jenis</Th>
+              <Th>Instansi</Th>
+              <Th>Kategori</Th>
+              <Th>Judul kerja sama</Th>
+              <Th>Tanggal tanda tangan</Th>
+              <Th>Periode</Th>
+              <Th>Sisa hari</Th>
+              <Th>Masa berlaku</Th>
               <Th>PIC</Th>
-              <Th>Document</Th>
+              <Th>Dokumen</Th>
             </tr>
           </thead>
           <tbody>
@@ -302,7 +302,7 @@ function DaftarMou({ data, cari }: Pick<ModulProps, 'data' | 'cari'>) {
                           setMouIdTerpilih(m.id);
                         }}
                       >
-                        View
+                        Lihat
                       </button>
                     </>
                   )}
@@ -335,22 +335,22 @@ function DetailCommitment({
   onKembali: () => void;
 }) {
   const baris: [string, string][] = [
-    ['Document Number', commitment.id],
-    ['Event', commitment.kegiatan],
-    ['Event Date', formatTanggal(commitment.tanggalKegiatan)],
-    ['Partner', commitment.mitra],
-    ['Signatory', commitment.penandatangan],
-    ['Signatory Title', commitment.jabatanPenandatangan],
-    ['Total Support', formatRupiah(commitment.totalDukungan)],
-    ['Service / Benefit', commitment.layanan],
-    ['Conversion Value', commitment.nilaiKonversi],
-    ['Document', commitment.dokumen],
-    ['Document No.', commitment.nomorDokumen],
+    ['Nomor dokumen', commitment.id],
+    ['Kegiatan', commitment.kegiatan],
+    ['Tanggal kegiatan', formatTanggal(commitment.tanggalKegiatan)],
+    ['Mitra', commitment.mitra],
+    ['Penandatangan', commitment.penandatangan],
+    ['Jabatan penandatangan', commitment.jabatanPenandatangan],
+    ['Total dukungan', formatRupiah(commitment.totalDukungan)],
+    ['Layanan / Manfaat', commitment.layanan],
+    ['Nilai konversi', commitment.nilaiKonversi],
+    ['Dokumen', commitment.dokumen],
+    ['No. dokumen', commitment.nomorDokumen],
   ];
   return (
     <div className="space-y-4">
       <div>
-        <TombolSekunder onClick={onKembali}>← Back to list</TombolSekunder>
+        <TombolSekunder onClick={onKembali}>← Kembali ke daftar</TombolSekunder>
       </div>
       <Kartu>
         <JudulBagian>
@@ -369,16 +369,16 @@ function DetailCommitment({
         </div>
         <div className="mt-4">
           <p className="text-sm font-semibold text-[#0d2569]">
-            Support Items (Goods)
+            Item dukungan (barang)
           </p>
           <div className="mt-2">
             <Tabel>
               <thead>
                 <tr>
                   <Th>Item</Th>
-                  <Th>Qty</Th>
-                  <Th>Unit Price</Th>
-                  <Th>Amount</Th>
+                  <Th>Jml</Th>
+                  <Th>Harga satuan</Th>
+                  <Th>Jumlah</Th>
                 </tr>
               </thead>
               <tbody>
@@ -443,10 +443,10 @@ function DaftarCommitment({ data, cari }: Pick<ModulProps, 'data' | 'cari'>) {
   if (commitmentTersaring.length === 0) {
     return (
       <div className="space-y-3">
-        <PesanKosong teks="No Commitment documents yet." />
+        <PesanKosong teks="Belum ada dokumen Commitment." />
         <p className="max-w-2xl text-sm text-[#0d2569]/70">
-          No Commitment records in Firestore yet. Run the Commitment migration from the
-          Master &amp; Users page to import the 4 records from
+          Belum ada catatan Commitment di Firestore. Jalankan migrasi Commitment dari
+          halaman Master Data &amp; Users untuk mengimpor 4 catatan dari
           &lsquo;Dukungan Layanan 2026&rsquo;.
         </p>
       </div>
@@ -456,7 +456,7 @@ function DaftarCommitment({ data, cari }: Pick<ModulProps, 'data' | 'cari'>) {
   return (
     <div className="space-y-4">
       <p className="text-sm text-[#0d2569]/70">
-        {commitmentTersaring.length} Commitment records. Total support:{' '}
+        {commitmentTersaring.length} catatan Commitment. Total dukungan:{' '}
         {formatRupiah(
           commitmentTersaring.reduce((s, c) => s + c.totalDukungan, 0),
         )}
@@ -467,13 +467,13 @@ function DaftarCommitment({ data, cari }: Pick<ModulProps, 'data' | 'cari'>) {
           <thead>
             <tr>
               <Th>No.</Th>
-              <Th>Document Number</Th>
-              <Th>Partner</Th>
-              <Th>Event</Th>
-              <Th>Event Date</Th>
-              <Th>Signatory</Th>
-              <Th>Support Items</Th>
-              <Th>Total Support</Th>
+              <Th>Nomor dokumen</Th>
+              <Th>Mitra</Th>
+              <Th>Kegiatan</Th>
+              <Th>Tanggal kegiatan</Th>
+              <Th>Penandatangan</Th>
+              <Th>Item dukungan</Th>
+              <Th>Total dukungan</Th>
             </tr>
           </thead>
           <tbody>
@@ -489,7 +489,7 @@ function DaftarCommitment({ data, cari }: Pick<ModulProps, 'data' | 'cari'>) {
                 <Td>{formatTanggal(c.tanggalKegiatan)}</Td>
                 <Td>{c.penandatangan}</Td>
                 <Td>
-                  {c.dukungan.length} item{c.dukungan.length > 1 ? 's' : ''}
+                  {c.dukungan.length} item
                 </Td>
                 <Td>{formatRupiah(c.totalDukungan)}</Td>
               </Baris>
@@ -510,8 +510,8 @@ export function MenuApprovement(props: ModulProps) {
     <DaftarKontrakKategori
       {...props}
       kategori="Media Partner"
-      teksKosong="No Approvement documents yet."
-      penjelasanKosong="No contract in the imported data has the 'Media Partner' service category yet. This list will fill in once such data is imported."
+      teksKosong="Belum ada dokumen Approvement."
+      penjelasanKosong="Belum ada kontrak di data impor yang berkategori layanan 'Media Partner'. Daftar ini akan terisi begitu data tersebut diimpor."
     />
   );
 }
