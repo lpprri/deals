@@ -70,12 +70,12 @@ export default function Service(props: ModulProps) {
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <JudulBagian>Resources</JudulBagian>
+        <JudulBagian>Informasi</JudulBagian>
       </div>
       <TabBar
         tabs={[
           { id: 'helpdesk', label: 'Help-Desk' },
-          { id: 'kb', label: 'Knowledge Base' },
+          { id: 'kb', label: 'Basis Pengetahuan' },
           { id: 'faq', label: 'FAQ' },
         ]}
         aktif={tab}
@@ -143,14 +143,14 @@ function HelpDesk({
   return (
     <div className="space-y-4">
       <Peringatan
-        teks={`Direct consultation via the app to ${labelTujuanTiket(TUJUAN_TIKET)}. The PIC varies depending on the type of consultation — the PIC name per category has not been determined yet, so tickets are recorded per category and answered as saved follow-ups.`}
+        teks={`Konsultasi langsung lewat aplikasi ke ${labelTujuanTiket(TUJUAN_TIKET)}. PIC berbeda-beda menurut jenis konsultasi. Nama PIC per kategori belum ditentukan, jadi tiket dicatat per kategori dan dijawab sebagai tindak lanjut tersimpan.`}
       />
 
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-        <StatCard label="Total tickets" nilai={String(data.tiket.length)} keterangan="All consultation tickets for this work unit" />
-        <StatCard label="Open" nilai={String(jumlahStatus('Terbuka'))} keterangan="Awaiting a reply from head office" />
-        <StatCard label="Answered" nilai={String(jumlahStatus('Dijawab'))} keterangan="Already answered / followed up" />
-        <StatCard label="Closed" nilai={String(jumlahStatus('Ditutup'))} keterangan="Consultation completed" />
+        <StatCard label="Total tiket" nilai={String(data.tiket.length)} keterangan="Semua tiket konsultasi untuk satuan kerja ini" />
+        <StatCard label="Terbuka" nilai={String(jumlahStatus('Terbuka'))} keterangan="Menunggu balasan kantor pusat" />
+        <StatCard label="Dijawab" nilai={String(jumlahStatus('Dijawab'))} keterangan="Sudah dijawab / ditindaklanjuti" />
+        <StatCard label="Ditutup" nilai={String(jumlahStatus('Ditutup'))} keterangan="Konsultasi selesai" />
       </div>
 
       {tiketTerpilih ? (
@@ -165,13 +165,13 @@ function HelpDesk({
         <>
           <div className="flex flex-wrap gap-4">
             <div>
-              <Label>Filter by category</Label>
+              <Label>Saring berdasarkan kategori</Label>
               <select
                 className={`${inputClass} max-w-xs`}
                 value={filterKategori}
                 onChange={(e) => setFilterKategori(e.target.value)}
               >
-                <option value="Semua">All</option>
+                <option value="Semua">Semua</option>
                 {MASTER_KATEGORI_TIKET.map((k) => (
                   <option key={k} value={k}>
                     {labelKategoriTiket(k)}
@@ -180,13 +180,13 @@ function HelpDesk({
               </select>
             </div>
             <div>
-              <Label>Filter by status</Label>
+              <Label>Saring berdasarkan status</Label>
               <select
                 className={`${inputClass} max-w-xs`}
                 value={filterStatus}
                 onChange={(e) => setFilterStatus(e.target.value)}
               >
-                <option value="Semua">All</option>
+                <option value="Semua">Semua</option>
                 {MASTER_STATUS_TIKET.map((s) => (
                   <option key={s} value={s}>
                     {labelStatusTiket(s)}
@@ -198,7 +198,7 @@ function HelpDesk({
 
           <div>
             <TombolUtama onClick={() => setTampilForm(true)}>
-              + Create Consultation Ticket
+              + Buat Tiket Konsultasi
             </TombolUtama>
           </div>
 
@@ -209,25 +209,25 @@ function HelpDesk({
               onBatal={() => setTampilForm(false)}
               onSukses={() => {
                 setTampilForm(false);
-                setPesan('Consultation ticket created.');
+                setPesan('Tiket konsultasi dibuat.');
               }}
             />
           )}
 
           {tiket.length === 0 ? (
-            <PesanKosong teks="No matching consultation tickets yet." />
+            <PesanKosong teks="Belum ada tiket konsultasi yang cocok." />
           ) : (
             <Kartu>
               <Tabel>
                 <thead>
                   <tr>
                     <Th>ID</Th>
-                    <Th>Title</Th>
-                    <Th>Category</Th>
-                    <Th>Date</Th>
-                    <Th>Created By</Th>
+                    <Th>Judul</Th>
+                    <Th>Kategori</Th>
+                    <Th>Tanggal</Th>
+                    <Th>Dibuat oleh</Th>
                     <Th>Status</Th>
-                    <Th>Replies</Th>
+                    <Th>Balasan</Th>
                   </tr>
                 </thead>
                 <tbody>
@@ -293,14 +293,14 @@ function FormTiket({
 
   return (
     <Kartu>
-      <JudulBagian>Create Consultation Ticket</JudulBagian>
+      <JudulBagian>Buat Tiket Konsultasi</JudulBagian>
       <p className="mt-1 text-sm text-[#0d2569]/70">
-        Addressed to: {labelTujuanTiket(TUJUAN_TIKET)} · Created by: {user.nama} · Date:{' '}
+        Ditujukan ke: {labelTujuanTiket(TUJUAN_TIKET)} · Dibuat oleh: {user.nama} · Date:{' '}
         {formatTanggal(hariIniIso())}
       </p>
       <div className="mt-4 grid gap-4 md:grid-cols-2">
         <div>
-          <Label>Category / consultation type *</Label>
+          <Label>Kategori / jenis konsultasi *</Label>
           <select
             className={inputClass}
             value={form.kategori}
@@ -314,21 +314,21 @@ function FormTiket({
           </select>
         </div>
         <div>
-          <Label>Title *</Label>
+          <Label>Judul *</Label>
           <input
             className={inputClass}
             value={form.judul}
             onChange={(e) => setForm((f) => ({ ...f, judul: e.target.value }))}
-            placeholder="Short consultation title"
+            placeholder="Judul konsultasi yang singkat"
           />
         </div>
         <div className="md:col-span-2">
-          <Label>Consultation content *</Label>
+          <Label>Isi konsultasi *</Label>
           <textarea
             className={`${inputClass} min-h-24`}
             value={form.isi}
             onChange={(e) => setForm((f) => ({ ...f, isi: e.target.value }))}
-            placeholder="Describe the matter being consulted in as much detail as possible"
+            placeholder="Jelaskan hal yang dikonsultasikan sedetail mungkin"
           />
         </div>
       </div>
@@ -339,8 +339,8 @@ function FormTiket({
         </p>
       )}
       <div className="mt-4 flex gap-2">
-        <TombolUtama onClick={simpan}>Send Ticket</TombolUtama>
-        <TombolSekunder onClick={onBatal}>Cancel</TombolSekunder>
+        <TombolUtama onClick={simpan}>Kirim Tiket</TombolUtama>
+        <TombolSekunder onClick={onBatal}>Batal</TombolSekunder>
       </div>
     </Kartu>
   );
@@ -370,18 +370,18 @@ function DetailTiket({
     }
     setIsiBalasan('');
     setError('');
-    onPesan(`Reply added to ticket ${tiket.id}.`);
+    onPesan(`Balasan ditambahkan ke tiket ${tiket.id}.`);
   };
 
   const ubahStatus = (status: StatusTiket) => {
     actions.ubahStatusTiket(tiket, status);
-    onPesan(`Ticket ${tiket.id} status changed to ${labelStatusTiket(status)}.`);
+    onPesan(`Status tiket ${tiket.id} diubah menjadi ${labelStatusTiket(status)}.`);
   };
 
   return (
     <div className="space-y-4">
       <div>
-        <TombolSekunder onClick={onKembali}>← Back to ticket list</TombolSekunder>
+        <TombolSekunder onClick={onKembali}>← Kembali ke daftar tiket</TombolSekunder>
       </div>
 
       <Kartu>
@@ -391,25 +391,25 @@ function DetailTiket({
               {tiket.id} — {tiket.judul}
             </p>
             <p className="mt-1 text-sm text-[#0d2569]/70">
-              Category: {labelKategoriTiket(tiket.kategori)} · Date: {formatTanggal(tiket.tanggal)} ·
-              Created by: {tiket.dibuatOleh}
+              Kategori: {labelKategoriTiket(tiket.kategori)} · Date: {formatTanggal(tiket.tanggal)} ·
+              Dibuat oleh: {tiket.dibuatOleh}
             </p>
-            <p className="mt-1 text-sm text-[#0d2569]/70">Destination: {tiket.tujuan}</p>
+            <p className="mt-1 text-sm text-[#0d2569]/70">Tujuan: {tiket.tujuan}</p>
           </div>
           <StatusBadge status={labelStatusTiket(tiket.status)} />
         </div>
         <p className="mt-3 text-sm text-[#0d2569]">
-          <span className="font-semibold">Consultation content: </span>
+          <span className="font-semibold">Isi konsultasi: </span>
           {tiket.isi}
         </p>
 
         <div className="mt-4">
           <p className="text-xs font-semibold text-[#0d2569]/70">
-            Reply &amp; follow-up history ({tiket.balasan.length})
+            Riwayat balasan &amp; tindak lanjut ({tiket.balasan.length})
           </p>
           {tiket.balasan.length === 0 ? (
             <p className="mt-2 text-sm text-[#0d2569]/70">
-              No replies yet — the ticket is still awaiting a response from head office.
+              Belum ada balasan. Tiket masih menunggu jawaban kantor pusat.
             </p>
           ) : (
             <ul className="mt-2 space-y-3">
@@ -427,12 +427,12 @@ function DetailTiket({
 
         {tiket.status !== 'Ditutup' && (
           <div className="mt-4">
-            <Label>Add a reply / follow-up (as {user.nama})</Label>
+            <Label>Tambah balasan / tindak lanjut (sebagai {user.nama})</Label>
             <textarea
               className={`${inputClass} min-h-20`}
               value={isiBalasan}
               onChange={(e) => setIsiBalasan(e.target.value)}
-              placeholder="Write a reply or follow-up from head office"
+              placeholder="Tulis balasan atau tindak lanjut dari kantor pusat"
             />
             {error !== '' && (
               <p className="mt-2 rounded-md border border-[#2573e2]/40 bg-[#2573e2]/5 px-3 py-2 text-sm font-semibold text-[#0d2569]">
@@ -440,7 +440,7 @@ function DetailTiket({
               </p>
             )}
             <div className="mt-2">
-              <TombolUtama onClick={kirimBalasan}>Save Reply</TombolUtama>
+              <TombolUtama onClick={kirimBalasan}>Simpan Balasan</TombolUtama>
             </div>
           </div>
         )}
@@ -448,7 +448,7 @@ function DetailTiket({
         <div className="mt-4 flex flex-wrap gap-2">
           {statusBerikutnya(tiket.status).map((s) => (
             <TombolSekunder key={s} onClick={() => ubahStatus(s)}>
-              Change to {labelStatusTiket(s)}
+              Ubah menjadi {labelStatusTiket(s)}
             </TombolSekunder>
           ))}
         </div>
@@ -497,42 +497,42 @@ export function TabUmpanBalik({ data, user, actions, cari }: ModulProps) {
 
   return (
     <div className="space-y-4">
-      <Peringatan teks="The client satisfaction survey is filled in per contract (one survey per contract). The summary below is calculated from saved surveys — there are no sample survey results." />
+      <Peringatan teks="Survei kepuasan klien diisi per kontrak (satu survei per kontrak). Ringkasan di bawah dihitung dari survei yang tersimpan. Tidak ada hasil survei contoh." />
 
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
         <StatCard
-          label="Saved surveys"
+          label="Survei tersimpan"
           nilai={String(data.umpanBalik.length)}
-          keterangan="Number of contracts already surveyed"
+          keterangan="Jumlah kontrak yang sudah disurvei"
         />
         <StatCard
-          label="Overall average"
+          label="Rata-rata keseluruhan"
           nilai={rataKeseluruhan === null ? '-' : `${rataKeseluruhan.toFixed(1)} / 5`}
           keterangan={
             rataKeseluruhan === null
-              ? 'No surveys yet'
-              : `From ${data.umpanBalik.length} surveys`
+              ? 'Belum ada survei'
+              : `Dari ${data.umpanBalik.length} survei`
           }
         />
         <StatCard
-          label="Contracts not yet surveyed"
+          label="Kontrak yang belum disurvei"
           nilai={String(
             data.kontrak.filter(
               (k) => !data.umpanBalik.some((u) => u.kontrakId === k.id),
             ).length,
           )}
-          keterangan="Contracts without a satisfaction survey"
+          keterangan="Kontrak tanpa survei kepuasan"
         />
       </div>
 
       {rataPerPertanyaan.some((r) => r.rata !== null) && (
         <Kartu>
-          <JudulBagian>Average per question</JudulBagian>
+          <JudulBagian>Rata-rata per pertanyaan</JudulBagian>
           <Tabel>
             <thead>
               <tr>
-                <Th>Question</Th>
-                <Th kanan>Average (scale 1–5)</Th>
+                <Th>Pertanyaan</Th>
+                <Th kanan>Rata-rata (skala 1–5)</Th>
               </tr>
             </thead>
             <tbody>
@@ -551,7 +551,7 @@ export function TabUmpanBalik({ data, user, actions, cari }: ModulProps) {
 
       <div>
         <TombolUtama onClick={() => setTampilForm(true)}>
-          + Fill in Satisfaction Survey
+          + Isi Survei Kepuasan
         </TombolUtama>
       </div>
 
@@ -563,24 +563,24 @@ export function TabUmpanBalik({ data, user, actions, cari }: ModulProps) {
           onBatal={() => setTampilForm(false)}
           onSukses={() => {
             setTampilForm(false);
-            setPesan('Satisfaction survey saved.');
+            setPesan('Survei kepuasan tersimpan.');
           }}
         />
       )}
 
       {hasil.length === 0 ? (
-        <PesanKosong teks="No satisfaction surveys saved yet." />
+        <PesanKosong teks="Belum ada survei kepuasan yang tersimpan." />
       ) : (
         <Kartu>
           <Tabel>
             <thead>
               <tr>
                 <Th>ID</Th>
-                <Th>Contract</Th>
-                <Th>Client</Th>
-                <Th>Date</Th>
-                <Th kanan>Average</Th>
-                <Th>Comment</Th>
+                <Th>Kontrak</Th>
+                <Th>Klien</Th>
+                <Th>Tanggal</Th>
+                <Th kanan>Rata-rata</Th>
+                <Th>Komentar</Th>
               </tr>
             </thead>
             <tbody>
@@ -666,12 +666,12 @@ function FormSurvei({
   if (kontrakBelumDisurvei.length === 0) {
     return (
       <Kartu>
-        <JudulBagian>Fill in Satisfaction Survey</JudulBagian>
+        <JudulBagian>Isi Survei Kepuasan</JudulBagian>
         <p className="mt-2 text-sm text-[#0d2569]/70">
-          All contracts already have a satisfaction survey.
+          Semua kontrak sudah memiliki survei kepuasan.
         </p>
         <div className="mt-4">
-          <TombolSekunder onClick={onBatal}>Close</TombolSekunder>
+          <TombolSekunder onClick={onBatal}>Tutup</TombolSekunder>
         </div>
       </Kartu>
     );
@@ -679,14 +679,14 @@ function FormSurvei({
 
   return (
     <Kartu>
-      <JudulBagian>Fill in Satisfaction Survey</JudulBagian>
+      <JudulBagian>Isi Survei Kepuasan</JudulBagian>
       <p className="mt-1 text-sm text-[#0d2569]/70">
-        Recorded by: {user.nama} · Date: {formatTanggal(hariIniIso())} ·
-        Scale: 1 (very dissatisfied) – 5 (very satisfied)
+        Dicatat oleh: {user.nama} · Date: {formatTanggal(hariIniIso())} ·
+        Skala: 1 (sangat tidak puas) sampai 5 (sangat puas)
       </p>
       <div className="mt-4 space-y-4">
         <div>
-          <Label>Related contract *</Label>
+          <Label>Kontrak terkait *</Label>
           <select
             className={inputClass}
             value={form.kontrakId}
@@ -726,12 +726,12 @@ function FormSurvei({
         ))}
 
         <div>
-          <Label>Comment (optional)</Label>
+          <Label>Komentar (opsional)</Label>
           <textarea
             className={`${inputClass} min-h-20`}
             value={form.komentar ?? ''}
             onChange={(e) => setForm((f) => ({ ...f, komentar: e.target.value }))}
-            placeholder="Client comments or feedback"
+            placeholder="Komentar atau masukan klien"
           />
         </div>
       </div>
@@ -742,8 +742,8 @@ function FormSurvei({
         </p>
       )}
       <div className="mt-4 flex gap-2">
-        <TombolUtama onClick={simpan}>Save Survey</TombolUtama>
-        <TombolSekunder onClick={onBatal}>Cancel</TombolSekunder>
+        <TombolUtama onClick={simpan}>Simpan Survei</TombolUtama>
+        <TombolSekunder onClick={onBatal}>Batal</TombolSekunder>
       </div>
     </Kartu>
   );
@@ -793,16 +793,16 @@ function KnowledgeBase({
 
   return (
     <div className="space-y-4">
-      <Peringatan teks="The Regulations & SOP list is national — read by all work units. Only add documents whose number and content have been verified; do not write regulation numbers from memory." />
-      <Peringatan teks="Full regulation documents are stored on Google Drive — the View button opens a preview; download the file from the download button inside the preview." />
+      <Peringatan teks="Daftar Regulasi & SOP bersifat nasional. Dibaca semua satuan kerja. Tambahkan hanya dokumen yang nomor dan isinya sudah terverifikasi; jangan menulis nomor regulasi dari ingatan." />
+      <Peringatan teks="Dokumen lengkap regulasi tersimpan di Google Drive. Tombol Lihat membuka pratinjau; unduh berkas lewat tombol unduh di dalam pratinjau." />
 
       {kurangRegulasi.length > 0 && (
         <Kartu>
           <p className="text-sm text-[#0d2569]">
-            {kurangRegulasi.length} of {ARTIKEL_REGULASI.length} verified
-            regulations are missing from this workspace (in live mode, before
-            seeding). Add the missing ones below — already-present articles
-            are never duplicated.
+            {kurangRegulasi.length} dari {ARTIKEL_REGULASI.length} regulasi
+            terverifikasi belum ada di workspace ini (di mode live, sebelum
+            seeding). Tambahkan yang belum ada di bawah. Artikel yang sudah
+            ada tidak pernah diduplikasi.
           </p>
           <div className="mt-3">
             <TombolUtama
@@ -810,30 +810,30 @@ function KnowledgeBase({
                 const hasil = actions.seedArtikelKBRegulasi();
                 setPesan(
                   hasil.ditambah > 0
-                    ? `Added ${hasil.ditambah} verified regulation(s) to the Knowledge Base.`
-                    : 'All 9 verified regulations are already present.',
+                    ? `Ditambahkan ${hasil.ditambah} regulasi terverifikasi ke Basis Pengetahuan.`
+                    : 'Semua 9 regulasi terverifikasi sudah ada.',
                 );
               }}
             >
-              Add missing regulations ({kurangRegulasi.length})
+              Tambah regulasi yang belum ada ({kurangRegulasi.length})
             </TombolUtama>
           </div>
         </Kartu>
       )}
 
       <div className="max-w-md">
-        <Label>Search documents</Label>
+        <Label>Cari dokumen</Label>
         <input
           className={inputClass}
           value={pencarian}
           onChange={(e) => setPencarian(e.target.value)}
-          placeholder="Search by title, number, or document content"
+          placeholder="Cari berdasarkan judul, nomor, atau isi dokumen"
         />
       </div>
 
       <div>
         <TombolUtama onClick={() => setTampilForm(true)}>
-          + Add Document
+          + Tambah Dokumen
         </TombolUtama>
       </div>
 
@@ -844,7 +844,7 @@ function KnowledgeBase({
           onBatal={() => setTampilForm(false)}
           onSukses={() => {
             setTampilForm(false);
-            setPesan('Document added to the Knowledge Base.');
+            setPesan('Dokumen ditambahkan ke Basis Pengetahuan.');
           }}
         />
       )}
@@ -855,19 +855,19 @@ function KnowledgeBase({
             <div>
               <p className="text-sm font-bold text-[#0d2569]">{artikelTerpilih.judul}</p>
               <p className="mt-1 text-sm text-[#0d2569]/70">
-                {artikelTerpilih.nomor ? `Number: ${artikelTerpilih.nomor} · ` : ''}
+                {artikelTerpilih.nomor ? `Nomor: ${artikelTerpilih.nomor} · ` : ''}
                 {artikelTerpilih.kategori
-                  ? `Category: ${labelKategoriKB(artikelTerpilih.kategori)} · `
+                  ? `Kategori: ${labelKategoriKB(artikelTerpilih.kategori)} · `
                   : ''}
                 {artikelTerpilih.tanggalBerlaku
-                  ? `Effective since: ${formatTanggal(artikelTerpilih.tanggalBerlaku)} · `
+                  ? `Berlaku sejak: ${formatTanggal(artikelTerpilih.tanggalBerlaku)} · `
                   : ''}
-                Added by {artikelTerpilih.dibuatOleh} on{' '}
+                Ditambahkan oleh {artikelTerpilih.dibuatOleh} pada{' '}
                 {formatTanggal(artikelTerpilih.dibuatPada)}
               </p>
             </div>
             <TombolSekunder onClick={() => setArtikelTerpilihId(null)}>
-              Close
+              Tutup
             </TombolSekunder>
           </div>
           <p className="mt-3 text-sm text-[#0d2569]">{artikelTerpilih.ringkasan}</p>
@@ -884,7 +884,7 @@ function KnowledgeBase({
                 rel="noreferrer"
                 className="font-semibold text-[#2573e2] underline"
               >
-                Open document
+                Buka dokumen
               </a>
             </p>
           )}
@@ -892,18 +892,18 @@ function KnowledgeBase({
       )}
 
       {artikel.length === 0 ? (
-        <PesanKosong teks="No regulation/SOP documents yet. Add verified documents using the button above." />
+        <PesanKosong teks="Belum ada dokumen regulasi/SOP. Tambahkan dokumen terverifikasi lewat tombol di atas." />
       ) : (
         <Kartu>
           <Tabel>
             <thead>
               <tr>
-                <Th>Title</Th>
-                <Th>Number</Th>
-                <Th>Category</Th>
-                <Th>Effective Since</Th>
-                <Th>Summary</Th>
-                <Th>View</Th>
+                <Th>Judul</Th>
+                <Th>Nomor</Th>
+                <Th>Kategori</Th>
+                <Th>Berlaku Sejak</Th>
+                <Th>Ringkasan</Th>
+                <Th>Lihat</Th>
               </tr>
             </thead>
             <tbody>
@@ -925,7 +925,7 @@ function KnowledgeBase({
                           onClick={(e) => e.stopPropagation()}
                           className="font-semibold text-[#2573e2] underline"
                         >
-                          View
+                          Lihat
                         </a>
                       ) : (
                         '-'
@@ -990,32 +990,32 @@ function FormArtikelKB({
 
   return (
     <Kartu>
-      <JudulBagian>Add Regulation / SOP Document</JudulBagian>
+      <JudulBagian>Tambah Dokumen Regulasi / SOP</JudulBagian>
       <p className="mt-1 text-sm text-[#0d2569]/70">
-        Added by: {user.nama} · Applies to all work units (national).
-        Fill in the document number only if it has been verified.
+        Ditambahkan oleh: {user.nama} · Berlaku untuk semua satuan kerja (nasional).
+        Isi nomor dokumen hanya bila sudah terverifikasi.
       </p>
       <div className="mt-4 grid gap-4 md:grid-cols-2">
         <div className="md:col-span-2">
-          <Label>Document title *</Label>
+          <Label>Judul dokumen *</Label>
           <input
             className={inputClass}
             value={form.judul}
             onChange={(e) => setForm((f) => ({ ...f, judul: e.target.value }))}
-            placeholder="Example: LPP RRI Partnership Guidelines"
+            placeholder="Contoh: Pedoman Kerja Sama LPP RRI"
           />
         </div>
         <div>
-          <Label>Document number (optional)</Label>
+          <Label>Nomor dokumen (opsional)</Label>
           <input
             className={inputClass}
             value={form.nomor ?? ''}
             onChange={(e) => setForm((f) => ({ ...f, nomor: e.target.value }))}
-            placeholder="Fill in only if verified"
+            placeholder="Isi hanya bila terverifikasi"
           />
         </div>
         <div>
-          <Label>Category</Label>
+          <Label>Kategori</Label>
           <select
             className={inputClass}
             value={form.kategori ?? MASTER_KATEGORI_KB[0]}
@@ -1029,7 +1029,7 @@ function FormArtikelKB({
           </select>
         </div>
         <div>
-          <Label>Effective date (optional)</Label>
+          <Label>Tanggal berlaku (opsional)</Label>
           <input
             className={inputClass}
             type="date"
@@ -1040,25 +1040,25 @@ function FormArtikelKB({
           />
         </div>
         <div className="md:col-span-2">
-          <Label>Summary *</Label>
+          <Label>Ringkasan *</Label>
           <textarea
             className={`${inputClass} min-h-20`}
             value={form.ringkasan}
             onChange={(e) => setForm((f) => ({ ...f, ringkasan: e.target.value }))}
-            placeholder="Summary of the document content"
+            placeholder="Ringkasan isi dokumen"
           />
         </div>
         <div className="md:col-span-2">
-          <Label>Content / key points (optional)</Label>
+          <Label>Isi / poin penting (opsional)</Label>
           <textarea
             className={`${inputClass} min-h-24`}
             value={form.isi ?? ''}
             onChange={(e) => setForm((f) => ({ ...f, isi: e.target.value }))}
-            placeholder="Key points from the document"
+            placeholder="Poin penting dari dokumen"
           />
         </div>
         <div className="md:col-span-2">
-          <Label>Document link (optional)</Label>
+          <Label>Tautan dokumen (opsional)</Label>
           <input
             className={inputClass}
             value={form.tautan ?? ''}
@@ -1074,8 +1074,8 @@ function FormArtikelKB({
         </p>
       )}
       <div className="mt-4 flex gap-2">
-        <TombolUtama onClick={simpan}>Save Document</TombolUtama>
-        <TombolSekunder onClick={onBatal}>Cancel</TombolSekunder>
+        <TombolUtama onClick={simpan}>Simpan Dokumen</TombolUtama>
+        <TombolSekunder onClick={onBatal}>Batal</TombolSekunder>
       </div>
     </Kartu>
   );
@@ -1116,15 +1116,15 @@ function Faq({
 
   return (
     <div className="space-y-4">
-      <Peringatan teks="Answers are taken from the verified regulations in the Knowledge Base — each answer cites its source. Questions whose answers are not in the documents are not listed here." />
+      <Peringatan teks="Jawaban diambil dari regulasi terverifikasi di Basis Pengetahuan. Tiap jawaban mencantumkan sumbernya. Pertanyaan yang jawabannya tidak ada di dokumen tidak dicantumkan di sini." />
 
       {kurangFaq.length > 0 && (
         <Kartu>
           <p className="text-sm text-[#0d2569]">
-            {kurangFaq.length} of {FAQ_REGULASI.length} FAQ entries are
-            missing from this workspace (in live mode, before seeding). Add
-            the missing ones below — already-present entries are never
-            duplicated.
+            {kurangFaq.length} dari {FAQ_REGULASI.length} entri FAQ belum
+            ada di workspace ini (di mode live, sebelum seeding). Tambahkan
+            yang belum ada di bawah. Entri yang sudah ada tidak pernah
+            diduplikasi.
           </p>
           <div className="mt-3">
             <TombolUtama
@@ -1132,29 +1132,29 @@ function Faq({
                 const hasil = actions.seedFaqRegulasi();
                 setPesan(
                   hasil.ditambah > 0
-                    ? `Added ${hasil.ditambah} FAQ entr${hasil.ditambah === 1 ? 'y' : 'ies'} to the FAQ.`
-                    : 'All FAQ entries are already present.',
+                    ? `Ditambahkan ${hasil.ditambah} entri FAQ ke FAQ.`
+                    : 'Semua entri FAQ sudah ada.',
                 );
               }}
             >
-              Add missing FAQ entries ({kurangFaq.length})
+              Tambah entri FAQ yang belum ada ({kurangFaq.length})
             </TombolUtama>
           </div>
         </Kartu>
       )}
 
       <div className="max-w-md">
-        <Label>Search questions</Label>
+        <Label>Cari pertanyaan</Label>
         <input
           className={inputClass}
           value={pencarian}
           onChange={(e) => setPencarian(e.target.value)}
-          placeholder="Search by question, answer, or source"
+          placeholder="Cari berdasarkan pertanyaan, jawaban, atau sumber"
         />
       </div>
 
       {entri.length === 0 ? (
-        <PesanKosong teks="No frequently asked questions yet." />
+        <PesanKosong teks="Belum ada pertanyaan yang sering ditanyakan." />
       ) : (
         <div className="space-y-3">
           {entri.map((f) => (
@@ -1176,7 +1176,7 @@ function Faq({
                     {f.jawaban}
                   </p>
                   <p className="mt-2 text-sm text-[#0d2569]/70">
-                    Source: {f.sumber}
+                    Sumber: {f.sumber}
                   </p>
                 </>
               )}

@@ -279,7 +279,7 @@ function BagianMigrasi({
       setHasil(r);
     } catch (e) {
       setGalat(
-        e instanceof Error ? e.message : 'Migration failed. Try again.',
+        e instanceof Error ? e.message : 'Migrasi gagal. Coba lagi.',
       );
     } finally {
       setProses(false);
@@ -288,34 +288,34 @@ function BagianMigrasi({
 
   return (
     <Kartu>
-      <JudulBagian>Migrate to Firestore</JudulBagian>
+      <JudulBagian>Migrasi ke Firestore</JudulBagian>
       {statusMigrasi === 'tidak-tersedia' ? (
         <p className="mt-2 text-sm text-[#0d2569]/70">
-          Migration requires Firebase configuration. First complete the six
-          VITE_FIREBASE_* variables in Vercel, then redeploy, and return to
-          this page.
+          Migrasi membutuhkan konfigurasi Firebase. Lengkapi dulu enam
+          variabel VITE_FIREBASE_* di Vercel, lalu deploy ulang, dan kembali
+          ke halaman ini.
         </p>
       ) : sudah ? (
         <p className="mt-2 text-sm text-[#0d2569]/70">
-          Already migrated on{' '}
+          Sudah dimigrasi pada{' '}
           {hasil
             ? formatTanggalIso(hasil.tanggal)
             : tanggalMigrasi
               ? formatTanggalIso(tanggalMigrasi)
-              : 'the recorded date'}
-          . Migration can only be done once.
+              : 'tanggal yang tercatat'}
+          . Migrasi hanya bisa dilakukan sekali.
         </p>
       ) : (
         <>
           <p className="mt-2 text-sm text-[#0d2569]/70">
-            Writes all sample data (clients, contracts, invoices, payments,
-            leases, submissions, and Phase B data) to Firestore, along with
-            the operator profile. Migration can only be done once — after it
-            succeeds, this button is disabled.
+            Menulis semua data contoh (klien, kontrak, tagihan, pembayaran,
+            sewa, pengajuan, dan data Fase B) ke Firestore, beserta profil
+            operator. Migrasi hanya bisa dilakukan sekali. Setelah berhasil,
+            tombol ini nonaktif.
           </p>
           <div className="mt-3">
             <TombolUtama onClick={tanganiMigrasi} disabled={proses || !onMigrasi}>
-              {proses ? 'Migrating data…' : 'Migrate sample data to Firestore'}
+              {proses ? 'Memigrasi data…' : 'Migrasi data contoh ke Firestore'}
             </TombolUtama>
           </div>
         </>
@@ -330,13 +330,13 @@ function BagianMigrasi({
       {hasil && (
         <div className="mt-3">
           <p className="text-sm font-semibold text-[#0d2569]">
-            Migration succeeded on {formatTanggalIso(hasil.tanggal)}.
+            Migrasi berhasil pada {formatTanggalIso(hasil.tanggal)}.
           </p>
           <Tabel>
             <thead>
               <tr>
-                <Th>Collection</Th>
-                <Th kanan>Document count</Th>
+                <Th>Koleksi</Th>
+                <Th kanan>Jumlah dokumen</Th>
               </tr>
             </thead>
             <tbody>
@@ -355,14 +355,14 @@ function BagianMigrasi({
 }
 
 const LABEL_TAHAP: Record<TahapRemigrasi, string> = {
-  guard: 'Checking re-migration status…',
-  'baca-live': 'Reading live data…',
-  prakondisi: 'Checking preconditions…',
-  hapus: 'Deleting old documents…',
-  tulis: 'Writing new documents…',
-  verifikasi: 'Verifying the new data…',
-  audit: 'Writing the audit record…',
-  selesai: 'Done.',
+  guard: 'Memeriksa status migrasi ulang…',
+  'baca-live': 'Membaca data live…',
+  prakondisi: 'Memeriksa prakondisi…',
+  hapus: 'Menghapus dokumen lama…',
+  tulis: 'Menulis dokumen baru…',
+  verifikasi: 'Memverifikasi data baru…',
+  audit: 'Menulis catatan audit…',
+  selesai: 'Selesai.',
 };
 
 /** Tabel sebelum vs sesudah (hitungan + total kontrol) — dipakai pratinjau & hasil. */
@@ -378,8 +378,8 @@ function TabelSebelumSesudah({
       <thead>
         <tr>
           <Th>Item</Th>
-          <Th kanan>Before (live)</Th>
-          <Th kanan>After (new seed)</Th>
+          <Th kanan>Sebelum (live)</Th>
+          <Th kanan>Sesudah (seed baru)</Th>
         </tr>
       </thead>
       <tbody>
@@ -391,22 +391,22 @@ function TabelSebelumSesudah({
           </Baris>
         ))}
         <Baris>
-          <Td>Contract value</Td>
+          <Td>Nilai kontrak</Td>
           <Td kanan>{formatRupiah(sebelum.total.nilaiKontrak)}</Td>
           <Td kanan>{formatRupiah(sesudah.total.nilaiKontrak)}</Td>
         </Baris>
         <Baris>
-          <Td>Verified payments</Td>
+          <Td>Pembayaran terverifikasi</Td>
           <Td kanan>{formatRupiah(sebelum.total.totalPembayaranTerverifikasi)}</Td>
           <Td kanan>{formatRupiah(sesudah.total.totalPembayaranTerverifikasi)}</Td>
         </Baris>
         <Baris>
-          <Td>Outstanding receivables</Td>
+          <Td>Sisa piutang</Td>
           <Td kanan>{formatRupiah(sebelum.total.sisaPiutang)}</Td>
           <Td kanan>{formatRupiah(sesudah.total.sisaPiutang)}</Td>
         </Baris>
         <Baris>
-          <Td>Total fines</Td>
+          <Td>Total denda</Td>
           <Td kanan>{formatRupiah(sebelum.total.totalDenda)}</Td>
           <Td kanan>{formatRupiah(sesudah.total.totalDenda)}</Td>
         </Baris>
@@ -467,7 +467,7 @@ function BagianRemigrasi({
       setGalat(
         e instanceof Error
           ? e.message
-          : 'Failed to load the preview. Try again.',
+          : 'Gagal memuat pratinjau. Coba lagi.',
       );
     } finally {
       setMemuatPratinjau(false);
@@ -487,7 +487,7 @@ function BagianRemigrasi({
       setHasil(r);
     } catch (e) {
       setGalat(
-        e instanceof Error ? e.message : 'Re-migration failed. Try again.',
+        e instanceof Error ? e.message : 'Migrasi ulang gagal. Coba lagi.',
       );
     } finally {
       setProses(false);
@@ -496,42 +496,39 @@ function BagianRemigrasi({
 
   return (
     <Kartu>
-      <JudulBagian>Re-migrate Contract Data 2026</JudulBagian>
+      <JudulBagian>Migrasi Ulang Data Kontrak 2026</JudulBagian>
       {statusRemigrasi === 'tidak-tersedia' ? (
         <p className="mt-2 text-sm text-[#0d2569]/70">
-          Re-migration only works on live Firestore data. Open this page
-          after signing in while the app is in Firestore mode — in sample
-          mode the data already comes from the new seed.
+          Migrasi ulang hanya berjalan di data Firestore live. Buka halaman
+          ini setelah masuk saat aplikasi dalam mode Firestore. Di mode contoh, data sudah berasal dari seed baru.
         </p>
       ) : sudah ? (
         <p className="mt-2 text-sm text-[#0d2569]/70">
-          Already re-migrated on{' '}
+          Sudah dimigrasi ulang pada{' '}
           {hasil
             ? formatTanggalIso(hasil.tanggal)
             : tanggalRemigrasi
               ? formatTanggalIso(tanggalRemigrasi)
-              : 'the recorded date'}
-          . Re-migration can only be done once.
+              : 'tanggal yang tercatat'}
+          . Migrasi ulang hanya bisa dilakukan sekali.
         </p>
       ) : (
         <>
           <p className="mt-2 text-sm text-[#0d2569]/70">
-            Replaces the live Firestore data for clients, contracts,
-            invoices, payments, and fines (5 collections) with the new seed
-            from PR #52 — 40 contracts of 2026 from the new file, keeping
-            the 2 contracts of 2025 (Darojad, PT VGreen). Operator
-            attribution is carried over from the live data. Other
-            collections (leases, submissions, reference receipts, documents,
-            and the rest) are NOT touched. Before deleting anything, the
-            preview shows the before/after numbers and preconditions are
-            checked; re-migration can only be done once.
+            Mengganti data Firestore live untuk klien, kontrak, tagihan,
+            pembayaran, dan denda (5 koleksi) dengan seed baru dari PR #52. Ada 40 kontrak 2026 dari file baru, dengan tetap menyimpan 2 kontrak
+            2025 (Darojad, PT VGreen). Atribusi operator dibawa dari data
+            live. Koleksi lain (sewa, pengajuan, kwitansi referensi,
+            dokumen, dan lainnya) TIDAK disentuh. Sebelum menghapus apa
+            pun, pratinjau menampilkan angka sebelum/sesudah dan prakondisi
+            diperiksa; migrasi ulang hanya bisa dilakukan sekali.
           </p>
           <div className="mt-3">
             <TombolUtama
               onClick={tanganiPratinjau}
               disabled={memuatPratinjau || proses || !onPratinjauRemigrasi}
             >
-              {memuatPratinjau ? 'Loading preview…' : 'Show preview (no changes yet)'}
+              {memuatPratinjau ? 'Memuat pratinjau…' : 'Tampilkan pratinjau (belum ada perubahan)'}
             </TombolUtama>
           </div>
         </>
@@ -552,10 +549,10 @@ function BagianRemigrasi({
               className="mt-0.5"
             />
             <span>
-              I understand this deletes 172 live documents and writes 174
-              new ones. This cannot be undone from the app — the old data
-              can only be restored from the code history (seed before PR
-              #52).
+              Saya paham ini menghapus 172 dokumen live dan menulis 174
+              dokumen baru. Ini tidak bisa dibatalkan dari aplikasi. Data
+              lama hanya bisa dipulihkan dari riwayat kode (seed sebelum
+              PR #52).
             </span>
           </label>
           <div className="mt-3">
@@ -563,7 +560,7 @@ function BagianRemigrasi({
               onClick={tanganiRemigrasi}
               disabled={proses || !setuju || !onRemigrasi}
             >
-              {proses ? 'Re-migrating…' : 'Run re-migration'}
+              {proses ? 'Memigrasi ulang…' : 'Jalankan migrasi ulang'}
             </TombolUtama>
           </div>
         </div>
@@ -572,7 +569,7 @@ function BagianRemigrasi({
       {(proses || kemajuan) && !hasil && (
         <div className="mt-3">
           <p className="text-sm font-semibold text-[#0d2569]">
-            {kemajuan ? LABEL_TAHAP[kemajuan.tahap] : 'Starting…'}
+            {kemajuan ? LABEL_TAHAP[kemajuan.tahap] : 'Memulai…'}
             {kemajuan?.koleksi ? ` — ${kemajuan.koleksi}` : ''}
             {kemajuan && (kemajuan.tahap === 'hapus' || kemajuan.tahap === 'tulis')
               ? ` (${kemajuan.selesai}/${kemajuan.total})`
@@ -581,9 +578,9 @@ function BagianRemigrasi({
           <ul className="mt-2 space-y-1">
             {KOLEKSI_REMIGRASI.map((koleksi) => (
               <li key={koleksi} className="text-sm text-[#0d2569]/70">
-                {koleksi}: delete{' '}
-                {koleksiSelesai('hapus', koleksi) ? 'done' : 'pending'} · write{' '}
-                {koleksiSelesai('tulis', koleksi) ? 'done' : 'pending'}
+                {koleksi}: hapus{' '}
+                {koleksiSelesai('hapus', koleksi) ? 'selesai' : 'menunggu'} · tulis{' '}
+                {koleksiSelesai('tulis', koleksi) ? 'selesai' : 'menunggu'}
               </li>
             ))}
           </ul>
@@ -595,9 +592,8 @@ function BagianRemigrasi({
           <Peringatan teks={galat} />
           {kemajuan && (
             <p className="mt-2 text-sm text-[#0d2569]/70">
-              Stopped at: {LABEL_TAHAP[kemajuan.tahap]}
-              {kemajuan.koleksi ? ` — ${kemajuan.koleksi}` : ''}. Do not run
-              it again — report this to Digi with the message above.
+              Berhenti di: {LABEL_TAHAP[kemajuan.tahap]}
+              {kemajuan.koleksi ? ` — ${kemajuan.koleksi}` : ''}. Jangan dijalankan lagi. Laporkan ke Digi dengan pesan di atas.
             </p>
           )}
         </div>
@@ -606,8 +602,8 @@ function BagianRemigrasi({
       {hasil && (
         <div className="mt-3">
           <p className="text-sm font-semibold text-[#0d2569]">
-            Re-migration succeeded on {formatTanggalIso(hasil.tanggal)}.
-            Verify the Dashboard totals in Firestore mode.
+            Migrasi ulang berhasil pada {formatTanggalIso(hasil.tanggal)}.
+            Periksa total Dashboard di mode Firestore.
           </p>
           <div className="mt-2">
             <TabelSebelumSesudah sebelum={hasil.sebelum} sesudah={hasil.sesudah} />
@@ -619,23 +615,23 @@ function BagianRemigrasi({
 }
 
 const LABEL_TAHAP_MIGRASI_MOU: Record<TahapMigrasiMou, string> = {
-  guard: 'Checking MoU migration status…',
-  'baca-live': 'Reading live MoU data…',
-  prakondisi: 'Checking preconditions…',
-  tulis: 'Writing MoU documents…',
-  verifikasi: 'Verifying the new data…',
-  audit: 'Writing the audit record…',
-  selesai: 'Done.',
+  guard: 'Memeriksa status migrasi MoU…',
+  'baca-live': 'Membaca data MoU live…',
+  prakondisi: 'Memeriksa prakondisi…',
+  tulis: 'Menulis dokumen MoU…',
+  verifikasi: 'Memverifikasi data baru…',
+  audit: 'Menulis catatan audit…',
+  selesai: 'Selesai.',
 };
 
 const LABEL_TAHAP_MIGRASI_COMMITMENT: Record<TahapMigrasiCommitment, string> = {
-  guard: 'Checking Commitment migration status…',
-  'baca-live': 'Reading live Commitment data…',
-  prakondisi: 'Checking preconditions…',
-  tulis: 'Writing Commitment documents…',
-  verifikasi: 'Verifying the new data…',
-  audit: 'Writing the audit record…',
-  selesai: 'Done.',
+  guard: 'Memeriksa status migrasi Dukungan Layanan…',
+  'baca-live': 'Membaca data Dukungan Layanan live…',
+  prakondisi: 'Memeriksa prakondisi…',
+  tulis: 'Menulis dokumen Dukungan Layanan…',
+  verifikasi: 'Memverifikasi data baru…',
+  audit: 'Menulis catatan audit…',
+  selesai: 'Selesai.',
 };
 
 /**
@@ -675,7 +671,7 @@ function BagianMigrasiMou({
       setHasil(r);
     } catch (e) {
       setGalat(
-        e instanceof Error ? e.message : 'MoU migration failed. Try again.',
+        e instanceof Error ? e.message : 'Migrasi MoU gagal. Coba lagi.',
       );
     } finally {
       setProses(false);
@@ -684,33 +680,31 @@ function BagianMigrasiMou({
 
   return (
     <Kartu>
-      <JudulBagian>Migrate MoU Data</JudulBagian>
+      <JudulBagian>Migrasi Data MoU</JudulBagian>
       {statusMigrasiMou === 'tidak-tersedia' ? (
         <p className="mt-2 text-sm text-[#0d2569]/70">
-          MoU migration only works on live Firestore data. Open this page
-          after signing in while the app is in Firestore mode — in sample
-          mode the data already comes from the new seed.
+          Migrasi MoU hanya berjalan di data Firestore live. Buka halaman
+          ini setelah masuk saat aplikasi dalam mode Firestore. Di mode contoh, data sudah berasal dari seed baru.
         </p>
       ) : sudah ? (
         <p className="mt-2 text-sm text-[#0d2569]/70">
-          Already migrated on{' '}
+          Sudah dimigrasi pada{' '}
           {hasil
             ? formatTanggalIso(hasil.tanggal)
             : tanggalMigrasiMou
               ? formatTanggalIso(tanggalMigrasiMou)
-              : 'the recorded date'}
-          . MoU migration can only be done once.
+              : 'tanggal yang tercatat'}
+          . Migrasi MoU hanya bisa dilakukan sekali.
         </p>
       ) : (
         <>
           <p className="mt-2 text-sm text-[#0d2569]/70">
-            Writes {JUMLAH_MOU_SEED} Memorandum of Understanding records
-            from &lsquo;Rekapitulasi Nota Kesepahaman&rsquo; to the
-            Firestore collection `mou`. Nothing is deleted, no other
-            collection is touched, and the PNBP contract totals do not
-            change. Before writing anything, the migration checks that the
-            live `mou` collection is still empty; it can only be done
-            once.
+            Menulis {JUMLAH_MOU_SEED} record Nota Kesepahaman dari
+            &lsquo;Rekapitulasi Nota Kesepahaman&rsquo; ke koleksi `mou`
+            di Firestore. Tidak ada yang dihapus, tidak ada koleksi lain
+            yang disentuh, dan total kontrak PNBP tidak berubah. Sebelum
+            menulis apa pun, migrasi memeriksa bahwa koleksi `mou` live
+            masih kosong; migrasi hanya bisa dilakukan sekali.
           </p>
           <label className="mt-3 flex items-start gap-2 text-sm text-[#0d2569]">
             <input
@@ -721,8 +715,8 @@ function BagianMigrasiMou({
               className="mt-0.5"
             />
             <span>
-              I understand this writes {JUMLAH_MOU_SEED} new MoU documents
-              to Firestore. This cannot be undone from the app.
+              Saya paham ini menulis {JUMLAH_MOU_SEED} dokumen MoU baru
+              ke Firestore. Ini tidak bisa dibatalkan dari aplikasi.
             </span>
           </label>
           <div className="mt-3">
@@ -730,7 +724,7 @@ function BagianMigrasiMou({
               onClick={tanganiMigrasiMou}
               disabled={proses || !setuju || !onMigrasiMou}
             >
-              {proses ? 'Migrating MoU…' : 'Run MoU migration'}
+              {proses ? 'Memigrasi MoU…' : 'Jalankan migrasi MoU'}
             </TombolUtama>
           </div>
         </>
@@ -739,7 +733,7 @@ function BagianMigrasiMou({
       {(proses || kemajuan) && !hasil && (
         <div className="mt-3">
           <p className="text-sm font-semibold text-[#0d2569]">
-            {kemajuan ? LABEL_TAHAP_MIGRASI_MOU[kemajuan.tahap] : 'Starting…'}
+            {kemajuan ? LABEL_TAHAP_MIGRASI_MOU[kemajuan.tahap] : 'Memulai…'}
           </p>
         </div>
       )}
@@ -749,8 +743,7 @@ function BagianMigrasiMou({
           <Peringatan teks={galat} />
           {kemajuan && (
             <p className="mt-2 text-sm text-[#0d2569]/70">
-              Stopped at: {LABEL_TAHAP_MIGRASI_MOU[kemajuan.tahap]}. Do not
-              run it again — report this to Digi with the message above.
+              Berhenti di: {LABEL_TAHAP_MIGRASI_MOU[kemajuan.tahap]}. Jangan dijalankan lagi. Laporkan ke Digi dengan pesan di atas.
             </p>
           )}
         </div>
@@ -759,10 +752,10 @@ function BagianMigrasiMou({
       {hasil && (
         <div className="mt-3">
           <p className="text-sm font-semibold text-[#0d2569]">
-            MoU migration succeeded on {formatTanggalIso(hasil.tanggal)}.
-            Live MoU records: {hasil.sebelum.jumlahMou} →{' '}
-            {hasil.sesudah.jumlahMou}. Verify the Memorandum of
-            Understanding panel in Firestore mode.
+            Migrasi MoU berhasil pada {formatTanggalIso(hasil.tanggal)}.
+            Record MoU live: {hasil.sebelum.jumlahMou} →{' '}
+            {hasil.sesudah.jumlahMou}. Periksa panel Nota Kesepahaman
+            di mode Firestore.
           </p>
         </div>
       )}
@@ -771,12 +764,12 @@ function BagianMigrasiMou({
 }
 
 const LABEL_TAHAP_PERBAIKAN_MOU_037: Record<TahapPerbaikanMou037, string> = {
-  'baca-live': 'Reading live MoU record 037…',
-  prakondisi: 'Checking preconditions…',
-  tulis: 'Writing the fix to MoU 037…',
-  verifikasi: 'Verifying the fixed record…',
-  audit: 'Writing the audit record…',
-  selesai: 'Done.',
+  'baca-live': 'Membaca data MoU 037 live…',
+  prakondisi: 'Memeriksa prakondisi…',
+  tulis: 'Menulis perbaikan ke MoU 037…',
+  verifikasi: 'Memverifikasi data yang diperbaiki…',
+  audit: 'Menulis catatan audit…',
+  selesai: 'Selesai.',
 };
 
 /**
@@ -819,7 +812,7 @@ function BagianPerbaikanMou037({
       setHasil(r);
     } catch (e) {
       setGalat(
-        e instanceof Error ? e.message : 'MoU 037 fix failed. Try again.',
+        e instanceof Error ? e.message : 'Perbaikan MoU 037 gagal. Coba lagi.',
       );
     } finally {
       setProses(false);
@@ -828,30 +821,29 @@ function BagianPerbaikanMou037({
 
   return (
     <Kartu>
-      <JudulBagian>Fix MoU Record 037 (One-off)</JudulBagian>
+      <JudulBagian>Perbaiki Data MoU 037 (Sekali jalan)</JudulBagian>
       {statusPerbaikanMou037 === 'tidak-tersedia' ? (
         <p className="mt-2 text-sm text-[#0d2569]/70">
-          This fix only works on live Firestore data. Open this page after
-          signing in while the app is in Firestore mode — in sample mode
-          the data already comes from the corrected seed.
+          Perbaikan ini hanya berjalan di data Firestore live. Buka halaman
+          ini setelah masuk saat aplikasi dalam mode Firestore. Di mode contoh, data sudah berasal dari seed yang diperbaiki.
         </p>
       ) : sudah ? (
         <p className="mt-2 text-sm text-[#0d2569]/70">
-          Already fixed
-          {hasil ? ` on ${formatTanggalIso(hasil.tanggal)}` : ''} — PIC of
-          MoU {ID_MOU_037} is {PIC_MOU_037_BARU} and the institution name
-          is clean. This fix can only be done once.
+          Sudah diperbaiki
+          {hasil ? ` pada ${formatTanggalIso(hasil.tanggal)}` : ''} — PIC
+          MoU {ID_MOU_037} adalah {PIC_MOU_037_BARU} dan nama instansi
+          sudah bersih. Perbaikan ini hanya bisa dilakukan sekali.
         </p>
       ) : (
         <>
           <p className="mt-2 text-sm text-[#0d2569]/70">
-            Sets the PIC of MoU {ID_MOU_037} to {PIC_MOU_037_BARU} and
-            removes the stray trailing backtick from its institution name.
-            Only that one document and only those two fields are changed;
-            no other document or collection is touched, and the PNBP
-            contract totals do not change. Before writing anything, the
-            fix checks that the live record still has the old values; it
-            can only be done once.
+            Mengatur PIC MoU {ID_MOU_037} menjadi {PIC_MOU_037_BARU} dan
+            menghapus backtick nyasar di akhir nama instansinya. Hanya satu
+            dokumen itu dan hanya dua field itu yang diubah; tidak ada
+            dokumen atau koleksi lain yang disentuh, dan total kontrak PNBP
+            tidak berubah. Sebelum menulis apa pun, perbaikan memeriksa
+            bahwa data live masih bernilai lama; perbaikan hanya bisa
+            dilakukan sekali.
           </p>
           <label className="mt-3 flex items-start gap-2 text-sm text-[#0d2569]">
             <input
@@ -862,8 +854,8 @@ function BagianPerbaikanMou037({
               className="mt-0.5"
             />
             <span>
-              I understand this updates one MoU document ({ID_MOU_037})
-              in Firestore. This cannot be undone from the app.
+              Saya paham ini memperbarui satu dokumen MoU ({ID_MOU_037})
+              di Firestore. Ini tidak bisa dibatalkan dari aplikasi.
             </span>
           </label>
           <div className="mt-3">
@@ -871,7 +863,7 @@ function BagianPerbaikanMou037({
               onClick={tanganiPerbaikanMou037}
               disabled={proses || !setuju || !onPerbaikanMou037}
             >
-              {proses ? 'Fixing MoU 037…' : 'Run MoU 037 fix'}
+              {proses ? 'Memperbaiki MoU 037…' : 'Jalankan perbaikan MoU 037'}
             </TombolUtama>
           </div>
         </>
@@ -882,7 +874,7 @@ function BagianPerbaikanMou037({
           <p className="text-sm font-semibold text-[#0d2569]">
             {kemajuan
               ? LABEL_TAHAP_PERBAIKAN_MOU_037[kemajuan.tahap]
-              : 'Starting…'}
+              : 'Memulai…'}
           </p>
         </div>
       )}
@@ -892,9 +884,8 @@ function BagianPerbaikanMou037({
           <Peringatan teks={galat} />
           {kemajuan && (
             <p className="mt-2 text-sm text-[#0d2569]/70">
-              Stopped at: {LABEL_TAHAP_PERBAIKAN_MOU_037[kemajuan.tahap]}.
-              Do not run it again — report this to Digi with the message
-              above.
+              Berhenti di: {LABEL_TAHAP_PERBAIKAN_MOU_037[kemajuan.tahap]}.
+              Jangan dijalankan lagi. Laporkan ke Digi dengan pesan di atas.
             </p>
           )}
         </div>
@@ -903,9 +894,9 @@ function BagianPerbaikanMou037({
       {hasil && (
         <div className="mt-3">
           <p className="text-sm font-semibold text-[#0d2569]">
-            MoU 037 fix succeeded on {formatTanggalIso(hasil.tanggal)}.
-            PIC: {hasil.sebelum.pic} → {hasil.sesudah.pic}. Verify the
-            Memorandum of Understanding panel in Firestore mode.
+            Perbaikan MoU 037 berhasil pada {formatTanggalIso(hasil.tanggal)}.
+            PIC: {hasil.sebelum.pic} → {hasil.sesudah.pic}. Periksa panel
+            Nota Kesepahaman di mode Firestore.
           </p>
         </div>
       )}
@@ -953,7 +944,7 @@ function BagianMigrasiCommitment({
       setGalat(
         e instanceof Error
           ? e.message
-          : 'Commitment migration failed. Try again.',
+          : 'Migrasi Dukungan Layanan gagal. Coba lagi.',
       );
     } finally {
       setProses(false);
@@ -962,33 +953,31 @@ function BagianMigrasiCommitment({
 
   return (
     <Kartu>
-      <JudulBagian>Migrate Commitment Data</JudulBagian>
+      <JudulBagian>Migrasi Data Dukungan Layanan</JudulBagian>
       {statusMigrasiCommitment === 'tidak-tersedia' ? (
         <p className="mt-2 text-sm text-[#0d2569]/70">
-          Commitment migration only works on live Firestore data. Open
-          this page after signing in while the app is in Firestore mode —
-          in sample mode the data already comes from the new seed.
+          Migrasi Dukungan Layanan hanya berjalan di data Firestore live.
+          Buka halaman ini setelah masuk saat aplikasi dalam mode Firestore. Di mode contoh, data sudah berasal dari seed baru.
         </p>
       ) : sudah ? (
         <p className="mt-2 text-sm text-[#0d2569]/70">
-          Already migrated on{' '}
+          Sudah dimigrasi pada{' '}
           {hasil
             ? formatTanggalIso(hasil.tanggal)
             : tanggalMigrasiCommitment
               ? formatTanggalIso(tanggalMigrasiCommitment)
-              : 'the recorded date'}
-          . Commitment migration can only be done once.
+              : 'tanggal yang tercatat'}
+          . Migrasi Dukungan Layanan hanya bisa dilakukan sekali.
         </p>
       ) : (
         <>
           <p className="mt-2 text-sm text-[#0d2569]/70">
-            Writes {JUMLAH_COMMITMENT_SEED} Commitment records from
-            &lsquo;Dukungan Layanan 2026&rsquo; to the Firestore
-            collection `commitment`. Nothing is deleted, no other
-            collection is touched, and the PNBP contract totals do not
-            change. Before writing anything, the migration checks that
-            the live `commitment` collection is still empty; it can only
-            be done once.
+            Menulis {JUMLAH_COMMITMENT_SEED} record Dukungan Layanan dari
+            &lsquo;Dukungan Layanan 2026&rsquo; ke koleksi `commitment`
+            di Firestore. Tidak ada yang dihapus, tidak ada koleksi lain
+            yang disentuh, dan total kontrak PNBP tidak berubah. Sebelum
+            menulis apa pun, migrasi memeriksa bahwa koleksi `commitment`
+            live masih kosong; migrasi hanya bisa dilakukan sekali.
           </p>
           <label className="mt-3 flex items-start gap-2 text-sm text-[#0d2569]">
             <input
@@ -999,9 +988,9 @@ function BagianMigrasiCommitment({
               className="mt-0.5"
             />
             <span>
-              I understand this writes {JUMLAH_COMMITMENT_SEED} new
-              Commitment documents to Firestore. This cannot be undone
-              from the app.
+              Saya paham ini menulis {JUMLAH_COMMITMENT_SEED} dokumen
+              Dukungan Layanan baru ke Firestore. Ini tidak bisa dibatalkan
+              dari aplikasi.
             </span>
           </label>
           <div className="mt-3">
@@ -1009,7 +998,7 @@ function BagianMigrasiCommitment({
               onClick={tanganiMigrasiCommitment}
               disabled={proses || !setuju || !onMigrasiCommitment}
             >
-              {proses ? 'Migrating Commitment…' : 'Run Commitment migration'}
+              {proses ? 'Memigrasi Dukungan Layanan…' : 'Jalankan migrasi Dukungan Layanan'}
             </TombolUtama>
           </div>
         </>
@@ -1020,7 +1009,7 @@ function BagianMigrasiCommitment({
           <p className="text-sm font-semibold text-[#0d2569]">
             {kemajuan
               ? LABEL_TAHAP_MIGRASI_COMMITMENT[kemajuan.tahap]
-              : 'Starting…'}
+              : 'Memulai…'}
           </p>
         </div>
       )}
@@ -1030,9 +1019,8 @@ function BagianMigrasiCommitment({
           <Peringatan teks={galat} />
           {kemajuan && (
             <p className="mt-2 text-sm text-[#0d2569]/70">
-              Stopped at: {LABEL_TAHAP_MIGRASI_COMMITMENT[kemajuan.tahap]}.
-              Do not run it again — report this to Digi with the message
-              above.
+              Berhenti di: {LABEL_TAHAP_MIGRASI_COMMITMENT[kemajuan.tahap]}.
+              Jangan dijalankan lagi. Laporkan ke Digi dengan pesan di atas.
             </p>
           )}
         </div>
@@ -1041,11 +1029,11 @@ function BagianMigrasiCommitment({
       {hasil && (
         <div className="mt-3">
           <p className="text-sm font-semibold text-[#0d2569]">
-            Commitment migration succeeded on{' '}
-            {formatTanggalIso(hasil.tanggal)}. Live Commitment records:{' '}
+            Migrasi Dukungan Layanan berhasil pada{' '}
+            {formatTanggalIso(hasil.tanggal)}. Record Dukungan Layanan live:{' '}
             {hasil.sebelum.jumlahCommitment} →{' '}
-            {hasil.sesudah.jumlahCommitment}. Verify the Commitment panel
-            in Firestore mode.
+            {hasil.sesudah.jumlahCommitment}. Periksa panel Dukungan Layanan
+            di mode Firestore.
           </p>
         </div>
       )}
@@ -1054,13 +1042,13 @@ function BagianMigrasiCommitment({
 }
 
 const LABEL_TAHAP_BACKFILL_KLIENID: Record<TahapBackfillKlienId, string> = {
-  guard: 'Checking backfill status…',
-  'baca-live': 'Reading live data…',
-  prakondisi: 'Checking preconditions…',
-  tulis: 'Writing klienId fields…',
-  verifikasi: 'Verifying the new data…',
-  audit: 'Writing the audit record…',
-  selesai: 'Done.',
+  guard: 'Memeriksa status backfill…',
+  'baca-live': 'Membaca data live…',
+  prakondisi: 'Memeriksa prakondisi…',
+  tulis: 'Menulis field klienId…',
+  verifikasi: 'Memverifikasi data baru…',
+  audit: 'Menulis catatan audit…',
+  selesai: 'Selesai.',
 };
 
 /**
@@ -1102,7 +1090,7 @@ function BagianBackfillKlienId({
       setHasil(r);
     } catch (e) {
       setGalat(
-        e instanceof Error ? e.message : 'klienId backfill failed. Try again.',
+        e instanceof Error ? e.message : 'Backfill klienId gagal. Coba lagi.',
       );
     } finally {
       setProses(false);
@@ -1111,38 +1099,37 @@ function BagianBackfillKlienId({
 
   return (
     <Kartu>
-      <JudulBagian>Backfill klienId (One-off)</JudulBagian>
+      <JudulBagian>Pengisian klienId (Sekali jalan)</JudulBagian>
       {statusBackfillKlienId === 'tidak-tersedia' ? (
         <p className="mt-2 text-sm text-[#0d2569]/70">
-          klienId backfill only works on live Firestore data. Open this
-          page after signing in while the app is in Firestore mode — in
-          sample mode the data already comes from the new seed.
+          Backfill klienId hanya berjalan di data Firestore live. Buka
+          halaman ini setelah masuk saat aplikasi dalam mode Firestore. Di mode contoh, data sudah berasal dari seed baru.
         </p>
       ) : sudah ? (
         <p className="mt-2 text-sm text-[#0d2569]/70">
-          Already backfilled on{' '}
+          Sudah di-backfill pada{' '}
           {hasil
             ? formatTanggalIso(hasil.tanggal)
             : tanggalBackfillKlienId
               ? formatTanggalIso(tanggalBackfillKlienId)
-              : 'the recorded date'}
-          . klienId backfill can only be done once.
+              : 'tanggal yang tercatat'}
+          . Backfill klienId hanya bisa dilakukan sekali.
         </p>
       ) : (
         <>
           <p className="mt-2 text-sm text-[#0d2569]/70">
-            Adds the `klienId` field to live Firestore documents so
-            clients can read their own data: {HITUNGAN_BACKFILL_DIHARAPKAN.tagihan}{' '}
-            invoices, {HITUNGAN_BACKFILL_DIHARAPKAN.pembayaran} payments,{' '}
-            {HITUNGAN_BACKFILL_DIHARAPKAN.denda} fines, and{' '}
-            {HITUNGAN_BACKFILL_DIHARAPKAN.dokumen} documents (from their
-            parent contract/invoice), plus 3 MoU records linked by exact
-            institution name. Only the `klienId` field is written —
-            nothing is deleted, no other field or collection is touched,
-            and the PNBP contract totals do not change. Before writing
-            anything, the backfill checks that the live counts still
-            match the seed; it can only be done once. Run this BEFORE
-            inviting the first client accounts.
+            Menambahkan field `klienId` ke dokumen Firestore live supaya
+            klien bisa membaca datanya sendiri: {HITUNGAN_BACKFILL_DIHARAPKAN.tagihan}{' '}
+            tagihan, {HITUNGAN_BACKFILL_DIHARAPKAN.pembayaran} pembayaran,{' '}
+            {HITUNGAN_BACKFILL_DIHARAPKAN.denda} denda, dan{' '}
+            {HITUNGAN_BACKFILL_DIHARAPKAN.dokumen} dokumen (dari
+            kontrak/tagihan induknya), plus 3 record MoU yang ditautkan
+            berdasarkan nama instansi yang persis sama. Hanya field `klienId` yang ditulis. Tidak ada yang dihapus, tidak ada
+            field atau koleksi lain yang disentuh, dan total kontrak PNBP
+            tidak berubah. Sebelum menulis apa pun, backfill memeriksa
+            bahwa hitungan live masih cocok dengan seed; backfill hanya
+            bisa dilakukan sekali. Jalankan ini SEBELUM mengundang akun
+            klien pertama.
           </p>
           <label className="mt-3 flex items-start gap-2 text-sm text-[#0d2569]">
             <input
@@ -1153,8 +1140,8 @@ function BagianBackfillKlienId({
               className="mt-0.5"
             />
             <span>
-              I understand this updates the `klienId` field on live
-              documents. This cannot be undone from the app.
+              Saya paham ini memperbarui field `klienId` pada dokumen
+              live. Ini tidak bisa dibatalkan dari aplikasi.
             </span>
           </label>
           <div className="mt-3">
@@ -1162,7 +1149,7 @@ function BagianBackfillKlienId({
               onClick={tanganiBackfill}
               disabled={proses || !setuju || !onBackfillKlienId}
             >
-              {proses ? 'Backfilling klienId…' : 'Run klienId backfill'}
+              {proses ? 'Mengisi klienId…' : 'Jalankan backfill klienId'}
             </TombolUtama>
           </div>
         </>
@@ -1173,7 +1160,7 @@ function BagianBackfillKlienId({
           <p className="text-sm font-semibold text-[#0d2569]">
             {kemajuan
               ? LABEL_TAHAP_BACKFILL_KLIENID[kemajuan.tahap]
-              : 'Starting…'}
+              : 'Memulai…'}
           </p>
         </div>
       )}
@@ -1183,9 +1170,8 @@ function BagianBackfillKlienId({
           <Peringatan teks={galat} />
           {kemajuan && (
             <p className="mt-2 text-sm text-[#0d2569]/70">
-              Stopped at: {LABEL_TAHAP_BACKFILL_KLIENID[kemajuan.tahap]}.
-              Do not run it again — report this to Digi with the message
-              above.
+              Berhenti di: {LABEL_TAHAP_BACKFILL_KLIENID[kemajuan.tahap]}.
+              Jangan dijalankan lagi. Laporkan ke Digi dengan pesan di atas.
             </p>
           )}
         </div>
@@ -1194,11 +1180,11 @@ function BagianBackfillKlienId({
       {hasil && (
         <div className="mt-3">
           <p className="text-sm font-semibold text-[#0d2569]">
-            klienId backfill succeeded on{' '}
-            {formatTanggalIso(hasil.tanggal)}. Documents updated:{' '}
-            {hasil.jumlahDitulis} (documents without klienId:{' '}
+            Backfill klienId berhasil pada{' '}
+            {formatTanggalIso(hasil.tanggal)}. Dokumen diperbarui:{' '}
+            {hasil.jumlahDitulis} (dokumen tanpa klienId:{' '}
             {hasil.sebelum.tanpaKlienId} → {hasil.sesudah.tanpaKlienId}).
-            Verify by signing in as the sample client.
+            Verifikasi dengan masuk sebagai klien contoh.
           </p>
         </div>
       )}
@@ -1254,19 +1240,19 @@ function BagianUndangKlien({
     setGalat(null);
     setSukses(null);
     if (uidAuth.trim() === '') {
-      setGalat('Auth UID is required — copy it from Firebase console → Authentication → Users.');
+      setGalat('UID Auth wajib diisi. Salin dari Firebase console → Authentication → Users.');
       return;
     }
     if (email.trim() === '' || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
-      setGalat('A valid Auth email is required — it must match the email of the account (the sign-up email, or the email used when creating the account in the console).');
+      setGalat('Email Auth yang valid wajib diisi. Harus sama dengan email akun (email saat mendaftar, atau email yang dipakai saat membuat akun di console).');
       return;
     }
     if (nama.trim() === '') {
-      setGalat('Name is required.');
+      setGalat('Nama wajib diisi.');
       return;
     }
     if (peran === 'client' && klienId === '') {
-      setGalat('Pick the client record this account links to.');
+      setGalat('Pilih data klien yang ditautkan ke akun ini.');
       return;
     }
     setProses(true);
@@ -1285,8 +1271,8 @@ function BagianUndangKlien({
       }
       setSukses(
         peran === 'client'
-          ? `Client account linked to ${klienId}. The client can now sign in with ${email.trim()} and will see only their own cooperation.`
-          : `Operator account created for ${email.trim()}. They can now sign in and will see the admin portal.`,
+          ? `Akun klien ditautkan ke ${klienId}. Klien kini bisa masuk dengan ${email.trim()} dan hanya akan melihat kerja samanya sendiri.`
+          : `Akun operator dibuat untuk ${email.trim()}. Mereka kini bisa masuk dan akan melihat portal admin.`,
       );
       setUidAuth('');
       setEmail('');
@@ -1294,7 +1280,7 @@ function BagianUndangKlien({
       setJabatan('');
       setKlienId('');
     } catch (e) {
-      setGalat(e instanceof Error ? e.message : 'Invite failed. Try again.');
+      setGalat(e instanceof Error ? e.message : 'Undangan gagal. Coba lagi.');
     } finally {
       setProses(false);
     }
@@ -1302,33 +1288,32 @@ function BagianUndangKlien({
 
   return (
     <Kartu>
-      <JudulBagian>Invite Client Account</JudulBagian>
+      <JudulBagian>Undang Akun Klien</JudulBagian>
       <p className="mt-2 text-sm text-[#0d2569]/70">
-        Create client and operator accounts. Clients can also sign up
-        themselves from the login page — to link a signed-up account,
-        enter its Auth UID (from the Firebase console) and its sign-up
-        email here. Or invite: first create the Auth account in the
-        Firebase console (Authentication → Add user, email +
-        password), copy its UID, then link it here. A client account
-        only sees the cooperation linked to its client record.{' '}
-        {sudahPunyaAkun} of {daftarKlien?.length ?? 0} client records
-        already have an account.
+        Buat akun klien dan operator. Klien juga bisa mendaftar sendiri
+        dari halaman login. Untuk menautkan akun yang sudah mendaftar,
+        masukkan UID Auth-nya (dari Firebase console) dan email
+        pendaftarannya di sini. Atau undang: buat dulu akun Auth di
+        Firebase console (Authentication → Add user, email + kata
+        sandi), salin UID-nya, lalu tautkan di sini. Akun klien hanya
+        melihat kerja sama yang ditautkan ke data kliennya.{' '}
+        {sudahPunyaAkun} dari {daftarKlien?.length ?? 0} data klien
+        sudah punya akun.
       </p>
       <p className="mt-2 text-sm font-semibold text-[#0d2569]">
-        No email on record: every client record in the seed has an empty
-        email field — use the client&apos;s real email address (from
-        outside the app) when creating the account in the console. Do
-        not invent an email.
+        Tidak ada email tercatat: semua data klien di seed tidak punya
+        email. Pakai alamat email asli klien (dari luar aplikasi) saat
+        membuat akun di console. Jangan mengarang email.
       </p>
       {daftarKlien === undefined ? (
         <p className="mt-3 text-sm text-[#0d2569]/70">
-          Client list is unavailable in this mode.
+          Daftar klien tidak tersedia di mode ini.
         </p>
       ) : (
         <div className="mt-4 grid gap-3 md:grid-cols-2">
           <div>
             <label className="mb-1.5 block text-sm font-bold text-[#0d2569]">
-              Role
+              Peran
             </label>
             <select
               className="w-full rounded-md border border-[#0d2569]/20 bg-white px-3 py-2 text-sm text-[#0d2569]"
@@ -1338,63 +1323,63 @@ function BagianUndangKlien({
               }
               disabled={proses}
             >
-              <option value="client">Client</option>
+              <option value="client">Klien</option>
               <option value="operator">Operator</option>
             </select>
           </div>
           <div>
             <label className="mb-1.5 block text-sm font-bold text-[#0d2569]">
-              Auth UID *
+              UID Auth *
             </label>
             <input
               className="w-full rounded-md border border-[#0d2569]/20 bg-white px-3 py-2 text-sm text-[#0d2569]"
               value={uidAuth}
               onChange={(e) => setUidAuth(e.target.value)}
-              placeholder="UID from Firebase console"
+              placeholder="UID dari Firebase console"
               disabled={proses}
             />
           </div>
           <div>
             <label className="mb-1.5 block text-sm font-bold text-[#0d2569]">
-              Auth email *
+              Email Auth *
             </label>
             <input
               className="w-full rounded-md border border-[#0d2569]/20 bg-white px-3 py-2 text-sm text-[#0d2569]"
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="email used in the console"
+              placeholder="email yang dipakai di console"
               disabled={proses}
             />
           </div>
           <div>
             <label className="mb-1.5 block text-sm font-bold text-[#0d2569]">
-              Name *
+              Nama *
             </label>
             <input
               className="w-full rounded-md border border-[#0d2569]/20 bg-white px-3 py-2 text-sm text-[#0d2569]"
               value={nama}
               onChange={(e) => setNama(e.target.value)}
-              placeholder="Account holder name"
+              placeholder="Nama pemegang akun"
               disabled={proses}
             />
           </div>
           <div>
             <label className="mb-1.5 block text-sm font-bold text-[#0d2569]">
-              Job title
+              Jabatan
             </label>
             <input
               className="w-full rounded-md border border-[#0d2569]/20 bg-white px-3 py-2 text-sm text-[#0d2569]"
               value={jabatan}
               onChange={(e) => setJabatan(e.target.value)}
-              placeholder={peran === 'client' ? 'Client' : 'Staf Layanan & Pengembangan Usaha'}
+              placeholder={peran === 'client' ? 'Klien' : 'Staf Layanan & Pengembangan Usaha'}
               disabled={proses}
             />
           </div>
           {peran === 'client' && (
             <div>
               <label className="mb-1.5 block text-sm font-bold text-[#0d2569]">
-                Client record *
+                Data klien *
               </label>
               <select
                 className="w-full rounded-md border border-[#0d2569]/20 bg-white px-3 py-2 text-sm text-[#0d2569]"
@@ -1402,11 +1387,11 @@ function BagianUndangKlien({
                 onChange={(e) => setKlienId(e.target.value)}
                 disabled={proses}
               >
-                <option value="">— Pick a client record —</option>
+                <option value="">— Pilih data klien —</option>
                 {daftarKlien.map((k) => (
                   <option key={k.id} value={k.id} disabled={k.akunKlienDibuat}>
-                    {k.nama} ({k.id}) — no email on record
-                    {k.akunKlienDibuat ? ' — account already created' : ''}
+                    {k.nama} ({k.id}) — tidak ada email tercatat
+                    {k.akunKlienDibuat ? ' — akun sudah dibuat' : ''}
                   </option>
                 ))}
               </select>
@@ -1416,7 +1401,7 @@ function BagianUndangKlien({
       )}
       <div className="mt-4">
         <TombolUtama onClick={tanganiUndang} disabled={proses || !onUndangKlien}>
-          {proses ? 'Linking account…' : 'Link account'}
+          {proses ? 'Menautkan akun…' : 'Tautkan akun'}
         </TombolUtama>
       </div>
       {galat && (
@@ -1471,15 +1456,15 @@ function BagianBuatAkunInternal({
     setGalat(null);
     setSukses(null);
     if (nama.trim() === '') {
-      setGalat('Name is required.');
+      setGalat('Nama wajib diisi.');
       return;
     }
     if (email.trim() === '' || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
-      setGalat('A valid email is required.');
+      setGalat('Email yang valid wajib diisi.');
       return;
     }
     if (kataSandi.length < 6) {
-      setGalat('Password must be at least 6 characters.');
+      setGalat('Kata sandi minimal 6 karakter.');
       return;
     }
     setProses(true);
@@ -1500,14 +1485,14 @@ function BagianBuatAkunInternal({
         return;
       }
       setSukses(
-        `${LABEL_PERAN[peran]} account created for ${email.trim()} (Auth UID ${hasil.uid ?? '—'}). They can now sign in and will see the admin portal.`,
+        `Akun ${LABEL_PERAN[peran]} dibuat untuk ${email.trim()} (UID Auth ${hasil.uid ?? '—'}). Mereka kini bisa masuk dan akan melihat portal admin.`,
       );
       setEmail('');
       setKataSandi('');
       setNama('');
       setJabatan('');
     } catch (e) {
-      setGalat(e instanceof Error ? e.message : 'Create failed. Try again.');
+      setGalat(e instanceof Error ? e.message : 'Pembuatan gagal. Coba lagi.');
     } finally {
       setProses(false);
     }
@@ -1515,18 +1500,18 @@ function BagianBuatAkunInternal({
 
   return (
     <Kartu>
-      <JudulBagian>Create Internal Account</JudulBagian>
+      <JudulBagian>Buat Akun Internal</JudulBagian>
       <p className="mt-2 text-sm text-[#0d2569]/70">
-        Create an Operator or Admin account. The account is created
-        here in the app — no need to open the Firebase console, and
-        your own session stays signed in. Client accounts cannot be
-        created here: clients sign up themselves from the login page,
-        or use &ldquo;Invite Client Account&rdquo; below.
+        Buat akun Operator atau Admin. Akun dibuat di sini, di dalam
+        aplikasi. Tidak perlu membuka Firebase console, dan sesi Anda
+        sendiri tetap masuk. Akun klien tidak bisa dibuat di sini: klien
+        mendaftar sendiri dari halaman login, atau pakai &ldquo;Undang
+        Akun Klien&rdquo; di bawah.
       </p>
       <div className="mt-4 grid gap-3 md:grid-cols-2">
         <div>
           <label className="mb-1.5 block text-sm font-bold text-[#0d2569]">
-            Role *
+            Peran *
           </label>
           <select
             className="w-full rounded-md border border-[#0d2569]/20 bg-white px-3 py-2 text-sm text-[#0d2569]"
@@ -1537,7 +1522,7 @@ function BagianBuatAkunInternal({
             disabled={proses}
           >
             <option value="operator">Operator — Staf Layanan &amp; Pengembangan Usaha</option>
-            <option value="admin">Admin — Super User (App Administrator)</option>
+            <option value="admin">Admin — Super User (Administrator Aplikasi)</option>
           </select>
         </div>
         <div>
@@ -1549,39 +1534,39 @@ function BagianBuatAkunInternal({
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            placeholder="email for the new account"
+            placeholder="email untuk akun baru"
             disabled={proses}
           />
         </div>
         <div>
           <label className="mb-1.5 block text-sm font-bold text-[#0d2569]">
-            Password *
+            Kata sandi *
           </label>
           <input
             className="w-full rounded-md border border-[#0d2569]/20 bg-white px-3 py-2 text-sm text-[#0d2569]"
             type="password"
             value={kataSandi}
             onChange={(e) => setKataSandi(e.target.value)}
-            placeholder="at least 6 characters"
+            placeholder="minimal 6 karakter"
             disabled={proses}
           />
         </div>
         <div>
           <label className="mb-1.5 block text-sm font-bold text-[#0d2569]">
-            Name *
+            Nama *
           </label>
           <input
             className="w-full rounded-md border border-[#0d2569]/20 bg-white px-3 py-2 text-sm text-[#0d2569]"
             type="text"
             value={nama}
             onChange={(e) => setNama(e.target.value)}
-            placeholder="Account holder name"
+            placeholder="Nama pemegang akun"
             disabled={proses}
           />
         </div>
         <div>
           <label className="mb-1.5 block text-sm font-bold text-[#0d2569]">
-            Job title
+            Jabatan
           </label>
           <input
             className="w-full rounded-md border border-[#0d2569]/20 bg-white px-3 py-2 text-sm text-[#0d2569]"
@@ -1595,7 +1580,7 @@ function BagianBuatAkunInternal({
       </div>
       <div className="mt-4">
         <TombolUtama onClick={tanganiBuat} disabled={proses || !onBuatAkunInternal}>
-          {proses ? 'Creating account…' : 'Create account'}
+          {proses ? 'Membuat akun…' : 'Buat akun'}
         </TombolUtama>
       </div>
       {galat && (
@@ -1638,9 +1623,9 @@ export default function MasterPage(props: MasterPageProps) {
   return (
     <div className="space-y-6">
       <p className="text-sm text-[#0d2569]/70">
-        Master data is the application&apos;s single source of truth (one
-        account code = one classification). This page only displays master
-        data — changes are made by the Admin.
+        Data master adalah satu-satunya sumber kebenaran aplikasi (satu
+        kode akun = satu klasifikasi). Halaman ini hanya menampilkan data
+        master. Perubahan dilakukan oleh Admin.
       </p>
 
       <BagianMigrasi
@@ -1689,18 +1674,18 @@ export default function MasterPage(props: MasterPageProps) {
         onBuatAkunInternal={onBuatAkunInternal}
       />
 
-      <Peringatan teks="Master data is only changed by the Admin; values already used by transactions cannot be deleted, only deactivated." />
+      <Peringatan teks="Data master hanya diubah oleh Admin; nilai yang sudah dipakai transaksi tidak bisa dihapus, hanya dinonaktifkan." />
 
       {/* Kode Akun */}
       <Kartu>
-        <JudulBagian>Account Codes</JudulBagian>
+        <JudulBagian>Kode Akun</JudulBagian>
         <div className="mt-3">
           <Tabel>
             <thead>
               <tr>
-                <Th>Code</Th>
-                <Th>Description</Th>
-                <Th>PNBP Type</Th>
+                <Th>Kode</Th>
+                <Th>Uraian</Th>
+                <Th>Jenis PNBP</Th>
               </tr>
             </thead>
             <tbody>
@@ -1718,14 +1703,14 @@ export default function MasterPage(props: MasterPageProps) {
 
       {/* Kategori Layanan */}
       <Kartu>
-        <JudulBagian>Service Categories</JudulBagian>
+        <JudulBagian>Kategori Layanan</JudulBagian>
         <div className="mt-3">
           <Tabel>
             <thead>
               <tr>
-                <Th>Name</Th>
-                <Th>Account Code</Th>
-                <Th>PNBP Type</Th>
+                <Th>Nama</Th>
+                <Th>Kode Akun</Th>
+                <Th>Jenis PNBP</Th>
               </tr>
             </thead>
             <tbody>
@@ -1743,49 +1728,49 @@ export default function MasterPage(props: MasterPageProps) {
 
       {/* Daftar nilai master */}
       <div className="grid gap-6 md:grid-cols-2">
-        <DaftarNilai judul="Programs" nilai={MASTER_PROGRAMA} />
+        <DaftarNilai judul="Program" nilai={MASTER_PROGRAMA} />
         <DaftarNilai
-          judul="Client Types"
+          judul="Jenis Klien"
           nilai={MASTER_JENIS_KLIEN}
           label={labelJenisKlien}
         />
         <DaftarNilai
-          judul="Document Types"
+          judul="Jenis Dokumen"
           nilai={MASTER_JENIS_DOKUMEN}
           label={labelJenisDokumen}
         />
         <DaftarNilai
-          judul="Contract Statuses"
+          judul="Status Kontrak"
           nilai={MASTER_STATUS_KONTRAK}
           label={labelStatusKontrak}
         />
         <DaftarNilai
-          judul="Submission Stages"
+          judul="Tahap Pengajuan"
           nilai={MASTER_TAHAP_PENGAJUAN}
           label={labelTahapPengajuan}
         />
         <DaftarNilai
-          judul="Pipeline Stages"
+          judul="Tahap Alur Penawaran"
           nilai={MASTER_TAHAP_PIPELINE}
           label={labelTahapPipeline}
         />
         <DaftarNilai
-          judul="Prospect Sources"
+          judul="Sumber Prospek"
           nilai={MASTER_SUMBER_PROSPEK}
           label={labelSumberProspek}
         />
         <DaftarNilai
-          judul="Quotation Statuses"
+          judul="Status Penawaran"
           nilai={MASTER_STATUS_QUOTATION}
           label={labelStatusPersetujuan}
         />
         <DaftarNilai
-          judul="Order Statuses"
+          judul="Status Pesanan"
           nilai={MASTER_STATUS_ORDER}
           label={labelStatusOrder}
         />
         <DaftarNilai
-          judul="Task Statuses"
+          judul="Status Tugas"
           nilai={MASTER_STATUS_TASK}
           label={labelStatusTask}
         />
@@ -1793,22 +1778,22 @@ export default function MasterPage(props: MasterPageProps) {
 
       {/* Daftar Satker */}
       <Kartu>
-        <JudulBagian>Work Unit</JudulBagian>
+        <JudulBagian>Satuan Kerja</JudulBagian>
         <p className="mt-2 text-sm text-[#0d2569]/70">
-          {JUMLAH_SATKER_BERNOMOR} work units. Phase A pilot satker:{' '}
+          {JUMLAH_SATKER_BERNOMOR} satuan kerja. Satker percontohan Fase A:{' '}
           <strong className="text-[#0d2569]">
-            {SATKER_PILOT.nama} (code {SATKER_PILOT.kode})
+            {SATKER_PILOT.nama} (kode {SATKER_PILOT.kode})
           </strong>
-          . Name spellings follow the source spreadsheet &ldquo;LAPORAN PNBP
-          2026&rdquo; and await verification by head office.
+          . Ejaan nama mengikuti spreadsheet sumber &ldquo;LAPORAN PNBP
+          2026&rdquo; dan menunggu verifikasi kantor pusat.
         </p>
         <div className="mt-3 max-h-96 overflow-auto rounded-md border border-[#2573e2]/20">
           <table className="w-full text-sm">
             <thead>
               <tr>
                 <Th className="sticky top-0 bg-white pl-3">No</Th>
-                <Th className="sticky top-0 bg-white">Satker Name</Th>
-                <Th className="sticky top-0 bg-white">Regional Coordinator</Th>
+                <Th className="sticky top-0 bg-white">Nama Satker</Th>
+                <Th className="sticky top-0 bg-white">Koordinator Wilayah</Th>
               </tr>
             </thead>
             <tbody>
@@ -1819,7 +1804,7 @@ export default function MasterPage(props: MasterPageProps) {
                     {s.nama}
                     {s.nama === SATKER_PILOT.nama && (
                       <span className="ml-2 rounded bg-[#2573e2]/10 px-2 py-0.5 text-xs font-semibold text-[#0d2569]">
-                        Pilot satker
+                        Satker percontohan
                       </span>
                     )}
                   </Td>
