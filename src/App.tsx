@@ -298,11 +298,10 @@ const MODULES: NavItem[] = [
   },
   {
     id: 'kontrak',
-    label: 'PNBP',
+    label: 'Penerimaan Negara Bukan Pajak',
     icon: FileSignature,
     phase: 'A',
-    description:
-      'Kontrak PNBP, daftar kontrak yang sama seperti di Deals (PKS).',
+    description: '',
   },
   {
     id: 'mou',
@@ -3897,9 +3896,11 @@ export default function App() {
             <Icon size={26} className="text-[#2573e2]" />
             {current.label}
           </h1>
-          <p className="mt-2 max-w-2xl text-sm text-[#0d2569]/80">
-            {current.description}
-          </p>
+          {current.description && (
+            <p className="mt-2 max-w-2xl text-sm text-[#0d2569]/80">
+              {current.description}
+            </p>
+          )}
 
           {modeData !== 'firestore' && (
             <div className="mt-4 max-w-2xl rounded-md border border-[#2573e2]/40 bg-[#2573e2]/5 px-4 py-3 text-sm">
@@ -3921,12 +3922,6 @@ export default function App() {
                   Users page so changes are stored permanently in Firestore.
                 </>
               )}
-            </div>
-          )}
-          {modeData === 'firestore' && (
-            <div className="mt-4 max-w-2xl rounded-md border border-[#2573e2]/40 bg-[#2573e2]/5 px-4 py-3 text-sm">
-              <strong>Data stored in Firestore — Satker PALEMBANG.</strong>{' '}
-              Changes are stored permanently.
             </div>
           )}
           {galatMuat && (

@@ -61,7 +61,7 @@ export const CLUSTER_KONTRAK: ClusterKontrak[] = [
   },
   {
     id: 'klien',
-    label: 'Client Details',
+    label: 'Klien',
     selaluTampil: false,
     kolom: [
       { id: 'jenisKlien', header: 'Type' },
@@ -76,7 +76,7 @@ export const CLUSTER_KONTRAK: ClusterKontrak[] = [
   },
   {
     id: 'layanan',
-    label: 'Service Details',
+    label: 'Layanan',
     selaluTampil: false,
     kolom: [
       { id: 'kategoriLayanan', header: 'Service Type' },
@@ -88,7 +88,7 @@ export const CLUSTER_KONTRAK: ClusterKontrak[] = [
   },
   {
     id: 'revenue',
-    label: 'Revenue Details',
+    label: 'Pendapatan',
     selaluTampil: false,
     kolom: [
       { id: 'nilaiKontrak', header: 'Contract Value', kanan: true },
@@ -99,7 +99,7 @@ export const CLUSTER_KONTRAK: ClusterKontrak[] = [
   },
   {
     id: 'pembayaran',
-    label: 'Payment Details',
+    label: 'Pembayaran',
     selaluTampil: false,
     kolom: [
       { id: 'jatuhTempo', header: 'Payment Deadline' },
@@ -113,7 +113,7 @@ export const CLUSTER_KONTRAK: ClusterKontrak[] = [
   },
   {
     id: 'dokumen',
-    label: 'Documents',
+    label: 'Dokumen',
     selaluTampil: false,
     kolom: [
       { id: 'ketersediaanDokumen', header: 'Availability Rate', kanan: true },
@@ -122,9 +122,9 @@ export const CLUSTER_KONTRAK: ClusterKontrak[] = [
   },
   {
     id: 'catatan',
-    label: 'Notes',
+    label: 'Keterangan',
     selaluTampil: false,
-    kolom: [{ id: 'catatan', header: 'Notes' }],
+    kolom: [{ id: 'catatan', header: 'Keterangan' }],
   },
 ];
 
