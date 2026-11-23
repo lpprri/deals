@@ -212,13 +212,15 @@ cek(
     marklo.includes('aria-haspopup="true"'),
 );
 cek(
-  'Header: ikon profil membuka panel Profil (bukan lagi langsung Login); panel tamu = tombol Login + Bahasa & Tema (tampil dulu); panel login = nama/email + Informasi Akun + Aktivitas Akun + Bahasa & Tema + Keluar; tanpa tombol video-call — panel dipakai bersama admin (PanelProfil.tsx), bukan duplikat',
+  'Header: ikon profil membuka panel Profil (bukan lagi langsung Login); panel tamu = tombol Login + Tema (tampil dulu); panel login = nama/email + Informasi Akun + Aktivitas Akun + Tema + Keluar; tanpa tombol video-call — panel dipakai bersama admin (PanelProfil.tsx), bukan duplikat',
   marklo
     .slice(marklo.indexOf('function Header('), marklo.indexOf('</header>'))
     .includes('aria-label="Profile"') &&
     marklo.includes('menuProfilTerbuka') &&
     marklo.includes('<PanelProfil') &&
-    panelProfil.includes('BarisBahasaTema') &&
+    panelProfil.includes('BarisTema') &&
+    !panelProfil.includes('BarisBahasaTema') &&
+    !panelProfil.includes('>Bahasa<') &&
     panelProfil.includes('Informasi Akun') &&
     panelProfil.includes('Aktivitas Akun') &&
     panelProfil.includes('Keluar') &&

@@ -347,7 +347,7 @@ cek(
 // Avatar + nama di top bar jadi tombol (aria-label Profile) yang membuka
 // panel Profil yang SAMA dengan header landing (PanelProfil.tsx, bukan
 // duplikat): nama/email + Informasi Akun (→ Master Data & Users) +
-// Aktivitas Akun (→ Audit) + Bahasa & Tema (tampil dulu) + Keluar.
+// Aktivitas Akun (→ Audit) + Tema (tampil dulu) + Keluar.
 // Tanpa Keamanan / Pengaturan Notifikasi (tidak ada halaman itu).
 const topBarAdmin = app.slice(
   app.indexOf('border-b border-[#2573e2]/15 bg-white px-6 py-3'),
@@ -374,10 +374,12 @@ cek(
     topBarAdmin.includes('tanganiKeluar()'),
 );
 cek(
-  'PanelProfil: isi panel = Informasi Akun + Aktivitas Akun + Bahasa & Tema + Keluar; tanpa Keamanan / Pengaturan Notifikasi',
+  'PanelProfil: isi panel = Informasi Akun + Aktivitas Akun + Tema + Keluar; tanpa baris Bahasa, tanpa Keamanan / Pengaturan Notifikasi',
   panelProfil.includes('Informasi Akun') &&
     panelProfil.includes('Aktivitas Akun') &&
-    panelProfil.includes('BarisBahasaTema') &&
+    panelProfil.includes('BarisTema') &&
+    !panelProfil.includes('BarisBahasaTema') &&
+    !panelProfil.includes('>Bahasa<') &&
     panelProfil.includes('Keluar') &&
     !panelProfil.includes('Keamanan') &&
     !panelProfil.includes('Pengaturan Notifikasi'),
