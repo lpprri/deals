@@ -397,10 +397,10 @@ const MODULES: NavItem[] = [
   },
   {
     id: 'order',
-    label: 'Pesanan',
+    label: 'Permintaan',
     icon: ClipboardList,
     phase: 'B',
-    description: 'Daftar pesanan, sama dengan tab Pesanan di Sales (ORD-01 …).',
+    description: 'Daftar permintaan, sama dengan tab Pesanan di Sales (ORD-01 …).',
   },
   {
     id: 'pengajuan',
