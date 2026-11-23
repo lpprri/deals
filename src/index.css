@@ -3,11 +3,14 @@
 @theme {
   --color-rri-blue: #2573e2;
   --color-rri-navy: #0d2569;
-  /* Aksen landing (PR oren-ke-biru): dulu vermilion tiruan Marklo,
-     kini Biru RRI; hover gelap Navy; peach kini biru muda. */
-  --color-mk-aksen: #2573e2;
-  --color-mk-aksen-gelap: #0d2569;
-  --color-mk-peach: #e8f1fe;
+  /* Aksen landing (perintah pengguna 2026-11-23): biru terang template
+     diganti Navy logo "Deals" (#0D2569) — semua tombol/pil/angka/
+     bintang/kartu FAQ & testimoni yang biru kini navy; hover makin
+     gelap (#04122e, ujung gelap gradien footer); peach kini tint
+     navy muda. */
+  --color-mk-aksen: #0d2569;
+  --color-mk-aksen-gelap: #04122e;
+  --color-mk-peach: #e8eaf2;
 }
 
 html,

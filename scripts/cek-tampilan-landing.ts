@@ -699,7 +699,7 @@ cek(
     !layananData.includes("gradien: 'from-emerald-200 to-teal-100'"),
 );
 cek(
-  'Services: ukuran + warna dekat template — kartu lebih sempit (max-w-xl), padding lebih lega, judul lebih besar, latar putih, label pertama biru RRI (PR oren-ke-biru)',
+  'Services: ukuran + warna dekat template — kartu lebih sempit (max-w-xl), padding lebih lega, judul lebih besar, latar putih, label pertama navy logo Deals (perintah pengguna 2026-11-23)',
   marklo.includes('<section id="services" className="bg-white py-16 sm:py-20">') &&
     marklo.includes('mx-auto mt-6 max-w-3xl text-left') &&
     marklo.includes('scroll-mt-24 mx-auto max-w-xl') &&
@@ -708,7 +708,7 @@ cek(
     marklo.includes('sm:p-8') &&
     marklo.includes('<h3 className="text-2xl font-extrabold text-black">') &&
     marklo.includes('text-[15px] leading-relaxed text-slate-600') &&
-    marklo.includes("i === 0 ? 'text-[#2573e2]' : 'text-slate-400'"),
+    marklo.includes("i === 0 ? 'text-[#0d2569]' : 'text-slate-400'"),
 );
 cek(
   'Services: logo beranimasi saat di-hover — goyang ringan + naik (PR #92), dimatikan bila prefers-reduced-motion',
@@ -745,10 +745,10 @@ cek(
     !marklo.includes('Our Agency'),
 );
 cek(
-  'Comparison: X merah (lain) + ceklis biru (kami), 5 butir masing-masing (ikon cek biru muda sejak PR oren-ke-biru)',
+  'Comparison: X merah (lain) + ceklis navy (kami), 5 butir masing-masing (ikon cek tint navy muda, perintah pengguna 2026-11-23)',
   dataMarklo.includes('Generic copy-paste strategies') &&
     dataMarklo.includes('Custom campaigns built on your data') &&
-    marklo.includes('bg-blue-100') &&
+    marklo.includes('bg-mk-aksen/10') &&
     marklo.includes('bg-mk-peach'),
 );
 cek(
@@ -1148,10 +1148,10 @@ cek(
     })(),
 );
 cek(
-  'Footer: pill "Partner with RRI" (biru RRI + ikon Handshake) di sebelah "Back to top" di kolom brand, membuka halaman "Partner with RRI" (perintah user 2026-11-21 16:20 WIB, contoh Traveloka; tujuan dipindah dari Plan a Campaign ke halaman baru 2026-11-21)',
+  'Footer: pill "Partner with RRI" (PUTIH teks navy logo Deals + ikon Handshake, perintah pengguna 2026-11-23) di sebelah "Back to top" di kolom brand, membuka halaman "Partner with RRI" (perintah user 2026-11-21 16:20 WIB, contoh Traveloka; tujuan dipindah dari Plan a Campaign ke halaman baru 2026-11-21)',
   footerMarklo.includes('Partner with RRI') &&
     footerMarklo.includes('Handshake') &&
-    footerMarklo.includes('bg-[#2573e2]') &&
+    footerMarklo.includes('bg-white px-4 py-2 text-sm font-semibold text-[#0d2569]') &&
     footerMarklo.includes('onClick={onPartnerWithRri}') &&
     footerMarklo.indexOf('<ArrowUp') < footerMarklo.indexOf('<Handshake') &&
     marklo.includes('Handshake,'),
@@ -1265,13 +1265,32 @@ cek(
     css.includes('prefers-reduced-motion'),
 );
 cek(
-  'Motion: token aksen biru RRI di @theme index.css (PR oren-ke-biru)',
-  css.includes('--color-mk-aksen: #2573e2;') &&
-    css.includes('--color-mk-aksen-gelap: #0d2569;') &&
-    css.includes('--color-mk-peach: #e8f1fe;') &&
+  'Motion: token aksen Navy logo "Deals" di @theme index.css (perintah pengguna 2026-11-23; sebelumnya Biru RRI #2573E2)',
+  css.includes('--color-mk-aksen: #0d2569;') &&
+    css.includes('--color-mk-aksen-gelap: #04122e;') &&
+    css.includes('--color-mk-peach: #e8eaf2;') &&
     !css.includes('#ff4d2e') &&
     !css.includes('#e63e20') &&
     !css.includes('#ffede8'),
+);
+cek(
+  'Landing: semua biru template menjadi Navy logo "Deals" #0D2569 (perintah pengguna 2026-11-23) — label aktif + See More navy; avatar biru navy; tint biru muda navy; pill footer "Partner with RRI" + "Book 30 Min Free Call" PUTIH teks navy; tidak ada lagi biru template (blue-400/300, sky, blue-100, #2573e2) di Marklo.tsx',
+  !marklo.includes('blue-400') &&
+    !marklo.includes('blue-300') &&
+    !marklo.includes('sky-300') &&
+    !marklo.includes('sky-400') &&
+    !marklo.includes('blue-100') &&
+    !marklo.includes('text-[#2573e2]') &&
+    !marklo.includes('bg-[#2573e2]') &&
+    marklo.includes("i === 0 ? 'text-[#0d2569]'") &&
+    marklo.includes('text-[#0d2569] focus-visible:outline-2') &&
+    marklo.includes("gradien: 'from-mk-aksen to-mk-aksen-gelap'") &&
+    marklo.includes("['bg-mk-aksen', 'bg-mk-aksen', 'bg-violet-400']") &&
+    marklo.includes('bg-mk-aksen/10 text-mk-aksen') &&
+    marklo.includes('ring-1 ring-mk-aksen/10') &&
+    marklo.includes('bg-white px-4 py-2 text-sm font-semibold text-[#0d2569]') &&
+    marklo.includes('bg-white px-5 py-2.5 text-sm font-semibold text-[#0d2569]') &&
+    marklo.includes('hover:bg-slate-100'),
 );
 // Merah template #ff4d2e hanya boleh ada di section Why (komentar +
 // komponen PillMerahTemplate di MengapaMarketing) — tautan "Book a Call"
@@ -1284,7 +1303,7 @@ const luarWhyMarklo =
     marklo.indexOf('/* ================= Booking konsultasi ================= */'),
   );
 cek(
-  'Oren-ke-biru: tidak ada lagi warna oren di landing KECUALI section Why (pill MERAH template #ff4d2e SAJA sejak "Book a Call" hilang 2026-11-18 20:21 WIB, PR landing-why-marketing-template) — aksen Biru RRI, hover navy, peach biru muda, gradasi avatar biru/sky, ring + ikon cek biru; merah error booking tetap ada (PR oren-ke-biru)',
+  'Oren-ke-biru: tidak ada lagi warna oren di landing KECUALI section Why (pill MERAH template #ff4d2e SAJA sejak "Book a Call" hilang 2026-11-18 20:21 WIB, PR landing-why-marketing-template) — aksen Navy logo Deals, hover #04122e, peach tint navy muda, gradasi avatar navy, ring + ikon cek tint navy; gradasi kartu layanan pastel tetap; merah error booking tetap ada (PR oren-ke-biru)',
   !luarWhyMarklo.includes('#ff4d2e') &&
     !marklo.includes('ring-orange-100') &&
     !marklo.includes('bg-pink-100') &&
@@ -1295,11 +1314,11 @@ cek(
     !dataMarklo.includes('from-rose-200 to-orange-100') &&
     !dataMarklo.includes('from-amber-200 to-yellow-100') &&
     !dataMarklo.includes('from-orange-400 to-rose-400') &&
-    marklo.includes('ring-blue-100') &&
-    marklo.includes('bg-blue-100') &&
-    marklo.includes("i === 0 ? 'text-[#2573e2]' : 'text-slate-400'") &&
-    marklo.includes('from-blue-400 to-sky-300') &&
-    marklo.includes('bg-blue-400') &&
+    marklo.includes('ring-mk-aksen/10') &&
+    marklo.includes('bg-mk-aksen/10') &&
+    marklo.includes("i === 0 ? 'text-[#0d2569]' : 'text-slate-400'") &&
+    marklo.includes("gradien: 'from-mk-aksen to-mk-aksen-gelap'") &&
+    marklo.includes("['bg-mk-aksen', 'bg-mk-aksen', 'bg-violet-400']") &&
     dataMarklo.includes("gradien: 'from-blue-100 to-sky-50'") &&
     dataMarklo.includes("gradien: 'from-blue-200 to-sky-100'") &&
     dataMarklo.includes("gradien: 'from-sky-200 to-blue-100'") &&

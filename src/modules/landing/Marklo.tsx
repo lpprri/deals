@@ -687,8 +687,8 @@ function Hero() {
           <div className="mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row sm:gap-4">
             <span className="flex -space-x-2">
               {[
-                { inisial: 'GR', gradien: 'from-blue-400 to-sky-300' },
-                { inisial: 'SM', gradien: 'from-sky-400 to-blue-300' },
+                { inisial: 'GR', gradien: 'from-mk-aksen to-mk-aksen-gelap' },
+                { inisial: 'SM', gradien: 'from-mk-aksen to-mk-aksen-gelap' },
                 { inisial: 'PK', gradien: 'from-violet-400 to-purple-300' },
                 { inisial: 'DL', gradien: 'from-emerald-400 to-teal-300' },
               ].map((a) => (
@@ -886,7 +886,7 @@ function StatItem({
               <span
                 key={inisial}
                 className={`flex h-6 w-6 items-center justify-center rounded-full text-[9px] font-bold text-white ring-2 ring-white ${
-                  ['bg-blue-400', 'bg-sky-400', 'bg-violet-400'][i]
+                  ['bg-mk-aksen', 'bg-mk-aksen', 'bg-violet-400'][i]
                 }`}
                 aria-hidden="true"
               >
@@ -1038,7 +1038,7 @@ function Layanan({ onPlanCampaign, onBookVenue, onRentSpace }: { onPlanCampaign:
                 onClick={() => pilihLayanan(i)}
                 aria-label={`View ${layanan.nama} service`}
                 className={`cursor-pointer text-sm font-medium focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-mk-aksen sm:text-base ${
-                  i === 0 ? 'text-[#2573e2]' : 'text-slate-400'
+                  i === 0 ? 'text-[#0d2569]' : 'text-slate-400'
                 }`}
               >
                 {layanan.langkah}
@@ -1049,7 +1049,7 @@ function Layanan({ onPlanCampaign, onBookVenue, onRentSpace }: { onPlanCampaign:
             type="button"
             onClick={() => setLihatLebih(!lihatLebih)}
             aria-expanded={lihatLebih}
-            className="inline-flex cursor-pointer items-center gap-1 text-sm font-medium text-[#2573e2] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-mk-aksen sm:text-base"
+            className="inline-flex cursor-pointer items-center gap-1 text-sm font-medium text-[#0d2569] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-mk-aksen sm:text-base"
           >
             {lihatLebih ? 'See Less' : 'See More'}
             <ChevronDown
@@ -1188,7 +1188,7 @@ function Perbandingan() {
               <ul className="mt-5 space-y-4">
                 {PERBANDINGAN_LAIN.map((item) => (
                   <li key={item} className="flex items-start gap-3">
-                    <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-blue-100 text-mk-aksen">
+                    <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-mk-aksen/10 text-mk-aksen">
                       <X className="h-4 w-4" aria-hidden="true" />
                     </span>
                     <span className="text-sm leading-relaxed text-slate-500">
@@ -1200,7 +1200,7 @@ function Perbandingan() {
             </article>
           </Reveal>
           <Reveal tunda={140}>
-            <article className="h-full rounded-[20px] bg-mk-peach p-7 shadow-lg ring-1 ring-blue-100">
+            <article className="h-full rounded-[20px] bg-mk-peach p-7 shadow-lg ring-1 ring-mk-aksen/10">
               <h3 className="text-xl font-extrabold text-black">Our Service</h3>
               <ul className="mt-5 space-y-4">
                 {PERBANDINGAN_KAMI.map((item) => (
@@ -1261,7 +1261,8 @@ function Perbandingan() {
 
 /** Pill merah template (#ff4d2e, vermilion asli Marklo) — varian LOKAL
     hanya untuk section ini. LabelPill global TIDAK diubah: section lain
-    tetap memakai Biru RRI #2573E2 (PR oren-ke-biru). Merah di sini
+    memakai Navy logo Deals #0D2569 (perintah pengguna 2026-11-23;
+    sebelumnya Biru RRI #2573E2). Merah di sini
     mengikuti template asli atas pilihan pengguna 2026-11-18 ("ikuti
     template asli"); ganti ke Biru RRI bila diminta. Sejak 2026-11-18
     20:21 WIB (permintaan pengguna): tautan "Book a Call" merah sudah
@@ -2078,7 +2079,8 @@ function Footer({ onComingSoon, onPlanCampaign, onPartnerWithRri, onBookVenue, o
               land, across Indonesia.
             </p>
             {/* Tombol "Partner with RRI" (perintah user 2026-11-21 16:20 WIB,
-                contoh Traveloka): pill biru RRI di sebelah "Back to top",
+                contoh Traveloka): pill PUTIH teks navy logo Deals di
+                sebelah "Back to top" (perintah pengguna 2026-11-23),
                 membuka halaman "Partner with RRI" (2026-11-21; sebelumnya
                 pill ini memanggil onPlanCampaign sebagai tujuan
                 sementara). */}
@@ -2094,7 +2096,7 @@ function Footer({ onComingSoon, onPlanCampaign, onPartnerWithRri, onBookVenue, o
               <button
                 type="button"
                 onClick={onPartnerWithRri}
-                className="inline-flex items-center gap-2 rounded-full bg-[#2573e2] px-4 py-2 text-sm font-semibold text-white transition hover:bg-[#0d2569]"
+                className="inline-flex items-center gap-2 rounded-full bg-white px-4 py-2 text-sm font-semibold text-[#0d2569] transition hover:bg-slate-100"
               >
                 <Handshake className="h-4 w-4" aria-hidden="true" />
                 Partner with RRI
@@ -2220,7 +2222,7 @@ function Footer({ onComingSoon, onPlanCampaign, onPartnerWithRri, onBookVenue, o
             <button
               type="button"
               onClick={() => gulirKe('booking')}
-              className="mt-6 inline-flex items-center gap-2 rounded-full bg-mk-aksen px-5 py-2.5 text-sm font-semibold text-white shadow transition hover:bg-mk-aksen-gelap"
+              className="mt-6 inline-flex items-center gap-2 rounded-full bg-white px-5 py-2.5 text-sm font-semibold text-[#0d2569] shadow transition hover:bg-slate-100"
             >
               Book 30 Min Free Call
               <ArrowRight className="h-4 w-4" aria-hidden="true" />
