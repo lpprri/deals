@@ -947,6 +947,27 @@ function Proses() {
 
 /* ================= Services (6 layanan RRI) ================= */
 
+/* Geser horizontal tiap kartu layanan ke tengah teks langkahnya
+   (perintah pengguna 2026-11-23: "letakkan kartu ditengah sejajar
+   dengan teks masing masing" + "gunakan garis putus putus itu sebagai
+   tanda tengah teks"). Baris label memakai grid 6 kolom dalam wadah
+   max-w-3xl, jadi tengah slot ke-i ada di 64 + i*128 px dari kiri
+   wadah; tengah wadah 384 px; geser = tengah slot - 384 =
+   -320/-192/-64/+64/+192/+320 px. Kartu tetap max-w-xl (ukuran
+   semula, perintah pengguna 2026-11-23). Garis putus-putus
+   (mk-garis-funnel) ikut bergeser karena berada di dalam pembungkus
+   yang sama, sehingga garis itu tepat menandai tengah teks. Geser
+   hanya di xl ke atas — di bawah itu kartu terpusat biasa supaya
+   tidak terpotong di layar sempit. */
+const OFFSET_KARTU = [
+  'xl:-translate-x-[320px]',
+  'xl:-translate-x-[192px]',
+  'xl:-translate-x-[64px]',
+  'xl:translate-x-[64px]',
+  'xl:translate-x-[192px]',
+  'xl:translate-x-[320px]',
+];
+
 /** Keenam kotak layanan BISA DI-KLIK (permintaan pengguna 2026-11-19
     08:54 WIB): klik membuka halaman "Plan a Campaign" (form Tally
     embed) lewat prop onPlanCampaign (pola onLacak). Kartu memakai
@@ -982,58 +1003,58 @@ function Layanan({ onPlanCampaign }: { onPlanCampaign: () => void }) {
           </h2>
         </Reveal>
         {/* Baris label langkah template — dipetakan ke layanan RRI (PR #85):
-            label pertama merah seperti template, sisanya slate.
-            Label bisa di-klik (PR #91): tiap label tombol yang menggulir
-            halus ke kartu layanannya + sorot singkat; tampilan tetap.
-            Saat "See More" ditekan (perintah pengguna 2026-11-23), baris
-            melebar (max-w-5xl) dan keenam label + tombol See Less tersusun
-            proporsional dalam satu baris di desktop (lg:flex-nowrap). */}
-        <div
-          className={`mx-auto mt-12 flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 text-left ${
-            lihatLebih ? 'max-w-5xl lg:flex-nowrap' : 'max-w-3xl'
-          }`}
-        >
-          {LAYANAN_MARKLO.map((layanan, i) =>
-            i < 4 || lihatLebih ? (
-              <button
-                key={layanan.nama}
-                type="button"
-                onClick={() => pilihLayanan(i)}
-                aria-label={`View ${layanan.nama} service`}
-                className={`cursor-pointer text-sm font-medium focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-mk-aksen sm:text-base ${
-                  i === 0 ? 'text-[#2573e2]' : 'text-slate-400'
-                }`}
-              >
-                {layanan.langkah}
-              </button>
-            ) : null,
-          )}
-          <button
-            type="button"
-            onClick={() => setLihatLebih(!lihatLebih)}
-            aria-expanded={lihatLebih}
-            className="inline-flex cursor-pointer items-center gap-1 text-sm font-medium text-[#2573e2] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-mk-aksen sm:text-base"
-          >
-            {lihatLebih ? 'See Less' : 'See More'}
-            <ChevronDown
-              className={`h-4 w-4 transition-transform ${lihatLebih ? 'rotate-180' : ''}`}
-              aria-hidden="true"
-            />
-          </button>
-        </div>
-        <div className="mx-auto mt-6 max-w-5xl text-left">
-          {LAYANAN_MARKLO.map((layanan, i) => (
-            // Kartu lebar penuh (perintah pengguna 2026-11-23, revisi dari
-            // "kartu terpusat di tengah"): susunan tangga diagonal template
-            // dihapus; tiap kartu memenuhi lebar wadah (max-w-5xl, sama
-            // dengan baris label saat diperluas) dan tetap tersusun
-            // vertikal — tidak lagi terjebak di kolom sempit tengah, dan
-            // tidak bergeser saat "See More" ditekan.
-            <div
-              key={layanan.nama}
-              className="mk-layang"
-              style={{ animationDelay: `${i * 1.2}s` }}
+            label pertama biru RRI, sisanya slate. Label bisa di-klik
+            (PR #91): tiap label tombol yang menggulir halus ke kartu
+            layanannya + sorot singkat; tampilan tetap. Tiap label duduk
+            di slotnya sendiri dalam grid 6 kolom (perintah pengguna
+            2026-11-23: kartu di tengah sejajar teksnya masing-masing) —
+            slot tetap di tempatnya saat "See More" ditekan/dilepas, jadi
+            tengah tiap teks tidak bergeser. Di bawah lg, baris tetap
+            flex-wrap seperti semula; tombol See More/Less menempel di
+            ujung kanan (absolute) di lg ke atas. */}
+        <div className="relative mx-auto mt-12 max-w-5xl">
+          <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 text-left lg:mx-auto lg:grid lg:max-w-3xl lg:grid-cols-6 lg:items-baseline lg:justify-normal lg:gap-x-0">
+            {LAYANAN_MARKLO.map((layanan, i) =>
+              i < 4 || lihatLebih ? (
+                <button
+                  key={layanan.nama}
+                  type="button"
+                  onClick={() => pilihLayanan(i)}
+                  aria-label={`View ${layanan.nama} service`}
+                  className={`cursor-pointer text-sm font-medium focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-mk-aksen sm:text-base lg:text-center ${
+                    i === 0 ? 'text-[#2573e2]' : 'text-slate-400'
+                  }`}
+                >
+                  {layanan.langkah}
+                </button>
+              ) : null,
+            )}
+            <button
+              type="button"
+              onClick={() => setLihatLebih(!lihatLebih)}
+              aria-expanded={lihatLebih}
+              className="inline-flex cursor-pointer items-center gap-1 text-sm font-medium text-[#2573e2] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-mk-aksen sm:text-base lg:absolute lg:right-0 lg:top-1/2 lg:-translate-y-1/2"
             >
+              {lihatLebih ? 'See Less' : 'See More'}
+              <ChevronDown
+                className={`h-4 w-4 transition-transform ${lihatLebih ? 'rotate-180' : ''}`}
+                aria-hidden="true"
+              />
+            </button>
+          </div>
+        </div>
+        <div className="mx-auto mt-6 max-w-3xl text-left">
+          {LAYANAN_MARKLO.map((layanan, i) =>
+            // Kartu MICE Venues + Commercial Spaces (indeks 4-5) hanya
+            // tampil bila "See More" ditekan (perintah pengguna
+            // 2026-11-23): jangan tampilkan bila teks "Held Events" /
+            // "Expand Business" belum tampil.
+            i < 4 || lihatLebih ? (
+              <div key={layanan.nama} className={OFFSET_KARTU[i]}>
+              <div
+                className="mk-layang"
+                style={{ animationDelay: `${i * 1.2}s` }}
+              >
               {/* Reveal dalam (PR #93): kartu benar-benar tersembunyi
                   (naik 48px + blur kuat) sampai masuk viewport, lalu
                   muncul halus bertahap (stagger 180ms) seperti template.
@@ -1057,7 +1078,7 @@ function Layanan({ onPlanCampaign }: { onPlanCampaign: () => void }) {
                       onPlanCampaign();
                     }
                   }}
-                  className={`scroll-mt-24 w-full cursor-pointer rounded-[20px] bg-gradient-to-br ${layanan.gradien} p-7 shadow-md transition hover:-translate-y-1 hover:shadow-lg focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-mk-aksen sm:p-8 ${
+                  className={`scroll-mt-24 mx-auto max-w-xl cursor-pointer rounded-[20px] bg-gradient-to-br ${layanan.gradien} p-7 shadow-md transition hover:-translate-y-1 hover:shadow-lg focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-mk-aksen sm:p-8 ${
                     sorot === i ? 'ring-2 ring-mk-aksen' : 'ring-1 ring-white'
                   }`}
                 >
@@ -1084,13 +1105,19 @@ function Layanan({ onPlanCampaign }: { onPlanCampaign: () => void }) {
                   </div>
                 </article>
               </Reveal>
-              {i < LAYANAN_MARKLO.length - 1 && (
-                <div className="flex justify-center" aria-hidden="true">
-                  <div className="mk-garis-funnel h-8 w-0.5" />
-                </div>
-              )}
+              {/* Garis putus-putus hanya bila kartu berikutnya tampil —
+                  kalau tidak, garisnya menggantung di bawah kartu
+                  terakhir yang terlihat. */}
+              {(i + 1 < 4 || lihatLebih) &&
+                i < LAYANAN_MARKLO.length - 1 && (
+                  <div className="flex justify-center" aria-hidden="true">
+                    <div className="mk-garis-funnel h-8 w-0.5" />
+                  </div>
+                )}
+              </div>
             </div>
-          ))}
+            ) : null,
+          )}
         </div>
       </div>
     </section>

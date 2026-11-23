@@ -542,7 +542,7 @@ cek(
     marklo.includes('window.setTimeout(() => setSorot(null), 1600)'),
 );
 cek(
-  'Services: tombol "See More" di ujung kanan baris label — ditekan menampilkan label "Held Events" & "Expand Business" sebagai tombol penuh (kartu MICE Venues + Commercial Spaces, perintah pengguna 2026-11-23), tekan lagi jadi "See Less"; saat diperluas keenam label melebar proporsional dalam satu baris di desktop (max-w-5xl + lg:flex-nowrap)',
+  'Services: tombol "See More" di ujung kanan baris label — ditekan menampilkan label "Held Events" & "Expand Business" sebagai tombol penuh (kartu MICE Venues + Commercial Spaces, perintah pengguna 2026-11-23), tekan lagi jadi "See Less"; baris label grid 6 kolom tetap (slot tidak bergeser saat diperluas), tombol See More/Less absolute di kanan pada lg ke atas',
   marklo.includes('const [lihatLebih, setLihatLebih] = useState(false)') &&
     marklo.includes('See More') &&
     marklo.includes('See Less') &&
@@ -550,7 +550,23 @@ cek(
     dataMarklo.includes("langkah: 'Expand Business'") &&
     marklo.includes('aria-expanded={lihatLebih}') &&
     marklo.includes('i < 4 || lihatLebih') &&
-    marklo.includes("max-w-5xl lg:flex-nowrap"),
+    marklo.includes('relative mx-auto mt-12 max-w-5xl') &&
+    marklo.includes('lg:grid lg:max-w-3xl lg:grid-cols-6') &&
+    marklo.includes('lg:absolute lg:right-0 lg:top-1/2 lg:-translate-y-1/2'),
+);
+cek(
+  'Services: kartu MICE Venues + Commercial Spaces HANYA tampil bila "See More" ditekan (perintah pengguna 2026-11-23: jangan tampilkan bila teks "Held Events" / "Expand Business" belum tampil); garis putus-putus di bawah kartu terakhir yang terlihat ikut disembunyikan supaya tidak menggantung',
+  (() => {
+    const blokLayanan = marklo.slice(
+      marklo.indexOf('function Layanan('),
+      marklo.indexOf('function Perbandingan()'),
+    );
+    return (
+      blokLayanan.includes('i < 4 || lihatLebih ? (') &&
+      blokLayanan.includes('(i + 1 < 4 || lihatLebih) &&') &&
+      blokLayanan.includes('i < LAYANAN_MARKLO.length - 1 && (')
+    );
+  })(),
 );
 cek(
   'Services: keenam kotak layanan BISA DI-KLIK → halaman "Plan a Campaign" (permintaan pengguna 2026-11-19 08:54 WIB) — article role="button" + keyboard (Enter/Spasi) + kursor pointer + hover naik; label langkah (PR #91) tetap scroll',
@@ -614,7 +630,7 @@ cek(
     !marklo.includes('Client Growth'),
 );
 cek(
-  'Services: kartu lebar penuh tersusun vertikal + garis penghubung beranimasi di tengah + kartu melayang (tangga diagonal dihapus atas perintah pengguna 2026-11-23; revisi dari kartu terpusat max-w-xl — kartu memenuhi lebar wadah max-w-5xl, tidak bergeser saat See More ditekan)',
+  'Services: tiap kartu di tengah sejajar teks langkahnya + garis putus-putus penanda tengah teks + kartu melayang (perintah pengguna 2026-11-23: Radio Ads di tengah "Attract Customer", Social Media Ads di tengah "Engage Prospect", dst; OFFSET_KARTU -320/-192/-64/+64/+192/+320 px dari grid 6 kolom max-w-3xl; tangga diagonal OFFSET_FUNNEL dihapus; ukuran kartu max-w-xl seperti semula; garis ikut bergeser karena di dalam pembungkus yang sama)',
   (() => {
     const blokLayanan = marklo.slice(
       marklo.indexOf('function Layanan('),
@@ -622,9 +638,18 @@ cek(
     );
     return (
       !marklo.includes('OFFSET_FUNNEL') &&
-      !blokLayanan.includes('max-w-xl') &&
-      blokLayanan.includes('mx-auto mt-6 max-w-5xl text-left') &&
-      blokLayanan.includes('scroll-mt-24 w-full') &&
+      marklo.includes('const OFFSET_KARTU = [') &&
+      marklo.includes("'xl:-translate-x-[320px]'") &&
+      marklo.includes("'xl:-translate-x-[192px]'") &&
+      marklo.includes("'xl:-translate-x-[64px]'") &&
+      marklo.includes("'xl:translate-x-[64px]'") &&
+      marklo.includes("'xl:translate-x-[192px]'") &&
+      marklo.includes("'xl:translate-x-[320px]'") &&
+      blokLayanan.includes('className={OFFSET_KARTU[i]}') &&
+      blokLayanan.includes('lg:mx-auto lg:grid lg:max-w-3xl lg:grid-cols-6') &&
+      blokLayanan.includes('lg:text-center') &&
+      blokLayanan.includes('mx-auto mt-6 max-w-3xl text-left') &&
+      blokLayanan.includes('scroll-mt-24 mx-auto max-w-xl') &&
       blokLayanan.includes('flex justify-center') &&
       marklo.includes('mk-layang') &&
       marklo.includes('mk-garis-funnel') &&
@@ -658,10 +683,10 @@ cek(
     !layananData.includes("gradien: 'from-emerald-200 to-teal-100'"),
 );
 cek(
-  'Services: ukuran + warna dekat template — kartu lebar penuh (w-full dalam wadah max-w-5xl), padding lebih lega, judul lebih besar, latar putih, label pertama biru RRI (PR oren-ke-biru)',
+  'Services: ukuran + warna dekat template — kartu lebih sempit (max-w-xl), padding lebih lega, judul lebih besar, latar putih, label pertama biru RRI (PR oren-ke-biru)',
   marklo.includes('<section id="services" className="bg-white py-16 sm:py-20">') &&
-    marklo.includes('mx-auto mt-6 max-w-5xl text-left') &&
-    marklo.includes('scroll-mt-24 w-full') &&
+    marklo.includes('mx-auto mt-6 max-w-3xl text-left') &&
+    marklo.includes('scroll-mt-24 mx-auto max-w-xl') &&
     marklo.includes('rounded-[20px]') &&
     marklo.includes('p-7 shadow-md') &&
     marklo.includes('sm:p-8') &&
