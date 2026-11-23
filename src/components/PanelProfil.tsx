@@ -1,13 +1,14 @@
 // Panel Profil — dipakai bersama oleh header landing (Marklo.tsx) dan
 // top bar admin (App.tsx). Isi SAMA di keduanya: keadaan login =
-// nama/email + Informasi Akun + Aktivitas Akun + Bahasa & Tema
-// (tampil dulu) + Keluar; keadaan tamu = tombol Login + Bahasa & Tema.
+// nama/email + Informasi Akun + Aktivitas Akun + Tema (tampil dulu)
+// + Keluar; keadaan tamu = tombol Login + Tema. Baris Bahasa DIHAPUS
+// atas instruksi pengguna 23/11/2026 — panel admin & klien berbahasa
+// Indonesia saja, tanpa alih bahasa (keputusan 23/11/2026).
 // Komponen ini HANYA kotak panelnya (absolute, w-80); state buka/tutup
 // + klik-di-luar dipegang pemanggil — landing memakai tombol overlay,
 // admin memakai ref + mousedown seperti Notifikasi.
 import {
   Activity,
-  Languages,
   LogIn,
   LogOut,
   Monitor,
@@ -17,18 +18,14 @@ import {
 } from 'lucide-react';
 import type { DummyUser } from '../lib/dummyUsers';
 
-/** Baris Bahasa & Tema di panel Profil — TAMPIL DULU (pilihan pengguna
+/** Baris Tema di panel Profil — TAMPIL DULU (pilihan pengguna
     2026-11-23): menampilkan pengaturan saat ini, belum bisa diganti.
-    Menggantinya butuh terjemahan landing (ID/EN) + mode gelap penuh
-    untuk seluruh landing — dua pekerjaan besar yang diparkir 2026-11-22. */
-function BarisBahasaTema() {
+    Menggantinya butuh mode gelap penuh untuk seluruh landing — pekerjaan
+    besar yang diparkir 2026-11-22. Baris Bahasa dihapus 23/11/2026 atas
+    instruksi pengguna (tanpa alih bahasa di panel admin & klien). */
+function BarisTema() {
   return (
     <>
-      <div className="flex items-center gap-3 px-3 py-2">
-        <Languages className="h-4 w-4 shrink-0 text-slate-400" aria-hidden="true" />
-        <span className="text-sm font-medium text-slate-700">Bahasa</span>
-        <span className="ml-auto text-sm text-slate-500">English</span>
-      </div>
       <div className="flex items-center gap-3 px-3 py-2">
         <Sun className="h-4 w-4 shrink-0 text-slate-400" aria-hidden="true" />
         <span className="text-sm font-medium text-slate-700">Tema</span>
@@ -97,7 +94,7 @@ export function PanelProfil({
             Aktivitas Akun
           </button>
           <div className="my-1 border-t border-slate-100" />
-          <BarisBahasaTema />
+          <BarisTema />
           <div className="my-1 border-t border-slate-100" />
           <button
             type="button"
@@ -125,7 +122,7 @@ export function PanelProfil({
             Login
           </button>
           <div className="my-1 border-t border-slate-100" />
-          <BarisBahasaTema />
+          <BarisTema />
         </>
       )}
     </div>
