@@ -113,7 +113,7 @@ cek(
   urutanModules.indexOf('chat') === urutanModules.indexOf('todo') + 1,
   urutanModules.join(', '),
 );
-cek("label modul chat = 'Chat'", app.includes("label: 'Chat',"));
+cek("label modul chat = 'Pesan'", app.includes("label: 'Pesan',"));
 cek(
   "modul chat phase 'C'",
   blokModules.includes("id: 'chat',") &&
@@ -204,12 +204,12 @@ cek(
   chat.includes('OPERATOR_PALEMBANG'),
 );
 cek(
-  "Chat.tsx punya empty state 'No conversations yet'",
-  chat.includes('No conversations yet'),
+  "Chat.tsx punya empty state 'Belum ada percakapan'",
+  chat.includes('Belum ada percakapan'),
 );
 cek(
-  "Chat.tsx punya empty state 'No messages yet",
-  chat.includes('No messages yet'),
+  "Chat.tsx punya empty state 'Belum ada pesan'",
+  chat.includes('Belum ada pesan'),
 );
 
 // --- Asersi firestore.rules. ---

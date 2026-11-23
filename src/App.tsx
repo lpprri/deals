@@ -290,42 +290,42 @@ interface NavItem {
 const MODULES: NavItem[] = [
   {
     id: 'home',
-    label: 'Home',
+    label: 'Beranda',
     icon: Home,
     phase: 'A',
     description:
-      'Home page inside the admin app — intentionally empty for now (correction 15/11/2026: not the landing page, not a sign-out).',
+      'Halaman Beranda di dalam aplikasi admin, sengaja dikosongkan dulu (koreksi 15/11/2026: bukan landing page, bukan tombol keluar).',
   },
   {
     id: 'kontrak',
-    label: 'Contract',
+    label: 'PNBP',
     icon: FileSignature,
     phase: 'A',
     description:
-      'PNBP contracts — the same contract list as Deals (Contracts / PKS).',
+      'Kontrak PNBP, daftar kontrak yang sama seperti di Deals (PKS).',
   },
   {
     id: 'mou',
-    label: 'Memorandum of Understanding',
+    label: 'Nota Kesepahaman',
     icon: ScrollText,
     phase: 'A',
     description:
-      'Memorandum of Understanding (Nota Kesepahaman) supporting broadcast programmes.',
+      'Nota Kesepahaman yang mendukung program siaran.',
   },
   {
     id: 'komitmen',
-    label: 'Commitment',
+    label: 'Dukungan Layanan',
     icon: HeartHandshake,
     phase: 'A',
     description:
-      'Service-support cooperation documents for RRI events & programmes.',
+      'Dokumen kerja sama dukungan layanan untuk acara dan program RRI.',
   },
   {
     id: 'approvement',
-    label: 'Approvement',
+    label: 'Media Partner',
     icon: Stamp,
     phase: 'A',
-    description: 'Media partner documents.',
+    description: 'Dokumen media partner.',
   },
   {
     id: 'sales',
@@ -364,43 +364,43 @@ const MODULES: NavItem[] = [
   },
   {
     id: 'marketing',
-    label: 'Campaign',
+    label: 'Promosi',
     icon: Megaphone,
     phase: 'B',
-    description: 'Events and Advertisement.',
+    description: 'Acara dan iklan.',
   },
   {
     id: 'klien',
-    label: 'Clients',
+    label: 'Klien',
     icon: Users,
     phase: 'A',
     // Pindah ke setelah Campaign (PR #48, diminta pengguna
     // 16/11/2026 — urutan cluster 3: Campaign, Clients, Prospect,
     // Offer, Order; urutan tampil mengikuti urutan MODULES).
-    description: 'Client list — the same client list as Deals (Clients tab).',
+    description: 'Daftar klien, sama dengan tab Klien di Deals.',
   },
   {
     id: 'prospek',
-    label: 'Prospect',
+    label: 'Prospek',
     icon: UserPlus,
     phase: 'B',
     description:
-      'Prospect list — the same prospects as the Offer pipeline (PRS-01 …).',
+      'Daftar prospek, sama dengan prospek di alur Penawaran (PRS-01 …).',
   },
   {
     id: 'offer',
-    label: 'Offer',
+    label: 'Penawaran',
     icon: Tag,
     phase: 'B',
     description:
-      'Offer pipeline — opportunities from first contact to accepted or rejected (QTN-01 …, PRS-01 …).',
+      'Alur penawaran, peluang dari kontak pertama sampai diterima atau ditolak (QTN-01 …, PRS-01 …).',
   },
   {
     id: 'order',
-    label: 'Order',
+    label: 'Pesanan',
     icon: ClipboardList,
     phase: 'B',
-    description: 'Order list — the same Order tab as Sales (ORD-01 …).',
+    description: 'Daftar pesanan, sama dengan tab Pesanan di Sales (ORD-01 …).',
   },
   {
     id: 'pengajuan',
@@ -430,23 +430,23 @@ const MODULES: NavItem[] = [
   },
   {
     id: 'revenue',
-    label: 'Revenue',
+    label: 'Pendapatan',
     icon: Wallet,
     phase: 'A',
     description:
-      'Overview, Revenue Stream, Revenue Type, Invoice, Payments, Billings, and Reconciliation with Finance reference data (read-only).',
+      'Ringkasan, aliran pendapatan, jenis pendapatan, tagihan, pembayaran, billing, dan rekonsiliasi dengan data referensi Keuangan (hanya baca).',
   },
   {
     id: 'reporting',
-    label: 'Reports',
+    label: 'Laporan',
     icon: FileText,
     phase: 'A',
     description:
-      'Satker Reports: PNBP Report, Receivables & Deposits Report, Service Support Report, Memorandum of Understanding Report, Media Partner Report.',
+      'Laporan satker: Laporan PNBP, Laporan Piutang & Penyetoran, Laporan Dukungan Layanan, Laporan Nota Kesepahaman, Laporan Media Partner.',
   },
   {
     id: 'umpanBalik',
-    label: 'Feedback',
+    label: 'Umpan Balik',
     icon: ClipboardCheck,
     phase: 'C',
     // Navigasi top-level (16/11/2026, PR #47, diminta pengguna
@@ -459,39 +459,39 @@ const MODULES: NavItem[] = [
     // karena urutan tampil mengikuti urutan MODULES, bukan
     // CLUSTER_SIDEBAR). Isi/komponen/data survei TIDAK berubah.
     description:
-      'Client satisfaction survey per contract (scale 1–5) — the same Feedback Survey as Resources before 15/11/2026.',
+      'Survei kepuasan klien per kontrak (skala 1–5), sama dengan Survei Umpan Balik di Informasi sebelum 15/11/2026.',
   },
   {
     id: 'todo',
-    label: 'Task',
+    label: 'Tugas',
     icon: CheckSquare,
     phase: 'B',
-    description: 'Individual Tasks and Dispositions.',
+    description: 'Tugas perorangan dan disposisi.',
   },
   {
     id: 'chat',
-    label: 'Chat',
+    label: 'Pesan',
     icon: MessageSquare,
     phase: 'C',
-    description: 'Messages between operators (1-to-1).',
+    description: 'Pesan 1-ke-1 antaroperator.',
   },
   {
     id: 'meeting',
-    label: 'Meeting',
+    label: 'Pertemuan',
     icon: CalendarDays,
     phase: 'B',
     // Pindah ke cluster 1 paling bawah, di bawah Chat (PR #48,
     // diminta pengguna 16/11/2026 — urutan tampil mengikuti urutan
     // MODULES, jadi entri ini diletakkan tepat setelah 'chat').
-    description: 'Meeting Schedule (MTG-01 …).',
+    description: 'Jadwal pertemuan (MTG-01 …).',
   },
   {
     id: 'service',
-    label: 'Resources',
+    label: 'Informasi',
     icon: BarChart3,
     phase: 'C',
     description:
-      'Help-Desk to head office PIC, Knowledge Base (Regulations, SOP).',
+      'Helpdesk ke PIC kantor pusat, Basis Pengetahuan (Regulasi, SOP).',
   },
   {
     id: 'audit',
