@@ -28,7 +28,6 @@ import {
   HeartHandshake,
   Home,
   LayoutDashboard,
-  LogOut,
   Megaphone,
   MessageSquare,
   ScrollText,
@@ -128,11 +127,10 @@ import { idPercakapan, kunciAlamatOperator } from './lib/pesan';
 import Notifikasi from './components/Notifikasi';
 import { PanelProfil } from './components/PanelProfil';
 import { DAFTAR_JENIS_PENGAJUAN_KLIEN } from './lib/types';
-import { bolehAksi, LABEL_PERAN } from './lib/permissions';
+import { bolehAksi } from './lib/permissions';
 import { formatRupiah, formatTanggal, hariIniIso } from './lib/format';
 import { LOGO_DEALS_DATA_URI } from './lib/logoDeals';
 import {
-  labelJabatan,
   labelKategoriLayanan,
   labelStatusOrder,
   labelStatusPersetujuan,
@@ -3725,8 +3723,8 @@ export default function App() {
   return (
     <div className="flex h-full flex-col">
       {/* Top bar putih gaya Qontak — logo + search + aksi di satu baris.
-          Nama operator tampil DI SINI (instruksi pengguna 15/11/2026);
-          footer sidebar tetap tanpa nama (keputusan 15/11/2026 12:14 WIB). */}
+          Nama operator tampil DI SINI (instruksi pengguna 15/11/2026).
+          Footer sidebar dihapus 23/11/2026; keluar lewat panel Profil. */}
       <header className="flex shrink-0 items-center gap-4 border-b border-[#2573e2]/15 bg-white px-6 py-3">
         <div className="flex shrink-0 items-center gap-3">
           <img src="/logo-rri.svg" alt="Logo RRI" className="h-9 w-auto" />
@@ -3841,29 +3839,9 @@ export default function App() {
             </>
           )}
         </nav>
-        {sidebarCiut ? (
-          <div className="flex shrink-0 justify-center border-t border-[#0d2569]/10 px-2 py-3">
-            <button
-              onClick={tanganiKeluar}
-              title="Sign out"
-              aria-label="Sign out"
-              className="flex h-9 w-9 items-center justify-center rounded-md border border-[#0d2569]/15 text-[#0d2569]/70 hover:bg-[#2573e2]/10 hover:text-[#2573e2]"
-            >
-              <LogOut size={15} />
-            </button>
-          </div>
-        ) : (
-          <div className="shrink-0 border-t border-[#0d2569]/10 px-5 py-4 text-xs text-[#0d2569]/60">
-            <p className="mt-1">{LABEL_PERAN[penggunaAktif.peran]}</p>
-            <p>{labelJabatan(penggunaAktif.jabatan)}</p>
-            <button
-              onClick={tanganiKeluar}
-              className="mt-3 flex items-center gap-2 rounded-md border border-[#0d2569]/20 px-3 py-1.5 text-xs font-semibold text-[#0d2569] hover:bg-[#2573e2]/10 hover:text-[#2573e2]"
-            >
-              <LogOut size={13} /> Sign out
-            </button>
-          </div>
-        )}
+        {/* Footer sidebar dihapus (instruksi pengguna 23/11/2026):
+            label peran + jabatan + tombol keluar tidak lagi di sini —
+            keluar hanya lewat Keluar di panel Profil (top bar). */}
       </aside>
 
       {/* Panel tambahan sub-navigasi (gaya Qontak): kolom kedua di antara

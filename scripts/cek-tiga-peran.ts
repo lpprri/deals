@@ -387,6 +387,18 @@ cek(
   app.includes('refPanelProfil') &&
     app.includes('if (!panelProfilTerbuka) return;'),
 );
+// Footer sidebar dihapus (instruksi pengguna 23/11/2026, screenshot
+// pojok kiri bawah): sidebar hanya navigasi — tanpa label peran /
+// jabatan dan tanpa tombol keluar di kedua mode (terbuka maupun
+// terlipat). Keluar hanya lewat Keluar di panel Profil (top bar).
+const sidebarAdmin = app.slice(app.indexOf('<aside'), app.indexOf('</aside>'));
+cek(
+  'Admin: footer sidebar dihapus — sidebar tanpa label peran/jabatan dan tanpa tombol keluar',
+  !sidebarAdmin.includes('Sign out') &&
+    !sidebarAdmin.includes('LABEL_PERAN') &&
+    !sidebarAdmin.includes('labelJabatan') &&
+    !sidebarAdmin.includes('tanganiKeluar'),
+);
 
 // ---------- total kontrol TIDAK berubah ----------
 const k = hitungTotalKontrol(DATA_NYATA);
