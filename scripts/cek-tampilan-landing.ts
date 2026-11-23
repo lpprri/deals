@@ -215,14 +215,15 @@ cek(
     marklo.includes('onClick={onLogin}'),
 );
 cek(
-  'Header: di mobile, hamburger di tengah (logo kiri, ikon profil kanan)',
+  'Header: di mobile, hamburger menempel di kiri ikon profil (logo kiri, aksi di kanan)',
   marklo
     .slice(marklo.indexOf('function Header('), marklo.indexOf('</header>'))
-    .includes('max-md:absolute max-md:left-1/2 max-md:-translate-x-1/2') &&
-    marklo.includes('max-md:ml-auto') &&
+    .includes('max-md:ml-auto') &&
+    marklo.indexOf('aria-label="Menu"') <
+      marklo.indexOf('aria-label="Login"') &&
     !marklo
       .slice(marklo.indexOf('function Header('), marklo.indexOf('</header>'))
-      .includes('max-md:mx-auto'),
+      .includes('max-md:absolute'),
 );
 cek(
   'Header: saat di-scroll, grup header merapat jadi cluster pill mengambang di tengah dengan transisi halus 500ms (gaya Rare UI)',
