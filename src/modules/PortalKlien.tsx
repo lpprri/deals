@@ -73,13 +73,13 @@ type TabPortal =
   | 'bantuan';
 
 const TAB_LABEL: { id: TabPortal; label: string }[] = [
-  { id: 'kerja-sama', label: 'My Cooperation' },
+  { id: 'kerja-sama', label: 'Kerja Sama Saya' },
   { id: 'plan-campaign', label: 'Plan a Campaign' },
-  { id: 'ajukan', label: 'Submit a Request' },
+  { id: 'ajukan', label: 'Ajukan Permintaan' },
   { id: 'book-call', label: 'Book a Free Call' },
-  { id: 'layanan', label: 'Our Services' },
-  { id: 'tambahan', label: 'Additional Services' },
-  { id: 'bantuan', label: 'Help & Contact' },
+  { id: 'layanan', label: 'Layanan Kami' },
+  { id: 'tambahan', label: 'Layanan Tambahan' },
+  { id: 'bantuan', label: 'Bantuan & Kontak' },
 ];
 
 /** Lima item Additional Service (sama seperti footer — Coming Soon). */
@@ -94,34 +94,34 @@ const LAYANAN_TAMBAHAN = [
 /** FAQ relevan klien — jawaban dari perilaku aplikasi yang sebenarnya. */
 const FAQ_KLIEN: { tanya: string; jawab: string }[] = [
   {
-    tanya: 'How do I track my partnership?',
+    tanya: 'Bagaimana cara melacak kerja sama saya?',
     jawab:
-      'Sign in here and open My Cooperation — your contracts, invoices, payments, and documents are listed there. Without signing in, you can also use Track Partnership on the landing page with your PKS or invoice number.',
+      'Masuk di sini lalu buka Kerja Sama Saya. Kontrak, tagihan, pembayaran, dan dokumen Anda tercantum di sana. Tanpa masuk pun, Anda bisa memakai Lacak Kerja Sama di halaman utama dengan nomor PKS atau tagihan Anda.',
   },
   {
-    tanya: 'How do I submit a new partnership request?',
+    tanya: 'Bagaimana cara mengajukan permintaan kerja sama baru?',
     jawab:
-      'Open Submit a Request and fill in the form. You will receive a reference number (for example PKL-001) — keep it to track your request status.',
+      'Buka Ajukan Permintaan dan isi formulirnya. Anda akan menerima nomor referensi (misalnya PKL-001). Simpan untuk melacak status permintaan Anda.',
   },
   {
-    tanya: 'How do I request an advertising quotation?',
+    tanya: 'Bagaimana cara meminta penawaran harga iklan?',
     jawab:
-      'Open Plan a Campaign and fill in the form. The Operator will prepare your quotation and contact you — no prices are shown in the form itself.',
+      'Buka Plan a Campaign dan isi formulirnya. Operator akan menyiapkan penawaran Anda dan menghubungi Anda. Tidak ada harga yang ditampilkan di formulir itu.',
   },
   {
-    tanya: 'How do I book a free consultation call?',
+    tanya: 'Bagaimana cara memesan panggilan konsultasi gratis?',
     jawab:
-      'Open Book a Free Call, pick a date and a 30-minute slot, then fill in the short form. You can view the times in WIB, WITA, or WIT. The Operator will send you the meeting link.',
+      'Buka Book a Free Call, pilih tanggal dan slot 30 menit, lalu isi formulir singkat. Anda bisa melihat jadwal dalam WIB, WITA, atau WIT. Operator akan mengirim tautan rapat.',
   },
   {
-    tanya: 'How do I pay an invoice?',
+    tanya: 'Bagaimana cara membayar tagihan?',
     jawab:
-      'Invoices are listed under each contract in My Cooperation. There is no online payment in this portal — payment is confirmed by the Operator after verification, and the receipt appears under the same contract.',
+      'Tagihan tercantum di bawah tiap kontrak di Kerja Sama Saya. Tidak ada pembayaran online di portal ini. Pembayaran dikonfirmasi Operator setelah verifikasi, dan kwitansi muncul di bawah kontrak yang sama.',
   },
   {
-    tanya: 'I cannot see one of my contracts. What should I do?',
+    tanya: 'Saya tidak bisa melihat salah satu kontrak saya. Apa yang harus saya lakukan?',
     jawab:
-      'Contact the Operator (Service & Business Development) with your PKS number. Your account only shows the cooperation linked to it — if a contract is missing, the Operator needs to link it to your account.',
+      'Hubungi Operator (Layanan & Pengembangan Usaha) dengan nomor PKS Anda. Akun Anda hanya menampilkan kerja sama yang ditautkan ke akun itu. Bila ada kontrak yang tidak tampil, Operator perlu menautkannya ke akun Anda.',
   },
 ];
 
@@ -184,7 +184,7 @@ export default function PortalKlien({
     return (
       <PlanCampaign
         onKembali={kembaliKePortal}
-        labelKembali="Back to Client Portal"
+        labelKembali="Kembali ke Portal Klien"
       />
     );
   }
@@ -193,7 +193,7 @@ export default function PortalKlien({
       <Ajukan
         onKirim={onKirimPengajuan}
         onKembali={kembaliKePortal}
-        labelKembali="Back to Client Portal"
+        labelKembali="Kembali ke Portal Klien"
         emailTetap={pengguna.email}
       />
     );
@@ -202,7 +202,7 @@ export default function PortalKlien({
     return (
       <ComingSoon
         onKembali={() => setLayananTambahan(null)}
-        labelKembali="Back to Client Portal"
+        labelKembali="Kembali ke Portal Klien"
       />
     );
   }
@@ -219,7 +219,7 @@ export default function PortalKlien({
             <img src="/logo-rri.svg" alt="Logo RRI" className="h-10 w-auto" />
             <div>
               <p className="text-base font-bold text-[#0d2569]">
-                Client Portal
+                Portal Klien
               </p>
               <p className="text-xs text-[#0d2569]/60">
                 {klien?.nama ?? pengguna.nama}
@@ -231,7 +231,7 @@ export default function PortalKlien({
               </p>
             </div>
           </div>
-          <TombolSekunder onClick={onKeluar}>Sign out</TombolSekunder>
+          <TombolSekunder onClick={onKeluar}>Keluar</TombolSekunder>
         </div>
         <nav className="mx-auto mt-4 flex max-w-5xl flex-wrap gap-2">
           {TAB_LABEL.map((t) => (
@@ -257,44 +257,43 @@ export default function PortalKlien({
             {klienId === '' && (
               <Kartu>
                 <p className="text-sm font-semibold text-[#0d2569]">
-                  Your account is not linked to a client record yet.
+                  Akun Anda belum ditautkan ke data klien.
                 </p>
                 <p className="mt-2 text-sm text-[#0d2569]/70">
-                  You signed up
-                  {pengguna.institusi ? ` as ${pengguna.institusi}` : ''} —
-                  the Operator will link your account to your
-                  partnership data after verifying your identity. Until
-                  then you cannot see any contract, invoice, or
-                  broadcast proof here. Start by submitting a
-                  partnership request below — the Operator will use it
-                  to link your account.
+                  Anda mendaftar
+                  {pengguna.institusi ? ` sebagai ${pengguna.institusi}` : ''}.
+                  Operator akan menautkan akun Anda ke data kerja sama
+                  setelah memverifikasi identitas Anda. Sampai saat itu
+                  Anda belum bisa melihat kontrak, tagihan, atau bukti
+                  siaran di sini. Mulai dengan mengirim permintaan
+                  kerja sama di bawah. Operator akan memakainya untuk
+                  menautkan akun Anda.
                 </p>
                 <div className="mt-4">
                   <TombolUtama onClick={() => setTab('ajukan')}>
-                    Submit a Request
+                    Ajukan Permintaan
                   </TombolUtama>
                 </div>
               </Kartu>
             )}
 
             <Kartu>
-              <JudulBagian>My Cooperation</JudulBagian>
+              <JudulBagian>Kerja Sama Saya</JudulBagian>
               <p className="mt-2 text-sm text-[#0d2569]/70">
-                {kontrakSaya.length} contract
-                {kontrakSaya.length === 1 ? '' : 's'}
+                {kontrakSaya.length} kontrak
                 {mouSaya.length > 0
-                  ? ` • ${mouSaya.length} Memorandum of Understanding`
+                  ? ` • ${mouSaya.length} Nota Kesepahaman`
                   : ''}
                 {commitmentSaya.length > 0
-                  ? ` • ${commitmentSaya.length} Commitment`
+                  ? ` • ${commitmentSaya.length} Dukungan Layanan`
                   : ''}
-                . Only your own cooperation is shown here.
+                . Hanya kerja sama Anda sendiri yang tampil di sini.
               </p>
               {kontrakSaya.length === 0 &&
               mouSaya.length === 0 &&
               commitmentSaya.length === 0 ? (
                 <p className="mt-3">
-                  <PesanKosong teks="No cooperation linked to your account yet. Contact the Operator if you expect to see a contract here." />
+                  <PesanKosong teks="Belum ada kerja sama yang ditautkan ke akun Anda. Hubungi Operator bila Anda seharusnya melihat kontrak di sini." />
                 </p>
               ) : (
                 <>
@@ -303,12 +302,12 @@ export default function PortalKlien({
                       <Tabel>
                         <thead>
                           <tr>
-                            <Th>PKS Number</Th>
-                            <Th>Service</Th>
-                            <Th>Period</Th>
-                            <Th>Remaining Days</Th>
-                            <Th>Payment Status</Th>
-                            <Th kanan>Value</Th>
+                            <Th>Nomor PKS</Th>
+                            <Th>Layanan</Th>
+                            <Th>Periode</Th>
+                            <Th>Sisa Hari</Th>
+                            <Th>Status Pembayaran</Th>
+                            <Th kanan>Nilai</Th>
                             <Th>Detail</Th>
                           </tr>
                         </thead>
@@ -347,8 +346,8 @@ export default function PortalKlien({
                                   }
                                 >
                                   {kontrakTerpilih?.id === k.id
-                                    ? 'Hide'
-                                    : 'View'}
+                                    ? 'Sembunyikan'
+                                    : 'Lihat'}
                                 </TombolSekunder>
                               </Td>
                             </Baris>
@@ -362,13 +361,13 @@ export default function PortalKlien({
                     <div className="mt-4 rounded-xl border border-[#2573e2]/20 bg-[#2573e2]/5 p-4">
                       <div className="flex items-center justify-between gap-4">
                         <p className="text-sm font-bold text-[#0d2569]">
-                          Contract {kontrakTerpilih.nomorPks} —{' '}
+                          Kontrak {kontrakTerpilih.nomorPks} —{' '}
                           {labelStatusKontrak(kontrakTerpilih.status)}
                         </p>
                         <TombolSekunder
                           onClick={() => setKontrakTerpilih(null)}
                         >
-                          Close
+                          Tutup
                         </TombolSekunder>
                       </div>
                       <DetailKerjaSama hasil={hasilTerpilih} data={data} />
@@ -378,16 +377,16 @@ export default function PortalKlien({
                   {mouSaya.length > 0 && (
                     <div className="mt-6">
                       <h3 className="text-sm font-bold text-[#0d2569]">
-                        Memorandum of Understanding
+                        Nota Kesepahaman
                       </h3>
                       <div className="mt-2">
                         <Tabel>
                           <thead>
                             <tr>
-                              <Th>Document Number</Th>
-                              <Th>Title</Th>
-                              <Th>Period</Th>
-                              <Th>Remaining Days</Th>
+                              <Th>Nomor Dokumen</Th>
+                              <Th>Judul</Th>
+                              <Th>Periode</Th>
+                              <Th>Sisa Hari</Th>
                               <Th>PIC</Th>
                             </tr>
                           </thead>
@@ -413,16 +412,16 @@ export default function PortalKlien({
                   {commitmentSaya.length > 0 && (
                     <div className="mt-6">
                       <h3 className="text-sm font-bold text-[#0d2569]">
-                        Commitment
+                        Dukungan Layanan
                       </h3>
                       <div className="mt-2">
                         <Tabel>
                           <thead>
                             <tr>
-                              <Th>Document Number</Th>
-                              <Th>Event</Th>
-                              <Th>Date</Th>
-                              <Th kanan>Total Support</Th>
+                              <Th>Nomor Dokumen</Th>
+                              <Th>Acara</Th>
+                              <Th>Tanggal</Th>
+                              <Th kanan>Total Dukungan</Th>
                             </tr>
                           </thead>
                           <tbody>
@@ -446,20 +445,20 @@ export default function PortalKlien({
             </Kartu>
 
             <Kartu>
-              <JudulBagian>My Requests</JudulBagian>
+              <JudulBagian>Permintaan Saya</JudulBagian>
               {pengajuanSaya.length === 0 ? (
                 <p className="mt-3">
-                  <PesanKosong teks="No requests from your account yet. Use Submit a Request to send one — you will receive a reference number to track it." />
+                  <PesanKosong teks="Belum ada permintaan dari akun Anda. Gunakan Ajukan Permintaan untuk mengirim satu. Anda akan menerima nomor referensi untuk melacaknya." />
                 </p>
               ) : (
                 <div className="mt-4">
                   <Tabel>
                     <thead>
                       <tr>
-                        <Th>Reference</Th>
-                        <Th>Type</Th>
-                        <Th>Title</Th>
-                        <Th>Submitted</Th>
+                        <Th>Referensi</Th>
+                        <Th>Jenis</Th>
+                        <Th>Judul</Th>
+                        <Th>Dikirim</Th>
                         <Th>Status</Th>
                       </tr>
                     </thead>
@@ -489,9 +488,9 @@ export default function PortalKlien({
               Book a Free Call
             </h1>
             <p className="mt-2 text-sm text-[#0d2569]/70">
-              Pick a date and a 30-minute slot, then fill in the short
-              form. You can view the times in WIB, WITA, or WIT. The
-              Operator will send you the meeting link.
+              Pilih tanggal dan slot 30 menit, lalu isi formulir singkat.
+              Anda bisa melihat jadwal dalam WIB, WITA, atau WIT. Operator
+              akan mengirim tautan rapat.
             </p>
             <div className="mt-6">
               <BookingKonsultasi onKirimBooking={onKirimBooking} />
@@ -502,7 +501,7 @@ export default function PortalKlien({
         {tab === 'layanan' && (
           <div className="space-y-6">
             <Kartu>
-              <JudulBagian>Our Services</JudulBagian>
+              <JudulBagian>Layanan Kami</JudulBagian>
               <div className="mt-4 grid gap-4 md:grid-cols-2">
                 {LAYANAN_MARKLO.map((layanan) => (
                   <div
@@ -528,7 +527,7 @@ export default function PortalKlien({
               </div>
             </Kartu>
             <Kartu>
-              <JudulBagian>Campaign examples</JudulBagian>
+              <JudulBagian>Contoh kampanye</JudulBagian>
               <ul className="mt-3 space-y-3">
                 {KAMPANYE_MARKLO.map((kampanye) => (
                   <li
@@ -553,9 +552,9 @@ export default function PortalKlien({
 
         {tab === 'tambahan' && (
           <Kartu>
-            <JudulBagian>Additional Services</JudulBagian>
+            <JudulBagian>Layanan Tambahan</JudulBagian>
             <p className="mt-2 text-sm text-[#0d2569]/70">
-              These services are coming soon. Select one to see its status.
+              Layanan ini segera hadir. Pilih satu untuk melihat statusnya.
             </p>
             <div className="mt-4 grid gap-3 md:grid-cols-2">
               {LAYANAN_TAMBAHAN.map((nama) => (
@@ -567,7 +566,7 @@ export default function PortalKlien({
                 >
                   <p className="text-sm font-bold text-[#0d2569]">{nama}</p>
                   <p className="mt-1 text-xs text-[#0d2569]/60">
-                    Coming Soon
+                    Segera Hadir
                   </p>
                 </button>
               ))}
@@ -578,7 +577,7 @@ export default function PortalKlien({
         {tab === 'bantuan' && (
           <div className="space-y-6">
             <Kartu>
-              <JudulBagian>Help &amp; Contact</JudulBagian>
+              <JudulBagian>Bantuan &amp; Kontak</JudulBagian>
               <ul className="mt-3 space-y-4">
                 {FAQ_KLIEN.map((faq) => (
                   <li key={faq.tanya}>
@@ -593,11 +592,11 @@ export default function PortalKlien({
               </ul>
             </Kartu>
             <Kartu>
-              <JudulBagian>Contact RRI</JudulBagian>
+              <JudulBagian>Hubungi RRI</JudulBagian>
               <dl className="mt-3 space-y-2 text-sm text-[#0d2569]">
                 <div>
                   <dt className="text-xs font-semibold text-[#0d2569]/60">
-                    Head Office
+                    Kantor Pusat
                   </dt>
                   <dd>
                     Jl. Medan Merdeka Barat No. 4–5, Jakarta Pusat, DKI
@@ -606,7 +605,7 @@ export default function PortalKlien({
                 </div>
                 <div>
                   <dt className="text-xs font-semibold text-[#0d2569]/60">
-                    Phone
+                    Telepon
                   </dt>
                   <dd>
                     <a
@@ -626,15 +625,15 @@ export default function PortalKlien({
                 </div>
                 <div>
                   <dt className="text-xs font-semibold text-[#0d2569]/60">
-                    Office hours
+                    Jam kerja
                   </dt>
                   <dd>08:00–16:00 WIB</dd>
                 </div>
               </dl>
               <p className="mt-3 text-sm text-[#0d2569]/70">
-                For questions about your cooperation, contact the Operator
-                (Service &amp; Business Development) at your work unit with
-                your PKS number.
+                Untuk pertanyaan tentang kerja sama Anda, hubungi Operator
+                (Layanan &amp; Pengembangan Usaha) di satuan kerja Anda
+                dengan nomor PKS Anda.
               </p>
             </Kartu>
           </div>
