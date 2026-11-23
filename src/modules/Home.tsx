@@ -2,7 +2,8 @@
 // merevisi perilaku Home dari PR #34): Home BUKAN landing page dan BUKAN
 // logout — tampilan modul biasa yang sengaja kosong untuk saat ini.
 // Sesi operator tetap berjalan; landing page hanya tercapai lewat
-// Sign out di footer sidebar. Tanpa data, tanpa fetch, tanpa tombol.
+// Keluar di panel Profil (footer sidebar dihapus 23/11/2026).
+// Tanpa data, tanpa fetch, tanpa tombol.
 
 export default function Home() {
   return (
