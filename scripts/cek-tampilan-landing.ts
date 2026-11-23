@@ -152,6 +152,12 @@ cek(
     app.includes('onKirimBooking={kirimBookingPublik}'),
 );
 cek(
+  'App.tsx: MarkloLanding menerima pengguna + onLogout + onBukaModul (panel Profil, 2026-11-23)',
+  app.includes('pengguna={user}') &&
+    app.includes('onLogout={() => tanganiKeluar()}') &&
+    app.includes("onBukaModul={(modul) => setPanelTerbuka(modul)}"),
+);
+cek(
   "App.tsx: halaman 'plan-campaign' ada — import PlanCampaign + cabang halamanPublik + onKembali ke beranda",
   app.includes("import PlanCampaign from './modules/PlanCampaign';") &&
     app.includes("halamanPublik === 'plan-campaign'") &&
@@ -205,14 +211,48 @@ cek(
     marklo.includes('aria-haspopup="true"'),
 );
 cek(
-  'Header: ikon video-call (Book a Free Call) + ikon profil (Login, onLogin) — hanya di header',
+  'Header: ikon profil membuka panel Profil (bukan lagi langsung Login); panel tamu = tombol Login + Bahasa & Tema (tampil dulu); panel login = nama/email + Informasi Akun + Aktivitas Akun + Bahasa & Tema + Keluar; tanpa tombol video-call',
   marklo
     .slice(marklo.indexOf('function Header('), marklo.indexOf('</header>'))
-    .includes('aria-label="Book a Free Call"') &&
-    marklo
+    .includes('aria-label="Profile"') &&
+    marklo.includes('menuProfilTerbuka') &&
+    marklo.includes('BarisBahasaTema') &&
+    marklo.includes('Informasi Akun') &&
+    marklo.includes('Aktivitas Akun') &&
+    marklo.includes('Keluar') &&
+    marklo.includes('onLogin()') &&
+    !marklo
       .slice(marklo.indexOf('function Header('), marklo.indexOf('</header>'))
       .includes('aria-label="Login"') &&
-    marklo.includes('onClick={onLogin}'),
+    !marklo
+      .slice(marklo.indexOf('function Header('), marklo.indexOf('</header>'))
+      .includes('aria-label="Book a Free Call"'),
+);
+cek(
+  'Header: di mobile, logo di tengah (hamburger kiri, ikon profil kanan) — seimbang, tidak berat ke kiri',
+  marklo
+    .slice(marklo.indexOf('function Header('), marklo.indexOf('</header>'))
+    .includes('max-md:mx-auto') &&
+    marklo.indexOf('aria-label="Menu"') <
+      marklo.indexOf('aria-label="RRI Deals — back to top"'),
+);
+cek(
+  'Header: saat di-scroll, grup header merapat jadi cluster pill mengambang di tengah dengan transisi halus 500ms ease-in-out (gaya Rare UI; easeOutQuint 2026-11-22 diganti karena gerakannya 95% selesai dalam ~200ms pertama sehingga terbaca menjentak di dua cek preview)',
+  marklo
+    .slice(marklo.indexOf('function Header('), marklo.indexOf('</header>'))
+    .includes('sudahScroll') &&
+    marklo.includes('window.scrollY > 24') &&
+    marklo.includes('max-w-[360px]') &&
+    marklo.includes('grow-0') &&
+    marklo.includes('ease-in-out'),
+);
+cek(
+  'Header: menu hamburger di mobile (<md) berisi Home, About, Service, Testimonials, Process; pill tengah tetap desktop',
+  marklo
+    .slice(marklo.indexOf('function Header('), marklo.indexOf('</header>'))
+    .includes('menuMobileTerbuka') &&
+    marklo.includes('aria-label="Menu"') &&
+    marklo.includes('hidden justify-center transition-[flex-grow]'),
 );
 cek(
   'Header: logo RRI Deals di dalam pill (gaya Rare UI) — logo apa adanya, hanya dibungkus pill',
@@ -224,7 +264,7 @@ cek(
   'Header: ukuran logo + ikon mengecil di mobile, normal di desktop',
   marklo.includes('h-7 w-auto shrink-0 sm:h-9') &&
     marklo.includes('h-9 w-9 items-center justify-center rounded-full border-2') &&
-    marklo.includes('px-2.5 py-1 shadow-sm backdrop-blur sm:px-3 sm:py-1.5'),
+    marklo.includes('px-2.5 py-1 shadow-sm backdrop-blur max-md:mx-auto sm:px-3 sm:py-1.5'),
 );
 cek(
   'Header: brand RRI Deals (logo RRI + Deals, apa adanya)',
@@ -233,7 +273,8 @@ cek(
 );
 cek(
   'Header: seamless tanpa garis bawah — tidak ada border-b/divider di bawah header',
-  marklo.includes('className="sticky top-0 z-50 bg-white/90 backdrop-blur"') &&
+  marklo.includes('sticky top-0 z-50 transition-[background-color,backdrop-filter] duration-500') &&
+    marklo.includes("'bg-white/90 backdrop-blur'") &&
     !marklo
       .slice(marklo.indexOf('function Header('), marklo.indexOf('</header>'))
       .includes('border-b border-slate-200'),
@@ -495,6 +536,17 @@ cek(
     ) &&
     marklo.includes('ring-mk-aksen') &&
     marklo.includes('window.setTimeout(() => setSorot(null), 1600)'),
+);
+cek(
+  'Services: tombol "See More" di ujung kanan baris label — ditekan menampilkan "Held Events" & "Expand Business" sebagai teks (bukan tombol, belum ada kartu layanan), tekan lagi jadi "See Less"; saat diperluas keenam label melebar proporsional dalam satu baris di desktop (max-w-5xl + lg:flex-nowrap, perintah pengguna 2026-11-23)',
+  marklo.includes('const [lihatLebih, setLihatLebih] = useState(false)') &&
+    marklo.includes('See More') &&
+    marklo.includes('See Less') &&
+    marklo.includes('Held Events') &&
+    marklo.includes('Expand Business') &&
+    marklo.includes('aria-expanded={lihatLebih}') &&
+    marklo.includes('{lihatLebih && (') &&
+    marklo.includes("max-w-5xl lg:flex-nowrap"),
 );
 cek(
   'Services: keempat kotak layanan BISA DI-KLIK → halaman "Plan a Campaign" (permintaan pengguna 2026-11-19 08:54 WIB) — article role="button" + keyboard (Enter/Spasi) + kursor pointer + hover naik; label langkah (PR #91) tetap scroll',
@@ -1258,14 +1310,14 @@ cek(
     !marklo.includes('onClick={onBookMeeting}'),
 );
 cek(
-  'Revert78: 5 tombol menggulir ke booking — 3× "Book a Free Call" (header, hero, kartu gelap) + "Book a Free Consultation" + "Book 30 Min Free Call"',
-  (marklo.match(/onClick=\{\(\) => gulirKe\('booking'\)\}/g) || []).length === 5 &&
+  'Revert78: 4 tombol menggulir ke booking — 2× "Book a Free Call" (hero, kartu gelap) + "Book a Free Consultation" + "Book 30 Min Free Call" (tombol header DIHAPUS atas perintah pengguna 2026-11-23)',
+  (marklo.match(/onClick=\{\(\) => gulirKe\('booking'\)\}/g) || []).length === 4 &&
     marklo.includes('Book a Free Call') &&
     marklo.includes('Book a Free Consultation') &&
     marklo.includes('Book 30 Min Free Call'),
 );
 cek(
-  'Revert78: footer SUDAH TIDAK punya tautan "Book a Free Call" (dihapus dari Site Map + Client Portal atas permintaan pengguna 2026-11-18; kolom Client Portal sendiri dihapus 2026-11-21; tombol booking di header/hero/kartu gelap tetap ada)',
+  'Revert78: footer SUDAH TIDAK punya tautan "Book a Free Call" (dihapus dari Site Map + Client Portal atas permintaan pengguna 2026-11-18; kolom Client Portal sendiri dihapus 2026-11-21; tombol booking di hero/kartu gelap tetap ada; tombol header dihapus 2026-11-23)',
   !footerMarklo.includes('Book a Free Call') &&
     marklo.includes('Book a Free Call'),
 );
