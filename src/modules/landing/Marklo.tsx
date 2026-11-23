@@ -950,22 +950,32 @@ function Proses() {
 /* Geser horizontal tiap kartu layanan ke tengah teks langkahnya
    (perintah pengguna 2026-11-23: "letakkan kartu ditengah sejajar
    dengan teks masing masing" + "gunakan garis putus putus itu sebagai
-   tanda tengah teks"). Baris label memakai grid 6 kolom dalam wadah
-   max-w-3xl, jadi tengah slot ke-i ada di 64 + i*128 px dari kiri
-   wadah; tengah wadah 384 px; geser = tengah slot - 384 =
-   -320/-192/-64/+64/+192/+320 px. Kartu tetap max-w-xl (ukuran
-   semula, perintah pengguna 2026-11-23). Garis putus-putus
-   (mk-garis-funnel) ikut bergeser karena berada di dalam pembungkus
-   yang sama, sehingga garis itu tepat menandai tengah teks. Geser
-   hanya di xl ke atas — di bawah itu kartu terpusat biasa supaya
-   tidak terpotong di layar sempit. */
-const OFFSET_KARTU = [
-  'xl:-translate-x-[320px]',
-  'xl:-translate-x-[192px]',
-  'xl:-translate-x-[64px]',
-  'xl:translate-x-[64px]',
-  'xl:translate-x-[192px]',
-  'xl:translate-x-[320px]',
+   tanda tengah teks"). Baris label memakai justify-between, jadi jarak
+   antar teks rata dan baris merapat proporsional saat "See More"
+   belum ditekan — seolah teks "Held Events" / "Expand Business"
+   tidak ada. Karena tengah tiap teks BERGESER saat baris melebar,
+   geser kartu pun ada dua versi: TUTUP (4 label, wadah max-w-3xl)
+   dan BUKA (6 label, wadah max-w-5xl). Nilai dari tengah teks yang
+   terukur di layar 1485px (TUTUP) dan dari model justify-between
+   (BUKA); pemeriksa preview mengukur ulang dan nilainya disetel
+   bila meleset. Kartu tetap max-w-xl (ukuran semula). Garis
+   putus-putus (mk-garis-funnel) ikut bergeser karena berada di dalam
+   pembungkus yang sama, sehingga garis itu tepat menandai tengah
+   teks. Geser hanya di lebar 1470px ke atas — di bawah itu kartu
+   terpusat biasa supaya tidak terpotong di layar sempit. */
+const OFFSET_KARTU_TUTUP = [
+  'min-[1470px]:-translate-x-[329px]',
+  'min-[1470px]:-translate-x-[157px]',
+  'min-[1470px]:translate-x-[13px]',
+  'min-[1470px]:translate-x-[176px]',
+];
+const OFFSET_KARTU_BUKA = [
+  'min-[1470px]:-translate-x-[447px]',
+  'min-[1470px]:-translate-x-[277px]',
+  'min-[1470px]:-translate-x-[114px]',
+  'min-[1470px]:translate-x-[42px]',
+  'min-[1470px]:translate-x-[186px]',
+  'min-[1470px]:translate-x-[337px]',
 ];
 
 /** Keenam kotak layanan BISA DI-KLIK (permintaan pengguna 2026-11-19
@@ -1005,52 +1015,65 @@ function Layanan({ onPlanCampaign }: { onPlanCampaign: () => void }) {
         {/* Baris label langkah template — dipetakan ke layanan RRI (PR #85):
             label pertama biru RRI, sisanya slate. Label bisa di-klik
             (PR #91): tiap label tombol yang menggulir halus ke kartu
-            layanannya + sorot singkat; tampilan tetap. Tiap label duduk
-            di slotnya sendiri dalam grid 6 kolom (perintah pengguna
-            2026-11-23: kartu di tengah sejajar teksnya masing-masing) —
-            slot tetap di tempatnya saat "See More" ditekan/dilepas, jadi
-            tengah tiap teks tidak bergeser. Di bawah lg, baris tetap
-            flex-wrap seperti semula; tombol See More/Less menempel di
-            ujung kanan (absolute) di lg ke atas. */}
-        <div className="relative mx-auto mt-12 max-w-5xl">
-          <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 text-left lg:mx-auto lg:grid lg:max-w-3xl lg:grid-cols-6 lg:items-baseline lg:justify-normal lg:gap-x-0">
-            {LAYANAN_MARKLO.map((layanan, i) =>
-              i < 4 || lihatLebih ? (
-                <button
-                  key={layanan.nama}
-                  type="button"
-                  onClick={() => pilihLayanan(i)}
-                  aria-label={`View ${layanan.nama} service`}
-                  className={`cursor-pointer text-sm font-medium focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-mk-aksen sm:text-base lg:text-center ${
-                    i === 0 ? 'text-[#2573e2]' : 'text-slate-400'
-                  }`}
-                >
-                  {layanan.langkah}
-                </button>
-              ) : null,
-            )}
-            <button
-              type="button"
-              onClick={() => setLihatLebih(!lihatLebih)}
-              aria-expanded={lihatLebih}
-              className="inline-flex cursor-pointer items-center gap-1 text-sm font-medium text-[#2573e2] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-mk-aksen sm:text-base lg:absolute lg:right-0 lg:top-1/2 lg:-translate-y-1/2"
-            >
-              {lihatLebih ? 'See Less' : 'See More'}
-              <ChevronDown
-                className={`h-4 w-4 transition-transform ${lihatLebih ? 'rotate-180' : ''}`}
-                aria-hidden="true"
-              />
-            </button>
-          </div>
+            layanannya + sorot singkat; tampilan tetap. Baris memakai
+            justify-between supaya jarak antar teks rata, dan merapat
+            proporsional saat "See More" belum ditekan — seolah teks
+            "Held Events" / "Expand Business" tidak ada (perintah
+            pengguna 2026-11-23). Lebar baris beralih max-w-3xl ↔
+            max-w-5xl dengan transisi halus; kartu di bawah mengikuti
+            dengan gesernya sendiri (OFFSET_KARTU_TUTUP/BUKA). */}
+        <div
+          className={`mx-auto mt-12 flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 text-left transition-[max-width] duration-500 ease-in-out ${
+            lihatLebih ? 'max-w-5xl lg:flex-nowrap' : 'max-w-3xl'
+          }`}
+        >
+          {LAYANAN_MARKLO.map((layanan, i) =>
+            i < 4 || lihatLebih ? (
+              <button
+                key={layanan.nama}
+                type="button"
+                onClick={() => pilihLayanan(i)}
+                aria-label={`View ${layanan.nama} service`}
+                className={`cursor-pointer text-sm font-medium focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-mk-aksen sm:text-base ${
+                  i === 0 ? 'text-[#2573e2]' : 'text-slate-400'
+                }`}
+              >
+                {layanan.langkah}
+              </button>
+            ) : null,
+          )}
+          <button
+            type="button"
+            onClick={() => setLihatLebih(!lihatLebih)}
+            aria-expanded={lihatLebih}
+            className="inline-flex cursor-pointer items-center gap-1 text-sm font-medium text-[#2573e2] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-mk-aksen sm:text-base"
+          >
+            {lihatLebih ? 'See Less' : 'See More'}
+            <ChevronDown
+              className={`h-4 w-4 transition-transform ${lihatLebih ? 'rotate-180' : ''}`}
+              aria-hidden="true"
+            />
+          </button>
         </div>
         <div className="mx-auto mt-6 max-w-3xl text-left">
           {LAYANAN_MARKLO.map((layanan, i) =>
             // Kartu MICE Venues + Commercial Spaces (indeks 4-5) hanya
             // tampil bila "See More" ditekan (perintah pengguna
             // 2026-11-23): jangan tampilkan bila teks "Held Events" /
-            // "Expand Business" belum tampil.
+            // "Expand Business" belum tampil. Tiap kartu digeser ke
+            // tengah teks langkahnya — dua versi geser karena tengah
+            // teks bergeser saat baris melebar: OFFSET_KARTU_TUTUP
+            // saat "See More" belum ditekan, BUKA sesudahnya. Transisi
+            // halus supaya kartu meluncur ke posisi barunya, bukan
+            // melompat. Garis putus-putus di bawah kartu ikut bergeser
+            // (di dalam pembungkus yang sama) sehingga menjadi penanda
+            // tengah teks itu. Ukuran kartu max-w-xl seperti semula;
+            // tangga diagonal template TETAP dihapus.
             i < 4 || lihatLebih ? (
-              <div key={layanan.nama} className={OFFSET_KARTU[i]}>
+              <div
+                key={layanan.nama}
+                className={`transition duration-500 ease-in-out ${(lihatLebih ? OFFSET_KARTU_BUKA : OFFSET_KARTU_TUTUP)[i] || ''}`}
+              >
               <div
                 className="mk-layang"
                 style={{ animationDelay: `${i * 1.2}s` }}
