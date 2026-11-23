@@ -110,23 +110,23 @@ export default function Pengajuan(props: ModulProps) {
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <JudulBagian>Submission</JudulBagian>
+        <JudulBagian>Pengajuan</JudulBagian>
         {tabAktif === 'pengajuan' && bolehAksi(user.peran, 'tambahPengajuan') && (
           <TombolUtama onClick={() => setTampilForm(true)}>
-            + Add Submission
+            + Tambah pengajuan
           </TombolUtama>
         )}
       </div>
 
       <TabBar
         tabs={[
-          { id: 'pengajuan', label: 'Submission' },
+          { id: 'pengajuan', label: 'Pengajuan' },
           {
             id: 'portal',
             label:
               jumlahMenungguPortal > 0
-                ? `Public Submissions (${jumlahMenungguPortal} pending)`
-                : 'Public Submissions',
+                ? `Pengajuan publik (${jumlahMenungguPortal} menunggu)`
+                : 'Pengajuan publik',
           },
         ]}
         aktif={tabAktif}
@@ -138,13 +138,13 @@ export default function Pengajuan(props: ModulProps) {
       ) : (
         <>
           <div>
-            <Label>Filter by stage</Label>
+            <Label>Filter berdasarkan tahap</Label>
             <select
               className={`${inputClass} max-w-xs`}
               value={filterTahap}
               onChange={(e) => setFilterTahap(e.target.value)}
             >
-              <option value="Semua">All</option>
+              <option value="Semua">Semua</option>
               {MASTER_TAHAP_PENGAJUAN.map((t) => (
                 <option key={t} value={t}>
                   {labelTahapPengajuan(t)}
@@ -162,19 +162,19 @@ export default function Pengajuan(props: ModulProps) {
           )}
 
           {pengajuanTersaring.length === 0 ? (
-            <PesanKosong teks="No matching submissions yet." />
+            <PesanKosong teks="Belum ada pengajuan yang cocok." />
           ) : (
             <Kartu>
               <Tabel>
                 <thead>
                   <tr>
                     <Th>ID</Th>
-                    <Th>Type</Th>
-                    <Th>Applicant</Th>
-                    <Th>Received Date</Th>
-                    <Th>Requirement</Th>
-                    <Th>Stage</Th>
-                    <Th>Person in Charge</Th>
+                    <Th>Jenis</Th>
+                    <Th>Pemohon</Th>
+                    <Th>Tanggal diterima</Th>
+                    <Th>Kebutuhan</Th>
+                    <Th>Tahap</Th>
+                    <Th>Penanggung jawab</Th>
                   </tr>
                 </thead>
                 <tbody>
@@ -243,15 +243,15 @@ function AntreanPortalKlien({ data, user, actions, cari }: ModulProps) {
     const terbaru = data.pengajuanKlien.find((x) => x.id === s.id);
     setPesan(
       terbaru?.prospectId
-        ? `Submission approved — new Prospect ${terbaru.prospectId} created for follow-up through the Sales flow.`
-        : 'Submission approved.',
+        ? `Pengajuan disetujui. Prospek baru ${terbaru.prospectId} dibuat untuk ditindaklanjuti lewat alur Penjualan.`
+        : 'Pengajuan disetujui.',
     );
     setCatatan('');
   };
 
   const tolak = (s: PengajuanKlien) => {
     if (catatan.trim() === '') {
-      setPesan('Rejection note is required.');
+      setPesan('Catatan penolakan wajib diisi.');
       return;
     }
     const hasil = actions.tolakPengajuanKlien(s, catatan.trim());
@@ -259,7 +259,7 @@ function AntreanPortalKlien({ data, user, actions, cari }: ModulProps) {
       setPesan(hasil);
       return;
     }
-    setPesan('Submission rejected with the note saved.');
+    setPesan('Pengajuan ditolak, catatan tersimpan.');
     setCatatan('');
   };
 
@@ -271,7 +271,7 @@ function AntreanPortalKlien({ data, user, actions, cari }: ModulProps) {
     return (
       <div className="space-y-4">
         <TombolSekunder onClick={() => setTerpilihId(null)}>
-          &larr; Back to queue
+          &larr; Kembali ke antrean
         </TombolSekunder>
         <JudulBagian>
           {terpilih.id} — {JENIS_PENGAJUAN_KLIEN_EN[terpilih.jenis] ?? terpilih.jenis}
@@ -279,19 +279,19 @@ function AntreanPortalKlien({ data, user, actions, cari }: ModulProps) {
         <Kartu>
           <dl className="grid gap-2 text-sm md:grid-cols-2">
             <div className="flex justify-between gap-4">
-              <dt className="text-[#0d2569]/60">Client</dt>
+              <dt className="text-[#0d2569]/60">Klien</dt>
               <dd className="text-right font-semibold text-[#0d2569]">
                 {namaKlien}
               </dd>
             </div>
             <div className="flex justify-between gap-4">
-              <dt className="text-[#0d2569]/60">Creating PIC</dt>
+              <dt className="text-[#0d2569]/60">PIC pembuat</dt>
               <dd className="text-right text-[#0d2569]">
                 {terpilih.namaPic} ({terpilih.dibuatOleh})
               </dd>
             </div>
             <div className="flex justify-between gap-4">
-              <dt className="text-[#0d2569]/60">Created date</dt>
+              <dt className="text-[#0d2569]/60">Tanggal dibuat</dt>
               <dd className="text-[#0d2569]">
                 {formatTanggal(terpilih.tanggalBuat)}
               </dd>
@@ -303,16 +303,16 @@ function AntreanPortalKlien({ data, user, actions, cari }: ModulProps) {
               </dd>
             </div>
             <div className="flex justify-between gap-4 md:col-span-2">
-              <dt className="text-[#0d2569]/60">Title</dt>
+              <dt className="text-[#0d2569]/60">Judul</dt>
               <dd className="text-right text-[#0d2569]">{terpilih.judul}</dd>
             </div>
             <div className="flex justify-between gap-4 md:col-span-2">
-              <dt className="text-[#0d2569]/60">Description</dt>
+              <dt className="text-[#0d2569]/60">Uraian</dt>
               <dd className="text-right text-[#0d2569]">{terpilih.uraian}</dd>
             </div>
             {terpilih.nilaiPerkiraan !== undefined && (
               <div className="flex justify-between gap-4">
-                <dt className="text-[#0d2569]/60">Estimated value</dt>
+                <dt className="text-[#0d2569]/60">Nilai perkiraan</dt>
                 <dd className="text-[#0d2569]">
                   {formatRupiah(terpilih.nilaiPerkiraan)}
                 </dd>
@@ -320,7 +320,7 @@ function AntreanPortalKlien({ data, user, actions, cari }: ModulProps) {
             )}
             {terpilih.prospectId && (
               <div className="flex justify-between gap-4">
-                <dt className="text-[#0d2569]/60">Prospect resulting from approval</dt>
+                <dt className="text-[#0d2569]/60">Prospek hasil persetujuan</dt>
                 <dd className="font-semibold text-[#0d2569]">
                   {terpilih.prospectId}
                 </dd>
@@ -328,7 +328,7 @@ function AntreanPortalKlien({ data, user, actions, cari }: ModulProps) {
             )}
             {terpilih.catatanOperator && (
               <div className="flex justify-between gap-4 md:col-span-2">
-                <dt className="text-[#0d2569]/60">Operator note</dt>
+                <dt className="text-[#0d2569]/60">Catatan operator</dt>
                 <dd className="text-right text-[#0d2569]">
                   {terpilih.catatanOperator}
                 </dd>
@@ -339,30 +339,30 @@ function AntreanPortalKlien({ data, user, actions, cari }: ModulProps) {
 
         {(bolehSetujui || bolehTolak) && terpilih.status === 'Menunggu' && (
           <Kartu>
-            <JudulBagian>Approval Decision</JudulBagian>
+            <JudulBagian>Keputusan persetujuan</JudulBagian>
             <p className="mt-1 text-sm text-[#0d2569]/70">
-              Approving will create a new Prospect for this client and
-              continue it through the existing Sales flow (prospect →
-              quotation → order → contract).
+              Menyetujui akan membuat Prospek baru untuk klien ini dan
+              melanjutkannya lewat alur Penjualan yang sudah ada (prospek →
+              penawaran → pesanan → kontrak).
             </p>
             <div className="mt-3">
-              <Label>Operator note (required when rejecting)</Label>
+              <Label>Catatan operator (wajib diisi bila menolak)</Label>
               <textarea
                 className={`${inputClass} min-h-20`}
                 value={catatan}
                 onChange={(e) => setCatatan(e.target.value)}
-                placeholder="Note for the client PIC"
+                placeholder="Catatan untuk PIC klien"
               />
             </div>
             <div className="mt-3 flex gap-2">
               {bolehSetujui && (
                 <TombolUtama onClick={() => setujui(terpilih)}>
-                  Approve
+                  Setujui
                 </TombolUtama>
               )}
               {bolehTolak && (
                 <TombolSekunder onClick={() => tolak(terpilih)}>
-                  Reject
+                  Tolak
                 </TombolSekunder>
               )}
             </div>
@@ -381,31 +381,31 @@ function AntreanPortalKlien({ data, user, actions, cari }: ModulProps) {
   return (
     <div className="space-y-4">
       <div>
-        <Label>Filter by status</Label>
+        <Label>Filter berdasarkan status</Label>
         <select
           className={`${inputClass} max-w-xs`}
           value={filterStatus}
           onChange={(e) => setFilterStatus(e.target.value)}
         >
-          <option value="Semua">All</option>
-          <option value="Menunggu">Pending</option>
-          <option value="Disetujui">Approved</option>
-          <option value="Ditolak">Rejected</option>
+          <option value="Semua">Semua</option>
+          <option value="Menunggu">Menunggu</option>
+          <option value="Disetujui">Disetujui</option>
+          <option value="Ditolak">Ditolak</option>
         </select>
       </div>
       {daftar.length === 0 ? (
-        <PesanKosong teks="No matching public submissions yet." />
+        <PesanKosong teks="Belum ada pengajuan publik yang cocok." />
       ) : (
         <Kartu>
           <Tabel>
             <thead>
               <tr>
                 <Th>ID</Th>
-                <Th>Type</Th>
-                <Th>Title</Th>
-                <Th>Client</Th>
+                <Th>Jenis</Th>
+                <Th>Judul</Th>
+                <Th>Klien</Th>
                 <Th>PIC</Th>
-                <Th>Date</Th>
+                <Th>Tanggal</Th>
                 <Th>Status</Th>
               </tr>
             </thead>
@@ -465,18 +465,18 @@ function DetailPengajuan({
       return;
     }
     actions.ubahTahapPengajuan(pengajuan, tahap);
-    setPesan(`Submission stage changed to ${labelTahapPengajuan(tahap)}.`);
+    setPesan(`Tahap pengajuan diubah ke ${labelTahapPengajuan(tahap)}.`);
   };
 
   const konfirmasiTolak = () => {
     if (alasanTolak.trim() === '') {
-      setPesan('Rejection reason is required.');
+      setPesan('Alasan penolakan wajib diisi.');
       return;
     }
     actions.ubahTahapPengajuan(pengajuan, 'Ditolak', alasanTolak.trim());
     setTahapTolak(false);
     setAlasanTolak('');
-    setPesan('Submission rejected with the reason recorded.');
+    setPesan('Pengajuan ditolak, alasan tercatat.');
   };
 
   const konversi = () => {
@@ -490,14 +490,14 @@ function DetailPengajuan({
     const terbaru = data.pengajuan.find((p) => p.id === pengajuan.id);
     setPesan(
       terbaru?.hasilKonversi
-        ? `Submission successfully converted into ${terbaru.hasilKonversi.label}.`
-        : 'Submission successfully converted.',
+        ? `Pengajuan berhasil dikonversi menjadi ${terbaru.hasilKonversi.label}.`
+        : 'Pengajuan berhasil dikonversi.',
     );
   };
 
   return (
     <div className="space-y-4">
-      <TombolSekunder onClick={onKembali}>&larr; Back to list</TombolSekunder>
+      <TombolSekunder onClick={onKembali}>&larr; Kembali ke daftar</TombolSekunder>
       <JudulBagian>
         {pengajuan.id} — {JENIS_PENGAJUAN_EN[pengajuan.jenis] ?? pengajuan.jenis}
       </JudulBagian>
@@ -505,31 +505,31 @@ function DetailPengajuan({
       <Kartu>
         <dl className="grid gap-2 text-sm md:grid-cols-2">
           <div className="flex justify-between gap-4">
-            <dt className="text-[#0d2569]/60">Applicant</dt>
+            <dt className="text-[#0d2569]/60">Pemohon</dt>
             <dd className="text-right font-semibold text-[#0d2569]">
               {pengajuan.pemohon}
             </dd>
           </div>
           <div className="flex justify-between gap-4">
-            <dt className="text-[#0d2569]/60">Received date</dt>
+            <dt className="text-[#0d2569]/60">Tanggal diterima</dt>
             <dd className="text-[#0d2569]">{formatTanggal(pengajuan.tanggalMasuk)}</dd>
           </div>
           <div className="flex justify-between gap-4 md:col-span-2">
-            <dt className="text-[#0d2569]/60">Requirement</dt>
+            <dt className="text-[#0d2569]/60">Kebutuhan</dt>
             <dd className="text-right text-[#0d2569]">{pengajuan.kebutuhan}</dd>
           </div>
           <div className="flex justify-between gap-4">
-            <dt className="text-[#0d2569]/60">Stage</dt>
+            <dt className="text-[#0d2569]/60">Tahap</dt>
             <dd>
               <StatusBadge status={labelTahapPengajuan(pengajuan.tahap)} />
             </dd>
           </div>
           <div className="flex justify-between gap-4">
-            <dt className="text-[#0d2569]/60">Person in charge</dt>
+            <dt className="text-[#0d2569]/60">Penanggung jawab</dt>
             <dd className="text-[#0d2569]">{pengajuan.penanggungJawab}</dd>
           </div>
           <div className="flex justify-between gap-4">
-            <dt className="text-[#0d2569]/60">Estimated value</dt>
+            <dt className="text-[#0d2569]/60">Nilai perkiraan</dt>
             <dd className="text-[#0d2569]">
               {pengajuan.nilaiPerkiraan !== undefined
                 ? formatRupiah(pengajuan.nilaiPerkiraan)
@@ -544,19 +544,19 @@ function DetailPengajuan({
           </div>
           {pengajuan.catatan && (
             <div className="flex justify-between gap-4 md:col-span-2">
-              <dt className="text-[#0d2569]/60">Notes</dt>
+              <dt className="text-[#0d2569]/60">Catatan</dt>
               <dd className="text-right text-[#0d2569]">{pengajuan.catatan}</dd>
             </div>
           )}
           {pengajuan.tahap === 'Ditolak' && pengajuan.alasanTolak && (
             <div className="flex justify-between gap-4 md:col-span-2">
-              <dt className="text-[#0d2569]/60">Rejection reason</dt>
+              <dt className="text-[#0d2569]/60">Alasan penolakan</dt>
               <dd className="text-right text-[#0d2569]">{pengajuan.alasanTolak}</dd>
             </div>
           )}
           {pengajuan.tahap === 'Dikonversi' && pengajuan.hasilKonversi && (
             <div className="flex justify-between gap-4 md:col-span-2">
-              <dt className="text-[#0d2569]/60">Conversion result</dt>
+              <dt className="text-[#0d2569]/60">Hasil konversi</dt>
               <dd className="text-right font-semibold text-[#0d2569]">
                 {JENIS_KONVERSI_EN[pengajuan.hasilKonversi.jenis] ?? pengajuan.hasilKonversi.jenis}: {pengajuan.hasilKonversi.label}
               </dd>
@@ -567,26 +567,26 @@ function DetailPengajuan({
 
       {bolehUbah && tahapBerikutnya(pengajuan.tahap).length > 0 && (
         <Kartu>
-          <JudulBagian>Change Stage</JudulBagian>
+          <JudulBagian>Ubah tahap</JudulBagian>
           <div className="mt-3 flex flex-wrap gap-2">
             {tahapBerikutnya(pengajuan.tahap).map((t) => (
               <TombolSekunder key={t} onClick={() => pindahTahap(t)}>
-                {t === 'Ditolak' ? 'Reject' : `Move to ${labelTahapPengajuan(t)}`}
+                {t === 'Ditolak' ? 'Tolak' : `Pindah ke ${labelTahapPengajuan(t)}`}
               </TombolSekunder>
             ))}
           </div>
           {tahapTolak && (
             <div className="mt-4">
-              <Label>Rejection reason *</Label>
+              <Label>Alasan penolakan *</Label>
               <textarea
                 className={`${inputClass} min-h-20`}
                 value={alasanTolak}
                 onChange={(e) => setAlasanTolak(e.target.value)}
-                placeholder="Rejection reason is required"
+                placeholder="Alasan penolakan wajib diisi"
               />
               <div className="mt-2 flex gap-2">
                 <TombolUtama onClick={konfirmasiTolak}>
-                  Confirm Rejection
+                  Konfirmasi penolakan
                 </TombolUtama>
                 <TombolSekunder
                   onClick={() => {
@@ -594,7 +594,7 @@ function DetailPengajuan({
                     setAlasanTolak('');
                   }}
                 >
-                  Cancel
+                  Batal
                 </TombolSekunder>
               </div>
             </div>
@@ -604,12 +604,12 @@ function DetailPengajuan({
 
       {bolehKonversi && pengajuan.tahap === 'Disetujui' && (
         <Kartu>
-          <JudulBagian>Conversion</JudulBagian>
+          <JudulBagian>Konversi</JudulBagian>
           <p className="mt-1 text-sm text-[#0d2569]/70">
-            An approved submission can be converted into a contract.
+            Pengajuan yang disetujui dapat dikonversi menjadi kontrak.
           </p>
           <div className="mt-3">
-            <TombolUtama onClick={konversi}>Convert into Contract</TombolUtama>
+            <TombolUtama onClick={konversi}>Konversi menjadi kontrak</TombolUtama>
           </div>
         </Kartu>
       )}
@@ -650,25 +650,25 @@ function FormPengajuan({
 
   const simpan = () => {
     if (form.pemohon.trim() === '') {
-      setError('Applicant is required.');
+      setError('Pemohon wajib diisi.');
       return;
     }
     if (form.tanggalMasuk === '') {
-      setError('Received date is required.');
+      setError('Tanggal diterima wajib diisi.');
       return;
     }
     if (form.kebutuhan.trim() === '') {
-      setError('Requirement is required.');
+      setError('Kebutuhan wajib diisi.');
       return;
     }
     if (form.penanggungJawab.trim() === '') {
-      setError('Person in charge is required.');
+      setError('Penanggung jawab wajib diisi.');
       return;
     }
     const nilaiPerkiraan =
       nilaiPerkiraanTeks.trim() === '' ? undefined : Number(nilaiPerkiraanTeks);
     if (nilaiPerkiraan !== undefined && !(nilaiPerkiraan >= 0)) {
-      setError('Estimated value must be a number 0 or greater.');
+      setError('Nilai perkiraan harus berupa angka 0 atau lebih.');
       return;
     }
     const hasil = actions.tambahPengajuan({
@@ -687,10 +687,10 @@ function FormPengajuan({
 
   return (
     <Kartu>
-      <JudulBagian>Add Submission</JudulBagian>
+      <JudulBagian>Tambah pengajuan</JudulBagian>
       <div className="mt-4 grid gap-4 md:grid-cols-2">
         <div>
-          <Label>Type *</Label>
+          <Label>Jenis *</Label>
           <select
             className={inputClass}
             value={form.jenis}
@@ -701,21 +701,21 @@ function FormPengajuan({
               }))
             }
           >
-            <option value="Kerja Sama Baru">New Partnership</option>
-            <option value="Sewa Baru">New Lease</option>
+            <option value="Kerja Sama Baru">Kerja Sama Baru</option>
+            <option value="Sewa Baru">Sewa Baru</option>
           </select>
         </div>
         <div>
-          <Label>Applicant *</Label>
+          <Label>Pemohon *</Label>
           <input
             className={inputClass}
             value={form.pemohon}
             onChange={(e) => ubahTeks('pemohon', e.target.value)}
-            placeholder="Applicant name"
+            placeholder="Nama pemohon"
           />
         </div>
         <div>
-          <Label>Received date *</Label>
+          <Label>Tanggal diterima *</Label>
           <input
             className={inputClass}
             type="date"
@@ -724,32 +724,32 @@ function FormPengajuan({
           />
         </div>
         <div>
-          <Label>Person in charge *</Label>
+          <Label>Penanggung jawab *</Label>
           <input
             className={inputClass}
             value={form.penanggungJawab}
             onChange={(e) => ubahTeks('penanggungJawab', e.target.value)}
-            placeholder="Name of the person in charge"
+            placeholder="Nama penanggung jawab"
           />
         </div>
         <div className="md:col-span-2">
-          <Label>Requirement *</Label>
+          <Label>Kebutuhan *</Label>
           <textarea
             className={`${inputClass} min-h-20`}
             value={form.kebutuhan}
             onChange={(e) => ubahTeks('kebutuhan', e.target.value)}
-            placeholder="Description of the submission requirement"
+            placeholder="Deskripsi kebutuhan pengajuan"
           />
         </div>
         <div>
-          <Label>Estimated value (Rp, optional)</Label>
+          <Label>Nilai perkiraan (Rp, opsional)</Label>
           <input
             className={inputClass}
             type="number"
             min="0"
             value={nilaiPerkiraanTeks}
             onChange={(e) => setNilaiPerkiraanTeks(e.target.value)}
-            placeholder="Leave empty if there is no estimate yet"
+            placeholder="Kosongkan bila belum ada perkiraan"
           />
         </div>
       </div>
@@ -760,8 +760,8 @@ function FormPengajuan({
         </p>
       )}
       <div className="mt-4 flex gap-2">
-        <TombolUtama onClick={simpan}>Save Submission</TombolUtama>
-        <TombolSekunder onClick={onBatal}>Cancel</TombolSekunder>
+        <TombolUtama onClick={simpan}>Simpan pengajuan</TombolUtama>
+        <TombolSekunder onClick={onBatal}>Batal</TombolSekunder>
       </div>
     </Kartu>
   );
