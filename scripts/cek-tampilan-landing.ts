@@ -118,6 +118,7 @@ const baca = (relatif: string) =>
   readFileSync(join(process.cwd(), relatif), 'utf8');
 const app = baca('src/App.tsx');
 const marklo = baca('src/modules/landing/Marklo.tsx');
+const panelProfil = baca('src/components/PanelProfil.tsx');
 const comingSoon = baca('src/modules/ComingSoon.tsx');
 const planCampaign = baca('src/modules/PlanCampaign.tsx');
 const dataMarklo = baca('src/lib/landingMarklo.ts');
@@ -152,10 +153,10 @@ cek(
     app.includes('onKirimBooking={kirimBookingPublik}'),
 );
 cek(
-  'App.tsx: MarkloLanding menerima pengguna + onLogout + onBukaModul (panel Profil, 2026-11-23)',
+  'App.tsx: MarkloLanding menerima pengguna + onLogout + onBukaModul (panel Profil, 2026-11-23) — onBukaModul memakai setActive (navigasi), BUKAN setPanelTerbuka: setPanelTerbuka hanya membuka panel sub-navigasi dan master/audit tidak punya sub-item, jadi wiring PR #142 tidak membuka apa-apa; setActive-lah yang menampilkan modulnya (juga dipakai panel Profil admin)',
   app.includes('pengguna={user}') &&
     app.includes('onLogout={() => tanganiKeluar()}') &&
-    app.includes("onBukaModul={(modul) => setPanelTerbuka(modul)}"),
+    app.includes('onBukaModul={(modul) => setActive(modul)}'),
 );
 cek(
   "App.tsx: halaman 'plan-campaign' ada — import PlanCampaign + cabang halamanPublik + onKembali ke beranda",
@@ -211,16 +212,17 @@ cek(
     marklo.includes('aria-haspopup="true"'),
 );
 cek(
-  'Header: ikon profil membuka panel Profil (bukan lagi langsung Login); panel tamu = tombol Login + Bahasa & Tema (tampil dulu); panel login = nama/email + Informasi Akun + Aktivitas Akun + Bahasa & Tema + Keluar; tanpa tombol video-call',
+  'Header: ikon profil membuka panel Profil (bukan lagi langsung Login); panel tamu = tombol Login + Bahasa & Tema (tampil dulu); panel login = nama/email + Informasi Akun + Aktivitas Akun + Bahasa & Tema + Keluar; tanpa tombol video-call — panel dipakai bersama admin (PanelProfil.tsx), bukan duplikat',
   marklo
     .slice(marklo.indexOf('function Header('), marklo.indexOf('</header>'))
     .includes('aria-label="Profile"') &&
     marklo.includes('menuProfilTerbuka') &&
-    marklo.includes('BarisBahasaTema') &&
-    marklo.includes('Informasi Akun') &&
-    marklo.includes('Aktivitas Akun') &&
-    marklo.includes('Keluar') &&
-    marklo.includes('onLogin()') &&
+    marklo.includes('<PanelProfil') &&
+    panelProfil.includes('BarisBahasaTema') &&
+    panelProfil.includes('Informasi Akun') &&
+    panelProfil.includes('Aktivitas Akun') &&
+    panelProfil.includes('Keluar') &&
+    panelProfil.includes('onLogin?.()') &&
     !marklo
       .slice(marklo.indexOf('function Header('), marklo.indexOf('</header>'))
       .includes('aria-label="Login"') &&

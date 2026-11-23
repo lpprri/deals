@@ -52,6 +52,7 @@ const master = baca('src/modules/MasterPage.tsx');
 const reporting = baca('src/modules/Reporting.tsx');
 const permissions = baca('src/lib/permissions.ts');
 const dummyUsers = baca('src/lib/dummyUsers.ts');
+const panelProfil = baca('src/components/PanelProfil.tsx');
 // Teks JSX terbelah baris (spasi/newline di sumber) — asersi salinan
 // memakai versi yang diratakan spasi-nya, bukan sumber mentah.
 const loginRata = login.replace(/\s+/g, ' ');
@@ -340,6 +341,51 @@ cek(
 cek(
   'rules: peringatan publikasikan SEBELUM merge ada',
   rules.includes('publikasikan') && rules.includes('SEBELUM merge PR'),
+);
+
+// ---------- Panel Profil di top bar admin (permintaan pengguna 23/11/2026) ----------
+// Avatar + nama di top bar jadi tombol (aria-label Profile) yang membuka
+// panel Profil yang SAMA dengan header landing (PanelProfil.tsx, bukan
+// duplikat): nama/email + Informasi Akun (→ Master Data & Users) +
+// Aktivitas Akun (→ Audit) + Bahasa & Tema (tampil dulu) + Keluar.
+// Tanpa Keamanan / Pengaturan Notifikasi (tidak ada halaman itu).
+const topBarAdmin = app.slice(
+  app.indexOf('border-b border-[#2573e2]/15 bg-white px-6 py-3'),
+  app.indexOf(
+    '</header>',
+    app.indexOf('border-b border-[#2573e2]/15 bg-white px-6 py-3'),
+  ),
+);
+cek(
+  'Admin: top bar memakai PanelProfil bersama (bukan duplikat markup)',
+  app.includes("from './components/PanelProfil'") &&
+    topBarAdmin.includes('<PanelProfil'),
+);
+cek(
+  'Admin: avatar + nama di top bar adalah tombol aria-label Profile yang membuka/menutup panel',
+  topBarAdmin.includes('aria-label="Profile"') &&
+    app.includes('panelProfilTerbuka') &&
+    app.includes('setPanelProfilTerbuka'),
+);
+cek(
+  'Admin: panel Profil login = penggunaAktif; Informasi Akun navigasi ke Master, Aktivitas Akun ke Audit, Keluar sign out',
+  topBarAdmin.includes('pengguna={penggunaAktif}') &&
+    topBarAdmin.includes('setActive(modul)') &&
+    topBarAdmin.includes('tanganiKeluar()'),
+);
+cek(
+  'PanelProfil: isi panel = Informasi Akun + Aktivitas Akun + Bahasa & Tema + Keluar; tanpa Keamanan / Pengaturan Notifikasi',
+  panelProfil.includes('Informasi Akun') &&
+    panelProfil.includes('Aktivitas Akun') &&
+    panelProfil.includes('BarisBahasaTema') &&
+    panelProfil.includes('Keluar') &&
+    !panelProfil.includes('Keamanan') &&
+    !panelProfil.includes('Pengaturan Notifikasi'),
+);
+cek(
+  'Admin: panel Profil menutup saat Escape / klik di luar (pola Notifikasi)',
+  app.includes('refPanelProfil') &&
+    app.includes('if (!panelProfilTerbuka) return;'),
 );
 
 // ---------- total kontrol TIDAK berubah ----------
