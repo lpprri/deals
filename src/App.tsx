@@ -7,7 +7,7 @@
 // setiap aksi menulis audit trail. Bila Firestore sudah dimigrasi, aksi
 // tulis juga disimpan ke Firestore; bila belum, perubahan session-only.
 
-import { Fragment, useEffect, useState } from 'react';
+import { Fragment, useEffect, useRef, useState } from 'react';
 import { onAuthStateChanged } from 'firebase/auth';
 import { doc, getDoc, setDoc, updateDoc } from 'firebase/firestore';
 import {
@@ -126,6 +126,7 @@ import {
 import { buatEntriAudit } from './lib/audit';
 import { idPercakapan, kunciAlamatOperator } from './lib/pesan';
 import Notifikasi from './components/Notifikasi';
+import { PanelProfil } from './components/PanelProfil';
 import { DAFTAR_JENIS_PENGAJUAN_KLIEN } from './lib/types';
 import { bolehAksi, LABEL_PERAN } from './lib/permissions';
 import { formatRupiah, formatTanggal, hariIniIso } from './lib/format';
@@ -653,6 +654,12 @@ export default function App() {
   /** Panel tambahan sub-navigasi (gaya Qontak): id modul induk yang
       panelnya terbuka. Berlaku di mode terbuka MAUPUN terlipat. */
   const [panelTerbuka, setPanelTerbuka] = useState<ModuleId | null>(null);
+  /** Panel Profil di top bar (permintaan pengguna 23/11/2026): avatar +
+      nama jadi tombol yang membuka panel yang sama dengan header
+      landing (PanelProfil) — nama/email + Informasi Akun + Aktivitas
+      Akun + Bahasa & Tema (tampil dulu) + Keluar. */
+  const [panelProfilTerbuka, setPanelProfilTerbuka] = useState(false);
+  const refPanelProfil = useRef<HTMLDivElement>(null);
   /** Induk panel sub-navigasi untuk suatu tampilan: induknya bila
       tampilan adalah sub-item, dirinya sendiri bila punya sub-item,
       null bila tidak punya sub-navigasi. */
@@ -690,6 +697,27 @@ export default function App() {
       document.removeEventListener('mousedown', tutupDenganKlikLuar);
     };
   }, [panelTerbuka]);
+  /** Escape / klik di luar menutup panel Profil (pola Notifikasi). */
+  useEffect(() => {
+    if (!panelProfilTerbuka) return;
+    const tutupDenganEscape = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setPanelProfilTerbuka(false);
+    };
+    const tutupDenganKlikLuar = (e: MouseEvent) => {
+      if (
+        refPanelProfil.current &&
+        !refPanelProfil.current.contains(e.target as Node)
+      ) {
+        setPanelProfilTerbuka(false);
+      }
+    };
+    document.addEventListener('keydown', tutupDenganEscape);
+    document.addEventListener('mousedown', tutupDenganKlikLuar);
+    return () => {
+      document.removeEventListener('keydown', tutupDenganEscape);
+      document.removeEventListener('mousedown', tutupDenganKlikLuar);
+    };
+  }, [panelProfilTerbuka]);
   // Pencarian global di top bar DIHAPUS atas instruksi pengguna 15/11/2026
   // ("hilangkan ini di bar teratas"). `cari` dipertahankan sebagai '' agar
   // filter daftar di modul-modul tetap jalan (menampilkan semua); plumbing
@@ -1236,7 +1264,7 @@ export default function App() {
           onLogin={() => setHalamanPublik('login')}
           pengguna={user}
           onLogout={() => tanganiKeluar()}
-          onBukaModul={(modul) => setPanelTerbuka(modul)}
+          onBukaModul={(modul) => setActive(modul)}
           onComingSoon={() => setHalamanPublik('coming-soon')}
           onPlanCampaign={() => setHalamanPublik('plan-campaign')}
           onPartnerWithRri={() => setHalamanPublik('partner-with-rri')}
@@ -3706,18 +3734,36 @@ export default function App() {
         </div>
         <div className="ml-auto flex shrink-0 items-center gap-3">
           <Notifikasi data={data} onNavigasi={(m) => setActive(m)} />
-          <div className="flex items-center gap-2.5">
-            <span className="flex h-9 w-9 items-center justify-center rounded-full bg-[#2573e2] text-sm font-bold text-white">
-              {penggunaAktif.nama.trim().charAt(0).toUpperCase()}
-            </span>
-            <span className="leading-tight">
-              <span className="block text-sm font-semibold text-[#0d2569]">
-                {penggunaAktif.nama}
+          <div className="relative" ref={refPanelProfil}>
+            <button
+              type="button"
+              onClick={() => setPanelProfilTerbuka((v) => !v)}
+              title="Profile"
+              aria-label="Profile"
+              aria-haspopup="true"
+              aria-expanded={panelProfilTerbuka}
+              className="flex items-center gap-2.5 rounded-md px-1 py-0.5 text-left transition hover:bg-[#2573e2]/5"
+            >
+              <span className="flex h-9 w-9 items-center justify-center rounded-full bg-[#2573e2] text-sm font-bold text-white">
+                {penggunaAktif.nama.trim().charAt(0).toUpperCase()}
               </span>
-              <span className="block text-xs text-[#0d2569]/60">
-                {penggunaAktif.satker?.nama ?? 'PALEMBANG'}
+              <span className="leading-tight">
+                <span className="block text-sm font-semibold text-[#0d2569]">
+                  {penggunaAktif.nama}
+                </span>
+                <span className="block text-xs text-[#0d2569]/60">
+                  {penggunaAktif.satker?.nama ?? 'PALEMBANG'}
+                </span>
               </span>
-            </span>
+            </button>
+            {panelProfilTerbuka && (
+              <PanelProfil
+                pengguna={penggunaAktif}
+                onLogout={() => tanganiKeluar()}
+                onBukaModul={(modul) => setActive(modul)}
+                onTutup={() => setPanelProfilTerbuka(false)}
+              />
+            )}
           </div>
         </div>
       </header>
