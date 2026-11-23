@@ -614,15 +614,25 @@ cek(
     !marklo.includes('Client Growth'),
 );
 cek(
-  'Services: kartu terpusat di tengah di bawah baris label + garis penghubung beranimasi di tengah + kartu melayang (tangga diagonal OFFSET_FUNNEL dihapus atas perintah pengguna 2026-11-23: kartu tidak lagi bergeser saat See More ditekan)',
-  !marklo.includes('OFFSET_FUNNEL') &&
-    marklo.includes('mx-auto max-w-xl') &&
-    marklo.includes('flex justify-center') &&
-    marklo.includes('mk-layang') &&
-    marklo.includes('mk-garis-funnel') &&
-    css.includes('@keyframes mk-layang') &&
-    css.includes('@keyframes mk-garis-bergerak') &&
-    !marklo.includes('border-l-2 border-dashed'),
+  'Services: kartu lebar penuh tersusun vertikal + garis penghubung beranimasi di tengah + kartu melayang (tangga diagonal dihapus atas perintah pengguna 2026-11-23; revisi dari kartu terpusat max-w-xl — kartu memenuhi lebar wadah max-w-5xl, tidak bergeser saat See More ditekan)',
+  (() => {
+    const blokLayanan = marklo.slice(
+      marklo.indexOf('function Layanan('),
+      marklo.indexOf('function Perbandingan()'),
+    );
+    return (
+      !marklo.includes('OFFSET_FUNNEL') &&
+      !blokLayanan.includes('max-w-xl') &&
+      blokLayanan.includes('mx-auto mt-6 max-w-5xl text-left') &&
+      blokLayanan.includes('scroll-mt-24 w-full') &&
+      blokLayanan.includes('flex justify-center') &&
+      marklo.includes('mk-layang') &&
+      marklo.includes('mk-garis-funnel') &&
+      css.includes('@keyframes mk-layang') &&
+      css.includes('@keyframes mk-garis-bergerak') &&
+      !marklo.includes('border-l-2 border-dashed')
+    );
+  })(),
 );
 // Blok data LAYANAN_MARKLO saja (gradien -200/-100 yang sama juga dipakai
 // TESTIMONI_MARKLO — di luar cakupan PR #92, jangan ikut dihitung).
@@ -648,9 +658,10 @@ cek(
     !layananData.includes("gradien: 'from-emerald-200 to-teal-100'"),
 );
 cek(
-  'Services: ukuran + warna dekat template — kartu lebih sempit (max-w-xl), padding lebih lega, judul lebih besar, latar putih, label pertama biru RRI (PR oren-ke-biru)',
+  'Services: ukuran + warna dekat template — kartu lebar penuh (w-full dalam wadah max-w-5xl), padding lebih lega, judul lebih besar, latar putih, label pertama biru RRI (PR oren-ke-biru)',
   marklo.includes('<section id="services" className="bg-white py-16 sm:py-20">') &&
-    marklo.includes('mx-auto max-w-xl') &&
+    marklo.includes('mx-auto mt-6 max-w-5xl text-left') &&
+    marklo.includes('scroll-mt-24 w-full') &&
     marklo.includes('rounded-[20px]') &&
     marklo.includes('p-7 shadow-md') &&
     marklo.includes('sm:p-8') &&

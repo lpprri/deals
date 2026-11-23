@@ -1021,13 +1021,14 @@ function Layanan({ onPlanCampaign }: { onPlanCampaign: () => void }) {
             />
           </button>
         </div>
-        <div className="mx-auto mt-6 max-w-3xl text-left">
+        <div className="mx-auto mt-6 max-w-5xl text-left">
           {LAYANAN_MARKLO.map((layanan, i) => (
-            // Kartu di tengah (perintah pengguna 2026-11-23): susunan tangga
-            // diagonal template dihapus — kartu tidak lagi
-            // bergeser ke kanan per baris, melainkan terpusat di tengah di
-            // bawah baris label, supaya saat "See More" ditekan dan teks
-            // melebar, kartu tetap di tengah teks yang terkait.
+            // Kartu lebar penuh (perintah pengguna 2026-11-23, revisi dari
+            // "kartu terpusat di tengah"): susunan tangga diagonal template
+            // dihapus; tiap kartu memenuhi lebar wadah (max-w-5xl, sama
+            // dengan baris label saat diperluas) dan tetap tersusun
+            // vertikal — tidak lagi terjebak di kolom sempit tengah, dan
+            // tidak bergeser saat "See More" ditekan.
             <div
               key={layanan.nama}
               className="mk-layang"
@@ -1056,7 +1057,7 @@ function Layanan({ onPlanCampaign }: { onPlanCampaign: () => void }) {
                       onPlanCampaign();
                     }
                   }}
-                  className={`scroll-mt-24 mx-auto max-w-xl cursor-pointer rounded-[20px] bg-gradient-to-br ${layanan.gradien} p-7 shadow-md transition hover:-translate-y-1 hover:shadow-lg focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-mk-aksen sm:p-8 ${
+                  className={`scroll-mt-24 w-full cursor-pointer rounded-[20px] bg-gradient-to-br ${layanan.gradien} p-7 shadow-md transition hover:-translate-y-1 hover:shadow-lg focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-mk-aksen sm:p-8 ${
                     sorot === i ? 'ring-2 ring-mk-aksen' : 'ring-1 ring-white'
                   }`}
                 >
