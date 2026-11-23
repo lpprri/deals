@@ -986,8 +986,15 @@ function Layanan({ onPlanCampaign }: { onPlanCampaign: () => void }) {
         {/* Baris label langkah template — dipetakan ke layanan RRI (PR #85):
             label pertama merah seperti template, sisanya slate.
             Label bisa di-klik (PR #91): tiap label tombol yang menggulir
-            halus ke kartu layanannya + sorot singkat; tampilan tetap. */}
-        <div className="mx-auto mt-12 flex max-w-3xl flex-wrap items-baseline justify-between gap-x-4 gap-y-1 text-left">
+            halus ke kartu layanannya + sorot singkat; tampilan tetap.
+            Saat "See More" ditekan (perintah pengguna 2026-11-23), baris
+            melebar (max-w-5xl) dan keenam label + tombol See Less tersusun
+            proporsional dalam satu baris di desktop (lg:flex-nowrap). */}
+        <div
+          className={`mx-auto mt-12 flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 text-left ${
+            lihatLebih ? 'max-w-5xl lg:flex-nowrap' : 'max-w-3xl'
+          }`}
+        >
           {LAYANAN_MARKLO.map((layanan, i) => (
             <button
               key={layanan.nama}

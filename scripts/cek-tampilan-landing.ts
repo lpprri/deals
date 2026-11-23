@@ -538,14 +538,15 @@ cek(
     marklo.includes('window.setTimeout(() => setSorot(null), 1600)'),
 );
 cek(
-  'Services: tombol "See More" di ujung kanan baris label — ditekan menampilkan "Held Events" & "Expand Business" sebagai teks (bukan tombol, belum ada kartu layanan), tekan lagi jadi "See Less" (perintah pengguna 2026-11-23)',
+  'Services: tombol "See More" di ujung kanan baris label — ditekan menampilkan "Held Events" & "Expand Business" sebagai teks (bukan tombol, belum ada kartu layanan), tekan lagi jadi "See Less"; saat diperluas keenam label melebar proporsional dalam satu baris di desktop (max-w-5xl + lg:flex-nowrap, perintah pengguna 2026-11-23)',
   marklo.includes('const [lihatLebih, setLihatLebih] = useState(false)') &&
     marklo.includes('See More') &&
     marklo.includes('See Less') &&
     marklo.includes('Held Events') &&
     marklo.includes('Expand Business') &&
     marklo.includes('aria-expanded={lihatLebih}') &&
-    marklo.includes('{lihatLebih && ('),
+    marklo.includes('{lihatLebih && (') &&
+    marklo.includes("max-w-5xl lg:flex-nowrap"),
 );
 cek(
   'Services: keempat kotak layanan BISA DI-KLIK → halaman "Plan a Campaign" (permintaan pengguna 2026-11-19 08:54 WIB) — article role="button" + keyboard (Enter/Spasi) + kursor pointer + hover naik; label langkah (PR #91) tetap scroll',
