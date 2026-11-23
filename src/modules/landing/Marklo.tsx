@@ -958,6 +958,7 @@ const OFFSET_FUNNEL = ['', 'sm:pl-10', 'sm:pl-20', 'sm:pl-32'];
     kampanye. Label langkah (PR #91) tetap menggulir ke kartu. */
 function Layanan({ onPlanCampaign }: { onPlanCampaign: () => void }) {
   const [sorot, setSorot] = useState<number | null>(null);
+  const [lihatLebih, setLihatLebih] = useState(false);
   const timerSorot = useRef<number | null>(null);
   useEffect(() => {
     return () => {
@@ -1000,6 +1001,32 @@ function Layanan({ onPlanCampaign }: { onPlanCampaign: () => void }) {
               {layanan.langkah}
             </button>
           ))}
+          {/* Label tambahan (perintah pengguna 2026-11-23): "Held Events" &
+              "Expand Business" hanya tampil saat "See More" ditekan —
+              masih berupa teks (bukan tombol), karena keduanya belum
+              punya kartu layanan (tanpa deskripsi/logo). */}
+          {lihatLebih && (
+            <>
+              <span className="text-sm font-medium text-slate-400 sm:text-base">
+                Held Events
+              </span>
+              <span className="text-sm font-medium text-slate-400 sm:text-base">
+                Expand Business
+              </span>
+            </>
+          )}
+          <button
+            type="button"
+            onClick={() => setLihatLebih(!lihatLebih)}
+            aria-expanded={lihatLebih}
+            className="inline-flex cursor-pointer items-center gap-1 text-sm font-medium text-[#2573e2] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-mk-aksen sm:text-base"
+          >
+            {lihatLebih ? 'See Less' : 'See More'}
+            <ChevronDown
+              className={`h-4 w-4 transition-transform ${lihatLebih ? 'rotate-180' : ''}`}
+              aria-hidden="true"
+            />
+          </button>
         </div>
         <div className="mx-auto mt-6 max-w-3xl text-left">
           {LAYANAN_MARKLO.map((layanan, i) => (
