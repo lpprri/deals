@@ -5,8 +5,8 @@
 // langsung — tanpa sub-item dan tanpa panel tambahan.
 //
 // PERUBAHAN (keputusan pengguna 15/11/2026 21:19–21:20 WIB, PR #41):
-// 1. Offer diubah menjadi PIPELINE/KANBAN 6 kolom (Prospect, Contacted,
-//    Quotation, Negotiation, Accepted, Rejected). Kartu = prospect;
+// 1. Offer diubah menjadi PIPELINE/KANBAN 6 kolom (Prospek, Dihubungi,
+//    Penawaran, Negosiasi, Diterima, Ditolak). Kartu = prospek;
 //    kartu menampilkan quotation yang tertaut bila ada (nilai + status).
 //    Pemetaan tahap tersimpan (Q-11) ke kolom tampil ADA DI BAWAH —
 //    TAMPILAN saja: MASTER_TAHAP_PIPELINE, Q-11, dan logika stage Sales
@@ -20,7 +20,7 @@
 //    tidak ada lagi TabBar di halaman ini. Data 3 quotation + 4
 //    prospect TETAP UTUH; menu Prospect, tab Sales, menu Order, dan
 //    komponen TabQuotation/TabProspek/TabAnalytics di Sales.tsx TETAP
-//    ADA. Tombol "+ Create Quotation" TETAP di kanan atas halaman
+//    ADA. Tombol "+ Buat penawaran" TETAP di kanan atas halaman
 //    (form-nya dipakai ulang dari Sales — FormQuotation diekspor).
 //
 // FAKTA DATA (impor nyata 14/11/2026, Fase B): 3 quotation
@@ -28,9 +28,9 @@
 // QTN-03 Ditolak Rp5.000.000 — Σ Rp62.000.000), 1 order
 // (ORD-01 Selesai Rp48.000.000, dari QTN-01, dikonversi menjadi
 // kontrak PKS-001/2026), dan 4 prospect (PRS-01 … PRS-04).
-// Distribusi Kanban dari data: Prospect 1 (PRS-04), Contacted 0,
-// Quotation 0, Negotiation 1 (PRS-01), Accepted 1 (PRS-02),
-// Rejected 1 (PRS-03). Bila prospect/quotation baru ditambahkan
+// Distribusi Kanban dari data: Prospek 1 (PRS-04), Dihubungi 0,
+// Penawaran 0, Negosiasi 1 (PRS-01), Diterima 1 (PRS-02),
+// Ditolak 1 (PRS-03). Bila prospek/penawaran baru ditambahkan
 // lewat form, halaman ini ikut menampilkan karena membaca data
 // yang sama seperti Sales.
 
@@ -43,14 +43,14 @@ import { labelStatusPersetujuan } from '../lib/labels';
 import { JudulBagian, TombolUtama } from '../components/ui';
 import { FormQuotation, TabAnalytics, TabOrder } from './Sales';
 
-/** Kolom Kanban Offer (tampil, Inggris) — 6 kolom, urutan tetap. */
+/** Kolom Kanban Offer (tampil), 6 kolom, urutan tetap. */
 export const KOLOM_OFFER = [
-  'Prospect',
-  'Contacted',
-  'Quotation',
-  'Negotiation',
-  'Accepted',
-  'Rejected',
+  'Prospek',
+  'Dihubungi',
+  'Penawaran',
+  'Negosiasi',
+  'Diterima',
+  'Ditolak',
 ] as const;
 
 export type KolomOffer = (typeof KOLOM_OFFER)[number];
@@ -62,13 +62,13 @@ export type KolomOffer = (typeof KOLOM_OFFER)[number];
  * diterima (order dibuat = penawaran diterima).
  */
 const PETA_TAHAP_KE_KOLOM: Record<TahapPipeline, KolomOffer> = {
-  'Prospek Baru': 'Prospect',
-  Dihubungi: 'Contacted',
-  Penawaran: 'Quotation',
-  Negosiasi: 'Negotiation',
-  Order: 'Accepted',
-  Diterima: 'Accepted',
-  Ditolak: 'Rejected',
+  'Prospek Baru': 'Prospek',
+  Dihubungi: 'Dihubungi',
+  Penawaran: 'Penawaran',
+  Negosiasi: 'Negosiasi',
+  Order: 'Diterima',
+  Diterima: 'Diterima',
+  Ditolak: 'Ditolak',
 };
 
 export function kolomKanbanOffer(tahap: TahapPipeline): KolomOffer {
@@ -113,10 +113,10 @@ export function MenuOffer(props: ModulProps) {
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <JudulBagian>Pipeline</JudulBagian>
+        <JudulBagian>Alur penawaran</JudulBagian>
         {bolehAksi(user.peran, 'kelolaQuotation') && (
           <TombolUtama onClick={() => setTampilForm(true)}>
-            + Create Quotation
+            + Buat penawaran
           </TombolUtama>
         )}
       </div>
@@ -143,13 +143,13 @@ export function MenuOffer(props: ModulProps) {
             >
               <p className="text-sm font-bold text-[#0d2569]">{kolom}</p>
               <p className="mt-0.5 text-xs text-[#0d2569]/60">
-                {isi.length} {isi.length === 1 ? 'prospect' : 'prospects'} —{' '}
+                {isi.length} prospek ·{' '}
                 {formatRupiah(nilai)}
               </p>
               <div className="mt-3 space-y-2">
                 {isi.length === 0 ? (
                   <p className="text-xs text-[#0d2569]/60">
-                    No prospects at this stage yet.
+                    Belum ada prospek di tahap ini.
                   </p>
                 ) : (
                   isi.map((p) => (

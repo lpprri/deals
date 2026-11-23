@@ -60,12 +60,12 @@ export default function Todo(props: ModulProps) {
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <JudulBagian>Task</JudulBagian>
+        <JudulBagian>Tugas</JudulBagian>
       </div>
       <TabBar
         tabs={[
-          { id: 'tugas', label: 'My Tasks' },
-          { id: 'disposisi', label: 'Disposition' },
+          { id: 'tugas', label: 'Tugas saya' },
+          { id: 'disposisi', label: 'Disposisi' },
         ]}
         aktif={tab}
         onPilih={setTab}
@@ -123,20 +123,20 @@ function DaftarTugas({
 
   const ubahStatus = (t: Task, status: StatusTask) => {
     actions.ubahStatusTask(t, status);
-    setPesan(`Task status changed to ${labelStatusTask(status)}.`);
+    setPesan(`Status tugas diubah menjadi ${labelStatusTask(status)}.`);
   };
 
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap gap-4">
         <div>
-          <Label>Filter by status</Label>
+          <Label>Saring berdasarkan status</Label>
           <select
             className={`${inputClass} max-w-xs`}
             value={filterStatus}
             onChange={(e) => setFilterStatus(e.target.value)}
           >
-            <option value="Semua">All</option>
+            <option value="Semua">Semua</option>
             {MASTER_STATUS_TASK.map((s) => (
               <option key={s} value={s}>
                 {labelStatusTask(s)}
@@ -145,7 +145,7 @@ function DaftarTugas({
           </select>
         </div>
         <div>
-          <Label>Task scope</Label>
+          <Label>Cakupan tugas</Label>
           <select
             className={`${inputClass} max-w-xs`}
             value={cakupan}
@@ -153,8 +153,8 @@ function DaftarTugas({
               setCakupan(e.target.value as 'saya' | 'semua')
             }
           >
-            <option value="saya">My tasks</option>
-            <option value="semua">All tasks</option>
+            <option value="saya">Tugas saya</option>
+            <option value="semua">Semua tugas</option>
           </select>
         </div>
       </div>
@@ -162,7 +162,7 @@ function DaftarTugas({
       {bolehKelolaTask && (
         <div>
           <TombolUtama onClick={() => setTampilForm(true)}>
-            + Add Task
+            + Tambah tugas
           </TombolUtama>
         </div>
       )}
@@ -177,21 +177,21 @@ function DaftarTugas({
       )}
 
       {tugas.length === 0 ? (
-        <PesanKosong teks="No matching tasks yet." />
+        <PesanKosong teks="Belum ada tugas yang cocok." />
       ) : (
         <Kartu>
           <Tabel>
             <thead>
               <tr>
                 <Th>ID</Th>
-                <Th>Title</Th>
-                <Th>Owner</Th>
-                <Th>Deadline</Th>
+                <Th>Judul</Th>
+                <Th>Pemilik</Th>
+                <Th>Tenggat</Th>
                 <Th>Status</Th>
-                <Th>Disposition Instruction</Th>
-                <Th>Disposition Giver</Th>
-                <Th>Related Link</Th>
-                <Th>Action</Th>
+                <Th>Instruksi disposisi</Th>
+                <Th>Pemberi disposisi</Th>
+                <Th>Tautan terkait</Th>
+                <Th>Aksi</Th>
               </tr>
             </thead>
             <tbody>
@@ -208,7 +208,7 @@ function DaftarTugas({
                       {formatTanggal(t.tenggat)}
                       {lewatTenggat(t) && (
                         <span className="block text-xs font-semibold">
-                          Overdue
+                          Lewat tenggat
                         </span>
                       )}
                     </Td>
@@ -223,7 +223,7 @@ function DaftarTugas({
                         <TombolSekunder
                           onClick={() => ubahStatus(t, berikut)}
                         >
-                          Change to {labelStatusTask(berikut)}
+                          Ubah menjadi {labelStatusTask(berikut)}
                         </TombolSekunder>
                       ) : (
                         '-'
@@ -268,11 +268,11 @@ function FormTask({
 
   const simpan = () => {
     if (form.judul.trim() === '') {
-      setError('Task title is required.');
+      setError('Judul tugas wajib diisi.');
       return;
     }
     if (form.tenggat === '') {
-      setError('Deadline is required.');
+      setError('Tenggat wajib diisi.');
       return;
     }
     const hasil = actions.tambahTask({
@@ -295,24 +295,24 @@ function FormTask({
 
   return (
     <Kartu>
-      <JudulBagian>Add Personal Task</JudulBagian>
+      <JudulBagian>Tambah tugas pribadi</JudulBagian>
       <p className="mt-1 text-sm text-[#0d2569]/70">
-        Task owner: {user.nama}
+        Pemilik tugas: {user.nama}
       </p>
       <div className="mt-4 grid gap-4 md:grid-cols-2">
         <div>
-          <Label>Title *</Label>
+          <Label>Judul *</Label>
           <input
             className={inputClass}
             value={form.judul}
             onChange={(e) =>
               setForm((f) => ({ ...f, judul: e.target.value }))
             }
-            placeholder="Task title"
+            placeholder="Judul tugas"
           />
         </div>
         <div>
-          <Label>Deadline *</Label>
+          <Label>Tenggat *</Label>
           <input
             className={inputClass}
             type="date"
@@ -323,25 +323,25 @@ function FormTask({
           />
         </div>
         <div>
-          <Label>Related ID (optional)</Label>
+          <Label>ID terkait (opsional)</Label>
           <input
             className={inputClass}
             value={form.terkaitId ?? ''}
             onChange={(e) =>
               setForm((f) => ({ ...f, terkaitId: e.target.value }))
             }
-            placeholder="Example: PRS-01, PGJ-01, EVT-01"
+            placeholder="Contoh: PRS-01, PGJ-01, EVT-01"
           />
         </div>
         <div>
-          <Label>Related label (optional)</Label>
+          <Label>Label terkait (opsional)</Label>
           <input
             className={inputClass}
             value={form.terkaitLabel ?? ''}
             onChange={(e) =>
               setForm((f) => ({ ...f, terkaitLabel: e.target.value }))
             }
-            placeholder="Example: Prospect PRS-01"
+            placeholder="Contoh: Prospek PRS-01"
           />
         </div>
       </div>
@@ -352,8 +352,8 @@ function FormTask({
         </p>
       )}
       <div className="mt-4 flex gap-2">
-        <TombolUtama onClick={simpan}>Save Task</TombolUtama>
-        <TombolSekunder onClick={onBatal}>Cancel</TombolSekunder>
+        <TombolUtama onClick={simpan}>Simpan tugas</TombolUtama>
+        <TombolSekunder onClick={onBatal}>Batal</TombolSekunder>
       </div>
     </Kartu>
   );
@@ -394,21 +394,21 @@ function DaftarDisposisi({
       setPesan(hasil);
       return;
     }
-    setPesan(`Disposition ${t.id} closed.`);
+    setPesan(`Disposisi ${t.id} ditutup.`);
   };
 
   return (
     <div className="space-y-4">
-      <Peringatan teks="Dispositions are recorded end-to-end (Flow F): created → worked on → closed by the giver; history is saved and auditable." />
+      <Peringatan teks="Disposisi dicatat menyeluruh (Alur F): dibuat, dikerjakan, lalu ditutup oleh pemberi; riwayat tersimpan dan bisa diaudit." />
 
       <div>
-        <Label>Filter by status</Label>
+        <Label>Saring berdasarkan status</Label>
         <select
           className={`${inputClass} max-w-xs`}
           value={filterStatus}
           onChange={(e) => setFilterStatus(e.target.value)}
         >
-          <option value="Semua">All</option>
+          <option value="Semua">Semua</option>
           {MASTER_STATUS_TASK.map((s) => (
             <option key={s} value={s}>
               {labelStatusTask(s)}
@@ -420,7 +420,7 @@ function DaftarDisposisi({
       {bolehBuat && (
         <div>
           <TombolUtama onClick={() => setTampilForm(true)}>
-            + Create Disposition
+            + Buat disposisi
           </TombolUtama>
         </div>
       )}
@@ -435,7 +435,7 @@ function DaftarDisposisi({
       )}
 
       {disposisi.length === 0 ? (
-        <PesanKosong teks="No matching dispositions yet." />
+        <PesanKosong teks="Belum ada disposisi yang cocok." />
       ) : (
         <Kartu>
           <ul>
@@ -452,10 +452,10 @@ function DaftarDisposisi({
                         {t.id} — {t.judul}
                       </p>
                       <p className="mt-1 text-sm text-[#0d2569]/70">
-                        Recipient: {t.pemilik} · Deadline:{' '}
+                        Penerima: {t.pemilik} · Tenggat:{' '}
                         {formatTanggal(t.tenggat)}
-                        {lewatTenggat(t) ? ' (overdue)' : ''}
-                        {t.terkaitLabel ? ` · Related: ${t.terkaitLabel}` : ''}
+                        {lewatTenggat(t) ? ' (lewat tenggat)' : ''}
+                        {t.terkaitLabel ? ` · Terkait: ${t.terkaitLabel}` : ''}
                       </p>
                     </div>
                     <StatusBadge status={labelStatusTask(t.status)} />
@@ -463,35 +463,35 @@ function DaftarDisposisi({
 
                   {t.instruksi && (
                     <p className="mt-3 text-sm text-[#0d2569]">
-                      <span className="font-semibold">Instruction: </span>
+                      <span className="font-semibold">Instruksi: </span>
                       {t.instruksi}
                     </p>
                   )}
 
                   <div className="mt-3">
                     <p className="text-xs font-semibold text-[#0d2569]/70">
-                      Disposition flow history
+                      Riwayat alur disposisi
                     </p>
                     <ol className="mt-1 list-inside list-decimal space-y-1 text-sm text-[#0d2569]">
                       <li>
-                        ✓ Created by {t.pemberiDisposisi}
+                        ✓ Dibuat oleh {t.pemberiDisposisi}
                         {t.disposisiDari ? ` (${t.disposisiDari})` : ''}
                       </li>
                       <li>
                         {t.status === 'Belum Dikerjakan'
-                          ? '• Waiting to be worked on by '
-                          : '✓ Worked on by '}
+                          ? '• Menunggu dikerjakan oleh '
+                          : '✓ Dikerjakan oleh '}
                         {t.pemilik}
                       </li>
                       <li>
                         {t.status === 'Selesai' || t.status === 'Ditutup'
-                          ? '✓ Completed'
-                          : '• Not yet completed'}
+                          ? '✓ Selesai'
+                          : '• Belum selesai'}
                       </li>
                       <li>
                         {t.status === 'Ditutup'
-                          ? '✓ Closed by the disposition giver'
-                          : '• Not yet closed'}
+                          ? '✓ Ditutup oleh pemberi disposisi'
+                          : '• Belum ditutup'}
                       </li>
                     </ol>
                   </div>
@@ -499,7 +499,7 @@ function DaftarDisposisi({
                   {bolehTutup && (
                     <div className="mt-3">
                       <TombolUtama onClick={() => tutup(t)}>
-                        Close Disposition
+                        Tutup disposisi
                       </TombolUtama>
                     </div>
                   )}
@@ -543,19 +543,19 @@ function FormDisposisi({
 
   const simpan = () => {
     if (form.penerima.trim() === '') {
-      setError('Disposition recipient must be selected.');
+      setError('Penerima disposisi wajib dipilih.');
       return;
     }
     if (form.judul.trim() === '') {
-      setError('Disposition title is required.');
+      setError('Judul disposisi wajib diisi.');
       return;
     }
     if (form.instruksi.trim() === '') {
-      setError('Instructions are required.');
+      setError('Instruksi wajib diisi.');
       return;
     }
     if (form.tenggat === '') {
-      setError('Deadline is required.');
+      setError('Tenggat wajib diisi.');
       return;
     }
     const hasil = actions.tambahDisposisi({
@@ -580,13 +580,13 @@ function FormDisposisi({
 
   return (
     <Kartu>
-      <JudulBagian>Create Disposition</JudulBagian>
+      <JudulBagian>Buat disposisi</JudulBagian>
       <p className="mt-1 text-sm text-[#0d2569]/70">
-        Disposition giver: {user.nama}
+        Pemberi disposisi: {user.nama}
       </p>
       <div className="mt-4 grid gap-4 md:grid-cols-2">
         <div>
-          <Label>Recipient *</Label>
+          <Label>Penerima *</Label>
           <select
             className={inputClass}
             value={form.penerima}
@@ -602,7 +602,7 @@ function FormDisposisi({
           </select>
         </div>
         <div>
-          <Label>Deadline *</Label>
+          <Label>Tenggat *</Label>
           <input
             className={inputClass}
             type="date"
@@ -613,47 +613,47 @@ function FormDisposisi({
           />
         </div>
         <div className="md:col-span-2">
-          <Label>Title *</Label>
+          <Label>Judul *</Label>
           <input
             className={inputClass}
             value={form.judul}
             onChange={(e) =>
               setForm((f) => ({ ...f, judul: e.target.value }))
             }
-            placeholder="Disposition task title"
+            placeholder="Judul tugas disposisi"
           />
         </div>
         <div className="md:col-span-2">
-          <Label>Instructions *</Label>
+          <Label>Instruksi *</Label>
           <textarea
             className={`${inputClass} min-h-20`}
             value={form.instruksi}
             onChange={(e) =>
               setForm((f) => ({ ...f, instruksi: e.target.value }))
             }
-            placeholder="Instructions the recipient must carry out"
+            placeholder="Instruksi yang harus dijalankan penerima"
           />
         </div>
         <div>
-          <Label>Related ID (optional)</Label>
+          <Label>ID terkait (opsional)</Label>
           <input
             className={inputClass}
             value={form.terkaitId ?? ''}
             onChange={(e) =>
               setForm((f) => ({ ...f, terkaitId: e.target.value }))
             }
-            placeholder="Example: PRS-01, PJ-002"
+            placeholder="Contoh: PRS-01, PJ-002"
           />
         </div>
         <div>
-          <Label>Related label (optional)</Label>
+          <Label>Label terkait (opsional)</Label>
           <input
             className={inputClass}
             value={form.terkaitLabel ?? ''}
             onChange={(e) =>
               setForm((f) => ({ ...f, terkaitLabel: e.target.value }))
             }
-            placeholder="Example: Prospect PRS-01"
+            placeholder="Contoh: Prospek PRS-01"
           />
         </div>
       </div>
@@ -664,8 +664,8 @@ function FormDisposisi({
         </p>
       )}
       <div className="mt-4 flex gap-2">
-        <TombolUtama onClick={simpan}>Save Disposition</TombolUtama>
-        <TombolSekunder onClick={onBatal}>Cancel</TombolSekunder>
+        <TombolUtama onClick={simpan}>Simpan disposisi</TombolUtama>
+        <TombolSekunder onClick={onBatal}>Batal</TombolSekunder>
       </div>
     </Kartu>
   );

@@ -84,10 +84,10 @@ function tanggalBulanBerikutnya(hari: number): string {
 }
 
 function labelSisaHari(jumlahHari: number): string {
-  if (jumlahHari < 0) return 'overdue';
-  if (jumlahHari === 0) return 'today';
-  if (jumlahHari === 1) return '1 more day';
-  return `${jumlahHari} more days`;
+  if (jumlahHari < 0) return 'lewat tenggat';
+  if (jumlahHari === 0) return 'hari ini';
+  if (jumlahHari === 1) return '1 hari lagi';
+  return `${jumlahHari} hari lagi`;
 }
 
 /**
@@ -145,35 +145,35 @@ function GrafikTren({
     <Kartu>
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <JudulBagian>Monthly Trend</JudulBagian>
+          <JudulBagian>Tren bulanan</JudulBagian>
           <p className="mt-1 text-xs text-[#0d2569]/60">
             {periode.length > 0
               ? `${formatPeriode(periode[0])} – ${formatPeriode(periode[periode.length - 1])}`
-              : 'No data yet'}{' '}
+              : 'Belum ada data'}{' '}
             · Total {formatRupiah(total)}
             {idxTertinggi >= 0 && nilai[idxTertinggi] > 0 && (
               <>
-                {' · '}Highest {formatPeriode(periode[idxTertinggi])}{' '}
+                {' · '}Tertinggi {formatPeriode(periode[idxTertinggi])}{' '}
                 {formatRupiah(nilai[idxTertinggi])}
               </>
             )}
           </p>
         </div>
         <div className="flex gap-2">
-          {tombol('kontrak', 'Contract value')}
-          {tombol('penyetoran', 'Deposits')}
+          {tombol('kontrak', 'Nilai kontrak')}
+          {tombol('penyetoran', 'Penyetoran')}
         </div>
       </div>
       {periode.length === 0 ? (
         <div className="mt-3">
-          <PesanKosong teks="No invoices or deposits yet." />
+          <PesanKosong teks="Belum ada tagihan atau penyetoran." />
         </div>
       ) : (
         <svg
           viewBox={`0 0 ${W} ${H}`}
           className="mt-4 w-full"
           role="img"
-          aria-label={`Monthly trend chart, ${seri === 'kontrak' ? 'contract value' : 'deposits'}`}
+          aria-label={`Grafik tren bulanan, ${seri === 'kontrak' ? 'nilai kontrak' : 'penyetoran'}`}
         >
           {[0, 0.5, 1].map((f) => (
             <g key={f}>
@@ -235,9 +235,7 @@ function GrafikTren({
         </svg>
       )}
       <p className="mt-2 text-xs text-[#0d2569]/60">
-        Contract value uses the invoice issue month (the month the PKS was
-        issued); deposits use the payment date (cash flow) — same as the
-        report reconciliation.
+        Nilai kontrak memakai bulan terbit tagihan (bulan PKS diterbitkan); penyetoran memakai tanggal bayar (arus kas), sama seperti rekonsiliasi laporan.
       </p>
     </Kartu>
   );
@@ -270,8 +268,8 @@ function warnaKategori(nama: string, indeks: number): string {
 }
 
 function labelPeriodeAnalytics(periode: string): string {
-  if (periode === '') return 'All Time';
-  if (periode.length === 4) return `Year ${periode}`;
+  if (periode === '') return 'Sepanjang waktu';
+  if (periode.length === 4) return `Tahun ${periode}`;
   return formatPeriode(periode);
 }
 
@@ -306,7 +304,7 @@ function DonatKategori({
         viewBox="0 0 180 180"
         className="h-44 w-44 shrink-0"
         role="img"
-        aria-label="Contract value by service category"
+        aria-label="Nilai kontrak per kategori layanan"
       >
         <circle
           cx="90"
@@ -333,7 +331,7 @@ function DonatKategori({
             className="cursor-pointer"
             onClick={() => onPilih(s.label)}
           >
-            <title>{`${labelKategoriLayanan(s.label)}: ${formatRupiah(s.nilai)} (${s.persen.toFixed(1)}%) — click to filter`}</title>
+            <title>{`${labelKategoriLayanan(s.label)}: ${formatRupiah(s.nilai)} (${s.persen.toFixed(1)}%), klik untuk menyaring`}</title>
           </circle>
         ))}
         <text
@@ -414,7 +412,7 @@ function GrafikBatang({
       viewBox={`0 0 ${W} ${H}`}
       className="mt-4 w-full"
       role="img"
-      aria-label="Bar chart"
+      aria-label="Grafik batang"
     >
       {[0, 0.5, 1].map((f) => (
         <g key={f}>
@@ -460,7 +458,7 @@ function GrafikBatang({
               className={onPilih ? 'cursor-pointer' : undefined}
               onClick={onPilih ? () => onPilih(kunci) : undefined}
             >
-              <title>{`${sumbu(b)}: ${formatRupiah(b.nilai)} (${formatAngka(b.jumlah)} contracts)${onPilih ? ' — click to filter' : ''}`}</title>
+              <title>{`${sumbu(b)}: ${formatRupiah(b.nilai)} (${formatAngka(b.jumlah)} kontrak)${onPilih ? ', klik untuk menyaring' : ''}`}</title>
             </rect>
             <text
               x={bx + bw / 2}
@@ -511,25 +509,25 @@ function GrafikTrenAnalytics({ titik }: { titik: TitikBulanan[] }) {
       <p className="mt-1 text-xs text-[#0d2569]/60">
         {periode.length > 0
           ? `${formatPeriode(periode[0])} – ${formatPeriode(periode[periode.length - 1])}`
-          : 'No data yet'}{' '}
+          : 'Belum ada data'}{' '}
         · Total {formatRupiah(total)}
         {idxTertinggi >= 0 && nilai[idxTertinggi] > 0 && (
           <>
-            {' · '}Highest {formatPeriode(periode[idxTertinggi])}{' '}
+            {' · '}Tertinggi {formatPeriode(periode[idxTertinggi])}{' '}
             {formatRupiah(nilai[idxTertinggi])}
           </>
         )}
       </p>
       {periode.length === 0 ? (
         <div className="mt-3">
-          <PesanKosong teks="No contract value in the selected filters." />
+          <PesanKosong teks="Tidak ada nilai kontrak pada filter yang dipilih." />
         </div>
       ) : (
         <svg
           viewBox={`0 0 ${W} ${H}`}
           className="mt-4 w-full"
           role="img"
-          aria-label="Filtered monthly contract value trend"
+          aria-label="Tren bulanan nilai kontrak yang difilter"
         >
           {[0, 0.5, 1].map((f) => (
             <g key={f}>
@@ -591,8 +589,7 @@ function GrafikTrenAnalytics({ titik }: { titik: TitikBulanan[] }) {
         </svg>
       )}
       <p className="mt-2 text-xs text-[#0d2569]/60">
-        Contract value uses the invoice issue month — same as the report
-        reconciliation.
+        Nilai kontrak memakai bulan terbit tagihan, sama seperti rekonsiliasi laporan.
       </p>
     </>
   );
@@ -625,19 +622,19 @@ function KartuAnalytics({ data }: { data: AppData }) {
       filter.kategori !== ''
         ? {
             kunci: 'kategori' as const,
-            label: `Category: ${labelKategoriLayanan(filter.kategori)}`,
+            label: `Kategori: ${labelKategoriLayanan(filter.kategori)}`,
           }
         : null,
       filter.satker !== ''
         ? {
             kunci: 'satker' as const,
-            label: `Region: ${opsi.satker.find((s) => s.kode === filter.satker)?.nama ?? filter.satker}`,
+            label: `Wilayah: ${opsi.satker.find((s) => s.kode === filter.satker)?.nama ?? filter.satker}`,
           }
         : null,
       filter.periode !== ''
         ? {
             kunci: 'periode' as const,
-            label: `Time Period: ${labelPeriodeAnalytics(filter.periode)}`,
+            label: `Periode: ${labelPeriodeAnalytics(filter.periode)}`,
           }
         : null,
     ] as ({ kunci: keyof FilterAnalytics; label: string } | null)[]
@@ -649,23 +646,21 @@ function KartuAnalytics({ data }: { data: AppData }) {
   return (
     <Kartu>
       <div>
-        <JudulBagian>Analytics — Cross-Filtering</JudulBagian>
+        <JudulBagian>Analitik penyaringan silang</JudulBagian>
         <p className="mt-1 text-xs text-[#0d2569]/60">
-          Filter by category, work unit, and time period — every KPI and
-          chart on this card follows the active filters. Click a donut
-          segment or a bar to filter by it.
+          Saring berdasarkan kategori, satuan kerja, dan periode. Setiap KPI dan grafik di kartu ini mengikuti filter yang aktif. Klik segmen donat atau batang untuk menyaring.
         </p>
       </div>
       <div className="mt-4 flex flex-wrap gap-3">
         <label className="flex flex-col gap-1 text-xs font-semibold text-[#0d2569]/70">
-          Category
+          Kategori
           <select
             value={filter.kategori}
             onChange={(e) => ubahFilter({ kategori: e.target.value })}
-            aria-label="Filter by category"
+            aria-label="Saring berdasarkan kategori"
             className="rounded-md border border-[#2573e2]/30 bg-white px-2 py-1 text-xs font-semibold text-[#0d2569]"
           >
-            <option value="">All Categories</option>
+            <option value="">Semua kategori</option>
             {opsi.kategori.map((k) => (
               <option key={k} value={k}>
                 {labelKategoriLayanan(k)}
@@ -674,14 +669,14 @@ function KartuAnalytics({ data }: { data: AppData }) {
           </select>
         </label>
         <label className="flex flex-col gap-1 text-xs font-semibold text-[#0d2569]/70">
-          Region
+          Wilayah
           <select
             value={filter.satker}
             onChange={(e) => ubahFilter({ satker: e.target.value })}
-            aria-label="Filter by work unit"
+            aria-label="Saring berdasarkan satuan kerja"
             className="rounded-md border border-[#2573e2]/30 bg-white px-2 py-1 text-xs font-semibold text-[#0d2569]"
           >
-            <option value="">All Work Units</option>
+            <option value="">Semua satuan kerja</option>
             {opsi.satker.map((s) => (
               <option key={s.kode} value={s.kode}>
                 {s.nama}
@@ -690,14 +685,14 @@ function KartuAnalytics({ data }: { data: AppData }) {
           </select>
         </label>
         <label className="flex flex-col gap-1 text-xs font-semibold text-[#0d2569]/70">
-          Time Period
+          Periode
           <select
             value={filter.periode}
             onChange={(e) => ubahFilter({ periode: e.target.value })}
-            aria-label="Filter by time period"
+            aria-label="Saring berdasarkan periode"
             className="rounded-md border border-[#2573e2]/30 bg-white px-2 py-1 text-xs font-semibold text-[#0d2569]"
           >
-            <option value="">All Time</option>
+            <option value="">Sepanjang waktu</option>
             {opsi.periode.map((p) => (
               <option key={p} value={p}>
                 {labelPeriodeAnalytics(p)}
@@ -709,14 +704,14 @@ function KartuAnalytics({ data }: { data: AppData }) {
       {filterAktif.length > 0 && (
         <div className="mt-3 flex flex-wrap items-center gap-2 text-xs">
           <span className="font-semibold text-[#0d2569]/70">
-            Active Selections:
+            Pilihan aktif:
           </span>
           {filterAktif.map((f) => (
             <button
               key={f.kunci}
               type="button"
               onClick={() => bersihkanFilter(f.kunci)}
-              aria-label={`Clear ${f.label}`}
+              aria-label={`Hapus ${f.label}`}
               className="rounded-full border border-[#2573e2]/30 bg-[#2573e2]/5 px-2 py-1 font-semibold text-[#0d2569]"
             >
               {f.label} ×
@@ -727,51 +722,50 @@ function KartuAnalytics({ data }: { data: AppData }) {
             onClick={() => setFilter(FILTER_ANALYTICS_KOSONG)}
             className="rounded-full bg-[#2573e2] px-2 py-1 font-semibold text-white"
           >
-            Clear All
+            Hapus semua
           </button>
         </div>
       )}
       <div className="mt-4 grid grid-cols-2 gap-3 lg:grid-cols-4">
         <StatCard
-          label="Contract value"
+          label="Nilai kontrak"
           nilai={formatRupiah(ringkasan.nilaiKontrak)}
-          keterangan={`${formatAngka(ringkasan.jumlahKontrak)} contracts · ${formatAngka(ringkasan.jumlahKlien)} clients`}
+          keterangan={`${formatAngka(ringkasan.jumlahKontrak)} kontrak · ${formatAngka(ringkasan.jumlahKlien)} klien`}
           ikon={<Handshake size={20} />}
         />
         <StatCard
-          label="Verified payments"
+          label="Pembayaran terverifikasi"
           nilai={formatRupiah(ringkasan.pembayaranTerverifikasi)}
-          keterangan={`${persen(ringkasan.pembayaranTerverifikasi, ringkasan.nilaiKontrak)} of contract value`}
+          keterangan={`${persen(ringkasan.pembayaranTerverifikasi, ringkasan.nilaiKontrak)} dari nilai kontrak`}
           ikon={<CheckCircle2 size={20} />}
         />
         <StatCard
-          label="Outstanding receivables"
+          label="Piutang"
           nilai={formatRupiah(ringkasan.sisaPiutang)}
-          keterangan={`${persen(ringkasan.sisaPiutang, ringkasan.nilaiKontrak)} of contract value`}
+          keterangan={`${persen(ringkasan.sisaPiutang, ringkasan.nilaiKontrak)} dari nilai kontrak`}
           ikon={<Clock size={20} />}
         />
         <StatCard
-          label="Contracts"
+          label="Kontrak"
           nilai={formatAngka(ringkasan.jumlahKontrak)}
-          keterangan={`${formatAngka(ringkasan.jumlahKlien)} clients`}
+          keterangan={`${formatAngka(ringkasan.jumlahKlien)} klien`}
           ikon={<FileText size={20} />}
         />
       </div>
       {ringkasan.jumlahKontrak === 0 ? (
         <div className="mt-4">
-          <PesanKosong teks="No contracts match the active filters." />
+          <PesanKosong teks="Tidak ada kontrak yang cocok dengan filter aktif." />
         </div>
       ) : (
         <div className="mt-4 grid gap-4 lg:grid-cols-2">
           <div className="rounded-lg border border-[#2573e2]/15 p-4">
-            <JudulBagian>Contract Value Trend</JudulBagian>
+            <JudulBagian>Tren nilai kontrak</JudulBagian>
             <GrafikTrenAnalytics titik={ringkasan.perBulan} />
           </div>
           <div className="rounded-lg border border-[#2573e2]/15 p-4">
-            <JudulBagian>Contract Value by Category</JudulBagian>
+            <JudulBagian>Nilai kontrak per kategori</JudulBagian>
             <p className="mt-1 text-xs text-[#0d2569]/60">
-              Click a segment or a legend row to filter by that category;
-              click again to clear.
+              Klik segmen atau baris legenda untuk menyaring berdasarkan kategori itu; klik lagi untuk menghapus filter.
             </p>
             <div className="mt-3">
               <DonatKategori
@@ -782,10 +776,9 @@ function KartuAnalytics({ data }: { data: AppData }) {
             </div>
           </div>
           <div className="rounded-lg border border-[#2573e2]/15 p-4">
-            <JudulBagian>Contract Value by Work Unit</JudulBagian>
+            <JudulBagian>Nilai kontrak per satuan kerja</JudulBagian>
             <p className="mt-1 text-xs text-[#0d2569]/60">
-              Only work units with data are shown. Click a bar to filter by
-              that work unit.
+              Hanya satuan kerja yang punya data yang ditampilkan. Klik batang untuk menyaring berdasarkan satuan kerja itu.
             </p>
             <GrafikBatang
               baris={ringkasan.perSatker}
@@ -795,9 +788,9 @@ function KartuAnalytics({ data }: { data: AppData }) {
             />
           </div>
           <div className="rounded-lg border border-[#2573e2]/15 p-4">
-            <JudulBagian>Contract Value by Year</JudulBagian>
+            <JudulBagian>Nilai kontrak per tahun</JudulBagian>
             <p className="mt-1 text-xs text-[#0d2569]/60">
-              Click a bar to filter by that year.
+              Klik batang untuk menyaring berdasarkan tahun itu.
             </p>
             <GrafikBatang
               baris={ringkasan.perTahun.map((t) => ({
@@ -813,19 +806,15 @@ function KartuAnalytics({ data }: { data: AppData }) {
         </div>
       )}
       <p className="mt-4 text-xs text-[#0d2569]/60">
-        Every figure on this card is computed from the same filtered
-        contracts, so the KPIs and all four charts always agree. The period
-        follows the contract signing date (or the start date when the signing
-        date is empty), the same basis as Employee Rank; the monthly trend
-        uses the invoice issue month, the same basis as the monthly reports.
+        Setiap angka di kartu ini dihitung dari kontrak yang sama setelah difilter, jadi KPI dan keempat grafik selalu cocok. Periode mengikuti tanggal kontrak ditandatangani (atau tanggal mulai bila tanggal tanda tangan kosong), sama seperti Peringkat karyawan; tren bulanan memakai bulan terbit tagihan, sama seperti laporan bulanan.
       </p>
     </Kartu>
   );
 }
 
 /**
- * Ranking Fase C (Q-09, Q-11): Employee Rank & Satker Rank — Leaderboard
- * of Year dan of The Month, toggle Tahun/Bulan. Metrik keduanya
+ * Ranking Fase C (Q-09, Q-11): Peringkat karyawan dan peringkat satker, papan
+ * peringkat tahunan dan bulanan, toggle Tahun/Bulan. Metrik keduanya
  * Σ nilaiKontrak; periode dari tanggal tanda tangan kontrak (fallback
  * tanggalMulai bila belum diisi — lihat derive.ts). Satker Rank sekaligus
  * Revenue Analytics nasional per satker pada periode yang sama.
@@ -853,9 +842,9 @@ function TabelRanking({
             <thead>
               <tr>
                 <Th>#</Th>
-                <Th>Name</Th>
-                <Th kanan>Contracts</Th>
-                <Th kanan>Contract value</Th>
+                <Th>Nama</Th>
+                <Th kanan>Kontrak</Th>
+                <Th kanan>Nilai kontrak</Th>
               </tr>
             </thead>
             <tbody>
@@ -896,7 +885,7 @@ function KartuRanking({ data, actions }: { data: AppData; actions: StoreActions 
       : (bulanTersedia[0] ?? hariIniIso().slice(0, 7));
   const periode = mode === 'tahun' ? tahun : bulan;
   const labelPeriode =
-    mode === 'tahun' ? `Year ${periode}` : formatPeriode(periode);
+    mode === 'tahun' ? `Tahun ${periode}` : formatPeriode(periode);
   const employee = rankingOperator(data, mode, periode);
   const satker = rankingSatker(data, mode, periode);
   const ringkasan = ringkasanPeriodeRanking(data, mode, periode);
@@ -946,21 +935,21 @@ function KartuRanking({ data, actions }: { data: AppData; actions: StoreActions 
         <div className="flex items-center gap-2">
           <Trophy size={18} className="text-[#2573e2]" />
           <div>
-            <JudulBagian>Ranking — Employee Rank &amp; Satker Rank</JudulBagian>
+            <JudulBagian>Peringkat karyawan dan satker</JudulBagian>
             <p className="mt-1 text-xs text-[#0d2569]/60">
-              Leaderboard {mode === 'tahun' ? 'of the Year' : 'of the Month'} ·{' '}
-              {labelPeriode} · Metric: value of closed contracts
+              Papan peringkat {mode === 'tahun' ? 'tahun ini' : 'bulan ini'} ·{' '}
+              {labelPeriode} · Metrik: nilai kontrak yang ditutup
             </p>
           </div>
         </div>
         <div className="flex flex-wrap items-center gap-2">
-          {tombolMode('tahun', 'Year')}
-          {tombolMode('bulan', 'Month')}
+          {tombolMode('tahun', 'Tahun')}
+          {tombolMode('bulan', 'Bulan')}
           {mode === 'tahun' ? (
             <select
               value={tahun}
               onChange={(e) => setTahunDipilih(e.target.value)}
-              aria-label="Choose year"
+              aria-label="Pilih tahun"
               className="rounded-md border border-[#2573e2]/30 bg-white px-2 py-1 text-xs font-semibold text-[#0d2569]"
             >
               {tahunTersedia.map((t) => (
@@ -973,7 +962,7 @@ function KartuRanking({ data, actions }: { data: AppData; actions: StoreActions 
             <select
               value={bulan}
               onChange={(e) => setBulanDipilih(e.target.value)}
-              aria-label="Choose month"
+              aria-label="Pilih bulan"
               className="rounded-md border border-[#2573e2]/30 bg-white px-2 py-1 text-xs font-semibold text-[#0d2569]"
             >
               {bulanTersedia.map((b) => (
@@ -987,40 +976,38 @@ function KartuRanking({ data, actions }: { data: AppData; actions: StoreActions 
       </div>
       <div className="mt-4 grid gap-6 md:grid-cols-2">
         <TabelRanking
-          judul="Employee Rank — contract value per person in charge"
+          judul="Peringkat karyawan: nilai kontrak per penanggung jawab"
           baris={employee}
-          teksKosong={`No contracts were closed in ${labelPeriode}.`}
+          teksKosong={`Tidak ada kontrak yang ditutup pada ${labelPeriode}.`}
         />
         <TabelRanking
-          judul="Satker Rank — national Revenue Analytics per satker"
+          judul="Peringkat satker: analitik pendapatan nasional per satker"
           baris={satker}
-          teksKosong={`No contracts were closed in ${labelPeriode}.`}
+          teksKosong={`Tidak ada kontrak yang ditutup pada ${labelPeriode}.`}
         />
       </div>
       <p className="mt-4 text-xs text-[#0d2569]/60">
-        The period is calculated from the date the contract was signed; if the
-        signing date is not filled in, the contract start date is used
+        Periode dihitung dari tanggal kontrak ditandatangani; bila tanggal tanda tangan belum diisi, tanggal mulai kontrak dipakai
         {ringkasan.jumlahKontrak > 0 &&
-          ` — in ${labelPeriode}, ${formatAngka(ringkasan.jumlahFallback)} of ${formatAngka(ringkasan.jumlahKontrak)} contracts use the start date.`}
+          ` Pada ${labelPeriode}, ${formatAngka(ringkasan.jumlahFallback)} dari ${formatAngka(ringkasan.jumlahKontrak)} kontrak memakai tanggal mulai.`}
       </p>
       <p className="mt-1 text-xs text-[#0d2569]/60">
-        Employee Rank only counts contracts that already have a closing
-        operator (Service staff who closed the contract)
+        Peringkat karyawan hanya menghitung kontrak yang sudah punya operator penutup (staf Layanan yang menutup kontrak)
         {ringkasan.jumlahTanpaOperator > 0 &&
-          ` — in ${labelPeriode}, ${formatAngka(ringkasan.jumlahTanpaOperator)} of ${formatAngka(ringkasan.jumlahKontrak)} contracts do not have a closing operator yet; assign one in the contract details (Deals → Contracts).`}
+          ` Pada ${labelPeriode}, ${formatAngka(ringkasan.jumlahTanpaOperator)} dari ${formatAngka(ringkasan.jumlahKontrak)} kontrak belum punya operator penutup; tetapkan di detail kontrak (Deals → Kontrak).`}
       </p>
       {(tanpaOperator.length > 0 || hasilAtribusi) && (
         <div className="mt-4 rounded-lg border border-[#2573e2]/30 bg-[#2573e2]/5 p-4">
           <h3 className="text-sm font-bold text-[#0d2569]">
-            Bulk Attribution (Random)
+            Atribusi massal (acak)
           </h3>
           {hasilAtribusi ? (
             <p className="mt-2 text-sm text-[#0d2569]">
-              Applied to {formatAngka(hasilAtribusi.diterapkan)} contracts:{' '}
+              Diterapkan ke {formatAngka(hasilAtribusi.diterapkan)} kontrak:{' '}
               {hasilAtribusi.perOperator
                 .map(
                   (p) =>
-                    `${p.operator} — ${formatAngka(p.jumlah)} contracts (${formatRupiah(p.nilai)})`,
+                    `${p.operator}: ${formatAngka(p.jumlah)} kontrak (${formatRupiah(p.nilai)})`,
                 )
                 .join('; ')}
               .
@@ -1028,21 +1015,14 @@ function KartuRanking({ data, actions }: { data: AppData; actions: StoreActions 
           ) : (
             <>
               <p className="mt-2 text-sm text-[#0d2569]/80">
-                Distribute the {OPERATOR_PALEMBANG.length} Palembang operators
-                randomly to the {formatAngka(tanpaOperator.length)} contracts
-                that do not have a closing operator yet. The split is even
-                (at most 1 contract apart per operator); the signing date is
-                filled with the start date when still empty. Contracts that
-                already have an operator are not changed. This distribution
-                is random as instructed — the ranking reflects this random
-                split, not actual closing performance.
+                Bagikan {OPERATOR_PALEMBANG.length} operator Palembang secara acak ke {formatAngka(tanpaOperator.length)} kontrak yang belum punya operator penutup. Pembagiannya merata (selisih paling banyak 1 kontrak per operator); tanggal tanda tangan diisi tanggal mulai bila masih kosong. Kontrak yang sudah punya operator tidak diubah. Pembagian ini acak sesuai instruksi. Peringkat mencerminkan pembagian acak ini, bukan kinerja penutupan yang sebenarnya.
               </p>
               <ul className="mt-3 space-y-1 text-sm text-[#0d2569]">
                 {pratinjau.map((p) => (
                   <li key={p.operator} className="flex justify-between gap-4">
                     <span>{p.operator}</span>
                     <span className="font-semibold">
-                      {formatAngka(p.jumlah)} contracts · {formatRupiah(p.nilai)}
+                      {formatAngka(p.jumlah)} kontrak · {formatRupiah(p.nilai)}
                     </span>
                   </li>
                 ))}
@@ -1055,15 +1035,14 @@ function KartuRanking({ data, actions }: { data: AppData; actions: StoreActions 
                 }}
                 className="mt-4 rounded-lg bg-[#2573e2] px-4 py-2 text-sm font-bold text-white hover:bg-[#0d2569]"
               >
-                Apply Random Distribution
+                Terapkan pembagian acak
               </button>
             </>
           )}
         </div>
       )}
       <p className="mt-1 text-xs text-[#0d2569]/60">
-        The national ranking only covers satker whose data is in the app
-        (currently PALEMBANG); satker without data are not shown.
+        Peringkat nasional hanya mencakup satker yang datanya ada di aplikasi (saat ini PALEMBANG); satker tanpa data tidak ditampilkan.
       </p>
     </Kartu>
   );
@@ -1092,9 +1071,9 @@ export default function Dashboard({ data, actions }: ModulProps) {
     .filter((t) => statusTagihan(t, data.pembayaran) === 'Lewat Jatuh Tempo')
     .forEach((t) => {
       perhatian.push({
-        kategori: 'Overdue invoice',
+        kategori: 'Tagihan lewat jatuh tempo',
         teks: `${t.nomor} — ${t.uraian}`,
-        detail: `Due ${formatTanggal(t.tanggalJatuhTempo)} · Balance ${formatRupiah(sisaTagihan(t, data.pembayaran))}`,
+        detail: `Jatuh tempo ${formatTanggal(t.tanggalJatuhTempo)} · Sisa ${formatRupiah(sisaTagihan(t, data.pembayaran))}`,
       });
     });
 
@@ -1102,9 +1081,9 @@ export default function Dashboard({ data, actions }: ModulProps) {
     .filter((d) => d.status === 'Belum Ada')
     .forEach((d) => {
       perhatian.push({
-        kategori: 'Missing document',
+        kategori: 'Dokumen belum ada',
         teks: `${labelJenisDokumen(d.jenisDokumen)} — ${d.kontrakId}`,
-        detail: d.catatan ?? 'Contract document has not been uploaded yet.',
+        detail: d.catatan ?? 'Dokumen kontrak belum diunggah.',
       });
     });
 
@@ -1112,9 +1091,9 @@ export default function Dashboard({ data, actions }: ModulProps) {
     .filter((p) => ['Masuk', 'Ditelaah', 'Menunggu Dokumen'].includes(p.tahap))
     .forEach((p) => {
       perhatian.push({
-        kategori: 'Submission needs follow-up',
+        kategori: 'Pengajuan perlu ditindaklanjuti',
         teks: `${p.id} — ${p.pemohon}`,
-        detail: `Stage: ${labelTahapPengajuan(p.tahap)} · Received ${formatTanggal(p.tanggalMasuk)}`,
+        detail: `Tahap: ${labelTahapPengajuan(p.tahap)} · Diterima ${formatTanggal(p.tanggalMasuk)}`,
       });
     });
 
@@ -1126,9 +1105,9 @@ export default function Dashboard({ data, actions }: ModulProps) {
     .forEach((s) => {
       const sisa = selisihHari(hariIni, s.tanggalSelesai);
       perhatian.push({
-        kategori: 'Lease expiring soon',
+        kategori: 'Sewa segera berakhir',
         teks: `${s.aset} — ${s.penyewaNama}`,
-        detail: `Ends ${formatTanggal(s.tanggalSelesai)} (${sisa} more days)`,
+        detail: `Berakhir ${formatTanggal(s.tanggalSelesai)} (${sisa} hari lagi)`,
       });
     });
 
@@ -1137,9 +1116,9 @@ export default function Dashboard({ data, actions }: ModulProps) {
   // pembayaran terverifikasi dan BUKAN selisih yang sebenarnya.
   if (data.penerimaanAcuan.length > 0 && total.selisihRekonsiliasi !== 0) {
     perhatian.push({
-      kategori: 'Reconciliation difference',
-      teks: `Difference of ${formatRupiah(total.selisihRekonsiliasi)} between Finance reference receipts and verified payments`,
-      detail: 'Receipts without invoices',
+      kategori: 'Selisih rekonsiliasi',
+      teks: `Selisih ${formatRupiah(total.selisihRekonsiliasi)} antara penerimaan acuan Keuangan dan pembayaran terverifikasi`,
+      detail: 'Penerimaan tanpa tagihan',
     });
   }
 
@@ -1150,46 +1129,44 @@ export default function Dashboard({ data, actions }: ModulProps) {
   return (
     <div className="space-y-6">
       <p className="text-sm text-[#0d2569]/70">
-        Period summary — Pilot satker PALEMBANG. All figures are calculated
-        from the real data imported from spreadsheets (14/11/2026), the same as
-        other modules; Fase B sample data remains labelled &quot;(Sample)&quot;.
+        Ringkasan periode: satker percontohan PALEMBANG. Semua angka dihitung dari data nyata yang diimpor dari spreadsheet (14/11/2026), sama seperti modul lain; data contoh Fase B tetap berlabel &quot;(Contoh)&quot;.
       </p>
 
       {/* (a) Kartu statistik — pola DashStack: label, angka besar, chip ikon,
           baris konteks faktual (bukan tren persen). */}
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-5">
         <StatCard
-          label="Active PKS"
+          label="PKS aktif"
           nilai={formatAngka(total.jumlahPks)}
-          keterangan={`of ${formatAngka(data.kontrak.length)} contracts`}
+          keterangan={`dari ${formatAngka(data.kontrak.length)} kontrak`}
           ikon={<FileText size={20} />}
         />
         <StatCard
-          label="Total contract value"
+          label="Total nilai kontrak"
           nilai={formatRupiah(total.nilaiKontrak)}
-          keterangan={`${formatAngka(data.kontrak.filter((k) => k.tanggalMulai.startsWith('2026')).length)} 2026 contracts · ${formatAngka(data.kontrak.filter((k) => k.tanggalMulai.startsWith('2025')).length)} remaining from 2025`}
+          keterangan={`${formatAngka(data.kontrak.filter((k) => k.tanggalMulai.startsWith('2026')).length)} kontrak 2026 · ${formatAngka(data.kontrak.filter((k) => k.tanggalMulai.startsWith('2025')).length)} sisanya dari 2025`}
           ikon={<Handshake size={20} />}
         />
         <StatCard
-          label="Verified payments"
+          label="Pembayaran terverifikasi"
           nilai={formatRupiah(total.totalPembayaranTerverifikasi)}
           keterangan={
             data.pembayaran.every((p) => p.statusVerifikasi === 'Terverifikasi')
-              ? `${formatAngka(data.pembayaran.length)} payments · all Verified`
-              : `${formatAngka(data.pembayaran.filter((p) => p.statusVerifikasi === 'Terverifikasi').length)} of ${formatAngka(data.pembayaran.length)} payments Verified`
+              ? `${formatAngka(data.pembayaran.length)} pembayaran · semua terverifikasi`
+              : `${formatAngka(data.pembayaran.filter((p) => p.statusVerifikasi === 'Terverifikasi').length)} dari ${formatAngka(data.pembayaran.length)} pembayaran terverifikasi`
           }
           ikon={<CheckCircle2 size={20} />}
         />
         <StatCard
-          label="Outstanding receivables"
+          label="Piutang"
           nilai={formatRupiah(total.sisaPiutang)}
-          keterangan={`${formatAngka(data.tagihan.filter((t) => sisaTagihan(t, data.pembayaran) > 0).length)} invoices with a balance`}
+          keterangan={`${formatAngka(data.tagihan.filter((t) => sisaTagihan(t, data.pembayaran) > 0).length)} tagihan bersisa`}
           ikon={<Clock size={20} />}
         />
         <StatCard
-          label="Recorded late fees"
+          label="Denda keterlambatan tercatat"
           nilai={formatRupiah(total.totalDenda)}
-          keterangan={`${formatAngka(data.denda.length)} late fees · account code 425839`}
+          keterangan={`${formatAngka(data.denda.length)} denda · kode akun 425839`}
           ikon={<Receipt size={20} />}
         />
       </div>
@@ -1208,11 +1185,11 @@ export default function Dashboard({ data, actions }: ModulProps) {
 
       {/* (b) Deadline laporan kantor pusat */}
       <Kartu>
-        <JudulBagian>Head office report deadline</JudulBagian>
+        <JudulBagian>Tenggat laporan kantor pusat</JudulBagian>
         <div className="mt-3 grid gap-3 sm:grid-cols-2">
           <div className="rounded-md border border-[#2573e2]/20 bg-[#2573e2]/5 p-4">
             <p className="text-xs font-semibold text-[#0d2569]/70">
-              Report filling deadline
+              Tenggat pengisian laporan
             </p>
             <p className="mt-1 text-lg font-bold text-[#0d2569]">
               {formatTanggal(batasIsi)}
@@ -1223,7 +1200,7 @@ export default function Dashboard({ data, actions }: ModulProps) {
           </div>
           <div className="rounded-md border border-[#2573e2]/20 bg-[#2573e2]/5 p-4">
             <p className="text-xs font-semibold text-[#0d2569]/70">
-              File submission deadline to head office
+              Tenggat pengumpulan berkas ke kantor pusat
             </p>
             <p className="mt-1 text-lg font-bold text-[#0d2569]">
               {formatTanggal(batasKumpul)}
@@ -1237,10 +1214,10 @@ export default function Dashboard({ data, actions }: ModulProps) {
 
       {/* (c) Perlu perhatian */}
       <Kartu>
-        <JudulBagian>Needs attention</JudulBagian>
+        <JudulBagian>Perlu perhatian</JudulBagian>
         {perhatian.length === 0 ? (
           <div className="mt-3">
-            <PesanKosong teks="Nothing needs attention right now." />
+            <PesanKosong teks="Tidak ada yang perlu diperhatikan saat ini." />
           </div>
         ) : (
           <ul className="mt-3 space-y-3">
@@ -1261,21 +1238,21 @@ export default function Dashboard({ data, actions }: ModulProps) {
 
       {/* (d) Ringkasan per kode akun */}
       <Kartu>
-        <JudulBagian>Summary per account code</JudulBagian>
+        <JudulBagian>Ringkasan per kode akun</JudulBagian>
         {perKodeAkun.length === 0 ? (
           <div className="mt-3">
-            <PesanKosong teks="No invoices or reference receipts yet." />
+            <PesanKosong teks="Belum ada tagihan atau penerimaan acuan." />
           </div>
         ) : (
           <Tabel>
             <thead>
               <tr>
-                <Th>Account Code</Th>
-                <Th>Description</Th>
-                <Th kanan>Invoices</Th>
-                <Th kanan>Payments</Th>
-                <Th kanan>Finance Reference</Th>
-                <Th kanan>Difference</Th>
+                <Th>Kode akun</Th>
+                <Th>Uraian</Th>
+                <Th kanan>Tagihan</Th>
+                <Th kanan>Pembayaran</Th>
+                <Th kanan>Acuan Keuangan</Th>
+                <Th kanan>Selisih</Th>
               </tr>
             </thead>
             <tbody>
@@ -1296,10 +1273,10 @@ export default function Dashboard({ data, actions }: ModulProps) {
 
       {/* (e) Aktivitas terakhir */}
       <Kartu>
-        <JudulBagian>Recent activity</JudulBagian>
+        <JudulBagian>Aktivitas terakhir</JudulBagian>
         {aktivitasTerakhir.length === 0 ? (
           <div className="mt-3">
-            <PesanKosong teks="No activity recorded yet." />
+            <PesanKosong teks="Belum ada aktivitas yang tercatat." />
           </div>
         ) : (
           <ul className="mt-3 space-y-3">
@@ -1307,7 +1284,7 @@ export default function Dashboard({ data, actions }: ModulProps) {
               <ItemDaftar key={a.id} className="text-sm">
                 <p className="font-semibold text-[#0d2569]">{labelAksiAudit(a.aksi)}</p>
                 <p className="mt-0.5 text-xs text-[#0d2569]/70">
-                  {formatWaktuAudit(a.waktu)} · {a.pengguna.replace('(Contoh)', '(Sample)')} · {labelEntitasAudit(a.entitas)}{' '}
+                  {formatWaktuAudit(a.waktu)} · {a.pengguna} · {labelEntitasAudit(a.entitas)}{' '}
                   {a.entitasId}
                 </p>
               </ItemDaftar>
