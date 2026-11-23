@@ -828,8 +828,7 @@ export function TabKontrak({
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-wrap items-center justify-between gap-2">
-        <JudulBagian>Kontrak / PKS</JudulBagian>
+      <div className="flex flex-wrap items-center justify-end gap-2">
         {bolehTambah && (
           <TombolUtama onClick={() => onTampilForm(true)}>
             + Tambah kontrak
@@ -912,6 +911,8 @@ export function TabKontrak({
             <option value="Upcoming">Akan datang</option>
           </select>
         </div>
+      </div>
+      <div className="flex flex-wrap gap-4">
         <div>
           <Label>Urutkan</Label>
           <select
@@ -919,7 +920,7 @@ export function TabKontrak({
             value={urutKunci}
             onChange={(e) => onUrutKunci(e.target.value as KunciUrutKontrak)}
           >
-            <option value="tandaTangan">Tanggal tanda tangan</option>
+            <option value="tandaTangan">Tanggal Penandatanganan</option>
             <option value="selesai">Tanggal selesai</option>
             <option value="nilai">Nilai kontrak</option>
             <option value="sisaHari">Sisa hari</option>
@@ -934,6 +935,24 @@ export function TabKontrak({
             {labelArahUrutKontrak(urutKunci, urutArah)}
           </TombolSekunder>
         </div>
+        {/*
+          Tampilan ramping (perbaikan tabel Contract, keputusan pengguna
+          19/11/2026 16:19 WIB): bila aktif, tiap cluster hanya
+          menampilkan kolom-kolom default (10 kolom); bila nonaktif,
+          semua kolom cluster yang tampil kembali. Dipindah ke baris
+          filter bawah, di kanan Urutan (23/11/2026).
+        */}
+        <div className="flex items-end pb-2">
+          <label className="flex cursor-pointer items-center gap-1.5 font-semibold text-[#0d2569]">
+            <input
+              type="checkbox"
+              checked={tampilanRamping}
+              onChange={toggleTampilanRamping}
+              aria-label="Tampilan ramping: hanya tampilkan 10 kolom bawaan"
+            />
+            Tampilan ramping
+          </label>
+        </div>
       </div>
 
       {tampilForm && (
@@ -947,33 +966,15 @@ export function TabKontrak({
 
       {/*
         Kotak centang hide/show cluster kolom (keputusan pengguna
-        17/11/2026 11:41 WIB; label bar "View" + nama Cluster 1
-        "Description" per keputusan pengguna 17/11/2026 12:20 WIB).
-        Cluster 1 "Description" selalu tampil — centangnya nonaktif.
+        17/11/2026 11:41 WIB). Cluster 1 "Description" selalu tampil
+        sehingga centangnya tidak ditampilkan di bar ini (23/11/2026).
         Default: semua cluster tampil.
       */}
       <div className="flex flex-wrap items-center gap-x-4 gap-y-2 rounded-lg border border-[#2573e2]/20 bg-white px-3 py-2 text-sm">
         <span className="font-semibold text-[#0d2569]">
-          Tampilan
+          Detail
         </span>
-        {/*
-          Tampilan ramping (perbaikan tabel Contract, keputusan pengguna
-          19/11/2026 16:19 WIB): bila aktif, tiap cluster hanya
-          menampilkan kolom-kolom default (10 kolom); bila nonaktif,
-          semua kolom cluster yang tampil kembali. Centang cluster di
-          bawah tetap berfungsi seperti sebelumnya (sembunyikan/
-          tampilkan cluster utuh) di kedua mode.
-        */}
-        <label className="flex cursor-pointer items-center gap-1.5 font-semibold text-[#0d2569]">
-          <input
-            type="checkbox"
-            checked={tampilanRamping}
-            onChange={toggleTampilanRamping}
-            aria-label="Tampilan ramping: hanya tampilkan 10 kolom bawaan"
-          />
-          Tampilan ramping
-        </label>
-        {CLUSTER_KONTRAK.map((c) => (
+        {CLUSTER_KONTRAK.filter((c) => !c.selaluTampil).map((c) => (
           <label
             key={c.id}
             className={`flex cursor-pointer items-center gap-1.5 text-[#0d2569] ${c.selaluTampil ? 'opacity-70' : ''}`}
@@ -1026,7 +1027,7 @@ export function TabKontrak({
                     )}
                     {tampilKolom('judul') && <Th>Judul kontrak</Th>}
                     {tampilKolom('tanggalTandaTangan') && (
-                      <Th>Tanggal tanda tangan</Th>
+                      <Th>Tanggal Penandatanganan</Th>
                     )}
                     {tampilKolom('owner') && <Th>Operator penutup</Th>}
                   </>
@@ -1605,7 +1606,7 @@ function DetailKontrak({
             </dd>
           </div>
           <div className="flex justify-between gap-4">
-            <dt className="text-[#0d2569]/60">Tanggal tanda tangan</dt>
+            <dt className="text-[#0d2569]/60">Tanggal Penandatanganan</dt>
             <dd className="text-[#0d2569]">
               {kontrak.tanggalTandaTangan
                 ? formatTanggal(kontrak.tanggalTandaTangan)
@@ -1694,7 +1695,7 @@ function DetailKontrak({
             />
           </div>
           <div>
-            <Label>Tanggal tanda tangan</Label>
+            <Label>Tanggal Penandatanganan</Label>
             <input
               className={inputClass}
               type="date"
@@ -2362,7 +2363,7 @@ function FormKontrak({
           />
         </div>
         <div>
-          <Label>Tanggal tanda tangan</Label>
+          <Label>Tanggal Penandatanganan</Label>
           <input
             className={inputClass}
             type="date"
