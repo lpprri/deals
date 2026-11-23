@@ -956,26 +956,26 @@ function Proses() {
    tidak ada. Karena tengah tiap teks BERGESER saat baris melebar,
    geser kartu pun ada dua versi: TUTUP (4 label, wadah max-w-3xl)
    dan BUKA (6 label, wadah max-w-5xl). Nilai dari tengah teks yang
-   terukur di layar 1485px (TUTUP) dan dari model justify-between
-   (BUKA); pemeriksa preview mengukur ulang dan nilainya disetel
-   bila meleset. Kartu tetap max-w-xl (ukuran semula). Garis
+   terukur di preview (cek 2026-11-23: TUTUP -319/-140/+31/+191,
+   BUKA -447/-277/-114/+37/+175/+324); pemeriksa preview mengukur
+   ulang dan nilainya disetel bila meleset. Kartu tetap max-w-xl (ukuran semula). Garis
    putus-putus (mk-garis-funnel) ikut bergeser karena berada di dalam
    pembungkus yang sama, sehingga garis itu tepat menandai tengah
    teks. Geser hanya di lebar 1470px ke atas — di bawah itu kartu
    terpusat biasa supaya tidak terpotong di layar sempit. */
 const OFFSET_KARTU_TUTUP = [
-  'min-[1470px]:-translate-x-[329px]',
-  'min-[1470px]:-translate-x-[157px]',
-  'min-[1470px]:translate-x-[13px]',
-  'min-[1470px]:translate-x-[176px]',
+  'min-[1470px]:-translate-x-[319px]',
+  'min-[1470px]:-translate-x-[140px]',
+  'min-[1470px]:translate-x-[31px]',
+  'min-[1470px]:translate-x-[191px]',
 ];
 const OFFSET_KARTU_BUKA = [
   'min-[1470px]:-translate-x-[447px]',
   'min-[1470px]:-translate-x-[277px]',
   'min-[1470px]:-translate-x-[114px]',
-  'min-[1470px]:translate-x-[42px]',
-  'min-[1470px]:translate-x-[186px]',
-  'min-[1470px]:translate-x-[337px]',
+  'min-[1470px]:translate-x-[37px]',
+  'min-[1470px]:translate-x-[175px]',
+  'min-[1470px]:translate-x-[324px]',
 ];
 
 /** Keenam kotak layanan BISA DI-KLIK (permintaan pengguna 2026-11-19

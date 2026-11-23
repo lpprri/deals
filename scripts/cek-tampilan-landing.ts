@@ -643,16 +643,16 @@ cek(
       blokLayanan.includes('transition-[max-width] duration-500 ease-in-out') &&
       marklo.includes('const OFFSET_KARTU_TUTUP = [') &&
       marklo.includes('const OFFSET_KARTU_BUKA = [') &&
-      marklo.includes("'min-[1470px]:-translate-x-[329px]'") &&
-      marklo.includes("'min-[1470px]:-translate-x-[157px]'") &&
-      marklo.includes("'min-[1470px]:translate-x-[13px]'") &&
-      marklo.includes("'min-[1470px]:translate-x-[176px]'") &&
+      marklo.includes("'min-[1470px]:-translate-x-[319px]'") &&
+      marklo.includes("'min-[1470px]:-translate-x-[140px]'") &&
+      marklo.includes("'min-[1470px]:translate-x-[31px]'") &&
+      marklo.includes("'min-[1470px]:translate-x-[191px]'") &&
       marklo.includes("'min-[1470px]:-translate-x-[447px]'") &&
       marklo.includes("'min-[1470px]:-translate-x-[277px]'") &&
       marklo.includes("'min-[1470px]:-translate-x-[114px]'") &&
-      marklo.includes("'min-[1470px]:translate-x-[42px]'") &&
-      marklo.includes("'min-[1470px]:translate-x-[186px]'") &&
-      marklo.includes("'min-[1470px]:translate-x-[337px]'") &&
+      marklo.includes("'min-[1470px]:translate-x-[37px]'") &&
+      marklo.includes("'min-[1470px]:translate-x-[175px]'") &&
+      marklo.includes("'min-[1470px]:translate-x-[324px]'") &&
       blokLayanan.includes('OFFSET_KARTU_BUKA : OFFSET_KARTU_TUTUP') &&
       blokLayanan.includes('transition duration-500 ease-in-out') &&
       blokLayanan.includes('mx-auto mt-6 max-w-3xl text-left') &&
