@@ -508,22 +508,26 @@ cek(
     dataMarklo.includes("judul: 'Reporting & Maximize Profit'"),
 );
 
-// --- 9. Services (4 layanan RRI). ---
+// --- 9. Services (6 layanan RRI). ---
 cek(
-  'Services: pill "Services" + heading multi-platform + 4 layanan (Radio/Social Media/Digital Platform/Dialogue & Podcast)',
+  'Services: pill "Services" + heading multi-platform + 6 layanan (Radio/Social Media/Digital Platform/Dialogue & Podcast/MICE Venues/Commercial Spaces)',
   marklo.includes('<LabelPill>Services</LabelPill>') &&
     marklo.includes('Multi-platform marketing for predictable, lasting growth.') &&
     dataMarklo.includes("nama: 'Radio Ads'") &&
     dataMarklo.includes("nama: 'Social Media Ads'") &&
     dataMarklo.includes("nama: 'Digital Platform Ads'") &&
-    dataMarklo.includes("nama: 'Dialogue & Podcast'"),
+    dataMarklo.includes("nama: 'Dialogue & Podcast'") &&
+    dataMarklo.includes("nama: 'MICE Venues'") &&
+    dataMarklo.includes("nama: 'Commercial Spaces'"),
 );
 cek(
-  'Services: label langkah template dipetakan ke layanan RRI (Attract→Radio, Engage→Social, Convert→Digital, Retain→Dialogue)',
+  'Services: label langkah template dipetakan ke layanan RRI (Attract→Radio, Engage→Social, Convert→Digital, Retain→Dialogue, Held Events→MICE Venues, Expand Business→Commercial Spaces)',
   dataMarklo.includes("langkah: 'Attract Customer'") &&
     dataMarklo.includes("langkah: 'Engage Prospect'") &&
     dataMarklo.includes("langkah: 'Convert Clients'") &&
     dataMarklo.includes("langkah: 'Retain Clients'") &&
+    dataMarklo.includes("langkah: 'Held Events'") &&
+    dataMarklo.includes("langkah: 'Expand Business'") &&
     marklo.includes('layanan.langkah'),
 );
 cek(
@@ -538,18 +542,18 @@ cek(
     marklo.includes('window.setTimeout(() => setSorot(null), 1600)'),
 );
 cek(
-  'Services: tombol "See More" di ujung kanan baris label — ditekan menampilkan "Held Events" & "Expand Business" sebagai teks (bukan tombol, belum ada kartu layanan), tekan lagi jadi "See Less"; saat diperluas keenam label melebar proporsional dalam satu baris di desktop (max-w-5xl + lg:flex-nowrap, perintah pengguna 2026-11-23)',
+  'Services: tombol "See More" di ujung kanan baris label — ditekan menampilkan label "Held Events" & "Expand Business" sebagai tombol penuh (kartu MICE Venues + Commercial Spaces, perintah pengguna 2026-11-23), tekan lagi jadi "See Less"; saat diperluas keenam label melebar proporsional dalam satu baris di desktop (max-w-5xl + lg:flex-nowrap)',
   marklo.includes('const [lihatLebih, setLihatLebih] = useState(false)') &&
     marklo.includes('See More') &&
     marklo.includes('See Less') &&
-    marklo.includes('Held Events') &&
-    marklo.includes('Expand Business') &&
+    dataMarklo.includes("langkah: 'Held Events'") &&
+    dataMarklo.includes("langkah: 'Expand Business'") &&
     marklo.includes('aria-expanded={lihatLebih}') &&
-    marklo.includes('{lihatLebih && (') &&
+    marklo.includes('i < 4 || lihatLebih') &&
     marklo.includes("max-w-5xl lg:flex-nowrap"),
 );
 cek(
-  'Services: keempat kotak layanan BISA DI-KLIK → halaman "Plan a Campaign" (permintaan pengguna 2026-11-19 08:54 WIB) — article role="button" + keyboard (Enter/Spasi) + kursor pointer + hover naik; label langkah (PR #91) tetap scroll',
+  'Services: keenam kotak layanan BISA DI-KLIK → halaman "Plan a Campaign" (permintaan pengguna 2026-11-19 08:54 WIB) — article role="button" + keyboard (Enter/Spasi) + kursor pointer + hover naik; label langkah (PR #91) tetap scroll',
   (() => {
     const blokLayanan = marklo.slice(
       marklo.indexOf('function Layanan('),
@@ -594,11 +598,13 @@ cek(
     !marklo.includes('rounded-lg bg-white px-1.5 py-1 shadow-sm ring-1 ring-slate-200/70'),
 );
 cek(
-  'Services: keempat deskripsi layanan ada + teks funnel lama hilang (tag/Step/35X)',
+  'Services: keenam deskripsi layanan ada + teks funnel lama hilang (tag/Step/35X)',
   dataMarklo.includes("Prime-time spots and adlibs broadcast across 67 cities") &&
     dataMarklo.includes('Thumb-stopping creative built for the feed') &&
     dataMarklo.includes("Your brand across RRI's digital platforms") &&
     dataMarklo.includes('Interactive dialogues and podcasts that give your story room to breathe') &&
+    dataMarklo.includes('Auditoriums, halls, and meeting rooms in RRI stations across Indonesia') &&
+    dataMarklo.includes('Land owned by RRI, open for your business') &&
     !dataMarklo.includes("layanan: 'Meta Ads'") &&
     !dataMarklo.includes("layanan: 'Google Ads'") &&
     !dataMarklo.includes("layanan: 'Viral TikTok Ads'") &&
@@ -608,8 +614,10 @@ cek(
     !marklo.includes('Client Growth'),
 );
 cek(
-  'Services: susunan tangga diagonal + garis penghubung beranimasi + kartu melayang (gaya template)',
-  marklo.includes('OFFSET_FUNNEL') &&
+  'Services: kartu terpusat di tengah di bawah baris label + garis penghubung beranimasi di tengah + kartu melayang (tangga diagonal OFFSET_FUNNEL dihapus atas perintah pengguna 2026-11-23: kartu tidak lagi bergeser saat See More ditekan)',
+  !marklo.includes('OFFSET_FUNNEL') &&
+    marklo.includes('mx-auto max-w-xl') &&
+    marklo.includes('flex justify-center') &&
     marklo.includes('mk-layang') &&
     marklo.includes('mk-garis-funnel') &&
     css.includes('@keyframes mk-layang') &&
@@ -631,6 +639,8 @@ cek(
     layananData.includes("gradien: 'from-sky-100 to-blue-50'") &&
     layananData.includes("gradien: 'from-violet-100 to-purple-50'") &&
     layananData.includes("gradien: 'from-emerald-100 to-teal-50'") &&
+    layananData.includes("gradien: 'from-amber-100 to-yellow-50'") &&
+    layananData.includes("gradien: 'from-cyan-100 to-sky-50'") &&
     !layananData.includes("gradien: 'from-rose-100 to-pink-50'") &&
     !layananData.includes("gradien: 'from-rose-200 to-pink-100'") &&
     !layananData.includes("gradien: 'from-sky-200 to-blue-100'") &&
@@ -640,7 +650,8 @@ cek(
 cek(
   'Services: ukuran + warna dekat template — kartu lebih sempit (max-w-xl), padding lebih lega, judul lebih besar, latar putih, label pertama biru RRI (PR oren-ke-biru)',
   marklo.includes('<section id="services" className="bg-white py-16 sm:py-20">') &&
-    marklo.includes('max-w-xl rounded-[20px]') &&
+    marklo.includes('mx-auto max-w-xl') &&
+    marklo.includes('rounded-[20px]') &&
     marklo.includes('p-7 shadow-md') &&
     marklo.includes('sm:p-8') &&
     marklo.includes('<h3 className="text-2xl font-extrabold text-black">') &&

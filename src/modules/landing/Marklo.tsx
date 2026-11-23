@@ -945,11 +945,9 @@ function Proses() {
   );
 }
 
-/* ================= Services (4 layanan RRI) ================= */
+/* ================= Services (6 layanan RRI) ================= */
 
-const OFFSET_FUNNEL = ['', 'sm:pl-10', 'sm:pl-20', 'sm:pl-32'];
-
-/** Keempat kotak layanan BISA DI-KLIK (permintaan pengguna 2026-11-19
+/** Keenam kotak layanan BISA DI-KLIK (permintaan pengguna 2026-11-19
     08:54 WIB): klik membuka halaman "Plan a Campaign" (form Tally
     embed) lewat prop onPlanCampaign (pola onLacak). Kartu memakai
     role="button" + tabIndex + onKeyDown (Enter/Spasi) supaya bisa
@@ -995,32 +993,20 @@ function Layanan({ onPlanCampaign }: { onPlanCampaign: () => void }) {
             lihatLebih ? 'max-w-5xl lg:flex-nowrap' : 'max-w-3xl'
           }`}
         >
-          {LAYANAN_MARKLO.map((layanan, i) => (
-            <button
-              key={layanan.nama}
-              type="button"
-              onClick={() => pilihLayanan(i)}
-              aria-label={`View ${layanan.nama} service`}
-              className={`cursor-pointer text-sm font-medium focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-mk-aksen sm:text-base ${
-                i === 0 ? 'text-[#2573e2]' : 'text-slate-400'
-              }`}
-            >
-              {layanan.langkah}
-            </button>
-          ))}
-          {/* Label tambahan (perintah pengguna 2026-11-23): "Held Events" &
-              "Expand Business" hanya tampil saat "See More" ditekan —
-              masih berupa teks (bukan tombol), karena keduanya belum
-              punya kartu layanan (tanpa deskripsi/logo). */}
-          {lihatLebih && (
-            <>
-              <span className="text-sm font-medium text-slate-400 sm:text-base">
-                Held Events
-              </span>
-              <span className="text-sm font-medium text-slate-400 sm:text-base">
-                Expand Business
-              </span>
-            </>
+          {LAYANAN_MARKLO.map((layanan, i) =>
+            i < 4 || lihatLebih ? (
+              <button
+                key={layanan.nama}
+                type="button"
+                onClick={() => pilihLayanan(i)}
+                aria-label={`View ${layanan.nama} service`}
+                className={`cursor-pointer text-sm font-medium focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-mk-aksen sm:text-base ${
+                  i === 0 ? 'text-[#2573e2]' : 'text-slate-400'
+                }`}
+              >
+                {layanan.langkah}
+              </button>
+            ) : null,
           )}
           <button
             type="button"
@@ -1037,9 +1023,14 @@ function Layanan({ onPlanCampaign }: { onPlanCampaign: () => void }) {
         </div>
         <div className="mx-auto mt-6 max-w-3xl text-left">
           {LAYANAN_MARKLO.map((layanan, i) => (
+            // Kartu di tengah (perintah pengguna 2026-11-23): susunan tangga
+            // diagonal template dihapus — kartu tidak lagi
+            // bergeser ke kanan per baris, melainkan terpusat di tengah di
+            // bawah baris label, supaya saat "See More" ditekan dan teks
+            // melebar, kartu tetap di tengah teks yang terkait.
             <div
               key={layanan.nama}
-              className={`mk-layang ${OFFSET_FUNNEL[i]}`}
+              className="mk-layang"
               style={{ animationDelay: `${i * 1.2}s` }}
             >
               {/* Reveal dalam (PR #93): kartu benar-benar tersembunyi
@@ -1065,7 +1056,7 @@ function Layanan({ onPlanCampaign }: { onPlanCampaign: () => void }) {
                       onPlanCampaign();
                     }
                   }}
-                  className={`scroll-mt-24 max-w-xl cursor-pointer rounded-[20px] bg-gradient-to-br ${layanan.gradien} p-7 shadow-md transition hover:-translate-y-1 hover:shadow-lg focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-mk-aksen sm:p-8 ${
+                  className={`scroll-mt-24 mx-auto max-w-xl cursor-pointer rounded-[20px] bg-gradient-to-br ${layanan.gradien} p-7 shadow-md transition hover:-translate-y-1 hover:shadow-lg focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-mk-aksen sm:p-8 ${
                     sorot === i ? 'ring-2 ring-mk-aksen' : 'ring-1 ring-white'
                   }`}
                 >
@@ -1093,10 +1084,7 @@ function Layanan({ onPlanCampaign }: { onPlanCampaign: () => void }) {
                 </article>
               </Reveal>
               {i < LAYANAN_MARKLO.length - 1 && (
-                <div
-                  className={OFFSET_FUNNEL[i + 1]}
-                  aria-hidden="true"
-                >
+                <div className="flex justify-center" aria-hidden="true">
                   <div className="mk-garis-funnel h-8 w-0.5" />
                 </div>
               )}
