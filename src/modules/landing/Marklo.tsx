@@ -289,7 +289,7 @@ export default function MarkloLanding({ onLogin, pengguna, onLogout, onBukaModul
         <Pernyataan />
         <Statistik />
         <Proses />
-        <Layanan onPlanCampaign={onPlanCampaign} />
+        <Layanan onPlanCampaign={onPlanCampaign} onBookVenue={onBookVenue} onRentSpace={onRentSpace} />
         <Perbandingan />
         <MengapaMarketing />
         <BookingKonsultasi onKirimBooking={onKirimBooking} />
@@ -687,8 +687,8 @@ function Hero() {
           <div className="mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row sm:gap-4">
             <span className="flex -space-x-2">
               {[
-                { inisial: 'GR', gradien: 'from-blue-400 to-sky-300' },
-                { inisial: 'SM', gradien: 'from-sky-400 to-blue-300' },
+                { inisial: 'GR', gradien: 'from-mk-aksen to-mk-aksen-gelap' },
+                { inisial: 'SM', gradien: 'from-mk-aksen to-mk-aksen-gelap' },
                 { inisial: 'PK', gradien: 'from-violet-400 to-purple-300' },
                 { inisial: 'DL', gradien: 'from-emerald-400 to-teal-300' },
               ].map((a) => (
@@ -886,7 +886,7 @@ function StatItem({
               <span
                 key={inisial}
                 className={`flex h-6 w-6 items-center justify-center rounded-full text-[9px] font-bold text-white ring-2 ring-white ${
-                  ['bg-blue-400', 'bg-sky-400', 'bg-violet-400'][i]
+                  ['bg-mk-aksen', 'bg-mk-aksen', 'bg-violet-400'][i]
                 }`}
                 aria-hidden="true"
               >
@@ -945,18 +945,50 @@ function Proses() {
   );
 }
 
-/* ================= Services (4 layanan RRI) ================= */
+/* ================= Services (6 layanan RRI) ================= */
 
-const OFFSET_FUNNEL = ['', 'sm:pl-10', 'sm:pl-20', 'sm:pl-32'];
+/* Geser horizontal tiap kartu layanan ke tengah teks langkahnya
+   (perintah pengguna 2026-11-23: "letakkan kartu ditengah sejajar
+   dengan teks masing masing" + "gunakan garis putus putus itu sebagai
+   tanda tengah teks"). Baris label memakai justify-between, jadi jarak
+   antar teks rata dan baris merapat proporsional saat "See More"
+   belum ditekan — seolah teks "Held Events" / "Expand Business"
+   tidak ada. Karena tengah tiap teks BERGESER saat baris melebar,
+   geser kartu pun ada dua versi: TUTUP (4 label, wadah max-w-3xl)
+   dan BUKA (6 label, wadah max-w-5xl). Nilai dari tengah teks yang
+   terukur di preview (cek 2026-11-23: TUTUP -319/-140/+31/+191,
+   BUKA -447/-277/-114/+37/+175/+324); pemeriksa preview mengukur
+   ulang dan nilainya disetel bila meleset. Kartu tetap max-w-xl (ukuran semula). Garis
+   putus-putus (mk-garis-funnel) ikut bergeser karena berada di dalam
+   pembungkus yang sama, sehingga garis itu tepat menandai tengah
+   teks. Geser hanya di lebar 1470px ke atas — di bawah itu kartu
+   terpusat biasa supaya tidak terpotong di layar sempit. */
+const OFFSET_KARTU_TUTUP = [
+  'min-[1470px]:-translate-x-[319px]',
+  'min-[1470px]:-translate-x-[140px]',
+  'min-[1470px]:translate-x-[31px]',
+  'min-[1470px]:translate-x-[191px]',
+];
+const OFFSET_KARTU_BUKA = [
+  'min-[1470px]:-translate-x-[447px]',
+  'min-[1470px]:-translate-x-[277px]',
+  'min-[1470px]:-translate-x-[114px]',
+  'min-[1470px]:translate-x-[37px]',
+  'min-[1470px]:translate-x-[175px]',
+  'min-[1470px]:translate-x-[324px]',
+];
 
-/** Keempat kotak layanan BISA DI-KLIK (permintaan pengguna 2026-11-19
-    08:54 WIB): klik membuka halaman "Plan a Campaign" (form Tally
-    embed) lewat prop onPlanCampaign (pola onLacak). Kartu memakai
-    role="button" + tabIndex + onKeyDown (Enter/Spasi) supaya bisa
-    diakses keyboard — <article> dipertahankan (bukan <button>) karena
-    isinya blok (h3 + p); kursor pointer + hover naik seperti kartu
-    kampanye. Label langkah (PR #91) tetap menggulir ke kartu. */
-function Layanan({ onPlanCampaign }: { onPlanCampaign: () => void }) {
+/** Keenam kotak layanan BISA DI-KLIK (permintaan pengguna 2026-11-19
+    08:54 WIB): klik membuka halaman tujuannya masing-masing lewat
+    prop (pola onLacak) — MICE Venues → "Book a Venue" (onBookVenue),
+    Commercial Spaces → "Rent a Space" (onRentSpace), empat kartu
+    iklan lainnya → "Plan a Campaign" (onPlanCampaign, form Tally
+    embed) — perintah pengguna 2026-11-23. Kartu memakai role="button"
+    + tabIndex + onKeyDown (Enter/Spasi) supaya bisa diakses keyboard
+    — <article> dipertahankan (bukan <button>) karena isinya blok
+    (h3 + p); kursor pointer + hover naik seperti kartu kampanye.
+    Label langkah (PR #91) tetap menggulir ke kartu. */
+function Layanan({ onPlanCampaign, onBookVenue, onRentSpace }: { onPlanCampaign: () => void; onBookVenue: () => void; onRentSpace: () => void }) {
   const [sorot, setSorot] = useState<number | null>(null);
   const [lihatLebih, setLihatLebih] = useState(false);
   const timerSorot = useRef<number | null>(null);
@@ -984,49 +1016,40 @@ function Layanan({ onPlanCampaign }: { onPlanCampaign: () => void }) {
           </h2>
         </Reveal>
         {/* Baris label langkah template — dipetakan ke layanan RRI (PR #85):
-            label pertama merah seperti template, sisanya slate.
-            Label bisa di-klik (PR #91): tiap label tombol yang menggulir
-            halus ke kartu layanannya + sorot singkat; tampilan tetap.
-            Saat "See More" ditekan (perintah pengguna 2026-11-23), baris
-            melebar (max-w-5xl) dan keenam label + tombol See Less tersusun
-            proporsional dalam satu baris di desktop (lg:flex-nowrap). */}
+            label pertama biru RRI, sisanya slate. Label bisa di-klik
+            (PR #91): tiap label tombol yang menggulir halus ke kartu
+            layanannya + sorot singkat; tampilan tetap. Baris memakai
+            justify-between supaya jarak antar teks rata, dan merapat
+            proporsional saat "See More" belum ditekan — seolah teks
+            "Held Events" / "Expand Business" tidak ada (perintah
+            pengguna 2026-11-23). Lebar baris beralih max-w-3xl ↔
+            max-w-5xl dengan transisi halus; kartu di bawah mengikuti
+            dengan gesernya sendiri (OFFSET_KARTU_TUTUP/BUKA). */}
         <div
-          className={`mx-auto mt-12 flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 text-left ${
+          className={`mx-auto mt-12 flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 text-left transition-[max-width] duration-500 ease-in-out ${
             lihatLebih ? 'max-w-5xl lg:flex-nowrap' : 'max-w-3xl'
           }`}
         >
-          {LAYANAN_MARKLO.map((layanan, i) => (
-            <button
-              key={layanan.nama}
-              type="button"
-              onClick={() => pilihLayanan(i)}
-              aria-label={`View ${layanan.nama} service`}
-              className={`cursor-pointer text-sm font-medium focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-mk-aksen sm:text-base ${
-                i === 0 ? 'text-[#2573e2]' : 'text-slate-400'
-              }`}
-            >
-              {layanan.langkah}
-            </button>
-          ))}
-          {/* Label tambahan (perintah pengguna 2026-11-23): "Held Events" &
-              "Expand Business" hanya tampil saat "See More" ditekan —
-              masih berupa teks (bukan tombol), karena keduanya belum
-              punya kartu layanan (tanpa deskripsi/logo). */}
-          {lihatLebih && (
-            <>
-              <span className="text-sm font-medium text-slate-400 sm:text-base">
-                Held Events
-              </span>
-              <span className="text-sm font-medium text-slate-400 sm:text-base">
-                Expand Business
-              </span>
-            </>
+          {LAYANAN_MARKLO.map((layanan, i) =>
+            i < 4 || lihatLebih ? (
+              <button
+                key={layanan.nama}
+                type="button"
+                onClick={() => pilihLayanan(i)}
+                aria-label={`View ${layanan.nama} service`}
+                className={`cursor-pointer text-sm font-medium focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-mk-aksen sm:text-base ${
+                  i === 0 ? 'text-[#0d2569]' : 'text-slate-400'
+                }`}
+              >
+                {layanan.langkah}
+              </button>
+            ) : null,
           )}
           <button
             type="button"
             onClick={() => setLihatLebih(!lihatLebih)}
             aria-expanded={lihatLebih}
-            className="inline-flex cursor-pointer items-center gap-1 text-sm font-medium text-[#2573e2] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-mk-aksen sm:text-base"
+            className="inline-flex cursor-pointer items-center gap-1 text-sm font-medium text-[#0d2569] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-mk-aksen sm:text-base"
           >
             {lihatLebih ? 'See Less' : 'See More'}
             <ChevronDown
@@ -1036,12 +1059,43 @@ function Layanan({ onPlanCampaign }: { onPlanCampaign: () => void }) {
           </button>
         </div>
         <div className="mx-auto mt-6 max-w-3xl text-left">
-          {LAYANAN_MARKLO.map((layanan, i) => (
-            <div
-              key={layanan.nama}
-              className={`mk-layang ${OFFSET_FUNNEL[i]}`}
-              style={{ animationDelay: `${i * 1.2}s` }}
-            >
+          {LAYANAN_MARKLO.map((layanan, i) => {
+            // Tujuan klik per kartu (perintah pengguna 2026-11-23):
+            // MICE Venues → Book a Venue, Commercial Spaces → Rent a
+            // Space; empat kartu iklan lainnya tetap → Plan a Campaign.
+            const bukaKartu =
+              layanan.nama === 'MICE Venues'
+                ? onBookVenue
+                : layanan.nama === 'Commercial Spaces'
+                  ? onRentSpace
+                  : onPlanCampaign;
+            const labelTujuan =
+              layanan.nama === 'MICE Venues'
+                ? 'Book a Venue'
+                : layanan.nama === 'Commercial Spaces'
+                  ? 'Rent a Space'
+                  : 'Plan a Campaign';
+            // Kartu MICE Venues + Commercial Spaces (indeks 4-5) hanya
+            // tampil bila "See More" ditekan (perintah pengguna
+            // 2026-11-23): jangan tampilkan bila teks "Held Events" /
+            // "Expand Business" belum tampil. Tiap kartu digeser ke
+            // tengah teks langkahnya — dua versi geser karena tengah
+            // teks bergeser saat baris melebar: OFFSET_KARTU_TUTUP
+            // saat "See More" belum ditekan, BUKA sesudahnya. Transisi
+            // halus supaya kartu meluncur ke posisi barunya, bukan
+            // melompat. Garis putus-putus di bawah kartu ikut bergeser
+            // (di dalam pembungkus yang sama) sehingga menjadi penanda
+            // tengah teks itu. Ukuran kartu max-w-xl seperti semula;
+            // tangga diagonal template TETAP dihapus.
+            return i < 4 || lihatLebih ? (
+              <div
+                key={layanan.nama}
+                className={`transition duration-500 ease-in-out ${(lihatLebih ? OFFSET_KARTU_BUKA : OFFSET_KARTU_TUTUP)[i] || ''}`}
+              >
+              <div
+                className="mk-layang"
+                style={{ animationDelay: `${i * 1.2}s` }}
+              >
               {/* Reveal dalam (PR #93): kartu benar-benar tersembunyi
                   (naik 48px + blur kuat) sampai masuk viewport, lalu
                   muncul halus bertahap (stagger 180ms) seperti template.
@@ -1057,15 +1111,15 @@ function Layanan({ onPlanCampaign }: { onPlanCampaign: () => void }) {
                   id={`layanan-${i}`}
                   role="button"
                   tabIndex={0}
-                  aria-label={`Plan a Campaign — ${layanan.nama}`}
-                  onClick={onPlanCampaign}
+                  aria-label={`${labelTujuan} — ${layanan.nama}`}
+                  onClick={bukaKartu}
                   onKeyDown={(e) => {
                     if (e.key === 'Enter' || e.key === ' ') {
                       e.preventDefault();
-                      onPlanCampaign();
+                      bukaKartu();
                     }
                   }}
-                  className={`scroll-mt-24 max-w-xl cursor-pointer rounded-[20px] bg-gradient-to-br ${layanan.gradien} p-7 shadow-md transition hover:-translate-y-1 hover:shadow-lg focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-mk-aksen sm:p-8 ${
+                  className={`scroll-mt-24 mx-auto max-w-xl cursor-pointer rounded-[20px] bg-gradient-to-br ${layanan.gradien} p-7 shadow-md transition hover:-translate-y-1 hover:shadow-lg focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-mk-aksen sm:p-8 ${
                     sorot === i ? 'ring-2 ring-mk-aksen' : 'ring-1 ring-white'
                   }`}
                 >
@@ -1092,16 +1146,19 @@ function Layanan({ onPlanCampaign }: { onPlanCampaign: () => void }) {
                   </div>
                 </article>
               </Reveal>
-              {i < LAYANAN_MARKLO.length - 1 && (
-                <div
-                  className={OFFSET_FUNNEL[i + 1]}
-                  aria-hidden="true"
-                >
-                  <div className="mk-garis-funnel h-8 w-0.5" />
-                </div>
-              )}
+              {/* Garis putus-putus hanya bila kartu berikutnya tampil —
+                  kalau tidak, garisnya menggantung di bawah kartu
+                  terakhir yang terlihat. */}
+              {(i + 1 < 4 || lihatLebih) &&
+                i < LAYANAN_MARKLO.length - 1 && (
+                  <div className="flex justify-center" aria-hidden="true">
+                    <div className="mk-garis-funnel h-8 w-0.5" />
+                  </div>
+                )}
+              </div>
             </div>
-          ))}
+            ) : null;
+        })}
         </div>
       </div>
     </section>
@@ -1131,7 +1188,7 @@ function Perbandingan() {
               <ul className="mt-5 space-y-4">
                 {PERBANDINGAN_LAIN.map((item) => (
                   <li key={item} className="flex items-start gap-3">
-                    <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-blue-100 text-mk-aksen">
+                    <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-mk-aksen/10 text-mk-aksen">
                       <X className="h-4 w-4" aria-hidden="true" />
                     </span>
                     <span className="text-sm leading-relaxed text-slate-500">
@@ -1143,7 +1200,7 @@ function Perbandingan() {
             </article>
           </Reveal>
           <Reveal tunda={140}>
-            <article className="h-full rounded-[20px] bg-mk-peach p-7 shadow-lg ring-1 ring-blue-100">
+            <article className="h-full rounded-[20px] bg-mk-peach p-7 shadow-lg ring-1 ring-mk-aksen/10">
               <h3 className="text-xl font-extrabold text-black">Our Service</h3>
               <ul className="mt-5 space-y-4">
                 {PERBANDINGAN_KAMI.map((item) => (
@@ -1204,7 +1261,8 @@ function Perbandingan() {
 
 /** Pill merah template (#ff4d2e, vermilion asli Marklo) — varian LOKAL
     hanya untuk section ini. LabelPill global TIDAK diubah: section lain
-    tetap memakai Biru RRI #2573E2 (PR oren-ke-biru). Merah di sini
+    memakai Navy logo Deals #0D2569 (perintah pengguna 2026-11-23;
+    sebelumnya Biru RRI #2573E2). Merah di sini
     mengikuti template asli atas pilihan pengguna 2026-11-18 ("ikuti
     template asli"); ganti ke Biru RRI bila diminta. Sejak 2026-11-18
     20:21 WIB (permintaan pengguna): tautan "Book a Call" merah sudah
@@ -2021,7 +2079,8 @@ function Footer({ onComingSoon, onPlanCampaign, onPartnerWithRri, onBookVenue, o
               land, across Indonesia.
             </p>
             {/* Tombol "Partner with RRI" (perintah user 2026-11-21 16:20 WIB,
-                contoh Traveloka): pill biru RRI di sebelah "Back to top",
+                contoh Traveloka): pill PUTIH teks navy logo Deals di
+                sebelah "Back to top" (perintah pengguna 2026-11-23),
                 membuka halaman "Partner with RRI" (2026-11-21; sebelumnya
                 pill ini memanggil onPlanCampaign sebagai tujuan
                 sementara). */}
@@ -2037,7 +2096,7 @@ function Footer({ onComingSoon, onPlanCampaign, onPartnerWithRri, onBookVenue, o
               <button
                 type="button"
                 onClick={onPartnerWithRri}
-                className="inline-flex items-center gap-2 rounded-full bg-[#2573e2] px-4 py-2 text-sm font-semibold text-white transition hover:bg-[#0d2569]"
+                className="inline-flex items-center gap-2 rounded-full bg-white px-4 py-2 text-sm font-semibold text-[#0d2569] transition hover:bg-slate-100"
               >
                 <Handshake className="h-4 w-4" aria-hidden="true" />
                 Partner with RRI
@@ -2163,7 +2222,7 @@ function Footer({ onComingSoon, onPlanCampaign, onPartnerWithRri, onBookVenue, o
             <button
               type="button"
               onClick={() => gulirKe('booking')}
-              className="mt-6 inline-flex items-center gap-2 rounded-full bg-mk-aksen px-5 py-2.5 text-sm font-semibold text-white shadow transition hover:bg-mk-aksen-gelap"
+              className="mt-6 inline-flex items-center gap-2 rounded-full bg-white px-5 py-2.5 text-sm font-semibold text-[#0d2569] shadow transition hover:bg-slate-100"
             >
               Book 30 Min Free Call
               <ArrowRight className="h-4 w-4" aria-hidden="true" />

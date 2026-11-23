@@ -176,6 +176,27 @@ export const LAYANAN_MARKLO: LayananMarklo[] = [
     langkah: 'Retain Clients',
     logo: LOGO_YOUTUBE,
   },
+  {
+    // Ditambahkan 2026-11-23 atas perintah pengguna ("bangun juga kartu
+    // untuk 'Held Event' = 'MICE Venues', 'Expand Business' =
+    // 'Commercial Spaces'"). Deskripsi adalah DRAF dari konten yang
+    // sudah ada di app (Book a Venue / Rent a Space) — pengguna bisa
+    // mengoreksi kata-katanya. Logo kosong: belum ada set logo khusus
+    // untuk kedua layanan ini (hanya ada 4 set PRO/Sosial/Platform/
+    // YouTube); kirimkan logonya bila ada.
+    nama: 'MICE Venues',
+    gradien: 'from-amber-100 to-yellow-50',
+    desk: 'Auditoriums, halls, and meeting rooms in RRI stations across Indonesia — ready stages for conferences, exhibitions, and company gatherings.',
+    langkah: 'Held Events',
+    logo: [],
+  },
+  {
+    nama: 'Commercial Spaces',
+    gradien: 'from-cyan-100 to-sky-50',
+    desk: 'Land owned by RRI, open for your business — shops, cafes, parking, and more, in cities across Indonesia.',
+    langkah: 'Expand Business',
+    logo: [],
+  },
 ];
 
 export const PERBANDINGAN_LAIN: string[] = [

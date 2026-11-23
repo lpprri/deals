@@ -508,22 +508,26 @@ cek(
     dataMarklo.includes("judul: 'Reporting & Maximize Profit'"),
 );
 
-// --- 9. Services (4 layanan RRI). ---
+// --- 9. Services (6 layanan RRI). ---
 cek(
-  'Services: pill "Services" + heading multi-platform + 4 layanan (Radio/Social Media/Digital Platform/Dialogue & Podcast)',
+  'Services: pill "Services" + heading multi-platform + 6 layanan (Radio/Social Media/Digital Platform/Dialogue & Podcast/MICE Venues/Commercial Spaces)',
   marklo.includes('<LabelPill>Services</LabelPill>') &&
     marklo.includes('Multi-platform marketing for predictable, lasting growth.') &&
     dataMarklo.includes("nama: 'Radio Ads'") &&
     dataMarklo.includes("nama: 'Social Media Ads'") &&
     dataMarklo.includes("nama: 'Digital Platform Ads'") &&
-    dataMarklo.includes("nama: 'Dialogue & Podcast'"),
+    dataMarklo.includes("nama: 'Dialogue & Podcast'") &&
+    dataMarklo.includes("nama: 'MICE Venues'") &&
+    dataMarklo.includes("nama: 'Commercial Spaces'"),
 );
 cek(
-  'Services: label langkah template dipetakan ke layanan RRI (Attract→Radio, Engage→Social, Convert→Digital, Retain→Dialogue)',
+  'Services: label langkah template dipetakan ke layanan RRI (Attract→Radio, Engage→Social, Convert→Digital, Retain→Dialogue, Held Events→MICE Venues, Expand Business→Commercial Spaces)',
   dataMarklo.includes("langkah: 'Attract Customer'") &&
     dataMarklo.includes("langkah: 'Engage Prospect'") &&
     dataMarklo.includes("langkah: 'Convert Clients'") &&
     dataMarklo.includes("langkah: 'Retain Clients'") &&
+    dataMarklo.includes("langkah: 'Held Events'") &&
+    dataMarklo.includes("langkah: 'Expand Business'") &&
     marklo.includes('layanan.langkah'),
 );
 cek(
@@ -538,18 +542,33 @@ cek(
     marklo.includes('window.setTimeout(() => setSorot(null), 1600)'),
 );
 cek(
-  'Services: tombol "See More" di ujung kanan baris label — ditekan menampilkan "Held Events" & "Expand Business" sebagai teks (bukan tombol, belum ada kartu layanan), tekan lagi jadi "See Less"; saat diperluas keenam label melebar proporsional dalam satu baris di desktop (max-w-5xl + lg:flex-nowrap, perintah pengguna 2026-11-23)',
+  'Services: tombol "See More" di ujung kanan baris label — ditekan menampilkan label "Held Events" & "Expand Business" sebagai tombol penuh (kartu MICE Venues + Commercial Spaces, perintah pengguna 2026-11-23), tekan lagi jadi "See Less"; baris melebar proporsional (max-w-3xl ↔ max-w-5xl, transisi halus) dan merapat saat belum diperluas',
   marklo.includes('const [lihatLebih, setLihatLebih] = useState(false)') &&
     marklo.includes('See More') &&
     marklo.includes('See Less') &&
-    marklo.includes('Held Events') &&
-    marklo.includes('Expand Business') &&
+    dataMarklo.includes("langkah: 'Held Events'") &&
+    dataMarklo.includes("langkah: 'Expand Business'") &&
     marklo.includes('aria-expanded={lihatLebih}') &&
-    marklo.includes('{lihatLebih && (') &&
+    marklo.includes('i < 4 || lihatLebih') &&
+    marklo.includes('transition-[max-width] duration-500 ease-in-out') &&
     marklo.includes("max-w-5xl lg:flex-nowrap"),
 );
 cek(
-  'Services: keempat kotak layanan BISA DI-KLIK → halaman "Plan a Campaign" (permintaan pengguna 2026-11-19 08:54 WIB) — article role="button" + keyboard (Enter/Spasi) + kursor pointer + hover naik; label langkah (PR #91) tetap scroll',
+  'Services: kartu MICE Venues + Commercial Spaces HANYA tampil bila "See More" ditekan (perintah pengguna 2026-11-23: jangan tampilkan bila teks "Held Events" / "Expand Business" belum tampil); garis putus-putus di bawah kartu terakhir yang terlihat ikut disembunyikan supaya tidak menggantung',
+  (() => {
+    const blokLayanan = marklo.slice(
+      marklo.indexOf('function Layanan('),
+      marklo.indexOf('function Perbandingan()'),
+    );
+    return (
+      blokLayanan.includes('i < 4 || lihatLebih ? (') &&
+      blokLayanan.includes('(i + 1 < 4 || lihatLebih) &&') &&
+      blokLayanan.includes('i < LAYANAN_MARKLO.length - 1 && (')
+    );
+  })(),
+);
+cek(
+  'Services: kotak layanan BISA DI-KLIK ke tujuan masing-masing (perintah pengguna 2026-11-23): MICE Venues → Book a Venue, Commercial Spaces → Rent a Space, 4 kartu iklan → Plan a Campaign (permintaan pengguna 2026-11-19 08:54 WIB) — article role="button" + keyboard (Enter/Spasi) + kursor pointer + hover naik; label langkah (PR #91) tetap scroll',
   (() => {
     const blokLayanan = marklo.slice(
       marklo.indexOf('function Layanan('),
@@ -557,12 +576,21 @@ cek(
     );
     return (
       marklo.includes('onPlanCampaign: () => void') &&
-      marklo.includes('<Layanan onPlanCampaign={onPlanCampaign} />') &&
-      blokLayanan.includes('function Layanan({ onPlanCampaign }') &&
+      marklo.includes('onBookVenue: () => void') &&
+      marklo.includes('onRentSpace: () => void') &&
+      marklo.includes('<Layanan onPlanCampaign={onPlanCampaign} onBookVenue={onBookVenue} onRentSpace={onRentSpace} />') &&
+      blokLayanan.includes('function Layanan({ onPlanCampaign, onBookVenue, onRentSpace }') &&
       blokLayanan.includes('role="button"') &&
       blokLayanan.includes('tabIndex={0}') &&
-      blokLayanan.includes("aria-label={`Plan a Campaign — ${layanan.nama}`}") &&
-      blokLayanan.includes('onClick={onPlanCampaign}') &&
+      blokLayanan.includes("aria-label={`${labelTujuan} — ${layanan.nama}`}") &&
+      blokLayanan.includes('onClick={bukaKartu}') &&
+      blokLayanan.includes("layanan.nama === 'MICE Venues'") &&
+      blokLayanan.includes('? onBookVenue') &&
+      blokLayanan.includes("'Book a Venue'") &&
+      blokLayanan.includes("layanan.nama === 'Commercial Spaces'") &&
+      blokLayanan.includes('? onRentSpace') &&
+      blokLayanan.includes("'Rent a Space'") &&
+      blokLayanan.includes('bukaKartu();') &&
       blokLayanan.includes("e.key === 'Enter'") &&
       blokLayanan.includes("e.key === ' '") &&
       blokLayanan.includes('cursor-pointer') &&
@@ -594,11 +622,13 @@ cek(
     !marklo.includes('rounded-lg bg-white px-1.5 py-1 shadow-sm ring-1 ring-slate-200/70'),
 );
 cek(
-  'Services: keempat deskripsi layanan ada + teks funnel lama hilang (tag/Step/35X)',
+  'Services: keenam deskripsi layanan ada + teks funnel lama hilang (tag/Step/35X)',
   dataMarklo.includes("Prime-time spots and adlibs broadcast across 67 cities") &&
     dataMarklo.includes('Thumb-stopping creative built for the feed') &&
     dataMarklo.includes("Your brand across RRI's digital platforms") &&
     dataMarklo.includes('Interactive dialogues and podcasts that give your story room to breathe') &&
+    dataMarklo.includes('Auditoriums, halls, and meeting rooms in RRI stations across Indonesia') &&
+    dataMarklo.includes('Land owned by RRI, open for your business') &&
     !dataMarklo.includes("layanan: 'Meta Ads'") &&
     !dataMarklo.includes("layanan: 'Google Ads'") &&
     !dataMarklo.includes("layanan: 'Viral TikTok Ads'") &&
@@ -608,13 +638,42 @@ cek(
     !marklo.includes('Client Growth'),
 );
 cek(
-  'Services: susunan tangga diagonal + garis penghubung beranimasi + kartu melayang (gaya template)',
-  marklo.includes('OFFSET_FUNNEL') &&
-    marklo.includes('mk-layang') &&
-    marklo.includes('mk-garis-funnel') &&
-    css.includes('@keyframes mk-layang') &&
-    css.includes('@keyframes mk-garis-bergerak') &&
-    !marklo.includes('border-l-2 border-dashed'),
+  'Services: tiap kartu di tengah sejajar teks langkahnya + jarak antar teks rata + garis putus-putus penanda tengah teks (perintah pengguna 2026-11-23: baris label justify-between — merapat proporsional saat See More belum ditekan seolah teks Held Events/Expand Business tidak ada, jarak antar teks rata; dua versi geser OFFSET_KARTU_TUTUP/BUKA karena tengah teks bergeser saat baris melebar; transisi halus; ukuran kartu max-w-xl seperti semula; tangga diagonal OFFSET_FUNNEL dihapus)',
+  (() => {
+    const blokLayanan = marklo.slice(
+      marklo.indexOf('function Layanan('),
+      marklo.indexOf('function Perbandingan()'),
+    );
+    return (
+      !marklo.includes('OFFSET_FUNNEL') &&
+      !blokLayanan.includes('grid-cols-6') &&
+      blokLayanan.includes('justify-between') &&
+      blokLayanan.includes("max-w-5xl lg:flex-nowrap") &&
+      blokLayanan.includes('transition-[max-width] duration-500 ease-in-out') &&
+      marklo.includes('const OFFSET_KARTU_TUTUP = [') &&
+      marklo.includes('const OFFSET_KARTU_BUKA = [') &&
+      marklo.includes("'min-[1470px]:-translate-x-[319px]'") &&
+      marklo.includes("'min-[1470px]:-translate-x-[140px]'") &&
+      marklo.includes("'min-[1470px]:translate-x-[31px]'") &&
+      marklo.includes("'min-[1470px]:translate-x-[191px]'") &&
+      marklo.includes("'min-[1470px]:-translate-x-[447px]'") &&
+      marklo.includes("'min-[1470px]:-translate-x-[277px]'") &&
+      marklo.includes("'min-[1470px]:-translate-x-[114px]'") &&
+      marklo.includes("'min-[1470px]:translate-x-[37px]'") &&
+      marklo.includes("'min-[1470px]:translate-x-[175px]'") &&
+      marklo.includes("'min-[1470px]:translate-x-[324px]'") &&
+      blokLayanan.includes('OFFSET_KARTU_BUKA : OFFSET_KARTU_TUTUP') &&
+      blokLayanan.includes('transition duration-500 ease-in-out') &&
+      blokLayanan.includes('mx-auto mt-6 max-w-3xl text-left') &&
+      blokLayanan.includes('scroll-mt-24 mx-auto max-w-xl') &&
+      blokLayanan.includes('flex justify-center') &&
+      marklo.includes('mk-layang') &&
+      marklo.includes('mk-garis-funnel') &&
+      css.includes('@keyframes mk-layang') &&
+      css.includes('@keyframes mk-garis-bergerak') &&
+      !marklo.includes('border-l-2 border-dashed')
+    );
+  })(),
 );
 // Blok data LAYANAN_MARKLO saja (gradien -200/-100 yang sama juga dipakai
 // TESTIMONI_MARKLO — di luar cakupan PR #92, jangan ikut dihitung).
@@ -631,6 +690,8 @@ cek(
     layananData.includes("gradien: 'from-sky-100 to-blue-50'") &&
     layananData.includes("gradien: 'from-violet-100 to-purple-50'") &&
     layananData.includes("gradien: 'from-emerald-100 to-teal-50'") &&
+    layananData.includes("gradien: 'from-amber-100 to-yellow-50'") &&
+    layananData.includes("gradien: 'from-cyan-100 to-sky-50'") &&
     !layananData.includes("gradien: 'from-rose-100 to-pink-50'") &&
     !layananData.includes("gradien: 'from-rose-200 to-pink-100'") &&
     !layananData.includes("gradien: 'from-sky-200 to-blue-100'") &&
@@ -638,14 +699,16 @@ cek(
     !layananData.includes("gradien: 'from-emerald-200 to-teal-100'"),
 );
 cek(
-  'Services: ukuran + warna dekat template — kartu lebih sempit (max-w-xl), padding lebih lega, judul lebih besar, latar putih, label pertama biru RRI (PR oren-ke-biru)',
+  'Services: ukuran + warna dekat template — kartu lebih sempit (max-w-xl), padding lebih lega, judul lebih besar, latar putih, label pertama navy logo Deals (perintah pengguna 2026-11-23)',
   marklo.includes('<section id="services" className="bg-white py-16 sm:py-20">') &&
-    marklo.includes('max-w-xl rounded-[20px]') &&
+    marklo.includes('mx-auto mt-6 max-w-3xl text-left') &&
+    marklo.includes('scroll-mt-24 mx-auto max-w-xl') &&
+    marklo.includes('rounded-[20px]') &&
     marklo.includes('p-7 shadow-md') &&
     marklo.includes('sm:p-8') &&
     marklo.includes('<h3 className="text-2xl font-extrabold text-black">') &&
     marklo.includes('text-[15px] leading-relaxed text-slate-600') &&
-    marklo.includes("i === 0 ? 'text-[#2573e2]' : 'text-slate-400'"),
+    marklo.includes("i === 0 ? 'text-[#0d2569]' : 'text-slate-400'"),
 );
 cek(
   'Services: logo beranimasi saat di-hover — goyang ringan + naik (PR #92), dimatikan bila prefers-reduced-motion',
@@ -682,10 +745,10 @@ cek(
     !marklo.includes('Our Agency'),
 );
 cek(
-  'Comparison: X merah (lain) + ceklis biru (kami), 5 butir masing-masing (ikon cek biru muda sejak PR oren-ke-biru)',
+  'Comparison: X merah (lain) + ceklis navy (kami), 5 butir masing-masing (ikon cek tint navy muda, perintah pengguna 2026-11-23)',
   dataMarklo.includes('Generic copy-paste strategies') &&
     dataMarklo.includes('Custom campaigns built on your data') &&
-    marklo.includes('bg-blue-100') &&
+    marklo.includes('bg-mk-aksen/10') &&
     marklo.includes('bg-mk-peach'),
 );
 cek(
@@ -1085,10 +1148,10 @@ cek(
     })(),
 );
 cek(
-  'Footer: pill "Partner with RRI" (biru RRI + ikon Handshake) di sebelah "Back to top" di kolom brand, membuka halaman "Partner with RRI" (perintah user 2026-11-21 16:20 WIB, contoh Traveloka; tujuan dipindah dari Plan a Campaign ke halaman baru 2026-11-21)',
+  'Footer: pill "Partner with RRI" (PUTIH teks navy logo Deals + ikon Handshake, perintah pengguna 2026-11-23) di sebelah "Back to top" di kolom brand, membuka halaman "Partner with RRI" (perintah user 2026-11-21 16:20 WIB, contoh Traveloka; tujuan dipindah dari Plan a Campaign ke halaman baru 2026-11-21)',
   footerMarklo.includes('Partner with RRI') &&
     footerMarklo.includes('Handshake') &&
-    footerMarklo.includes('bg-[#2573e2]') &&
+    footerMarklo.includes('bg-white px-4 py-2 text-sm font-semibold text-[#0d2569]') &&
     footerMarklo.includes('onClick={onPartnerWithRri}') &&
     footerMarklo.indexOf('<ArrowUp') < footerMarklo.indexOf('<Handshake') &&
     marklo.includes('Handshake,'),
@@ -1202,13 +1265,32 @@ cek(
     css.includes('prefers-reduced-motion'),
 );
 cek(
-  'Motion: token aksen biru RRI di @theme index.css (PR oren-ke-biru)',
-  css.includes('--color-mk-aksen: #2573e2;') &&
-    css.includes('--color-mk-aksen-gelap: #0d2569;') &&
-    css.includes('--color-mk-peach: #e8f1fe;') &&
+  'Motion: token aksen Navy logo "Deals" di @theme index.css (perintah pengguna 2026-11-23; sebelumnya Biru RRI #2573E2)',
+  css.includes('--color-mk-aksen: #0d2569;') &&
+    css.includes('--color-mk-aksen-gelap: #04122e;') &&
+    css.includes('--color-mk-peach: #e8eaf2;') &&
     !css.includes('#ff4d2e') &&
     !css.includes('#e63e20') &&
     !css.includes('#ffede8'),
+);
+cek(
+  'Landing: semua biru template menjadi Navy logo "Deals" #0D2569 (perintah pengguna 2026-11-23) — label aktif + See More navy; avatar biru navy; tint biru muda navy; pill footer "Partner with RRI" + "Book 30 Min Free Call" PUTIH teks navy; tidak ada lagi biru template (blue-400/300, sky, blue-100, #2573e2) di Marklo.tsx',
+  !marklo.includes('blue-400') &&
+    !marklo.includes('blue-300') &&
+    !marklo.includes('sky-300') &&
+    !marklo.includes('sky-400') &&
+    !marklo.includes('blue-100') &&
+    !marklo.includes('text-[#2573e2]') &&
+    !marklo.includes('bg-[#2573e2]') &&
+    marklo.includes("i === 0 ? 'text-[#0d2569]'") &&
+    marklo.includes('text-[#0d2569] focus-visible:outline-2') &&
+    marklo.includes("gradien: 'from-mk-aksen to-mk-aksen-gelap'") &&
+    marklo.includes("['bg-mk-aksen', 'bg-mk-aksen', 'bg-violet-400']") &&
+    marklo.includes('bg-mk-aksen/10 text-mk-aksen') &&
+    marklo.includes('ring-1 ring-mk-aksen/10') &&
+    marklo.includes('bg-white px-4 py-2 text-sm font-semibold text-[#0d2569]') &&
+    marklo.includes('bg-white px-5 py-2.5 text-sm font-semibold text-[#0d2569]') &&
+    marklo.includes('hover:bg-slate-100'),
 );
 // Merah template #ff4d2e hanya boleh ada di section Why (komentar +
 // komponen PillMerahTemplate di MengapaMarketing) — tautan "Book a Call"
@@ -1221,7 +1303,7 @@ const luarWhyMarklo =
     marklo.indexOf('/* ================= Booking konsultasi ================= */'),
   );
 cek(
-  'Oren-ke-biru: tidak ada lagi warna oren di landing KECUALI section Why (pill MERAH template #ff4d2e SAJA sejak "Book a Call" hilang 2026-11-18 20:21 WIB, PR landing-why-marketing-template) — aksen Biru RRI, hover navy, peach biru muda, gradasi avatar biru/sky, ring + ikon cek biru; merah error booking tetap ada (PR oren-ke-biru)',
+  'Oren-ke-biru: tidak ada lagi warna oren di landing KECUALI section Why (pill MERAH template #ff4d2e SAJA sejak "Book a Call" hilang 2026-11-18 20:21 WIB, PR landing-why-marketing-template) — aksen Navy logo Deals, hover #04122e, peach tint navy muda, gradasi avatar navy, ring + ikon cek tint navy; gradasi kartu layanan pastel tetap; merah error booking tetap ada (PR oren-ke-biru)',
   !luarWhyMarklo.includes('#ff4d2e') &&
     !marklo.includes('ring-orange-100') &&
     !marklo.includes('bg-pink-100') &&
@@ -1232,11 +1314,11 @@ cek(
     !dataMarklo.includes('from-rose-200 to-orange-100') &&
     !dataMarklo.includes('from-amber-200 to-yellow-100') &&
     !dataMarklo.includes('from-orange-400 to-rose-400') &&
-    marklo.includes('ring-blue-100') &&
-    marklo.includes('bg-blue-100') &&
-    marklo.includes("i === 0 ? 'text-[#2573e2]' : 'text-slate-400'") &&
-    marklo.includes('from-blue-400 to-sky-300') &&
-    marklo.includes('bg-blue-400') &&
+    marklo.includes('ring-mk-aksen/10') &&
+    marklo.includes('bg-mk-aksen/10') &&
+    marklo.includes("i === 0 ? 'text-[#0d2569]' : 'text-slate-400'") &&
+    marklo.includes("gradien: 'from-mk-aksen to-mk-aksen-gelap'") &&
+    marklo.includes("['bg-mk-aksen', 'bg-mk-aksen', 'bg-violet-400']") &&
     dataMarklo.includes("gradien: 'from-blue-100 to-sky-50'") &&
     dataMarklo.includes("gradien: 'from-blue-200 to-sky-100'") &&
     dataMarklo.includes("gradien: 'from-sky-200 to-blue-100'") &&
