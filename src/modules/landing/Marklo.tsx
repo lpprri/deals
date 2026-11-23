@@ -289,7 +289,7 @@ export default function MarkloLanding({ onLogin, pengguna, onLogout, onBukaModul
         <Pernyataan />
         <Statistik />
         <Proses />
-        <Layanan onPlanCampaign={onPlanCampaign} />
+        <Layanan onPlanCampaign={onPlanCampaign} onBookVenue={onBookVenue} onRentSpace={onRentSpace} />
         <Perbandingan />
         <MengapaMarketing />
         <BookingKonsultasi onKirimBooking={onKirimBooking} />
@@ -979,13 +979,16 @@ const OFFSET_KARTU_BUKA = [
 ];
 
 /** Keenam kotak layanan BISA DI-KLIK (permintaan pengguna 2026-11-19
-    08:54 WIB): klik membuka halaman "Plan a Campaign" (form Tally
-    embed) lewat prop onPlanCampaign (pola onLacak). Kartu memakai
-    role="button" + tabIndex + onKeyDown (Enter/Spasi) supaya bisa
-    diakses keyboard — <article> dipertahankan (bukan <button>) karena
-    isinya blok (h3 + p); kursor pointer + hover naik seperti kartu
-    kampanye. Label langkah (PR #91) tetap menggulir ke kartu. */
-function Layanan({ onPlanCampaign }: { onPlanCampaign: () => void }) {
+    08:54 WIB): klik membuka halaman tujuannya masing-masing lewat
+    prop (pola onLacak) — MICE Venues → "Book a Venue" (onBookVenue),
+    Commercial Spaces → "Rent a Space" (onRentSpace), empat kartu
+    iklan lainnya → "Plan a Campaign" (onPlanCampaign, form Tally
+    embed) — perintah pengguna 2026-11-23. Kartu memakai role="button"
+    + tabIndex + onKeyDown (Enter/Spasi) supaya bisa diakses keyboard
+    — <article> dipertahankan (bukan <button>) karena isinya blok
+    (h3 + p); kursor pointer + hover naik seperti kartu kampanye.
+    Label langkah (PR #91) tetap menggulir ke kartu. */
+function Layanan({ onPlanCampaign, onBookVenue, onRentSpace }: { onPlanCampaign: () => void; onBookVenue: () => void; onRentSpace: () => void }) {
   const [sorot, setSorot] = useState<number | null>(null);
   const [lihatLebih, setLihatLebih] = useState(false);
   const timerSorot = useRef<number | null>(null);
@@ -1056,7 +1059,22 @@ function Layanan({ onPlanCampaign }: { onPlanCampaign: () => void }) {
           </button>
         </div>
         <div className="mx-auto mt-6 max-w-3xl text-left">
-          {LAYANAN_MARKLO.map((layanan, i) =>
+          {LAYANAN_MARKLO.map((layanan, i) => {
+            // Tujuan klik per kartu (perintah pengguna 2026-11-23):
+            // MICE Venues → Book a Venue, Commercial Spaces → Rent a
+            // Space; empat kartu iklan lainnya tetap → Plan a Campaign.
+            const bukaKartu =
+              layanan.nama === 'MICE Venues'
+                ? onBookVenue
+                : layanan.nama === 'Commercial Spaces'
+                  ? onRentSpace
+                  : onPlanCampaign;
+            const labelTujuan =
+              layanan.nama === 'MICE Venues'
+                ? 'Book a Venue'
+                : layanan.nama === 'Commercial Spaces'
+                  ? 'Rent a Space'
+                  : 'Plan a Campaign';
             // Kartu MICE Venues + Commercial Spaces (indeks 4-5) hanya
             // tampil bila "See More" ditekan (perintah pengguna
             // 2026-11-23): jangan tampilkan bila teks "Held Events" /
@@ -1069,7 +1087,7 @@ function Layanan({ onPlanCampaign }: { onPlanCampaign: () => void }) {
             // (di dalam pembungkus yang sama) sehingga menjadi penanda
             // tengah teks itu. Ukuran kartu max-w-xl seperti semula;
             // tangga diagonal template TETAP dihapus.
-            i < 4 || lihatLebih ? (
+            return i < 4 || lihatLebih ? (
               <div
                 key={layanan.nama}
                 className={`transition duration-500 ease-in-out ${(lihatLebih ? OFFSET_KARTU_BUKA : OFFSET_KARTU_TUTUP)[i] || ''}`}
@@ -1093,12 +1111,12 @@ function Layanan({ onPlanCampaign }: { onPlanCampaign: () => void }) {
                   id={`layanan-${i}`}
                   role="button"
                   tabIndex={0}
-                  aria-label={`Plan a Campaign — ${layanan.nama}`}
-                  onClick={onPlanCampaign}
+                  aria-label={`${labelTujuan} — ${layanan.nama}`}
+                  onClick={bukaKartu}
                   onKeyDown={(e) => {
                     if (e.key === 'Enter' || e.key === ' ') {
                       e.preventDefault();
-                      onPlanCampaign();
+                      bukaKartu();
                     }
                   }}
                   className={`scroll-mt-24 mx-auto max-w-xl cursor-pointer rounded-[20px] bg-gradient-to-br ${layanan.gradien} p-7 shadow-md transition hover:-translate-y-1 hover:shadow-lg focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-mk-aksen sm:p-8 ${
@@ -1139,8 +1157,8 @@ function Layanan({ onPlanCampaign }: { onPlanCampaign: () => void }) {
                 )}
               </div>
             </div>
-            ) : null,
-          )}
+            ) : null;
+        })}
         </div>
       </div>
     </section>

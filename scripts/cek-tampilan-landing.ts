@@ -568,7 +568,7 @@ cek(
   })(),
 );
 cek(
-  'Services: keenam kotak layanan BISA DI-KLIK → halaman "Plan a Campaign" (permintaan pengguna 2026-11-19 08:54 WIB) — article role="button" + keyboard (Enter/Spasi) + kursor pointer + hover naik; label langkah (PR #91) tetap scroll',
+  'Services: kotak layanan BISA DI-KLIK ke tujuan masing-masing (perintah pengguna 2026-11-23): MICE Venues → Book a Venue, Commercial Spaces → Rent a Space, 4 kartu iklan → Plan a Campaign (permintaan pengguna 2026-11-19 08:54 WIB) — article role="button" + keyboard (Enter/Spasi) + kursor pointer + hover naik; label langkah (PR #91) tetap scroll',
   (() => {
     const blokLayanan = marklo.slice(
       marklo.indexOf('function Layanan('),
@@ -576,12 +576,21 @@ cek(
     );
     return (
       marklo.includes('onPlanCampaign: () => void') &&
-      marklo.includes('<Layanan onPlanCampaign={onPlanCampaign} />') &&
-      blokLayanan.includes('function Layanan({ onPlanCampaign }') &&
+      marklo.includes('onBookVenue: () => void') &&
+      marklo.includes('onRentSpace: () => void') &&
+      marklo.includes('<Layanan onPlanCampaign={onPlanCampaign} onBookVenue={onBookVenue} onRentSpace={onRentSpace} />') &&
+      blokLayanan.includes('function Layanan({ onPlanCampaign, onBookVenue, onRentSpace }') &&
       blokLayanan.includes('role="button"') &&
       blokLayanan.includes('tabIndex={0}') &&
-      blokLayanan.includes("aria-label={`Plan a Campaign — ${layanan.nama}`}") &&
-      blokLayanan.includes('onClick={onPlanCampaign}') &&
+      blokLayanan.includes("aria-label={`${labelTujuan} — ${layanan.nama}`}") &&
+      blokLayanan.includes('onClick={bukaKartu}') &&
+      blokLayanan.includes("layanan.nama === 'MICE Venues'") &&
+      blokLayanan.includes('? onBookVenue') &&
+      blokLayanan.includes("'Book a Venue'") &&
+      blokLayanan.includes("layanan.nama === 'Commercial Spaces'") &&
+      blokLayanan.includes('? onRentSpace') &&
+      blokLayanan.includes("'Rent a Space'") &&
+      blokLayanan.includes('bukaKartu();') &&
       blokLayanan.includes("e.key === 'Enter'") &&
       blokLayanan.includes("e.key === ' '") &&
       blokLayanan.includes('cursor-pointer') &&
