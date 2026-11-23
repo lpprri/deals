@@ -63,6 +63,7 @@ import {
   type ReactNode,
 } from 'react';
 import {
+  Activity,
   ArrowRight,
   ArrowUp,
   Check,
@@ -74,15 +75,22 @@ import {
   Globe,
   Handshake,
   Instagram,
+  Languages,
   Linkedin,
+  LogIn,
+  LogOut,
   MapPin,
   Menu,
+  Monitor,
+  Moon,
   Phone,
   Star,
+  Sun,
   User,
   Video,
   X,
 } from 'lucide-react';
+import type { DummyUser } from '../../lib/dummyUsers';
 import { LOGO_RRI_LANDING_DATA_URI } from '../../lib/logoRriLanding';
 import { LOGO_DEALS_DATA_URI } from '../../lib/logoDeals';
 import {
@@ -107,6 +115,16 @@ import type { BookingPublikInput } from '../../lib/store';
 export interface MarkloLandingProps {
   /** Buka halaman login Operator (infrastruktur aplikasi). */
   onLogin: () => void;
+  /** Pengguna yang sedang login (null bila belum login) — panel Profil
+      menampilkan keadaan login bila ada, keadaan tamu bila tidak.
+      Landing hanya di-render saat belum login (App.tsx: `if (!user)`),
+      jadi keadaan login di sini disiapkan untuk pemakaian mendatang. */
+  pengguna?: DummyUser | null;
+  /** Keluar dari sesi (App.tsx: tanganiKeluar). */
+  onLogout?: () => void;
+  /** Buka modul admin ('master' = Master Data & Users, 'audit' = Audit)
+      dari panel Profil saat sudah login. */
+  onBukaModul?: (modul: 'master' | 'audit') => void;
   /** Buka halaman "Coming Soon" publik — dipakai SATU item footer
       "What to Do" ("Join our Event"; pola persis onLogin; permintaan
       pengguna 2026-11-18 21:19–21:21 WIB — BUKAN ke kartu booking). */
@@ -253,7 +271,7 @@ function BintangLima({
   );
 }
 
-export default function MarkloLanding({ onLogin, onComingSoon, onPlanCampaign, onPartnerWithRri, onBookVenue, onRentSpace, onKirimBooking }: MarkloLandingProps) {
+export default function MarkloLanding({ onLogin, pengguna, onLogout, onBukaModul, onComingSoon, onPlanCampaign, onPartnerWithRri, onBookVenue, onRentSpace, onKirimBooking }: MarkloLandingProps) {
   // Kembali ke landing dari halaman publik yang di-scroll: SPA
   // mempertahankan posisi scroll window, jadi landing mendarat di
   // tengah halaman. Scroll ke atas saat mount (perintah user
@@ -264,7 +282,7 @@ export default function MarkloLanding({ onLogin, onComingSoon, onPlanCampaign, o
   }, []);
   return (
     <div className="min-h-screen bg-white text-black">
-      <Header onLogin={onLogin} />
+      <Header onLogin={onLogin} pengguna={pengguna} onLogout={onLogout} onBukaModul={onBukaModul} />
       <main>
         <Hero />
         <MarqueeKampanye />
@@ -285,9 +303,51 @@ export default function MarkloLanding({ onLogin, onComingSoon, onPlanCampaign, o
 
 /* ================= Header ================= */
 
-function Header({ onLogin }: { onLogin: () => void }) {
+/** Baris Bahasa & Tema di panel Profil — TAMPIL DULU (pilihan pengguna
+    2026-11-23): menampilkan pengaturan saat ini, belum bisa diganti.
+    Menggantinya butuh terjemahan landing (ID/EN) + mode gelap penuh
+    untuk seluruh landing — dua pekerjaan besar yang diparkir 2026-11-22. */
+function BarisBahasaTema() {
+  return (
+    <>
+      <div className="flex items-center gap-3 px-3 py-2">
+        <Languages className="h-4 w-4 shrink-0 text-slate-400" aria-hidden="true" />
+        <span className="text-sm font-medium text-slate-700">Bahasa</span>
+        <span className="ml-auto text-sm text-slate-500">English</span>
+      </div>
+      <div className="flex items-center gap-3 px-3 py-2">
+        <Sun className="h-4 w-4 shrink-0 text-slate-400" aria-hidden="true" />
+        <span className="text-sm font-medium text-slate-700">Tema</span>
+        <span className="ml-auto flex items-center gap-0.5 rounded-full border border-slate-200 p-0.5">
+          <span className="flex h-6 w-6 items-center justify-center rounded-full bg-slate-900 text-white">
+            <Sun className="h-3.5 w-3.5" aria-hidden="true" />
+          </span>
+          <span className="flex h-6 w-6 items-center justify-center rounded-full text-slate-400">
+            <Moon className="h-3.5 w-3.5" aria-hidden="true" />
+          </span>
+          <span className="flex h-6 w-6 items-center justify-center rounded-full text-slate-400">
+            <Monitor className="h-3.5 w-3.5" aria-hidden="true" />
+          </span>
+        </span>
+      </div>
+    </>
+  );
+}
+
+function Header({
+  onLogin,
+  pengguna,
+  onLogout,
+  onBukaModul,
+}: {
+  onLogin: () => void;
+  pengguna?: DummyUser | null;
+  onLogout?: () => void;
+  onBukaModul?: (modul: 'master' | 'audit') => void;
+}) {
   const [menuTerbuka, setMenuTerbuka] = useState(false);
   const [menuMobileTerbuka, setMenuMobileTerbuka] = useState(false);
+  const [menuProfilTerbuka, setMenuProfilTerbuka] = useState(false);
   const [sudahScroll, setSudahScroll] = useState(false);
   useEffect(() => {
     const perbarui = () => setSudahScroll(window.scrollY > 24);
@@ -303,10 +363,91 @@ function Header({ onLogin }: { onLogin: () => void }) {
         className={`mx-auto flex items-center gap-4 px-4 py-2 transition-[max-width,margin-top,gap] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] sm:px-6 sm:py-3 ${sudahScroll ? 'mt-2 max-w-[360px] gap-2 sm:max-w-[460px] md:max-w-[640px]' : 'max-w-7xl'}`}
       >
 
+        <div className="relative md:hidden">
+          <button
+            type="button"
+            onClick={() => {
+              setMenuProfilTerbuka(false);
+              setMenuMobileTerbuka(!menuMobileTerbuka);
+            }}
+            aria-label="Menu"
+            aria-haspopup="true"
+            aria-expanded={menuMobileTerbuka}
+            className="flex h-9 w-9 items-center justify-center rounded-full border-2 border-black text-black transition hover:bg-black hover:text-white sm:h-10 sm:w-10"
+          >
+            {menuMobileTerbuka ? (
+              <X className="h-5 w-5" aria-hidden="true" />
+            ) : (
+              <Menu className="h-5 w-5" aria-hidden="true" />
+            )}
+          </button>
+          {menuMobileTerbuka && (
+            <>
+              <button
+                type="button"
+                aria-label="Close menu"
+                onClick={() => setMenuMobileTerbuka(false)}
+                className="fixed inset-0 z-40 cursor-default"
+              />
+              <div className="absolute left-0 z-50 mt-2 w-56 rounded-2xl border border-slate-200 bg-white p-1.5 shadow-lg">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setMenuMobileTerbuka(false);
+                    gulirKe('atas');
+                  }}
+                  className="block w-full rounded-xl px-3 py-2 text-left text-sm font-medium text-slate-700 transition hover:bg-slate-100 hover:text-mk-aksen"
+                >
+                  Home
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setMenuMobileTerbuka(false);
+                    gulirKe('about');
+                  }}
+                  className="block w-full rounded-xl px-3 py-2 text-left text-sm font-medium text-slate-700 transition hover:bg-slate-100 hover:text-mk-aksen"
+                >
+                  About
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setMenuMobileTerbuka(false);
+                    gulirKe('services');
+                  }}
+                  className="block w-full rounded-xl px-3 py-2 text-left text-sm font-medium text-slate-700 transition hover:bg-slate-100 hover:text-mk-aksen"
+                >
+                  Service
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setMenuMobileTerbuka(false);
+                    gulirKe('testimonials');
+                  }}
+                  className="block w-full rounded-xl px-3 py-2 text-left text-sm font-medium text-slate-700 transition hover:bg-slate-100 hover:text-mk-aksen"
+                >
+                  Testimonials
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setMenuMobileTerbuka(false);
+                    gulirKe('process');
+                  }}
+                  className="block w-full rounded-xl px-3 py-2 text-left text-sm font-medium text-slate-700 transition hover:bg-slate-100 hover:text-mk-aksen"
+                >
+                  Process
+                </button>
+              </div>
+            </>
+          )}
+        </div>
         <button
           type="button"
           onClick={() => gulirKe('atas')}
-          className="flex min-w-0 items-center gap-2 rounded-full border border-slate-200 bg-white/90 px-2.5 py-1 shadow-sm backdrop-blur sm:px-3 sm:py-1.5"
+          className="flex min-w-0 items-center gap-2 rounded-full border border-slate-200 bg-white/90 px-2.5 py-1 shadow-sm backdrop-blur max-md:mx-auto sm:px-3 sm:py-1.5"
           aria-label="RRI Deals — back to top"
         >
           <img
@@ -336,7 +477,10 @@ function Header({ onLogin }: { onLogin: () => void }) {
               <span aria-hidden="true" className="h-5 w-px bg-slate-200" />
               <button
                 type="button"
-                onClick={() => setMenuTerbuka(!menuTerbuka)}
+                onClick={() => {
+                  setMenuProfilTerbuka(false);
+                  setMenuTerbuka(!menuTerbuka);
+                }}
                 aria-haspopup="true"
                 aria-expanded={menuTerbuka}
                 className="flex items-center gap-1 rounded-full px-3 py-1.5 text-sm font-medium text-slate-700 transition hover:bg-slate-100 hover:text-mk-aksen"
@@ -399,104 +543,102 @@ function Header({ onLogin }: { onLogin: () => void }) {
             )}
           </nav>
         </div>
-        <div className="flex shrink-0 items-center gap-2 max-md:ml-auto">
+        <div className="flex shrink-0 items-center gap-2">
 
-          <button
-            type="button"
-            onClick={() => gulirKe('booking')}
-            title="Book a Free Call"
-            aria-label="Book a Free Call"
-            className="hidden h-10 w-10 items-center justify-center rounded-full bg-mk-aksen text-white shadow-sm transition hover:bg-mk-aksen-gelap sm:inline-flex"
-          >
-            <Video className="h-5 w-5" aria-hidden="true" />
-          </button>
-          <div className="relative md:hidden">
+          <div className="relative">
             <button
               type="button"
-              onClick={() => setMenuMobileTerbuka(!menuMobileTerbuka)}
-              aria-label="Menu"
+              onClick={() => {
+                setMenuMobileTerbuka(false);
+                setMenuTerbuka(false);
+                setMenuProfilTerbuka(!menuProfilTerbuka);
+              }}
+              title="Profile"
+              aria-label="Profile"
               aria-haspopup="true"
-              aria-expanded={menuMobileTerbuka}
+              aria-expanded={menuProfilTerbuka}
               className="flex h-9 w-9 items-center justify-center rounded-full border-2 border-black text-black transition hover:bg-black hover:text-white sm:h-10 sm:w-10"
             >
-              {menuMobileTerbuka ? (
-                <X className="h-5 w-5" aria-hidden="true" />
-              ) : (
-                <Menu className="h-5 w-5" aria-hidden="true" />
-              )}
+              <User className="h-5 w-5" aria-hidden="true" />
             </button>
-            {menuMobileTerbuka && (
+            {menuProfilTerbuka && (
               <>
                 <button
                   type="button"
-                  aria-label="Close menu"
-                  onClick={() => setMenuMobileTerbuka(false)}
+                  aria-label="Close profile menu"
+                  onClick={() => setMenuProfilTerbuka(false)}
                   className="fixed inset-0 z-40 cursor-default"
                 />
-                <div className="absolute right-0 z-50 mt-2 w-56 rounded-2xl border border-slate-200 bg-white p-1.5 shadow-lg">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setMenuMobileTerbuka(false);
-                      gulirKe('atas');
-                    }}
-                    className="block w-full rounded-xl px-3 py-2 text-left text-sm font-medium text-slate-700 transition hover:bg-slate-100 hover:text-mk-aksen"
-                  >
-                    Home
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setMenuMobileTerbuka(false);
-                      gulirKe('about');
-                    }}
-                    className="block w-full rounded-xl px-3 py-2 text-left text-sm font-medium text-slate-700 transition hover:bg-slate-100 hover:text-mk-aksen"
-                  >
-                    About
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setMenuMobileTerbuka(false);
-                      gulirKe('services');
-                    }}
-                    className="block w-full rounded-xl px-3 py-2 text-left text-sm font-medium text-slate-700 transition hover:bg-slate-100 hover:text-mk-aksen"
-                  >
-                    Service
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setMenuMobileTerbuka(false);
-                      gulirKe('testimonials');
-                    }}
-                    className="block w-full rounded-xl px-3 py-2 text-left text-sm font-medium text-slate-700 transition hover:bg-slate-100 hover:text-mk-aksen"
-                  >
-                    Testimonials
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setMenuMobileTerbuka(false);
-                      gulirKe('process');
-                    }}
-                    className="block w-full rounded-xl px-3 py-2 text-left text-sm font-medium text-slate-700 transition hover:bg-slate-100 hover:text-mk-aksen"
-                  >
-                    Process
-                  </button>
+                <div className="absolute right-0 z-50 mt-2 w-80 max-w-[calc(100vw-2rem)] rounded-2xl border border-slate-200 bg-white p-2 shadow-lg">
+                  {pengguna ? (
+                    <>
+                      <div className="px-3 pb-2 pt-1">
+                        <p className="truncate text-sm font-semibold text-slate-900">
+                          {pengguna.nama}
+                        </p>
+                        <p className="truncate text-xs text-slate-500">
+                          {pengguna.email ?? ''}
+                        </p>
+                      </div>
+                      <div className="my-1 border-t border-slate-100" />
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setMenuProfilTerbuka(false);
+                          onBukaModul?.('master');
+                        }}
+                        className="flex w-full items-center gap-3 rounded-xl px-3 py-2 text-left text-sm font-medium text-slate-700 transition hover:bg-slate-100 hover:text-mk-aksen"
+                      >
+                        <User className="h-4 w-4 shrink-0 text-slate-400" aria-hidden="true" />
+                        Informasi Akun
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setMenuProfilTerbuka(false);
+                          onBukaModul?.('audit');
+                        }}
+                        className="flex w-full items-center gap-3 rounded-xl px-3 py-2 text-left text-sm font-medium text-slate-700 transition hover:bg-slate-100 hover:text-mk-aksen"
+                      >
+                        <Activity className="h-4 w-4 shrink-0 text-slate-400" aria-hidden="true" />
+                        Aktivitas Akun
+                      </button>
+                      <div className="my-1 border-t border-slate-100" />
+                      <BarisBahasaTema />
+                      <div className="my-1 border-t border-slate-100" />
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setMenuProfilTerbuka(false);
+                          onLogout?.();
+                        }}
+                        className="flex w-full items-center gap-3 rounded-xl px-3 py-2 text-left text-sm font-medium text-slate-700 transition hover:bg-slate-100 hover:text-mk-aksen"
+                      >
+                        <LogOut className="h-4 w-4 shrink-0 text-slate-400" aria-hidden="true" />
+                        Keluar
+                      </button>
+                    </>
+                  ) : (
+                    <>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setMenuProfilTerbuka(false);
+                          onLogin();
+                        }}
+                        className="flex w-full items-center justify-center gap-2 rounded-xl bg-mk-aksen px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-mk-aksen-gelap"
+                      >
+                        <LogIn className="h-4 w-4" aria-hidden="true" />
+                        Login
+                      </button>
+                      <div className="my-1 border-t border-slate-100" />
+                      <BarisBahasaTema />
+                    </>
+                  )}
                 </div>
               </>
             )}
           </div>
-          <button
-            type="button"
-            onClick={onLogin}
-            title="Login"
-            aria-label="Login"
-            className="flex h-9 w-9 items-center justify-center rounded-full border-2 border-black text-black transition hover:bg-black hover:text-white sm:h-10 sm:w-10"
-          >
-            <User className="h-5 w-5" aria-hidden="true" />
-          </button>
         </div>
       </div>
     </header>

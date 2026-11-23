@@ -1234,6 +1234,9 @@ export default function App() {
       return (
         <MarkloLanding
           onLogin={() => setHalamanPublik('login')}
+          pengguna={user}
+          onLogout={() => tanganiKeluar()}
+          onBukaModul={(modul) => setPanelTerbuka(modul)}
           onComingSoon={() => setHalamanPublik('coming-soon')}
           onPlanCampaign={() => setHalamanPublik('plan-campaign')}
           onPartnerWithRri={() => setHalamanPublik('partner-with-rri')}
