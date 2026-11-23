@@ -36,9 +36,9 @@ const IKON_KATEGORI: Record<string, typeof Bell> = {
 };
 
 const TAB: { id: TabNotifikasi; label: string }[] = [
-  { id: 'general', label: 'General' },
-  { id: 'inbox', label: 'Inbox' },
-  { id: 'approval', label: 'Approval' },
+  { id: 'general', label: 'Umum' },
+  { id: 'inbox', label: 'Kotak masuk' },
+  { id: 'approval', label: 'Persetujuan' },
 ];
 
 function muatDibaca(): Set<string> {
@@ -131,7 +131,7 @@ export default function Notifikasi({ data, onNavigasi }: Props) {
       <button
         type="button"
         onClick={() => setTerbuka((v) => !v)}
-        aria-label={`Notifications${jumlahBelumDibaca > 0 ? `, ${jumlahBelumDibaca} unread` : ''}`}
+        aria-label={`Notifikasi${jumlahBelumDibaca > 0 ? `, ${jumlahBelumDibaca} belum dibaca` : ''}`}
         aria-expanded={terbuka}
         className="relative flex h-9 w-9 items-center justify-center rounded-full text-[#0d2569] hover:bg-[#2573e2]/10"
       >
@@ -146,7 +146,7 @@ export default function Notifikasi({ data, onNavigasi }: Props) {
       {terbuka && (
         <div className="absolute right-0 top-full z-50 mt-2 w-[420px] max-w-[90vw] overflow-hidden rounded-lg border border-[#2573e2]/20 bg-white shadow-xl">
           <div className="flex items-center justify-between px-4 pb-2 pt-4">
-            <h2 className="text-lg font-bold text-[#0d2569]">Notifications</h2>
+            <h2 className="text-lg font-bold text-[#0d2569]">Notifikasi</h2>
             <button
               type="button"
               role="switch"
@@ -165,7 +165,7 @@ export default function Notifikasi({ data, onNavigasi }: Props) {
                   }`}
                 />
               </span>
-              Show only unread
+              Hanya yang belum dibaca
             </button>
           </div>
 
@@ -200,7 +200,7 @@ export default function Notifikasi({ data, onNavigasi }: Props) {
                 onClick={tandaiSemuaDibaca}
                 className="ml-auto flex items-center gap-1 py-2 text-xs font-semibold text-[#2573e2] hover:underline"
               >
-                <CheckCheck size={14} /> Mark all as read
+                <CheckCheck size={14} /> Tandai semua sudah dibaca
               </button>
             )}
           </div>
@@ -209,10 +209,10 @@ export default function Notifikasi({ data, onNavigasi }: Props) {
             <select
               value={filterKategori}
               onChange={(e) => setFilterKategori(e.target.value)}
-              aria-label="Filter by category"
+              aria-label="Saring berdasarkan kategori"
               className="w-full rounded-md border border-[#2573e2]/30 px-3 py-2 text-sm text-[#0d2569] outline-none focus:border-[#2573e2]"
             >
-              <option value="">All notifications</option>
+              <option value="">Semua notifikasi</option>
               {kategoriTab.map((k) => (
                 <option key={k} value={k}>
                   {k}
@@ -228,10 +228,10 @@ export default function Notifikasi({ data, onNavigasi }: Props) {
                   <Bell size={40} className="text-[#2573e2]" />
                 </span>
                 <p className="mt-4 text-base font-bold text-[#0d2569]">
-                  No notification yet
+                  Belum ada notifikasi
                 </p>
                 <p className="mt-1 text-sm text-[#0d2569]/60">
-                  Your notification list will appear here.
+                  Daftar notifikasi Anda akan muncul di sini.
                 </p>
               </div>
             ) : (

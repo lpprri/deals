@@ -1,6 +1,6 @@
 // Modul Chat antar operator 1-to-1 (PR #45, 16/11/2026).
 // Palet HANYA 3 warna RRI: Biru #2573E2, Navy #0D2569, Putih #FFFFFF.
-// Bahasa UI Inggris penuh (British spelling).
+// Bahasa UI Indonesia.
 //
 // SUMBER KONTAK (keputusan koordinator — alasan lengkap di lib/pesan.ts):
 // daftar kontak = OPERATOR_PALEMBANG (tanpa operator yang sedang login
@@ -218,11 +218,11 @@ export default function Chat(props: ModulProps) {
           }`}
         >
           <div className="border-b border-slate-200 px-4 py-3 text-xs font-semibold uppercase tracking-wide text-[#0d2569]/60">
-            Conversations
+            Percakapan
           </div>
           {kontak.length === 0 ? (
             <div className="p-4">
-              <PesanKosong teks="No conversations yet" />
+              <PesanKosong teks="Belum ada percakapan" />
             </div>
           ) : (
             <ul className="max-h-[60vh] overflow-y-auto">
@@ -255,7 +255,7 @@ export default function Chat(props: ModulProps) {
                       <span className="block truncate text-xs text-[#0d2569]/60">
                         {k.terakhir
                           ? k.terakhir.isi
-                          : 'No messages yet'}
+                          : 'Belum ada pesan'}
                       </span>
                     </span>
                     {k.terakhir && (
@@ -280,7 +280,7 @@ export default function Chat(props: ModulProps) {
             <div className="flex flex-1 flex-col items-center justify-center gap-2 p-8 text-center">
               <MessageSquare size={32} className="text-[#2573e2]/40" />
               <p className="text-sm text-[#0d2569]/60">
-                Select a conversation to start messaging
+                Pilih percakapan untuk mulai mengirim pesan
               </p>
             </div>
           ) : (
@@ -290,7 +290,7 @@ export default function Chat(props: ModulProps) {
                   type="button"
                   onClick={() => setTerpilih(null)}
                   className="rounded p-1 text-[#0d2569]/60 hover:bg-[#2573e2]/5 md:hidden"
-                  aria-label="Back to conversations"
+                  aria-label="Kembali ke percakapan"
                 >
                   <ChevronLeft size={18} />
                 </button>
@@ -309,7 +309,7 @@ export default function Chat(props: ModulProps) {
 
               <div className="max-h-[55vh] flex-1 space-y-3 overflow-y-auto bg-slate-50 px-4 py-4">
                 {utas.length === 0 ? (
-                  <PesanKosong teks="No messages yet — start a conversation" />
+                  <PesanKosong teks="Belum ada pesan. Kirim pesan pertama Anda." />
                 ) : (
                   utas.map((p) => {
                     const saya = p.pengirim.email === kunciSaya;
@@ -350,7 +350,7 @@ export default function Chat(props: ModulProps) {
               {pesanTerakhirSaya &&
                 pesanTerakhirSaya.pengirim.email === kunciSaya && (
                   <div className="border-t border-slate-200 bg-white px-4 pt-1 text-right text-[11px] text-[#0d2569]/50">
-                    {pesanTerakhirSaya.dibaca ? 'Read' : 'Sent'}
+                    {pesanTerakhirSaya.dibaca ? 'Dibaca' : 'Terkirim'}
                   </div>
                 )}
 
@@ -361,8 +361,8 @@ export default function Chat(props: ModulProps) {
                 <input
                   value={draf}
                   onChange={(e) => setDraf(e.target.value)}
-                  placeholder="Type a message…"
-                  aria-label="Type a message"
+                  placeholder="Tulis pesan…"
+                  aria-label="Tulis pesan"
                   className={`${inputClass} flex-1`}
                 />
                 <button
@@ -371,7 +371,7 @@ export default function Chat(props: ModulProps) {
                   className="flex shrink-0 items-center gap-2 rounded-md bg-[#2573e2] px-3 py-2 text-sm font-semibold text-white hover:bg-[#0d2569] disabled:opacity-40"
                 >
                   <Send size={16} />
-                  Send
+                  Kirim
                 </button>
               </form>
               {galat && (

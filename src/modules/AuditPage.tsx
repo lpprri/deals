@@ -1,4 +1,4 @@
-// Audit trail — Fase A (PRD v2.0 Final Bab 10).
+// Jejak audit, Fase A (PRD v2.0 Final Bab 10).
 // Halaman ini HANYA menampilkan jejak audit. Tidak menampilkan
 // konfigurasi Firebase, email admin, atau secret apa pun (pelajaran Bab 13).
 // Audit bersifat tambah-saja (append-only) dan tidak dapat diedit dari
@@ -26,31 +26,31 @@ export default function AuditPage({ data }: ModulProps) {
   return (
     <div className="space-y-6">
       <p className="text-sm text-[#0d2569]/70">
-        Audit trail of all sensitive data changes — who, when, what changed.
-        Newest entries are shown first.
+        Jejak audit atas semua perubahan data sensitif: siapa, kapan, apa yang berubah.
+        Entri terbaru ditampilkan paling atas.
       </p>
 
-      <Peringatan teks="The audit trail is append-only and cannot be edited from the interface." />
+      <Peringatan teks="Jejak audit hanya bisa ditambah, tidak bisa diubah dari antarmuka." />
 
       <Kartu>
-        <JudulBagian>Audit Trail ({entri.length} entries)</JudulBagian>
+        <JudulBagian>Jejak audit ({entri.length} entri)</JudulBagian>
         {entri.length === 0 ? (
           <div className="mt-3">
-            <PesanKosong teks="No audit entries yet." />
+            <PesanKosong teks="Belum ada entri audit." />
           </div>
         ) : (
           <div className="mt-3">
             <Tabel>
               <thead>
                 <tr>
-                  <Th>Time</Th>
-                  <Th>User</Th>
-                  <Th>Role</Th>
-                  <Th>Action</Th>
-                  <Th>Entity</Th>
-                  <Th>Entity ID</Th>
-                  <Th>Before</Th>
-                  <Th>After</Th>
+                  <Th>Waktu</Th>
+                  <Th>Pengguna</Th>
+                  <Th>Peran</Th>
+                  <Th>Aksi</Th>
+                  <Th>Entitas</Th>
+                  <Th>ID entitas</Th>
+                  <Th>Sebelum</Th>
+                  <Th>Sesudah</Th>
                 </tr>
               </thead>
               <tbody>
