@@ -3,7 +3,8 @@
 //  src/lib/types.ts + src/lib/store.ts + src/App.tsx +
 //  src/lib/firestoreStore.ts).
 // Asersi: tampilan (Kotak Masuk, Hari Ini, Mendatang, Filter & Label,
-// Laporan) sebagai sub-panel kiri, Quick Add, kartu tugas, dialog detail,
+// Laporan) sebagai sidebar Todoist di dalam panel, Quick Add, kartu tugas,
+
 // View Options, Mendatang + jadwalkan ulang massal, filter tersimpan & label
 // disposisi, Laporan + ekspor CSV, pencarian + shortcut, Bahasa Indonesia
 // di UI panel, Disposisi (Alur F) DIBUANG dari panel (model & data tetap),
@@ -57,7 +58,7 @@ const cek = (nama: string, ok: boolean, detail = '') => {
   else gagal += 1;
 };
 
-// --- 1. Tampilan dalam panel (Bahasa Indonesia) sebagai sub-panel kiri. ---
+// --- 1. Tampilan dalam panel (Bahasa Indonesia) sebagai sidebar Todoist. ---
 for (const label of [
   'Kotak Masuk',
   'Hari Ini',
@@ -68,24 +69,44 @@ for (const label of [
   cek(`Item sub-panel "${label}" ada`, todo.includes(label));
 }
 cek(
-  'Subjudul panel diubah (tanpa disposisi)',
-  todo.includes('Tugas perorangan.'),
+  'Judul tampilan besar ala Todoist (26px) + subjudul hitungan',
+  todo.includes('text-[26px]') && todo.includes('CheckCircle2'),
 );
 cek(
-  'Sub-panel kiri mengikuti pola Qontak (w-60 + border-r)',
-  todo.includes('SubPanelTugas') &&
-    todo.includes('md:w-60') &&
-    todo.includes('md:border-r'),
+  'Sidebar Todoist di dalam panel (lebar 280px, latar #fafafa)',
+  todo.includes('SidebarTodoist') &&
+    todo.includes('md:w-[280px]') &&
+    todo.includes('bg-[#fafafa]'),
 );
 cek(
-  'Sub-panel memuat hitungan tugas (Kotak Masuk / Hari Ini / Laporan)',
+  'Sidebar memuat tombol tambah tugas merah + Cari',
+  todo.includes('Tambah tugas') &&
+    todo.includes('bg-[#DB4C3F]') &&
+    todo.includes('Cari'),
+);
+cek(
+  'Sidebar memuat bagian Proyek Saya + Jelajahi semua proyek',
+  todo.includes('Proyek Saya') &&
+    todo.includes('Jelajahi semua proyek') &&
+    todo.includes('PROYEK_TODOIST'),
+);
+cek(
+  'Sidebar memuat hitungan tugas (Kotak Masuk / Hari Ini / Laporan)',
   todo.includes('jumlahKotakMasuk') &&
     todo.includes('jumlahHariIni') &&
     todo.includes('jumlahSelesai'),
 );
 cek(
+  'Sub-panel ala Laporan sudah tidak dipakai (tanpa SubPanelTugas)',
+  !todo.includes('SubPanelTugas'),
+);
+cek(
   'Tab horizontal lama (TabBar) sudah tidak dipakai di panel Tugas',
   !todo.includes('TabBar'),
+);
+cek(
+  'Layout default Board ala Todoist (Today board per proyek)',
+  todo.includes("useState<'daftar' | 'board'>('board')"),
 );
 
 // --- 2. Quick Add + pilihan tanggal cepat. ---
@@ -107,8 +128,24 @@ for (const s of ['Tandai selesai', 'Sub-tugas', 'BenderaPrioritas', 'Tandai belu
   cek(`Kartu tugas memuat "${s}"`, todo.includes(s));
 }
 cek(
-  'Tanggal terlambat merah, hari ini hijau',
-  todo.includes('text-red-600') && todo.includes('text-green-700'),
+  'Tanggal terlambat merah Todoist, hari ini hijau Todoist',
+  todo.includes('text-[#d1453b]') && todo.includes('text-[#058527]'),
+);
+cek(
+  'Aksen merah Todoist #DB4C3F dipakai (tombol + checkbox + sidebar)',
+  todo.includes('#DB4C3F'),
+);
+cek(
+  'Kartu tugas putih border #e6e6e6 + checkbox 18px border #999',
+  todo.includes('border-[#e6e6e6]') &&
+    todo.includes('h-[18px]') &&
+    todo.includes('border-[#999]'),
+);
+cek(
+  'Bendera prioritas warna Todoist (P1 merah, P2 oranye, P3 biru)',
+  todo.includes("'#d1453b'") &&
+    todo.includes("'#eb8909'") &&
+    todo.includes("'#246fe0'"),
 );
 
 // --- 4. View Options: Daftar/Board, Grouping, Sorting, Filter. ---
@@ -374,6 +411,9 @@ try {
     'Jadwalkan ulang semua',
     'Filter & Label',
     'Ditugaskan ke saya',
+    'Proyek Saya',
+    'Jelajahi semua proyek',
+    'Tambah tugas',
   ]) {
     cek(`Bundle memuat "${s}"`, bundle.includes(s));
   }

@@ -1,17 +1,31 @@
 // Modul Tugas ala Todoist (duplikasi Todoist, 2026-11-24; PRD v2.0 Bab 7.7 & 9.6).
 // Studi: akun Todoist lpu.lpprripalembang@gmail.com, workspace RRI, tim LPP RRI.
-// Tampilan dalam panel: Kotak Masuk, Hari Ini, Mendatang, Filter & Label,
-// Laporan — sebagai sub-panel kiri (pola panel sub-navigasi Qontak di App.tsx).
+// Instruksi pengguna 2026-11-24: "tiru persis ui yang digunakan oleh todoist"
+// — panel ini MENIRU PERSIS tampilan Todoist: sidebar Todoist di dalam panel,
+// judul tampilan besar + hitungan, kartu tugas putih, aksen merah Todoist
+// #DB4C3F. Penyimpangan dari palet RRI HANYA di dalam panel Tugas ini dan
+// disengaja atas instruksi pengguna; panel lain tetap memakai palet RRI.
 // Semua label Bahasa Indonesia (keputusan 2026-11-23).
-// Palet dasar RRI; merah/oranye/hijau hanya sebagai penanda semantik tanggal
-// & prioritas seperti Todoist (revisi palet 2026-11-15).
-// Data memakai koleksi Firestore `task` yang sudah ada — tidak ada koleksi
-// atau aturan baru. Tampilan Disposisi (Alur F) dibuang dari panel ini
-// 2026-11-24 atas instruksi pengguna; model data & tugas disposisi
+// Tampilan dalam panel: Kotak Masuk, Hari Ini, Mendatang, Filter & Label,
+// Laporan. Data memakai koleksi Firestore `task` yang sudah ada — tidak ada
+// koleksi atau aturan baru. Tampilan Disposisi (Alur F) dibuang dari panel
+// ini 2026-11-24 atas instruksi pengguna; model data & tugas disposisi
 // (TSK-04/TSK-05) tetap ada dan tampil sebagai tugas biasa.
 
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { BarChart3, CalendarDays, CalendarRange, Inbox, Tags } from 'lucide-react';
+import type { ReactNode } from 'react';
+import {
+  BarChart3,
+  CalendarDays,
+  CalendarRange,
+  CheckCircle2,
+  FolderSearch,
+  Hash,
+  Inbox,
+  Plus,
+  Search,
+  Tags,
+} from 'lucide-react';
 import type { KomentarTugas, PrioritasTugas, StatusTask, SubTugas, Task } from '../lib/types';
 import type { ModulProps, TaskInput, TaskPatch } from '../lib/store';
 import { DUMMY_USERS } from '../lib/dummyUsers';
@@ -43,15 +57,87 @@ import {
   type KelompokTugas,
   type UrutanTugas,
 } from '../lib/tugasTodoist';
-import {
-  JudulBagian,
-  Kartu,
-  Label,
-  PesanKosong,
-  TombolSekunder,
-  TombolUtama,
-  inputClass,
-} from '../components/ui';
+// Helper visual lokal ala Todoist — dipakai HANYA di panel ini supaya palet
+// RRI di komponen bersama (components/ui) tidak berubah untuk panel lain.
+
+/** Tombol utama merah ala Todoist. */
+function TombolMerah({
+  children,
+  onClick,
+  type = 'button',
+  disabled = false,
+}: {
+  children: ReactNode;
+  onClick?: () => void;
+  type?: 'button' | 'submit';
+  disabled?: boolean;
+}) {
+  return (
+    <button
+      type={type}
+      onClick={onClick}
+      disabled={disabled}
+      className="rounded-md bg-[#DB4C3F] px-4 py-2 text-sm font-semibold text-white hover:bg-[#C23B2E] disabled:opacity-50"
+    >
+      {children}
+    </button>
+  );
+}
+
+/** Tombol netral berbingkai ala Todoist. */
+function TombolNetral({
+  children,
+  onClick,
+  disabled = false,
+}: {
+  children: ReactNode;
+  onClick?: () => void;
+  disabled?: boolean;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      disabled={disabled}
+      className="rounded-md border border-[#e0e0e0] bg-white px-3 py-1.5 text-sm font-medium text-[#202020] hover:bg-[#f5f5f5] disabled:opacity-50"
+    >
+      {children}
+    </button>
+  );
+}
+
+/** Kartu putih ala Todoist (border tipis #e6e6e6, rounded-lg). */
+function KartuPutih({
+  children,
+  className = '',
+}: {
+  children: ReactNode;
+  className?: string;
+}) {
+  return (
+    <div className={`rounded-lg border border-[#e6e6e6] bg-white p-4 ${className}`}>
+      {children}
+    </div>
+  );
+}
+
+/** Input netral ala Todoist. */
+const inputTodo =
+  'w-full rounded-md border border-[#e0e0e0] px-3 py-2 text-sm text-[#202020] outline-none focus:border-[#DB4C3F]';
+
+/** Label kecil abu-abu ala Todoist. */
+function LabelTodo({ children }: { children: ReactNode }) {
+  return (
+    <label className="mb-1 block text-xs font-semibold text-[#808080]">
+      {children}
+    </label>
+  );
+}
+
+/** Empty state ala Todoist: teks abu-abu rata tengah, tanpa border. */
+function PesanKosongTodo({ teks }: { teks: string }) {
+  return <p className="py-8 text-center text-sm text-[#808080]">{teks}</p>;
+}
 
 type Tampilan =
   | 'kotak-masuk'
@@ -63,17 +149,17 @@ type Tampilan =
 /** Kelas warna tanggal ala Todoist: merah bila terlambat, hijau bila hari ini. */
 function kelasTanggal(t: Task): string {
   const s = statusTanggal(t.tenggat);
-  if (s === 'terlambat') return 'font-semibold text-red-600';
-  if (s === 'hari-ini') return 'font-semibold text-green-700';
-  return 'text-[#0d2569]/70';
+  if (s === 'terlambat') return 'font-medium text-[#d1453b]';
+  if (s === 'hari-ini') return 'font-medium text-[#058527]';
+  return 'text-[#808080]';
 }
 
 /** Warna bendera prioritas ala Todoist (P1 merah, P2 oranye, P3 biru, P4 abu-abu). */
 const WARNA_PRIORITAS: Record<PrioritasTugas, string> = {
-  1: '#dc2626',
-  2: '#ea580c',
-  3: '#2573e2',
-  4: '#94a3b8',
+  1: '#d1453b',
+  2: '#eb8909',
+  3: '#246fe0',
+  4: '#a8a8a8',
 };
 
 function BenderaPrioritas({ p }: { p: PrioritasTugas }) {
@@ -92,7 +178,7 @@ function BenderaPrioritas({ p }: { p: PrioritasTugas }) {
 /** Badge status berbahasa Indonesia (nilai tersimpan sudah Indonesia). */
 function BadgeStatus({ status }: { status: StatusTask }) {
   return (
-    <span className="inline-flex items-center rounded bg-[#2573e2]/10 px-2 py-0.5 text-xs font-semibold text-[#0d2569]">
+    <span className="inline-flex items-center rounded bg-[#f5f5f5] px-2 py-0.5 text-xs font-medium text-[#808080]">
       {status}
     </span>
   );
@@ -125,7 +211,7 @@ export default function Todo(props: ModulProps) {
   const [tampilan, setTampilan] = useState<Tampilan>('hari-ini');
   const [cariLokal, setCariLokal] = useState('');
   const [cakupan, setCakupan] = useState<'saya' | 'semua'>('saya');
-  const [layout, setLayout] = useState<'daftar' | 'board'>('daftar');
+  const [layout, setLayout] = useState<'daftar' | 'board'>('board');
   const [kelompok, setKelompok] = useState<KelompokTugas>('proyek');
   const [urutan, setUrutan] = useState<UrutanTugas>('cerdas');
   const [filterStatus, setFilterStatus] = useState<string>('Semua');
@@ -139,6 +225,8 @@ export default function Todo(props: ModulProps) {
   } | null>(null);
   const [detailId, setDetailId] = useState<string | null>(null);
   const [pesan, setPesan] = useState('');
+  /** Proyek yang dipilih dari sidebar Todoist (null = semua proyek). */
+  const [proyekPilihan, setProyekPilihan] = useState<string | null>(null);
   const cariRef = useRef<HTMLInputElement>(null);
   const bolehKelolaTask = bolehAksi(user.peran, 'kelolaTask');
 
@@ -220,6 +308,39 @@ export default function Todo(props: ModulProps) {
       tugasSelesai(t) && (cakupan === 'semua' || t.pemilik === user.nama),
   ).length;
 
+  /** Hitungan tugas belum selesai per proyek (untuk sidebar Todoist). */
+  const jumlahProyek = useMemo(() => {
+    const hitung = new Map<string, number>();
+    for (const t of data.task) {
+      if (tugasSelesai(t)) continue;
+      if (cakupan === 'semua' || t.pemilik === user.nama) {
+        const p = proyekTugas(t);
+        hitung.set(p, (hitung.get(p) ?? 0) + 1);
+      }
+    }
+    return hitung;
+  }, [data.task, cakupan, user.nama]);
+
+  /** Judul tampilan ala Todoist + hitungan subjudulnya. */
+  const JUDUL_TAMPILAN: Record<Tampilan, string> = {
+    'kotak-masuk': 'Kotak Masuk',
+    'hari-ini': 'Hari Ini',
+    mendatang: 'Mendatang',
+    'filter-label': 'Filter & Label',
+    laporan: 'Laporan',
+  };
+  const judulTampilan = proyekPilihan ?? JUDUL_TAMPILAN[tampilan];
+  const jumlahJudul =
+    proyekPilihan !== null
+      ? (jumlahProyek.get(proyekPilihan) ?? 0)
+      : tampilan === 'hari-ini'
+        ? jumlahHariIni
+        : tampilan === 'kotak-masuk'
+          ? jumlahKotakMasuk
+          : tampilan === 'laporan'
+            ? jumlahSelesai
+            : null;
+
   const pemilikUnik = [...new Set(data.task.map((t) => t.pemilik))].sort(
     (a, b) => a.localeCompare(b, 'id-ID'),
   );
@@ -237,27 +358,41 @@ export default function Todo(props: ModulProps) {
 
   const pilihTampilan = (id: Tampilan) => {
     setTampilan(id);
+    setProyekPilihan(null);
+    setPesan('');
+  };
+
+  /** Pilih proyek dari sidebar Todoist (membuka tampilan proyek itu). */
+  const pilihProyek = (nama: string | null) => {
+    setProyekPilihan(nama);
+    setTampilan('kotak-masuk');
     setPesan('');
   };
 
   return (
-    <div className="flex flex-col gap-4 md:flex-row md:gap-0">
-      <SubPanelTugas
+    <div className="flex flex-col bg-white md:flex-row">
+      <SidebarTodoist
         tampilan={tampilan}
         onPilih={pilihTampilan}
         jumlahKotakMasuk={jumlahKotakMasuk}
         jumlahHariIni={jumlahHariIni}
         jumlahSelesai={jumlahSelesai}
+        jumlahProyek={jumlahProyek}
+        proyekAktif={proyekPilihan}
+        onPilihProyek={pilihProyek}
+        onTambah={() => setQuickAdd({})}
+        onCari={() => cariRef.current?.focus()}
+        bolehTambah={bolehKelolaTask}
       />
-      <div className="min-w-0 flex-1 space-y-4 md:pl-6">
-        <div className="flex flex-wrap items-center justify-between gap-2">
-          <div>
-            <JudulBagian>Tugas</JudulBagian>
-            <p className="mt-1 text-sm text-[#0d2569]/70">Tugas perorangan.</p>
-          </div>
-          {tampilan === 'hari-ini' && (
-            <p className="text-sm font-semibold text-[#0d2569]">
-              {jumlahHariIni} tugas
+      <div className="min-w-0 flex-1 space-y-4 px-4 py-6 md:px-8">
+        <div>
+          <h2 className="text-[26px] font-bold leading-8 text-[#202020]">
+            {judulTampilan}
+          </h2>
+          {jumlahJudul !== null && (
+            <p className="mt-1 flex items-center gap-1.5 text-sm text-[#808080]">
+              <CheckCircle2 size={15} />
+              {jumlahJudul} tugas
             </p>
           )}
         </div>
@@ -320,8 +455,12 @@ export default function Todo(props: ModulProps) {
 
       {tampilan === 'kotak-masuk' && (
         <DaftarTugas
-          judul="Kotak Masuk"
-          tugas={belumSelesai}
+          judul={proyekPilihan ?? 'Kotak Masuk'}
+          tugas={
+            proyekPilihan
+              ? belumSelesai.filter((t) => proyekTugas(t) === proyekPilihan)
+              : belumSelesai
+          }
           kelompok={kelompok}
           urutan={urutan}
           layout={layout}
@@ -389,7 +528,7 @@ export default function Todo(props: ModulProps) {
       )}
 
       {pesan !== '' && (
-        <p className="rounded-md border border-[#2573e2]/40 bg-[#2573e2]/5 px-3 py-2 text-sm font-semibold text-[#0d2569]">
+        <p className="rounded-md border border-[#e6e6e6] bg-[#f5f5f5] px-3 py-2 text-sm text-[#202020]">
           {pesan}
         </p>
       )}
@@ -411,15 +550,24 @@ export default function Todo(props: ModulProps) {
   );
 }
 
-/** Sub-panel kiri tampilan Tugas — pola panel sub-navigasi Qontak di App.tsx
-    (kolom w-60, border-r, judul kapital, item ikon + label), dengan hitungan
-    tugas di kanan tiap item seperti sidebar Todoist. */
-function SubPanelTugas(props: {
+/** Sidebar Todoist di dalam panel (bukan lagi sub-panel ala Laporan):
+ * tombol tambah tugas merah di atas, item Cari, navigasi tampilan dengan
+ * hitungan (hitungan Hari Ini merah seperti Todoist), lalu bagian
+ * "Proyek Saya" + proyek workspace LPP RRI dengan hitungan, dan
+ * "Jelajahi semua proyek". Lebar 280px seperti sidebar Todoist; item aktif
+ * berlatar merah muda dengan teks merah. */
+function SidebarTodoist(props: {
   tampilan: Tampilan;
   onPilih: (t: Tampilan) => void;
   jumlahKotakMasuk: number;
   jumlahHariIni: number;
   jumlahSelesai: number;
+  jumlahProyek: Map<string, number>;
+  proyekAktif: string | null;
+  onPilihProyek: (nama: string | null) => void;
+  onTambah: () => void;
+  onCari: () => void;
+  bolehTambah: boolean;
 }) {
   const item: {
     id: Tampilan;
@@ -449,36 +597,91 @@ function SubPanelTugas(props: {
     },
   ];
   return (
-    <div className="flex w-full shrink-0 flex-col border-b border-[#0d2569]/10 bg-white md:w-60 md:border-b-0 md:border-r">
-      <div className="flex shrink-0 items-center justify-between px-4 pb-2 pt-4">
-        <span className="text-xs font-bold uppercase tracking-wide text-[#0d2569]">
-          Tugas
-        </span>
-      </div>
-      <div className="scrollbar-tersembunyi min-h-0 flex-1 space-y-1 overflow-y-auto px-2 pb-4">
+    <div className="flex w-full shrink-0 flex-col bg-[#fafafa] px-2 pb-4 pt-4 md:w-[280px] md:border-r md:border-[#e6e6e6]">
+      {props.bolehTambah && (
+        <button
+          type="button"
+          onClick={props.onTambah}
+          className="flex items-center gap-2 rounded-md px-2 py-1.5 text-left text-sm font-semibold text-[#DB4C3F] hover:bg-[#DB4C3F]/5"
+        >
+          <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[#DB4C3F] text-white">
+            <Plus size={16} />
+          </span>
+          Tambah tugas
+        </button>
+      )}
+      <button
+        type="button"
+        onClick={props.onCari}
+        className="mt-1 flex w-full items-center gap-3 rounded-md px-2 py-2 text-left text-sm text-[#202020] hover:bg-black/[0.04]"
+      >
+        <Search size={16} className="shrink-0 text-[#808080]" />
+        Cari
+      </button>
+      <div className="mt-2 space-y-0.5">
         {item.map(({ id, label, jumlah, Icon }) => {
-          const aktif = id === props.tampilan;
+          const aktif = id === props.tampilan && props.proyekAktif === null;
           return (
             <button
               key={id}
               type="button"
               onClick={() => props.onPilih(id)}
-              className={`flex w-full items-center gap-3 rounded-md px-3 py-2 text-left text-sm ${
+              className={`flex w-full items-center gap-3 rounded-md px-2 py-2 text-left text-sm ${
                 aktif
-                  ? 'bg-[#2573e2]/10 font-semibold text-[#2573e2]'
-                  : 'text-[#0d2569]/70 hover:bg-[#2573e2]/5 hover:text-[#0d2569]'
+                  ? 'bg-[#fceae8] font-semibold text-[#DB4C3F]'
+                  : 'text-[#202020] hover:bg-black/[0.04]'
               }`}
             >
-              <Icon size={15} className="shrink-0" />
+              <Icon
+                size={16}
+                className={`shrink-0 ${aktif ? 'text-[#DB4C3F]' : 'text-[#808080]'}`}
+              />
               {label}
               {jumlah !== undefined && (
-                <span className="ml-auto text-xs font-semibold text-[#0d2569]/50">
+                <span
+                  className={`ml-auto text-xs font-semibold ${
+                    id === 'hari-ini' ? 'text-[#DB4C3F]' : 'text-[#808080]'
+                  }`}
+                >
                   {jumlah}
                 </span>
               )}
             </button>
           );
         })}
+      </div>
+      <p className="mt-5 px-2 text-xs font-bold uppercase tracking-wide text-[#808080]">
+        Proyek Saya
+      </p>
+      <div className="mt-1 space-y-0.5">
+        {PROYEK_TODOIST.map((p) => {
+          const jumlah = props.jumlahProyek.get(p.nama) ?? 0;
+          const aktif = props.proyekAktif === p.nama;
+          return (
+            <button
+              key={p.nama}
+              type="button"
+              onClick={() => props.onPilihProyek(p.nama)}
+              className={`flex w-full items-center gap-3 rounded-md px-2 py-2 text-left text-sm ${
+                aktif
+                  ? 'bg-[#fceae8] font-semibold text-[#DB4C3F]'
+                  : 'text-[#202020] hover:bg-black/[0.04]'
+              }`}
+            >
+              <Hash size={15} className="shrink-0 text-[#808080]" />
+              {p.nama}
+              <span className="ml-auto text-xs text-[#808080]">{jumlah}</span>
+            </button>
+          );
+        })}
+        <button
+          type="button"
+          onClick={() => props.onPilihProyek(null)}
+          className="flex w-full items-center gap-3 rounded-md px-2 py-2 text-left text-sm text-[#202020] hover:bg-black/[0.04]"
+        >
+          <FolderSearch size={15} className="shrink-0 text-[#808080]" />
+          Jelajahi semua proyek
+        </button>
       </div>
     </div>
   );
@@ -518,14 +721,14 @@ function ToolbarTugas(props: {
       <div className="flex flex-wrap items-center gap-2">
         <input
           ref={p.cariRef}
-          className={`${inputClass} max-w-xs`}
+          className={`${inputTodo} max-w-xs`}
           value={p.cariLokal}
           onChange={(e) => p.onCariLokal(e.target.value)}
           placeholder="Cari tugas… (Ctrl+K)"
         />
         <div>
           <select
-            className={inputClass}
+            className={inputTodo}
             value={p.cakupan}
             onChange={(e) => p.onCakupan(e.target.value as 'saya' | 'semua')}
             aria-label="Cakupan tugas"
@@ -536,7 +739,7 @@ function ToolbarTugas(props: {
         </div>
         <div>
           <select
-            className={inputClass}
+            className={inputTodo}
             value={p.filterStatus}
             onChange={(e) => p.onFilterStatus(e.target.value)}
             aria-label="Saring berdasarkan status"
@@ -550,40 +753,40 @@ function ToolbarTugas(props: {
           </select>
         </div>
         {!p.sembunyikanOpsiTampilan && (
-          <TombolSekunder onClick={() => p.onTampilOpsi(!p.tampilOpsi)}>
+          <TombolNetral onClick={() => p.onTampilOpsi(!p.tampilOpsi)}>
             Tampilan: {p.layout === 'daftar' ? 'Daftar' : 'Board'}
-          </TombolSekunder>
+          </TombolNetral>
         )}
         {p.bolehKelolaTask && (
-          <TombolUtama onClick={p.onTambah}>+ Tambah tugas</TombolUtama>
+          <TombolMerah onClick={p.onTambah}>+ Tambah tugas</TombolMerah>
         )}
       </div>
 
       {p.tampilOpsi && !p.sembunyikanOpsiTampilan && (
-        <Kartu>
-          <p className="text-sm font-bold text-[#0d2569]">Opsi tampilan</p>
+        <KartuPutih>
+          <p className="text-sm font-bold text-[#202020]">Opsi tampilan</p>
           <div className="mt-3 grid gap-4 md:grid-cols-2 lg:grid-cols-4">
             <div>
-              <Label>Tata letak</Label>
+              <LabelTodo>Tata letak</LabelTodo>
               <div className="flex gap-2">
-                <TombolSekunder
+                <TombolNetral
                   onClick={() => p.onLayout('daftar')}
                   disabled={p.layout === 'daftar'}
                 >
                   Daftar
-                </TombolSekunder>
-                <TombolSekunder
+                </TombolNetral>
+                <TombolNetral
                   onClick={() => p.onLayout('board')}
                   disabled={p.layout === 'board'}
                 >
                   Board
-                </TombolSekunder>
+                </TombolNetral>
               </div>
             </div>
             <div>
-              <Label>Kelompokkan berdasarkan</Label>
+              <LabelTodo>Kelompokkan berdasarkan</LabelTodo>
               <select
-                className={inputClass}
+                className={inputTodo}
                 value={p.kelompok}
                 onChange={(e) => p.onKelompok(e.target.value as KelompokTugas)}
               >
@@ -597,9 +800,9 @@ function ToolbarTugas(props: {
               </select>
             </div>
             <div>
-              <Label>Urutkan</Label>
+              <LabelTodo>Urutkan</LabelTodo>
               <select
-                className={inputClass}
+                className={inputTodo}
                 value={p.urutan}
                 onChange={(e) => p.onUrutan(e.target.value as UrutanTugas)}
               >
@@ -611,9 +814,9 @@ function ToolbarTugas(props: {
             </div>
             <div className="space-y-3">
               <div>
-                <Label>Penanggung jawab</Label>
+                <LabelTodo>Penanggung jawab</LabelTodo>
                 <select
-                  className={inputClass}
+                  className={inputTodo}
                   value={p.filterPemilik}
                   onChange={(e) => p.onFilterPemilik(e.target.value)}
                 >
@@ -626,9 +829,9 @@ function ToolbarTugas(props: {
                 </select>
               </div>
               <div>
-                <Label>Prioritas</Label>
+                <LabelTodo>Prioritas</LabelTodo>
                 <select
-                  className={inputClass}
+                  className={inputTodo}
                   value={p.filterPrioritas}
                   onChange={(e) => p.onFilterPrioritas(e.target.value)}
                 >
@@ -640,9 +843,9 @@ function ToolbarTugas(props: {
                 </select>
               </div>
               <div>
-                <Label>Label</Label>
+                <LabelTodo>Label</LabelTodo>
                 <select
-                  className={inputClass}
+                  className={inputTodo}
                   value={p.filterLabel}
                   onChange={(e) => p.onFilterLabel(e.target.value)}
                 >
@@ -657,7 +860,7 @@ function ToolbarTugas(props: {
             </div>
           </div>
           <div className="mt-3">
-            <TombolSekunder
+            <TombolNetral
               onClick={() => {
                 p.onFilterStatus('Semua');
                 p.onFilterPrioritas('Semua');
@@ -668,9 +871,9 @@ function ToolbarTugas(props: {
               }}
             >
               Atur ulang semua
-            </TombolSekunder>
+            </TombolNetral>
           </div>
-        </Kartu>
+        </KartuPutih>
       )}
     </div>
   );
@@ -687,13 +890,13 @@ function ToolbarLaporan(props: {
     <div className="flex flex-wrap items-center gap-2">
       <input
         ref={props.cariRef}
-        className={`${inputClass} max-w-xs`}
+        className={`${inputTodo} max-w-xs`}
         value={props.cariLokal}
         onChange={(e) => props.onCariLokal(e.target.value)}
         placeholder="Cari tugas selesai… (Ctrl+K)"
       />
       <select
-        className={inputClass}
+        className={inputTodo}
         value={props.cakupan}
         onChange={(e) =>
           props.onCakupan(e.target.value as 'saya' | 'semua')
@@ -777,11 +980,11 @@ function QuickAdd(props: {
   const pemilikPilihan = [...new Set([user.nama, ...DUMMY_USERS.map((u) => u.nama)])];
 
   return (
-    <Kartu>
+    <div className="rounded-xl border border-[#e6e6e6] bg-white p-4 shadow-[0_8px_24px_rgba(0,0,0,0.12)]">
       <div className="space-y-3">
         <input
           ref={inputJudul}
-          className={inputClass}
+          className="w-full border-0 px-0 py-1 text-base font-medium text-[#202020] outline-none placeholder:text-[#a8a8a8]" 
           value={judul}
           onChange={(e) => setJudul(e.target.value)}
           onKeyDown={(e) => {
@@ -791,7 +994,7 @@ function QuickAdd(props: {
         />
         {tampilDeskripsi ? (
           <textarea
-            className={`${inputClass} min-h-16`}
+            className="w-full min-h-16 border-0 px-0 py-1 text-sm text-[#202020] outline-none placeholder:text-[#a8a8a8]" 
             value={deskripsi}
             onChange={(e) => setDeskripsi(e.target.value)}
             placeholder="Deskripsi (opsional)"
@@ -799,7 +1002,7 @@ function QuickAdd(props: {
         ) : (
           <button
             type="button"
-            className="text-sm font-semibold text-[#2573e2]"
+            className="text-sm font-semibold text-[#DB4C3F]"
             onClick={() => setTampilDeskripsi(true)}
           >
             + Deskripsi
@@ -807,7 +1010,7 @@ function QuickAdd(props: {
         )}
         <div className="flex flex-wrap items-center gap-2">
           <select
-            className={`${inputClass} w-auto`}
+            className={`${inputTodo} w-auto`}
             value={proyek}
             onChange={(e) => setProyek(e.target.value)}
             aria-label="Proyek"
@@ -820,14 +1023,14 @@ function QuickAdd(props: {
             ))}
           </select>
           <input
-            className={`${inputClass} w-auto`}
+            className={`${inputTodo} w-auto`}
             type="date"
             value={tenggat}
             onChange={(e) => setTenggat(e.target.value)}
             aria-label="Tanggal"
           />
           <select
-            className={`${inputClass} w-auto`}
+            className={`${inputTodo} w-auto`}
             value={pemilik}
             onChange={(e) => setPemilik(e.target.value)}
             aria-label="Penanggung jawab"
@@ -838,28 +1041,28 @@ function QuickAdd(props: {
               </option>
             ))}
           </select>
-          <TombolSekunder onClick={() => setTampilLanjutan(!tampilLanjutan)}>
+          <TombolNetral onClick={() => setTampilLanjutan(!tampilLanjutan)}>
             {tampilLanjutan ? '− Opsi lain' : '+ Opsi lain'}
-          </TombolSekunder>
+          </TombolNetral>
         </div>
         <div className="flex flex-wrap gap-1">
-          <TombolSekunder onClick={() => pilihTanggalCepat('hari-ini')}>
+          <TombolNetral onClick={() => pilihTanggalCepat('hari-ini')}>
             Hari ini
-          </TombolSekunder>
-          <TombolSekunder onClick={() => pilihTanggalCepat('besok')}>
+          </TombolNetral>
+          <TombolNetral onClick={() => pilihTanggalCepat('besok')}>
             Besok
-          </TombolSekunder>
-          <TombolSekunder onClick={() => pilihTanggalCepat('akhir-pekan')}>
+          </TombolNetral>
+          <TombolNetral onClick={() => pilihTanggalCepat('akhir-pekan')}>
             Akhir pekan ini
-          </TombolSekunder>
-          <TombolSekunder onClick={() => pilihTanggalCepat('minggu-depan')}>
+          </TombolNetral>
+          <TombolNetral onClick={() => pilihTanggalCepat('minggu-depan')}>
             Minggu depan
-          </TombolSekunder>
+          </TombolNetral>
         </div>
         {tampilLanjutan && (
           <div className="grid gap-4 md:grid-cols-2">
             <div>
-              <Label>Prioritas</Label>
+              <LabelTodo>Prioritas</LabelTodo>
               <div className="flex gap-2">
                 {([1, 2, 3, 4] as PrioritasTugas[]).map((p) => (
                   <button
@@ -868,8 +1071,8 @@ function QuickAdd(props: {
                     onClick={() => setPrioritas(p)}
                     className={`rounded-md border px-3 py-1.5 text-sm font-semibold ${
                       prioritas === p
-                        ? 'border-[#2573e2] bg-[#2573e2]/10 text-[#0d2569]'
-                        : 'border-[#2573e2]/30 text-[#0d2569]/70'
+                        ? 'border-[#DB4C3F] bg-[#f5f5f5] text-[#202020]'
+                        : 'border-[#e0e0e0] text-[#808080]'
                     }`}
                   >
                     <BenderaPrioritas p={p} />
@@ -878,9 +1081,9 @@ function QuickAdd(props: {
               </div>
             </div>
             <div>
-              <Label>Pengulangan</Label>
+              <LabelTodo>Pengulangan</LabelTodo>
               <select
-                className={inputClass}
+                className={inputTodo}
                 value={pengulangan}
                 onChange={(e) => setPengulangan(e.target.value)}
               >
@@ -891,16 +1094,16 @@ function QuickAdd(props: {
               </select>
             </div>
             <div>
-              <Label>Pengingat</Label>
+              <LabelTodo>Pengingat</LabelTodo>
               <input
-                className={inputClass}
+                className={inputTodo}
                 type="datetime-local"
                 value={pengingat}
                 onChange={(e) => setPengingat(e.target.value)}
               />
             </div>
             <div>
-              <Label>Label</Label>
+              <LabelTodo>Label</LabelTodo>
               <div className="flex flex-wrap gap-1">
                 {props.labelDipakai.map((l) => (
                   <button
@@ -915,8 +1118,8 @@ function QuickAdd(props: {
                     }
                     className={`rounded-full border px-2 py-0.5 text-xs font-semibold ${
                       label.includes(l)
-                        ? 'border-[#2573e2] bg-[#2573e2]/10 text-[#0d2569]'
-                        : 'border-[#2573e2]/30 text-[#0d2569]/70'
+                        ? 'border-[#DB4C3F] bg-[#f5f5f5] text-[#202020]'
+                        : 'border-[#e0e0e0] text-[#808080]'
                     }`}
                   >
                     {l}
@@ -927,16 +1130,16 @@ function QuickAdd(props: {
           </div>
         )}
         {error !== '' && (
-          <p className="rounded-md border border-[#2573e2]/40 bg-[#2573e2]/5 px-3 py-2 text-sm font-semibold text-[#0d2569]">
+          <p className="rounded-md border border-[#d1453b]/40 bg-[#d1453b]/5 px-3 py-2 text-sm font-medium text-[#d1453b]">
             {error}
           </p>
         )}
-        <div className="flex gap-2">
-          <TombolUtama onClick={simpan}>Tambah tugas</TombolUtama>
-          <TombolSekunder onClick={props.onBatal}>Batal</TombolSekunder>
+        <div className="flex justify-end gap-2">
+          <TombolNetral onClick={props.onBatal}>Batal</TombolNetral>
+          <TombolMerah onClick={simpan}>Tambah tugas</TombolMerah>
         </div>
       </div>
-    </Kartu>
+    </div>
   );
 }
 
@@ -969,8 +1172,8 @@ function KartuTugas(props: {
 
   return (
     <div
-      className={`flex items-start gap-3 rounded-md border border-[#2573e2]/20 bg-white px-3 py-2.5 ${
-        selesai ? 'opacity-70' : ''
+      className={`flex items-start gap-3 rounded-lg border border-[#e6e6e6] bg-white px-3 py-3 hover:border-[#d9d9d9] ${
+        selesai ? 'opacity-60' : ''
       }`}
     >
       <button
@@ -985,10 +1188,10 @@ function KartuTugas(props: {
               : 'Tandai selesai'
         }
         aria-label={selesai ? 'Tandai belum selesai' : 'Tandai selesai'}
-        className={`mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2 text-xs font-bold ${
+        className={`mt-0.5 flex h-[18px] w-[18px] shrink-0 items-center justify-center rounded-full border text-xs font-bold ${
           selesai
-            ? 'border-[#2573e2] bg-[#2573e2] text-white'
-            : 'border-[#0d2569]/40 text-transparent hover:border-[#2573e2] hover:text-[#2573e2]'
+            ? 'border-[#DB4C3F] bg-[#DB4C3F] text-white'
+            : 'border-[#999] text-transparent hover:border-[#DB4C3F] hover:text-[#DB4C3F]'
         }`}
       >
         ✓
@@ -998,8 +1201,8 @@ function KartuTugas(props: {
           <button
             type="button"
             onClick={() => onBukaDetail(t)}
-            className={`text-left text-sm font-semibold text-[#0d2569] hover:underline ${
-              selesai ? 'line-through' : ''
+            className={`text-left text-sm text-[#202020] hover:underline ${
+              selesai ? 'text-[#808080] line-through' : ''
             }`}
           >
             {t.judul}
@@ -1009,7 +1212,7 @@ function KartuTugas(props: {
         <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs">
           <span className={kelasTanggal(t)}>{labelTanggal(t.tenggat)}</span>
           {t.pengulangan && t.pengulangan !== 'tidak' && (
-            <span className="text-[#0d2569]/70" title="Berulang">
+            <span className="text-[#808080]" title="Berulang">
               ↻{' '}
               {t.pengulangan === 'harian'
                 ? 'Setiap hari'
@@ -1021,7 +1224,7 @@ function KartuTugas(props: {
           {progres.total > 0 && (
             <button
               type="button"
-              className="font-semibold text-[#0d2569]/70 hover:underline"
+              className="font-semibold text-[#808080] hover:underline"
               onClick={() => setTampilSub(!tampilSub)}
             >
               {tampilSub ? '▾' : '▸'} Sub-tugas {progres.selesai}/
@@ -1029,22 +1232,22 @@ function KartuTugas(props: {
             </button>
           )}
           {(t.komentar ?? []).length > 0 && (
-            <span className="text-[#0d2569]/70">
+            <span className="text-[#808080]">
               💬 {t.komentar?.length} komentar
             </span>
           )}
-          <span className="text-[#0d2569]/70">
+          <span className="text-[#808080]">
             #{proyekTugas(t)}
             {t.bagian ? ` / ${t.bagian}` : ''}
           </span>
-          <span className="text-[#0d2569]/70">{t.pemilik}</span>
+          <span className="text-[#808080]">{t.pemilik}</span>
         </div>
         {(t.label ?? []).length > 0 && (
           <div className="mt-1 flex flex-wrap gap-1">
             {(t.label ?? []).map((l) => (
               <span
                 key={l}
-                className="rounded-full bg-[#2573e2]/10 px-2 py-0.5 text-xs font-semibold text-[#0d2569]"
+                className="rounded-full bg-[#f5f5f5] px-2 py-0.5 text-xs text-[#666]"
               >
                 {l}
               </span>
@@ -1061,14 +1264,14 @@ function KartuTugas(props: {
                   aria-label={s.selesai ? 'Batalkan sub-tugas' : 'Selesaikan sub-tugas'}
                   className={`flex h-4 w-4 items-center justify-center rounded-full border text-[10px] font-bold ${
                     s.selesai
-                      ? 'border-[#2573e2] bg-[#2573e2] text-white'
-                      : 'border-[#0d2569]/40 text-transparent hover:border-[#2573e2]'
+                      ? 'border-[#DB4C3F] bg-[#DB4C3F] text-white'
+                      : 'border-[#999] text-transparent hover:border-[#DB4C3F]'
                   }`}
                 >
                   ✓
                 </button>
                 <span
-                  className={s.selesai ? 'text-[#0d2569]/50 line-through' : 'text-[#0d2569]'}
+                  className={s.selesai ? 'text-[#a8a8a8] line-through' : 'text-[#202020]'}
                 >
                   {s.judul}
                 </span>
@@ -1098,18 +1301,18 @@ function DaftarTugas(props: {
 }) {
   const kelompokTugas = kelompokkanTugas(props.tugas, props.kelompok, props.urutan);
   if (props.tugas.length === 0) {
-    return <PesanKosong teks={props.kosong} />;
+    return <PesanKosongTodo teks={props.kosong} />;
   }
   if (props.layout === 'board') {
     return (
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
         {kelompokTugas.map((g) => (
-          <div
-            key={g.nama}
-            className="rounded-md border border-[#2573e2]/20 bg-[#2573e2]/5 p-3"
-          >
-            <p className="mb-2 text-sm font-bold text-[#0d2569]">
-              {g.nama} ({g.tugas.length})
+          <div key={g.nama}>
+            <p className="mb-2 text-sm font-bold text-[#202020]">
+              {g.nama}{' '}
+              <span className="font-normal text-[#808080]">
+                ({g.tugas.length})
+              </span>
             </p>
             <div className="space-y-2">
               {g.tugas.map((t) => (
@@ -1125,7 +1328,7 @@ function DaftarTugas(props: {
             </div>
             <button
               type="button"
-              className="mt-2 text-sm font-semibold text-[#2573e2]"
+              className="mt-2 text-sm font-medium text-[#808080] hover:text-[#DB4C3F]"
               onClick={() =>
                 props.onTambah(
                   props.kelompok === 'proyek' && g.nama !== 'Kotak Masuk'
@@ -1145,8 +1348,11 @@ function DaftarTugas(props: {
     <div className="space-y-4">
       {kelompokTugas.map((g) => (
         <div key={g.nama}>
-          <p className="mb-2 text-sm font-bold text-[#0d2569]">
-            {g.nama} ({g.tugas.length})
+          <p className="mb-2 text-sm font-bold text-[#202020]">
+            {g.nama}{' '}
+            <span className="font-normal text-[#808080]">
+              ({g.tugas.length})
+            </span>
           </p>
           <div className="space-y-2">
             {g.tugas.map((t) => (
@@ -1162,7 +1368,7 @@ function DaftarTugas(props: {
           </div>
           <button
             type="button"
-            className="mt-2 text-sm font-semibold text-[#2573e2]"
+            className="mt-2 text-sm font-medium text-[#808080] hover:text-[#DB4C3F]"
             onClick={() =>
               props.onTambah(
                 props.kelompok === 'proyek' && g.nama !== 'Kotak Masuk'
@@ -1171,7 +1377,7 @@ function DaftarTugas(props: {
               )
             }
           >
-            + Tambah tugas ke {g.nama}
+            + Tambah tugas
           </button>
         </div>
       ))}
@@ -1230,24 +1436,28 @@ function Mendatang(props: {
 
   return (
     <div className="space-y-3">
-      <p className="text-sm text-[#0d2569]/70">
+      <p className="text-sm text-[#808080]">
         Tugas yang terlambat tetap terlihat di kolom Terlambat sampai
         dijadwalkan ulang — seperti Todoist.
       </p>
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         {kolom.map((k) => (
-          <div
-            key={k.label}
-            className="rounded-md border border-[#2573e2]/20 bg-[#2573e2]/5 p-3"
-          >
-            <p className="mb-2 text-sm font-bold text-[#0d2569]">
-              {k.label} ({k.tugas.length})
+          <div key={k.label}>
+            <p className="mb-2 text-sm font-bold text-[#202020]">
+              {k.label}{' '}
+              <span className="font-normal text-[#808080]">
+                ({k.tugas.length})
+              </span>
             </p>
             {k.tanggal === null && k.tugas.length > 0 && (
               <div className="mb-2">
-                <TombolSekunder onClick={jadwalkanUlangSemua}>
+                <button
+                  type="button"
+                  onClick={jadwalkanUlangSemua}
+                  className="rounded-md border border-[#DB4C3F] px-3 py-1.5 text-sm font-medium text-[#DB4C3F] hover:bg-[#DB4C3F]/5"
+                >
                   Jadwalkan ulang semua
-                </TombolSekunder>
+                </button>
               </div>
             )}
             <div className="space-y-2">
@@ -1265,7 +1475,7 @@ function Mendatang(props: {
             {k.tanggal !== null && (
               <button
                 type="button"
-                className="mt-2 text-sm font-semibold text-[#2573e2]"
+                className="mt-2 text-sm font-medium text-[#808080] hover:text-[#DB4C3F]"
                 onClick={() => props.onTambah(k.tanggal as string)}
               >
                 + Tambah tugas
@@ -1333,8 +1543,8 @@ function FilterLabel(props: {
   return (
     <div className="space-y-4">
       <div className="grid gap-4 md:grid-cols-2">
-        <Kartu>
-          <p className="text-sm font-bold text-[#0d2569]">Filter saya</p>
+        <KartuPutih>
+          <p className="text-sm font-bold text-[#202020]">Filter saya</p>
           <ul className="mt-2 space-y-1">
             {FILTER_TERSIMPAN.map((f) => {
               const jumlah = props.data.task.filter((t) =>
@@ -1349,8 +1559,8 @@ function FilterLabel(props: {
                     onClick={() => setPilihan({ jenis: 'filter', id: f.id })}
                     className={`w-full rounded-md px-2 py-1.5 text-left text-sm font-semibold ${
                       aktif
-                        ? 'bg-[#2573e2]/10 text-[#0d2569]'
-                        : 'text-[#0d2569]/80 hover:bg-[#2573e2]/5'
+                        ? 'bg-[#f5f5f5] text-[#202020]'
+                        : 'text-[#202020] hover:bg-[#f5f5f5]'
                     }`}
                   >
                     {f.label} ({jumlah})
@@ -1359,9 +1569,9 @@ function FilterLabel(props: {
               );
             })}
           </ul>
-        </Kartu>
-        <Kartu>
-          <p className="text-sm font-bold text-[#0d2569]">Label</p>
+        </KartuPutih>
+        <KartuPutih>
+          <p className="text-sm font-bold text-[#202020]">Label</p>
           <ul className="mt-2 space-y-1">
             {labelSemua.map((l) => {
               const aktif =
@@ -1373,8 +1583,8 @@ function FilterLabel(props: {
                     onClick={() => setPilihan({ jenis: 'label', nama: l })}
                     className={`w-full rounded-md px-2 py-1.5 text-left text-sm font-semibold ${
                       aktif
-                        ? 'bg-[#2573e2]/10 text-[#0d2569]'
-                        : 'text-[#0d2569]/80 hover:bg-[#2573e2]/5'
+                        ? 'bg-[#f5f5f5] text-[#202020]'
+                        : 'text-[#202020] hover:bg-[#f5f5f5]'
                     }`}
                   >
                     {l} ({hitungLabel(l)})
@@ -1385,7 +1595,7 @@ function FilterLabel(props: {
           </ul>
           <div className="mt-3 flex gap-2">
             <input
-              className={inputClass}
+              className={inputTodo}
               value={labelBaru}
               onChange={(e) => setLabelBaru(e.target.value)}
               onKeyDown={(e) => {
@@ -1393,25 +1603,25 @@ function FilterLabel(props: {
               }}
               placeholder="Label baru"
             />
-            <TombolSekunder onClick={tambahLabel}>
+            <TombolNetral onClick={tambahLabel}>
               + Tambah label
-            </TombolSekunder>
+            </TombolNetral>
           </div>
           {pesanLabel !== '' && (
-            <p className="mt-2 text-sm font-semibold text-[#0d2569]">
+            <p className="mt-2 text-sm font-semibold text-[#202020]">
               {pesanLabel}
             </p>
           )}
-        </Kartu>
+        </KartuPutih>
       </div>
 
       {pilihan === null ? (
-        <PesanKosong teks="Pilih filter atau label untuk melihat tugasnya." />
+        <PesanKosongTodo teks="Pilih filter atau label untuk melihat tugasnya." />
       ) : tugasPilihan.length === 0 ? (
-        <PesanKosong teks="Tidak ada tugas pada filter ini saat ini." />
+        <PesanKosongTodo teks="Tidak ada tugas pada filter ini saat ini." />
       ) : (
         <div>
-          <p className="mb-2 text-sm font-bold text-[#0d2569]">
+          <p className="mb-2 text-sm font-bold text-[#202020]">
             {pilihan.jenis === 'filter'
               ? FILTER_TERSIMPAN.find((f) => f.id === pilihan.id)?.label
               : pilihan.nama}{' '}
@@ -1465,41 +1675,41 @@ function Laporan(props: {
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap items-center gap-3">
-        <p className="text-sm font-semibold text-[#0d2569]">
+        <p className="text-sm font-semibold text-[#202020]">
           {selesai.length} tugas selesai
           {bulanIni > 0 ? ` · ${bulanIni} selesai bulan ini` : ''}
         </p>
-        <TombolSekunder onClick={ekspor} disabled={selesai.length === 0}>
+        <TombolNetral onClick={ekspor} disabled={selesai.length === 0}>
           Ekspor CSV
-        </TombolSekunder>
+        </TombolNetral>
       </div>
       {selesai.length === 0 ? (
-        <PesanKosong teks="Belum ada tugas yang selesai." />
+        <PesanKosongTodo teks="Belum ada tugas yang selesai." />
       ) : (
-        <Kartu>
-          <ul className="divide-y divide-[#2573e2]/10">
+        <KartuPutih>
+          <ul className="divide-y divide-[#e6e6e6]">
             {selesai.map((t) => (
               <li key={t.id} className="flex flex-wrap items-center gap-2 py-2">
                 <button
                   type="button"
                   onClick={() => props.onBukaDetail(t)}
-                  className="text-left text-sm font-semibold text-[#0d2569] hover:underline"
+                  className="text-left text-sm font-semibold text-[#202020] hover:underline"
                 >
                   {t.judul}
                 </button>
-                <span className="text-xs text-[#0d2569]/70">
+                <span className="text-xs text-[#808080]">
                   Selesai pada{' '}
                   {t.selesaiPada ? formatTanggal(t.selesaiPada) : '—'}
                 </span>
-                <span className="text-xs text-[#0d2569]/70">
+                <span className="text-xs text-[#808080]">
                   #{proyekTugas(t)}
                 </span>
-                <span className="text-xs text-[#0d2569]/70">{t.pemilik}</span>
+                <span className="text-xs text-[#808080]">{t.pemilik}</span>
                 <BadgeStatus status={t.status} />
               </li>
             ))}
           </ul>
-        </Kartu>
+        </KartuPutih>
       )}
     </div>
   );
@@ -1606,22 +1816,22 @@ function DialogTugas(props: {
 
   return (
     <div className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-black/50 p-4">
-      <div className="w-full max-w-3xl rounded-md bg-white p-4 shadow-lg">
+      <div className="w-full max-w-3xl rounded-xl bg-white p-5 shadow-[0_16px_48px_rgba(0,0,0,0.2)]">
         <div className="flex items-center justify-between gap-2">
-          <p className="text-sm font-semibold text-[#0d2569]/70">
+          <p className="text-sm font-semibold text-[#808080]">
             #{proyekTugas(t)}
             {t.bagian ? ` / ${t.bagian}` : ''} · {t.id}
           </p>
           <div className="flex items-center gap-2">
             <div className="relative">
-              <TombolSekunder onClick={() => setTampilMenu(!tampilMenu)}>
+              <TombolNetral onClick={() => setTampilMenu(!tampilMenu)}>
                 ⋯
-              </TombolSekunder>
+              </TombolNetral>
               {tampilMenu && (
-                <div className="absolute right-0 z-10 mt-1 w-56 rounded-md border border-[#2573e2]/20 bg-white p-1 shadow-md">
+                <div className="absolute right-0 z-10 mt-1 w-56 rounded-md border border-[#e6e6e6] bg-white p-1 shadow-md">
                   <button
                     type="button"
-                    className="block w-full rounded px-2 py-1.5 text-left text-sm text-[#0d2569] hover:bg-[#2573e2]/5"
+                    className="block w-full rounded px-2 py-1.5 text-left text-sm text-[#202020] hover:bg-[#f5f5f5]"
                     onClick={() => {
                       actions.duplikatTask(t);
                       props.onPesan(`Tugas "${t.judul}" diduplikat.`);
@@ -1632,7 +1842,7 @@ function DialogTugas(props: {
                   </button>
                   <button
                     type="button"
-                    className="block w-full rounded px-2 py-1.5 text-left text-sm text-[#0d2569] hover:bg-[#2573e2]/5"
+                    className="block w-full rounded px-2 py-1.5 text-left text-sm text-[#202020] hover:bg-[#f5f5f5]"
                     onClick={salinTautan}
                   >
                     Salin tautan tugas
@@ -1650,7 +1860,7 @@ function DialogTugas(props: {
                 </div>
               )}
             </div>
-            <TombolSekunder onClick={props.onTutup}>✕</TombolSekunder>
+            <TombolNetral onClick={props.onTutup}>✕</TombolNetral>
           </div>
         </div>
 
@@ -1666,16 +1876,16 @@ function DialogTugas(props: {
                 }
                 disabled={t.status === 'Ditutup'}
                 aria-label={tugasSelesai(t) ? 'Tandai belum selesai' : 'Tandai selesai'}
-                className={`mt-1 flex h-6 w-6 shrink-0 items-center justify-center rounded-full border-2 text-xs font-bold ${
+                className={`mt-1 flex h-6 w-6 shrink-0 items-center justify-center rounded-full border text-xs font-bold ${
                   tugasSelesai(t)
-                    ? 'border-[#2573e2] bg-[#2573e2] text-white'
-                    : 'border-[#0d2569]/40 text-transparent hover:border-[#2573e2] hover:text-[#2573e2]'
+                    ? 'border-[#DB4C3F] bg-[#DB4C3F] text-white'
+                    : 'border-[#999] text-transparent hover:border-[#DB4C3F] hover:text-[#DB4C3F]'
                 }`}
               >
                 ✓
               </button>
               <input
-                className="w-full border-b border-transparent text-base font-bold text-[#0d2569] outline-none focus:border-[#2573e2]"
+                className="w-full border-b border-transparent text-lg font-bold text-[#202020] outline-none focus:border-[#DB4C3F]" 
                 value={judul}
                 onChange={(e) => setJudul(e.target.value)}
                 onBlur={simpanJudul}
@@ -1685,9 +1895,9 @@ function DialogTugas(props: {
               />
             </div>
             <div>
-              <Label>Deskripsi</Label>
+              <LabelTodo>Deskripsi</LabelTodo>
               <textarea
-                className={`${inputClass} min-h-20`}
+                className={`${inputTodo} min-h-20`}
                 value={deskripsi}
                 onChange={(e) => setDeskripsi(e.target.value)}
                 onBlur={simpanDeskripsi}
@@ -1697,7 +1907,7 @@ function DialogTugas(props: {
 
             <div>
               <div className="flex items-center justify-between">
-                <p className="text-sm font-bold text-[#0d2569]">
+                <p className="text-sm font-bold text-[#202020]">
                   Sub-tugas {progres.total > 0 ? `${progres.selesai}/${progres.total}` : ''}
                 </p>
               </div>
@@ -1716,8 +1926,8 @@ function DialogTugas(props: {
                       aria-label={s.selesai ? 'Batalkan sub-tugas' : 'Selesaikan sub-tugas'}
                       className={`flex h-4 w-4 items-center justify-center rounded-full border text-[10px] font-bold ${
                         s.selesai
-                          ? 'border-[#2573e2] bg-[#2573e2] text-white'
-                          : 'border-[#0d2569]/40 text-transparent hover:border-[#2573e2]'
+                          ? 'border-[#DB4C3F] bg-[#DB4C3F] text-white'
+                          : 'border-[#999] text-transparent hover:border-[#DB4C3F]'
                       }`}
                     >
                       ✓
@@ -1725,15 +1935,15 @@ function DialogTugas(props: {
                     <span
                       className={
                         s.selesai
-                          ? 'flex-1 text-[#0d2569]/50 line-through'
-                          : 'flex-1 text-[#0d2569]'
+                          ? 'flex-1 text-[#a8a8a8] line-through'
+                          : 'flex-1 text-[#202020]'
                       }
                     >
                       {s.judul}
                     </span>
                     <button
                       type="button"
-                      className="text-xs font-semibold text-[#0d2569]/50 hover:text-red-600"
+                      className="text-xs font-semibold text-[#a8a8a8] hover:text-[#d1453b]" 
                       onClick={() =>
                         ubah({
                           subTugas: (t.subTugas ?? []).filter((x) => x.id !== s.id),
@@ -1747,7 +1957,7 @@ function DialogTugas(props: {
               </ul>
               <div className="mt-2 flex gap-2">
                 <input
-                  className={inputClass}
+                  className={inputTodo}
                   value={subBaru}
                   onChange={(e) => setSubBaru(e.target.value)}
                   onKeyDown={(e) => {
@@ -1755,26 +1965,26 @@ function DialogTugas(props: {
                   }}
                   placeholder="Tambah sub-tugas"
                 />
-                <TombolSekunder onClick={tambahSub}>+ Tambah</TombolSekunder>
+                <TombolNetral onClick={tambahSub}>+ Tambah</TombolNetral>
               </div>
             </div>
 
             <div>
-              <p className="text-sm font-bold text-[#0d2569]">Komentar</p>
+              <p className="text-sm font-bold text-[#202020]">Komentar</p>
               <ul className="mt-2 space-y-2">
                 {(t.komentar ?? []).map((k) => (
                   <li
                     key={k.id}
-                    className="rounded-md border border-[#2573e2]/20 px-3 py-2 text-sm"
+                    className="rounded-md border border-[#e6e6e6] px-3 py-2 text-sm"
                   >
-                    <p className="font-semibold text-[#0d2569]">{k.penulis}</p>
-                    <p className="text-[#0d2569]">{k.isi}</p>
+                    <p className="font-semibold text-[#202020]">{k.penulis}</p>
+                    <p className="text-[#202020]">{k.isi}</p>
                   </li>
                 ))}
               </ul>
               <div className="mt-2 flex gap-2">
                 <input
-                  className={inputClass}
+                  className={inputTodo}
                   value={komentarBaru}
                   onChange={(e) => setKomentarBaru(e.target.value)}
                   onKeyDown={(e) => {
@@ -1782,14 +1992,14 @@ function DialogTugas(props: {
                   }}
                   placeholder="Tambahkan komentar…"
                 />
-                <TombolSekunder onClick={tambahKomentar}>Kirim</TombolSekunder>
+                <TombolNetral onClick={tambahKomentar}>Kirim</TombolNetral>
               </div>
             </div>
 
             {aktivitas.length > 0 && (
               <div>
-                <p className="text-sm font-bold text-[#0d2569]">Aktivitas</p>
-                <ul className="mt-1 space-y-1 text-sm text-[#0d2569]/70">
+                <p className="text-sm font-bold text-[#202020]">Aktivitas</p>
+                <ul className="mt-1 space-y-1 text-sm text-[#808080]">
                   {aktivitas.map((a) => (
                     <li key={a.id}>
                       {a.aksi} — {a.pengguna}
@@ -1800,38 +2010,38 @@ function DialogTugas(props: {
             )}
           </div>
 
-          <div className="space-y-4 border-t border-[#2573e2]/20 pt-4 md:border-l md:border-t-0 md:pl-4 md:pt-0">
+          <div className="space-y-4 border-t border-[#e6e6e6] pt-4 md:border-l md:border-t-0 md:pl-4 md:pt-0">
             <div>
-              <Label>Status</Label>
+              <LabelTodo>Status</LabelTodo>
               <div className="flex flex-wrap items-center gap-2">
                 <BadgeStatus status={t.status} />
                 {t.status === 'Belum Dikerjakan' && (
-                  <TombolSekunder
+                  <TombolNetral
                     onClick={() => actions.ubahStatusTask(t, 'Berjalan')}
                   >
                     Mulai
-                  </TombolSekunder>
+                  </TombolNetral>
                 )}
                 {!tugasSelesai(t) && (
-                  <TombolSekunder
+                  <TombolNetral
                     onClick={() => actions.ubahStatusTask(t, 'Selesai')}
                   >
                     Selesai
-                  </TombolSekunder>
+                  </TombolNetral>
                 )}
                 {t.status === 'Selesai' && (
-                  <TombolSekunder
+                  <TombolNetral
                     onClick={() => actions.ubahStatusTask(t, 'Berjalan')}
                   >
                     Kerjakan lagi
-                  </TombolSekunder>
+                  </TombolNetral>
                 )}
               </div>
             </div>
             <div>
-              <Label>Proyek</Label>
+              <LabelTodo>Proyek</LabelTodo>
               <select
-                className={inputClass}
+                className={inputTodo}
                 value={t.proyek ?? ''}
                 onChange={(e) =>
                   ubah({
@@ -1850,9 +2060,9 @@ function DialogTugas(props: {
             </div>
             {bagianPilihan.length > 0 && (
               <div>
-                <Label>Bagian</Label>
+                <LabelTodo>Bagian</LabelTodo>
                 <select
-                  className={inputClass}
+                  className={inputTodo}
                   value={t.bagian ?? ''}
                   onChange={(e) =>
                     ubah({ bagian: e.target.value || undefined })
@@ -1868,9 +2078,9 @@ function DialogTugas(props: {
               </div>
             )}
             <div>
-              <Label>Penanggung jawab</Label>
+              <LabelTodo>Penanggung jawab</LabelTodo>
               <select
-                className={inputClass}
+                className={inputTodo}
                 value={t.pemilik}
                 onChange={(e) => ubah({ pemilik: e.target.value })}
               >
@@ -1884,40 +2094,40 @@ function DialogTugas(props: {
               </select>
             </div>
             <div>
-              <Label>Tanggal</Label>
+              <LabelTodo>Tanggal</LabelTodo>
               <p className={`text-sm ${kelasTanggal(t)}`}>
                 {labelTanggal(t.tenggat)}
               </p>
               <input
-                className={`${inputClass} mt-1`}
+                className={`${inputTodo} mt-1`}
                 type="date"
                 value={t.tenggat}
                 onChange={(e) => ubah({ tenggat: e.target.value })}
               />
               <div className="mt-1 flex flex-wrap gap-1">
-                <TombolSekunder onClick={() => pilihTanggalCepat('hari-ini')}>
+                <TombolNetral onClick={() => pilihTanggalCepat('hari-ini')}>
                   Hari ini
-                </TombolSekunder>
-                <TombolSekunder onClick={() => pilihTanggalCepat('besok')}>
+                </TombolNetral>
+                <TombolNetral onClick={() => pilihTanggalCepat('besok')}>
                   Besok
-                </TombolSekunder>
-                <TombolSekunder onClick={() => pilihTanggalCepat('akhir-pekan')}>
+                </TombolNetral>
+                <TombolNetral onClick={() => pilihTanggalCepat('akhir-pekan')}>
                   Akhir pekan ini
-                </TombolSekunder>
-                <TombolSekunder onClick={() => pilihTanggalCepat('minggu-depan')}>
+                </TombolNetral>
+                <TombolNetral onClick={() => pilihTanggalCepat('minggu-depan')}>
                   Minggu depan
-                </TombolSekunder>
-                <TombolSekunder
+                </TombolNetral>
+                <TombolNetral
                   onClick={() => pilihTanggalCepat('tanpa-tanggal')}
                 >
                   Tanpa tanggal
-                </TombolSekunder>
+                </TombolNetral>
               </div>
             </div>
             <div>
-              <Label>Pengulangan</Label>
+              <LabelTodo>Pengulangan</LabelTodo>
               <select
-                className={inputClass}
+                className={inputTodo}
                 value={t.pengulangan ?? 'tidak'}
                 onChange={(e) =>
                   ubah({
@@ -1933,7 +2143,7 @@ function DialogTugas(props: {
               </select>
             </div>
             <div>
-              <Label>Prioritas</Label>
+              <LabelTodo>Prioritas</LabelTodo>
               <div className="flex flex-wrap gap-1">
                 {([1, 2, 3, 4] as PrioritasTugas[]).map((p) => (
                   <button
@@ -1944,8 +2154,8 @@ function DialogTugas(props: {
                     }
                     className={`rounded-md border px-2 py-1 text-xs font-semibold ${
                       prioritasTugas(t) === p
-                        ? 'border-[#2573e2] bg-[#2573e2]/10'
-                        : 'border-[#2573e2]/30'
+                        ? 'border-[#DB4C3F] bg-[#f5f5f5]'
+                        : 'border-[#e0e0e0]'
                     }`}
                   >
                     <BenderaPrioritas p={p} />
@@ -1954,7 +2164,7 @@ function DialogTugas(props: {
               </div>
             </div>
             <div>
-              <Label>Label</Label>
+              <LabelTodo>Label</LabelTodo>
               <div className="flex flex-wrap gap-1">
                 {props.labelDipakai.map((l) => (
                   <button
@@ -1963,8 +2173,8 @@ function DialogTugas(props: {
                     onClick={() => alihLabel(l)}
                     className={`rounded-full border px-2 py-0.5 text-xs font-semibold ${
                       (t.label ?? []).includes(l)
-                        ? 'border-[#2573e2] bg-[#2573e2]/10 text-[#0d2569]'
-                        : 'border-[#2573e2]/30 text-[#0d2569]/70'
+                        ? 'border-[#DB4C3F] bg-[#f5f5f5] text-[#202020]'
+                        : 'border-[#e0e0e0] text-[#808080]'
                     }`}
                   >
                     {l}
@@ -1973,21 +2183,21 @@ function DialogTugas(props: {
               </div>
             </div>
             <div>
-              <Label>Pengingat</Label>
+              <LabelTodo>Pengingat</LabelTodo>
               <input
-                className={inputClass}
+                className={inputTodo}
                 type="datetime-local"
                 value={t.pengingat ?? ''}
                 onChange={(e) => ubah({ pengingat: e.target.value || undefined })}
               />
-              <p className="mt-1 text-xs text-[#0d2569]/60">
+              <p className="mt-1 text-xs text-[#808080]">
                 Pengingat hanya penanda di tugas ini.
               </p>
             </div>
             {t.terkaitLabel && (
               <div>
-                <Label>Terkait</Label>
-                <p className="text-sm text-[#0d2569]">{t.terkaitLabel}</p>
+                <LabelTodo>Terkait</LabelTodo>
+                <p className="text-sm text-[#202020]">{t.terkaitLabel}</p>
               </div>
             )}
           </div>
@@ -2009,14 +2219,14 @@ function DialogTugas(props: {
               >
                 Ya, hapus
               </button>
-              <TombolSekunder onClick={() => setKonfirmasiHapus(false)}>
+              <TombolNetral onClick={() => setKonfirmasiHapus(false)}>
                 Batal
-              </TombolSekunder>
+              </TombolNetral>
             </div>
           </div>
         )}
         {pesanLokal !== '' && (
-          <p className="mt-3 rounded-md border border-[#2573e2]/40 bg-[#2573e2]/5 px-3 py-2 text-sm font-semibold text-[#0d2569]">
+          <p className="mt-3 rounded-md border border-[#e6e6e6] bg-[#f5f5f5] px-3 py-2 text-sm text-[#202020]">
             {pesanLokal}
           </p>
         )}
