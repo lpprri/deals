@@ -5,8 +5,9 @@
 // Asersi: tampilan (Kotak Masuk, Hari Ini, Mendatang, Filter & Label,
 // Laporan) sebagai sidebar Todoist di dalam panel, Quick Add, kartu tugas,
 
-// Panel Tampilan di sisi kanan (menggantikan toolbar + View Options),
-// Mendatang + jadwalkan ulang massal, filter tersimpan & label
+// Panel Tampilan sebagai pop-up dari tombol "Tampilan" kanan atas
+// (menggantikan toolbar + View Options), Mendatang + jadwalkan ulang
+// massal, filter tersimpan & label
 // disposisi, Laporan + ekspor CSV, pencarian + shortcut, Bahasa Indonesia
 // di UI panel, Disposisi (Alur F) DIBUANG dari panel (model & data tetap),
 // TIDAK ADA koleksi/aturan Firestore baru, helper murni benar di data
@@ -201,28 +202,65 @@ cek(
     todo.includes("'#246fe0'"),
 );
 
-// --- 4. Panel Tampilan di sisi kanan (menggantikan toolbar + Opsi tampilan). ---
+// --- 4. Panel Tampilan sebagai POP-UP dari tombol "Tampilan" kanan atas
+//     (menggantikan toolbar + Opsi tampilan; panel docked dihapus). ---
 cek(
-  'Panel Tampilan ada di sisi kanan konten (docked, lebar 280px di desktop)',
+  'Panel Tampilan BUKAN lagi docked di kanan (tanpa flex row + lebar 280px)',
   todo.includes('function PanelTampilan(') &&
-    todo.includes('lg:w-[280px]') &&
-    todo.includes('flex flex-col gap-6 lg:flex-row'),
+    !todo.includes('flex flex-col gap-6 lg:flex-row') &&
+    !todo.includes('lg:w-[280px]'),
 );
 cek(
-  'Panel Tampilan: Layout Daftar/Board berfungsi, Kalender/Tabel nonaktif "segera"',
-  panelTampilan.includes("onLayout('daftar')") &&
-    panelTampilan.includes("onLayout('board')") &&
-    panelTampilan.includes('Kalender') &&
+  'Tombol "Tampilan" ada di kanan atas konten (ikon + label)',
+  todo.includes('SlidersHorizontal') &&
+    todo.includes('setTampilanPop((v) => !v)') &&
+    todo.includes('justify-between gap-4'),
+);
+cek(
+  'Pop-up Tampilan hanya muncul saat tombol ditekan (state tampilanPop)',
+  todo.includes('const [tampilanPop, setTampilanPop] = useState(false)') &&
+    todo.includes('{tampilanPop && (') &&
+    todo.includes('absolute right-0 top-full'),
+);
+cek(
+  'Pop-up Tampilan tertutup Esc / klik di luar (backdrop + handler Esc)',
+  todo.includes('fixed inset-0 z-30') &&
+    todo.includes("onClick={() => setTampilanPop(false)}") &&
+    todo.includes('setTampilanPop(false);'),
+);
+cek(
+  'Panel Tampilan: Layout 4 tombol berikon SEBARIS (Daftar/Board/Kalender/Tabel)',
+  panelTampilan.includes('grid grid-cols-4') &&
+    panelTampilan.includes('<List size={18} />') &&
+    panelTampilan.includes('<LayoutGrid size={18} />') &&
+    panelTampilan.includes('<CalendarDays size={18} />') &&
+    panelTampilan.includes('<Table size={18} />') &&
+    panelTampilan.includes("onLayout('daftar')") &&
+    panelTampilan.includes("onLayout('board')"),
+);
+cek(
+  'Panel Tampilan: Kalender/Tabel nonaktif "segera", pilihan aktif menonjol',
+  panelTampilan.includes('Kalender') &&
     panelTampilan.includes('Tabel') &&
-    panelTampilan.includes('segera'),
+    panelTampilan.includes('segera') &&
+    panelTampilan.includes('shadow-sm') &&
+    panelTampilan.includes('disabled'),
 );
 cek(
-  'Panel Tampilan: toggle "Tugas selesai" mengubah daftar (tugasDaftar)',
-  panelTampilan.includes('Tugas selesai') &&
+  'Panel Tampilan: "Tugas selesai" berupa toggle switch (role="switch")',
+  panelTampilan.includes('role="switch"') &&
+    panelTampilan.includes('aria-checked={p.tampilkanSelesai}') &&
+    panelTampilan.includes('Tugas selesai') &&
     todo.includes(
       'tugasDaftar = tampilkanSelesai ? tugasTerlihat : belumSelesai',
-    ) &&
-    todo.includes('tugas={tugasDaftar}'),
+    ),
+);
+cek(
+  'Panel Tampilan: Sort & Filter berupa seksi lipat (chevron, default terbuka)',
+  panelTampilan.includes('ChevronDown') &&
+    panelTampilan.includes('aria-expanded={sortTerbuka}') &&
+    panelTampilan.includes('aria-expanded={filterTerbuka}') &&
+    panelTampilan.includes('useState(true)'),
 );
 cek(
   'Panel Tampilan: Sort (Kelompokkan/Urutkan) memakai opsi yang sudah ada',
@@ -231,10 +269,14 @@ cek(
     panelTampilan.includes('<option value="cerdas">Cerdas</option>'),
 );
 cek(
-  'Panel Tampilan: Filter Penanggung jawab / Dibuat oleh / Prioritas',
+  'Panel Tampilan: Filter Cakupan / Penanggung jawab / Dibuat oleh / Prioritas / Tanggal',
   panelTampilan.includes('Penanggung jawab') &&
     panelTampilan.includes('Dibuat oleh') &&
-    panelTampilan.includes('Prioritas'),
+    panelTampilan.includes('Prioritas') &&
+    panelTampilan.includes('<LabelTodo>Tanggal</LabelTodo>') &&
+    panelTampilan.includes('<option value="hari-ini">Hari ini</option>') &&
+    panelTampilan.includes('<option value="terlambat">Terlambat</option>') &&
+    panelTampilan.includes('<option value="mendatang">Mendatang</option>'),
 );
 cek(
   'Panel Tampilan: baris "Cakupan" pertama di Filter (Tugas saya / Semua tugas)',
@@ -272,10 +314,55 @@ cek(
   !panelTampilan.includes('>Label<') &&
     !panelTampilan.includes('Workspace'),
 );
+// "Reset semua" harus mengembalikan SEMUA opsi panel ke default, termasuk
+// Cakupan (temuan cek preview PR #161: Reset tidak mereset Cakupan, tetap
+// "Semua tugas" setelah diklik). Diperiksa dari badan resetTampilan.
+const awalReset = todo.indexOf('const resetTampilan = () => {');
+const akhirReset = todo.indexOf('\n  };', awalReset);
+const badanReset = todo.slice(awalReset, akhirReset);
 cek(
-  'Panel Tampilan: "Reset semua" mengembalikan opsi ke default',
+  'Panel Tampilan: "Reset semua" mengembalikan Cakupan ke "Tugas saya"',
+  badanReset.includes("setCakupan('saya')"),
+);
+cek(
+  'Panel Tampilan: "Reset semua" mengembalikan semua opsi ke default',
   panelTampilan.includes('Reset semua') &&
-    todo.includes('resetTampilan'),
+    badanReset.includes("setLayout('board')") &&
+    badanReset.includes('setTampilkanSelesai(false)') &&
+    badanReset.includes("setKelompok('proyek')") &&
+    badanReset.includes("setUrutan('cerdas')") &&
+    badanReset.includes("setFilterStatus('Semua')") &&
+    badanReset.includes("setFilterPrioritas('Semua')") &&
+    badanReset.includes("setFilterPemilik('Semua')") &&
+    badanReset.includes("setFilterDibuat('Semua')") &&
+    badanReset.includes("setFilterTanggal('Semua')"),
+);
+// Simulasi predikat filter Tanggal (Todo.tsx): 'hari-ini' = tenggat hari
+// ini, 'terlambat' = tenggat lewat, 'mendatang' = tenggat setelah hari
+// ini; tanpa tenggat tidak masuk ketiganya (hanya 'Semua').
+const hariIniPanel = hariIniIso();
+const lolosTanggal = (
+  f: 'Semua' | 'hari-ini' | 'terlambat' | 'mendatang',
+  tenggat: string,
+) =>
+  f === 'Semua' ||
+  (f === 'hari-ini' && tenggat !== '' && tenggat === hariIniPanel) ||
+  (f === 'terlambat' && tenggat !== '' && tenggat < hariIniPanel) ||
+  (f === 'mendatang' && tenggat !== '' && tenggat > hariIniPanel);
+cek(
+  'Filter Tanggal berfungsi (Hari ini/Terlambat/Mendatang dari tenggat)',
+  todo.includes("filterTanggal === 'hari-ini'") &&
+    todo.includes("filterTanggal === 'terlambat'") &&
+    todo.includes("filterTanggal === 'mendatang'") &&
+    lolosTanggal('hari-ini', hariIniPanel) &&
+    !lolosTanggal('hari-ini', tambahHari(hariIniPanel, -1)) &&
+    lolosTanggal('terlambat', tambahHari(hariIniPanel, -1)) &&
+    !lolosTanggal('terlambat', hariIniPanel) &&
+    lolosTanggal('mendatang', tambahHari(hariIniPanel, 1)) &&
+    !lolosTanggal('mendatang', hariIniPanel) &&
+    !lolosTanggal('hari-ini', '') &&
+    !lolosTanggal('terlambat', '') &&
+    !lolosTanggal('mendatang', ''),
 );
 cek(
   'Kontrol panel mengubah daftar (layout/kelompok/urutan diteruskan ke daftar)',
@@ -292,10 +379,12 @@ cek(
     app.includes('dibuatOleh: input.dibuatOleh?.trim() || undefined'),
 );
 cek(
-  'Default state tidak berubah (cakupan Tugas saya, status Semua, Board)',
+  'Default state tidak berubah (cakupan Tugas saya, status Semua, Board, Tanggal Semua, pop-up tertutup)',
   todo.includes("useState<'saya' | 'semua'>('saya')") &&
     todo.includes("useState<'daftar' | 'board'>('board')") &&
-    todo.includes("useState<string>('Semua')"),
+    todo.includes("useState<string>('Semua')") &&
+    todo.includes("useState<FilterTanggal>('Semua')") &&
+    todo.includes('const [tampilanPop, setTampilanPop] = useState(false)'),
 );
 cek(
   'Toolbar Laporan tidak disentuh (dropdown Tugas saya tetap ada)',
@@ -612,6 +701,8 @@ try {
     'Cari atau ketik perintah...',
     'Baru saja dilihat',
     'Belum ada label.',
+    'Tampilan',
+    'Reset semua',
   ]) {
     cek(`Bundle memuat "${s}"`, bundle.includes(s));
   }
