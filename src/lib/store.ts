@@ -285,6 +285,8 @@ export interface AdvertisementInput {
 
 export interface TaskInput {
   pemilik: string;
+  /** Nama operator yang membuat tugas (dicatat otomatis dari user login). */
+  dibuatOleh?: string;
   judul: string;
   tenggat: string;
   terkaitId?: string;
