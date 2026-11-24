@@ -26,7 +26,6 @@ import {
   HeartHandshake,
   Home,
   Inbox,
-  Plus,
   ScrollText,
   Search,
   Stamp,
@@ -48,7 +47,6 @@ import {
   KELOMPOK_TUGAS_LABEL,
   LABEL_PRIORITAS,
   PROYEK_TODOIST,
-  STATUS_TUGAS,
   akhirPekanIni,
   cocokFilterTersimpan,
   cocokKataKunci,
@@ -266,7 +264,11 @@ export default function Todo(props: ModulProps) {
   const [filterStatus, setFilterStatus] = useState<string>('Semua');
   const [filterPrioritas, setFilterPrioritas] = useState<string>('Semua');
   const [filterPemilik, setFilterPemilik] = useState<string>('Semua');
-  const [tampilOpsi, setTampilOpsi] = useState(false);
+  /** Filter "Dibuat oleh" (Panel Tampilan); 'Semua' berarti tanpa filter. */
+  const [filterDibuat, setFilterDibuat] = useState<string>('Semua');
+  /** Toggle "Tugas selesai" (Panel Tampilan); mati berarti daftar hanya
+   * menampilkan tugas yang belum selesai (perilaku lama). */
+  const [tampilkanSelesai, setTampilkanSelesai] = useState(false);
   const [quickAdd, setQuickAdd] = useState<{
     proyek?: string;
     tenggat?: string;
@@ -301,7 +303,6 @@ export default function Todo(props: ModulProps) {
       if (e.key === 'Escape') {
         setQuickAdd(null);
         setDetailId(null);
-        setTampilOpsi(false);
         setPaletCari(false);
         menungguG.current = false;
         return;
@@ -359,7 +360,7 @@ export default function Todo(props: ModulProps) {
    * pop-up Cari). */
   const kataKunci = cari.trim().toLowerCase();
 
-  /** Tugas yang lolos cakupan + pencarian + semua filter toolbar. */
+  /** Tugas yang lolos cakupan + pencarian + semua filter panel. */
   const tugasTerlihat = useMemo(
     () =>
       data.task.filter(
@@ -369,6 +370,7 @@ export default function Todo(props: ModulProps) {
           (filterPrioritas === 'Semua' ||
             String(prioritasTugas(t)) === filterPrioritas) &&
           (filterPemilik === 'Semua' || t.pemilik === filterPemilik) &&
+          (filterDibuat === 'Semua' || t.dibuatOleh === filterDibuat) &&
           cocokKataKunci(t, kataKunci),
       ),
     [
@@ -378,11 +380,15 @@ export default function Todo(props: ModulProps) {
       filterStatus,
       filterPrioritas,
       filterPemilik,
+      filterDibuat,
       kataKunci,
     ],
   );
 
   const belumSelesai = tugasTerlihat.filter((t) => !tugasSelesai(t));
+  /** Daftar yang ditampilkan: tanpa tugas selesai, kecuali toggle
+   * "Tugas selesai" di Panel Tampilan dinyalakan. */
+  const tugasDaftar = tampilkanSelesai ? tugasTerlihat : belumSelesai;
   const hariIni = hariIniIso();
   const jumlahHariIni = data.task.filter(
     (t) =>
@@ -434,6 +440,25 @@ export default function Todo(props: ModulProps) {
     (a, b) => a.localeCompare(b, 'id-ID'),
   );
 
+  /** Nama pembuat tugas yang tercatat (untuk filter "Dibuat oleh"). */
+  const dibuatUnik = [
+    ...new Set(
+      data.task.map((t) => t.dibuatOleh).filter((x): x is string => !!x),
+    ),
+  ].sort((a, b) => a.localeCompare(b, 'id-ID'));
+
+  /** Kembalikan semua opsi Panel Tampilan ke default. */
+  const resetTampilan = () => {
+    setLayout('board');
+    setTampilkanSelesai(false);
+    setKelompok('proyek');
+    setUrutan('cerdas');
+    setFilterStatus('Semua');
+    setFilterPrioritas('Semua');
+    setFilterPemilik('Semua');
+    setFilterDibuat('Semua');
+  };
+
   const bukaDetail = (t: Task) => setDetailId(t.id);
   const alihStatus = (t: Task, status: StatusTask) => {
     actions.ubahStatusTask(t, status);
@@ -476,7 +501,9 @@ export default function Todo(props: ModulProps) {
         onCari={() => setPaletCari(true)}
         bolehTambah={bolehKelolaTask}
       />
-      <div className="min-w-0 flex-1 space-y-4 px-4 py-6 md:px-8">
+      <div className="min-w-0 flex-1 px-4 py-6 md:px-8">
+        <div className="flex flex-col gap-6 lg:flex-row">
+        <div className="min-w-0 flex-1 space-y-4">
         <div>
           <h2 className="text-[26px] font-bold leading-8 text-[#202020]">
             {judulTampilan}
@@ -488,31 +515,6 @@ export default function Todo(props: ModulProps) {
             </p>
           )}
         </div>
-
-        {tampilan !== 'laporan' && (
-        <ToolbarTugas
-          cakupan={cakupan}
-          onCakupan={setCakupan}
-          filterStatus={filterStatus}
-          onFilterStatus={setFilterStatus}
-          filterPrioritas={filterPrioritas}
-          onFilterPrioritas={setFilterPrioritas}
-          filterPemilik={filterPemilik}
-          onFilterPemilik={setFilterPemilik}
-          pemilikUnik={pemilikUnik}
-          layout={layout}
-          onLayout={setLayout}
-          kelompok={kelompok}
-          onKelompok={setKelompok}
-          urutan={urutan}
-          onUrutan={setUrutan}
-          tampilOpsi={tampilOpsi}
-          onTampilOpsi={setTampilOpsi}
-          bolehKelolaTask={bolehKelolaTask}
-          onTambah={() => setQuickAdd({})}
-          sembunyikanOpsiTampilan={tampilan === 'filter-label'}
-        />
-      )}
 
       {tampilan === 'laporan' && (
         <ToolbarLaporan
@@ -551,8 +553,8 @@ export default function Todo(props: ModulProps) {
           judul={proyekPilihan ?? 'Kotak Masuk'}
           tugas={
             proyekPilihan
-              ? belumSelesai.filter((t) => proyekTugas(t) === proyekPilihan)
-              : belumSelesai
+              ? tugasDaftar.filter((t) => proyekTugas(t) === proyekPilihan)
+              : tugasDaftar
           }
           kelompok={kelompok}
           urutan={urutan}
@@ -569,7 +571,7 @@ export default function Todo(props: ModulProps) {
       {tampilan === 'hari-ini' && (
         <DaftarTugas
           judul="Hari Ini"
-          tugas={belumSelesai.filter(
+          tugas={tugasDaftar.filter(
             (t) => t.tenggat !== '' && t.tenggat <= hariIni,
           )}
           kelompok={kelompok}
@@ -586,7 +588,7 @@ export default function Todo(props: ModulProps) {
 
       {tampilan === 'mendatang' && (
         <Mendatang
-          tugas={belumSelesai}
+          tugas={tugasDaftar}
           user={user}
           actions={actions}
           onBukaDetail={bukaDetail}
@@ -625,6 +627,31 @@ export default function Todo(props: ModulProps) {
           {pesan}
         </p>
       )}
+        </div>
+        {tampilan !== 'laporan' && tampilan !== 'filter-label' && (
+          <PanelTampilan
+            layout={layout}
+            onLayout={setLayout}
+            tampilkanSelesai={tampilkanSelesai}
+            onTampilkanSelesai={setTampilkanSelesai}
+            kelompok={kelompok}
+            onKelompok={setKelompok}
+            urutan={urutan}
+            onUrutan={setUrutan}
+            cakupan={cakupan}
+            onCakupan={setCakupan}
+            filterPemilik={filterPemilik}
+            onFilterPemilik={setFilterPemilik}
+            pemilikUnik={pemilikUnik}
+            filterDibuat={filterDibuat}
+            onFilterDibuat={setFilterDibuat}
+            dibuatUnik={dibuatUnik}
+            filterPrioritas={filterPrioritas}
+            onFilterPrioritas={setFilterPrioritas}
+            onReset={resetTampilan}
+          />
+        )}
+        </div>
       </div>
 
       {tugasDetail && (
@@ -1003,17 +1030,7 @@ function SidebarTodoist(props: {
     },
   ];
   return (
-    <div className="flex w-full shrink-0 flex-col bg-[#fafafa] px-2 pb-4 pt-4 md:w-[280px] md:border-r md:border-[#e6e6e6]">
-      {props.bolehTambah && (
-        <button
-          type="button"
-          onClick={props.onTambah}
-          className="flex w-full items-center justify-center gap-2 rounded-md bg-[#0D2569] px-4 py-2 text-sm font-semibold text-white hover:bg-[#081A4D]"
-        >
-          <Plus size={16} />
-          Tambah tugas
-        </button>
-      )}
+    <div className="flex w-full shrink-0 flex-col bg-white px-2 pb-4 pt-4 md:w-[280px] md:border-r md:border-[#e6e6e6]">
       <button
         type="button"
         onClick={props.onCari}
@@ -1092,33 +1109,109 @@ function SidebarTodoist(props: {
   );
 }
 
-function ToolbarTugas(props: {
-  cakupan: 'saya' | 'semua';
-  onCakupan: (v: 'saya' | 'semua') => void;
-  filterStatus: string;
-  onFilterStatus: (v: string) => void;
-  filterPrioritas: string;
-  onFilterPrioritas: (v: string) => void;
-  filterPemilik: string;
-  onFilterPemilik: (v: string) => void;
-  pemilikUnik: string[];
+
+/** Panel Tampilan di sisi kanan area konten (Display ala Todoist):
+ * menggantikan kontrol toolbar yang dihapus — Layout, toggle tugas
+ * selesai, pengelompokan/pengurutan, filter. Kalender/Tabel belum
+ * dibangun, ditampilkan nonaktif dengan tanda "segera". */
+function PanelTampilan(props: {
   layout: 'daftar' | 'board';
   onLayout: (v: 'daftar' | 'board') => void;
+  tampilkanSelesai: boolean;
+  onTampilkanSelesai: (v: boolean) => void;
   kelompok: KelompokTugas;
   onKelompok: (v: KelompokTugas) => void;
   urutan: UrutanTugas;
   onUrutan: (v: UrutanTugas) => void;
-  tampilOpsi: boolean;
-  onTampilOpsi: (v: boolean) => void;
-  bolehKelolaTask: boolean;
-  onTambah: () => void;
-  sembunyikanOpsiTampilan: boolean;
+  /** Cakupan tugas (menggantikan dropdown "Tugas saya" di toolbar yang
+   * dihapus): 'saya' = hanya tugas operator yang login, 'semua' = semua. */
+  cakupan: 'saya' | 'semua';
+  onCakupan: (v: 'saya' | 'semua') => void;
+  filterPemilik: string;
+  onFilterPemilik: (v: string) => void;
+  pemilikUnik: string[];
+  filterDibuat: string;
+  onFilterDibuat: (v: string) => void;
+  dibuatUnik: string[];
+  filterPrioritas: string;
+  onFilterPrioritas: (v: string) => void;
+  onReset: () => void;
 }) {
   const p = props;
   return (
-    <div className="space-y-3">
-      <div className="flex flex-wrap items-center gap-2">
+    <aside className="w-full shrink-0 rounded-lg border border-[#e6e6e6] bg-white p-4 lg:w-[280px]">
+      <p className="text-sm font-bold text-[#202020]">Layout</p>
+      <div className="mt-2 grid grid-cols-2 gap-2">
+        <TombolNetral
+          onClick={() => p.onLayout('daftar')}
+          disabled={p.layout === 'daftar'}
+        >
+          Daftar
+        </TombolNetral>
+        <TombolNetral
+          onClick={() => p.onLayout('board')}
+          disabled={p.layout === 'board'}
+        >
+          Board
+        </TombolNetral>
+        <TombolNetral disabled>
+          Kalender{' '}
+          <span className="rounded-full bg-[#f5f5f5] px-1.5 py-0.5 text-[11px] font-medium text-[#808080]">
+            segera
+          </span>
+        </TombolNetral>
+        <TombolNetral disabled>
+          Tabel{' '}
+          <span className="rounded-full bg-[#f5f5f5] px-1.5 py-0.5 text-[11px] font-medium text-[#808080]">
+            segera
+          </span>
+        </TombolNetral>
+      </div>
+      <label className="mt-4 flex cursor-pointer items-center gap-2 text-sm text-[#202020]">
+        <input
+          type="checkbox"
+          checked={p.tampilkanSelesai}
+          onChange={(e) => p.onTampilkanSelesai(e.target.checked)}
+          className="accent-[#0D2569]"
+        />
+        Tugas selesai
+      </label>
+      <p className="mt-5 text-sm font-bold text-[#202020]">Sort</p>
+      <div className="mt-2 space-y-3">
         <div>
+          <LabelTodo>Kelompokkan</LabelTodo>
+          <select
+            className={inputTodo}
+            value={p.kelompok}
+            onChange={(e) => p.onKelompok(e.target.value as KelompokTugas)}
+          >
+            {(Object.keys(KELOMPOK_TUGAS_LABEL) as KelompokTugas[]).map(
+              (k) => (
+                <option key={k} value={k}>
+                  {KELOMPOK_TUGAS_LABEL[k]}
+                </option>
+              ),
+            )}
+          </select>
+        </div>
+        <div>
+          <LabelTodo>Urutkan</LabelTodo>
+          <select
+            className={inputTodo}
+            value={p.urutan}
+            onChange={(e) => p.onUrutan(e.target.value as UrutanTugas)}
+          >
+            <option value="cerdas">Cerdas</option>
+            <option value="tanggal">Tanggal</option>
+            <option value="prioritas">Prioritas</option>
+            <option value="abjad">A–Z</option>
+          </select>
+        </div>
+      </div>
+      <p className="mt-5 text-sm font-bold text-[#202020]">Filter</p>
+      <div className="mt-2 space-y-3">
+        <div>
+          <LabelTodo>Cakupan</LabelTodo>
           <select
             className={inputTodo}
             value={p.cakupan}
@@ -1130,128 +1223,54 @@ function ToolbarTugas(props: {
           </select>
         </div>
         <div>
+          <LabelTodo>Penanggung jawab</LabelTodo>
           <select
             className={inputTodo}
-            value={p.filterStatus}
-            onChange={(e) => p.onFilterStatus(e.target.value)}
-            aria-label="Saring berdasarkan status"
+            value={p.filterPemilik}
+            onChange={(e) => p.onFilterPemilik(e.target.value)}
           >
-            <option value="Semua">Semua status</option>
-            {STATUS_TUGAS.map((s) => (
-              <option key={s} value={s}>
-                {s}
+            <option value="Semua">Semua</option>
+            {p.pemilikUnik.map((nama) => (
+              <option key={nama} value={nama}>
+                {nama}
               </option>
             ))}
           </select>
         </div>
-        {!p.sembunyikanOpsiTampilan && (
-          <TombolNetral onClick={() => p.onTampilOpsi(!p.tampilOpsi)}>
-            Tampilan: {p.layout === 'daftar' ? 'Daftar' : 'Board'}
-          </TombolNetral>
-        )}
-        {p.bolehKelolaTask && (
-          <TombolNavy onClick={p.onTambah}>+ Tambah tugas</TombolNavy>
-        )}
+        <div>
+          <LabelTodo>Dibuat oleh</LabelTodo>
+          <select
+            className={inputTodo}
+            value={p.filterDibuat}
+            onChange={(e) => p.onFilterDibuat(e.target.value)}
+          >
+            <option value="Semua">Semua</option>
+            {p.dibuatUnik.map((nama) => (
+              <option key={nama} value={nama}>
+                {nama}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div>
+          <LabelTodo>Prioritas</LabelTodo>
+          <select
+            className={inputTodo}
+            value={p.filterPrioritas}
+            onChange={(e) => p.onFilterPrioritas(e.target.value)}
+          >
+            <option value="Semua">Semua</option>
+            <option value="1">Prioritas 1</option>
+            <option value="2">Prioritas 2</option>
+            <option value="3">Prioritas 3</option>
+            <option value="4">Tanpa prioritas</option>
+          </select>
+        </div>
       </div>
-
-      {p.tampilOpsi && !p.sembunyikanOpsiTampilan && (
-        <KartuPutih>
-          <p className="text-sm font-bold text-[#202020]">Opsi tampilan</p>
-          <div className="mt-3 grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-            <div>
-              <LabelTodo>Tata letak</LabelTodo>
-              <div className="flex gap-2">
-                <TombolNetral
-                  onClick={() => p.onLayout('daftar')}
-                  disabled={p.layout === 'daftar'}
-                >
-                  Daftar
-                </TombolNetral>
-                <TombolNetral
-                  onClick={() => p.onLayout('board')}
-                  disabled={p.layout === 'board'}
-                >
-                  Board
-                </TombolNetral>
-              </div>
-            </div>
-            <div>
-              <LabelTodo>Kelompokkan berdasarkan</LabelTodo>
-              <select
-                className={inputTodo}
-                value={p.kelompok}
-                onChange={(e) => p.onKelompok(e.target.value as KelompokTugas)}
-              >
-                {(Object.keys(KELOMPOK_TUGAS_LABEL) as KelompokTugas[]).map(
-                  (k) => (
-                    <option key={k} value={k}>
-                      {KELOMPOK_TUGAS_LABEL[k]}
-                    </option>
-                  ),
-                )}
-              </select>
-            </div>
-            <div>
-              <LabelTodo>Urutkan</LabelTodo>
-              <select
-                className={inputTodo}
-                value={p.urutan}
-                onChange={(e) => p.onUrutan(e.target.value as UrutanTugas)}
-              >
-                <option value="cerdas">Cerdas</option>
-                <option value="tanggal">Tanggal</option>
-                <option value="prioritas">Prioritas</option>
-                <option value="abjad">A–Z</option>
-              </select>
-            </div>
-            <div className="space-y-3">
-              <div>
-                <LabelTodo>Penanggung jawab</LabelTodo>
-                <select
-                  className={inputTodo}
-                  value={p.filterPemilik}
-                  onChange={(e) => p.onFilterPemilik(e.target.value)}
-                >
-                  <option value="Semua">Semua</option>
-                  {p.pemilikUnik.map((nama) => (
-                    <option key={nama} value={nama}>
-                      {nama}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <div>
-                <LabelTodo>Prioritas</LabelTodo>
-                <select
-                  className={inputTodo}
-                  value={p.filterPrioritas}
-                  onChange={(e) => p.onFilterPrioritas(e.target.value)}
-                >
-                  <option value="Semua">Semua</option>
-                  <option value="1">Prioritas 1</option>
-                  <option value="2">Prioritas 2</option>
-                  <option value="3">Prioritas 3</option>
-                  <option value="4">Tanpa prioritas</option>
-                </select>
-              </div>
-            </div>
-          </div>
-          <div className="mt-3">
-            <TombolNetral
-              onClick={() => {
-                p.onFilterStatus('Semua');
-                p.onFilterPrioritas('Semua');
-                p.onFilterPemilik('Semua');
-                p.onKelompok('proyek');
-                p.onUrutan('cerdas');
-              }}
-            >
-              Atur ulang semua
-            </TombolNetral>
-          </div>
-        </KartuPutih>
-      )}
-    </div>
+      <div className="mt-5">
+        <TombolNetral onClick={p.onReset}>Reset semua</TombolNetral>
+      </div>
+    </aside>
   );
 }
 
@@ -1316,6 +1335,7 @@ function QuickAdd(props: {
     }
     const input: TaskInput = {
       pemilik,
+      dibuatOleh: user.nama,
       judul: judul.trim(),
       tenggat,
       deskripsi: deskripsi.trim() || undefined,

@@ -5,7 +5,8 @@
 // Asersi: tampilan (Kotak Masuk, Hari Ini, Mendatang, Filter & Label,
 // Laporan) sebagai sidebar Todoist di dalam panel, Quick Add, kartu tugas,
 
-// View Options, Mendatang + jadwalkan ulang massal, filter tersimpan & label
+// Panel Tampilan di sisi kanan (menggantikan toolbar + View Options),
+// Mendatang + jadwalkan ulang massal, filter tersimpan & label
 // disposisi, Laporan + ekspor CSV, pencarian + shortcut, Bahasa Indonesia
 // di UI panel, Disposisi (Alur F) DIBUANG dari panel (model & data tetap),
 // TIDAK ADA koleksi/aturan Firestore baru, helper murni benar di data
@@ -47,6 +48,10 @@ const todoTanpaImporIkon = todo.replace(
   /import \{[^}]*\} from 'lucide-react';/g,
   '',
 );
+// Potongan source Panel Tampilan (untuk asersi isi panel saja).
+const awalPanel = todo.indexOf('function PanelTampilan(');
+const akhirPanel = todo.indexOf('\nfunction ToolbarLaporan(', awalPanel);
+const panelTampilan = todo.slice(awalPanel, akhirPanel);
 const helper = baca('src/lib/tugasTodoist.ts');
 const types = baca('src/lib/types.ts');
 const store = baca('src/lib/store.ts');
@@ -77,22 +82,26 @@ cek(
   todo.includes('text-[26px]') && todo.includes('CheckCircle2'),
 );
 cek(
-  'Sidebar Todoist di dalam panel (lebar 280px, latar #fafafa)',
+  'Sidebar Todoist di dalam panel (lebar 280px, latar PUTIH #FFFFFF)',
   todo.includes('SidebarTodoist') &&
     todo.includes('md:w-[280px]') &&
-    todo.includes('bg-[#fafafa]'),
+    todo.includes('flex w-full shrink-0 flex-col bg-white px-2 pb-4 pt-4') &&
+    !todo.includes('bg-[#fafafa]'),
 );
 cek(
-  'Sidebar memuat tombol tambah tugas NAVY + Cari',
-  todo.includes('Tambah tugas') &&
-    todo.includes('bg-[#0D2569]') &&
-    todo.includes('Cari'),
+  'Sidebar TIDAK lagi memuat tombol "+ Tambah tugas" (Cari tetap ada)',
+  todo.includes('Cari') &&
+    !todo.includes(
+      'justify-center gap-2 rounded-md bg-[#0D2569] px-4 py-2 text-sm font-semibold text-white',
+    ) &&
+    !todo.includes('<Plus size={16} />'),
 );
 cek(
-  'Tombol "Tambah tugas" sidebar NAVY SOLID (bukan teks + lingkaran)',
-  todo.includes(
-    'justify-center gap-2 rounded-md bg-[#0D2569] px-4 py-2 text-sm font-semibold text-white',
-  ) && !todo.includes('rounded-full bg-[#0D2569] text-white'),
+  'Baris toolbar konten dihapus (tanpa ToolbarTugas, dropdown status, tombol Tampilan, + Tambah tugas konten)',
+  !todo.includes('function ToolbarTugas(') &&
+    !todo.includes('Semua status') &&
+    !todo.includes('Tampilan: {p.layout') &&
+    !todo.includes('<TombolNavy onClick={p.onTambah}>+ Tambah tugas</TombolNavy>'),
 );
 cek(
   'Sidebar memuat bagian Proyek Saya + Jelajahi semua proyek',
@@ -192,15 +201,107 @@ cek(
     todo.includes("'#246fe0'"),
 );
 
-// --- 4. View Options: Daftar/Board, Grouping, Sorting, Filter. ---
-for (const s of [
-  'Opsi tampilan',
-  'Kelompokkan berdasarkan',
-  'Cerdas',
-  'Atur ulang semua',
-]) {
-  cek(`View Options memuat "${s}"`, todo.includes(s));
-}
+// --- 4. Panel Tampilan di sisi kanan (menggantikan toolbar + Opsi tampilan). ---
+cek(
+  'Panel Tampilan ada di sisi kanan konten (docked, lebar 280px di desktop)',
+  todo.includes('function PanelTampilan(') &&
+    todo.includes('lg:w-[280px]') &&
+    todo.includes('flex flex-col gap-6 lg:flex-row'),
+);
+cek(
+  'Panel Tampilan: Layout Daftar/Board berfungsi, Kalender/Tabel nonaktif "segera"',
+  panelTampilan.includes("onLayout('daftar')") &&
+    panelTampilan.includes("onLayout('board')") &&
+    panelTampilan.includes('Kalender') &&
+    panelTampilan.includes('Tabel') &&
+    panelTampilan.includes('segera'),
+);
+cek(
+  'Panel Tampilan: toggle "Tugas selesai" mengubah daftar (tugasDaftar)',
+  panelTampilan.includes('Tugas selesai') &&
+    todo.includes(
+      'tugasDaftar = tampilkanSelesai ? tugasTerlihat : belumSelesai',
+    ) &&
+    todo.includes('tugas={tugasDaftar}'),
+);
+cek(
+  'Panel Tampilan: Sort (Kelompokkan/Urutkan) memakai opsi yang sudah ada',
+  panelTampilan.includes('Kelompokkan') &&
+    panelTampilan.includes('KELOMPOK_TUGAS_LABEL') &&
+    panelTampilan.includes('<option value="cerdas">Cerdas</option>'),
+);
+cek(
+  'Panel Tampilan: Filter Penanggung jawab / Dibuat oleh / Prioritas',
+  panelTampilan.includes('Penanggung jawab') &&
+    panelTampilan.includes('Dibuat oleh') &&
+    panelTampilan.includes('Prioritas'),
+);
+cek(
+  'Panel Tampilan: baris "Cakupan" pertama di Filter (Tugas saya / Semua tugas)',
+  panelTampilan.includes('<LabelTodo>Cakupan</LabelTodo>') &&
+    panelTampilan.includes('<option value="saya">Tugas saya</option>') &&
+    panelTampilan.includes('<option value="semua">Semua tugas</option>') &&
+    panelTampilan.indexOf('Cakupan') <
+      panelTampilan.indexOf('Penanggung jawab'),
+);
+cek(
+  'Panel Tampilan: prop cakupan/onCakupan terhubung ke state cakupan',
+  panelTampilan.includes("cakupan: 'saya' | 'semua';") &&
+    panelTampilan.includes('value={p.cakupan}') &&
+    panelTampilan.includes("onCakupan(e.target.value as 'saya' | 'semua')") &&
+    todo.includes('cakupan={cakupan}') &&
+    todo.includes('onCakupan={setCakupan}'),
+);
+// Simulasi predikat cakupan di tugasTerlihat (Todo.tsx): dengan user login
+// yang tidak memiliki tugas di seed, cakupan 'saya' menampilkan 0 tugas
+// (regresi yang diperbaiki), sedangkan 'semua' menampilkan 3 tugas aktif
+// milik Andi/Dewi (TSK-01, TSK-02, TSK-05). Dropdown "Cakupan" di panel
+// menggerakkan state ini lewat setCakupan.
+const namaLogin = 'Operator Login';
+const lolosCakupan = (c: 'saya' | 'semua') =>
+  DATA_NYATA.task.filter(
+    (t) => (c === 'semua' || t.pemilik === namaLogin) && !tugasSelesai(t),
+  );
+cek(
+  'Cakupan "Semua tugas" menampilkan tugas milik orang lain (simulasi predikat)',
+  lolosCakupan('saya').length === 0 && lolosCakupan('semua').length === 3,
+  `saya=${lolosCakupan('saya').length}, semua=${lolosCakupan('semua').length}`,
+);
+cek(
+  'Panel Tampilan: tanpa baris Label dan tanpa baris Workspace',
+  !panelTampilan.includes('>Label<') &&
+    !panelTampilan.includes('Workspace'),
+);
+cek(
+  'Panel Tampilan: "Reset semua" mengembalikan opsi ke default',
+  panelTampilan.includes('Reset semua') &&
+    todo.includes('resetTampilan'),
+);
+cek(
+  'Kontrol panel mengubah daftar (layout/kelompok/urutan diteruskan ke daftar)',
+  todo.includes('layout={layout}') &&
+    todo.includes('kelompok={kelompok}') &&
+    todo.includes('urutan={urutan}') &&
+    todo.includes('tugas={tugasDaftar.filter('),
+);
+cek(
+  'Filter "Dibuat oleh": field dibuatOleh di model + dicatat saat Quick Add',
+  types.includes('dibuatOleh?: string') &&
+    store.includes('dibuatOleh?: string') &&
+    todo.includes('dibuatOleh: user.nama') &&
+    app.includes('dibuatOleh: input.dibuatOleh?.trim() || undefined'),
+);
+cek(
+  'Default state tidak berubah (cakupan Tugas saya, status Semua, Board)',
+  todo.includes("useState<'saya' | 'semua'>('saya')") &&
+    todo.includes("useState<'daftar' | 'board'>('board')") &&
+    todo.includes("useState<string>('Semua')"),
+);
+cek(
+  'Toolbar Laporan tidak disentuh (dropdown Tugas saya tetap ada)',
+  todo.includes('function ToolbarLaporan(') &&
+    todo.includes('<option value="saya">Tugas saya</option>'),
+);
 
 // --- 5. Mendatang + jadwalkan ulang massal. ---
 for (const s of ['Jadwalkan ulang semua', 'Terlambat']) {
@@ -514,7 +615,12 @@ try {
   ]) {
     cek(`Bundle memuat "${s}"`, bundle.includes(s));
   }
-  for (const s of ['+ Buat disposisi', 'Tutup disposisi', 'Instruksi disposisi']) {
+  for (const s of [
+    '+ Buat disposisi',
+    'Tutup disposisi',
+    'Instruksi disposisi',
+    'bg-[#fafafa]',
+  ]) {
     cek(`Bundle tidak lagi memuat "${s}"`, !bundle.includes(s));
   }
   for (const s of ['Tugas perorangan.', 'Cari tugas…']) {

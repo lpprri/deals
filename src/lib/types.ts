@@ -761,6 +761,8 @@ export interface KomentarTugas {
 export interface Task {
   id: string;
   pemilik: string;
+  /** Nama operator yang membuat tugas; kosong untuk data lama. */
+  dibuatOleh?: string;
   judul: string;
   /** ISO 'yyyy-mm-dd'; '' berarti tanpa tanggal (Todoist: No Date). */
   tenggat: string;

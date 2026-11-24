@@ -2935,6 +2935,7 @@ export default function App() {
       const task: Task = {
         id,
         pemilik: input.pemilik.trim(),
+        dibuatOleh: input.dibuatOleh?.trim() || undefined,
         judul: input.judul.trim(),
         tenggat: input.tenggat,
         status: 'Belum Dikerjakan',
