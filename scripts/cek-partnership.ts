@@ -305,16 +305,27 @@ cek(
     .includes('allow create: if request.auth == null'),
 );
 
-// --- 12. Tabel Order diganti nama. ---
+// --- 12. Tabel Order diganti nama + dipecah per tab (2026-11-24). ---
+// Tabel tunggal "Permintaan kemitraan" diganti tiga tab (Nota
+// Kesepahaman / Dukungan Layanan / Media Partner) — perintah pengguna
+// 2026-11-24, panel Permintaan lima tab.
 cek(
-  'Sales: tabel "Partnership Request"',
-  sales.includes('judul="Partnership Request"'),
+  'Sales: Partnership Request dipecah ke tiga tab (MoU, Dukungan Layanan, Media Partner)',
+  sales.includes('judul="Nota Kesepahaman"') &&
+    sales.includes('judul="Dukungan Layanan"') &&
+    sales.includes('judul="Media Partner"'),
 );
 cek(
-  'Sales: empty state baru',
+  'Sales: empty state baru per tab kemitraan',
   sales.includes(
-    'No partnership requests yet. Requests from the Partner with RRI form will appear here.',
-  ),
+    "Belum ada permintaan Nota Kesepahaman. Permintaan kemitraan dengan jenis 'MoU' dari formulir Partner with RRI akan muncul di sini.",
+  ) &&
+    sales.includes(
+      "Belum ada permintaan Dukungan Layanan. Permintaan kemitraan dengan jenis 'Event Support' dari formulir Partner with RRI akan muncul di sini.",
+    ) &&
+    sales.includes(
+      "Belum ada permintaan Media Partner. Permintaan kemitraan dengan jenis 'Media Partner' dari formulir Partner with RRI akan muncul di sini.",
+    ),
 );
 cek(
   'Sales: baca data.partnershipRequest',
