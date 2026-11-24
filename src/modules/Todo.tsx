@@ -1,10 +1,11 @@
 // Modul Tugas ala Todoist (duplikasi Todoist, 2026-11-24; PRD v2.0 Bab 7.7 & 9.6).
 // Studi: akun Todoist lpu.lpprripalembang@gmail.com, workspace RRI, tim LPP RRI.
 // Instruksi pengguna 2026-11-24: "tiru persis ui yang digunakan oleh todoist"
-// — panel ini MENIRU PERSIS tampilan Todoist: sidebar Todoist di dalam panel,
-// judul tampilan besar + hitungan, kartu tugas putih, aksen merah Todoist
-// #DB4C3F. Penyimpangan dari palet RRI HANYA di dalam panel Tugas ini dan
-// disengaja atas instruksi pengguna; panel lain tetap memakai palet RRI.
+// — panel ini MENIRU tampilan Todoist: sidebar Todoist di dalam panel,
+// judul tampilan besar + hitungan, kartu tugas putih. Aksen merah Todoist
+// diganti NAVY Deals #0D2569 pada 2026-11-24 atas instruksi
+// pengguna ("semua merah jadi navy"); tanggal terlambat yang kini sewarna
+// navy dibedakan dengan huruf TEBAL. Tetap palet RRI di panel ini.
 // Semua label Bahasa Indonesia (keputusan 2026-11-23).
 // Tampilan dalam panel: Kotak Masuk, Hari Ini, Mendatang, Filter & Label,
 // Laporan. Data memakai koleksi Firestore `task` yang sudah ada — tidak ada
@@ -19,11 +20,16 @@ import {
   CalendarDays,
   CalendarRange,
   CheckCircle2,
+  FileSignature,
   FolderSearch,
   Hash,
+  HeartHandshake,
+  Home,
   Inbox,
   Plus,
+  ScrollText,
   Search,
+  Stamp,
   Tags,
 } from 'lucide-react';
 import type { KomentarTugas, PrioritasTugas, StatusTask, SubTugas, Task } from '../lib/types';
@@ -44,7 +50,6 @@ import {
   PROYEK_TODOIST,
   STATUS_TUGAS,
   akhirPekanIni,
-  bacaLabelTambahan,
   cocokFilterTersimpan,
   cocokKataKunci,
   kelompokkanTugas,
@@ -52,9 +57,7 @@ import {
   prioritasTugas,
   progresSubTugas,
   proyekTugas,
-  semuaLabel,
   seninDepan,
-  simpanLabelTambahan,
   statusTanggal,
   tambahHari,
   terlambat,
@@ -65,8 +68,8 @@ import {
 // Helper visual lokal ala Todoist — dipakai HANYA di panel ini supaya palet
 // RRI di komponen bersama (components/ui) tidak berubah untuk panel lain.
 
-/** Tombol utama merah ala Todoist. */
-function TombolMerah({
+/** Tombol utama navy Deals (#0D2569) — aksen Todoist yang diganti navy. */
+function TombolNavy({
   children,
   onClick,
   type = 'button',
@@ -82,7 +85,7 @@ function TombolMerah({
       type={type}
       onClick={onClick}
       disabled={disabled}
-      className="rounded-md bg-[#DB4C3F] px-4 py-2 text-sm font-semibold text-white hover:bg-[#C23B2E] disabled:opacity-50"
+      className="rounded-md bg-[#0D2569] px-4 py-2 text-sm font-semibold text-white hover:bg-[#081A4D] disabled:opacity-50"
     >
       {children}
     </button>
@@ -128,7 +131,7 @@ function KartuPutih({
 
 /** Input netral ala Todoist. */
 const inputTodo =
-  'w-full rounded-md border border-[#e0e0e0] px-3 py-2 text-sm text-[#202020] outline-none focus:border-[#DB4C3F]';
+  'w-full rounded-md border border-[#e0e0e0] px-3 py-2 text-sm text-[#202020] outline-none focus:border-[#0D2569]';
 
 /** Input tanggal teks DD/MM/YYYY (input date native menampilkan format
  * locale browser — mm/dd/yyyy di browser berbahasa Inggris — jadi tidak
@@ -192,17 +195,18 @@ type Tampilan =
   | 'filter-label'
   | 'laporan';
 
-/** Kelas warna tanggal ala Todoist: merah bila terlambat, hijau bila hari ini. */
+/** Kelas warna tanggal: navy TEBAL bila terlambat (semua merah jadi navy
+ * 2026-11-24 — tebal membedakannya dari teks biasa), hijau bila hari ini. */
 function kelasTanggal(t: Task): string {
   const s = statusTanggal(t.tenggat);
-  if (s === 'terlambat') return 'font-medium text-[#d1453b]';
+  if (s === 'terlambat') return 'font-bold text-[#0D2569]';
   if (s === 'hari-ini') return 'font-medium text-[#058527]';
   return 'text-[#808080]';
 }
 
-/** Warna bendera prioritas ala Todoist (P1 merah, P2 oranye, P3 biru, P4 abu-abu). */
+/** Warna bendera prioritas (P1 navy, P2 oranye, P3 biru, P4 abu-abu). */
 const WARNA_PRIORITAS: Record<PrioritasTugas, string> = {
-  1: '#d1453b',
+  1: '#0D2569',
   2: '#eb8909',
   3: '#246fe0',
   4: '#a8a8a8',
@@ -255,14 +259,12 @@ function unduhCsv(namaFile: string, baris: string[][]) {
 export default function Todo(props: ModulProps) {
   const { data, user, actions, cari } = props;
   const [tampilan, setTampilan] = useState<Tampilan>('hari-ini');
-  const [cariLokal, setCariLokal] = useState('');
   const [cakupan, setCakupan] = useState<'saya' | 'semua'>('saya');
   const [layout, setLayout] = useState<'daftar' | 'board'>('board');
   const [kelompok, setKelompok] = useState<KelompokTugas>('proyek');
   const [urutan, setUrutan] = useState<UrutanTugas>('cerdas');
   const [filterStatus, setFilterStatus] = useState<string>('Semua');
   const [filterPrioritas, setFilterPrioritas] = useState<string>('Semua');
-  const [filterLabel, setFilterLabel] = useState<string>('Semua');
   const [filterPemilik, setFilterPemilik] = useState<string>('Semua');
   const [tampilOpsi, setTampilOpsi] = useState(false);
   const [quickAdd, setQuickAdd] = useState<{
@@ -273,15 +275,21 @@ export default function Todo(props: ModulProps) {
   const [pesan, setPesan] = useState('');
   /** Proyek yang dipilih dari sidebar Todoist (null = semua proyek). */
   const [proyekPilihan, setProyekPilihan] = useState<string | null>(null);
-  const cariRef = useRef<HTMLInputElement>(null);
+  /** Pop-up Cari ala Todoist (command palette). */
+  const [paletCari, setPaletCari] = useState(false);
+  /** Shortcut "G lalu <huruf>" ala Todoist — menunggu huruf kedua. */
+  const menungguG = useRef(false);
+  const timerG = useRef<number | null>(null);
   const bolehKelolaTask = bolehAksi(user.peran, 'kelolaTask');
 
   const tugasDetail = detailId
     ? data.task.find((t) => t.id === detailId) ?? null
     : null;
 
-  // Shortcut ala Todoist: Q = tambah tugas, Ctrl+K = fokus pencarian.
-  // Diabaikan saat mengetik di input/textarea/select.
+  // Shortcut ala Todoist: Q = tambah tugas, Ctrl+K = buka pop-up Cari,
+  // G lalu <huruf> = pindah tampilan (H Beranda, I Kotak Masuk, T Hari Ini,
+  // U Mendatang, V Filter & Label, A Laporan). Diabaikan saat mengetik di
+  // input/textarea/select (kecuali Esc yang selalu menutup dialog).
   useEffect(() => {
     const padaTombol = (e: KeyboardEvent) => {
       const el = e.target as HTMLElement | null;
@@ -294,12 +302,44 @@ export default function Todo(props: ModulProps) {
         setQuickAdd(null);
         setDetailId(null);
         setTampilOpsi(false);
+        setPaletCari(false);
+        menungguG.current = false;
         return;
       }
       if (mengetik) return;
       if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
         e.preventDefault();
-        cariRef.current?.focus();
+        setPaletCari(true);
+        return;
+      }
+      if (menungguG.current) {
+        menungguG.current = false;
+        if (timerG.current !== null) {
+          window.clearTimeout(timerG.current);
+          timerG.current = null;
+        }
+        const tujuan: Record<string, () => void> = {
+          h: () => props.onNavigasiModul?.('home'),
+          i: () => pilihTampilan('kotak-masuk'),
+          t: () => pilihTampilan('hari-ini'),
+          u: () => pilihTampilan('mendatang'),
+          v: () => pilihTampilan('filter-label'),
+          a: () => pilihTampilan('laporan'),
+        };
+        const aksi = tujuan[e.key.toLowerCase()];
+        if (aksi) {
+          e.preventDefault();
+          aksi();
+        }
+        return;
+      }
+      if (e.key.toLowerCase() === 'g') {
+        menungguG.current = true;
+        if (timerG.current !== null) window.clearTimeout(timerG.current);
+        timerG.current = window.setTimeout(() => {
+          menungguG.current = false;
+          timerG.current = null;
+        }, 1500);
         return;
       }
       if (e.key.toLowerCase() === 'q' && bolehKelolaTask) {
@@ -308,10 +348,16 @@ export default function Todo(props: ModulProps) {
       }
     };
     window.addEventListener('keydown', padaTombol);
-    return () => window.removeEventListener('keydown', padaTombol);
+    return () => {
+      window.removeEventListener('keydown', padaTombol);
+      if (timerG.current !== null) window.clearTimeout(timerG.current);
+    };
   }, [bolehKelolaTask]);
 
-  const kataKunci = `${cari} ${cariLokal}`.trim().toLowerCase();
+  /** Pencarian memakai kata kunci global dari top bar (kotak pencarian
+   * menetap di panel sudah dihapus 2026-11-24 — pencarian kini lewat
+   * pop-up Cari). */
+  const kataKunci = cari.trim().toLowerCase();
 
   /** Tugas yang lolos cakupan + pencarian + semua filter toolbar. */
   const tugasTerlihat = useMemo(
@@ -322,8 +368,6 @@ export default function Todo(props: ModulProps) {
           (filterStatus === 'Semua' || t.status === filterStatus) &&
           (filterPrioritas === 'Semua' ||
             String(prioritasTugas(t)) === filterPrioritas) &&
-          (filterLabel === 'Semua' ||
-            (t.label ?? []).includes(filterLabel)) &&
           (filterPemilik === 'Semua' || t.pemilik === filterPemilik) &&
           cocokKataKunci(t, kataKunci),
       ),
@@ -333,7 +377,6 @@ export default function Todo(props: ModulProps) {
       user.nama,
       filterStatus,
       filterPrioritas,
-      filterLabel,
       filterPemilik,
       kataKunci,
     ],
@@ -390,7 +433,6 @@ export default function Todo(props: ModulProps) {
   const pemilikUnik = [...new Set(data.task.map((t) => t.pemilik))].sort(
     (a, b) => a.localeCompare(b, 'id-ID'),
   );
-  const labelDipakai = semuaLabel(data.task, bacaLabelTambahan());
 
   const bukaDetail = (t: Task) => setDetailId(t.id);
   const alihStatus = (t: Task, status: StatusTask) => {
@@ -406,6 +448,7 @@ export default function Todo(props: ModulProps) {
     setTampilan(id);
     setProyekPilihan(null);
     setPesan('');
+    catatBaruDilihat({ tipe: 'tampilan', id, label: LABEL_TAMPILAN[id] });
   };
 
   /** Pilih proyek dari sidebar Todoist (membuka tampilan proyek itu). */
@@ -413,6 +456,9 @@ export default function Todo(props: ModulProps) {
     setProyekPilihan(nama);
     setTampilan('kotak-masuk');
     setPesan('');
+    if (nama !== null) {
+      catatBaruDilihat({ tipe: 'proyek', id: nama, label: nama });
+    }
   };
 
   return (
@@ -427,7 +473,7 @@ export default function Todo(props: ModulProps) {
         proyekAktif={proyekPilihan}
         onPilihProyek={pilihProyek}
         onTambah={() => setQuickAdd({})}
-        onCari={() => cariRef.current?.focus()}
+        onCari={() => setPaletCari(true)}
         bolehTambah={bolehKelolaTask}
       />
       <div className="min-w-0 flex-1 space-y-4 px-4 py-6 md:px-8">
@@ -445,21 +491,15 @@ export default function Todo(props: ModulProps) {
 
         {tampilan !== 'laporan' && (
         <ToolbarTugas
-          cariLokal={cariLokal}
-          onCariLokal={setCariLokal}
-          cariRef={cariRef}
           cakupan={cakupan}
           onCakupan={setCakupan}
           filterStatus={filterStatus}
           onFilterStatus={setFilterStatus}
           filterPrioritas={filterPrioritas}
           onFilterPrioritas={setFilterPrioritas}
-          filterLabel={filterLabel}
-          onFilterLabel={setFilterLabel}
           filterPemilik={filterPemilik}
           onFilterPemilik={setFilterPemilik}
           pemilikUnik={pemilikUnik}
-          labelDipakai={labelDipakai}
           layout={layout}
           onLayout={setLayout}
           kelompok={kelompok}
@@ -478,9 +518,17 @@ export default function Todo(props: ModulProps) {
         <ToolbarLaporan
           cakupan={cakupan}
           onCakupan={setCakupan}
-          cariLokal={cariLokal}
-          onCariLokal={setCariLokal}
-          cariRef={cariRef}
+        />
+      )}
+
+      {paletCari && (
+        <PaletPencarian
+          tugas={data.task}
+          onPilihTampilan={pilihTampilan}
+          onPilihProyek={pilihProyek}
+          onBeranda={() => props.onNavigasiModul?.('home')}
+          onBukaDetail={bukaDetail}
+          onTutup={() => setPaletCari(false)}
         />
       )}
 
@@ -490,7 +538,6 @@ export default function Todo(props: ModulProps) {
           actions={actions}
           proyekAwal={quickAdd.proyek}
           tenggatAwal={quickAdd.tenggat}
-          labelDipakai={labelDipakai}
           onBatal={() => setQuickAdd(null)}
           onSukses={(judul) => {
             setQuickAdd(null);
@@ -586,7 +633,6 @@ export default function Todo(props: ModulProps) {
           data={data}
           user={user}
           actions={actions}
-          labelDipakai={labelDipakai}
           onTutup={() => setDetailId(null)}
           onPesan={setPesan}
           onHapus={() => setDetailId(null)}
@@ -596,12 +642,326 @@ export default function Todo(props: ModulProps) {
   );
 }
 
+/** "Baru saja dilihat" di pop-up Cari — tampilan/proyek terakhir dibuka,
+ * disimpan di localStorage (mengikuti preseden label tambahan). */
+type ItemBaruDilihat = {
+  tipe: 'tampilan' | 'proyek';
+  id: string;
+  label: string;
+};
+const KUNCI_BARU_DILIHAT = 'rri-tugas-baru-saja-dilihat';
+function bacaBaruDilihat(): ItemBaruDilihat[] {
+  try {
+    const mentah = localStorage.getItem(KUNCI_BARU_DILIHAT);
+    if (!mentah) return [];
+    const parsed = JSON.parse(mentah) as ItemBaruDilihat[];
+    return Array.isArray(parsed) ? parsed.slice(0, 5) : [];
+  } catch {
+    return [];
+  }
+}
+function catatBaruDilihat(item: ItemBaruDilihat) {
+  try {
+    const daftar = bacaBaruDilihat().filter(
+      (x) => !(x.tipe === item.tipe && x.id === item.id),
+    );
+    daftar.unshift(item);
+    localStorage.setItem(
+      KUNCI_BARU_DILIHAT,
+      JSON.stringify(daftar.slice(0, 5)),
+    );
+  } catch {
+    // localStorage tidak tersedia — "Baru saja dilihat" kosong saja.
+  }
+}
+const LABEL_TAMPILAN: Record<Tampilan, string> = {
+  'kotak-masuk': 'Kotak Masuk',
+  'hari-ini': 'Hari Ini',
+  mendatang: 'Mendatang',
+  'filter-label': 'Filter & Label',
+  laporan: 'Laporan',
+};
+
+/** Perintah navigasi pop-up Cari (ala Todoist: "G lalu <huruf>"). */
+const PERINTAH_NAVIGASI: {
+  id: string;
+  label: string;
+  petunjuk: string;
+  Icon: typeof Inbox;
+}[] = [
+  { id: 'beranda', label: 'Ke Beranda', petunjuk: 'G lalu H', Icon: Home },
+  {
+    id: 'kotak-masuk',
+    label: 'Ke Kotak Masuk',
+    petunjuk: 'G lalu I',
+    Icon: Inbox,
+  },
+  {
+    id: 'hari-ini',
+    label: 'Ke Hari Ini',
+    petunjuk: 'G lalu T',
+    Icon: CalendarDays,
+  },
+  {
+    id: 'mendatang',
+    label: 'Ke Mendatang',
+    petunjuk: 'G lalu U',
+    Icon: CalendarRange,
+  },
+  {
+    id: 'filter-label',
+    label: 'Ke Filter & Label',
+    petunjuk: 'G lalu V',
+    Icon: Tags,
+  },
+  {
+    id: 'laporan',
+    label: 'Ke Laporan',
+    petunjuk: 'G lalu A',
+    Icon: BarChart3,
+  },
+];
+
+/** Pop-up Cari ala Todoist (command palette): dibuka dari item "Cari" di
+ * sidebar kiri atau Ctrl+K, ditutup dengan Esc / klik latar. Mengetik
+ * memfilter perintah navigasi dan tugas yang cocok; memilih tugas membuka
+ * dialog detailnya. Semua label Bahasa Indonesia. */
+function PaletPencarian(props: {
+  tugas: Task[];
+  onPilihTampilan: (t: Tampilan) => void;
+  onPilihProyek: (nama: string) => void;
+  onBeranda: () => void;
+  onBukaDetail: (t: Task) => void;
+  onTutup: () => void;
+}) {
+  const [query, setQuery] = useState('');
+  const [pilih, setPilih] = useState(0);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const [baruDilihat] = useState<ItemBaruDilihat[]>(() => bacaBaruDilihat());
+
+  useEffect(() => {
+    inputRef.current?.focus();
+  }, []);
+
+  const kata = query.trim().toLowerCase();
+  const navigasiCocok =
+    kata === ''
+      ? PERINTAH_NAVIGASI
+      : PERINTAH_NAVIGASI.filter((p) =>
+          p.label.toLowerCase().includes(kata),
+        );
+  const tugasCocok =
+    kata === ''
+      ? []
+      : props.tugas.filter((t) => cocokKataKunci(t, kata)).slice(0, 8);
+
+  type ButirPalet = { kunci: string; jalankan: () => void };
+  const butir: ButirPalet[] = [];
+  const jalankanNavigasi = (id: string) => {
+    if (id === 'beranda') {
+      props.onBeranda();
+      return;
+    }
+    props.onPilihTampilan(id as Tampilan);
+  };
+  const baruDilihatButir: ButirPalet[] =
+    kata === ''
+      ? baruDilihat.map((b) => ({
+          kunci: `baru-${b.tipe}-${b.id}`,
+          jalankan: () =>
+            b.tipe === 'proyek'
+              ? props.onPilihProyek(b.id)
+              : props.onPilihTampilan(b.id as Tampilan),
+        }))
+      : [];
+  baruDilihatButir.forEach((b) => butir.push(b));
+  navigasiCocok.forEach((p) =>
+    butir.push({ kunci: `nav-${p.id}`, jalankan: () => jalankanNavigasi(p.id) }),
+  );
+  tugasCocok.forEach((t) =>
+    butir.push({
+      kunci: `tugas-${t.id}`,
+      jalankan: () => props.onBukaDetail(t),
+    }),
+  );
+  const pilihAman = butir.length === 0 ? 0 : Math.min(pilih, butir.length - 1);
+
+  const padaTombolInput = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      setPilih((i) => Math.min(i + 1, butir.length - 1));
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      setPilih((i) => Math.max(i - 1, 0));
+    } else if (e.key === 'Enter') {
+      e.preventDefault();
+      butir[pilihAman]?.jalankan();
+      props.onTutup();
+    }
+  };
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-start justify-center bg-black/50 px-4 pt-24"
+      onClick={props.onTutup}
+    >
+      <div
+        className="w-full max-w-xl overflow-hidden rounded-xl bg-white shadow-2xl"
+        onClick={(e) => e.stopPropagation()}
+        role="dialog"
+        aria-label="Cari atau ketik perintah"
+      >
+        <div className="flex items-center gap-3 border-b border-[#e6e6e6] px-4 py-3">
+          <Search size={18} className="shrink-0 text-[#808080]" />
+          <input
+            ref={inputRef}
+            className="min-w-0 flex-1 text-sm text-[#202020] outline-none placeholder:text-[#808080]"
+            value={query}
+            onChange={(e) => {
+              setQuery(e.target.value);
+              setPilih(0);
+            }}
+            onKeyDown={padaTombolInput}
+            placeholder="Cari atau ketik perintah..."
+            aria-label="Cari atau ketik perintah"
+          />
+          <kbd className="shrink-0 rounded border border-[#e0e0e0] bg-[#f5f5f5] px-1.5 py-0.5 text-xs text-[#808080]">
+            Ctrl K
+          </kbd>
+        </div>
+        <div className="max-h-96 overflow-y-auto py-2">
+          {kata === '' && baruDilihat.length > 0 && (
+            <div>
+              <p className="px-4 pb-1 pt-1 text-xs font-semibold text-[#808080]">
+                Baru saja dilihat
+              </p>
+              {baruDilihat.map((b, i) => {
+                const idx = i;
+                return (
+                  <button
+                    key={`baru-${b.tipe}-${b.id}`}
+                    type="button"
+                    onClick={() => {
+                      butir[idx]?.jalankan();
+                      props.onTutup();
+                    }}
+                    className={`flex w-full items-center gap-3 px-4 py-2 text-left text-sm text-[#202020] hover:bg-[#f5f5f5] ${
+                      idx === pilihAman ? 'bg-[#f5f5f5]' : ''
+                    }`}
+                  >
+                    {b.tipe === 'proyek' ? (
+                      <Hash size={15} className="shrink-0 text-[#808080]" />
+                    ) : (
+                      <CalendarDays
+                        size={15}
+                        className="shrink-0 text-[#808080]"
+                      />
+                    )}
+                    {b.label}
+                  </button>
+                );
+              })}
+            </div>
+          )}
+          <div>
+            <p className="px-4 pb-1 pt-1 text-xs font-semibold text-[#808080]">
+              Navigasi
+            </p>
+            {navigasiCocok.length === 0 && kata !== '' ? (
+              <p className="px-4 py-2 text-sm text-[#808080]">
+                Tidak ada perintah yang cocok.
+              </p>
+            ) : (
+              navigasiCocok.map((p) => {
+                const posisi =
+                  butir.findIndex((b) => b.kunci === `nav-${p.id}`);
+                return (
+                  <button
+                    key={p.id}
+                    type="button"
+                    onClick={() => {
+                      jalankanNavigasi(p.id);
+                      props.onTutup();
+                    }}
+                    className={`flex w-full items-center gap-3 px-4 py-2 text-left text-sm text-[#202020] hover:bg-[#f5f5f5] ${
+                      posisi === pilihAman ? 'bg-[#f5f5f5]' : ''
+                    }`}
+                  >
+                    <p.Icon size={15} className="shrink-0 text-[#808080]" />
+                    {p.label}
+                    <span className="ml-auto text-xs text-[#808080]">
+                      {p.petunjuk}
+                    </span>
+                  </button>
+                );
+              })
+            )}
+          </div>
+          {kata !== '' && (
+            <div>
+              <p className="px-4 pb-1 pt-1 text-xs font-semibold text-[#808080]">
+                Tugas
+              </p>
+              {tugasCocok.length === 0 ? (
+                <p className="px-4 py-2 text-sm text-[#808080]">
+                  Tidak ada tugas yang cocok.
+                </p>
+              ) : (
+                tugasCocok.map((t) => {
+                  const posisi = butir.findIndex(
+                    (b) => b.kunci === `tugas-${t.id}`,
+                  );
+                  return (
+                    <button
+                      key={t.id}
+                      type="button"
+                      onClick={() => {
+                        props.onBukaDetail(t);
+                        props.onTutup();
+                      }}
+                      className={`flex w-full items-center gap-3 px-4 py-2 text-left text-sm hover:bg-[#f5f5f5] ${
+                        posisi === pilihAman ? 'bg-[#f5f5f5]' : ''
+                      }`}
+                    >
+                      <span className="min-w-0 flex-1 truncate text-[#202020]">
+                        {t.judul}
+                      </span>
+                      <span className="shrink-0 text-xs text-[#808080]">
+                        {labelTanggal(t.tenggat)}
+                      </span>
+                      <span className="shrink-0 text-xs text-[#808080]">
+                        # {proyekTugas(t)}
+                      </span>
+                    </button>
+                  );
+                })
+              )}
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/** Ikon "Proyek Saya" = ikon modul yang sama di sidebar admin (App.tsx
+ * MODULES): PNBP FileSignature, Nota Kesepahaman ScrollText, Dukungan
+ * Layanan HeartHandshake, Media Partner Stamp. Catatan: pengguna menyebut
+ * ikon Media Partner "mikrofon", tapi komponen yang dipakai sidebar admin
+ * adalah Stamp — dipakai ulang apa adanya supaya sama persis. */
+const IKON_PROYEK: Record<string, typeof Inbox> = {
+  PNBP: FileSignature,
+  'Nota Kesepahaman': ScrollText,
+  'Dukungan Layanan': HeartHandshake,
+  'Media Partner': Stamp,
+};
+
 /** Sidebar Todoist di dalam panel (bukan lagi sub-panel ala Laporan):
- * tombol tambah tugas merah di atas, item Cari, navigasi tampilan dengan
- * hitungan (hitungan Hari Ini merah seperti Todoist), lalu bagian
+ * tombol tambah tugas navy di atas, item Cari, navigasi tampilan dengan
+ * hitungan (hitungan Hari Ini navy seperti aksen Todoist), lalu bagian
  * "Proyek Saya" + proyek workspace LPP RRI dengan hitungan, dan
  * "Jelajahi semua proyek". Lebar 280px seperti sidebar Todoist; item aktif
- * berlatar merah muda dengan teks merah. */
+ * berlatar tint navy dengan teks navy. */
 function SidebarTodoist(props: {
   tampilan: Tampilan;
   onPilih: (t: Tampilan) => void;
@@ -648,7 +1008,7 @@ function SidebarTodoist(props: {
         <button
           type="button"
           onClick={props.onTambah}
-          className="flex w-full items-center justify-center gap-2 rounded-md bg-[#DB4C3F] px-4 py-2 text-sm font-semibold text-white hover:bg-[#C23B2E]"
+          className="flex w-full items-center justify-center gap-2 rounded-md bg-[#0D2569] px-4 py-2 text-sm font-semibold text-white hover:bg-[#081A4D]"
         >
           <Plus size={16} />
           Tambah tugas
@@ -672,19 +1032,19 @@ function SidebarTodoist(props: {
               onClick={() => props.onPilih(id)}
               className={`flex w-full items-center gap-3 rounded-md px-2 py-2 text-left text-sm ${
                 aktif
-                  ? 'bg-[#fceae8] font-semibold text-[#DB4C3F]'
+                  ? 'bg-[#0D2569]/10 font-semibold text-[#0D2569]'
                   : 'text-[#202020] hover:bg-black/[0.04]'
               }`}
             >
               <Icon
                 size={16}
-                className={`shrink-0 ${aktif ? 'text-[#DB4C3F]' : 'text-[#808080]'}`}
+                className={`shrink-0 ${aktif ? 'text-[#0D2569]' : 'text-[#808080]'}`}
               />
               {label}
               {jumlah !== undefined && (
                 <span
                   className={`ml-auto text-xs font-semibold ${
-                    id === 'hari-ini' ? 'text-[#DB4C3F]' : 'text-[#808080]'
+                    id === 'hari-ini' ? 'text-[#0D2569]' : 'text-[#808080]'
                   }`}
                 >
                   {jumlah}
@@ -701,6 +1061,7 @@ function SidebarTodoist(props: {
         {PROYEK_TODOIST.map((p) => {
           const jumlah = props.jumlahProyek.get(p.nama) ?? 0;
           const aktif = props.proyekAktif === p.nama;
+          const IkonProyek = IKON_PROYEK[p.nama] ?? Hash;
           return (
             <button
               key={p.nama}
@@ -708,11 +1069,11 @@ function SidebarTodoist(props: {
               onClick={() => props.onPilihProyek(p.nama)}
               className={`flex w-full items-center gap-3 rounded-md px-2 py-2 text-left text-sm ${
                 aktif
-                  ? 'bg-[#fceae8] font-semibold text-[#DB4C3F]'
+                  ? 'bg-[#0D2569]/10 font-semibold text-[#0D2569]'
                   : 'text-[#202020] hover:bg-black/[0.04]'
               }`}
             >
-              <Hash size={15} className="shrink-0 text-[#808080]" />
+              <IkonProyek size={15} className="shrink-0 text-[#808080]" />
               {p.nama}
               <span className="ml-auto text-xs text-[#808080]">{jumlah}</span>
             </button>
@@ -732,21 +1093,15 @@ function SidebarTodoist(props: {
 }
 
 function ToolbarTugas(props: {
-  cariLokal: string;
-  onCariLokal: (v: string) => void;
-  cariRef: React.RefObject<HTMLInputElement | null>;
   cakupan: 'saya' | 'semua';
   onCakupan: (v: 'saya' | 'semua') => void;
   filterStatus: string;
   onFilterStatus: (v: string) => void;
   filterPrioritas: string;
   onFilterPrioritas: (v: string) => void;
-  filterLabel: string;
-  onFilterLabel: (v: string) => void;
   filterPemilik: string;
   onFilterPemilik: (v: string) => void;
   pemilikUnik: string[];
-  labelDipakai: string[];
   layout: 'daftar' | 'board';
   onLayout: (v: 'daftar' | 'board') => void;
   kelompok: KelompokTugas;
@@ -763,13 +1118,6 @@ function ToolbarTugas(props: {
   return (
     <div className="space-y-3">
       <div className="flex flex-wrap items-center gap-2">
-        <input
-          ref={p.cariRef}
-          className={`${inputTodo} max-w-xs`}
-          value={p.cariLokal}
-          onChange={(e) => p.onCariLokal(e.target.value)}
-          placeholder="Cari tugas… (Ctrl+K)"
-        />
         <div>
           <select
             className={inputTodo}
@@ -802,7 +1150,7 @@ function ToolbarTugas(props: {
           </TombolNetral>
         )}
         {p.bolehKelolaTask && (
-          <TombolMerah onClick={p.onTambah}>+ Tambah tugas</TombolMerah>
+          <TombolNavy onClick={p.onTambah}>+ Tambah tugas</TombolNavy>
         )}
       </div>
 
@@ -886,21 +1234,6 @@ function ToolbarTugas(props: {
                   <option value="4">Tanpa prioritas</option>
                 </select>
               </div>
-              <div>
-                <LabelTodo>Label</LabelTodo>
-                <select
-                  className={inputTodo}
-                  value={p.filterLabel}
-                  onChange={(e) => p.onFilterLabel(e.target.value)}
-                >
-                  <option value="Semua">Semua</option>
-                  {p.labelDipakai.map((l) => (
-                    <option key={l} value={l}>
-                      {l}
-                    </option>
-                  ))}
-                </select>
-              </div>
             </div>
           </div>
           <div className="mt-3">
@@ -908,7 +1241,6 @@ function ToolbarTugas(props: {
               onClick={() => {
                 p.onFilterStatus('Semua');
                 p.onFilterPrioritas('Semua');
-                p.onFilterLabel('Semua');
                 p.onFilterPemilik('Semua');
                 p.onKelompok('proyek');
                 p.onUrutan('cerdas');
@@ -926,19 +1258,9 @@ function ToolbarTugas(props: {
 function ToolbarLaporan(props: {
   cakupan: 'saya' | 'semua';
   onCakupan: (v: 'saya' | 'semua') => void;
-  cariLokal: string;
-  onCariLokal: (v: string) => void;
-  cariRef: React.RefObject<HTMLInputElement | null>;
 }) {
   return (
     <div className="flex flex-wrap items-center gap-2">
-      <input
-        ref={props.cariRef}
-        className={`${inputTodo} max-w-xs`}
-        value={props.cariLokal}
-        onChange={(e) => props.onCariLokal(e.target.value)}
-        placeholder="Cari tugas selesai… (Ctrl+K)"
-      />
       <select
         className={inputTodo}
         value={props.cakupan}
@@ -960,7 +1282,6 @@ function QuickAdd(props: {
   actions: ModulProps['actions'];
   proyekAwal?: string;
   tenggatAwal?: string;
-  labelDipakai: string[];
   onBatal: () => void;
   onSukses: (judul: string) => void;
 }) {
@@ -975,7 +1296,6 @@ function QuickAdd(props: {
   const [pemilik, setPemilik] = useState(user.nama);
   const [tampilLanjutan, setTampilLanjutan] = useState(false);
   const [prioritas, setPrioritas] = useState<PrioritasTugas>(4);
-  const [label, setLabel] = useState<string[]>([]);
   const [pengulangan, setPengulangan] = useState('tidak');
   const [pengingat, setPengingat] = useState('');
   const [error, setError] = useState('');
@@ -1001,7 +1321,6 @@ function QuickAdd(props: {
       deskripsi: deskripsi.trim() || undefined,
       proyek: proyek || undefined,
       prioritas,
-      label: label.length > 0 ? label : undefined,
       pengulangan: pengulangan !== 'tidak' ? pengulangan : undefined,
       pengingat: pengingat || undefined,
     };
@@ -1055,7 +1374,7 @@ function QuickAdd(props: {
         ) : (
           <button
             type="button"
-            className="text-sm font-semibold text-[#DB4C3F]"
+            className="text-sm font-semibold text-[#0D2569]"
             onClick={() => setTampilDeskripsi(true)}
           >
             + Deskripsi
@@ -1122,7 +1441,7 @@ function QuickAdd(props: {
                     onClick={() => setPrioritas(p)}
                     className={`rounded-md border px-3 py-1.5 text-sm font-semibold ${
                       prioritas === p
-                        ? 'border-[#DB4C3F] bg-[#f5f5f5] text-[#202020]'
+                        ? 'border-[#0D2569] bg-[#f5f5f5] text-[#202020]'
                         : 'border-[#e0e0e0] text-[#808080]'
                     }`}
                   >
@@ -1153,41 +1472,16 @@ function QuickAdd(props: {
                 onChange={(e) => setPengingat(e.target.value)}
               />
             </div>
-            <div>
-              <LabelTodo>Label</LabelTodo>
-              <div className="flex flex-wrap gap-1">
-                {props.labelDipakai.map((l) => (
-                  <button
-                    key={l}
-                    type="button"
-                    onClick={() =>
-                      setLabel((dulu) =>
-                        dulu.includes(l)
-                          ? dulu.filter((x) => x !== l)
-                          : [...dulu, l],
-                      )
-                    }
-                    className={`rounded-full border px-2 py-0.5 text-xs font-semibold ${
-                      label.includes(l)
-                        ? 'border-[#DB4C3F] bg-[#f5f5f5] text-[#202020]'
-                        : 'border-[#e0e0e0] text-[#808080]'
-                    }`}
-                  >
-                    {l}
-                  </button>
-                ))}
-              </div>
-            </div>
           </div>
         )}
         {error !== '' && (
-          <p className="rounded-md border border-[#d1453b]/40 bg-[#d1453b]/5 px-3 py-2 text-sm font-medium text-[#d1453b]">
+          <p className="rounded-md border border-[#0D2569]/40 bg-[#0D2569]/5 px-3 py-2 text-sm font-medium text-[#0D2569]">
             {error}
           </p>
         )}
         <div className="flex justify-end gap-2">
           <TombolNetral onClick={props.onBatal}>Batal</TombolNetral>
-          <TombolMerah onClick={simpan}>Tambah tugas</TombolMerah>
+          <TombolNavy onClick={simpan}>Tambah tugas</TombolNavy>
         </div>
       </div>
       </div>
@@ -1242,8 +1536,8 @@ function KartuTugas(props: {
         aria-label={selesai ? 'Tandai belum selesai' : 'Tandai selesai'}
         className={`mt-0.5 flex h-[18px] w-[18px] shrink-0 items-center justify-center rounded-full border text-xs font-bold ${
           selesai
-            ? 'border-[#DB4C3F] bg-[#DB4C3F] text-white'
-            : 'border-[#999] text-transparent hover:border-[#DB4C3F] hover:text-[#DB4C3F]'
+            ? 'border-[#0D2569] bg-[#0D2569] text-white'
+            : 'border-[#999] text-transparent hover:border-[#0D2569] hover:text-[#0D2569]'
         }`}
       >
         ✓
@@ -1292,18 +1586,6 @@ function KartuTugas(props: {
             {t.bagian ? ` / ${t.bagian}` : ''}
           </span>
         </div>
-        {(t.label ?? []).length > 0 && (
-          <div className="mt-1 flex flex-wrap gap-1">
-            {(t.label ?? []).map((l) => (
-              <span
-                key={l}
-                className="rounded-full bg-[#f5f5f5] px-2 py-0.5 text-xs text-[#666]"
-              >
-                {l}
-              </span>
-            ))}
-          </div>
-        )}
         {tampilSub && progres.total > 0 && (
           <ul className="mt-2 space-y-1">
             {(t.subTugas ?? []).map((s) => (
@@ -1314,8 +1596,8 @@ function KartuTugas(props: {
                   aria-label={s.selesai ? 'Batalkan sub-tugas' : 'Selesaikan sub-tugas'}
                   className={`flex h-4 w-4 items-center justify-center rounded-full border text-[10px] font-bold ${
                     s.selesai
-                      ? 'border-[#DB4C3F] bg-[#DB4C3F] text-white'
-                      : 'border-[#999] text-transparent hover:border-[#DB4C3F]'
+                      ? 'border-[#0D2569] bg-[#0D2569] text-white'
+                      : 'border-[#999] text-transparent hover:border-[#0D2569]'
                   }`}
                 >
                   ✓
@@ -1377,7 +1659,7 @@ function DaftarTugas(props: {
             </div>
             <button
               type="button"
-              className="mt-2 text-sm font-medium text-[#808080] hover:text-[#DB4C3F]"
+              className="mt-2 text-sm font-medium text-[#808080] hover:text-[#0D2569]"
               onClick={() =>
                 props.onTambah(
                   props.kelompok === 'proyek' && g.nama !== 'Kotak Masuk'
@@ -1417,7 +1699,7 @@ function DaftarTugas(props: {
           </div>
           <button
             type="button"
-            className="mt-2 text-sm font-medium text-[#808080] hover:text-[#DB4C3F]"
+            className="mt-2 text-sm font-medium text-[#808080] hover:text-[#0D2569]"
             onClick={() =>
               props.onTambah(
                 props.kelompok === 'proyek' && g.nama !== 'Kotak Masuk'
@@ -1503,7 +1785,7 @@ function Mendatang(props: {
                 <button
                   type="button"
                   onClick={jadwalkanUlangSemua}
-                  className="rounded-md border border-[#DB4C3F] px-3 py-1.5 text-sm font-medium text-[#DB4C3F] hover:bg-[#DB4C3F]/5"
+                  className="rounded-md border border-[#0D2569] px-3 py-1.5 text-sm font-medium text-[#0D2569] hover:bg-[#0D2569]/5"
                 >
                   Jadwalkan ulang semua
                 </button>
@@ -1524,7 +1806,7 @@ function Mendatang(props: {
             {k.tanggal !== null && (
               <button
                 type="button"
-                className="mt-2 text-sm font-medium text-[#808080] hover:text-[#DB4C3F]"
+                className="mt-2 text-sm font-medium text-[#808080] hover:text-[#0D2569]"
                 onClick={() => props.onTambah(k.tanggal as string)}
               >
                 + Tambah tugas
@@ -1537,7 +1819,10 @@ function Mendatang(props: {
   );
 }
 
-/** Filter & Label ala Todoist: filter tersimpan + daftar label + tambah label. */
+/** Filter & Label ala Todoist: hanya filter tersimpan. Daftar label
+ * DIKOSONGKAN pengguna 2026-11-24 — bagian Label, tambah label, dan
+ * pilihan label dihapus dari UI; nilai label pada data tugas dibiarkan
+ * apa adanya (field label di model tetap ada). */
 function FilterLabel(props: {
   data: ModulProps['data'];
   user: ModulProps['user'];
@@ -1547,18 +1832,7 @@ function FilterLabel(props: {
   onBukaDetail: (t: Task) => void;
   onAlihStatus: (t: Task, status: StatusTask) => void;
 }) {
-  const [pilihan, setPilihan] = useState<
-    { jenis: 'filter'; id: string } | { jenis: 'label'; nama: string } | null
-  >(null);
-  const [labelBaru, setLabelBaru] = useState('');
-  const [labelTambahan, setLabelTambahan] = useState<string[]>(() =>
-    bacaLabelTambahan(),
-  );
-  const [pesanLabel, setPesanLabel] = useState('');
-
-  const labelSemua = semuaLabel(props.data.task, labelTambahan);
-  const hitungLabel = (nama: string) =>
-    props.data.task.filter((t) => (t.label ?? []).includes(nama)).length;
+  const [pilihan, setPilihan] = useState<{ id: string } | null>(null);
 
   const tugasPilihan =
     pilihan === null
@@ -1567,27 +1841,8 @@ function FilterLabel(props: {
           (t) =>
             (props.cakupan === 'semua' || t.pemilik === props.user.nama) &&
             cocokKataKunci(t, props.kataKunci) &&
-            (pilihan.jenis === 'filter'
-              ? cocokFilterTersimpan(t, pilihan.id, props.user.nama)
-              : (t.label ?? []).includes(pilihan.nama)),
+            cocokFilterTersimpan(t, pilihan.id, props.user.nama),
         );
-
-  const tambahLabel = () => {
-    const nama = labelBaru.trim();
-    if (nama === '') {
-      setPesanLabel('Nama label wajib diisi.');
-      return;
-    }
-    if (labelSemua.includes(nama)) {
-      setPesanLabel(`Label "${nama}" sudah ada.`);
-      return;
-    }
-    const daftar = [...labelTambahan, nama];
-    setLabelTambahan(daftar);
-    simpanLabelTambahan(daftar);
-    setLabelBaru('');
-    setPesanLabel(`Label "${nama}" ditambahkan.`);
-  };
 
   return (
     <div className="space-y-4">
@@ -1599,13 +1854,12 @@ function FilterLabel(props: {
               const jumlah = props.data.task.filter((t) =>
                 cocokFilterTersimpan(t, f.id, props.user.nama),
               ).length;
-              const aktif =
-                pilihan?.jenis === 'filter' && pilihan.id === f.id;
+              const aktif = pilihan?.id === f.id;
               return (
                 <li key={f.id}>
                   <button
                     type="button"
-                    onClick={() => setPilihan({ jenis: 'filter', id: f.id })}
+                    onClick={() => setPilihan({ id: f.id })}
                     className={`w-full rounded-md px-2 py-1.5 text-left text-sm font-semibold ${
                       aktif
                         ? 'bg-[#f5f5f5] text-[#202020]'
@@ -1621,59 +1875,18 @@ function FilterLabel(props: {
         </KartuPutih>
         <KartuPutih>
           <p className="text-sm font-bold text-[#202020]">Label</p>
-          <ul className="mt-2 space-y-1">
-            {labelSemua.map((l) => {
-              const aktif =
-                pilihan?.jenis === 'label' && pilihan.nama === l;
-              return (
-                <li key={l}>
-                  <button
-                    type="button"
-                    onClick={() => setPilihan({ jenis: 'label', nama: l })}
-                    className={`w-full rounded-md px-2 py-1.5 text-left text-sm font-semibold ${
-                      aktif
-                        ? 'bg-[#f5f5f5] text-[#202020]'
-                        : 'text-[#202020] hover:bg-[#f5f5f5]'
-                    }`}
-                  >
-                    {l} ({hitungLabel(l)})
-                  </button>
-                </li>
-              );
-            })}
-          </ul>
-          <div className="mt-3 flex gap-2">
-            <input
-              className={inputTodo}
-              value={labelBaru}
-              onChange={(e) => setLabelBaru(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter') tambahLabel();
-              }}
-              placeholder="Label baru"
-            />
-            <TombolNetral onClick={tambahLabel}>
-              + Tambah label
-            </TombolNetral>
-          </div>
-          {pesanLabel !== '' && (
-            <p className="mt-2 text-sm font-semibold text-[#202020]">
-              {pesanLabel}
-            </p>
-          )}
+          <p className="mt-2 text-sm text-[#808080]">Belum ada label.</p>
         </KartuPutih>
       </div>
 
       {pilihan === null ? (
-        <PesanKosongTodo teks="Pilih filter atau label untuk melihat tugasnya." />
+        <PesanKosongTodo teks="Pilih filter untuk melihat tugasnya." />
       ) : tugasPilihan.length === 0 ? (
         <PesanKosongTodo teks="Tidak ada tugas pada filter ini saat ini." />
       ) : (
         <div>
           <p className="mb-2 text-sm font-bold text-[#202020]">
-            {pilihan.jenis === 'filter'
-              ? FILTER_TERSIMPAN.find((f) => f.id === pilihan.id)?.label
-              : pilihan.nama}{' '}
+            {FILTER_TERSIMPAN.find((f) => f.id === pilihan.id)?.label}{' '}
             ({tugasPilihan.length})
           </p>
           <div className="space-y-2">
@@ -1771,7 +1984,6 @@ function DialogTugas(props: {
   data: ModulProps['data'];
   user: ModulProps['user'];
   actions: ModulProps['actions'];
-  labelDipakai: string[];
   onTutup: () => void;
   onPesan: (pesan: string) => void;
   onHapus: () => void;
@@ -1818,15 +2030,6 @@ function DialogTugas(props: {
     };
     ubah({ komentar: [...(t.komentar ?? []), komentar] });
     setKomentarBaru('');
-  };
-
-  const alihLabel = (nama: string) => {
-    const dulu = t.label ?? [];
-    ubah({
-      label: dulu.includes(nama)
-        ? dulu.filter((x) => x !== nama)
-        : [...dulu, nama],
-    });
   };
 
   const pilihTanggalCepat = (
@@ -1928,14 +2131,14 @@ function DialogTugas(props: {
                 aria-label={tugasSelesai(t) ? 'Tandai belum selesai' : 'Tandai selesai'}
                 className={`mt-1 flex h-6 w-6 shrink-0 items-center justify-center rounded-full border text-xs font-bold ${
                   tugasSelesai(t)
-                    ? 'border-[#DB4C3F] bg-[#DB4C3F] text-white'
-                    : 'border-[#999] text-transparent hover:border-[#DB4C3F] hover:text-[#DB4C3F]'
+                    ? 'border-[#0D2569] bg-[#0D2569] text-white'
+                    : 'border-[#999] text-transparent hover:border-[#0D2569] hover:text-[#0D2569]'
                 }`}
               >
                 ✓
               </button>
               <input
-                className="w-full border-b border-transparent text-lg font-bold text-[#202020] outline-none focus:border-[#DB4C3F]" 
+                className="w-full border-b border-transparent text-lg font-bold text-[#202020] outline-none focus:border-[#0D2569]" 
                 value={judul}
                 onChange={(e) => setJudul(e.target.value)}
                 onBlur={simpanJudul}
@@ -1976,8 +2179,8 @@ function DialogTugas(props: {
                       aria-label={s.selesai ? 'Batalkan sub-tugas' : 'Selesaikan sub-tugas'}
                       className={`flex h-4 w-4 items-center justify-center rounded-full border text-[10px] font-bold ${
                         s.selesai
-                          ? 'border-[#DB4C3F] bg-[#DB4C3F] text-white'
-                          : 'border-[#999] text-transparent hover:border-[#DB4C3F]'
+                          ? 'border-[#0D2569] bg-[#0D2569] text-white'
+                          : 'border-[#999] text-transparent hover:border-[#0D2569]'
                       }`}
                     >
                       ✓
@@ -1993,7 +2196,7 @@ function DialogTugas(props: {
                     </span>
                     <button
                       type="button"
-                      className="text-xs font-semibold text-[#a8a8a8] hover:text-[#d1453b]" 
+                      className="text-xs font-semibold text-[#a8a8a8] hover:text-[#0D2569]" 
                       onClick={() =>
                         ubah({
                           subTugas: (t.subTugas ?? []).filter((x) => x.id !== s.id),
@@ -2204,30 +2407,11 @@ function DialogTugas(props: {
                     }
                     className={`rounded-md border px-2 py-1 text-xs font-semibold ${
                       prioritasTugas(t) === p
-                        ? 'border-[#DB4C3F] bg-[#f5f5f5]'
+                        ? 'border-[#0D2569] bg-[#f5f5f5]'
                         : 'border-[#e0e0e0]'
                     }`}
                   >
                     <BenderaPrioritas p={p} />
-                  </button>
-                ))}
-              </div>
-            </div>
-            <div>
-              <LabelTodo>Label</LabelTodo>
-              <div className="flex flex-wrap gap-1">
-                {props.labelDipakai.map((l) => (
-                  <button
-                    key={l}
-                    type="button"
-                    onClick={() => alihLabel(l)}
-                    className={`rounded-full border px-2 py-0.5 text-xs font-semibold ${
-                      (t.label ?? []).includes(l)
-                        ? 'border-[#DB4C3F] bg-[#f5f5f5] text-[#202020]'
-                        : 'border-[#e0e0e0] text-[#808080]'
-                    }`}
-                  >
-                    {l}
                   </button>
                 ))}
               </div>
