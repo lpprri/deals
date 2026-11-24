@@ -39,11 +39,13 @@ import {
   Baris,
   JudulBagian,
   Kartu,
+  Label,
   PesanKosong,
   Tabel,
   Td,
   Th,
   TombolSekunder,
+  inputClass,
 } from '../components/ui';
 import type {
   ArahUrutKontrak,
@@ -524,7 +526,11 @@ export function MenuApprovement({ data, cari }: ModulProps) {
  * tahap upload dokumen masih ditunda, jangan dikarang menjadi tautan).
  */
 function DaftarApprovement({ data, cari }: Pick<ModulProps, 'data' | 'cari'>) {
-  const kataKunci = cari.trim().toLowerCase();
+  // Kotak pencarian sendiri di panel (pola panel Contract): pencarian
+  // global di top bar dihapus atas instruksi pengguna 15/11/2026, jadi
+  // `cari` dari shell selalu '' — pencarian panel memakai state lokal.
+  const [pencarian, setPencarian] = useState('');
+  const kataKunci = `${cari} ${pencarian}`.trim().toLowerCase();
   const approvementTersaring = [...data.approvement]
     .sort((a, b) => a.nomorSurat.localeCompare(b.nomorSurat))
     .filter(
@@ -535,27 +541,43 @@ function DaftarApprovement({ data, cari }: Pick<ModulProps, 'data' | 'cari'>) {
           .includes(kataKunci),
     );
 
-  // Belum ada record Approvement di Firestore (migrasi Approvement
-  // belum dijalankan): empty state jujur, bukan tabel kosong.
-  if (approvementTersaring.length === 0) {
-    return (
-      <div className="space-y-3">
-        <PesanKosong teks="Belum ada surat persetujuan Media Partner." />
-        <p className="max-w-2xl text-sm text-[#0d2569]/70">
-          Belum ada catatan Approvement di Firestore. Data contoh (4 surat
-          persetujuan: 2 organisasi mahasiswa + 2 komunitas) tersedia di
-          seed dan akan tampil di sini setelah dimigrasikan ke Firestore.
-        </p>
-      </div>
-    );
-  }
-
   return (
     <div className="space-y-4">
-      <p className="text-sm text-[#0d2569]/70">
-        {approvementTersaring.length} surat persetujuan Media Partner.
-      </p>
-      <Kartu>
+      <div className="flex flex-wrap gap-4">
+        <div className="min-w-[240px]">
+          <Label>Cari</Label>
+          <input
+            className={inputClass}
+            type="search"
+            value={pencarian}
+            onChange={(e) => setPencarian(e.target.value)}
+            placeholder="Nomor surat, klien, narahubung…"
+            aria-label="Cari surat persetujuan"
+          />
+        </div>
+      </div>
+      {approvementTersaring.length === 0 ? (
+        // Belum ada record Approvement di Firestore (migrasi Approvement
+        // belum dijalankan): empty state jujur, bukan tabel kosong.
+        // Kalau ada record tapi pencarian tidak cocok, pesannya beda.
+        data.approvement.length === 0 ? (
+          <div className="space-y-3">
+            <PesanKosong teks="Belum ada surat persetujuan Media Partner." />
+            <p className="max-w-2xl text-sm text-[#0d2569]/70">
+              Belum ada catatan Approvement di Firestore. Data contoh (4 surat
+              persetujuan: 2 organisasi mahasiswa + 2 komunitas) tersedia di
+              seed dan akan tampil di sini setelah dimigrasikan ke Firestore.
+            </p>
+          </div>
+        ) : (
+          <PesanKosong teks="Tidak ada surat persetujuan yang cocok dengan pencarian." />
+        )
+      ) : (
+        <>
+          <p className="text-sm text-[#0d2569]/70">
+            {approvementTersaring.length} surat persetujuan Media Partner.
+          </p>
+          <Kartu>
         <Tabel>
           <thead>
             <tr>
@@ -586,7 +608,9 @@ function DaftarApprovement({ data, cari }: Pick<ModulProps, 'data' | 'cari'>) {
             ))}
           </tbody>
         </Tabel>
-      </Kartu>
+          </Kartu>
+        </>
+      )}
     </div>
   );
 }

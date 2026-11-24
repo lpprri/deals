@@ -139,6 +139,32 @@ cek(
     (kolom) => kerjaSama.includes(`<Th>${kolom}</Th>`) || kerjaSama.includes(`<Th kanan>${kolom}</Th>`),
   ),
 );
+
+// ---------- kotak pencarian panel Media Partner (permintaan user 24/11/2026) ----------
+cek(
+  'panel Media Partner punya kotak pencarian sendiri (input type search)',
+  kerjaSama.includes('type="search"') &&
+    kerjaSama.includes('aria-label="Cari surat persetujuan"'),
+);
+cek(
+  'panel Media Partner pencarian pakai state lokal (pencarian global di top bar sudah dihapus 15/11/2026)',
+  kerjaSama.includes("const [pencarian, setPencarian] = useState('')"),
+);
+cek(
+  'panel Media Partner pencarian memfilter nomor surat, klien, jenis klien, narahubung, jenis kompensasi',
+  kerjaSama.includes(
+    '`${a.nomorSurat} ${a.namaKlien} ${a.jenisKlien} ${a.namaNarahubung} ${a.jenisKompensasi}`',
+  ),
+);
+cek(
+  'panel Media Partner pencarian tanpa hasil menampilkan pesan beda dari empty state',
+  kerjaSama.includes('Tidak ada surat persetujuan yang cocok dengan pencarian.'),
+);
+cek(
+  'panel Media Partner kotak pencarian tampil juga saat daftar kosong (dirender sebelum empty state)',
+  kerjaSama.indexOf('aria-label="Cari surat persetujuan"') <
+    kerjaSama.indexOf('Belum ada surat persetujuan Media Partner.'),
+);
 cek(
   'panel MoU tetap memakai data.mou (tidak disentuh)',
   kerjaSama.includes('data.mou'),
