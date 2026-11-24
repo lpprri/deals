@@ -83,16 +83,16 @@ cek(
     todo.includes('bg-[#fafafa]'),
 );
 cek(
-  'Sidebar memuat tombol tambah tugas merah + Cari',
+  'Sidebar memuat tombol tambah tugas NAVY + Cari',
   todo.includes('Tambah tugas') &&
-    todo.includes('bg-[#DB4C3F]') &&
+    todo.includes('bg-[#0D2569]') &&
     todo.includes('Cari'),
 );
 cek(
-  'Tombol "Tambah tugas" sidebar merah SOLID (bukan teks merah + lingkaran)',
+  'Tombol "Tambah tugas" sidebar NAVY SOLID (bukan teks + lingkaran)',
   todo.includes(
-    'justify-center gap-2 rounded-md bg-[#DB4C3F] px-4 py-2 text-sm font-semibold text-white',
-  ) && !todo.includes('rounded-full bg-[#DB4C3F] text-white'),
+    'justify-center gap-2 rounded-md bg-[#0D2569] px-4 py-2 text-sm font-semibold text-white',
+  ) && !todo.includes('rounded-full bg-[#0D2569] text-white'),
 );
 cek(
   'Sidebar memuat bagian Proyek Saya + Jelajahi semua proyek',
@@ -133,6 +133,10 @@ for (const s of [
 }
 cek('Shortcut Q + Ctrl+K didaftarkan', todo.includes("'q'") && todo.includes("toLowerCase() === 'k'"));
 cek(
+  'Ctrl+K membuka pop-up Cari (bukan fokus kotak pencarian)',
+  todo.includes('setPaletCari(true)') && !todo.includes('cariRef'),
+);
+cek(
   'Quick Add berupa MODAL melayang terpusat (overlay + kartu tengah)',
   todo.includes('fixed inset-0 z-50 flex items-start justify-center') &&
     todo.includes('max-w-[560px]'),
@@ -168,12 +172,12 @@ cek(
   !kartu.includes('BadgeStatus'),
 );
 cek(
-  'Tanggal terlambat merah Todoist, hari ini hijau Todoist',
-  todo.includes('text-[#d1453b]') && todo.includes('text-[#058527]'),
+  'Tanggal terlambat NAVY TEBAL, hari ini hijau',
+  todo.includes("font-bold text-[#0D2569]") && todo.includes('text-[#058527]'),
 );
 cek(
-  'Aksen merah Todoist #DB4C3F dipakai (tombol + checkbox + sidebar)',
-  todo.includes('#DB4C3F'),
+  'Aksen NAVY #0D2569 dipakai (tombol + checkbox + sidebar)',
+  todo.includes('#0D2569'),
 );
 cek(
   'Kartu tugas putih border #e6e6e6 + checkbox 18px border #999',
@@ -182,8 +186,8 @@ cek(
     todo.includes('border-[#999]'),
 );
 cek(
-  'Bendera prioritas warna Todoist (P1 merah, P2 oranye, P3 biru)',
-  todo.includes("'#d1453b'") &&
+  'Bendera prioritas (P1 navy, P2 oranye, P3 biru)',
+  todo.includes("'#0D2569'") &&
     todo.includes("'#eb8909'") &&
     todo.includes("'#246fe0'"),
 );
@@ -209,16 +213,22 @@ cek(
 );
 
 // --- 6. Filter tersimpan, label disposisi, tambah label. ---
-for (const s of ['Filter saya', 'Prioritas 1', '+ Tambah label']) {
+for (const s of ['Filter saya', 'Prioritas 1', 'Belum ada label.']) {
   cek(`Filter & Label memuat "${s}"`, todo.includes(s));
 }
 cek(
   'Filter tersimpan "Ditugaskan ke saya" ada (di tugasTodoist.ts, dipakai FilterLabel)',
   helper.includes('Ditugaskan ke saya') && todo.includes('FILTER_TERSIMPAN'),
 );
-for (const l of LABEL_DISPOSISI) {
-  cek(`Label disposisi "${l}" ada`, helper.includes(l));
-}
+cek(
+  'Daftar definisi label DIKOSONGKAN (LABEL_DISPOSISI + LABEL_BAWAAN kosong)',
+  helper.includes('export const LABEL_DISPOSISI: string[] = [];') &&
+    helper.includes('export const LABEL_BAWAAN: string[] = [];'),
+);
+cek(
+  'semuaLabel pada seed nyata kosong (seed tidak punya label)',
+  semuaLabel(DATA_NYATA.task).length === 0,
+);
 
 // --- 7. Dialog detail 2 kolom + More actions. ---
 for (const s of [
@@ -457,14 +467,17 @@ cek(
       buat({ id: 'T1', tenggat: tambahHari(hariIni, 2), proyek: 'PNBP' }),
       buat({ id: 'T2', tenggat: hariIni, proyek: 'KBRN' }),
       buat({ id: 'T3', tenggat: tambahHari(hariIni, 1), proyek: 'PNBP' }),
+      buat({ id: 'T4', tenggat: hariIni, proyek: 'Media Partner' }),
     ];
     const grup = kelompokkanTugas(daftar, 'proyek', 'tanggal', hariIni);
     const pnbp = grup.find((g) => g.nama === 'PNBP');
     return (
-      grup.length === 2 &&
+      grup.length === 3 &&
       pnbp !== undefined &&
       pnbp.tugas[0].id === 'T3' &&
-      pnbp.tugas[1].id === 'T1'
+      pnbp.tugas[1].id === 'T1' &&
+      grup[1].nama === 'Media Partner' &&
+      grup[2].nama === 'KBRN'
     );
   })(),
 );
@@ -495,15 +508,125 @@ try {
     'Jelajahi semua proyek',
     'Tambah tugas',
     'dd/mm/yyyy',
+    'Cari atau ketik perintah...',
+    'Baru saja dilihat',
+    'Belum ada label.',
   ]) {
     cek(`Bundle memuat "${s}"`, bundle.includes(s));
   }
   for (const s of ['+ Buat disposisi', 'Tutup disposisi', 'Instruksi disposisi']) {
     cek(`Bundle tidak lagi memuat "${s}"`, !bundle.includes(s));
   }
+  for (const s of ['Tugas perorangan.', 'Cari tugas…']) {
+    cek(`Bundle tidak lagi memuat "${s}"`, !bundle.includes(s));
+  }
 } catch {
   cek('Bundle dist/ tersedia (jalankan npm run build dulu)', false);
 }
+
+// --- 15. Perubahan 2026-11-24: navy + tanpa subjudul + pop-up Cari +
+//     proyek baru + ikon modul + label dikosongkan. ---
+for (const hex of ['#DB4C3F', '#d1453b', '#fceae8', '#C23B2E']) {
+  cek(`Tidak ada merah Todoist "${hex}" di source panel Tugas`, !todo.includes(hex));
+}
+cek(
+  'Tanggal terlambat navy TEBAL (bukan merah)',
+  todo.includes("font-bold text-[#0D2569]"),
+);
+cek(
+  'Subjudul "Tugas perorangan." dihapus (modul Tugas tanpa deskripsi)',
+  !app.includes('Tugas perorangan.') &&
+    app.includes("id: 'todo'") &&
+    !todo.includes('Tugas perorangan.'),
+);
+cek(
+  'Tidak ada kotak pencarian menetap di konten panel',
+  !todo.includes('Cari tugas… (Ctrl+K)') &&
+    !todo.includes('Cari tugas selesai… (Ctrl+K)') &&
+    !todo.includes('cariRef'),
+);
+for (const s of [
+  'PaletPencarian',
+  'Cari atau ketik perintah...',
+  'Baru saja dilihat',
+  'Ke Beranda',
+  'Ke Kotak Masuk',
+  'Ke Hari Ini',
+  'Ke Mendatang',
+  'Ke Filter & Label',
+  'Ke Laporan',
+  'G lalu H',
+  'G lalu I',
+  'G lalu T',
+  'G lalu U',
+  'G lalu V',
+  'G lalu A',
+]) {
+  cek(`Pop-up Cari memuat "${s}"`, todo.includes(s));
+}
+cek(
+  'Pop-up Cari dibuka dari sidebar + Ctrl+K, ditutup Esc/klik latar',
+  todo.includes('onCari={() => setPaletCari(true)}') &&
+    todo.includes('setPaletCari(true)') &&
+    todo.includes('onTutup={() => setPaletCari(false)}'),
+);
+cek(
+  'Shortcut G-lalu-huruf terdaftar (Beranda H, Kotak Masuk I, Hari Ini T)',
+  todo.includes("h: () => props.onNavigasiModul?.('home')") &&
+    todo.includes("i: () => pilihTampilan('kotak-masuk')") &&
+    todo.includes("t: () => pilihTampilan('hari-ini')"),
+);
+cek(
+  'Pop-up Cari bisa ke Beranda (onNavigasiModul diteruskan App.tsx)',
+  app.includes('onNavigasiModul={(m) => setActive(m as ModuleId)}'),
+);
+// Daftar proyek baru: hanya di blok PROYEK_TODOIST (bagian lama di
+// BAGIAN_PROYEK sengaja dipertahankan untuk tugas berproyek lama).
+const blokProyek = helper.slice(
+  helper.indexOf('export const PROYEK_TODOIST'),
+  helper.indexOf('export const BAGIAN_PROYEK'),
+);
+for (const nama of ['PNBP', 'Nota Kesepahaman', 'Dukungan Layanan', 'Media Partner']) {
+  cek(`Daftar proyek baru memuat "${nama}"`, blokProyek.includes(`nama: '${nama}'`));
+}
+for (const nama of ['KBRN', 'Komunikasi Publik', 'Layanan Publik', 'General Affairs']) {
+  cek(`Daftar proyek baru TIDAK memuat "${nama}"`, !blokProyek.includes(nama));
+}
+cek(
+  'Ikon Proyek Saya = ikon modul di sidebar admin',
+  todo.includes('PNBP: FileSignature') &&
+    todo.includes("'Nota Kesepahaman': ScrollText") &&
+    todo.includes("'Dukungan Layanan': HeartHandshake") &&
+    todo.includes("'Media Partner': Stamp"),
+);
+cek(
+  'Ikon modul di App.tsx tidak diubah (FileSignature/ScrollText/HeartHandshake/Stamp)',
+  app.includes('icon: FileSignature') &&
+    app.includes('icon: ScrollText') &&
+    app.includes('icon: HeartHandshake') &&
+    app.includes('icon: Stamp'),
+);
+cek(
+  'Daftar Label kosong (kartu "Belum ada label.", tanpa tambah label)',
+  todo.includes('Belum ada label.') &&
+    !todo.includes('+ Tambah label') &&
+    !todo.includes('Label baru'),
+);
+cek(
+  'Tidak ada chip label di kartu/detail (tanpa LabelTodo "Label")',
+  !todo.includes('<LabelTodo>Label</LabelTodo>') &&
+    !todo.includes('rounded-full bg-[#f5f5f5] px-2 py-0.5 text-xs text-[#666]'),
+);
+cek(
+  'Tidak ada pemilih/filter label di UI (state & prop label dihapus)',
+  !todo.includes('filterLabel') &&
+    !todo.includes('labelDipakai') &&
+    !todo.includes('alihLabel'),
+);
+cek(
+  'Model data label tetap ada (field label di types.ts + store)',
+  types.includes('label?: string[]'),
+);
 
 console.log(`\n${lolos} lolos, ${gagal} gagal.`);
 if (gagal > 0) {

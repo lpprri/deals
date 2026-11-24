@@ -485,6 +485,8 @@ export interface ModulProps {
   klienIdTerpilihLuar?: string | null;
   /** Navigasi ke menu Clients dengan klien tertentu terpilih. */
   onNavigasiKlien?: (klienId: string) => void;
+  /** Navigasi ke modul lain (dipakai pop-up Cari di panel Tugas). */
+  onNavigasiModul?: (modul: string) => void;
 }
 
 export type {

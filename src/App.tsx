@@ -467,7 +467,7 @@ const MODULES: NavItem[] = [
     label: 'Tugas',
     icon: CheckSquare,
     phase: 'B',
-    description: 'Tugas perorangan.',
+    description: '',
   },
   {
     id: 'chat',
@@ -4042,7 +4042,12 @@ export default function App() {
             {active === 'order' && <MenuOrder {...propsModul} />}
             {active === 'meeting' && <MenuMeeting {...propsModul} />}
             {active === 'umpanBalik' && <MenuUmpanBalik {...propsModul} />}
-            {active === 'todo' && <Todo {...propsModul} />}
+            {active === 'todo' && (
+              <Todo
+                {...propsModul}
+                onNavigasiModul={(m) => setActive(m as ModuleId)}
+              />
+            )}
             {active === 'chat' && <Chat {...propsModul} />}
             {active === 'audit' && <AuditPage {...propsModul} />}
             {active === 'master' && (

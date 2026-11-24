@@ -4,22 +4,27 @@
 //
 // Semua label antarmuka Bahasa Indonesia (keputusan 2026-11-23: panel admin
 // & client Bahasa Indonesia saja). Warna tanggal & bendera prioritas memakai
-// merah/oranye/hijau semantik seperti Todoist — warna yang benar-benar
-// dibutuhkan untuk membedakan terlambat/hari ini/prioritas (revisi palet
-// 2026-11-15: palet dasar RRI bukan satu-satunya warna).
+// navy/oranye/hijau semantik — tanggal terlambat navy TEBAL, hari ini hijau,
+// prioritas P1 navy (semua merah jadi navy 2026-11-24).
 //
 // Helper di sini murni (tanpa React/Firestore) supaya bisa diuji skrip cek.
 
 import type { PrioritasTugas, StatusTask, Task } from './types';
 import { formatTanggalPendek, hariIniIso } from './format';
 
-/** Proyek nyata pengguna di Todoist (jumlah tugas saat studi). */
+/** Proyek di panel Tugas — diubah pengguna 2026-11-24 menjadi empat ini
+ * saja: PNBP, Nota Kesepahaman, Dukungan Layanan, Media Partner.
+ * (Sebelumnya: proyek Todoist PNBP, KBRN, Komunikasi Publik, Layanan
+ * Publik, General Affairs.) Daftar ini dipakai sidebar "Proyek Saya" dan
+ * pilihan proyek di Quick Add/dialog detail; "Kotak Masuk" tetap pilihan
+ * tanpa proyek. Data tugas lama TIDAK ditulis ulang — tugas yang
+ * proyeknya kini tidak ada di daftar tetap tampil dengan tag proyek
+ * lamanya, hanya tidak bisa dipilih lagi dari daftar. */
 export const PROYEK_TODOIST: { nama: string; jumlah: number }[] = [
   { nama: 'PNBP', jumlah: 10 },
-  { nama: 'KBRN', jumlah: 1 },
-  { nama: 'Komunikasi Publik', jumlah: 0 },
-  { nama: 'Layanan Publik', jumlah: 0 },
-  { nama: 'General Affairs', jumlah: 1 },
+  { nama: 'Nota Kesepahaman', jumlah: 0 },
+  { nama: 'Dukungan Layanan', jumlah: 0 },
+  { nama: 'Media Partner', jumlah: 0 },
 ];
 
 /** Bagian di dalam proyek (Todoist: sections). */
@@ -28,18 +33,16 @@ export const BAGIAN_PROYEK: Record<string, string[]> = {
   'General Affairs': ['Kepegawaian'],
 };
 
-/** Label disposisi nyata pengguna di Todoist. */
-export const LABEL_DISPOSISI: string[] = [
-  'Menunggu Disposisi',
-  'Menunggu Pembayaran',
-  'Perlu Ditandangani',
-  'Menunggu Persetujuan KPKNL',
-  'Paid',
-  'Unpaid',
-];
+/** Label disposisi pengguna di Todoist — DIKOSONGKAN 2026-11-24 atas
+ * instruksi pengguna (label di panel Tugas dikosongkan: Menunggu
+ * Disposisi, Menunggu Pembayaran, Perlu Ditandangani, Menunggu
+ * Persetujuan KPKNL, Paid, Unpaid). Nilai label pada data tugas
+ * dibiarkan apa adanya; field label di model tetap ada. */
+export const LABEL_DISPOSISI: string[] = [];
 
-/** Label bawaan yang ditawarkan di panel (disposisi + umum). */
-export const LABEL_BAWAAN: string[] = [...LABEL_DISPOSISI, 'Penting'];
+/** Label bawaan yang ditawarkan di panel — dikosongkan 2026-11-24
+ * (sebelumnya label disposisi + 'Penting'). */
+export const LABEL_BAWAAN: string[] = [];
 
 /** Filter tersimpan ala Todoist (Filters & Labels). */
 export const FILTER_TERSIMPAN: { id: string; label: string }[] = [
