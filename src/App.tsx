@@ -368,7 +368,9 @@ const MODULES: NavItem[] = [
     label: 'Promosi',
     icon: Megaphone,
     phase: 'B',
-    description: 'Acara dan iklan.',
+    // Subjudul dihapus atas instruksi pengguna 24/11/2026 — panel Promosi
+    // hanya menampilkan judul + tab; modul lain tetap memakai deskripsi.
+    description: '',
   },
   {
     id: 'klien',
