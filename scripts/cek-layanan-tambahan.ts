@@ -743,13 +743,16 @@ cek(
     firestoreStore.includes('kirimPermintaanTrainingPublik'),
 );
 
-// --- 6. Tabel Order: kolom Details, 4 kolom lama utuh. ---
+// --- 6. Tabel Order: kolom Detail, 4 kolom lama utuh. ---
+// (Diperbarui 2026-11-24: header tabel sudah Bahasa Indonesia sejak
+// alih bahasa panel admin; panel Permintaan kini 5 tab, tapi kolom
+// tabel layanan tidak berubah.)
 cek(
-  'Sales: kolom Details ada + 4 kolom lama tetap ada',
-  sales.includes('<Th>Details</Th>') &&
-    sales.includes('<Th>Request ID</Th>') &&
-    sales.includes('<Th>Client</Th>') &&
-    sales.includes('<Th>Request Date</Th>') &&
+  'Sales: kolom Detail ada + 4 kolom lama tetap ada',
+  sales.includes('<Th>Detail</Th>') &&
+    sales.includes('<Th>ID permintaan</Th>') &&
+    sales.includes('<Th>Klien</Th>') &&
+    sales.includes('<Th>Tanggal permintaan</Th>') &&
     sales.includes('<Th>Status</Th>'),
 );
 cek(
@@ -757,12 +760,12 @@ cek(
   sales.includes('function rincianPermintaan') &&
     sales.includes("join(' · ')") &&
     sales.includes('jumlahPeserta') &&
-    sales.includes('participant'),
+    sales.includes('peserta'),
 );
 cek(
   'Sales: teks kosong 2 tabel diperbarui (form sudah hidup)',
-  sales.includes('Requests from the Book a Venue form will appear here.') &&
-    sales.includes('Requests from the Rent a Space form will appear here.'),
+  sales.includes('Permintaan dari formulir Book a Venue akan muncul di sini.') &&
+    sales.includes('Permintaan dari formulir Rent a Space akan muncul di sini.'),
 );
 
 // --- 7. Rules: 3 blok publik baru; blok lain tidak berubah. ---

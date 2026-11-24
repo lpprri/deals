@@ -147,17 +147,18 @@ cek(
   !notifikasi.includes("modul: 'sales'"),
 );
 
-// --- Asersi panel Order — lima tabel (PR #115, 19/11/2026; Training
-// Order DIHAPUS perintah pengguna 2026-11-22 — halaman Training +
-// Learning Centre dibuang, panel Order tinggal 5 tabel). ---
-// Urutan: Manual Order, Ads Quotation Request, Venue Book Order,
-// Space Rent Order, Partnership Request. Manual Order
-// adalah tabel Order yang sudah ada (judul saja yang berubah); empat
-// tabel baru mulai kosong dengan empty state jujur; TIDAK ada tabel
-// untuk Support our Event / Collaborate with Us.
-// "Partnership Request" diganti nama dari "Media Partner Order"
-// 2026-11-21 (halaman "Partner with RRI"; koleksi diganti nama dari
-// mediaPartnerOrder — seed kosong, tanpa data yang dipindah).
+// --- Asersi panel Permintaan — LIMA TAB jenis permintaan (perintah
+// pengguna 2026-11-24; menggantikan lima tabel bertumpuk PR #115 —
+// Training Order sudah DIHAPUS perintah pengguna 2026-11-22). ---
+// Tab: PNBP Fungsional (Pesanan manual + Permintaan penawaran iklan),
+// PNBP Umum (Pesanan booking venue + Pesanan sewa ruang),
+// Nota Kesepahaman (Partnership Request layanan 'MoU'),
+// Dukungan Layanan (Partnership Request layanan 'Event Support'),
+// Media Partner (Partnership Request layanan 'Media Partner' +
+// 'Join Our Event' / 'Other' / tanpa layanan — edge case, lihat komentar
+// di TabOrder; saat ini 0 record).
+// Semua tab menampilkan daftar permintaan berisi identitas peminta
+// kerja sama (prospek / nama lengkap + perusahaan / klien + institusi).
 const tabOrder = sales.slice(sales.indexOf('export function TabOrder('));
 const types = baca('src/lib/types.ts');
 const store = baca('src/lib/firestoreStore.ts');
@@ -166,78 +167,129 @@ const contoh = baca('src/lib/sampleData.ts');
 const rules = baca('firestore.rules');
 const labels = baca('src/lib/labels.ts');
 
-const urutanJudul = [
-  'Manual Order',
-  'Ads Quotation Request',
-  'Venue Book Order',
-  'Space Rent Order',
-  'Partnership Request',
+const urutanTab = [
+  "{ id: 'fungsional', label: 'PNBP Fungsional' }",
+  "{ id: 'umum', label: 'PNBP Umum' }",
+  "{ id: 'mou', label: 'Nota Kesepahaman' }",
+  "{ id: 'dukungan', label: 'Dukungan Layanan' }",
+  "{ id: 'media', label: 'Media Partner' }",
 ];
-const posisiJudul = urutanJudul.map((j) => tabOrder.indexOf(j));
+const posisiTab = urutanTab.map((t) => tabOrder.indexOf(t));
 cek(
-  'panel Order: lima judul tabel berurutan (Manual, Ads Quotation Request, Venue, Space, Partnership Request)',
-  posisiJudul.every((p) => p >= 0) &&
-    posisiJudul.every((p, i) => i === 0 || p > posisiJudul[i - 1]),
-  posisiJudul.join(', '),
+  'panel Permintaan: lima tab berurutan (PNBP Fungsional, PNBP Umum, Nota Kesepahaman, Dukungan Layanan, Media Partner)',
+  posisiTab.every((p) => p >= 0) &&
+    posisiTab.every((p, i) => i === 0 || p > posisiTab[i - 1]),
+  posisiTab.join(', '),
 );
 cek(
-  'Manual Order: judul + tombol + Create Order + kolom lama utuh',
-  tabOrder.includes('<JudulBagian>Manual Order</JudulBagian>') &&
-    tabOrder.includes('+ Create Order') &&
+  'panel Permintaan: tab default = fungsional + TabBar dirender sebelum isi tab',
+  tabOrder.includes("useState('fungsional')") &&
+    tabOrder.indexOf('<TabBar') >= 0 &&
+    tabOrder.indexOf('<TabBar') < tabOrder.indexOf("tab === 'fungsional'"),
+);
+cek(
+  'PNBP Fungsional: Pesanan manual + Permintaan penawaran iklan dalam satu tab',
+  tabOrder.indexOf('<JudulBagian>Pesanan manual</JudulBagian>') >
+    tabOrder.indexOf("tab === 'fungsional'") &&
+    tabOrder.indexOf('<JudulBagian>Permintaan penawaran iklan</JudulBagian>') >
+      tabOrder.indexOf("tab === 'fungsional'") &&
+    tabOrder.indexOf('<JudulBagian>Permintaan penawaran iklan</JudulBagian>') <
+      tabOrder.indexOf("tab === 'umum'"),
+);
+cek(
+  'Pesanan manual: judul + tombol + Buat pesanan + kolom lama utuh',
+  tabOrder.includes('<JudulBagian>Pesanan manual</JudulBagian>') &&
+    tabOrder.includes('+ Buat pesanan') &&
     [
       '<Th>ID</Th>',
-      '<Th>Quotation</Th>',
-      '<Th>Prospect</Th>',
-      '<Th>Order Date</Th>',
+      '<Th>Penawaran</Th>',
+      '<Th>Prospek</Th>',
+      '<Th>Tanggal pesanan</Th>',
       '<Th>Status</Th>',
-      '<Th kanan>Value</Th>',
-      '<Th>Contract</Th>',
+      '<Th kanan>Nilai</Th>',
+      '<Th>Kontrak</Th>',
     ].every((h) => tabOrder.includes(h)),
 );
 cek(
-  "judul halaman 'Order' + subtitle shell tidak berubah (App.tsx)",
-  app.includes("description: 'Order list — the same Order tab as Sales (ORD-01 …).'"),
+  'TIDAK ada lagi lima tabel bertumpuk di luar tab (judul tabel Umum hanya di dalam tabnya)',
+  tabOrder.indexOf('judul="Pesanan booking venue"') >
+    tabOrder.indexOf("tab === 'umum'") &&
+    tabOrder.indexOf('judul="Pesanan booking venue"') <
+      tabOrder.indexOf("tab === 'mou'"),
 );
 cek(
-  'Ads Quotation Request: 7 kolom + empty state jujur + tanpa tombol create',
+  "judul halaman 'Order' + subtitle shell Bahasa Indonesia (App.tsx)",
+  app.includes(
+    "description: 'Daftar permintaan, sama dengan tab Pesanan di Sales (ORD-01 …).'",
+  ),
+);
+cek(
+  'Permintaan penawaran iklan: 7 kolom + empty state jujur + tanpa tombol create',
   [
-    '<Th>Request ID</Th>',
-    '<Th>Client</Th>',
-    '<Th>Company</Th>',
-    '<Th>Services</Th>',
-    '<Th>Budget</Th>',
-    '<Th>Submitted</Th>',
+    '<Th>ID permintaan</Th>',
+    '<Th>Klien</Th>',
+    '<Th>Perusahaan</Th>',
+    '<Th>Layanan</Th>',
+    '<Th>Anggaran</Th>',
+    '<Th>Dikirim</Th>',
     '<Th>Status</Th>',
   ].every((h) => tabOrder.includes(h)) &&
     tabOrder.includes(
-      'No quotation requests yet. Responses from the Plan a Campaign form will appear here automatically once the webhook is connected.',
+      'Belum ada permintaan penawaran. Respons dari formulir Plan a Campaign akan muncul di sini otomatis setelah webhook tersambung.',
     ) &&
     !tabOrder.includes('Create Quotation Request'),
 );
-const tabelLayanan: [string, string][] = [
+const tabelLayanan: [string, string, string][] = [
   [
-    'Venue Book Order',
-    'No venue booking orders yet. Requests from the Book a Venue form will appear here.',
+    'Pesanan booking venue',
+    'Belum ada pesanan booking venue. Permintaan dari formulir Book a Venue akan muncul di sini.',
+    "tab === 'umum'",
   ],
   [
-    'Space Rent Order',
-    'No space rental orders yet. Requests from the Rent a Space form will appear here.',
+    'Pesanan sewa ruang',
+    'Belum ada pesanan sewa ruang. Permintaan dari formulir Rent a Space akan muncul di sini.',
+    "tab === 'umum'",
   ],
   [
-    'Partnership Request',
-    'No partnership requests yet. Requests from the Partner with RRI form will appear here.',
+    'Nota Kesepahaman',
+    "Belum ada permintaan Nota Kesepahaman. Permintaan kemitraan dengan jenis 'MoU' dari formulir Partner with RRI akan muncul di sini.",
+    "tab === 'mou'",
+  ],
+  [
+    'Dukungan Layanan',
+    "Belum ada permintaan Dukungan Layanan. Permintaan kemitraan dengan jenis 'Event Support' dari formulir Partner with RRI akan muncul di sini.",
+    "tab === 'dukungan'",
+  ],
+  [
+    'Media Partner',
+    "Belum ada permintaan Media Partner. Permintaan kemitraan dengan jenis 'Media Partner' dari formulir Partner with RRI akan muncul di sini.",
+    "tab === 'media'",
   ],
 ];
-for (const [judul, kosong] of tabelLayanan) {
+for (const [judul, kosong, tab] of tabelLayanan) {
   cek(
-    `tabel layanan ${judul}: judul + empty state jujur`,
-    tabOrder.includes(judul) && tabOrder.includes(kosong),
+    `tab ${judul}: judul + empty state jujur di dalam tabnya`,
+    tabOrder.includes(`judul="${judul}"`) &&
+      tabOrder.includes(kosong) &&
+      tabOrder.indexOf(`judul="${judul}"`) > tabOrder.indexOf(tab),
   );
 }
 cek(
-  'tabel layanan: kolom bersama Request ID / Client / Request Date / Status',
-  tabOrder.includes('<Th>Request ID</Th>') &&
-    tabOrder.includes('<Th>Request Date</Th>'),
+  'Partnership Request dipecah per jenis kemitraan (field layanan)',
+  tabOrder.includes("r.layanan === 'MoU'") &&
+    tabOrder.includes("r.layanan === 'Event Support'") &&
+    tabOrder.includes("r.layanan === 'Media Partner'"),
+);
+cek(
+  "edge case: 'Join Our Event' / 'Other' / tanpa layanan ikut tab Media Partner (tidak ada record tersembunyi)",
+  tabOrder.includes("r.layanan === 'Join Our Event'") &&
+    tabOrder.includes("r.layanan === 'Other'") &&
+    tabOrder.includes('!r.layanan'),
+);
+cek(
+  'tabel layanan: kolom bersama ID permintaan / Klien / Tanggal permintaan / Status',
+  tabOrder.includes('<Th>ID permintaan</Th>') &&
+    tabOrder.includes('<Th>Tanggal permintaan</Th>'),
 );
 cek(
   'tabel layanan: tanpa tombol create',
@@ -251,11 +303,16 @@ cek(
     !tabOrder.includes('Collaborate with Us'),
 );
 cek(
-  'filter panel (cari) berlaku untuk empat tabel baru',
+  'filter panel (cari) berlaku untuk empat daftar baru',
   tabOrder.includes('data.adsQuotationRequest.filter') &&
     tabOrder.includes('data.venueBookOrder.filter') &&
     tabOrder.includes('data.spaceRentOrder.filter') &&
     tabOrder.includes('data.partnershipRequest.filter'),
+);
+cek(
+  'DetailOrder tetap berfungsi (klik baris order → detail, kembali ke daftar)',
+  tabOrder.includes('<DetailOrder') &&
+    tabOrder.includes('onKembali={() => setOrderIdTerpilih(null)}'),
 );
 cek(
   'types: AdsQuotationRequest + PermintaanLayanan + StatusPermintaan + 5 kunci AppData',
@@ -341,3 +398,4 @@ if (gagal > 0) {
   process.exit(1);
 }
 console.log('\nSemua asersi lolos.');
+

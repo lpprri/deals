@@ -1421,6 +1421,10 @@ function statusOrderBerikutnya(status: StatusOrder): StatusOrder[] {
 export function TabOrder({ data, user, actions, cari }: ModulProps) {
   const [orderIdTerpilih, setOrderIdTerpilih] = useState<string | null>(null);
   const [tampilForm, setTampilForm] = useState(false);
+  // Lima tab jenis permintaan (perintah pengguna 2026-11-24 — panel
+  // Permintaan tidak lagi menumpuk lima tabel ke bawah). Semua tab
+  // menampilkan daftar permintaan berisi identitas peminta kerja sama.
+  const [tab, setTab] = useState('fungsional');
 
   const kataKunci = cari.trim().toLowerCase();
   const orderTersaring = data.order.filter(
@@ -1431,9 +1435,9 @@ export function TabOrder({ data, user, actions, cari }: ModulProps) {
         .includes(kataKunci),
   );
 
-  // Panel Order — lima tabel (PR #115): filter panel yang sama (`cari`)
-  // berlaku juga untuk empat tabel baru (berdasarkan id / klien / layanan /
-  // status); tabel kosong tidak terpengaruh.
+  // Filter panel yang sama (`cari`) berlaku juga untuk empat daftar baru
+  // (berdasarkan id / klien / layanan / status); daftar kosong tidak
+  // terpengaruh.
   const cocokCari = (teks: string) =>
     kataKunci === '' || teks.toLowerCase().includes(kataKunci);
   const adsTersaring = data.adsQuotationRequest.filter((r) =>
@@ -1449,6 +1453,26 @@ export function TabOrder({ data, user, actions, cari }: ModulProps) {
   );
   const partnershipTersaring = data.partnershipRequest.filter((r) =>
     cocokCari(`${r.id} ${r.namaKlien} ${r.institusi ?? ''} ${r.status}`),
+  );
+
+  // Partnership Request dipecah per jenis kemitraan (field `layanan`,
+  // diisi dari pilihan JENIS_KEMITRAAN di form Partner with RRI).
+  const mouTersaring = partnershipTersaring.filter(
+    (r) => r.layanan === 'MoU',
+  );
+  const dukunganTersaring = partnershipTersaring.filter(
+    (r) => r.layanan === 'Event Support',
+  );
+  // Edge case (saat ini 0 record — pertanyaan terbuka ke pengguna):
+  // 'Join Our Event' / 'Other' / tanpa layanan tidak punya tab sendiri,
+  // jadi ditampilkan di tab Media Partner (tab home untuk partnership
+  // request) supaya tidak ada record yang tersembunyi.
+  const mediaTersaring = partnershipTersaring.filter(
+    (r) =>
+      r.layanan === 'Media Partner' ||
+      r.layanan === 'Join Our Event' ||
+      r.layanan === 'Other' ||
+      !r.layanan,
   );
 
   const orderTerpilih = orderIdTerpilih
@@ -1469,137 +1493,175 @@ export function TabOrder({ data, user, actions, cari }: ModulProps) {
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-wrap items-center justify-between gap-2">
-        <JudulBagian>Pesanan manual</JudulBagian>
-        {bolehAksi(user.peran, 'kelolaOrder') && (
-          <TombolUtama onClick={() => setTampilForm(true)}>
-            + Buat pesanan
-          </TombolUtama>
-        )}
-      </div>
+      <TabBar
+        tabs={[
+          { id: 'fungsional', label: 'PNBP Fungsional' },
+          { id: 'umum', label: 'PNBP Umum' },
+          { id: 'mou', label: 'Nota Kesepahaman' },
+          { id: 'dukungan', label: 'Dukungan Layanan' },
+          { id: 'media', label: 'Media Partner' },
+        ]}
+        aktif={tab}
+        onPilih={setTab}
+      />
 
-      {tampilForm && (
-        <FormOrder
-          data={data}
-          actions={actions}
-          onBatal={() => setTampilForm(false)}
-          onSukses={() => setTampilForm(false)}
+      {tab === 'fungsional' && (
+        <div className="space-y-4">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <JudulBagian>Pesanan manual</JudulBagian>
+            {bolehAksi(user.peran, 'kelolaOrder') && (
+              <TombolUtama onClick={() => setTampilForm(true)}>
+                + Buat pesanan
+              </TombolUtama>
+            )}
+          </div>
+
+          {tampilForm && (
+            <FormOrder
+              data={data}
+              actions={actions}
+              onBatal={() => setTampilForm(false)}
+              onSukses={() => setTampilForm(false)}
+            />
+          )}
+
+          {orderTersaring.length === 0 ? (
+            <PesanKosong teks="Belum ada pesanan yang cocok." />
+          ) : (
+            <Kartu>
+              <Tabel>
+                <thead>
+                  <tr>
+                    <Th>ID</Th>
+                    <Th>Penawaran</Th>
+                    <Th>Prospek</Th>
+                    <Th>Tanggal pesanan</Th>
+                    <Th>Status</Th>
+                    <Th kanan>Nilai</Th>
+                    <Th>Kontrak</Th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {orderTersaring.map((o) => {
+                    const kontrak = o.kontrakId
+                      ? data.kontrak.find((k) => k.id === o.kontrakId)
+                      : null;
+                    return (
+                      <Baris
+                        key={o.id}
+                        onClick={() => setOrderIdTerpilih(o.id)}
+                      >
+                        <Td tebal>{o.id}</Td>
+                        <Td>{o.quotationId}</Td>
+                        <Td>{namaProspek(data, o.prospectId)}</Td>
+                        <Td>{formatTanggal(o.tanggalOrder)}</Td>
+                        <Td>
+                          <StatusBadge status={labelStatusOrder(o.status)} />
+                        </Td>
+                        <Td kanan>{formatRupiah(o.nilai)}</Td>
+                        <Td>{kontrak ? kontrak.nomorPks : '-'}</Td>
+                      </Baris>
+                    );
+                  })}
+                </tbody>
+              </Tabel>
+            </Kartu>
+          )}
+
+          {/* ---------------------------------------------------------------
+              Ads Quotation Request — respons form Tally "Plan a Campaign"
+              (PR #115). Kolom mengikuti pertanyaan form: Request ID, Client
+              (A1 nama lengkap), Company (A2 perusahaan/instansi), Services
+              (B1 pilihan layanan), Budget (G1 rentang anggaran), Submitted,
+              Status. TANPA tombol create — tabel ini diisi OTOMATIS oleh
+              webhook Tally (PR terpisah, butuh upgrade Firebase ke Blaze);
+              sampai webhook tersambung, empty state jujur di bawah yang
+              tampil. TANPA data contoh. */}
+          <div className="space-y-3">
+            <JudulBagian>Permintaan penawaran iklan</JudulBagian>
+            {adsTersaring.length === 0 ? (
+              <PesanKosong teks="Belum ada permintaan penawaran. Respons dari formulir Plan a Campaign akan muncul di sini otomatis setelah webhook tersambung." />
+            ) : (
+              <Kartu>
+                <Tabel>
+                  <thead>
+                    <tr>
+                      <Th>ID permintaan</Th>
+                      <Th>Klien</Th>
+                      <Th>Perusahaan</Th>
+                      <Th>Layanan</Th>
+                      <Th>Anggaran</Th>
+                      <Th>Dikirim</Th>
+                      <Th>Status</Th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {adsTersaring.map((r) => (
+                      <Baris key={r.id}>
+                        <Td tebal>{r.id}</Td>
+                        <Td>{r.namaLengkap}</Td>
+                        <Td>{r.perusahaan}</Td>
+                        <Td>{r.layanan.map(labelOpsiTally).join(', ')}</Td>
+                        <Td>{labelOpsiTally(r.anggaran)}</Td>
+                        <Td>{formatTanggal(r.tanggalSubmit)}</Td>
+                        <Td>
+                          <StatusBadge
+                            status={labelStatusPermintaan(r.status)}
+                          />
+                        </Td>
+                      </Baris>
+                    ))}
+                  </tbody>
+                </Tabel>
+              </Kartu>
+            )}
+          </div>
+        </div>
+      )}
+
+      {tab === 'umum' && (
+        <div className="space-y-4">
+          {/* Venue Book Order — permintaan Book a Venue (halaman publik
+              2026-11-21; sebelumnya form-nya masih Coming Soon). */}
+          <TabelPermintaanLayanan
+            judul="Pesanan booking venue"
+            daftar={venueTersaring}
+            teksKosong="Belum ada pesanan booking venue. Permintaan dari formulir Book a Venue akan muncul di sini."
+          />
+
+          {/* Space Rent Order — permintaan Rent a Space (halaman publik
+              2026-11-21; sebelumnya form-nya masih Coming Soon). */}
+          <TabelPermintaanLayanan
+            judul="Pesanan sewa ruang"
+            daftar={spaceTersaring}
+            teksKosong="Belum ada pesanan sewa ruang. Permintaan dari formulir Rent a Space akan muncul di sini."
+          />
+        </div>
+      )}
+
+      {tab === 'mou' && (
+        <TabelPermintaanLayanan
+          judul="Nota Kesepahaman"
+          daftar={mouTersaring}
+          teksKosong="Belum ada permintaan Nota Kesepahaman. Permintaan kemitraan dengan jenis 'MoU' dari formulir Partner with RRI akan muncul di sini."
         />
       )}
 
-      {orderTersaring.length === 0 ? (
-        <PesanKosong teks="Belum ada pesanan yang cocok." />
-      ) : (
-        <Kartu>
-          <Tabel>
-            <thead>
-              <tr>
-                <Th>ID</Th>
-                <Th>Penawaran</Th>
-                <Th>Prospek</Th>
-                <Th>Tanggal pesanan</Th>
-                <Th>Status</Th>
-                <Th kanan>Nilai</Th>
-                <Th>Kontrak</Th>
-              </tr>
-            </thead>
-            <tbody>
-              {orderTersaring.map((o) => {
-                const kontrak = o.kontrakId
-                  ? data.kontrak.find((k) => k.id === o.kontrakId)
-                  : null;
-                return (
-                  <Baris key={o.id} onClick={() => setOrderIdTerpilih(o.id)}>
-                    <Td tebal>{o.id}</Td>
-                    <Td>{o.quotationId}</Td>
-                    <Td>{namaProspek(data, o.prospectId)}</Td>
-                    <Td>{formatTanggal(o.tanggalOrder)}</Td>
-                    <Td>
-                      <StatusBadge status={labelStatusOrder(o.status)} />
-                    </Td>
-                    <Td kanan>{formatRupiah(o.nilai)}</Td>
-                    <Td>{kontrak ? kontrak.nomorPks : '-'}</Td>
-                  </Baris>
-                );
-              })}
-            </tbody>
-          </Tabel>
-        </Kartu>
+      {tab === 'dukungan' && (
+        <TabelPermintaanLayanan
+          judul="Dukungan Layanan"
+          daftar={dukunganTersaring}
+          teksKosong="Belum ada permintaan Dukungan Layanan. Permintaan kemitraan dengan jenis 'Event Support' dari formulir Partner with RRI akan muncul di sini."
+        />
       )}
 
-      {/* ---------------------------------------------------------------
-          Ads Quotation Request — respons form Tally "Plan a Campaign"
-          (PR #115). Kolom mengikuti pertanyaan form: Request ID, Client
-          (A1 nama lengkap), Company (A2 perusahaan/instansi), Services
-          (B1 pilihan layanan), Budget (G1 rentang anggaran), Submitted,
-          Status. TANPA tombol create — tabel ini diisi OTOMATIS oleh
-          webhook Tally (PR terpisah, butuh upgrade Firebase ke Blaze);
-          sampai webhook tersambung, empty state jujur di bawah yang
-          tampil. TANPA data contoh. */}
-      <div className="space-y-3">
-        <JudulBagian>Permintaan penawaran iklan</JudulBagian>
-        {adsTersaring.length === 0 ? (
-          <PesanKosong teks="Belum ada permintaan penawaran. Respons dari formulir Plan a Campaign akan muncul di sini otomatis setelah webhook tersambung." />
-        ) : (
-          <Kartu>
-            <Tabel>
-              <thead>
-                <tr>
-                  <Th>ID permintaan</Th>
-                  <Th>Klien</Th>
-                  <Th>Perusahaan</Th>
-                  <Th>Layanan</Th>
-                  <Th>Anggaran</Th>
-                  <Th>Dikirim</Th>
-                  <Th>Status</Th>
-                </tr>
-              </thead>
-              <tbody>
-                {adsTersaring.map((r) => (
-                  <Baris key={r.id}>
-                    <Td tebal>{r.id}</Td>
-                    <Td>{r.namaLengkap}</Td>
-                    <Td>{r.perusahaan}</Td>
-                    <Td>{r.layanan.map(labelOpsiTally).join(', ')}</Td>
-                    <Td>{labelOpsiTally(r.anggaran)}</Td>
-                    <Td>{formatTanggal(r.tanggalSubmit)}</Td>
-                    <Td>
-                      <StatusBadge status={labelStatusPermintaan(r.status)} />
-                    </Td>
-                  </Baris>
-                ))}
-              </tbody>
-            </Tabel>
-          </Kartu>
-        )}
-      </div>
-
-      {/* Venue Book Order — permintaan Book a Venue (halaman publik
-          2026-11-21; sebelumnya form-nya masih Coming Soon). */}
-      <TabelPermintaanLayanan
-        judul="Pesanan booking venue"
-        daftar={venueTersaring}
-        teksKosong="Belum ada pesanan booking venue. Permintaan dari formulir Book a Venue akan muncul di sini."
-      />
-
-      {/* Space Rent Order — permintaan Rent a Space (halaman publik
-          2026-11-21; sebelumnya form-nya masih Coming Soon). */}
-      <TabelPermintaanLayanan
-        judul="Pesanan sewa ruang"
-        daftar={spaceTersaring}
-        teksKosong="Belum ada pesanan sewa ruang. Permintaan dari formulir Rent a Space akan muncul di sini."
-      />
-
-      {/* Partnership Request — permintaan dari form Partnership Request
-          halaman "Partner with RRI" (2026-11-21; diganti nama dari
-          "Media Partner Order", koleksi diganti nama dari
-          mediaPartnerOrder — seed kosong, tanpa data yang dipindah).
-          Empty state jujur sampai ada permintaan masuk. */}
-      <TabelPermintaanLayanan
-        judul="Permintaan kemitraan"
-        daftar={partnershipTersaring}
-        teksKosong="Belum ada permintaan kemitraan. Permintaan dari formulir Partner with RRI akan muncul di sini."
-      />
+      {tab === 'media' && (
+        <TabelPermintaanLayanan
+          judul="Media Partner"
+          daftar={mediaTersaring}
+          teksKosong="Belum ada permintaan Media Partner. Permintaan kemitraan dengan jenis 'Media Partner' dari formulir Partner with RRI akan muncul di sini."
+        />
+      )}
     </div>
   );
 }
@@ -2613,3 +2675,4 @@ export function TabAnalytics({ data }: { data: ModulProps['data'] }) {
     </div>
   );
 }
+
