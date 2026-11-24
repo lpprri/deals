@@ -194,6 +194,11 @@ cek(
   `${(rules.match(/^ *'approvement',?$/gm) ?? []).length}x`,
 );
 cek(
+  "rules entri 'commitment' sebelum 'approvement' diakhiri koma (tanpa koma Firebase menolak 'approvement' — insiden publish 24/11/2026)",
+  (rules.match(/^ *'commitment',\n *\/\/ Approvement/gm) ?? []).length === 4,
+  `${(rules.match(/^ *'commitment',\n *\/\/ Approvement/gm) ?? []).length}x`,
+);
+cek(
   'rules hitungan koleksi bersatker diperbarui (22 di blok)',
   rules.includes('22 koleksi di blok ini'),
 );
