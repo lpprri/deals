@@ -492,7 +492,7 @@ const MODULES: NavItem[] = [
     icon: BarChart3,
     phase: 'C',
     description:
-      'Helpdesk ke PIC kantor pusat, Basis Pengetahuan (Regulasi, SOP).',
+      'Bantuan ke PIC kantor pusat, Basis Pengetahuan (Regulasi, SOP).',
   },
   {
     id: 'audit',
@@ -3137,7 +3137,7 @@ export default function App() {
       setData((d) => ({ ...d, tiket: [...d.tiket, tiket] }));
       simpanKeFirestore('tiket', id, tiket);
       tambahAudit(
-        'Tiket Help-Desk dibuat',
+        'Tiket Bantuan dibuat',
         'Tiket',
         id,
         '—',
@@ -3170,7 +3170,7 @@ export default function App() {
       }));
       simpanKeFirestore('tiket', tiket.id, tiketBaru);
       tambahAudit(
-        'Tiket Help-Desk dijawab',
+        'Tiket Bantuan dijawab',
         'Tiket',
         tiket.id,
         tiket.status,

@@ -1,5 +1,5 @@
 // Modul Service (PRD v2.0 Final Bab 7.8; Q-12 terjawab 15/11/2026).
-// Tiga tab: Help-Desk (tiket konsultasi ke Direktorat Layanan &
+// Tiga tab: Bantuan (tiket konsultasi ke Direktorat Layanan &
 // Pengembangan Usaha), Knowledge Base (Regulasi & SOP nasional —
 // tombol View (preview Google Drive) dokumen lengkap di sisi kanan
 // tabel), dan FAQ
@@ -74,7 +74,7 @@ export default function Service(props: ModulProps) {
       </div>
       <TabBar
         tabs={[
-          { id: 'helpdesk', label: 'Help-Desk' },
+          { id: 'helpdesk', label: 'Bantuan' },
           { id: 'kb', label: 'Basis Pengetahuan' },
           { id: 'faq', label: 'FAQ' },
         ]}
@@ -93,7 +93,7 @@ export default function Service(props: ModulProps) {
 }
 
 // ---------------------------------------------------------------------------
-// Help-Desk — tiket konsultasi (Q-12).
+// Bantuan — tiket konsultasi (Q-12).
 // Status: Terbuka -> Dijawab -> Ditutup; Ditutup bisa dibuka kembali.
 // Balasan pertama mengubah status Terbuka menjadi Dijawab otomatis.
 

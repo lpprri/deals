@@ -11,6 +11,9 @@
 //   Drive, ukuran cocok dengan berkas asli di ~/workspace/user/files/)
 //   — daftar kanonis berkas tetap ada sebagai sumber tautan artikel KB.
 // - 6 total kontrol tidak berubah.
+// - Tab Help-Desk menjadi "Bantuan" (permintaan pengguna 24/11/2026;
+//   id internal 'helpdesk' tidak berubah; label lama 'Help-Desk'
+//   tidak tampil lagi di Service.tsx).
 // - Invarian perbaikan idBerikutnya (PR #49): jangkar ^(\d+) tidak
 //   mengubah id berikutnya untuk semua skema id yang sudah ada, dan id
 //   KB manual berikutnya adalah 'KB-01' (bukan 'KB-2024').
@@ -483,6 +486,57 @@ cek(
   sumberKb.includes('Open document') &&
     sumberKb.includes('target="_blank"'),
   'kartu detail membuka preview Drive di tab baru',
+);
+
+// ---------- Tab Help-Desk menjadi Bantuan (permintaan user 24/11/2026) ----------
+// Label tab berubah; id internal 'helpdesk' dan komponen HelpDesk tidak
+// berubah. Label lama 'Help-Desk' tidak boleh tampil lagi di Service.tsx;
+// deskripsi modul Informasi dan teks audit tiket ikut berubah.
+const sumberApp = readFileSync(join(process.cwd(), 'src', 'App.tsx'), 'utf8');
+const sumberLabels = readFileSync(
+  join(process.cwd(), 'src', 'lib', 'labels.ts'),
+  'utf8',
+);
+cek(
+  'tabBantuan',
+  sumberService.includes("{ id: 'helpdesk', label: 'Bantuan' }"),
+  "label tab = 'Bantuan'",
+);
+cek(
+  'tabBantuanIdTetap',
+  sumberService.includes("useState('helpdesk')") &&
+    sumberService.includes("tab === 'helpdesk'"),
+  "id internal 'helpdesk' tidak berubah",
+);
+cek(
+  'labelHelpDeskLamaHilang',
+  !sumberService.includes('Help-Desk'),
+  "tidak ada lagi 'Help-Desk' di Service.tsx",
+);
+cek(
+  'deskripsiModulInformasiBantuan',
+  sumberApp.includes(
+    "'Bantuan ke PIC kantor pusat, Basis Pengetahuan (Regulasi, SOP).'",
+  ) && !sumberApp.includes('Helpdesk ke PIC kantor pusat'),
+  'subjudul panel Informasi menyebut Bantuan',
+);
+cek(
+  'teksAuditTiketBantuan',
+  sumberApp.includes("'Tiket Bantuan dibuat'") &&
+    sumberApp.includes("'Tiket Bantuan dijawab'") &&
+    !sumberApp.includes('Tiket Help-Desk'),
+  'audit tiket memakai Tiket Bantuan dibuat/dijawab',
+);
+cek(
+  'petaLabelAuditTiketBantuan',
+  sumberLabels.includes(
+    "'Tiket Bantuan dibuat': 'Support ticket created'",
+  ) &&
+    sumberLabels.includes(
+      "'Tiket Bantuan dijawab': 'Support ticket answered'",
+    ) &&
+    !sumberLabels.includes('Tiket Help-Desk'),
+  'labelAksiAudit memetakan aksi tiket baru',
 );
 
 console.log(`\n${lolos}/${total} asersi lolos.`);
