@@ -11,7 +11,7 @@
 // Helper di sini murni (tanpa React/Firestore) supaya bisa diuji skrip cek.
 
 import type { PrioritasTugas, StatusTask, Task } from './types';
-import { hariIniIso } from './format';
+import { formatTanggalPendek, hariIniIso } from './format';
 
 /** Proyek nyata pengguna di Todoist (jumlah tugas saat studi). */
 export const PROYEK_TODOIST: { nama: string; jumlah: number }[] = [
@@ -132,7 +132,9 @@ export function statusTanggal(
   return 'nanti';
 }
 
-/** Label tanggal ala Todoist: 'Hari ini', 'Besok', 'Kemarin', atau dd/mm/yyyy. */
+/** Label tanggal ala Todoist: 'Hari ini', 'Besok', 'Kemarin', atau dd/mm
+ * (mis. '20/11') — tanggal lengkap dd/mm/yyyy hanya dipakai di tempat
+ * yang memang menampilkannya penuh (mis. 'Selesai pada' di Laporan). */
 export function labelTanggal(
   tenggat: string,
   hariIni = hariIniIso(),
@@ -142,8 +144,7 @@ export function labelTanggal(
   if (status === 'hari-ini') return 'Hari ini';
   if (status === 'besok') return 'Besok';
   if (tenggat === tambahHari(hariIni, -1)) return 'Kemarin';
-  const [y, m, d] = tenggat.split('-');
-  return y && m && d ? `${d}/${m}/${y}` : tenggat;
+  return formatTanggalPendek(tenggat);
 }
 
 /** Terlambat: punya tenggat < hari ini dan belum Selesai/Ditutup. */

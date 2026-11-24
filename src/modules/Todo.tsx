@@ -29,7 +29,12 @@ import {
 import type { KomentarTugas, PrioritasTugas, StatusTask, SubTugas, Task } from '../lib/types';
 import type { ModulProps, TaskInput, TaskPatch } from '../lib/store';
 import { DUMMY_USERS } from '../lib/dummyUsers';
-import { formatTanggal, hariIniIso } from '../lib/format';
+import {
+  formatTanggal,
+  formatTanggalPendek,
+  hariIniIso,
+  parseTanggalId,
+} from '../lib/format';
 import { bolehAksi } from '../lib/permissions';
 import {
   BAGIAN_PROYEK,
@@ -124,6 +129,47 @@ function KartuPutih({
 /** Input netral ala Todoist. */
 const inputTodo =
   'w-full rounded-md border border-[#e0e0e0] px-3 py-2 text-sm text-[#202020] outline-none focus:border-[#DB4C3F]';
+
+/** Input tanggal teks DD/MM/YYYY (input date native menampilkan format
+ * locale browser — mm/dd/yyyy di browser berbahasa Inggris — jadi tidak
+ * dipakai di panel ini). Mengetik '24/11/2026' menyimpan ISO '2026-11-24';
+ * teks tidak valid tidak mengubah nilai sampai diperbaiki/dikosongkan. */
+function InputTanggal({
+  value,
+  onChange,
+  ariaLabel,
+  className,
+}: {
+  value: string;
+  onChange: (iso: string) => void;
+  ariaLabel?: string;
+  className?: string;
+}) {
+  const [teks, setTeks] = useState(value ? formatTanggal(value) : '');
+  useEffect(() => {
+    setTeks(value ? formatTanggal(value) : '');
+  }, [value]);
+  return (
+    <input
+      className={className ?? `${inputTodo} w-auto`}
+      value={teks}
+      inputMode="numeric"
+      placeholder="dd/mm/yyyy"
+      aria-label={ariaLabel ?? 'Tanggal (dd/mm/yyyy)'}
+      onChange={(e) => {
+        const t = e.target.value;
+        setTeks(t);
+        if (t.trim() === '') {
+          onChange('');
+          return;
+        }
+        const iso = parseTanggalId(t);
+        if (iso) onChange(iso);
+      }}
+      onBlur={() => setTeks(value ? formatTanggal(value) : '')}
+    />
+  );
+}
 
 /** Label kecil abu-abu ala Todoist. */
 function LabelTodo({ children }: { children: ReactNode }) {
@@ -392,7 +438,7 @@ export default function Todo(props: ModulProps) {
           {jumlahJudul !== null && (
             <p className="mt-1 flex items-center gap-1.5 text-sm text-[#808080]">
               <CheckCircle2 size={15} />
-              {jumlahJudul} tugas
+              {`${jumlahJudul} tugas`}
             </p>
           )}
         </div>
@@ -602,11 +648,9 @@ function SidebarTodoist(props: {
         <button
           type="button"
           onClick={props.onTambah}
-          className="flex items-center gap-2 rounded-md px-2 py-1.5 text-left text-sm font-semibold text-[#DB4C3F] hover:bg-[#DB4C3F]/5"
+          className="flex w-full items-center justify-center gap-2 rounded-md bg-[#DB4C3F] px-4 py-2 text-sm font-semibold text-white hover:bg-[#C23B2E]"
         >
-          <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[#DB4C3F] text-white">
-            <Plus size={16} />
-          </span>
+          <Plus size={16} />
           Tambah tugas
         </button>
       )}
@@ -979,8 +1023,17 @@ function QuickAdd(props: {
 
   const pemilikPilihan = [...new Set([user.nama, ...DUMMY_USERS.map((u) => u.nama)])];
 
+  // Modal melayang terpusat ala Todoist (overlay + kartu dialog di tengah
+  // layar); klik latar menutup, Esc juga menutup (shortcut di komponen Todo).
   return (
-    <div className="rounded-xl border border-[#e6e6e6] bg-white p-4 shadow-[0_8px_24px_rgba(0,0,0,0.12)]">
+    <div
+      className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-black/50 p-4"
+      onClick={props.onBatal}
+    >
+      <div
+        className="mt-16 w-full max-w-[560px] rounded-xl border border-[#e6e6e6] bg-white p-4 shadow-[0_8px_24px_rgba(0,0,0,0.12)]"
+        onClick={(e) => e.stopPropagation()}
+      >
       <div className="space-y-3">
         <input
           ref={inputJudul}
@@ -1022,12 +1075,10 @@ function QuickAdd(props: {
               </option>
             ))}
           </select>
-          <input
-            className={`${inputTodo} w-auto`}
-            type="date"
+          <InputTanggal
             value={tenggat}
-            onChange={(e) => setTenggat(e.target.value)}
-            aria-label="Tanggal"
+            onChange={setTenggat}
+            ariaLabel="Tanggal (dd/mm/yyyy)"
           />
           <select
             className={`${inputTodo} w-auto`}
@@ -1139,6 +1190,7 @@ function QuickAdd(props: {
           <TombolMerah onClick={simpan}>Tambah tugas</TombolMerah>
         </div>
       </div>
+      </div>
     </div>
   );
 }
@@ -1207,7 +1259,6 @@ function KartuTugas(props: {
           >
             {t.judul}
           </button>
-          <BenderaPrioritas p={prioritasTugas(t)} />
         </div>
         <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs">
           <span className={kelasTanggal(t)}>{labelTanggal(t.tenggat)}</span>
@@ -1240,7 +1291,6 @@ function KartuTugas(props: {
             #{proyekTugas(t)}
             {t.bagian ? ` / ${t.bagian}` : ''}
           </span>
-          <span className="text-[#808080]">{t.pemilik}</span>
         </div>
         {(t.label ?? []).length > 0 && (
           <div className="mt-1 flex flex-wrap gap-1">
@@ -1280,7 +1330,6 @@ function KartuTugas(props: {
           </ul>
         )}
       </div>
-      <BadgeStatus status={t.status} />
     </div>
   );
 }
@@ -1414,10 +1463,10 @@ function Mendatang(props: {
     const d = new Date(`${tanggal}T00:00:00`);
     const label =
       i === 0
-        ? `Hari ini · ${formatTanggal(tanggal)}`
+        ? `Hari ini · ${formatTanggalPendek(tanggal)}`
         : i === 1
-          ? `Besok · ${formatTanggal(tanggal)}`
-          : `${namaHari[d.getDay()]} · ${formatTanggal(tanggal)}`;
+          ? `Besok · ${formatTanggalPendek(tanggal)}`
+          : `${namaHari[d.getDay()]} · ${formatTanggalPendek(tanggal)}`;
     kolom.push({
       label,
       tanggal,
@@ -1676,7 +1725,7 @@ function Laporan(props: {
     <div className="space-y-4">
       <div className="flex flex-wrap items-center gap-3">
         <p className="text-sm font-semibold text-[#202020]">
-          {selesai.length} tugas selesai
+          {`${selesai.length} tugas selesai`}
           {bulanIni > 0 ? ` · ${bulanIni} selesai bulan ini` : ''}
         </p>
         <TombolNetral onClick={ekspor} disabled={selesai.length === 0}>
@@ -1698,12 +1747,13 @@ function Laporan(props: {
                   {t.judul}
                 </button>
                 <span className="text-xs text-[#808080]">
-                  Selesai pada{' '}
-                  {t.selesaiPada ? formatTanggal(t.selesaiPada) : '—'}
-                </span>
-                <span className="text-xs text-[#808080]">
                   #{proyekTugas(t)}
                 </span>
+                {t.selesaiPada && (
+                  <span className="text-xs text-[#808080]">
+                    Selesai pada {formatTanggal(t.selesaiPada)}
+                  </span>
+                )}
                 <span className="text-xs text-[#808080]">{t.pemilik}</span>
                 <BadgeStatus status={t.status} />
               </li>
@@ -2098,11 +2148,11 @@ function DialogTugas(props: {
               <p className={`text-sm ${kelasTanggal(t)}`}>
                 {labelTanggal(t.tenggat)}
               </p>
-              <input
-                className={`${inputTodo} mt-1`}
-                type="date"
+              <InputTanggal
                 value={t.tenggat}
-                onChange={(e) => ubah({ tenggat: e.target.value })}
+                onChange={(iso) => ubah({ tenggat: iso })}
+                ariaLabel="Tanggal (dd/mm/yyyy)"
+                className={`${inputTodo} mt-1`}
               />
               <div className="mt-1 flex flex-wrap gap-1">
                 <TombolNetral onClick={() => pilihTanggalCepat('hari-ini')}>

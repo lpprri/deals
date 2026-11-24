@@ -14,7 +14,11 @@
 import { readFileSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
 import { DATA_NYATA } from '../src/lib/seedNyata';
-import { hariIniIso } from '../src/lib/format';
+import {
+  formatTanggalPendek,
+  hariIniIso,
+  parseTanggalId,
+} from '../src/lib/format';
 import {
   LABEL_DISPOSISI,
   akhirPekanIni,
@@ -85,6 +89,12 @@ cek(
     todo.includes('Cari'),
 );
 cek(
+  'Tombol "Tambah tugas" sidebar merah SOLID (bukan teks merah + lingkaran)',
+  todo.includes(
+    'justify-center gap-2 rounded-md bg-[#DB4C3F] px-4 py-2 text-sm font-semibold text-white',
+  ) && !todo.includes('rounded-full bg-[#DB4C3F] text-white'),
+);
+cek(
   'Sidebar memuat bagian Proyek Saya + Jelajahi semua proyek',
   todo.includes('Proyek Saya') &&
     todo.includes('Jelajahi semua proyek') &&
@@ -122,11 +132,41 @@ for (const s of [
   cek(`Quick Add/pemilih tanggal memuat "${s}"`, todo.includes(s));
 }
 cek('Shortcut Q + Ctrl+K didaftarkan', todo.includes("'q'") && todo.includes("toLowerCase() === 'k'"));
+cek(
+  'Quick Add berupa MODAL melayang terpusat (overlay + kartu tengah)',
+  todo.includes('fixed inset-0 z-50 flex items-start justify-center') &&
+    todo.includes('max-w-[560px]'),
+);
+cek(
+  'Tanggal di panel memakai input teks DD/MM/YYYY (tanpa input date native)',
+  todo.includes('function InputTanggal') &&
+    todo.includes('dd/mm/yyyy') &&
+    !todo.includes('type="date"'),
+);
 
 // --- 3. Kartu tugas ala Todoist. ---
-for (const s of ['Tandai selesai', 'Sub-tugas', 'BenderaPrioritas', 'Tandai belum selesai']) {
+for (const s of ['Tandai selesai', 'Sub-tugas', 'Tandai belum selesai']) {
   cek(`Kartu tugas memuat "${s}"`, todo.includes(s));
 }
+// Anatomi kartu Todoist: checkbox + judul + tanggal + progres sub-tugas +
+// tag proyek SAJA — tanpa badge prioritas, baris penanggung jawab, pil status
+// (ketiganya tetap ada di dialog detail).
+const kartu = todo.slice(
+  todo.indexOf('function KartuTugas'),
+  todo.indexOf('function DaftarTugas'),
+);
+cek(
+  'Kartu tugas tanpa badge prioritas (P4 tetap di dialog detail)',
+  !kartu.includes('BenderaPrioritas'),
+);
+cek(
+  'Kartu tugas tanpa baris penanggung jawab (tetap di dialog detail)',
+  !kartu.includes('{t.pemilik}'),
+);
+cek(
+  'Kartu tugas tanpa pil status (tetap di dialog detail & Laporan)',
+  !kartu.includes('BadgeStatus'),
+);
 cek(
   'Tanggal terlambat merah Todoist, hari ini hijau Todoist',
   todo.includes('text-[#d1453b]') && todo.includes('text-[#058527]'),
@@ -162,6 +202,11 @@ for (const s of [
 for (const s of ['Jadwalkan ulang semua', 'Terlambat']) {
   cek(`Mendatang memuat "${s}"`, todo.includes(s));
 }
+cek(
+  'Label kolom Mendatang memakai tanggal pendek dd/mm (bukan dd/mm/yyyy)',
+  todo.includes('formatTanggalPendek(tanggal)') &&
+    !todo.includes('Hari ini · ${formatTanggal(tanggal)}'),
+);
 
 // --- 6. Filter tersimpan, label disposisi, tambah label. ---
 for (const s of ['Filter saya', 'Prioritas 1', '+ Tambah label']) {
@@ -190,6 +235,16 @@ for (const s of [
 // --- 8. Laporan + ekspor CSV. ---
 cek('Laporan memuat "Ekspor CSV"', todo.includes('Ekspor CSV'));
 cek('Laporan memuat hitungan bulan ini', todo.includes('selesai bulan ini'));
+cek(
+  'Laporan: baris "Selesai pada" hanya bila ada tanggalnya (tanpa "—" kosong)',
+  todo.includes('Selesai pada {formatTanggal(t.selesaiPada)}') &&
+    !todo.includes("formatTanggal(t.selesaiPada) : '—'"),
+);
+cek(
+  'Hitungan tampil sebagai satu string "N tugas" (tanpa "0tugas")',
+  todo.includes('`${jumlahJudul} tugas`') &&
+    todo.includes('`${selesai.length} tugas selesai`'),
+);
 
 // --- 9. Bahasa Indonesia di UI panel (tidak ada label Inggris Todoist). ---
 // 'Inbox' hanya nama komponen ikon lucide (Icon: Inbox) — label UI-nya
@@ -297,7 +352,32 @@ cek(
 const buat = (patch: Partial<Task>): Task => ({ ...contoh, ...patch });
 cek('labelTanggal hari ini', labelTanggal(hariIni) === 'Hari ini');
 cek('labelTanggal besok', labelTanggal(tambahHari(hariIni, 1)) === 'Besok');
+cek('labelTanggal kemarin', labelTanggal(tambahHari(hariIni, -1)) === 'Kemarin');
+cek(
+  'labelTanggal tanggal lain tampil dd/mm (tanpa tahun)',
+  labelTanggal(tambahHari(hariIni, 5)) ===
+    formatTanggalPendek(tambahHari(hariIni, 5)) &&
+    !labelTanggal(tambahHari(hariIni, 5)).includes(
+      String(new Date().getFullYear()),
+    ),
+);
 cek('labelTanggal tanpa tanggal', labelTanggal('') === 'Tanpa tanggal');
+cek(
+  'formatTanggalPendek 24/11',
+  formatTanggalPendek('2026-11-24') === '24/11',
+);
+cek(
+  'parseTanggalId dd/mm/yyyy',
+  parseTanggalId('24/11/2026') === '2026-11-24',
+);
+cek(
+  'parseTanggalId menolak format US (bulan 24 tidak valid)',
+  parseTanggalId('11/24/2026') === null,
+);
+cek(
+  'parseTanggalId menolak tanggal tidak valid (31 Feb)',
+  parseTanggalId('31/02/2026') === null,
+);
 cek(
   'statusTanggal terlambat',
   statusTanggal(tambahHari(hariIni, -2), hariIni) === 'terlambat',
@@ -414,6 +494,7 @@ try {
     'Proyek Saya',
     'Jelajahi semua proyek',
     'Tambah tugas',
+    'dd/mm/yyyy',
   ]) {
     cek(`Bundle memuat "${s}"`, bundle.includes(s));
   }
