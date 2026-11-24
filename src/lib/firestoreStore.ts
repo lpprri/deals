@@ -50,6 +50,7 @@
 import {
   addDoc,
   collection,
+  deleteDoc,
   doc,
   getDoc,
   getDocs,
@@ -375,6 +376,19 @@ export async function simpanDokumen(
     doc(db, koleksi, kodeIdDokumen(id)),
     bersihkanUndefined(data) as Record<string, unknown>,
   );
+}
+
+/**
+ * Hapus satu dokumen entitas (dipakai hapusTask, duplikasi Todoist
+ * 2026-11-24). Aturan Firestore sudah mengizinkan delete untuk koleksi
+ * `task` (operator + admin, blok koleksi bersatker).
+ */
+export async function hapusDokumen(
+  db: Firestore,
+  koleksi: string,
+  id: string,
+): Promise<void> {
+  await deleteDoc(doc(db, koleksi, kodeIdDokumen(id)));
 }
 
 /**

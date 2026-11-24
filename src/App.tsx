@@ -97,6 +97,7 @@ import {
   kirimPermintaanPartnershipPublik as kirimPermintaanPartnershipPublikKeFirestore,
   kirimPermintaanSpacePublik as kirimPermintaanSpacePublikKeFirestore,
   kirimPermintaanVenuePublik as kirimPermintaanVenuePublikKeFirestore,
+  hapusDokumen,
   muatDariFirestore,
   muatDataKlien,
   simpanDokumen,
@@ -188,6 +189,7 @@ import type {
   QuotationInput,
   StoreActions,
   TaskInput,
+  TaskPatch,
   TiketInput,
   UmpanBalikInput,
 } from './lib/store';
@@ -1539,6 +1541,17 @@ export default function App() {
       console.error('Gagal menyimpan ke Firestore:', e);
       setPeringatanSimpan(
         'Failed to save changes to Firestore — changes exist only in this session.',
+      );
+    });
+  };
+
+  /** Hapus dokumen Firestore (dipakai hapusTask); pola sama seperti simpanKeFirestore. */
+  const hapusDariFirestore = (koleksi: string, id: string) => {
+    if (modeData !== 'firestore' || !db) return;
+    hapusDokumen(db, koleksi, id).catch((e) => {
+      console.error('Gagal menghapus dari Firestore:', e);
+      setPeringatanSimpan(
+        'Failed to delete from Firestore — the item may reappear after reload.',
       );
     });
   };
@@ -2928,6 +2941,15 @@ export default function App() {
         terkaitId: input.terkaitId || undefined,
         terkaitLabel: input.terkaitLabel || undefined,
         satker: SATKER_PILOT,
+        // Bidang ala Todoist (opsional).
+        deskripsi: input.deskripsi?.trim() || undefined,
+        proyek: input.proyek?.trim() || undefined,
+        bagian: input.bagian?.trim() || undefined,
+        prioritas: input.prioritas ?? undefined,
+        label:
+          input.label && input.label.length > 0 ? input.label : undefined,
+        pengulangan: input.pengulangan || undefined,
+        pengingat: input.pengingat || undefined,
       };
       setData((d) => ({ ...d, task: [...d.task, task] }));
       simpanKeFirestore('task', id, task);
@@ -2943,20 +2965,33 @@ export default function App() {
 
     ubahStatusTask: (task: Task, status: StatusTask) => {
       const sah: Record<StatusTask, StatusTask[]> = {
-        'Belum Dikerjakan': ['Berjalan'],
+        // Duplikasi Todoist 2026-11-24: checkbox menyelesaikan langsung
+        // (Belum Dikerjakan -> Selesai); jalur bertahap lewat Berjalan
+        // tetap tersedia dari dialog detail.
+        'Belum Dikerjakan': ['Berjalan', 'Selesai'],
         Berjalan: ['Selesai', 'Belum Dikerjakan'],
         Selesai: ['Berjalan'],
         // 'Ditutup' hanya lewat tutupDisposisi (Alur F Bab 9.6).
         Ditutup: [],
       };
       if (!sah[task.status].includes(status)) return;
+      // Selesai -> catat tanggal selesai (untuk Laporan ala Todoist);
+      // kembali dikerjakan -> hapus catatan itu.
+      const diubah: Task = {
+        ...task,
+        status,
+        selesaiPada:
+          status === 'Selesai'
+            ? hariIniIso()
+            : task.status === 'Selesai'
+              ? undefined
+              : task.selesaiPada,
+      };
       setData((d) => ({
         ...d,
-        task: d.task.map((t) =>
-          t.id === task.id ? { ...t, status } : t,
-        ),
+        task: d.task.map((t) => (t.id === task.id ? diubah : t)),
       }));
-      simpanKeFirestore('task', task.id, { ...task, status });
+      simpanKeFirestore('task', task.id, diubah);
       tambahAudit(
         'Status tugas diubah',
         'Tugas',
@@ -2964,6 +2999,57 @@ export default function App() {
         task.status,
         status,
       );
+    },
+
+    // --- Aksi Todoist (duplikasi Todoist, 2026-11-24) ---
+    ubahTask: (task: Task, patch: TaskPatch) => {
+      const diubah: Task = { ...task, ...patch };
+      setData((d) => ({
+        ...d,
+        task: d.task.map((t) => (t.id === task.id ? diubah : t)),
+      }));
+      simpanKeFirestore('task', task.id, diubah);
+      tambahAudit(
+        'Tugas diubah',
+        'Tugas',
+        task.id,
+        task.judul,
+        diubah.judul,
+      );
+    },
+
+    duplikatTask: (task: Task) => {
+      const id = idBerikutnya('TSK-', data.task.map((t) => t.id));
+      const salinan: Task = {
+        ...task,
+        id,
+        judul: `${task.judul} (salinan)`,
+        status: 'Belum Dikerjakan',
+        selesaiPada: undefined,
+        subTugas: (task.subTugas ?? []).map((s) => ({
+          ...s,
+          selesai: false,
+        })),
+        komentar: undefined,
+      };
+      setData((d) => ({ ...d, task: [...d.task, salinan] }));
+      simpanKeFirestore('task', id, salinan);
+      tambahAudit(
+        'Tugas diduplikat',
+        'Tugas',
+        id,
+        task.id,
+        `${salinan.judul} — tenggat ${salinan.tenggat}`,
+      );
+    },
+
+    hapusTask: (task: Task) => {
+      setData((d) => ({
+        ...d,
+        task: d.task.filter((t) => t.id !== task.id),
+      }));
+      hapusDariFirestore('task', task.id);
+      tambahAudit('Tugas dihapus', 'Tugas', task.id, task.judul, '—');
     },
 
     tambahDisposisi: (input: DisposisiInput) => {

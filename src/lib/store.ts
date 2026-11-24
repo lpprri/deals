@@ -17,6 +17,7 @@ import type {
   Pembayaran,
   Pengajuan,
   PengajuanKlien,
+  PrioritasTugas,
   Prospect,
   Quotation,
   StatusDokumen,
@@ -288,7 +289,21 @@ export interface TaskInput {
   tenggat: string;
   terkaitId?: string;
   terkaitLabel?: string;
+  /** Bidang ala Todoist (opsional; default Proyek=Kotak Masuk, Tanggal=Hari Ini di Quick Add). */
+  deskripsi?: string;
+  proyek?: string;
+  bagian?: string;
+  prioritas?: PrioritasTugas;
+  label?: string[];
+  pengulangan?: string;
+  pengingat?: string;
 }
+
+/** Perubahan field tugas lewat dialog detail (bukan status — status hanya
+ * lewat ubahStatusTask; bukan id/satker). */
+export type TaskPatch = Partial<
+  Omit<Task, 'id' | 'status' | 'satker'>
+>;
 
 export interface DisposisiInput {
   pemberiDisposisi: string;
@@ -406,6 +421,16 @@ export interface StoreActions {
   // Fase B — To-Do List (PRD Bab 7.7, 9.6).
   tambahTask: (input: TaskInput) => string | null;
   ubahStatusTask: (task: Task, status: StatusTask) => void;
+  /** Ubah field tugas (dialog detail ala Todoist): judul, deskripsi,
+   * proyek/bagian, tenggat, prioritas, label, pengulangan, pengingat,
+   * sub-tugas, komentar. Tersimpan ke Firestore seperti tambahTask. */
+  ubahTask: (task: Task, patch: TaskPatch) => void;
+  /** Duplikat tugas (Menu More actions ala Todoist): salinan baru dengan
+   * status Belum Dikerjakan, sub-tugas belum selesai, tanpa komentar. */
+  duplikatTask: (task: Task) => void;
+  /** Hapus tugas (Menu More actions ala Todoist): hapus dari data lokal
+   * dan dokumen Firestore `task` (aturan sudah mengizinkan delete). */
+  hapusTask: (task: Task) => void;
   /** Disposisi (Alur F): pemberi menugaskan staf; tersimpan sebagai Task + riwayat. */
   tambahDisposisi: (input: DisposisiInput) => string | null;
   /** Pemberi disposisi menutup tugas yang sudah Selesai. */

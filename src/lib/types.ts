@@ -696,10 +696,30 @@ export interface Advertisement {
 
 export type StatusTask = 'Belum Dikerjakan' | 'Berjalan' | 'Selesai' | 'Ditutup';
 
+/** Prioritas ala Todoist: P1 (mendesak) s.d. P4 (tanpa prioritas, default). */
+export type PrioritasTugas = 1 | 2 | 3 | 4;
+
+/** Sub-tugas (checklist di dalam satu tugas, ala Todoist). */
+export interface SubTugas {
+  id: string;
+  judul: string;
+  selesai: boolean;
+}
+
+/** Komentar pada satu tugas (ala Todoist). */
+export interface KomentarTugas {
+  id: string;
+  penulis: string;
+  isi: string;
+  /** ISO datetime saat komentar ditulis. */
+  waktu: string;
+}
+
 export interface Task {
   id: string;
   pemilik: string;
   judul: string;
+  /** ISO 'yyyy-mm-dd'; '' berarti tanpa tanggal (Todoist: No Date). */
   tenggat: string;
   status: StatusTask;
   /** Bila tugas berasal dari disposisi (Alur F Bab 9.6). */
@@ -711,6 +731,29 @@ export interface Task {
   terkaitId?: string;
   terkaitLabel?: string;
   satker: SatkerRef;
+  // --- Bidang ala Todoist (duplikasi Todoist, 2026-11-24; semua opsional
+  // supaya dokumen `task` lama di Firestore tetap terbaca). ---
+  /** Deskripsi bebas tugas. */
+  deskripsi?: string;
+  /** Proyek Todoist (PNBP, KBRN, Komunikasi Publik, Layanan Publik,
+   * General Affairs); kosong berarti Kotak Masuk. */
+  proyek?: string;
+  /** Bagian di dalam proyek (mis. 'Laporan' di bawah PNBP). */
+  bagian?: string;
+  /** Prioritas P1–P4; default P4 bila kosong. */
+  prioritas?: PrioritasTugas;
+  /** Label, termasuk label disposisi nyata pengguna
+   * (Menunggu Disposisi, Menunggu Pembayaran, Perlu Ditandangani,
+   * Menunggu Persetujuan KPKNL, Paid, Unpaid). */
+  label?: string[];
+  /** Pengulangan sederhana: 'tidak' | 'harian' | 'mingguan' | 'bulanan'. */
+  pengulangan?: string;
+  /** Pengingat (ISO datetime-local); hanya penanda, tanpa mesin notifikasi. */
+  pengingat?: string;
+  subTugas?: SubTugas[];
+  komentar?: KomentarTugas[];
+  /** ISO 'yyyy-mm-dd' saat status menjadi Selesai (untuk Laporan). */
+  selesaiPada?: string;
 }
 
 export interface AuditEntry {
