@@ -644,6 +644,49 @@ export interface Commitment {
   satker: SatkerRef;
 }
 
+/**
+ * Approvement — surat persetujuan Kepala RRI atas permintaan media
+ * partner (definisi pengguna 24/11/2026). Data TERPISAH dari kontrak
+ * PNBP — bukan kontrak, dan TIDAK memengaruhi total kontrak/PNBP.
+ * Panel Media Partner (Approvement) membaca koleksi `approvement`
+ * (seed: src/lib/seedApprovement.ts — 4 record DUMMY: 2 organisasi
+ * mahasiswa + 2 komunitas, berlabel "(Contoh)").
+ * - id = nomor urut dummy ('APR-01' … 'APR-04').
+ * - nomorSurat = nomor surat persetujuan Kepala RRI.
+ * - jenisKlien = 'Mahasiswa' (organisasi mahasiswa) atau 'Komunitas'
+ *   (teks bebas).
+ * - tanggalPelaksanaan = 'yyyy-mm-dd'.
+ * - jenisKompensasi = teks bebas (mis. barter publikasi / liputan).
+ * - nilaiKompensasi = nilai kompensasi (Rp); Rp0 untuk kompensasi
+ *   non-uang (barter).
+ * - dokumen = label dokumen; '—' bila kosong (tahap upload dokumen
+ *   masih ditunda per keputusan pengguna 17/11/2026 — JANGAN dikarang
+ *   menjadi tautan).
+ * - Migrasi ke Firestore adalah langkah terpisah setelah PR ini merge
+ *   (belum ada migrasiApprovement / penanda meta).
+ */
+export interface Approvement {
+  /** Id record dummy ('APR-01' …). */
+  id: string;
+  /** Nomor surat persetujuan Kepala RRI. */
+  nomorSurat: string;
+  /** Nama klien (organisasi mahasiswa / komunitas). */
+  namaKlien: string;
+  /** Jenis klien: 'Mahasiswa' atau 'Komunitas'. */
+  jenisKlien: string;
+  /** Nama narahubung klien. */
+  namaNarahubung: string;
+  /** Tanggal pelaksanaan kerja sama ('yyyy-mm-dd'). */
+  tanggalPelaksanaan: string;
+  /** Jenis kompensasi (teks bebas). */
+  jenisKompensasi: string;
+  /** Nilai kompensasi (Rp); 0 bila non-uang (barter). */
+  nilaiKompensasi: number;
+  /** Dokumen sumber — '—' bila kosong (upload ditunda). */
+  dokumen: string;
+  satker: SatkerRef;
+}
+
 export interface Meeting {
   id: string;
   tanggal: string; // 'yyyy-mm-dd'
@@ -867,6 +910,14 @@ export interface AppData {
   // koleksi ini; sebelum migrasi Commitment dijalankan, Firestore
   // mode menampilkan empty state jujur.
   commitment: Commitment[];
+  // Approvement (definisi pengguna 24/11/2026): surat persetujuan
+  // Kepala RRI atas permintaan media partner — 4 record DUMMY (2
+  // organisasi mahasiswa + 2 komunitas) dari seedApprovement.ts.
+  // Data tersendiri seperti MoU/Commitment, BUKAN kontrak (total PNBP
+  // tidak berubah). Panel Media Partner membaca koleksi ini; sebelum
+  // migrasi Approvement dijalankan, Firestore mode menampilkan empty
+  // state jujur.
+  approvement: Approvement[];
   meeting: Meeting[];
   event: Event[];
   advertisement: Advertisement[];

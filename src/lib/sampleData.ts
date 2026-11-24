@@ -728,4 +728,8 @@ export const DATA_CONTOH: AppData = {
   // Commitment (impor Commitment 19/11/2026): data contoh belum punya
   // Commitment (4 record nyata ada di seedNyata via seedCommitment.ts).
   commitment: [],
+  // Approvement (definisi pengguna 24/11/2026): data contoh belum
+  // punya Approvement (4 record dummy ada di seedNyata via
+  // seedApprovement.ts).
+  approvement: [],
 };

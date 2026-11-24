@@ -49,6 +49,7 @@ import { ARTIKEL_REGULASI } from './artikelRegulasi';
 import { FAQ_REGULASI } from './faqRegulasi';
 import { MOU_NYATA } from './seedMou';
 import { COMMITMENT_NYATA } from './seedCommitment';
+import { APPROVEMENT_DUMMY } from './seedApprovement';
 
 const S = SATKER_PILOT;
 
@@ -7145,4 +7146,9 @@ export const DATA_NYATA: AppData = {
   // scripts/impor-commitment.py); JANGAN pindahkan ke sini — impor.mjs
   // menulis ulang file ini dan akan menghapusnya.
   commitment: COMMITMENT_NYATA,
+  // Approvement (definisi pengguna 24/11/2026): 4 record DUMMY surat
+  // persetujuan media partner (2 mahasiswa + 2 komunitas) — data
+  // tersendiri seperti MoU/Commitment, BUKAN kontrak. Isinya di
+  // src/lib/seedApprovement.ts; JANGAN pindahkan ke sini.
+  approvement: APPROVEMENT_DUMMY,
 };

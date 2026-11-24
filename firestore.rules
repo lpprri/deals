@@ -109,7 +109,7 @@ service cloud.firestore {
       return data.satker.kode == satkerPemanggil();
     }
 
-    // ---------- Koleksi data bersatker (21 koleksi di blok ini) ----------
+    // ---------- Koleksi data bersatker (22 koleksi di blok ini) ----------
     // Baca: staf internal (operator + admin) dari satker yang sama.
     // Tulis: operator + admin. Saat membuat data
     // baru, satker dicek dari data yang dikirim; saat mengubah, dicek dari
@@ -137,6 +137,10 @@ service cloud.firestore {
           // (Admin SDK tidak dipakai — client SDK operator, seperti
           // migrasi lain).
           'commitment'
+          // Approvement (definisi pengguna 24/11/2026): koleksi
+          // `approvement` (4 record DUMMY dari seed); ditulis lewat
+          // migrasi Approvement (langkah terpisah setelah PR merge).
+          'approvement'
         ]
         && bolehTulisOperasional()
         && satkerMilikPemanggil(resource.data);
@@ -155,6 +159,10 @@ service cloud.firestore {
           // (Admin SDK tidak dipakai — client SDK operator, seperti
           // migrasi lain).
           'commitment'
+          // Approvement (definisi pengguna 24/11/2026): koleksi
+          // `approvement` (4 record DUMMY dari seed); ditulis lewat
+          // migrasi Approvement (langkah terpisah setelah PR merge).
+          'approvement'
         ]
         && bolehTulisOperasional()
         && satkerMilikPemanggil(request.resource.data);
@@ -173,6 +181,10 @@ service cloud.firestore {
           // (Admin SDK tidak dipakai — client SDK operator, seperti
           // migrasi lain).
           'commitment'
+          // Approvement (definisi pengguna 24/11/2026): koleksi
+          // `approvement` (4 record DUMMY dari seed); ditulis lewat
+          // migrasi Approvement (langkah terpisah setelah PR merge).
+          'approvement'
         ]
         && bolehTulisOperasional()
         && satkerMilikPemanggil(resource.data)
@@ -192,6 +204,10 @@ service cloud.firestore {
           // (Admin SDK tidak dipakai — client SDK operator, seperti
           // migrasi lain).
           'commitment'
+          // Approvement (definisi pengguna 24/11/2026): koleksi
+          // `approvement` (4 record DUMMY dari seed); ditulis lewat
+          // migrasi Approvement (langkah terpisah setelah PR merge).
+          'approvement'
         ]
         && bolehTulisOperasional()
         && satkerMilikPemanggil(resource.data);
