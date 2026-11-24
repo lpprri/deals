@@ -207,8 +207,9 @@ cek(
     kerjaSama.includes('data.commitment'),
 );
 cek(
-  'panel Approvement tetap filter kontrak Media Partner (tidak disentuh)',
-  kerjaSama.includes('kategori="Media Partner"'),
+  'panel Approvement TIDAK lagi filter kontrak (definisi 24/11/2026, baca data.approvement)',
+  !kerjaSama.includes('kategori="Media Partner"') &&
+    kerjaSama.includes('data.approvement'),
 );
 
 // ---------- kolom Remaining Days + Document di tabel MoU ----------
@@ -303,8 +304,8 @@ cek(
   !rules.includes('perbaikan-mou-037'),
 );
 cek(
-  'rules hitungan koleksi bersatker diperbarui (21 di blok)',
-  rules.includes('21 koleksi di blok ini'),
+  'rules hitungan koleksi bersatker diperbarui (22 di blok)',
+  rules.includes('22 koleksi di blok ini'),
 );
 
 // ---------- rencana migrasi MoU ----------

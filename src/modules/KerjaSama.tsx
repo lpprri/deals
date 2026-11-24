@@ -21,9 +21,14 @@
 //   Panel Commitment membaca data.commitment (bukan kontrak) — JANGAN
 //   kembalikan filter kontrak. Sebelum migrasi Commitment dijalankan
 //   (Master & Pengguna), panel menampilkan empty state jujur.
-// - Approvement masih MENUNGGU data (empty state jujur sampai datanya
-//   diimpor; JANGAN mengarang record dan JANGAN membuat model data baru
-//   secara diam-diam).
+// - Approvement (definisi pengguna 24/11/2026): surat persetujuan
+//   Kepala RRI atas permintaan media partner — data TERPISAH, bukan
+//   kontrak (seed src/lib/seedApprovement.ts, 4 record DUMMY: 2
+//   organisasi mahasiswa + 2 komunitas; koleksi Firestore
+//   `approvement`). Panel Media Partner membaca data.approvement
+//   (bukan kontrak) — JANGAN kembalikan filter kontrak. Sebelum
+//   migrasi Approvement dijalankan, panel menampilkan empty state
+//   jujur; migrasi adalah langkah terpisah setelah PR merge.
 
 import { useState } from 'react';
 import { TabKontrak } from './Deals';
@@ -34,11 +39,13 @@ import {
   Baris,
   JudulBagian,
   Kartu,
+  Label,
   PesanKosong,
   Tabel,
   Td,
   Th,
   TombolSekunder,
+  inputClass,
 } from '../components/ui';
 import type {
   ArahUrutKontrak,
@@ -51,12 +58,12 @@ import { sisaHariMou } from '../lib/kontrakTampilan';
 interface PropsKategori extends ModulProps {
   /**
    * Nilai `Kontrak.kategoriLayanan` yang difilter; null = semua kontrak
-   * (menu Contract). Kategori 'Media Partner' masih MENUNGGU data —
-   * lihat komentar di atas. (MoU tidak lagi memakai filter ini sejak
-   * impor MoU 19/11/2026: panel MoU membaca data.mou lewat DaftarMou;
-   * Commitment tidak lagi memakai filter ini sejak impor Commitment
-   * 19/11/2026: panel Commitment membaca data.commitment lewat
-   * DaftarCommitment.)
+   * (menu Contract). (MoU tidak lagi memakai filter ini sejak impor MoU
+   * 19/11/2026: panel MoU membaca data.mou lewat DaftarMou; Commitment
+   * tidak lagi memakai filter ini sejak impor Commitment 19/11/2026:
+   * panel Commitment membaca data.commitment lewat DaftarCommitment;
+   * Approvement tidak lagi memakai filter ini sejak 24/11/2026: panel
+   * Media Partner membaca data.approvement lewat DaftarApprovement.)
    */
   kategori: string | null;
   /** Teks empty state jujur bila belum ada record berkategori ini. */
@@ -502,16 +509,108 @@ function DaftarCommitment({ data, cari }: Pick<ModulProps, 'data' | 'cari'>) {
 }
 
 /**
- * Approvement — dokumen media partner. Data tipe ini masih menunggu
- * (0 record).
+ * Approvement — surat persetujuan Kepala RRI atas permintaan media
+ * partner (definisi pengguna 24/11/2026). Data TERPISAH dari kontrak
+ * (seed 4 record DUMMY: 2 organisasi mahasiswa + 2 komunitas;
+ * koleksi Firestore `approvement`); panel membaca data.approvement.
  */
-export function MenuApprovement(props: ModulProps) {
+export function MenuApprovement({ data, cari }: ModulProps) {
+  return <DaftarApprovement data={data} cari={cari} />;
+}
+
+/**
+ * Daftar Approvement — tabel dari data.approvement (bukan kontrak).
+ * Diurutkan nomor surat; pencarian `cari` memfilter nomor surat,
+ * klien, jenis klien, narahubung, dan jenis kompensasi. Kolom
+ * "Dokumen" paling kanan: nilai `dokumen` record ('—' bila kosong —
+ * tahap upload dokumen masih ditunda, jangan dikarang menjadi tautan).
+ */
+function DaftarApprovement({ data, cari }: Pick<ModulProps, 'data' | 'cari'>) {
+  // Kotak pencarian sendiri di panel (pola panel Contract): pencarian
+  // global di top bar dihapus atas instruksi pengguna 15/11/2026, jadi
+  // `cari` dari shell selalu '' — pencarian panel memakai state lokal.
+  const [pencarian, setPencarian] = useState('');
+  const kataKunci = `${cari} ${pencarian}`.trim().toLowerCase();
+  const approvementTersaring = [...data.approvement]
+    .sort((a, b) => a.nomorSurat.localeCompare(b.nomorSurat))
+    .filter(
+      (a) =>
+        kataKunci === '' ||
+        `${a.nomorSurat} ${a.namaKlien} ${a.jenisKlien} ${a.namaNarahubung} ${a.jenisKompensasi}`
+          .toLowerCase()
+          .includes(kataKunci),
+    );
+
   return (
-    <DaftarKontrakKategori
-      {...props}
-      kategori="Media Partner"
-      teksKosong="Belum ada dokumen Approvement."
-      penjelasanKosong="Belum ada kontrak di data impor yang berkategori layanan 'Media Partner'. Daftar ini akan terisi begitu data tersebut diimpor."
-    />
+    <div className="space-y-4">
+      <div className="flex flex-wrap gap-4">
+        <div className="min-w-[240px]">
+          <Label>Cari</Label>
+          <input
+            className={inputClass}
+            type="search"
+            value={pencarian}
+            onChange={(e) => setPencarian(e.target.value)}
+            placeholder="Nomor surat, klien, narahubung…"
+            aria-label="Cari surat persetujuan"
+          />
+        </div>
+      </div>
+      {approvementTersaring.length === 0 ? (
+        // Belum ada record Approvement di Firestore (migrasi Approvement
+        // belum dijalankan): empty state jujur, bukan tabel kosong.
+        // Kalau ada record tapi pencarian tidak cocok, pesannya beda.
+        data.approvement.length === 0 ? (
+          <div className="space-y-3">
+            <PesanKosong teks="Belum ada surat persetujuan Media Partner." />
+            <p className="max-w-2xl text-sm text-[#0d2569]/70">
+              Belum ada catatan Approvement di Firestore. Data contoh (4 surat
+              persetujuan: 2 organisasi mahasiswa + 2 komunitas) tersedia di
+              seed dan akan tampil di sini setelah dimigrasikan ke Firestore.
+            </p>
+          </div>
+        ) : (
+          <PesanKosong teks="Tidak ada surat persetujuan yang cocok dengan pencarian." />
+        )
+      ) : (
+        <>
+          <p className="text-sm text-[#0d2569]/70">
+            {approvementTersaring.length} surat persetujuan Media Partner.
+          </p>
+          <Kartu>
+        <Tabel>
+          <thead>
+            <tr>
+              <Th>No.</Th>
+              <Th>No. Surat</Th>
+              <Th>Klien</Th>
+              <Th>Jenis Klien</Th>
+              <Th>Narahubung</Th>
+              <Th>Tanggal Pelaksanaan</Th>
+              <Th>Jenis Kompensasi</Th>
+              <Th kanan>Nilai Kompensasi</Th>
+              <Th>Dokumen</Th>
+            </tr>
+          </thead>
+          <tbody>
+            {approvementTersaring.map((a, i) => (
+              <Baris key={a.id}>
+                <Td>{i + 1}</Td>
+                <Td tebal>{a.nomorSurat}</Td>
+                <Td>{a.namaKlien}</Td>
+                <Td>{a.jenisKlien}</Td>
+                <Td>{a.namaNarahubung}</Td>
+                <Td>{formatTanggal(a.tanggalPelaksanaan)}</Td>
+                <Td>{a.jenisKompensasi}</Td>
+                <Td kanan>{formatRupiah(a.nilaiKompensasi)}</Td>
+                <Td>{a.dokumen}</Td>
+              </Baris>
+            ))}
+          </tbody>
+        </Tabel>
+          </Kartu>
+        </>
+      )}
+    </div>
   );
 }

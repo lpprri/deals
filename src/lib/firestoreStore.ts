@@ -94,6 +94,15 @@ export const KOLEKSI: Record<keyof AppData, string> = {
   // layanan dari file pengguna; ditulis ke Firestore lewat migrasi
   // Commitment (src/lib/migrasiCommitment.ts) setelah PR ini merge.
   commitment: 'commitment',
+  // Approvement (definisi pengguna 24/11/2026): surat persetujuan
+  // Kepala RRI atas permintaan media partner; 4 record DUMMY dari
+  // seed (src/lib/seedApprovement.ts). Migrasi ke Firestore adalah
+  // langkah terpisah setelah PR ini merge (belum ada migrasi
+  // Approvement); sebelum itu panel menampilkan empty state jujur.
+  // muatDariFirestore() memuatnya generik lewat KOLEKSI ini.
+  // muatDataKlien() TIDAK memuatnya: tanpa klienId, client tidak
+  // melihat Approvement.
+  approvement: 'approvement',
   meeting: 'meeting',
   event: 'event',
   advertisement: 'advertisement',
