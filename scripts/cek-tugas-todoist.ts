@@ -3,12 +3,13 @@
 //  src/lib/types.ts + src/lib/store.ts + src/App.tsx +
 //  src/lib/firestoreStore.ts).
 // Asersi: tampilan (Kotak Masuk, Hari Ini, Mendatang, Filter & Label,
-// Laporan, Disposisi), Quick Add, kartu tugas, dialog detail, View Options,
-// Mendatang + jadwalkan ulang massal, filter tersimpan & label disposisi,
-// Laporan + ekspor CSV, pencarian + shortcut, Bahasa Indonesia di UI panel,
-// Disposisi (Alur F) tetap ada, TIDAK ADA koleksi/aturan Firestore baru,
-// helper murni benar di data sintetis + seed nyata, dan marker ada di bundle
-// hasil build (dist/). Keluar bukan-nol bila ada asersi gagal.
+// Laporan) sebagai sub-panel kiri, Quick Add, kartu tugas, dialog detail,
+// View Options, Mendatang + jadwalkan ulang massal, filter tersimpan & label
+// disposisi, Laporan + ekspor CSV, pencarian + shortcut, Bahasa Indonesia
+// di UI panel, Disposisi (Alur F) DIBUANG dari panel (model & data tetap),
+// TIDAK ADA koleksi/aturan Firestore baru, helper murni benar di data
+// sintetis + seed nyata, dan marker ada di bundle hasil build (dist/).
+// Keluar bukan-nol bila ada asersi gagal.
 import { readFileSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
 import { DATA_NYATA } from '../src/lib/seedNyata';
@@ -27,6 +28,7 @@ import {
   statusTanggal,
   tambahHari,
   terlambat,
+  tugasSelesai,
 } from '../src/lib/tugasTodoist';
 import type { Task } from '../src/lib/types';
 
@@ -34,6 +36,12 @@ import type { Task } from '../src/lib/types';
 const baca = (relatif: string) =>
   readFileSync(join(process.cwd(), relatif), 'utf8');
 const todo = baca('src/modules/Todo.tsx');
+// Nama komponen ikon lucide (mis. Inbox) bukan label UI — keluarkan baris
+// impor ikon saat memeriksa label Inggris di UI panel.
+const todoTanpaImporIkon = todo.replace(
+  /import \{[^}]*\} from 'lucide-react';/g,
+  '',
+);
 const helper = baca('src/lib/tugasTodoist.ts');
 const types = baca('src/lib/types.ts');
 const store = baca('src/lib/store.ts');
@@ -49,20 +57,35 @@ const cek = (nama: string, ok: boolean, detail = '') => {
   else gagal += 1;
 };
 
-// --- 1. Tampilan dalam panel (Bahasa Indonesia). ---
+// --- 1. Tampilan dalam panel (Bahasa Indonesia) sebagai sub-panel kiri. ---
 for (const label of [
   'Kotak Masuk',
   'Hari Ini',
   'Mendatang',
   'Filter & Label',
   'Laporan',
-  'Disposisi',
 ]) {
-  cek(`Tab tampilan "${label}" ada`, todo.includes(label));
+  cek(`Item sub-panel "${label}" ada`, todo.includes(label));
 }
 cek(
-  'Subjudul panel dipertahankan',
-  todo.includes('Tugas perorangan dan disposisi.'),
+  'Subjudul panel diubah (tanpa disposisi)',
+  todo.includes('Tugas perorangan.'),
+);
+cek(
+  'Sub-panel kiri mengikuti pola Qontak (w-60 + border-r)',
+  todo.includes('SubPanelTugas') &&
+    todo.includes('md:w-60') &&
+    todo.includes('md:border-r'),
+);
+cek(
+  'Sub-panel memuat hitungan tugas (Kotak Masuk / Hari Ini / Laporan)',
+  todo.includes('jumlahKotakMasuk') &&
+    todo.includes('jumlahHariIni') &&
+    todo.includes('jumlahSelesai'),
+);
+cek(
+  'Tab horizontal lama (TabBar) sudah tidak dipakai di panel Tugas',
+  !todo.includes('TabBar'),
 );
 
 // --- 2. Quick Add + pilihan tanggal cepat. ---
@@ -123,7 +146,6 @@ for (const s of [
   'Duplikat',
   'Salin tautan tugas',
   'Ya, hapus',
-  'Tutup disposisi',
 ]) {
   cek(`Dialog detail memuat "${s}"`, todo.includes(s));
 }
@@ -133,20 +155,57 @@ cek('Laporan memuat "Ekspor CSV"', todo.includes('Ekspor CSV'));
 cek('Laporan memuat hitungan bulan ini', todo.includes('selesai bulan ini'));
 
 // --- 9. Bahasa Indonesia di UI panel (tidak ada label Inggris Todoist). ---
-for (const s of ['Inbox', 'Add task', 'No Date', 'Overdue', 'Upcoming', 'Completed tasks']) {
-  cek(`UI panel tidak memakai "${s}"`, !todo.includes(s));
+// 'Inbox' hanya nama komponen ikon lucide (Icon: Inbox) — label UI-nya
+// 'Kotak Masuk'; untuk kata itu periksa bentuk string berkuotip saja.
+cek(
+  'UI panel tidak memakai label "Inbox"',
+  !todo.includes("'Inbox'") && !todo.includes('"Inbox"'),
+);
+for (const s of ['Add task', 'No Date', 'Overdue', 'Upcoming', 'Completed tasks']) {
+  cek(`UI panel tidak memakai "${s}"`, !todoTanpaImporIkon.includes(s));
 }
 
-// --- 10. Disposisi (Alur F) dipertahankan. ---
+// --- 10. Disposisi dibuang dari panel Tugas; model & data tetap ada. ---
 for (const s of [
   'DaftarDisposisi',
   'FormDisposisi',
   'Riwayat alur disposisi',
   '+ Buat disposisi',
   'tutupDisposisi',
+  'Instruksi disposisi',
+  "'disposisi'",
 ]) {
-  cek(`Disposisi dipertahankan ("${s}")`, todo.includes(s));
+  cek(`Disposisi dibuang dari panel ("${s}")`, !todo.includes(s));
 }
+cek(
+  'Model: types.ts tetap punya field disposisi',
+  types.includes('pemberiDisposisi?: string') &&
+    types.includes('disposisiDari?: string'),
+);
+cek(
+  'Model: store.ts tetap punya aksi disposisi',
+  store.includes('tambahDisposisi:') && store.includes('tutupDisposisi:'),
+);
+cek(
+  'Model: App.tsx tetap mengimplementasikan aksi disposisi',
+  app.includes('tambahDisposisi:') && app.includes('tutupDisposisi:'),
+);
+cek(
+  'Seed TSK-04/TSK-05 tetap ada',
+  DATA_NYATA.task.some((t) => t.id === 'TSK-04') &&
+    DATA_NYATA.task.some((t) => t.id === 'TSK-05'),
+);
+cek(
+  'TSK-04 (Ditutup) tetap tampil di Laporan',
+  tugasSelesai(DATA_NYATA.task.find((t) => t.id === 'TSK-04')!),
+);
+cek(
+  'TSK-05 (Berjalan, tenggat lewat) tetap tampil di Kotak Masuk/Hari Ini',
+  (() => {
+    const t = DATA_NYATA.task.find((x) => x.id === 'TSK-05')!;
+    return !tugasSelesai(t) && t.tenggat !== '' && t.tenggat <= hariIniIso();
+  })(),
+);
 
 // --- 11. Model + store + App. ---
 for (const s of [
@@ -317,6 +376,9 @@ try {
     'Ditugaskan ke saya',
   ]) {
     cek(`Bundle memuat "${s}"`, bundle.includes(s));
+  }
+  for (const s of ['+ Buat disposisi', 'Tutup disposisi', 'Instruksi disposisi']) {
+    cek(`Bundle tidak lagi memuat "${s}"`, !bundle.includes(s));
   }
 } catch {
   cek('Bundle dist/ tersedia (jalankan npm run build dulu)', false);

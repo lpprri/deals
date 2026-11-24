@@ -1,20 +1,22 @@
 // Modul Tugas ala Todoist (duplikasi Todoist, 2026-11-24; PRD v2.0 Bab 7.7 & 9.6).
 // Studi: akun Todoist lpu.lpprripalembang@gmail.com, workspace RRI, tim LPP RRI.
 // Tampilan dalam panel: Kotak Masuk, Hari Ini, Mendatang, Filter & Label,
-// Laporan, Disposisi. Semua label Bahasa Indonesia (keputusan 2026-11-23).
+// Laporan — sebagai sub-panel kiri (pola panel sub-navigasi Qontak di App.tsx).
+// Semua label Bahasa Indonesia (keputusan 2026-11-23).
 // Palet dasar RRI; merah/oranye/hijau hanya sebagai penanda semantik tanggal
 // & prioritas seperti Todoist (revisi palet 2026-11-15).
 // Data memakai koleksi Firestore `task` yang sudah ada — tidak ada koleksi
-// atau aturan baru. Tab Disposisi (Alur F) dipertahankan apa adanya.
+// atau aturan baru. Tampilan Disposisi (Alur F) dibuang dari panel ini
+// 2026-11-24 atas instruksi pengguna; model data & tugas disposisi
+// (TSK-04/TSK-05) tetap ada dan tampil sebagai tugas biasa.
 
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { BarChart3, CalendarDays, CalendarRange, Inbox, Tags } from 'lucide-react';
 import type { KomentarTugas, PrioritasTugas, StatusTask, SubTugas, Task } from '../lib/types';
-import type { DisposisiInput, ModulProps, TaskInput, TaskPatch } from '../lib/store';
-import { MASTER_STATUS_TASK } from '../lib/master';
+import type { ModulProps, TaskInput, TaskPatch } from '../lib/store';
 import { DUMMY_USERS } from '../lib/dummyUsers';
 import { formatTanggal, hariIniIso } from '../lib/format';
 import { bolehAksi } from '../lib/permissions';
-import { labelJabatan, labelStatusTask } from '../lib/labels';
 import {
   BAGIAN_PROYEK,
   FILTER_TERSIMPAN,
@@ -42,14 +44,10 @@ import {
   type UrutanTugas,
 } from '../lib/tugasTodoist';
 import {
-  ItemDaftar,
   JudulBagian,
   Kartu,
   Label,
-  Peringatan,
   PesanKosong,
-  StatusBadge,
-  TabBar,
   TombolSekunder,
   TombolUtama,
   inputClass,
@@ -60,13 +58,7 @@ type Tampilan =
   | 'hari-ini'
   | 'mendatang'
   | 'filter-label'
-  | 'laporan'
-  | 'disposisi';
-
-/** Lewat tenggat: tenggat < hari ini dan status belum Selesai/Ditutup. */
-function lewatTenggat(t: Task): boolean {
-  return terlambat(t);
-}
+  | 'laporan';
 
 /** Kelas warna tanggal ala Todoist: merah bila terlambat, hijau bila hari ini. */
 function kelasTanggal(t: Task): string {
@@ -243,39 +235,34 @@ export default function Todo(props: ModulProps) {
     );
   };
 
+  const pilihTampilan = (id: Tampilan) => {
+    setTampilan(id);
+    setPesan('');
+  };
+
   return (
-    <div className="space-y-4">
-      <div className="flex flex-wrap items-center justify-between gap-2">
-        <div>
-          <JudulBagian>Tugas</JudulBagian>
-          <p className="mt-1 text-sm text-[#0d2569]/70">
-            Tugas perorangan dan disposisi.
-          </p>
-        </div>
-        {tampilan === 'hari-ini' && (
-          <p className="text-sm font-semibold text-[#0d2569]">
-            {jumlahHariIni} tugas
-          </p>
-        )}
-      </div>
-
-      <TabBar
-        tabs={[
-          { id: 'kotak-masuk', label: `Kotak Masuk (${jumlahKotakMasuk})` },
-          { id: 'hari-ini', label: `Hari Ini (${jumlahHariIni})` },
-          { id: 'mendatang', label: 'Mendatang' },
-          { id: 'filter-label', label: 'Filter & Label' },
-          { id: 'laporan', label: `Laporan (${jumlahSelesai})` },
-          { id: 'disposisi', label: 'Disposisi' },
-        ]}
-        aktif={tampilan}
-        onPilih={(id) => {
-          setTampilan(id as Tampilan);
-          setPesan('');
-        }}
+    <div className="flex flex-col gap-4 md:flex-row md:gap-0">
+      <SubPanelTugas
+        tampilan={tampilan}
+        onPilih={pilihTampilan}
+        jumlahKotakMasuk={jumlahKotakMasuk}
+        jumlahHariIni={jumlahHariIni}
+        jumlahSelesai={jumlahSelesai}
       />
+      <div className="min-w-0 flex-1 space-y-4 md:pl-6">
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <div>
+            <JudulBagian>Tugas</JudulBagian>
+            <p className="mt-1 text-sm text-[#0d2569]/70">Tugas perorangan.</p>
+          </div>
+          {tampilan === 'hari-ini' && (
+            <p className="text-sm font-semibold text-[#0d2569]">
+              {jumlahHariIni} tugas
+            </p>
+          )}
+        </div>
 
-      {tampilan !== 'disposisi' && tampilan !== 'laporan' && (
+        {tampilan !== 'laporan' && (
         <ToolbarTugas
           cariLokal={cariLokal}
           onCariLokal={setCariLokal}
@@ -401,20 +388,12 @@ export default function Todo(props: ModulProps) {
         />
       )}
 
-      {tampilan === 'disposisi' && (
-        <DaftarDisposisi
-          data={data}
-          user={user}
-          actions={actions}
-          cari={cari}
-        />
-      )}
-
       {pesan !== '' && (
         <p className="rounded-md border border-[#2573e2]/40 bg-[#2573e2]/5 px-3 py-2 text-sm font-semibold text-[#0d2569]">
           {pesan}
         </p>
       )}
+      </div>
 
       {tugasDetail && (
         <DialogTugas
@@ -428,6 +407,79 @@ export default function Todo(props: ModulProps) {
           onHapus={() => setDetailId(null)}
         />
       )}
+    </div>
+  );
+}
+
+/** Sub-panel kiri tampilan Tugas — pola panel sub-navigasi Qontak di App.tsx
+    (kolom w-60, border-r, judul kapital, item ikon + label), dengan hitungan
+    tugas di kanan tiap item seperti sidebar Todoist. */
+function SubPanelTugas(props: {
+  tampilan: Tampilan;
+  onPilih: (t: Tampilan) => void;
+  jumlahKotakMasuk: number;
+  jumlahHariIni: number;
+  jumlahSelesai: number;
+}) {
+  const item: {
+    id: Tampilan;
+    label: string;
+    jumlah?: number;
+    Icon: typeof Inbox;
+  }[] = [
+    {
+      id: 'kotak-masuk',
+      label: 'Kotak Masuk',
+      jumlah: props.jumlahKotakMasuk,
+      Icon: Inbox,
+    },
+    {
+      id: 'hari-ini',
+      label: 'Hari Ini',
+      jumlah: props.jumlahHariIni,
+      Icon: CalendarDays,
+    },
+    { id: 'mendatang', label: 'Mendatang', Icon: CalendarRange },
+    { id: 'filter-label', label: 'Filter & Label', Icon: Tags },
+    {
+      id: 'laporan',
+      label: 'Laporan',
+      jumlah: props.jumlahSelesai,
+      Icon: BarChart3,
+    },
+  ];
+  return (
+    <div className="flex w-full shrink-0 flex-col border-b border-[#0d2569]/10 bg-white md:w-60 md:border-b-0 md:border-r">
+      <div className="flex shrink-0 items-center justify-between px-4 pb-2 pt-4">
+        <span className="text-xs font-bold uppercase tracking-wide text-[#0d2569]">
+          Tugas
+        </span>
+      </div>
+      <div className="scrollbar-tersembunyi min-h-0 flex-1 space-y-1 overflow-y-auto px-2 pb-4">
+        {item.map(({ id, label, jumlah, Icon }) => {
+          const aktif = id === props.tampilan;
+          return (
+            <button
+              key={id}
+              type="button"
+              onClick={() => props.onPilih(id)}
+              className={`flex w-full items-center gap-3 rounded-md px-3 py-2 text-left text-sm ${
+                aktif
+                  ? 'bg-[#2573e2]/10 font-semibold text-[#2573e2]'
+                  : 'text-[#0d2569]/70 hover:bg-[#2573e2]/5 hover:text-[#0d2569]'
+              }`}
+            >
+              <Icon size={15} className="shrink-0" />
+              {label}
+              {jumlah !== undefined && (
+                <span className="ml-auto text-xs font-semibold text-[#0d2569]/50">
+                  {jumlah}
+                </span>
+              )}
+            </button>
+          );
+        })}
+      </div>
     </div>
   );
 }
@@ -927,7 +979,7 @@ function KartuTugas(props: {
         disabled={t.status === 'Ditutup'}
         title={
           t.status === 'Ditutup'
-            ? 'Disposisi sudah ditutup'
+            ? 'Tugas sudah ditutup'
             : selesai
               ? 'Tandai belum selesai'
               : 'Tandai selesai'
@@ -1473,11 +1525,6 @@ function DialogTugas(props: {
   const [konfirmasiHapus, setKonfirmasiHapus] = useState(false);
   const [pesanLokal, setPesanLokal] = useState('');
   const progres = progresSubTugas(t);
-  const bolehTutupDisposisi =
-    t.status === 'Selesai' &&
-    t.pemberiDisposisi !== undefined &&
-    (t.pemberiDisposisi === user.nama ||
-      bolehAksi(user.peran, 'tutupDisposisi'));
 
   const ubah = (patch: TaskPatch) => actions.ubahTask(t, patch);
   const simpanJudul = () => {
@@ -1648,19 +1695,6 @@ function DialogTugas(props: {
               />
             </div>
 
-            {t.instruksi && (
-              <div className="rounded-md border border-[#2573e2]/20 bg-[#2573e2]/5 px-3 py-2 text-sm text-[#0d2569]">
-                <span className="font-semibold">Instruksi disposisi: </span>
-                {t.instruksi}
-                {t.pemberiDisposisi && (
-                  <span className="block text-xs text-[#0d2569]/70">
-                    Pemberi: {t.pemberiDisposisi}
-                    {t.disposisiDari ? ` (${t.disposisiDari})` : ''}
-                  </span>
-                )}
-              </div>
-            )}
-
             <div>
               <div className="flex items-center justify-between">
                 <p className="text-sm font-bold text-[#0d2569]">
@@ -1791,17 +1825,6 @@ function DialogTugas(props: {
                   >
                     Kerjakan lagi
                   </TombolSekunder>
-                )}
-                {bolehTutupDisposisi && (
-                  <TombolUtama
-                    onClick={() => {
-                      const hasil = actions.tutupDisposisi(t);
-                      if (hasil !== null) setPesanLokal(hasil);
-                      else props.onPesan(`Disposisi ${t.id} ditutup.`);
-                    }}
-                  >
-                    Tutup disposisi
-                  </TombolUtama>
                 )}
               </div>
             </div>
@@ -1999,317 +2022,5 @@ function DialogTugas(props: {
         )}
       </div>
     </div>
-  );
-}
-
-function DaftarDisposisi({
-  data,
-  user,
-  actions,
-  cari,
-}: {
-  data: ModulProps['data'];
-  user: ModulProps['user'];
-  actions: ModulProps['actions'];
-  cari: string;
-}) {
-  const [filterStatus, setFilterStatus] = useState<string>('Semua');
-  const [tampilForm, setTampilForm] = useState(false);
-  const [pesan, setPesan] = useState('');
-  const bolehBuat = bolehAksi(user.peran, 'tambahDisposisi');
-
-  const kataKunci = cari.trim().toLowerCase();
-  const disposisi = data.task.filter(
-    (t) =>
-      t.pemberiDisposisi !== undefined &&
-      (filterStatus === 'Semua' || t.status === filterStatus) &&
-      (kataKunci === '' ||
-        `${t.id} ${t.judul} ${t.pemilik} ${t.pemberiDisposisi} ${
-          t.instruksi ?? ''
-        }`
-          .toLowerCase()
-          .includes(kataKunci)),
-  );
-
-  const tutup = (t: Task) => {
-    const hasil = actions.tutupDisposisi(t);
-    if (hasil !== null) {
-      setPesan(hasil);
-      return;
-    }
-    setPesan(`Disposisi ${t.id} ditutup.`);
-  };
-
-  return (
-    <div className="space-y-4">
-      <Peringatan teks="Disposisi dicatat menyeluruh (Alur F): dibuat, dikerjakan, lalu ditutup oleh pemberi; riwayat tersimpan dan bisa diaudit." />
-
-      <div>
-        <Label>Saring berdasarkan status</Label>
-        <select
-          className={`${inputClass} max-w-xs`}
-          value={filterStatus}
-          onChange={(e) => setFilterStatus(e.target.value)}
-        >
-          <option value="Semua">Semua</option>
-          {MASTER_STATUS_TASK.map((s) => (
-            <option key={s} value={s}>
-              {labelStatusTask(s)}
-            </option>
-          ))}
-        </select>
-      </div>
-
-      {bolehBuat && (
-        <div>
-          <TombolUtama onClick={() => setTampilForm(true)}>
-            + Buat disposisi
-          </TombolUtama>
-        </div>
-      )}
-
-      {tampilForm && (
-        <FormDisposisi
-          user={user}
-          actions={actions}
-          onBatal={() => setTampilForm(false)}
-          onSukses={() => setTampilForm(false)}
-        />
-      )}
-
-      {disposisi.length === 0 ? (
-        <PesanKosong teks="Belum ada disposisi yang cocok." />
-      ) : (
-        <Kartu>
-          <ul>
-            {disposisi.map((t) => {
-              const bolehTutup =
-                t.status === 'Selesai' &&
-                (t.pemberiDisposisi === user.nama ||
-                  bolehAksi(user.peran, 'tutupDisposisi'));
-              return (
-                <ItemDaftar key={t.id}>
-                  <div className="flex flex-wrap items-start justify-between gap-2">
-                    <div>
-                      <p className="text-sm font-bold text-[#0d2569]">
-                        {t.id} — {t.judul}
-                      </p>
-                      <p className="mt-1 text-sm text-[#0d2569]/70">
-                        Penerima: {t.pemilik} · Tenggat:{' '}
-                        {formatTanggal(t.tenggat)}
-                        {lewatTenggat(t) ? ' (lewat tenggat)' : ''}
-                        {t.terkaitLabel ? ` · Terkait: ${t.terkaitLabel}` : ''}
-                      </p>
-                    </div>
-                    <StatusBadge status={labelStatusTask(t.status)} />
-                  </div>
-
-                  {t.instruksi && (
-                    <p className="mt-3 text-sm text-[#0d2569]">
-                      <span className="font-semibold">Instruksi: </span>
-                      {t.instruksi}
-                    </p>
-                  )}
-
-                  <div className="mt-3">
-                    <p className="text-xs font-semibold text-[#0d2569]/70">
-                      Riwayat alur disposisi
-                    </p>
-                    <ol className="mt-1 list-inside list-decimal space-y-1 text-sm text-[#0d2569]">
-                      <li>
-                        ✓ Dibuat oleh {t.pemberiDisposisi}
-                        {t.disposisiDari ? ` (${t.disposisiDari})` : ''}
-                      </li>
-                      <li>
-                        {t.status === 'Belum Dikerjakan'
-                          ? '• Menunggu dikerjakan oleh '
-                          : '✓ Dikerjakan oleh '}
-                        {t.pemilik}
-                      </li>
-                      <li>
-                        {t.status === 'Selesai' || t.status === 'Ditutup'
-                          ? '✓ Selesai'
-                          : '• Belum selesai'}
-                      </li>
-                      <li>
-                        {t.status === 'Ditutup'
-                          ? '✓ Ditutup oleh pemberi disposisi'
-                          : '• Belum ditutup'}
-                      </li>
-                    </ol>
-                  </div>
-
-                  {bolehTutup && (
-                    <div className="mt-3">
-                      <TombolUtama onClick={() => tutup(t)}>
-                        Tutup disposisi
-                      </TombolUtama>
-                    </div>
-                  )}
-                </ItemDaftar>
-              );
-            })}
-          </ul>
-        </Kartu>
-      )}
-
-      {pesan !== '' && (
-        <p className="rounded-md border border-[#2573e2]/40 bg-[#2573e2]/5 px-3 py-2 text-sm font-semibold text-[#0d2569]">
-          {pesan}
-        </p>
-      )}
-    </div>
-  );
-}
-
-function FormDisposisi({
-  user,
-  actions,
-  onBatal,
-  onSukses,
-}: {
-  user: ModulProps['user'];
-  actions: ModulProps['actions'];
-  onBatal: () => void;
-  onSukses: () => void;
-}) {
-  const [form, setForm] = useState<DisposisiInput>({
-    pemberiDisposisi: user.nama,
-    penerima: DUMMY_USERS[0].nama,
-    judul: '',
-    instruksi: '',
-    tenggat: '',
-    terkaitId: undefined,
-    terkaitLabel: undefined,
-  });
-  const [error, setError] = useState('');
-
-  const simpan = () => {
-    if (form.penerima.trim() === '') {
-      setError('Penerima disposisi wajib dipilih.');
-      return;
-    }
-    if (form.judul.trim() === '') {
-      setError('Judul disposisi wajib diisi.');
-      return;
-    }
-    if (form.instruksi.trim() === '') {
-      setError('Instruksi wajib diisi.');
-      return;
-    }
-    if (form.tenggat === '') {
-      setError('Tenggat wajib diisi.');
-      return;
-    }
-    const hasil = actions.tambahDisposisi({
-      pemberiDisposisi: user.nama,
-      penerima: form.penerima,
-      judul: form.judul.trim(),
-      instruksi: form.instruksi.trim(),
-      tenggat: form.tenggat,
-      terkaitId:
-        form.terkaitId?.trim() === '' ? undefined : form.terkaitId?.trim(),
-      terkaitLabel:
-        form.terkaitLabel?.trim() === ''
-          ? undefined
-          : form.terkaitLabel?.trim(),
-    });
-    if (hasil !== null) {
-      setError(hasil);
-      return;
-    }
-    onSukses();
-  };
-
-  return (
-    <Kartu>
-      <JudulBagian>Buat disposisi</JudulBagian>
-      <p className="mt-1 text-sm text-[#0d2569]/70">
-        Pemberi disposisi: {user.nama}
-      </p>
-      <div className="mt-4 grid gap-4 md:grid-cols-2">
-        <div>
-          <Label>Penerima *</Label>
-          <select
-            className={inputClass}
-            value={form.penerima}
-            onChange={(e) =>
-              setForm((f) => ({ ...f, penerima: e.target.value }))
-            }
-          >
-            {DUMMY_USERS.map((u) => (
-              <option key={u.nama} value={u.nama}>
-                {u.nama} — {labelJabatan(u.jabatan)}
-              </option>
-            ))}
-          </select>
-        </div>
-        <div>
-          <Label>Tenggat *</Label>
-          <input
-            className={inputClass}
-            type="date"
-            value={form.tenggat}
-            onChange={(e) =>
-              setForm((f) => ({ ...f, tenggat: e.target.value }))
-            }
-          />
-        </div>
-        <div className="md:col-span-2">
-          <Label>Judul *</Label>
-          <input
-            className={inputClass}
-            value={form.judul}
-            onChange={(e) =>
-              setForm((f) => ({ ...f, judul: e.target.value }))
-            }
-            placeholder="Judul tugas disposisi"
-          />
-        </div>
-        <div className="md:col-span-2">
-          <Label>Instruksi *</Label>
-          <textarea
-            className={`${inputClass} min-h-20`}
-            value={form.instruksi}
-            onChange={(e) =>
-              setForm((f) => ({ ...f, instruksi: e.target.value }))
-            }
-            placeholder="Instruksi yang harus dijalankan penerima"
-          />
-        </div>
-        <div>
-          <Label>ID terkait (opsional)</Label>
-          <input
-            className={inputClass}
-            value={form.terkaitId ?? ''}
-            onChange={(e) =>
-              setForm((f) => ({ ...f, terkaitId: e.target.value }))
-            }
-            placeholder="Contoh: PRS-01, PJ-002"
-          />
-        </div>
-        <div>
-          <Label>Label terkait (opsional)</Label>
-          <input
-            className={inputClass}
-            value={form.terkaitLabel ?? ''}
-            onChange={(e) =>
-              setForm((f) => ({ ...f, terkaitLabel: e.target.value }))
-            }
-            placeholder="Contoh: Prospek PRS-01"
-          />
-        </div>
-      </div>
-
-      {error !== '' && (
-        <p className="mt-4 rounded-md border border-[#2573e2]/40 bg-[#2573e2]/5 px-3 py-2 text-sm font-semibold text-[#0d2569]">
-          {error}
-        </p>
-      )}
-      <div className="mt-4 flex gap-2">
-        <TombolUtama onClick={simpan}>Simpan disposisi</TombolUtama>
-        <TombolSekunder onClick={onBatal}>Batal</TombolSekunder>
-      </div>
-    </Kartu>
   );
 }

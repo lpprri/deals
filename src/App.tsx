@@ -467,7 +467,7 @@ const MODULES: NavItem[] = [
     label: 'Tugas',
     icon: CheckSquare,
     phase: 'B',
-    description: 'Tugas perorangan dan disposisi.',
+    description: 'Tugas perorangan.',
   },
   {
     id: 'chat',
