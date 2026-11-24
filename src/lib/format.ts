@@ -25,6 +25,37 @@ export function formatTanggal(iso: string | undefined): string {
   return `${d}/${m}/${y}`;
 }
 
+/** '2026-11-24' -> '24/11' (label tanggal pendek ala Todoist). */
+export function formatTanggalPendek(iso: string | undefined): string {
+  if (!iso) return '-';
+  const [y, m, d] = iso.split('-');
+  if (!y || !m || !d) return iso;
+  return `${d}/${m}`;
+}
+
+/** '24/11/2026' (dd/mm/yyyy; 1-2 digit juga boleh) -> '2026-11-24'.
+ * Mengembalikan null bila format salah atau tanggal tidak valid — dipakai
+ * input tanggal teks supaya tampilannya selalu DD/MM/YYYY, bukan format
+ * locale browser (input date native menampilkan mm/dd/yyyy di browser
+ * berbahasa Inggris). */
+export function parseTanggalId(teks: string): string | null {
+  const cocok = teks.trim().match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+  if (!cocok) return null;
+  const d = Number(cocok[1]);
+  const m = Number(cocok[2]);
+  const y = Number(cocok[3]);
+  if (m < 1 || m > 12 || d < 1 || d > 31) return null;
+  const dt = new Date(y, m - 1, d);
+  if (
+    dt.getFullYear() !== y ||
+    dt.getMonth() !== m - 1 ||
+    dt.getDate() !== d
+  ) {
+    return null;
+  }
+  return `${y}-${String(m).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+}
+
 /** '2026-02' -> 'February 2026'. */
 export function formatPeriode(periode: string): string {
   const [y, m] = periode.split('-');
