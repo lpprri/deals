@@ -83,6 +83,14 @@ import type {
   KemajuanMigrasiCommitment,
 } from './lib/migrasiCommitment';
 import {
+  bacaStatusMigrasiApprovement,
+  jalankanMigrasiApprovement,
+} from './lib/migrasiApprovement';
+import type {
+  HasilMigrasiApprovement,
+  KemajuanMigrasiApprovement,
+} from './lib/migrasiApprovement';
+import {
   bacaStatusBackfillKlienId,
   jalankanBackfillKlienId,
 } from './lib/backfillKlienId';
@@ -745,6 +753,9 @@ export default function App() {
   /** Status migrasi Commitment (impor Commitment 19/11/2026) — guard terpisah dari migrasi lain. */
   const [sudahMigrasiCommitment, setSudahMigrasiCommitment] = useState(false);
   const [tanggalMigrasiCommitment, setTanggalMigrasiCommitment] = useState<string | undefined>(undefined);
+  /** Status migrasi Approvement (surat persetujuan Media Partner 24/11/2026) — guard terpisah dari migrasi lain. */
+  const [sudahMigrasiApprovement, setSudahMigrasiApprovement] = useState(false);
+  const [tanggalMigrasiApprovement, setTanggalMigrasiApprovement] = useState<string | undefined>(undefined);
   /** Status backfill klienId (dua peran 19/11/2026) — guard terpisah dari migrasi lain. */
   const [sudahBackfillKlienId, setSudahBackfillKlienId] = useState(false);
   const [tanggalBackfillKlienId, setTanggalBackfillKlienId] = useState<string | undefined>(undefined);
@@ -859,6 +870,10 @@ export default function App() {
           if (batal) return;
           setSudahMigrasiCommitment(statusMigrasiCommitment.sudah);
           setTanggalMigrasiCommitment(statusMigrasiCommitment.tanggal);
+          const statusMigrasiApprovement = await bacaStatusMigrasiApprovement(db);
+          if (batal) return;
+          setSudahMigrasiApprovement(statusMigrasiApprovement.sudah);
+          setTanggalMigrasiApprovement(statusMigrasiApprovement.tanggal);
           const statusBackfillKlienId = await bacaStatusBackfillKlienId(db);
           if (batal) return;
           setSudahBackfillKlienId(statusBackfillKlienId.sudah);
@@ -3477,6 +3492,26 @@ export default function App() {
     return hasil;
   };
 
+  /** Jalankan migrasi Approvement (dari halaman Master & Pengguna). */
+  const tanganiMigrasiApprovement = async (
+    onKemajuan?: (k: KemajuanMigrasiApprovement) => void,
+  ): Promise<HasilMigrasiApprovement> => {
+    if (!db) {
+      throw new Error('Firebase is not yet configured.');
+    }
+    const hasil = await jalankanMigrasiApprovement(
+      db,
+      penggunaAktif,
+      SATKER_PILOT.kode,
+      onKemajuan,
+    );
+    setSudahMigrasiApprovement(true);
+    setTanggalMigrasiApprovement(hasil.tanggal);
+    const dariFirestore = await muatDariFirestore(db, SATKER_PILOT.kode);
+    if (dariFirestore) setData(dariFirestore);
+    return hasil;
+  };
+
   /** Jalankan backfill klienId satu kali (dari halaman Master & Pengguna). */
   const tanganiBackfillKlienId = async (
     onKemajuan?: (k: KemajuanBackfillKlienId) => void,
@@ -4101,6 +4136,15 @@ export default function App() {
                     : 'tidak-tersedia'
                 }
                 tanggalMigrasiCommitment={tanggalMigrasiCommitment}
+                onMigrasiApprovement={tanganiMigrasiApprovement}
+                statusMigrasiApprovement={
+                  modeData === 'firestore'
+                    ? sudahMigrasiApprovement
+                      ? 'sudah'
+                      : 'belum'
+                    : 'tidak-tersedia'
+                }
+                tanggalMigrasiApprovement={tanggalMigrasiApprovement}
                 daftarKlien={data.klien.map((k) => ({
                   id: k.id,
                   nama: k.nama,
