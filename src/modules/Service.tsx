@@ -76,7 +76,7 @@ export default function Service(props: ModulProps) {
         tabs={[
           { id: 'helpdesk', label: 'Bantuan' },
           { id: 'kb', label: 'Basis Pengetahuan' },
-          { id: 'faq', label: 'FAQ' },
+          { id: 'faq', label: 'Pertanyaan Umum' },
         ]}
         aktif={tab}
         onPilih={setTab}

@@ -530,10 +530,10 @@ cek(
 cek(
   'petaLabelAuditTiketBantuan',
   sumberLabels.includes(
-    "'Tiket Bantuan dibuat': 'Support ticket created'",
+    "'Tiket Bantuan dibuat': 'Tiket Bantuan dibuat'",
   ) &&
     sumberLabels.includes(
-      "'Tiket Bantuan dijawab': 'Support ticket answered'",
+      "'Tiket Bantuan dijawab': 'Tiket Bantuan dijawab'",
     ) &&
     !sumberLabels.includes('Tiket Help-Desk'),
   'labelAksiAudit memetakan aksi tiket baru',

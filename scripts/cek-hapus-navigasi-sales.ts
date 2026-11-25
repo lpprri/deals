@@ -86,8 +86,8 @@ cek(
   app.includes("active === 'sales' && <Sales"),
 );
 cek(
-  "label 'Sales' tetap ada di MODULES (hanya tidak di sidebar)",
-  app.includes("label: 'Sales',"),
+  "label 'Penjualan' di MODULES (dulu 'Sales'; irisan-1 bahasa Indonesia 25/11/2026)",
+  app.includes("label: 'Penjualan',"),
 );
 
 // --- Asersi komponen Sales yang dipakai ulang tetap diekspor + dipakai. ---

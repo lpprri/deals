@@ -197,20 +197,21 @@ export function statusPembayaranKontrak(
   return adaLewatJatuhTempo ? 'Overdue' : 'Unpaid';
 }
 
-// CATATAN: helper labelStatusPembayaranKontrak (label Indonesia: Lunas /
-// Belum Bayar / Kurang Bayar / Keterlambatan Pembayaran, PR #64) DIHAPUS
-// per keputusan pengguna 17/11/2026 08:34 WIB — kolom Status Pembayaran
-// kembali ke English. Nilai statusnya sendiri sudah Bahasa Inggris
-// (Paid / Unpaid / Partially-Paid / Insufficient Payment / Overdue),
-// jadi sel tabel menampilkan status itu langsung, tanpa helper label.
-// Ini pembatalan label Indonesia atas instruksi eksplisit pengguna,
-// bukan perbaikan bug.
+// CATATAN: helper labelStatusPembayaranKontrak (label Indonesia PR #64)
+// sempat DIHAPUS per keputusan pengguna 17/11/2026 08:34 WIB — kolom
+// Status Pembayaran kembali ke English. Keputusan pengguna 23/11/2026
+// 21:03 WIB MENCABUT itu: label Indonesia kembali (Lunas / Belum Bayar /
+// Dibayar Sebagian / Kurang Bayar / Terlambat Bayar), kini sebagai
+// helper di src/lib/labels.ts. Nilai statusnya sendiri tetap Bahasa
+// Inggris (Paid / Unpaid / Partially-Paid / Insufficient Payment /
+// Overdue) — enum TIDAK diubah, hanya tampilannya dipetakan.
 
 /**
  * Kelas Tailwind pill Payment Status (perbaikan tabel Contract,
  * keputusan pengguna 19/11/2026 16:19 WIB — dari audit UI: status
- * teks biasa tidak terpindai). Label English TIDAK berubah; definisi
- * dan nilai status TIDAK berubah (PR #60 / PR #66) — hanya tampilannya
+ * teks biasa tidak terpindai). Label tampil kini Indonesia (labels.ts,
+ * keputusan 23/11/2026 21:03 WIB); definisi dan nilai status (enum
+ * Inggris) TIDAK berubah (PR #60 / PR #66) — hanya tampilannya
  * jadi pill teks + titik. Warna ekstra ini memang dibutuhkan untuk
  * status (aturan palet: warna dasar saja, warna tambahan hanya bila
  * benar-benar dibutuhkan):

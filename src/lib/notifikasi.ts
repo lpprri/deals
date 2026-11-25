@@ -86,7 +86,7 @@ export function daftarNotifikasi(data: AppData, hariIni: string): Notifikasi[] {
         tab: 'inbox',
         kategori: KATEGORI_NOTIFIKASI.pengajuan,
         judul: `${p.id} — ${p.pemohon}`,
-        detail: `Stage: ${labelTahapPengajuan(p.tahap)} · Received ${formatTanggal(p.tanggalMasuk)}`,
+        detail: `Tahap: ${labelTahapPengajuan(p.tahap)} · Masuk ${formatTanggal(p.tanggalMasuk)}`,
         modul: 'pengajuan',
       });
     });

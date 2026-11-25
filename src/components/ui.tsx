@@ -22,7 +22,7 @@ import {
 } from '../lib/labels';
 
 /**
- * Label Inggris untuk nilai status tersimpan apa pun yang tampil di badge.
+ * Label Indonesia untuk nilai status tersimpan apa pun yang tampil di badge.
  * Setiap helper mengembalikan nilai asli bila tidak mengenalnya, jadi
  * rantai ini aman untuk semua domain status (kontrak, tagihan, dokumen,
  * pembayaran, denda, sewa, temuan, persetujuan, order, task, tiket,
@@ -105,10 +105,14 @@ export function StatCard({
 
 /** Badge status: teks + ikon, latar tint Biru/Navy saja (Bab 8.2). */
 export function StatusBadge({ status }: { status: string }) {
-  // Ikon dipilih dari nilai mentah (Indonesia) ATAU label tampil (Inggris)
-  // — call-site boleh meneruskan keduanya. 'Clock' dicek sebelum centang
-  // supaya 'Belum Ada' ('Not yet available') tidak mendapat ikon centang
-  // karena mengandung 'ada'/'available'.
+  // Ikon dipilih dari nilai mentah (Indonesia) ATAU label tampil — call-site
+  // boleh meneruskan keduanya. 'Clock' dicek sebelum centang supaya
+  // 'Belum Ada' tidak mendapat ikon centang karena mengandung 'ada'.
+  // Substring Indonesia ditambah saat helper labels.ts kembali ke
+  // Indonesia (23/11/2026): 'Jatuh Tempo' (dulu 'due'), 'Ada' (dulu
+  // 'available'), 'Dikirim' (dulu 'sent'), 'Dijawab' (dulu 'answered').
+  // Cek Inggris dipertahankan untuk nilai Inggris yang masih tiba mentah
+  // (mis. 'Verified' dari labelStatusLaporan di Reporting).
   const s = status.toLowerCase();
   const t = labelStatusTampilan(status).toLowerCase();
   const negatif =
@@ -129,6 +133,7 @@ export function StatusBadge({ status }: { status: string }) {
     s.includes('masuk') ||
     s.includes('diproses') ||
     s.includes('berjalan') ||
+    s.includes('jatuh tempo') ||
     t.includes('pending') ||
     t.includes('not yet') ||
     t.includes('awaiting') ||
@@ -143,6 +148,9 @@ export function StatusBadge({ status }: { status: string }) {
     s.includes('terverifikasi') ||
     s.includes('disetujui') ||
     s.includes('dikonversi') ||
+    s.includes('ada') ||
+    s.includes('dikirim') ||
+    s.includes('dijawab') ||
     t.includes('paid') ||
     t.includes('completed') ||
     t.includes('active') ||
