@@ -19,6 +19,7 @@ import {
   labelStatusDokumen,
   labelStatusKlien,
   labelStatusKontrak,
+  labelStatusPembayaranKontrak,
   labelStatusTagihan,
   labelUraianKodeAkun,
 } from '../lib/labels';
@@ -891,9 +892,9 @@ export function TabKontrak({
             <option value="Semua">Semua</option>
             <option value="Unpaid">Belum dibayar</option>
             <option value="Paid">Lunas</option>
-            <option value="Partially-Paid">Dibayar sebagian</option>
-            <option value="Insufficient Payment">Pembayaran tidak cukup</option>
-            <option value="Overdue">Lewat jatuh tempo</option>
+            <option value="Partially-Paid">Dibayar Sebagian</option>
+            <option value="Insufficient Payment">Kurang Bayar</option>
+            <option value="Overdue">Terlambat Bayar</option>
           </select>
         </div>
         <div>
@@ -1380,16 +1381,19 @@ export function TabKontrak({
                           </Td>
                         )}
                         {/*
-                          Status pembayaran — English (keputusan pengguna
-                          17/11/2026 08:34 WIB; membatalkan label Indonesia
-                          PR #64). Nilainya langsung dari
+                          Status pembayaran — label Indonesia (keputusan
+                          pengguna 23/11/2026 21:03 WIB; mencabut
+                          keputusan 17/11/2026 08:34 WIB yang membatalkan
+                          label Indonesia PR #64). Nilainya dari
                           statusPembayaranKontrak (REDEFINISI 17/11/2026
                           08:33 WIB: Partially-Paid = dibayar == Piutang
-                          realisasi; ditambah Insufficient Payment).
+                          realisasi; ditambah Insufficient Payment),
+                          dipetakan ke Indonesia lewat
+                          labelStatusPembayaranKontrak (labels.ts).
                           Tampil sebagai pill teks + titik (perbaikan tabel
                           Contract, keputusan pengguna 19/11/2026
-                          16:19 WIB) — definisi dan nilai status TIDAK
-                          berubah, hanya tampilannya.
+                          16:19 WIB) — definisi dan nilai status (enum
+                          Inggris) TIDAK berubah, hanya tampilannya.
                         */}
                         {tampilKolom('statusPembayaran') && (
                           <Td>
@@ -1400,7 +1404,7 @@ export function TabKontrak({
                                 className="h-1.5 w-1.5 shrink-0 rounded-full bg-current"
                                 aria-hidden
                               />
-                              {statusBayar}
+                              {labelStatusPembayaranKontrak(statusBayar)}
                             </span>
                           </Td>
                         )}
@@ -1556,7 +1560,15 @@ function DetailKontrak({
   // dari daftar yang sama dengan tabel di bawah, supaya persen dan
   // tabel tidak pernah berbeda.
   const kelengkapanDokumenCluster = kelengkapanDokumen(dokumenCluster);
-  const jatuhTempo = tagihanKontrak[0]?.tanggalJatuhTempo;
+  // Batas waktu bayar — helper yang SAMA dengan kolom tabel
+  // (jatuhTempoPembayaranKontrak: tertua belum lunas, terakhir bila
+  // semua lunas), bukan tagihan pertama.
+  const jatuhTempo = jatuhTempoPembayaranKontrak(
+    kontrak,
+    data.tagihan,
+    data.pembayaran,
+    hariIni,
+  );
   const jendelaWaktu = JENDELA_WAKTU_SIAR.find(
     (j) => j.programa === kontrak.programa,
   );
@@ -1657,7 +1669,7 @@ function DetailKontrak({
             </dd>
           </div>
           <div className="flex justify-between gap-4">
-            <dt className="text-[#0d2569]/60">Tanggal jatuh tempo</dt>
+            <dt className="text-[#0d2569]/60">Batas waktu bayar</dt>
             <dd className="text-[#0d2569]">
               {jatuhTempo ? formatTanggal(jatuhTempo) : '— belum ada tagihan'}
             </dd>
@@ -2149,7 +2161,7 @@ function DetailKontrak({
                 <Baris key={item.label}>
                   <Td>{item.label}</Td>
                   <Td>{item.detail ?? '—'}</Td>
-                  <Td>{item.ada ? 'Ada' : 'Belum Ada'}</Td>
+                  <Td>{labelStatusDokumen(item.ada ? 'Ada' : 'Belum Ada')}</Td>
                 </Baris>
               ))}
             </tbody>

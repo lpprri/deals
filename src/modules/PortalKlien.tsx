@@ -44,6 +44,7 @@ import {
   labelJenisPnBP,
   labelKategoriLayanan,
   labelStatusKontrak,
+  labelStatusPembayaranKontrak,
 } from '../lib/labels';
 import { cariKerjaSama, DetailKerjaSama } from './Lacak';
 import Ajukan from './Ajukan';
@@ -328,11 +329,13 @@ export default function PortalKlien({
                               <Td>{sisaHariKerjaSama(k)}</Td>
                               <Td>
                                 <StatusBadge
-                                  status={statusPembayaranKontrak(
-                                    k,
-                                    data.tagihan,
-                                    data.pembayaran,
-                                    data.denda,
+                                  status={labelStatusPembayaranKontrak(
+                                    statusPembayaranKontrak(
+                                      k,
+                                      data.tagihan,
+                                      data.pembayaran,
+                                      data.denda,
+                                    ),
                                   )}
                                 />
                               </Td>

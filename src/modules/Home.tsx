@@ -8,7 +8,7 @@
 export default function Home() {
   return (
     <p className="rounded-md border border-dashed border-[#2573e2]/40 bg-[#2573e2]/5 px-4 py-6 text-center text-sm text-[#0d2569]/70">
-      This page is intentionally empty for now.
+      Halaman ini sengaja dikosongkan untuk saat ini.
     </p>
   );
 }

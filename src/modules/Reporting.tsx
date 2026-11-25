@@ -55,9 +55,9 @@ type JenisLaporan = 'bulanan' | 'piutang' | 'kantor-pusat';
 type StatusLaporan = 'Draft' | 'Diverifikasi' | 'Terkunci';
 
 const TABS: { id: JenisLaporan; label: string }[] = [
-  { id: 'bulanan', label: 'Monthly PNBP' },
-  { id: 'piutang', label: 'Receivables & Deposits' },
-  { id: 'kantor-pusat', label: 'Head Office' },
+  { id: 'bulanan', label: 'PNBP Bulanan' },
+  { id: 'piutang', label: 'Piutang & Penyetoran' },
+  { id: 'kantor-pusat', label: 'Kantor Pusat' },
 ];
 
 const NAMA_FILE: Record<JenisLaporan, string> = {
@@ -451,10 +451,10 @@ export default function Reporting(props: ModulProps) {
 
   const judulLaporan =
     jenis === 'bulanan'
-      ? 'Monthly PNBP Report'
+      ? 'Laporan PNBP Bulanan'
       : jenis === 'piutang'
-        ? 'Receivables & Deposits Report'
-        : 'Head Office Report';
+        ? 'Laporan Piutang & Penyetoran'
+        : 'Laporan Kantor Pusat';
 
   return (
     <div className="space-y-4">
@@ -492,8 +492,8 @@ export default function Reporting(props: ModulProps) {
           </div>
         </div>
         <p className="mt-3 text-sm text-[#0d2569]">
-          {judulLaporan} — {formatPeriode(periode)}. The report is compiled automatically
-          from data; there is no manual entry.
+          {judulLaporan} — {formatPeriode(periode)}. Laporan ini disusun otomatis
+          dari data; tidak ada pengisian manual.
         </p>
         {verifikasiInfo && (
           <p className="mt-1 text-xs text-[#0d2569]/60">
@@ -514,7 +514,7 @@ export default function Reporting(props: ModulProps) {
 
       {/* TOTAL KONTROL — dihitung dari baris-baris laporan yang sama */}
       <Kartu>
-        <JudulBagian>Control Totals — {judulLaporan}</JudulBagian>
+        <JudulBagian>Total Kontrol — {judulLaporan}</JudulBagian>
         {jenis === 'bulanan' && (
           <>
             <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">

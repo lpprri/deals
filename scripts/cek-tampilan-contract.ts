@@ -379,14 +379,14 @@ cek(
   `${hitungBayar('Overdue')}`,
 );
 
-// ---------- kolom Payment Status (kembali ke English, keputusan pengguna
-// 17/11/2026 08:34 WIB — membatalkan label Indonesia PR #64) ----------
-// Helper label Indonesia labelStatusPembayaranKontrak DIHAPUS: sel tabel
-// menampilkan nilai statusnya langsung (Paid / Unpaid / Partially-Paid /
-// Insufficient Payment / Overdue). Nilai "Overdue" TIDAK BISA dites
-// lewat baris tabel — saat ini tidak ada kontrak Overdue di seed (0,
-// lihat asersi di atas) — nilai itu sendiri sudah English, jadi tidak
-// ada pemetaan label yang perlu dites.
+// ---------- kolom Payment Status (label Indonesia, keputusan pengguna
+// 23/11/2026 21:03 WIB — mencabut keputusan 17/11/2026 08:34 WIB yang
+// membatalkan label Indonesia PR #64) ----------
+// Helper labelStatusPembayaranKontrak kini di src/lib/labels.ts:
+// Paid→Lunas, Unpaid→Belum Bayar, Partially-Paid→Dibayar Sebagian,
+// Insufficient Payment→Kurang Bayar, Overdue→Terlambat Bayar. Nilai
+// "Overdue" TIDAK BISA dites lewat baris tabel — saat ini tidak ada
+// kontrak Overdue di seed (0, lihat asersi di atas).
 cek(
   'kolom Payment Status 0603 = Paid',
   statusBayar('0603/PKS/RRI.PLB/01/2026') === 'Paid',
@@ -1904,14 +1904,14 @@ cek(
     ),
 );
 cek(
-  'sel Payment Status menampilkan statusPembayaranKontrak langsung (tanpa helper label)',
+  'sel Payment Status memakai helper label Indonesia labelStatusPembayaranKontrak (keputusan 23/11/2026 21:03 WIB, mencabut 17/11)',
   tabKontrak.includes('statusPembayaranKontrak(k, data.tagihan, data.pembayaran, data.denda)') &&
-    !tabKontrak.includes('labelStatusPembayaranKontrak'),
+    tabKontrak.includes('{labelStatusPembayaranKontrak(statusBayar)}'),
 );
 cek(
-  'helper label Indonesia labelStatusPembayaranKontrak 0x di Deals.tsx + kontrakTampilan.ts',
-  !deals.includes('labelStatusPembayaranKontrak') &&
-    !fs.readFileSync('src/lib/kontrakTampilan.ts', 'utf8').includes('export function labelStatusPembayaranKontrak'),
+  'helper label Indonesia labelStatusPembayaranKontrak ada di labels.ts + dipakai Deals.tsx (keputusan 23/11/2026 21:03 WIB)',
+  deals.includes('labelStatusPembayaranKontrak') &&
+    fs.readFileSync('src/lib/labels.ts', 'utf8').includes('export function labelStatusPembayaranKontrak'),
 );
 cek('header "Status Pembayaran" (Indonesia) 0x di TabKontrak', !tabKontrak.includes('Status Pembayaran'));
 cek('header "Remaining Days" 1x', header.filter((h) => h === 'Remaining Days').length === 1);

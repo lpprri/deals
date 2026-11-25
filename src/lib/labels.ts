@@ -1,19 +1,19 @@
-// Display labels (English) for stored Indonesian values — TERJEMAHAN
-// BAHASA INGGRIS 2026-11-15 (keputusan pengguna: seluruh web app memakai
-// bahasa Inggris secara full).
+// Label tampil Bahasa Indonesia untuk nilai tersimpan (keputusan pengguna
+// 2026-11-23 16:43 WIB: panel admin & klien Bahasa Indonesia saja —
+// MENCABUT keputusan 2026-11-15 yang memakai bahasa Inggris full).
 //
 // ATURAN YANG DIKUNCI: nilai yang DISIMPAN di Firestore (status enum,
 // tahap pipeline, jenis, kategori master) TIDAK PERNAH diubah — hanya
-// tampilannya yang dipetakan ke Inggris lewat helper di file ini.
-// Setiap fungsi menerima nilai tersimpan apa pun dan mengembalikan label
-// Inggris; nilai yang tidak dikenal dikembalikan apa adanya (fallback)
-// supaya tidak ada layar yang kosong bila ada nilai lama di data.
+// tampilannya yang dipetakan lewat helper di file ini. Setiap fungsi
+// menerima nilai tersimpan apa pun dan mengembalikan label Indonesia;
+// nilai yang tidak dikenal dikembalikan apa adanya (fallback) supaya
+// tidak ada layar yang kosong bila ada nilai lama di data.
 //
 // Proper noun TIDAK dipetakan di sini: nama satker, nama klien/orang,
 // nama programa, "Partnership LPP RRI", "Radio Republik Indonesia",
 // kode akun, NPWP, NIB/SIUP, QRIS, "ON GOING".
 
-/** Pemetaan umum: nilai tersimpan -> label Inggris, fallback nilai asli. */
+/** Pemetaan umum: nilai tersimpan -> label Indonesia, fallback nilai asli. */
 function petakan(
   peta: Record<string, string>,
   nilai: string | undefined | null,
@@ -27,10 +27,10 @@ export function labelStatusKontrak(status: string): string {
   return petakan(
     {
       Draft: 'Draft',
-      Aktif: 'Active',
-      Selesai: 'Completed',
-      Dibatalkan: 'Cancelled',
-      Berakhir: 'Ended',
+      Aktif: 'Aktif',
+      Selesai: 'Selesai',
+      Dibatalkan: 'Dibatalkan',
+      Berakhir: 'Berakhir',
     },
     status,
   );
@@ -38,16 +38,16 @@ export function labelStatusKontrak(status: string): string {
 
 /** Status klien: Aktif / Nonaktif. */
 export function labelStatusKlien(status: string): string {
-  return petakan({ Aktif: 'Active', Nonaktif: 'Inactive' }, status);
+  return petakan({ Aktif: 'Aktif', Nonaktif: 'Nonaktif' }, status);
 }
 
 /** Status dokumen checklist: Ada / Belum Ada / Tidak Berlaku. */
 export function labelStatusDokumen(status: string): string {
   return petakan(
     {
-      Ada: 'Available',
-      'Belum Ada': 'Not yet available',
-      'Tidak Berlaku': 'Not applicable',
+      Ada: 'Ada',
+      'Belum Ada': 'Belum Ada',
+      'Tidak Berlaku': 'Tidak Berlaku',
     },
     status,
   );
@@ -57,11 +57,32 @@ export function labelStatusDokumen(status: string): string {
 export function labelStatusTagihan(status: string): string {
   return petakan(
     {
-      'Belum Jatuh Tempo': 'Not yet due',
-      'Jatuh Tempo': 'Due',
-      'Lewat Jatuh Tempo': 'Overdue',
-      'Lunas Sebagian': 'Partially paid',
-      Lunas: 'Paid',
+      'Belum Jatuh Tempo': 'Belum Jatuh Tempo',
+      'Jatuh Tempo': 'Jatuh Tempo',
+      'Lewat Jatuh Tempo': 'Lewat Jatuh Tempo',
+      'Lunas Sebagian': 'Lunas Sebagian',
+      Lunas: 'Lunas',
+    },
+    status,
+  );
+}
+
+/**
+ * Status pembayaran kontrak (enum Inggris di kontrakTampilan.ts:
+ * Paid / Unpaid / Partially-Paid / Insufficient Payment / Overdue) →
+ * label Indonesia (keputusan pengguna 2026-11-23 21:03 WIB, MENCABUT
+ * keputusan 17/11/2026 yang mengembalikan pill ke Inggris; helper lama
+ * sempat dihapus 17/11/2026 08:34 WIB). Dipakai pill Status Pembayaran
+ * di Deals + PortalKlien. ENUM TIDAK DIUBAH — hanya tampilannya.
+ */
+export function labelStatusPembayaranKontrak(status: string): string {
+  return petakan(
+    {
+      Paid: 'Lunas',
+      Unpaid: 'Belum Bayar',
+      'Partially-Paid': 'Dibayar Sebagian',
+      'Insufficient Payment': 'Kurang Bayar',
+      Overdue: 'Terlambat Bayar',
     },
     status,
   );
@@ -71,8 +92,8 @@ export function labelStatusTagihan(status: string): string {
 export function labelStatusVerifikasi(status: string): string {
   return petakan(
     {
-      Terverifikasi: 'Verified',
-      'Menunggu Verifikasi': 'Pending verification',
+      Terverifikasi: 'Terverifikasi',
+      'Menunggu Verifikasi': 'Menunggu Verifikasi',
     },
     status,
   );
@@ -82,10 +103,10 @@ export function labelStatusVerifikasi(status: string): string {
 export function labelStatusDenda(status: string): string {
   return petakan(
     {
-      Terhitung: 'Calculated',
-      Ditagihkan: 'Billed',
-      Dibayar: 'Paid',
-      Dihapus: 'Removed',
+      Terhitung: 'Terhitung',
+      Ditagihkan: 'Ditagihkan',
+      Dibayar: 'Dibayar',
+      Dihapus: 'Dihapus',
     },
     status,
   );
@@ -96,9 +117,9 @@ export function labelStatusSewa(status: string): string {
   return petakan(
     {
       'ON GOING': 'ON GOING',
-      Berakhir: 'Ended',
-      Pengajuan: 'Application',
-      Bermasalah: 'Problematic',
+      Berakhir: 'Berakhir',
+      Pengajuan: 'Pengajuan',
+      Bermasalah: 'Bermasalah',
     },
     status,
   );
@@ -107,7 +128,7 @@ export function labelStatusSewa(status: string): string {
 /** Status temuan lapangan: Dalam Tindak Lanjut / Selesai. */
 export function labelStatusTemuan(status: string): string {
   return petakan(
-    { 'Dalam Tindak Lanjut': 'In follow-up', Selesai: 'Resolved' },
+    { 'Dalam Tindak Lanjut': 'Dalam Tindak Lanjut', Selesai: 'Selesai' },
     status,
   );
 }
@@ -119,11 +140,11 @@ export function labelStatusTemuan(status: string): string {
 export function labelStatusPersetujuan(status: string): string {
   return petakan(
     {
-      Menunggu: 'Pending',
-      Disetujui: 'Approved',
-      Ditolak: 'Rejected',
+      Menunggu: 'Menunggu',
+      Disetujui: 'Disetujui',
+      Ditolak: 'Ditolak',
       Draft: 'Draft',
-      Dikirim: 'Sent',
+      Dikirim: 'Dikirim',
     },
     status,
   );
@@ -134,9 +155,9 @@ export function labelStatusOrder(status: string): string {
   return petakan(
     {
       Draft: 'Draft',
-      Diproses: 'In progress',
-      Selesai: 'Completed',
-      Dibatalkan: 'Cancelled',
+      Diproses: 'Diproses',
+      Selesai: 'Selesai',
+      Dibatalkan: 'Dibatalkan',
     },
     status,
   );
@@ -149,10 +170,10 @@ export function labelStatusOrder(status: string): string {
 export function labelStatusPermintaan(status: string): string {
   return petakan(
     {
-      Baru: 'New',
-      Diproses: 'In progress',
-      Selesai: 'Completed',
-      Ditolak: 'Rejected',
+      Baru: 'Baru',
+      Diproses: 'Diproses',
+      Selesai: 'Selesai',
+      Ditolak: 'Ditolak',
     },
     status,
   );
@@ -162,10 +183,10 @@ export function labelStatusPermintaan(status: string): string {
 export function labelStatusTask(status: string): string {
   return petakan(
     {
-      'Belum Dikerjakan': 'Not started',
-      Berjalan: 'In progress',
-      Selesai: 'Completed',
-      Ditutup: 'Closed',
+      'Belum Dikerjakan': 'Belum Dikerjakan',
+      Berjalan: 'Berjalan',
+      Selesai: 'Selesai',
+      Ditutup: 'Ditutup',
     },
     status,
   );
@@ -174,7 +195,7 @@ export function labelStatusTask(status: string): string {
 /** Status tiket Help-Desk: Terbuka / Dijawab / Ditutup. */
 export function labelStatusTiket(status: string): string {
   return petakan(
-    { Terbuka: 'Open', Dijawab: 'Answered', Ditutup: 'Closed' },
+    { Terbuka: 'Terbuka', Dijawab: 'Dijawab', Ditutup: 'Ditutup' },
     status,
   );
 }
@@ -183,13 +204,13 @@ export function labelStatusTiket(status: string): string {
 export function labelTahapPipeline(tahap: string): string {
   return petakan(
     {
-      'Prospek Baru': 'New Prospect',
-      Dihubungi: 'Contacted',
-      Penawaran: 'Quotation',
-      Negosiasi: 'Negotiation',
+      'Prospek Baru': 'Prospek Baru',
+      Dihubungi: 'Dihubungi',
+      Penawaran: 'Penawaran',
+      Negosiasi: 'Negosiasi',
       Order: 'Order',
-      Diterima: 'Accepted',
-      Ditolak: 'Rejected',
+      Diterima: 'Diterima',
+      Ditolak: 'Ditolak',
     },
     tahap,
   );
@@ -199,12 +220,12 @@ export function labelTahapPipeline(tahap: string): string {
 export function labelTahapPengajuan(tahap: string): string {
   return petakan(
     {
-      Masuk: 'Received',
-      Ditelaah: 'Under review',
-      'Menunggu Dokumen': 'Awaiting documents',
-      Disetujui: 'Approved',
-      Ditolak: 'Rejected',
-      Dikonversi: 'Converted',
+      Masuk: 'Masuk',
+      Ditelaah: 'Ditelaah',
+      'Menunggu Dokumen': 'Menunggu Dokumen',
+      Disetujui: 'Disetujui',
+      Ditolak: 'Ditolak',
+      Dikonversi: 'Dikonversi',
     },
     tahap,
   );
@@ -214,11 +235,11 @@ export function labelTahapPengajuan(tahap: string): string {
 export function labelJenisKlien(jenis: string): string {
   return petakan(
     {
-      Pemerintah: 'Government',
-      'BUMN/BUMD': 'State-Owned Enterprise',
-      Swasta: 'Private',
-      Perorangan: 'Individual',
-      'Lembaga/Organisasi': 'Institution / Organisation',
+      Pemerintah: 'Pemerintah',
+      'BUMN/BUMD': 'BUMN/BUMD',
+      Swasta: 'Swasta',
+      Perorangan: 'Perorangan',
+      'Lembaga/Organisasi': 'Lembaga/Organisasi',
     },
     jenis,
   );
@@ -228,20 +249,20 @@ export function labelJenisKlien(jenis: string): string {
 export function labelJenisDokumen(jenis: string): string {
   return petakan(
     {
-      'PKS (asli)': 'PKS (original)',
+      'PKS (asli)': 'PKS (asli)',
       NPWP: 'NPWP',
       'NIB/SIUP': 'NIB/SIUP',
-      'Surat Permohonan': 'Application Letter',
-      'Bukti Pembayaran': 'Proof of Payment',
-      'Berita Acara Serah Terima': 'Handover Minutes',
-      Kwitansi: 'Receipt',
-      'Bukti Siaran': 'Broadcast Proof',
+      'Surat Permohonan': 'Surat Permohonan',
+      'Bukti Pembayaran': 'Bukti Pembayaran',
+      'Berita Acara Serah Terima': 'Berita Acara Serah Terima',
+      Kwitansi: 'Kwitansi',
+      'Bukti Siaran': 'Bukti Siaran',
       // Varian jenis dokumen dari data impor (tidak ada di
       // MASTER_JENIS_DOKUMEN, tapi tampil di tabel dokumen & timeline).
-      'Billing Pembayaran': 'Payment Billing',
-      'Kwitansi Pembayaran': 'Payment Receipt',
-      'Surat Penagihan': 'Collection Letter',
-      'Permohonan Sewa': 'Lease Application',
+      'Billing Pembayaran': 'Billing Pembayaran',
+      'Kwitansi Pembayaran': 'Kwitansi Pembayaran',
+      'Surat Penagihan': 'Surat Penagihan',
+      'Permohonan Sewa': 'Permohonan Sewa',
     },
     jenis,
   );
@@ -249,7 +270,7 @@ export function labelJenisDokumen(jenis: string): string {
 
 /** Jenis PNBP: Fungsional / Umum. */
 export function labelJenisPnBP(jenis: string): string {
-  return petakan({ Fungsional: 'Functional', Umum: 'General' }, jenis);
+  return petakan({ Fungsional: 'Fungsional', Umum: 'Umum' }, jenis);
 }
 
 /** Kategori layanan (master + varian impor): nama layanan yang ditampilkan. */
@@ -257,20 +278,20 @@ export function labelKategoriLayanan(kategori: string): string {
   return petakan(
     {
       'Siaran Iklan (Spot/Jingle/Filler/Advetorial)':
-        'Advertising Broadcast (Spot/Jingle/Filler/Advertorial)',
+        'Siaran Iklan (Spot/Jingle/Filler/Advetorial)',
       'Ad-Lib / Jingle': 'Ad-Lib / Jingle',
-      'Sewa Lahan / BMN': 'Land / State Asset Lease (BMN)',
-      'Sewa Rumah Dinas': 'Official Residence Lease',
-      'Dukungan Layanan': 'Service Support',
-      'Nota Kesepahaman': 'Memorandum of Understanding',
+      'Sewa Lahan / BMN': 'Sewa Lahan / BMN',
+      'Sewa Rumah Dinas': 'Sewa Rumah Dinas',
+      'Dukungan Layanan': 'Dukungan Layanan',
+      'Nota Kesepahaman': 'Nota Kesepahaman',
       'Media Partner': 'Media Partner',
       // Kategori dari data impor (tidak ada di MASTER_KATEGORI_LAYANAN,
       // tapi tersimpan di kontrak/layanan dan tampil di Deals, Sales,
       // Lacak, dan MasterPage).
-      'Jasa Penyiaran': 'Broadcasting Services',
-      'Jasa Digitalisasi Penyiaran': 'Broadcast Digitalisation Services',
+      'Jasa Penyiaran': 'Jasa Penyiaran',
+      'Jasa Digitalisasi Penyiaran': 'Jasa Digitalisasi Penyiaran',
       'Jasa Penggunaan Sarana dan Prasarana Siaran':
-        'Use of Broadcast Facilities & Infrastructure',
+        'Jasa Penggunaan Sarana dan Prasarana Siaran',
     },
     kategori,
   );
@@ -285,7 +306,7 @@ export function labelTujuanTiket(tujuan: string): string {
   return petakan(
     {
       'Direktorat Layanan & Pengembangan Usaha':
-        'Directorate of Service & Business Development',
+        'Direktorat Layanan & Pengembangan Usaha',
     },
     tujuan,
   );
@@ -301,10 +322,10 @@ export function labelJabatan(jabatan: string): string {
   return petakan(
     {
       'Staf Layanan & Pengembangan Usaha':
-        'Service & Business Development Staff',
+        'Staf Layanan & Pengembangan Usaha',
       'Kepala Bidang Layanan & Pengembangan Usaha':
-        'Head of Service & Business Development Division',
-      'Staf Umum': 'General Affairs Staff',
+        'Kepala Bidang Layanan & Pengembangan Usaha',
+      'Staf Umum': 'Staf Umum',
     },
     jabatan,
   );
@@ -314,23 +335,23 @@ export function labelJabatan(jabatan: string): string {
 export function labelKategoriTiket(kategori: string): string {
   return petakan(
     {
-      'Tarif & Kode Akun PNBP': 'PNBP Tariffs & Account Codes',
-      'Prosedur Kerja Sama': 'Partnership Procedures',
-      'Kontrak & PKS': 'Contracts & PKS',
-      'Penagihan & Pembayaran': 'Billing & Payments',
-      'Sewa / BMN': 'Leases / State Assets (BMN)',
-      'Laporan PNBP': 'PNBP Reports',
-      Lainnya: 'Other',
+      'Tarif & Kode Akun PNBP': 'Tarif & Kode Akun PNBP',
+      'Prosedur Kerja Sama': 'Prosedur Kerja Sama',
+      'Kontrak & PKS': 'Kontrak & PKS',
+      'Penagihan & Pembayaran': 'Penagihan & Pembayaran',
+      'Sewa / BMN': 'Sewa / BMN',
+      'Laporan PNBP': 'Laporan PNBP',
+      Lainnya: 'Lainnya',
     },
     kategori,
   );
 }
 
-/** Tampilan Inggris untuk kategori dokumen Knowledge Base (nilai tersimpan tetap Indonesia). */
+/** Kategori dokumen Knowledge Base: Regulasi / SOP. */
 export function labelKategoriKB(kategori: string): string {
   return petakan(
     {
-      Regulasi: 'Regulation',
+      Regulasi: 'Regulasi',
       SOP: 'SOP',
     },
     kategori,
@@ -341,13 +362,13 @@ export function labelKategoriKB(kategori: string): string {
 export function labelSumberProspek(sumber: string): string {
   return petakan(
     {
-      Pengajuan: 'Submission',
-      Kunjungan: 'Visit',
-      Referensi: 'Referral',
+      Pengajuan: 'Pengajuan',
+      Kunjungan: 'Kunjungan',
+      Referensi: 'Referensi',
       Event: 'Event',
-      'Media Sosial': 'Social Media',
-      Telepon: 'Phone',
-      Lainnya: 'Other',
+      'Media Sosial': 'Media Sosial',
+      Telepon: 'Telepon',
+      Lainnya: 'Lainnya',
     },
     sumber,
   );
@@ -356,7 +377,7 @@ export function labelSumberProspek(sumber: string): string {
 /** Metode pembayaran (master): Transfer Bank / Tunai / QRIS. */
 export function labelMetodePembayaran(metode: string): string {
   return petakan(
-    { 'Transfer Bank': 'Bank Transfer', Tunai: 'Cash', QRIS: 'QRIS' },
+    { 'Transfer Bank': 'Transfer Bank', Tunai: 'Tunai', QRIS: 'QRIS' },
     metode,
   );
 }
@@ -365,11 +386,11 @@ export function labelMetodePembayaran(metode: string): string {
 export function labelUraianKodeAkun(uraian: string): string {
   return petakan(
     {
-      'PNBP Umum': 'General PNBP',
-      'PNBP Fungsional': 'Functional PNBP',
-      'Denda Keterlambatan': 'Late Payment Fine',
-      'Sarana Prasarana Sesuai Tusi': 'Facilities per Duties & Functions',
-      'Penjualan Peralatan / Mesin': 'Equipment / Machinery Sales',
+      'PNBP Umum': 'PNBP Umum',
+      'PNBP Fungsional': 'PNBP Fungsional',
+      'Denda Keterlambatan': 'Denda Keterlambatan',
+      'Sarana Prasarana Sesuai Tusi': 'Sarana Prasarana Sesuai Tusi',
+      'Penjualan Peralatan / Mesin': 'Penjualan Peralatan / Mesin',
     },
     uraian,
   );
@@ -382,10 +403,10 @@ export function labelUraianKodeAkun(uraian: string): string {
 export function labelUmurPiutang(umur: string): string {
   return petakan(
     {
-      'Belum jatuh tempo': 'Not yet due',
-      '1–30 hari': '1–30 days',
-      '31–60 hari': '31–60 days',
-      'Lebih dari 60 hari': 'More than 60 days',
+      'Belum jatuh tempo': 'Belum jatuh tempo',
+      '1–30 hari': '1–30 hari',
+      '31–60 hari': '31–60 hari',
+      'Lebih dari 60 hari': 'Lebih dari 60 hari',
     },
     umur,
   );
@@ -399,40 +420,40 @@ export function labelUmurPiutang(umur: string): string {
 export function labelAksiAudit(aksi: string): string {
   return petakan(
     {
-      'Klien dicatat': 'Client recorded',
-      'Kontrak dicatat': 'Contract recorded',
-      'Atribusi kontrak diubah': 'Contract attribution changed',
-      'Status dokumen diubah': 'Document status changed',
-      'Pembayaran dicatat': 'Payment recorded',
-      'Pembayaran diverifikasi': 'Payment verified',
-      'Denda dicatat (manual)': 'Late fee recorded (manual)',
-      'Pengajuan dicatat': 'Submission recorded',
-      'Tahap pengajuan diubah': 'Submission stage changed',
+      'Klien dicatat': 'Klien dicatat',
+      'Kontrak dicatat': 'Kontrak dicatat',
+      'Atribusi kontrak diubah': 'Atribusi kontrak diubah',
+      'Status dokumen diubah': 'Status dokumen diubah',
+      'Pembayaran dicatat': 'Pembayaran dicatat',
+      'Pembayaran diverifikasi': 'Pembayaran diverifikasi',
+      'Denda dicatat (manual)': 'Denda dicatat (manual)',
+      'Pengajuan dicatat': 'Pengajuan dicatat',
+      'Tahap pengajuan diubah': 'Tahap pengajuan diubah',
       'Pengajuan dikonversi menjadi kontrak':
-        'Submission converted into a contract',
-      'Submission portal disetujui': 'Portal submission approved',
-      'Submission portal ditolak': 'Portal submission rejected',
-      'Prospek dicatat': 'Prospect recorded',
-      'Tahap prospek diubah': 'Prospect stage changed',
-      'Tindak lanjut dicatat': 'Follow-up recorded',
-      'Quotation dibuat': 'Quotation created',
-      'Status quotation diubah': 'Quotation status changed',
-      'Order dibuat': 'Order created',
-      'Status order diubah': 'Order status changed',
-      'Order dikonversi menjadi kontrak': 'Order converted into a contract',
-      'Meeting dijadwalkan': 'Meeting scheduled',
-      'Event dicatat': 'Event recorded',
-      'Advertisement dicatat': 'Advertisement recorded',
-      'Tugas dicatat': 'Task recorded',
-      'Status tugas diubah': 'Task status changed',
-      'Disposisi dibuat': 'Disposition created',
-      'Disposisi ditutup': 'Disposition closed',
-      'Tiket Bantuan dibuat': 'Support ticket created',
-      'Tiket Bantuan dijawab': 'Support ticket answered',
-      'Status tiket diubah': 'Ticket status changed',
-      'Survei kepuasan dicatat': 'Satisfaction survey recorded',
-      'Dokumen Knowledge Base ditambah': 'Knowledge Base document added',
-      'Temuan lapangan dicatat': 'Field finding recorded',
+        'Pengajuan dikonversi menjadi kontrak',
+      'Submission portal disetujui': 'Submission portal disetujui',
+      'Submission portal ditolak': 'Submission portal ditolak',
+      'Prospek dicatat': 'Prospek dicatat',
+      'Tahap prospek diubah': 'Tahap prospek diubah',
+      'Tindak lanjut dicatat': 'Tindak lanjut dicatat',
+      'Quotation dibuat': 'Quotation dibuat',
+      'Status quotation diubah': 'Status quotation diubah',
+      'Order dibuat': 'Order dibuat',
+      'Status order diubah': 'Status order diubah',
+      'Order dikonversi menjadi kontrak': 'Order dikonversi menjadi kontrak',
+      'Meeting dijadwalkan': 'Meeting dijadwalkan',
+      'Event dicatat': 'Event dicatat',
+      'Advertisement dicatat': 'Advertisement dicatat',
+      'Tugas dicatat': 'Tugas dicatat',
+      'Status tugas diubah': 'Status tugas diubah',
+      'Disposisi dibuat': 'Disposisi dibuat',
+      'Disposisi ditutup': 'Disposisi ditutup',
+      'Tiket Bantuan dibuat': 'Tiket Bantuan dibuat',
+      'Tiket Bantuan dijawab': 'Tiket Bantuan dijawab',
+      'Status tiket diubah': 'Status tiket diubah',
+      'Survei kepuasan dicatat': 'Survei kepuasan dicatat',
+      'Dokumen Knowledge Base ditambah': 'Dokumen Knowledge Base ditambah',
+      'Temuan lapangan dicatat': 'Temuan lapangan dicatat',
     },
     aksi,
   );
@@ -442,25 +463,25 @@ export function labelAksiAudit(aksi: string): string {
 export function labelEntitasAudit(entitas: string): string {
   return petakan(
     {
-      Klien: 'Client',
-      Kontrak: 'Contract',
-      Dokumen: 'Document',
-      Pembayaran: 'Payment',
-      Denda: 'Late Fee',
-      Pengajuan: 'Submission',
-      'Pengajuan Klien': 'Client Submission',
-      Prospek: 'Prospect',
+      Klien: 'Klien',
+      Kontrak: 'Kontrak',
+      Dokumen: 'Dokumen',
+      Pembayaran: 'Pembayaran',
+      Denda: 'Denda',
+      Pengajuan: 'Pengajuan',
+      'Pengajuan Klien': 'Pengajuan Klien',
+      Prospek: 'Prospek',
       Quotation: 'Quotation',
       Order: 'Order',
       Meeting: 'Meeting',
       Event: 'Event',
       Advertisement: 'Advertisement',
-      Tugas: 'Task',
-      Disposisi: 'Disposition',
-      Tiket: 'Ticket',
-      'Umpan Balik': 'Feedback',
+      Tugas: 'Tugas',
+      Disposisi: 'Disposisi',
+      Tiket: 'Tiket',
+      'Umpan Balik': 'Umpan Balik',
       'Knowledge Base': 'Knowledge Base',
-      Sewa: 'Lease',
+      Sewa: 'Sewa',
     },
     entitas,
   );

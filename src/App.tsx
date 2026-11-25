@@ -338,18 +338,18 @@ const MODULES: NavItem[] = [
   },
   {
     id: 'sales',
-    label: 'Sales',
+    label: 'Penjualan',
     icon: Briefcase,
     phase: 'B',
     // TIDAK tampil di sidebar (16/11/2026, PR #43): dihapus dari
     // CLUSTER_SIDEBAR atas instruksi pengguna "buang navigasi sales".
     // Modul + semua tab/komponen + datanya tetap utuh, dipakai ulang
     // menu Prospect, Offer, Order, Meeting.
-    description: 'Pipeline, Quotation.',
+    description: 'Alur penjualan, penawaran.',
   },
   {
     id: 'sewa',
-    label: 'Lease / State Assets (BMN)',
+    label: 'Sewa / BMN',
     icon: Building2,
     phase: 'A',
     // TIDAK punya induk dan TIDAK tampil di sidebar (15/11/2026,
@@ -358,18 +358,18 @@ const MODULES: NavItem[] = [
     // 20:59 WIB). Modul + datanya tetap utuh, dibuka lewat
     // notifikasi ("Lease expiring soon" bernavigasi ke modul ini).
     description:
-      'One lease list (Partnership Details → General PNBP): All, ON GOING, Expiring Soon, New Applications, Received in Advance, Still Receivable, Field Findings, Indralaya.',
+      'Satu daftar sewa (Detail Kerja Sama → PNBP Umum): All, ON GOING, Expiring Soon, New Applications, Received in Advance, Still Receivable, Field Findings, Indralaya.',
   },
   {
     id: 'deals',
-    label: 'Deals',
+    label: 'Kerja Sama',
     icon: Handshake,
     phase: 'A',
     // TIDAK tampil di sidebar (15/11/2026, PR #40): dihapus dari
     // CLUSTER_SIDEBAR — modul + datanya tetap utuh, dibuka lewat
     // notifikasi ("Missing document" bernavigasi ke modul ini).
     description:
-      'Clients, Partnership Details (Functional PNBP, General PNBP, Service Support, Memorandum of Understanding, Media Partner), Contracts, Documents.',
+      'Klien, Detail Kerja Sama (PNBP Fungsional, PNBP Umum, Dukungan Layanan, Nota Kesepahaman, Media Partner), Kontrak, Dokumen.',
   },
   {
     id: 'marketing',
@@ -415,14 +415,14 @@ const MODULES: NavItem[] = [
   },
   {
     id: 'pengajuan',
-    label: 'Submission',
+    label: 'Pengajuan',
     icon: FilePlus2,
     phase: 'A',
     // TIDAK punya induk (15/11/2026): dihapus dari panel 'sales' atas
     // instruksi pengguna — modul + data tetap utuh, dibuka lewat
     // notifikasi; tidak tampil di sidebar (tidak ada di CLUSTER_SIDEBAR).
     description:
-      'New Submissions (new partnership / new lease): Received → Under review → Awaiting documents → Approved/Rejected → Converted to contract.',
+      'Pengajuan baru (kerja sama baru / sewa baru): Masuk → Ditelaah → Menunggu Dokumen → Disetujui/Ditolak → Dikonversi menjadi kontrak.',
   },
   {
     id: 'dashboard',
@@ -1616,7 +1616,7 @@ export default function App() {
         if (l.jumlah <= 0) return `Service quantity on line ${i + 1} must be more than 0.`;
       }
       const kategori = MASTER_KATEGORI_LAYANAN.find((k) => k.nama === input.kategoriLayanan);
-      if (!kategori) return `Service category "${labelKategoriLayanan(input.kategoriLayanan)}" is not recognised.`;
+      if (!kategori) return `Kategori layanan "${labelKategoriLayanan(input.kategoriLayanan)}" tidak dikenal.`;
       const layanan: LayananKontrak[] = input.layanan.map((l, i) => {
         const kat = MASTER_KATEGORI_LAYANAN.find((k) => k.nama === l.kategori);
         return {
@@ -2221,23 +2221,23 @@ export default function App() {
     },
 
     ubahTahapProspect: (prospect: Prospect, tahap: TahapPipeline, catatan: string) => {
-      if (!catatan.trim()) return 'A stage-change note is required.';
+      if (!catatan.trim()) return 'Catatan perubahan tahap wajib diisi.';
       if (!MASTER_TAHAP_PIPELINE.includes(tahap)) {
-        return `Stage "${tahap}" is not recognised.`;
+        return `Tahap "${tahap}" tidak dikenal.`;
       }
       if (prospect.tahap === tahap) {
-        return 'The prospect is already at that stage.';
+        return 'Prospek sudah berada di tahap itu.';
       }
       if (prospect.tahap === 'Diterima' || prospect.tahap === 'Ditolak') {
-        return `A prospect at the ${labelTahapPipeline(prospect.tahap)} stage is final and cannot be moved.`;
+        return `Prospek pada tahap ${labelTahapPipeline(prospect.tahap)} sudah final dan tidak bisa dipindah.`;
       }
       // Tahap 'Order' dan 'Diterima' dicapai otomatis lewat tambahOrder /
       // konversiOrder, bukan pindah manual (supaya jejak tetap konsisten).
       if (tahap === 'Order') {
-        return 'The Order stage is reached automatically when an order is created from an approved quotation.';
+        return 'Tahap Order tercapai otomatis saat order dibuat dari quotation yang disetujui.';
       }
       if (tahap === 'Diterima') {
-        return 'The Accepted stage can only be reached by converting an order into a contract.';
+        return 'Tahap Diterima hanya bisa dicapai dengan mengonversi order menjadi kontrak.';
       }
       setData((d) => ({
         ...d,
@@ -2576,7 +2576,7 @@ export default function App() {
         Dibatalkan: [],
       };
       if (!sah[order.status].includes(status)) {
-        return `Order status cannot be changed from ${labelStatusOrder(order.status)} to ${labelStatusOrder(status)}.`;
+        return `Status order tidak bisa diubah dari ${labelStatusOrder(order.status)} ke ${labelStatusOrder(status)}.`;
       }
       setData((d) => ({
         ...d,
