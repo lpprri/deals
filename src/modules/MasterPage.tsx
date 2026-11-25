@@ -58,6 +58,12 @@ import type {
   KemajuanMigrasiCommitment,
   TahapMigrasiCommitment,
 } from '../lib/migrasiCommitment';
+import { JUMLAH_APPROVEMENT_SEED } from '../lib/migrasiApprovementRencana';
+import type {
+  HasilMigrasiApprovement,
+  KemajuanMigrasiApprovement,
+  TahapMigrasiApprovement,
+} from '../lib/migrasiApprovement';
 import { HITUNGAN_BACKFILL_DIHARAPKAN } from '../lib/backfillKlienIdRencana';
 import type {
   HasilBackfillKlienId,
@@ -185,6 +191,18 @@ export interface MasterPageProps extends ModulProps {
   statusMigrasiCommitment?: 'belum' | 'sudah' | 'tidak-tersedia';
   /** Tanggal migrasi Commitment (bila diketahui dari luar sesi ini). */
   tanggalMigrasiCommitment?: string;
+  /**
+   * Dipanggil saat tombol jalankan migrasi Approvement diklik, dengan
+   * callback progres per tahap. Koordinator menyambungkannya ke
+   * `jalankanMigrasiApprovement` (src/lib/migrasiApprovement.ts).
+   */
+  onMigrasiApprovement?: (
+    onKemajuan?: (k: KemajuanMigrasiApprovement) => void,
+  ) => Promise<HasilMigrasiApprovement>;
+  /** Status migrasi Approvement dari Firestore (dokumen meta/migrasi-approvement-2026). */
+  statusMigrasiApprovement?: 'belum' | 'sudah' | 'tidak-tersedia';
+  /** Tanggal migrasi Approvement (bila diketahui dari luar sesi ini). */
+  tanggalMigrasiApprovement?: string;
   /**
    * Daftar record klien untuk kartu undang akun (dua peran 19/11/2026)
    * — id, nama, email, dan penanda akun sudah dibuat. Dipakai memilih
@@ -1041,6 +1059,152 @@ function BagianMigrasiCommitment({
   );
 }
 
+const LABEL_TAHAP_MIGRASI_APPROVEMENT: Record<TahapMigrasiApprovement, string> = {
+  guard: 'Memeriksa status migrasi Media Partner…',
+  'baca-live': 'Membaca data Media Partner live…',
+  prakondisi: 'Memeriksa prakondisi…',
+  tulis: 'Menulis dokumen Media Partner…',
+  verifikasi: 'Memverifikasi data baru…',
+  audit: 'Menulis catatan audit…',
+  selesai: 'Selesai.',
+};
+
+/**
+ * Bagian "Migrasi Data Media Partner" — menulis 4 record Approvement
+ * dari seed (src/lib/seedApprovement.ts, 4 surat persetujuan dummy
+ * Kepala RRI) ke koleksi `approvement` di Firestore. SATU koleksi
+ * saja: tidak ada yang dihapus, koleksi lain TIDAK disentuh, dan total
+ * kontrak PNBP tidak berubah. Sekali jalan, dengan prakondisi (live
+ * `approvement` harus 0) dan verifikasi sebelum selesai.
+ */
+function BagianMigrasiApprovement({
+  onMigrasiApprovement,
+  statusMigrasiApprovement,
+  tanggalMigrasiApprovement,
+}: {
+  onMigrasiApprovement?: (
+    onKemajuan?: (k: KemajuanMigrasiApprovement) => void,
+  ) => Promise<HasilMigrasiApprovement>;
+  statusMigrasiApprovement: 'belum' | 'sudah' | 'tidak-tersedia';
+  tanggalMigrasiApprovement?: string;
+}) {
+  const [setuju, setSetuju] = useState(false);
+  const [proses, setProses] = useState(false);
+  const [kemajuan, setKemajuan] = useState<KemajuanMigrasiApprovement | null>(null);
+  const [hasil, setHasil] = useState<HasilMigrasiApprovement | null>(null);
+  const [galat, setGalat] = useState<string | null>(null);
+
+  const sudah = statusMigrasiApprovement === 'sudah' || hasil !== null;
+
+  async function tanganiMigrasiApprovement() {
+    if (!onMigrasiApprovement || proses || sudah || !setuju) return;
+    setProses(true);
+    setGalat(null);
+    setKemajuan(null);
+    try {
+      const r = await onMigrasiApprovement((k) => setKemajuan(k));
+      setHasil(r);
+    } catch (e) {
+      setGalat(
+        e instanceof Error
+          ? e.message
+          : 'Migrasi Media Partner gagal. Coba lagi.',
+      );
+    } finally {
+      setProses(false);
+    }
+  }
+
+  return (
+    <Kartu>
+      <JudulBagian>Migrasi Data Media Partner</JudulBagian>
+      {statusMigrasiApprovement === 'tidak-tersedia' ? (
+        <p className="mt-2 text-sm text-[#0d2569]/70">
+          Migrasi Media Partner hanya berjalan di data Firestore live.
+          Buka halaman ini setelah masuk saat aplikasi dalam mode Firestore. Di mode contoh, data sudah berasal dari seed baru.
+        </p>
+      ) : sudah ? (
+        <p className="mt-2 text-sm text-[#0d2569]/70">
+          Sudah dimigrasi pada{' '}
+          {hasil
+            ? formatTanggalIso(hasil.tanggal)
+            : tanggalMigrasiApprovement
+              ? formatTanggalIso(tanggalMigrasiApprovement)
+              : 'tanggal yang tercatat'}
+          . Migrasi Media Partner hanya bisa dilakukan sekali.
+        </p>
+      ) : (
+        <>
+          <p className="mt-2 text-sm text-[#0d2569]/70">
+            Menulis {JUMLAH_APPROVEMENT_SEED} record Media Partner dari
+            seed surat persetujuan ke koleksi `approvement` di Firestore.
+            Tidak ada yang dihapus, tidak ada koleksi lain yang disentuh,
+            dan total kontrak PNBP tidak berubah. Sebelum menulis apa
+            pun, migrasi memeriksa bahwa koleksi `approvement` live masih
+            kosong; migrasi hanya bisa dilakukan sekali.
+          </p>
+          <label className="mt-3 flex items-start gap-2 text-sm text-[#0d2569]">
+            <input
+              type="checkbox"
+              checked={setuju}
+              onChange={(e) => setSetuju(e.target.checked)}
+              disabled={proses}
+              className="mt-0.5"
+            />
+            <span>
+              Saya paham ini menulis {JUMLAH_APPROVEMENT_SEED} dokumen
+              Media Partner baru ke Firestore. Ini tidak bisa dibatalkan
+              dari aplikasi.
+            </span>
+          </label>
+          <div className="mt-3">
+            <TombolUtama
+              onClick={tanganiMigrasiApprovement}
+              disabled={proses || !setuju || !onMigrasiApprovement}
+            >
+              {proses ? 'Memigrasi Media Partner…' : 'Jalankan migrasi Media Partner'}
+            </TombolUtama>
+          </div>
+        </>
+      )}
+
+      {(proses || kemajuan) && !hasil && (
+        <div className="mt-3">
+          <p className="text-sm font-semibold text-[#0d2569]">
+            {kemajuan
+              ? LABEL_TAHAP_MIGRASI_APPROVEMENT[kemajuan.tahap]
+              : 'Memulai…'}
+          </p>
+        </div>
+      )}
+
+      {galat && (
+        <div className="mt-3">
+          <Peringatan teks={galat} />
+          {kemajuan && (
+            <p className="mt-2 text-sm text-[#0d2569]/70">
+              Berhenti di: {LABEL_TAHAP_MIGRASI_APPROVEMENT[kemajuan.tahap]}.
+              Jangan dijalankan lagi. Laporkan ke Digi dengan pesan di atas.
+            </p>
+          )}
+        </div>
+      )}
+
+      {hasil && (
+        <div className="mt-3">
+          <p className="text-sm font-semibold text-[#0d2569]">
+            Migrasi Media Partner berhasil pada{' '}
+            {formatTanggalIso(hasil.tanggal)}. Record Media Partner live:{' '}
+            {hasil.sebelum.jumlahApprovement} →{' '}
+            {hasil.sesudah.jumlahApprovement}. Periksa panel Media Partner
+            di mode Firestore.
+          </p>
+        </div>
+      )}
+    </Kartu>
+  );
+}
+
 const LABEL_TAHAP_BACKFILL_KLIENID: Record<TahapBackfillKlienId, string> = {
   guard: 'Memeriksa status backfill…',
   'baca-live': 'Membaca data live…',
@@ -1613,6 +1777,9 @@ export default function MasterPage(props: MasterPageProps) {
     onMigrasiCommitment,
     statusMigrasiCommitment = 'tidak-tersedia',
     tanggalMigrasiCommitment,
+    onMigrasiApprovement,
+    statusMigrasiApprovement = 'tidak-tersedia',
+    tanggalMigrasiApprovement,
     daftarKlien,
     onUndangKlien,
     onBuatAkunInternal,
@@ -1656,6 +1823,12 @@ export default function MasterPage(props: MasterPageProps) {
         onMigrasiCommitment={onMigrasiCommitment}
         statusMigrasiCommitment={statusMigrasiCommitment}
         tanggalMigrasiCommitment={tanggalMigrasiCommitment}
+      />
+
+      <BagianMigrasiApprovement
+        onMigrasiApprovement={onMigrasiApprovement}
+        statusMigrasiApprovement={statusMigrasiApprovement}
+        tanggalMigrasiApprovement={tanggalMigrasiApprovement}
       />
 
       <BagianBackfillKlienId

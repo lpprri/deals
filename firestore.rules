@@ -422,12 +422,27 @@ service cloud.firestore {
       allow update, delete: if false;
     }
 
+    // ---------- Penanda migrasi Approvement: hanya boleh dibuat sekali ----------
+    // Migrasi Approvement (src/lib/migrasiApprovement.ts, surat
+    // persetujuan Media Partner 24/11/2026, PR #156) menulis 4 record
+    // ke koleksi `approvement` dari seed (src/lib/seedApprovement.ts).
+    // Penanda ini dibuat sekali; bila sudah ada, create ditolak.
+    // Terpisah dari `meta/migrasi`, `meta/migrasi-kontrak-2026`,
+    // `meta/migrasi-mou-2026`, dan `meta/migrasi-commitment-2026`.
+    match /meta/migrasi-approvement-2026 {
+      allow read: if adalahStafInternal();
+      allow create: if adalahAdmin()
+        && !exists(/databases/$(database)/documents/meta/migrasi-approvement-2026);
+      allow update, delete: if false;
+    }
+
     // ---------- Penanda backfill klienId: hanya boleh dibuat sekali ----------
     // Backfill klienId (src/lib/backfillKlienId.ts, dua peran 19/11/2026)
     // menambah field `klienId` ke tagihan/pembayaran/denda/dokumen/MoU
     // live. Penanda ini dibuat sekali; bila sudah ada, create ditolak.
     // Terpisah dari `meta/migrasi`, `meta/migrasi-kontrak-2026`,
-    // `meta/migrasi-mou-2026`, dan `meta/migrasi-commitment-2026`.
+    // `meta/migrasi-mou-2026`, `meta/migrasi-commitment-2026`, dan
+    // `meta/migrasi-approvement-2026`.
     match /meta/backfill-klienId-2026 {
       allow read: if adalahStafInternal();
       allow create: if adalahAdmin()

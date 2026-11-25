@@ -10,8 +10,11 @@
 // - Total kontrak PNBP TIDAK berubah: 42 kontrak, Rp441.863.375.
 // - firestore.rules: koleksi `approvement` di allowlist operator
 //   (read/create/update/delete) + hitungan koleksi bersatker 22.
-// - Belum ada migrasi Approvement / penanda meta — migrasi adalah
-//   langkah terpisah setelah PR ini merge (tidak diasersi di sini).
+// - Migrasi Approvement: migrasiApprovement.ts +
+//   migrasiApprovementRencana.ts (guard meta/migrasi-approvement-2026,
+//   sekali jalan, hanya bila live kosong), kartu "Migrasi Data Media
+//   Partner" di Master & Users, blok guard di firestore.rules
+//   (publish rules dulu sebelum menjalankan migrasi).
 // Keluar bukan-nol bila ada asersi gagal.
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
@@ -19,6 +22,17 @@ import { DATA_NYATA } from '../src/lib/seedNyata';
 import { DATA_CONTOH } from '../src/lib/sampleData';
 import { KOLEKSI } from '../src/lib/firestoreStore';
 import { TOTAL_KONTROL_KONTRAK } from '../src/lib/migrasiCommitmentRencana';
+import {
+  ID_GUARD_MIGRASI_APPROVEMENT,
+  ID_GUARD_MIGRASI_COMMITMENT,
+  ID_GUARD_MIGRASI_MOU,
+  ID_GUARD_MIGRASI_PERTAMA,
+  ID_GUARD_REMIGRASI_KONTRAK,
+  JUMLAH_APPROVEMENT_SEED,
+  KOLEKSI_MIGRASI_APPROVEMENT,
+  periksaPrakondisiApprovement,
+  verifikasiHasilApprovement,
+} from '../src/lib/migrasiApprovementRencana';
 
 // Dijalankan dari root repo — berkas dibaca saat runtime, jadi path
 // diambil dari cwd, bukan dari lokasi bundle.
@@ -27,6 +41,9 @@ const baca = (relatif: string) =>
 const kerjaSama = baca('src/modules/KerjaSama.tsx');
 const rules = baca('firestore.rules');
 const types = baca('src/lib/types.ts');
+const migrasiApprovement = baca('src/lib/migrasiApprovement.ts');
+const master = baca('src/modules/MasterPage.tsx');
+const app = baca('src/App.tsx');
 
 let gagal = 0;
 const cek = (nama: string, lolos: boolean, detail = '') => {
@@ -205,6 +222,140 @@ cek(
 cek(
   'rules TIDAK memberi akses baca client ke approvement (tanpa klienId)',
   !rules.includes('match /approvement/{id} {'),
+);
+
+// ---------- rencana migrasi Approvement ----------
+cek(
+  "guard migrasi Approvement bernama 'migrasi-approvement-2026'",
+  ID_GUARD_MIGRASI_APPROVEMENT === 'migrasi-approvement-2026',
+  ID_GUARD_MIGRASI_APPROVEMENT,
+);
+cek(
+  'guard Approvement BERBEDA dari guard migrasi pertama, re-migrasi kontrak, MoU, dan Commitment',
+  new Set([
+    ID_GUARD_MIGRASI_APPROVEMENT,
+    ID_GUARD_MIGRASI_PERTAMA,
+    ID_GUARD_REMIGRASI_KONTRAK,
+    ID_GUARD_MIGRASI_MOU,
+    ID_GUARD_MIGRASI_COMMITMENT,
+  ]).size === 5,
+);
+cek(
+  "cakupan migrasi Approvement PERSIS ['approvement']",
+  KOLEKSI_MIGRASI_APPROVEMENT.length === 1 &&
+    KOLEKSI_MIGRASI_APPROVEMENT[0] === 'approvement',
+  KOLEKSI_MIGRASI_APPROVEMENT.join(','),
+);
+cek(
+  'JUMLAH_APPROVEMENT_SEED 4 dan cocok dengan seed',
+  JUMLAH_APPROVEMENT_SEED === 4 && approvement.length === JUMLAH_APPROVEMENT_SEED,
+  `${JUMLAH_APPROVEMENT_SEED}`,
+);
+cek(
+  'prakondisi migrasi Approvement: live 0 lolos, live >0 batal (hanya jika kosong)',
+  periksaPrakondisiApprovement(0).length === 0 &&
+    periksaPrakondisiApprovement(1).length > 0 &&
+    periksaPrakondisiApprovement(4).length > 0,
+);
+cek(
+  'verifikasi hasil migrasi Approvement lolos pada seed (approvement + kontrak)',
+  verifikasiHasilApprovement({
+    approvement: DATA_NYATA.approvement,
+    kontrak: DATA_NYATA.kontrak,
+  }).length === 0,
+  verifikasiHasilApprovement({
+    approvement: DATA_NYATA.approvement,
+    kontrak: DATA_NYATA.kontrak,
+  }).join(' '),
+);
+cek(
+  'verifikasi hasil migrasi Approvement gagal bila 1 record hilang',
+  verifikasiHasilApprovement({
+    approvement: DATA_NYATA.approvement.slice(1),
+    kontrak: DATA_NYATA.kontrak,
+  }).length > 0,
+);
+cek(
+  'verifikasi hasil migrasi Approvement gagal bila nilai kompensasi APR-04 salah',
+  verifikasiHasilApprovement({
+    approvement: DATA_NYATA.approvement.map((a) =>
+      a.id === 'APR-04' ? { ...a, nilaiKompensasi: 0 } : a,
+    ),
+    kontrak: DATA_NYATA.kontrak,
+  }).length > 0,
+);
+cek(
+  'verifikasi hasil migrasi Approvement gagal bila kontrak berubah',
+  verifikasiHasilApprovement({
+    approvement: DATA_NYATA.approvement,
+    kontrak: DATA_NYATA.kontrak.slice(1),
+  }).length > 0,
+);
+
+// ---------- modul migrasi Approvement ----------
+cek(
+  'migrasiApprovement.ts memakai seed APPROVEMENT_DUMMY (bukan DATA_NYATA)',
+  migrasiApprovement.includes("from './seedApprovement'") &&
+    migrasiApprovement.includes('APPROVEMENT_DUMMY') &&
+    !migrasiApprovement.includes('DATA_NYATA'),
+);
+cek(
+  'migrasiApprovement.ts punya cekSudah + bacaStatus + jalankan',
+  migrasiApprovement.includes('cekSudahMigrasiApprovement') &&
+    migrasiApprovement.includes('bacaStatusMigrasiApprovement') &&
+    migrasiApprovement.includes('jalankanMigrasiApprovement'),
+);
+cek(
+  'migrasiApprovement.ts menulis guard di batch terakhir + satu entri audit',
+  migrasiApprovement.includes('batch.set(refGuard') &&
+    migrasiApprovement.includes("buatEntriAudit(") &&
+    migrasiApprovement.includes("'Migrasi Data Media Partner'"),
+);
+
+// ---------- rules: blok guard meta/migrasi-approvement-2026 ----------
+cek(
+  'rules blok guard meta/migrasi-approvement-2026 ada (match + create sekali + !exists)',
+  rules.includes('match /meta/migrasi-approvement-2026 {') &&
+    rules.includes(
+      '!exists(/databases/$(database)/documents/meta/migrasi-approvement-2026)',
+    ),
+);
+cek(
+  "rules 'migrasi-approvement-2026' muncul PERSIS 3x (match + !exists + komentar backfill) — blok Approvement TIDAK menyebut dirinya sendiri di daftar Terpisah",
+  (rules.match(/migrasi-approvement-2026/g) ?? []).length === 3,
+  `${(rules.match(/migrasi-approvement-2026/g) ?? []).length}x`,
+);
+cek(
+  'rules blok guard Approvement sesudah blok Commitment dan sebelum blok backfill (batas blok utuh)',
+  rules.indexOf('match /meta/migrasi-commitment-2026 {') <
+    rules.indexOf('match /meta/migrasi-approvement-2026 {') &&
+    rules.indexOf('match /meta/migrasi-approvement-2026 {') <
+      rules.indexOf('match /meta/backfill-klienId-2026 {'),
+);
+cek(
+  'rules komentar backfill mencantumkan guard Approvement',
+  rules.includes(
+    '`meta/migrasi-commitment-2026`, dan\n    // `meta/migrasi-approvement-2026`.',
+  ),
+);
+
+// ---------- wiring UI migrasi Approvement ----------
+cek(
+  'App.tsx memasang handler + status migrasi Approvement',
+  app.includes('tanganiMigrasiApprovement') &&
+    app.includes('onMigrasiApprovement={tanganiMigrasiApprovement}') &&
+    app.includes('statusMigrasiApprovement'),
+);
+cek(
+  'MasterPage memuat kartu migrasi Approvement (judul + tombol Indonesia)',
+  master.includes('BagianMigrasiApprovement') &&
+    master.includes('Migrasi Data Media Partner') &&
+    master.includes('Jalankan migrasi Media Partner'),
+);
+cek(
+  'MasterPage kartu Approvement dirender sesudah kartu Commitment',
+  master.indexOf('<BagianMigrasiCommitment') <
+    master.indexOf('<BagianMigrasiApprovement'),
 );
 
 if (gagal > 0) {
