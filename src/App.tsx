@@ -645,7 +645,8 @@ export default function App() {
     null,
   );
   /** Sidebar bisa dilipat ke rel ikon saja — status disimpan di localStorage
-      (pola sama seperti 'rri-bahasa-landing' di Beranda.tsx). */
+      (baca sekali di inisialisasi state, tulis di useEffect, try/catch
+      untuk mode privat — pola yang sama dipakai penyimpanan pilihan bahasa). */
   const [sidebarCiut, setSidebarCiut] = useState<boolean>(() => {
     try {
       return localStorage.getItem('rri-sidebar-ciut') === '1';
@@ -1265,9 +1266,9 @@ export default function App() {
   if (!user) {
     if (halamanPublik === 'beranda') {
       // Landing page tiruan template Marklo (PR landing-marklo-clone).
-      // Komponen landing lama (Beranda.tsx + landing/*) tetap di repo,
-      // tidak dipakai di route `/` untuk sementara — putaran penyesuaian
-      // akan mengintegrasikan kembali Ajukan/statistik live/dua bahasa;
+      // Landing lama (Beranda.tsx + landing/* + landingI18n.ts) DIHAPUS
+      // 2026-11-22 atas permintaan pengguna — Marklo tetap jadi landing
+      // (keputusan T1 dual bahasa); dual bahasa dibangun di atas Marklo;
       // Lacak: halaman publik tetap ada (state 'lacak' + modul Lacak),
       // tapi sejak 2026-11-21 17:57 WIB tidak ada lagi tombol masuk dari
       // landing — kolom footer "Client Portal" ("Track your Deal") DIHAPUS

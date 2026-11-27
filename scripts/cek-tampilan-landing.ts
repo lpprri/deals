@@ -2,8 +2,9 @@
 // (PR landing-marklo-clone, route `/`).
 // Asersi:
 // - Route `/` (belum login, halamanPublik 'beranda') me-render
-//   MarkloLanding dengan tombol Login; Beranda lama TIDAK dipakai di
-//   App.tsx tetapi filenya TETAP ADA di repo (tidak dihapus).
+//   MarkloLanding dengan tombol Login; landing lama (Beranda +
+//   landing/* + landingI18n.ts) DIHAPUS 2026-11-22 atas permintaan
+//   pengguna — Marklo tetap jadi landing.
 // - Semua section template ada: header, hero, carousel kampanye,
 //   pernyataan, statistik (counter), process, services funnel,
 //   comparison, why-marketing, booking konsultasi, testimonials,
@@ -91,7 +92,7 @@
 //   menggeser tampilan jam (offsetMenit - 420).
 // Skrip ini membaca berkas sebagai teks. Keluar bukan-nol bila ada
 // asersi gagal.
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { KOTA_SATKER_MARKLO, ZONA_WAKTU_MARKLO } from '../src/lib/landingMarklo';
 
@@ -128,10 +129,7 @@ const logoLayanan = baca('src/lib/logoLayanan.ts');
 const css = baca('src/index.css');
 const firestoreStore = baca('src/lib/firestoreStore.ts');
 const rules = baca('firestore.rules');
-const berandaLama = baca('src/modules/Beranda.tsx');
-const layananLama = baca('src/modules/landing/Layanan.tsx');
-const kolaborasiLama = baca('src/modules/landing/Kolaborasi.tsx');
-const tentangLama = baca('src/modules/landing/Tentang.tsx');
+const ada = (relatif: string) => existsSync(join(process.cwd(), relatif));
 
 let gagal = 0;
 const cek = (nama: string, lolos: boolean, detail = '') => {
@@ -183,16 +181,24 @@ cek(
     app.includes("halamanPublik === 'ajukan'"),
 );
 
-// --- 2. Landing lama tetap di repo (tidak dihapus). ---
+// --- 2. Landing lama DIHAPUS 2026-11-22 (bukan lagi diparkir). ---
 cek(
-  'Beranda.tsx lama tetap ada (export default function Beranda)',
-  berandaLama.includes('export default function Beranda'),
+  'Beranda.tsx DIHAPUS (file tidak ada)',
+  !ada('src/modules/Beranda.tsx'),
 );
 cek(
-  'landing/Layanan.tsx, Kolaborasi.tsx, Tentang.tsx lama tetap ada',
-  layananLama.includes('Layanan') &&
-    kolaborasiLama.includes('Kolaborasi') &&
-    tentangLama.includes('Tentang'),
+  'landing/Layanan.tsx, Kolaborasi.tsx, Tentang.tsx DIHAPUS (file tidak ada)',
+  !ada('src/modules/landing/Layanan.tsx') &&
+    !ada('src/modules/landing/Kolaborasi.tsx') &&
+    !ada('src/modules/landing/Tentang.tsx'),
+);
+cek(
+  'landingI18n.ts DIHAPUS (file tidak ada)',
+  !ada('src/lib/landingI18n.ts'),
+);
+cek(
+  'gedungRri.ts DIPERTAHANKAN sebagai aset foto (file masih ada)',
+  ada('src/lib/gedungRri.ts'),
 );
 
 // --- 3. Header. ---

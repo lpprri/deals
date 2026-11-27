@@ -4,7 +4,7 @@
 // Direktorat LPU (halaman ARSIP PU), dibaca 2026-11-16 (termasuk
 // keanggotaan persis per nomor); tepat 22 entri tanpa Korwil dan namanya
 // persis sesuai daftar TANPA_KORWIL; nomor 1–69 lengkap tanpa lompatan;
-// statistik landing tetap 69 (hitung seperti Beranda: filter no !== null).
+// statistik landing tetap 69 (filter no !== null).
 // CATATAN: 10 Korwil anggotanya berkurang dibanding daftar hub karena
 // 22 nama hub tidak cocok dengan entri bernomor mana pun (nama-nama itu
 // adalah sub-stasiun: Singkil, Tapaktuan, Sabang, Solok, Tanjung Balai
@@ -118,7 +118,7 @@ cek(
   tanpaKorwil.map((s) => s.nama).join(', '),
 );
 
-// --- Statistik landing tetap 69 (hitung seperti Beranda). ---
+// --- Statistik landing tetap 69. ---
 const jumlahLanding = DAFTAR_SATKER.filter((s) => s.no !== null).length;
 cek('statistik landing (no !== null) = 69', jumlahLanding === 69, `${jumlahLanding}`);
 
